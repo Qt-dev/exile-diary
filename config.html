@@ -260,6 +260,7 @@
           $("#uploadFilter").attr('placeholder', `Click to upload new item filter for ${settings.activeProfile.characterName}`);
           $("#overrideSSF").prop("checked", settings.activeProfile.overrideSSF);
           $("#noGearCheck").prop("checked", settings.activeProfile.noGearCheck);
+          $("#enableIncubatorAlert").prop("checked", settings.activeProfile.enableIncubatorAlert || false);
           
           // private league handling
           if(Utils.isPrivateLeague(settings.activeProfile.league)) {
@@ -479,6 +480,9 @@
         }
         if($("#noGearCheck").is(":checked")) {
           settings.activeProfile.noGearCheck = true;
+        }
+        if($("#enableIncubatorAlert").is(":checked")) {
+          settings.activeProfile.enableIncubatorAlert = true;
         }
         
         var stashCheckUnits = $("#stashCheckUnits").val();
@@ -883,6 +887,14 @@
               <div class='configLabel ui-text' title="Retrieve prices for items with very few listings from poe.ninja. WARNING: use at your own risk, may result in very skewed item values">
                 <input style='margin:0 16px;' name='getLowConfidence' id='getLowConfidence' type='checkbox'/>
                 <label for='getLowConfidence'>Get low-confidence pricing data from poe.ninja</label>
+              </div>
+            </td>
+          </tr>
+          <tr id='enableIncubatorAlertRow'>
+            <td colspan="2">
+              <div class='configLabel ui-text' title="If checked, when you get out of map, give a small notification about gear slots that had incubator run out.">
+                <input style='margin:0 16px;' name='enableIncubatorAlert' id='enableIncubatorAlert' type='checkbox'/>
+                <label for='enableIncubatorAlert'>Enable incubator running out alert</label>
               </div>
             </td>
           </tr>
