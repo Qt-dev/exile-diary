@@ -251,8 +251,7 @@ async function init() {
       if(characterCheckStatus === "valid") {
         logger.info("Starting components");
         setTimeout( () => {
-          let r = new RateGetterV2();
-          r.update();
+          RateGetterV2.Getter.update();
         }, 1000);
         ClientTxtWatcher.start();
         ScreenshotWatcher.start();
@@ -455,8 +454,11 @@ async function createWindow() {
     addMessage(`Error uploading map list, please try again`);
   });
   ipcMain.on('rateGetterRetry', function(event) {
-    let r = new RateGetterV2();
-    r.update();
+    RateGetterV2.Getter.update();
+  });
+  ipcMain.handle('refetchRates', (event) => {
+    addMessage("<span class='eventText'>Refreshing item prices from poe.ninja...</span>")
+    RateGetterV2.Getter.update(true);
   });
 
   require('./modules/electron-capture/src/main');
