@@ -35,10 +35,10 @@
     "pack": "electron-builder --dir",
     "dist": "electron-builder",
     "pretty": "prettier --write \"**/*.{js,jsx,ts,tsx,json,css,scss,md}\"",
-    "react:start": "react-scripts start",
-    "react:build": "react-scripts build",
-    "react:test": "react-scripts test",
-    "react:eject": "react-scripts eject",
+    "react:start": "node scripts/start.js",
+    "react:build": "node scripts/build.js",
+    "react:test": "node scripts/test.js",
+    "react:eject": "node scripts/eject.js",
     "electron:dev": "concurrently \"cross-env BROWSER=none npm run react:start\" \"wait-on http://localhost:3000 && tsc -p main -w\" \"wait-on http://localhost:3000 && tsc -p main && electron .\""
   },
   "eslintConfig": {
@@ -73,30 +73,77 @@
   },
   "contributors": [],
   "dependencies": {
+    "@babel/core": "^7.16.0",
     "@electron/remote": "^2.0.8",
+    "@pmmmwh/react-refresh-webpack-plugin": "^0.5.3",
+    "@svgr/webpack": "^5.5.0",
+    "babel-jest": "^27.4.2",
+    "babel-loader": "^8.2.3",
+    "babel-plugin-named-asset-import": "^0.3.8",
+    "babel-preset-react-app": "^10.0.1",
+    "bfj": "^7.0.2",
+    "browserslist": "^4.18.1",
+    "camelcase": "^6.2.1",
+    "case-sensitive-paths-webpack-plugin": "^2.4.0",
     "chokidar": "^3.5.3",
     "classnames": "^2.3.2",
     "color-convert": "^2.0.1",
+    "css-loader": "^6.5.1",
+    "css-minimizer-webpack-plugin": "^3.2.0",
+    "dotenv": "^10.0.0",
+    "dotenv-expand": "^5.1.0",
     "electron-is-dev": "^2.0.0",
     "electron-overlay-window": "^2.0.1",
     "electron-updater": "^5.2.1",
+    "eslint": "^8.3.0",
+    "eslint-config-react-app": "^7.0.1",
+    "eslint-webpack-plugin": "^3.1.1",
     "fast-equals": "^4.0.1",
+    "file-loader": "^6.2.0",
+    "fs-extra": "^10.0.0",
+    "html-webpack-plugin": "^5.5.0",
+    "identity-obj-proxy": "^3.0.0",
     "imgur": "^2.2.0",
+    "jest": "^27.4.3",
+    "jest-resolve": "^27.4.2",
+    "jest-watch-typeahead": "^1.0.0",
     "jimp": "^0.16.1",
     "js-levenshtein": "^1.1.6",
     "merge-img": "^2.1.3",
+    "mini-css-extract-plugin": "^2.4.5",
     "moment": "^2.29.4",
     "moment-duration-format": "^2.3.2",
     "nodejs-tail": "^1.1.1",
     "opn": "^6.0.0",
     "pastebin-js": "^1.0.6",
+    "postcss": "^8.4.4",
+    "postcss-flexbugs-fixes": "^5.0.2",
+    "postcss-loader": "^6.2.1",
+    "postcss-normalize": "^10.0.1",
+    "postcss-preset-env": "^7.0.1",
+    "prompts": "^2.4.2",
     "ps-list": "^7.2.0",
+    "react-app-polyfill": "^3.0.0",
+    "react-dev-utils": "^12.0.1",
+    "react-refresh": "^0.11.0",
     "react-router": "^6.10.0",
     "react-router-dom": "^6.10.0",
     "request": "^2.88.2",
+    "resolve": "^1.20.0",
+    "resolve-url-loader": "^4.0.0",
+    "sass-loader": "^12.3.0",
+    "semver": "^7.3.5",
+    "source-map-loader": "^3.0.0",
     "sqlite3": "^5.0.11",
+    "style-loader": "^3.3.1",
+    "tailwindcss": "^3.0.2",
+    "terser-webpack-plugin": "^5.2.5",
     "tesseract.js": "^3.0.2",
+    "webpack": "^5.64.4",
+    "webpack-dev-server": "^4.6.0",
+    "webpack-manifest-plugin": "^4.0.2",
     "winston": "^3.8.1",
+    "workbox-webpack-plugin": "^6.4.1",
     "xlsx": "^0.18.5"
   },
   "devDependencies": {
@@ -111,9 +158,64 @@
     "prettier": "^2.8.7",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
-    "react-scripts": "^5.0.1",
     "tslib": "^2.5.0",
     "wait-on": "^7.0.1",
     "web-vitals": "^2.1.4"
+  },
+  "jest": {
+    "roots": [
+      "<rootDir>/src"
+    ],
+    "collectCoverageFrom": [
+      "src/**/*.{js,jsx,ts,tsx}",
+      "!src/**/*.d.ts"
+    ],
+    "setupFiles": [
+      "react-app-polyfill/jsdom"
+    ],
+    "setupFilesAfterEnv": [
+      "<rootDir>/src/setupTests.js"
+    ],
+    "testMatch": [
+      "<rootDir>/src/**/__tests__/**/*.{js,jsx,ts,tsx}",
+      "<rootDir>/src/**/*.{spec,test}.{js,jsx,ts,tsx}"
+    ],
+    "testEnvironment": "jsdom",
+    "transform": {
+      "^.+\\.(js|jsx|mjs|cjs|ts|tsx)$": "<rootDir>/config/jest/babelTransform.js",
+      "^.+\\.css$": "<rootDir>/config/jest/cssTransform.js",
+      "^(?!.*\\.(js|jsx|mjs|cjs|ts|tsx|css|json)$)": "<rootDir>/config/jest/fileTransform.js"
+    },
+    "transformIgnorePatterns": [
+      "[/\\\\]node_modules[/\\\\].+\\.(js|jsx|mjs|cjs|ts|tsx)$",
+      "^.+\\.module\\.(css|sass|scss)$"
+    ],
+    "modulePaths": [],
+    "moduleNameMapper": {
+      "^react-native$": "react-native-web",
+      "^.+\\.module\\.(css|sass|scss)$": "identity-obj-proxy"
+    },
+    "moduleFileExtensions": [
+      "web.js",
+      "js",
+      "web.ts",
+      "ts",
+      "web.tsx",
+      "tsx",
+      "json",
+      "web.jsx",
+      "jsx",
+      "node"
+    ],
+    "watchPlugins": [
+      "jest-watch-typeahead/filename",
+      "jest-watch-typeahead/testname"
+    ],
+    "resetMocks": true
+  },
+  "babel": {
+    "presets": [
+      "react-app"
+    ]
   }
 }
