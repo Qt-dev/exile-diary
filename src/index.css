@@ -9,3 +9,73 @@ body {
 code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New', monospace;
 }
+
+.Root {
+  display: grid;
+  grid-template-columns: 160px auto;
+  grid-template-rows: 100vh;
+  grid-column-gap: 10px;
+  padding: 10px;
+  background-color: #000;
+}
+
+.Left-Column {
+  /* width: 100%; */
+}
+
+@font-face {
+  font-family: FontinSmallCaps;
+  src: url('./assets/fonts/Fontin-SmallCaps.ttf');
+}
+
+@font-face {
+  font-family: Fontin;
+  src: url('./assets/fonts/Fontin-Regular.ttf');
+}
+
+a {
+  color: #6666ff;
+  text-decoration: none;
+  font-size: 24px;
+  cursor: pointer;
+}
+
+a.visited {
+  color: #3333ff;
+}
+
+table,
+tr,
+td,
+div {
+  vertical-align: middle;
+  font-family: FontinSmallCaps;
+  font-size: 22px;
+  font-weight: 400;
+  font-style: normal;
+  font-variant-ligatures: none;
+  color: #aaaaaa;
+}
+
+span.positive {
+  color: #88cc88;
+}
+
+span.negative {
+  color: #cc8888;
+}
+
+@keyframes glowPulse {
+  0% {
+    filter: brightness(100%) drop-shadow(-1px -1px 1px #000) drop-shadow(1px 1px 1px #000)
+      drop-shadow(-1px 1px 1px #000) drop-shadow(1px -1px 1px #000);
+  }
+  50% {
+    filter: brightness(200%) drop-shadow(-1px -1px 1px #fff) drop-shadow(1px 1px 1px #fff)
+      drop-shadow(-1px 1px 1px #fff) drop-shadow(1px -1px 1px #fff);
+  }
+  100% {
+    filter: brightness(100%) drop-shadow(-1px -1px 1px #000) drop-shadow(1px 1px 1px #000)
+      drop-shadow(-1px 1px 1px #000) drop-shadow(1px -1px 1px #000);
+  }
+}

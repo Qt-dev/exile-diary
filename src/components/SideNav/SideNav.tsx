@@ -1,6 +1,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
+// import { electronService } from '../../electron.service';
+import { Link } from 'react-router-dom';
 import ExclamationMark from '../../assets/img/ExclamationMark.png';
 import Logo from '../../assets/img/icons/png/128x128.png';
 import Chaos from '../../assets/img/c.png';
@@ -12,9 +14,18 @@ const SideNav = ({ version, isNewVersion, turnNewVersionOff }) => {
     turnNewVersionOff();
   };
   const openPatreon = () => {
-    // openLink("https://patreon.com/briansd9");
+    // electronService.shell.openExternal("https://patreon.com/briansd9");
   };
-  const open = (page) => () => {};
+
+  const menuData = [
+    { name: 'Main', link: '/' },
+    { name: 'Stash', link: 'stash' },
+    { name: 'Search', link: 'search' },
+    { name: 'Stats', link: 'stats' },
+    { name: 'Settings', link: 'settings' },
+    { name: 'Gear', link: 'gear' },
+  ];
+
   return (
     <div className="Side-Nav">
       <div className="Header">
@@ -28,24 +39,11 @@ const SideNav = ({ version, isNewVersion, turnNewVersionOff }) => {
       <hr className="Separator" />
 
       <div id="Side-Nav__Menu">
-        <div className="Side-Nav__Link" id="sidenav-main" onClick={open('index.html')}>
-          Main
-        </div>
-        <div className="Side-Nav__Link" onClick={open('stash.html')}>
-          Stash
-        </div>
-        <div className="Side-Nav__Link" onClick={open('search.html')}>
-          Search
-        </div>
-        <div className="Side-Nav__Link" onClick={open('stats.html')}>
-          Stats
-        </div>
-        <div className="Side-Nav__Link" onClick={open('config.html')}>
-          Settings
-        </div>
-        <div className="Side-Nav__Link" onClick={open('gear.html')}>
-          Gear
-        </div>
+        {menuData.map((item) => (
+          <div className="Side-Nav__Link" id={`sidenav-${item.link}`}>
+            <Link to={item.link}>{item.name}</Link>
+          </div>
+        ))}
       </div>
 
       <hr className="Separator" />
