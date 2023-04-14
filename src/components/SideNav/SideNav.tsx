@@ -40,7 +40,7 @@ const SideNav = ({ version, isNewVersion, turnNewVersionOff }) => {
 
       <div id="Side-Nav__Menu">
         {menuData.map((item) => (
-          <div className="Side-Nav__Link" id={`sidenav-${item.link}`}>
+          <div className="Side-Nav__Link" key={`Side-Nav-${item.name}`}>
             <Link to={item.link}>{item.name}</Link>
           </div>
         ))}

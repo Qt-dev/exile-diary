@@ -2,7 +2,7 @@ const { webFrame, ipcRenderer, shell, BrowserWindow, clipboard } = require('elec
 const childProcess = require('child_process');
 const fs = require('fs');
 
-const { localSettings, appPath, appLocale } = ipcRenderer.sendSync('app-globals', '');
+const { appPath, appLocale } = ipcRenderer.sendSync('app-globals', '');
 
 export const electronService = {
   BrowserWindow,
@@ -13,6 +13,5 @@ export const electronService = {
   shell,
   appPath,
   appLocale,
-  localSettings,
   clipboard,
 };
