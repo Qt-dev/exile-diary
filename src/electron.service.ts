@@ -1,6 +1,6 @@
-const { webFrame, ipcRenderer, shell, BrowserWindow, clipboard } = window.require('electron');
-const childProcess = window.require('child_process');
-const fs = window.require('fs');
+const { webFrame, ipcRenderer, shell, BrowserWindow, clipboard } = require('electron');
+const childProcess = require('child_process');
+const fs = require('fs');
 
 const { localSettings, appPath, appLocale } = ipcRenderer.sendSync('app-globals', '');
 

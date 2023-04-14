@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
-// import { electronService } from '../../electron.service';
+import { electronService } from '../../electron.service';
 import { Link } from 'react-router-dom';
 import ExclamationMark from '../../assets/img/ExclamationMark.png';
 import Logo from '../../assets/img/icons/png/128x128.png';
@@ -14,7 +14,7 @@ const SideNav = ({ version, isNewVersion, turnNewVersionOff }) => {
     turnNewVersionOff();
   };
   const openPatreon = () => {
-    // electronService.shell.openExternal("https://patreon.com/briansd9");
+    electronService.shell.openExternal("https://patreon.com/briansd9");
   };
 
   const menuData = [
