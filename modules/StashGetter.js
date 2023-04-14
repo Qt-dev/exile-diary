@@ -5,7 +5,7 @@ const https = require('https');
 const Utils = require('./Utils');
 const ItemParser = require('./ItemParser');
 const ItemPricer = require('./ItemPricer');
-const RateGetterV2 = require('./RateGetterV2');
+const RateGetterV2 = require('./RateGetterV2').Getter;
 
 var emitter = new EventEmitter();
 

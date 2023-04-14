@@ -38,7 +38,6 @@ const rateTypes = {
 };
 
 const specialGems = ["Empower Support", "Enlighten Support", "Enhance Support"];
-var ratesReady;
 var nextRateGetTimer;
 var emitter = new EventEmitter();
 
@@ -47,7 +46,7 @@ class RateGetterV2 {
   constructor() {
     
     clearTimeout(nextRateGetTimer);
-    RateGetterV2.ratesReady = false;
+    this.ratesReady = false;
     this.settings = require('./settings').get();
     this.league = this.settings.activeProfile.league;
     this.priceCheckLeague = null;
@@ -98,7 +97,7 @@ class RateGetterV2 {
       logger.info(`Found existing ${this.league} rates for ${today}`);
 
       if(!isForced) {
-        RateGetterV2.ratesReady = true;
+        this.ratesReady = true;
         this.scheduleNextUpdate();
         return;
       } else {
@@ -209,7 +208,7 @@ class RateGetterV2 {
         logger.info(`Error inserting rates for ${date}: [${err}]`);
       } else {
         emitter.emit("doneGettingPrices");
-        RateGetterV2.ratesReady = true;
+        this.ratesReady = true;
         logger.info(`Successfully inserted rates for ${date}`);
         this.scheduleNextUpdate();
       }
@@ -452,6 +451,4 @@ function cleanSeeds(arr, getLowConfidence = false) {
 
 let Updater = new RateGetterV2();
 module.exports.Getter = Updater;
-
 module.exports.emitter = emitter;
-module.exports.ratesReady = ratesReady;
