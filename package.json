@@ -33,7 +33,8 @@
     "start": "electron .",
     "postinstall": "electron-builder install-app-deps",
     "pack": "electron-builder --dir",
-    "dist": "electron-builder"
+    "dist": "electron-builder",
+    "pretty": "prettier --write \"**/*.{js,jsx,ts,tsx,json,css,scss,md}\""
   },
   "keywords": [
     "util",

@@ -1,5 +1,5 @@
-const logger = require("./Log").getLogger(__filename);
-const Utils = require("./Utils");
+const logger = require('./Log').getLogger(__filename);
+const Utils = require('./Utils');
 const https = require('https');
 const zlib = require('zlib');
 const { deepEqual } = require('fast-equals');
@@ -8,134 +8,129 @@ var DB;
 var settings;
 
 const gearSlots = [
-  "Helm",
-  "Amulet",
-  "BodyArmour",
-  "Gloves",
-  "Ring",
-  "Ring2",
-  "Belt",
-  "Boots"  
-//  "Weapon", 
-//  "Weapon2",
-//  "Offhand",
-//  "Offhand2"
+  'Helm',
+  'Amulet',
+  'BodyArmour',
+  'Gloves',
+  'Ring',
+  'Ring2',
+  'Belt',
+  'Boots',
+  //  "Weapon",
+  //  "Weapon2",
+  //  "Offhand",
+  //  "Offhand2"
 ];
 
 // special handling for these - can contain more than one item
 const multiGearSlots = [
-  "Weapons",
-  "AmuletSockets",
-  "BeltSockets",
-  "BodyArmourSockets",
-  "BootsSockets",
-  "GlovesSockets",
-  "HelmSockets",
-  "RingSockets",
-  "Ring2Sockets",
-  "WeaponsSockets",
-  "Flask",    
-  "TreeJewels" 
+  'Weapons',
+  'AmuletSockets',
+  'BeltSockets',
+  'BodyArmourSockets',
+  'BootsSockets',
+  'GlovesSockets',
+  'HelmSockets',
+  'RingSockets',
+  'Ring2Sockets',
+  'WeaponsSockets',
+  'Flask',
+  'TreeJewels',
 ];
 
 const equipmentSlots = [
-  "Helm",
-  "Amulet",
-  "BodyArmour",
-  "Gloves",
-  "Ring",
-  "Ring2",
-  "Belt",
-  "Boots",
-  "Weapons",
-  "Flask",    
-  "TreeJewels"   
+  'Helm',
+  'Amulet',
+  'BodyArmour',
+  'Gloves',
+  'Ring',
+  'Ring2',
+  'Belt',
+  'Boots',
+  'Weapons',
+  'Flask',
+  'TreeJewels',
 ];
 
 const flaskIgnoreProperties = [
-  "Lasts %0 Seconds",
-  "Consumes %0 of %1 Charges on use",
-  "Currently has %0 Charge",
-  "Currently has %0 Charges",
-  "Lasts {0} Seconds",
-  "Consumes {0} of {1} Charges on use",
-  "Currently has {0} Charge",
-  "Currently has {0} Charges"
+  'Lasts %0 Seconds',
+  'Consumes %0 of %1 Charges on use',
+  'Currently has %0 Charge',
+  'Currently has %0 Charges',
+  'Lasts {0} Seconds',
+  'Consumes {0} of {1} Charges on use',
+  'Currently has {0} Charge',
+  'Currently has {0} Charges',
 ];
 
 async function check(timestamp, eqp) {
-  
   DB = require('./DB').getDB();
   settings = require('./settings').get();
-  if(settings.activeProfile.noGearCheck) {
-    logger.info("Gear checking disabled in settings");
+  if (settings.activeProfile.noGearCheck) {
+    logger.info('Gear checking disabled in settings');
     return;
   }
-  
+
   let currGear = {};
-  
+
   let eqpKeys = Object.keys(eqp);
-  for(let i = 0; i < eqpKeys.length; i++) {
-    
+  for (let i = 0; i < eqpKeys.length; i++) {
     let item = eqp[eqpKeys[i]];
-    if(!item.inventoryId) continue;
-    
+    if (!item.inventoryId) continue;
+
     let inv = item.inventoryId;
     // put all weapons into one set, to avoid unnecessary change logs for weapon swaps :-\
-    if(["Weapon", "Weapon2", "Offhand", "Offhand2"].includes(inv)) {
-      inv = "Weapons";
+    if (['Weapon', 'Weapon2', 'Offhand', 'Offhand2'].includes(inv)) {
+      inv = 'Weapons';
     }
-    
-    if(item.socketedItems) {
+
+    if (item.socketedItems) {
       // bind socketed items to gear slot instead, to avoid unnecessary change logs when changing gear but keeping the same gems
-      if(inv !== "Weapons") {
-        currGear[inv + "Sockets"] = item.socketedItems;
+      if (inv !== 'Weapons') {
+        currGear[inv + 'Sockets'] = item.socketedItems;
       } else {
         // put all weapon gem sets into one set :-\
-        currGear["WeaponsSockets"] = currGear["WeaponsSockets"] || [];
-        currGear["WeaponsSockets"] = [ ...currGear["WeaponsSockets"], ...item.socketedItems ];
+        currGear['WeaponsSockets'] = currGear['WeaponsSockets'] || [];
+        currGear['WeaponsSockets'] = [...currGear['WeaponsSockets'], ...item.socketedItems];
       }
     }
-    
+
     // avoid unnecessary change logs when migrating to a different league
     delete item.league;
     // ignore incubators on item
-    delete item.incubatedItem;    
-    
-    if(inv === "Flask" || inv === "Weapons") {
+    delete item.incubatedItem;
+
+    if (inv === 'Flask' || inv === 'Weapons') {
       currGear[inv] = currGear[inv] || [];
       currGear[inv].push(item);
     } else {
       currGear[inv] = item;
     }
-    
   }
-  
+
   let jewels = await getEquippedJewels();
-  if(jewels) {
-    currGear["TreeJewels"] = [];
-    for(let i = 0; i < jewels.length; i++) {
-      currGear["TreeJewels"].push(jewels[i]);
+  if (jewels) {
+    currGear['TreeJewels'] = [];
+    for (let i = 0; i < jewels.length; i++) {
+      currGear['TreeJewels'].push(jewels[i]);
     }
   } else {
-    logger.info("Error getting equipped jewels, will not check diffs for now");
+    logger.info('Error getting equipped jewels, will not check diffs for now');
     return;
   }
-  
+
   let prevGear = await getPreviousEquipment(timestamp, currGear);
-  if(!prevGear) {
-    logger.info("Error getting previous gear, will not check diffs for now");
+  if (!prevGear) {
+    logger.info('Error getting previous gear, will not check diffs for now');
     return;
-  } else if(prevGear === "none") {
+  } else if (prevGear === 'none') {
     insertEquipment(timestamp, currGear);
   } else {
     compareEquipment(timestamp, prevGear, currGear);
   }
-  
 }
 
 function getEquippedJewels() {
-
   let league = encodeURIComponent(settings.activeProfile.league);
   let accountName = encodeURIComponent(settings.accountName);
   let characterName = encodeURIComponent(settings.activeProfile.characterName);
@@ -152,13 +147,13 @@ function getEquippedJewels() {
       response.on('end', () => {
         try {
           var data = JSON.parse(body);
-          if( !data.items || (data.error && data.error.message === "Forbidden") ) {
+          if (!data.items || (data.error && data.error.message === 'Forbidden')) {
             logger.info(`Failed to get skill tree, returning null`);
             resolve(null);
           } else {
             resolve(data.items);
           }
-        } catch(err) {
+        } catch (err) {
           logger.info(`Failed to get skill tree: ${err}`);
           resolve(null);
         }
@@ -174,65 +169,63 @@ function getEquippedJewels() {
     });
     request.end();
   });
-
 }
 
 function getPreviousEquipment(timestamp) {
-  
   return new Promise((resolve, reject) => {
-    DB.get("select data from gear where timestamp < ? order by timestamp desc limit 1", [timestamp], (err, row) => {
-      if(err) {
-        logger.info(`Unable to retrieve previous equipment: ${err}`);
-        resolve(null);
-      } else if(!row) {
-        logger.info(`No previous equipment found!`);
-        resolve("none");
-      } else {
-        logger.info("Returning previous equipment");
-        zlib.inflate(row.data, (err, buffer) => {
-          if(err) {
-            // old data - compression not implemented yet, just parse directly
-            resolve(JSON.parse(row.data));
-          } else {
-            resolve(JSON.parse(buffer.toString()));
-          }
-        });        
+    DB.get(
+      'select data from gear where timestamp < ? order by timestamp desc limit 1',
+      [timestamp],
+      (err, row) => {
+        if (err) {
+          logger.info(`Unable to retrieve previous equipment: ${err}`);
+          resolve(null);
+        } else if (!row) {
+          logger.info(`No previous equipment found!`);
+          resolve('none');
+        } else {
+          logger.info('Returning previous equipment');
+          zlib.inflate(row.data, (err, buffer) => {
+            if (err) {
+              // old data - compression not implemented yet, just parse directly
+              resolve(JSON.parse(row.data));
+            } else {
+              resolve(JSON.parse(buffer.toString()));
+            }
+          });
+        }
       }
-    });
+    );
   });
-  
 }
 
 function compareEquipment(timestamp, prev, curr) {
-  
   let diffs = {};
-  
-  for(var slot of gearSlots) {
-    
-    if(!prev[slot] && curr[slot]) {
+
+  for (var slot of gearSlots) {
+    if (!prev[slot] && curr[slot]) {
       addDiff(slot, null, curr[slot]);
-    } else if(!prev[slot] && curr[slot]) {
+    } else if (!prev[slot] && curr[slot]) {
       addDiff(slot, prev[slot], null);
-    } else {     
-      if(!itemsEqual(prev[slot], curr[slot])) {
+    } else {
+      if (!itemsEqual(prev[slot], curr[slot])) {
         addDiff(slot, prev[slot], curr[slot]);
       }
     }
   }
-  
-  for(var slot of multiGearSlots) {
-    
+
+  for (var slot of multiGearSlots) {
     prev[slot] = prev[slot] || [];
     curr[slot] = curr[slot] || [];
-    
+
     let prevTemp = JSON.parse(JSON.stringify(prev[slot]));
     let currTemp = JSON.parse(JSON.stringify(curr[slot]));
-    
-    for(let i = prevTemp.length - 1; i >= 0; i--) {
+
+    for (let i = prevTemp.length - 1; i >= 0; i--) {
       let p = prevTemp[i];
-      for(let j = currTemp.length - 1; j >= 0; j--) {
+      for (let j = currTemp.length - 1; j >= 0; j--) {
         let c = currTemp[j];
-        if(itemsEqual(p, c)) {
+        if (itemsEqual(p, c)) {
           //logger.info(`Found same ${slot} in prev${i} and curr${j}`);
           prevTemp.splice(i, 1);
           currTemp.splice(j, 1);
@@ -241,53 +234,50 @@ function compareEquipment(timestamp, prev, curr) {
       }
     }
 
-    if(prevTemp.length > 0 || currTemp.length > 0) {
+    if (prevTemp.length > 0 || currTemp.length > 0) {
       addDiff(slot, prevTemp, currTemp);
     } else {
       //logger.info(`No diffs found in ${slot}`);
     }
-    
   }
-  
-  if(Object.keys(diffs).length > 0) {
-    logger.info("Inserting equipment diff");
+
+  if (Object.keys(diffs).length > 0) {
+    logger.info('Inserting equipment diff');
     insertEquipment(timestamp, curr, diffs);
   } else {
-    logger.info("No diffs found in equipment, returning");
+    logger.info('No diffs found in equipment, returning');
   }
-  
+
   function addDiff(s, p, c) {
     logger.info(`Diffs found in ${s}`);
     diffs[s] = { prev: p, curr: c };
   }
-  
 }
 
 function itemsEqual(a, b) {
-  if(!a || !b) return (a == b);
+  if (!a || !b) return a == b;
   return deepEqual(getTempItem(a), getTempItem(b));
 }
 
 function getTempItem(item) {
-  
   let tempItem;
   try {
     tempItem = JSON.parse(JSON.stringify(item));
-  } catch(e) {
+  } catch (e) {
     logger.info(`Error parsing, item follows`);
     logger.info(JSON.stringify(item));
   }
-  
-  if(tempItem.inventoryId === "Flask") {
+
+  if (tempItem.inventoryId === 'Flask') {
     // ignore flask charges and enchantment mods
     delete tempItem.enchantMods;
-    for(let i = tempItem.properties.length - 1; i >= 0; i--) {
-      if(flaskIgnoreProperties.includes(tempItem.properties[i].name)) {
+    for (let i = tempItem.properties.length - 1; i >= 0; i--) {
+      if (flaskIgnoreProperties.includes(tempItem.properties[i].name)) {
         tempItem.properties.splice(i, 1);
       }
     }
   }
-  
+
   // remove icon (ignore flask icon changes)
   delete tempItem.icon;
   // remove inventory id (ignore weapon swaps)
@@ -295,28 +285,33 @@ function getTempItem(item) {
   // remove requirements (may be changed by socketed gems)
   delete tempItem.requirements;
   // remove additionalProperties (only contains XP on skill gems)
-  delete tempItem.additionalProperties;          
+  delete tempItem.additionalProperties;
   // remove socketed items
   delete tempItem.socketedItems;
-  
+
   // ignore jewel socket position on tree
   delete tempItem.x;
   delete tempItem.y;
-  
+
   return tempItem;
-  
 }
 
-async function insertEquipment(timestamp, currData, diffData = "") {
+async function insertEquipment(timestamp, currData, diffData = '') {
   let data = await Utils.compress(currData);
   let diff = JSON.stringify(diffData);
-  DB.run("insert into gear(timestamp, data, diff) values(?, ?, ?)", [timestamp, data, diff], (err) => {
-    if(err) {
-      logger.info(`Unable to insert equipment: ${err}`);
-    } else {
-      logger.info(`Updated last equipment at ${timestamp} (data length: ${data.length}, diff length: ${diff.length})`);
+  DB.run(
+    'insert into gear(timestamp, data, diff) values(?, ?, ?)',
+    [timestamp, data, diff],
+    (err) => {
+      if (err) {
+        logger.info(`Unable to insert equipment: ${err}`);
+      } else {
+        logger.info(
+          `Updated last equipment at ${timestamp} (data length: ${data.length}, diff length: ${diff.length})`
+        );
+      }
     }
-  });
+  );
 }
 
 module.exports.check = check;

@@ -1,11 +1,11 @@
 const Tail = require('nodejs-tail');
-const logger = require("./Log").getLogger(__filename);
+const logger = require('./Log').getLogger(__filename);
 const EventEmitter = require('events');
 const InventoryGetter = require('./InventoryGetter');
 const ItemParser = require('./ItemParser');
 const RunParser = require('./RunParser');
 const SkillTreeWatcher = require('./SkillTreeWatcher');
-const Utils  = require('./Utils');
+const Utils = require('./Utils');
 const Constants = require('./Constants');
 
 var DB;
@@ -21,7 +21,6 @@ var instanceServerFound = false;
 const instanceServerRegex = /[0-9:\.]+$/;
 
 function start() {
-
   DB = require('./DB').getDB();
   settings = require('./settings').get();
 
@@ -34,16 +33,15 @@ function start() {
   }
 
   if (settings.clientTxt) {
-    
     checkValidLogfile(settings.clientTxt);
 
     logger.info(`Watching ${settings.clientTxt}`);
 
-    tail = new Tail(`${settings.clientTxt}`, {usePolling: true, disableGlobbing: true});
+    tail = new Tail(`${settings.clientTxt}`, { usePolling: true, disableGlobbing: true });
     inv = new InventoryGetter();
     tree = new SkillTreeWatcher();
 
-    tail.on("line", (line) => {
+    tail.on('line', (line) => {
       if (process.platform === 'linux') {
         // Remove carriage return
         // NOTE: PoE run on wine, the client.txt file has Windows carriage return
@@ -51,33 +49,34 @@ function start() {
         line = JSON.stringify(line).replace(/(\\r\\n|\\n|\\r)/, '');
         line = JSON.parse(line);
       }
-      
+
       // set afk flag to avoid unnecessary net worth checking
-      if(line.includes("] : AFK mode is now ON. Autoreply")) {
-        logger.info("Setting AFK mode to ON");
+      if (line.includes('] : AFK mode is now ON. Autoreply')) {
+        logger.info('Setting AFK mode to ON');
         global.afk = true;
         return;
       } else {
-        if(global.afk) {
-          logger.info("Setting AFK mode to OFF");
+        if (global.afk) {
+          logger.info('Setting AFK mode to OFF');
         }
         global.afk = false;
       }
-      
-      
-      if( 
-        line.toLowerCase().endsWith(`] @to ${settings.activeProfile.characterName.toLowerCase()}: end`) 
-        || line.toLowerCase().endsWith(`] ${settings.activeProfile.characterName.toLowerCase()}: end`) 
+
+      if (
+        line
+          .toLowerCase()
+          .endsWith(`] @to ${settings.activeProfile.characterName.toLowerCase()}: end`) ||
+        line.toLowerCase().endsWith(`] ${settings.activeProfile.characterName.toLowerCase()}: end`)
       ) {
-        logger.info("Detected map end signal, processing last map run");
+        logger.info('Detected map end signal, processing last map run');
         RunParser.process();
-      } else if(line.includes("Connecting to instance server at")) {
-        lastInstanceServer = (instanceServerRegex.exec(line))[0];
-        logger.info("Instance server found: " + lastInstanceServer);
+      } else if (line.includes('Connecting to instance server at')) {
+        lastInstanceServer = instanceServerRegex.exec(line)[0];
+        logger.info('Instance server found: ' + lastInstanceServer);
         // if two consecutive instance server lines occur without a "you have entered" line,
         // prompt to turn on local chat
-        if(instanceServerFound) {
-          emitter.emit("localChatDisabled");
+        if (instanceServerFound) {
+          emitter.emit('localChatDisabled');
         } else {
           instanceServerFound = true;
         }
@@ -86,14 +85,14 @@ function start() {
         var event = getEvent(line);
         if (event) {
           insertEvent(event, timestamp);
-          if (event.type === "entered") {
+          if (event.type === 'entered') {
             // corresponding "you have entered" line found for instance server; clear flag
             instanceServerFound = false;
-            if(!Utils.isTown(event.text)) {
+            if (!Utils.isTown(event.text)) {
               logger.info(`Entered map area ${event.text}, will try processing previous area`);
               RunParser.tryProcess({
                 event: { timestamp: timestamp, area: event.text, server: event.instanceServer },
-                mode: "automatic"
+                mode: 'automatic',
               });
             }
             tree.checkPassiveTree(timestamp);
@@ -108,40 +107,38 @@ function start() {
     });
     tail.watch();
   }
-  
 }
 
 async function checkValidLogfile(path) {
-  
   let poeRunning = await Utils.poeRunning();
-  
+
   require('fs').stat(path, (err, stats) => {
-    if(err) {
+    if (err) {
       logger.info(`Error checking Client.txt last update time`);
-      emitter.emit("clientTxtFileError", path);
+      emitter.emit('clientTxtFileError', path);
     } else {
       let timeSinceLastUpdate = Date.now() - stats.mtime;
       logger.info(`Client.txt last updated: ${stats.mtime}`);
-      if(poeRunning && timeSinceLastUpdate > 24 * 60 * 60 * 1000) {
-        emitter.emit("clientTxtNotUpdated", path);
+      if (poeRunning && timeSinceLastUpdate > 24 * 60 * 60 * 1000) {
+        emitter.emit('clientTxtNotUpdated', path);
       }
     }
   });
-  
 }
 
 async function checkLastActiveCharacter() {
-  
-  if(!login) {
+  if (!login) {
     return;
   } else {
     login = false;
   }
-  
-  var settings = require('./settings').get();  
-  var path = `/character-window/get-characters?accountName=${encodeURIComponent(settings.accountName)}`;
+
+  var settings = require('./settings').get();
+  var path = `/character-window/get-characters?accountName=${encodeURIComponent(
+    settings.accountName
+  )}`;
   var requestParams = Utils.getRequestParams(path, settings.poesessid);
-  
+
   return new Promise((resolve, reject) => {
     var request = require('https').request(requestParams, (response) => {
       var body = '';
@@ -152,16 +149,21 @@ async function checkLastActiveCharacter() {
       response.on('end', () => {
         try {
           var data = JSON.parse(body);
-          data.forEach(char => {
-            if(char.lastActive) {
-              if(char.name !== settings.activeProfile.characterName || char.league !== settings.activeProfile.league) {
-                logger.info(`Changed active character ${settings.activeProfile.characterName} in ${settings.activeProfile.league} => ${char.name} in ${char.league} `);
-                emitter.emit("switchedCharacter", char);
+          data.forEach((char) => {
+            if (char.lastActive) {
+              if (
+                char.name !== settings.activeProfile.characterName ||
+                char.league !== settings.activeProfile.league
+              ) {
+                logger.info(
+                  `Changed active character ${settings.activeProfile.characterName} in ${settings.activeProfile.league} => ${char.name} in ${char.league} `
+                );
+                emitter.emit('switchedCharacter', char);
               }
               resolve(null);
             }
           });
-        } catch(err) {
+        } catch (err) {
           logger.info(`Failed to check last active character: ${err}`);
           resolve(null);
         }
@@ -179,17 +181,24 @@ async function checkLastActiveCharacter() {
   });
 }
 
-
 function insertEvent(event, timestamp) {
   DB.run(
-    "insert into events(id, event_type, event_text, server) values(?, ?, ?, ?)",
+    'insert into events(id, event_type, event_text, server) values(?, ?, ?, ?)',
     [timestamp, event.type, event.text, event.instanceServer],
     (err) => {
       if (err) {
-        logger.info(`Error inserting event ${timestamp} -> ${event.type} ${event.text} ${event.instanceServer || ""}  : ${err}`);
+        logger.info(
+          `Error inserting event ${timestamp} -> ${event.type} ${event.text} ${
+            event.instanceServer || ''
+          }  : ${err}`
+        );
       } else {
-        if(event.type !== "chat" && event.type !== "note") {
-          logger.info(`Inserted event ${timestamp} -> ${event.type} ${event.text} ${event.instanceServer || ""}`);
+        if (event.type !== 'chat' && event.type !== 'note') {
+          logger.info(
+            `Inserted event ${timestamp} -> ${event.type} ${event.text} ${
+              event.instanceServer || ''
+            }`
+          );
         }
       }
     }
@@ -197,180 +206,184 @@ function insertEvent(event, timestamp) {
 }
 
 function getEvent(arg) {
-  
-  var str = arg.substring(arg.indexOf("] ") + 2);
+  var str = arg.substring(arg.indexOf('] ') + 2);
 
   var masterString = hasMaster(str);
-  if(masterString) {
+  if (masterString) {
     return {
-      type: "master",
+      type: 'master',
       text: masterString.trim(),
-      instanceServer: ""
+      instanceServer: '',
     };
   }
-  
+
   var conquerorString = hasConqueror(str);
-  if(conquerorString) {
+  if (conquerorString) {
     return {
-      type: "conqueror",
-      text: conquerorString.trim()
+      type: 'conqueror',
+      text: conquerorString.trim(),
     };
   }
-  
+
   var npcString = hasNPC(str);
-  if(npcString) {
+  if (npcString) {
     return {
-      type: "leagueNPC",
-      text: npcString.trim()
+      type: 'leagueNPC',
+      text: npcString.trim(),
     };
   }
-  
+
   var mapBossString = hasMapBoss(str);
-  if(mapBossString) {
+  if (mapBossString) {
     return {
-      type: "mapBoss",
-      text: mapBossString.trim()
+      type: 'mapBoss',
+      text: mapBossString.trim(),
     };
   }
-  
-  if(str.startsWith("Abnormal disconnect")) {
+
+  if (str.startsWith('Abnormal disconnect')) {
     return {
-      type: "abnormalDisconnect",
-      text: str.substr(str.indexOf(": ") + 2)
+      type: 'abnormalDisconnect',
+      text: str.substr(str.indexOf(': ') + 2),
     };
   }
-  
-  
-  if(str.startsWith("Successfully allocated")) {
+
+  if (str.startsWith('Successfully allocated')) {
     return {
-      type: "allocated",
-      text: `${str.substring(str.indexOf("id:") + 4, str.indexOf("name:") - 2)} (${str.substring(str.indexOf("name:") + 6)})`
+      type: 'allocated',
+      text: `${str.substring(str.indexOf('id:') + 4, str.indexOf('name:') - 2)} (${str.substring(
+        str.indexOf('name:') + 6
+      )})`,
     };
   }
-  if(str.startsWith("Successfully unallocated")) {
+  if (str.startsWith('Successfully unallocated')) {
     return {
-      type: "unallocated",
-      text: `${str.substring(str.indexOf("id:") + 4, str.indexOf("name:") - 2)} (${str.substring(str.indexOf("name:") + 6)})`
+      type: 'unallocated',
+      text: `${str.substring(str.indexOf('id:') + 4, str.indexOf('name:') - 2)} (${str.substring(
+        str.indexOf('name:') + 6
+      )})`,
     };
   }
-  
-  if(str.startsWith(":")) {
-    if (str.includes("You have entered")) {
-      var area = str.substring(str.indexOf("You have entered") + 17);
+
+  if (str.startsWith(':')) {
+    if (str.includes('You have entered')) {
+      var area = str.substring(str.indexOf('You have entered') + 17);
       return {
-        type: "entered",
+        type: 'entered',
         text: area.substring(0, area.length - 1),
-        instanceServer: lastInstanceServer
+        instanceServer: lastInstanceServer,
       };
-    } else if(str.includes(`${settings.activeProfile.characterName} has been slain`) || str.includes(`${settings.activeProfile.characterName} has committed suicide`)) {
+    } else if (
+      str.includes(`${settings.activeProfile.characterName} has been slain`) ||
+      str.includes(`${settings.activeProfile.characterName} has committed suicide`)
+    ) {
       return {
-        type: "slain"
+        type: 'slain',
       };
-    } else if(str.includes("is now level")) {
+    } else if (str.includes('is now level')) {
       return {
-        type: "level",
-        text: Number.parseInt(str.substring(str.indexOf("is now level") + 12))
+        type: 'level',
+        text: Number.parseInt(str.substring(str.indexOf('is now level') + 12)),
       };
-    } else if(str.includes("Mission Complete")) {
+    } else if (str.includes('Mission Complete')) {
       return {
-        type: "favourGained",
-        text: str.replace(/[^0-9]/g, '')
+        type: 'favourGained',
+        text: str.replace(/[^0-9]/g, ''),
       };
     } else {
-      let text = (str.substring(2)).trim();
-      if(Constants.shrineQuotes[text] || Constants.darkshrineQuotes.includes(text)) {
+      let text = str.substring(2).trim();
+      if (Constants.shrineQuotes[text] || Constants.darkshrineQuotes.includes(text)) {
         return {
-          type: "shrine",
-          text: text
-        };
-      }      
-    }
-  } else if(str.startsWith("@") && (str.includes("@From") || str.includes("@To"))) {
-    var fromString = `@from ${settings.activeProfile.characterName.toLowerCase()}:`;
-    if(str.toLowerCase().indexOf(fromString) > -1) {
-      var msg = str.substring(str.toLowerCase().indexOf(fromString) + fromString.length).trim();
-      if(msg === "end") {
-        return;
-      } else {
-        return {
-          type: "note",
-          text: msg
+          type: 'shrine',
+          text: text,
         };
       }
     }
-    if(str.toLowerCase().includes(`@to ${settings.activeProfile.characterName.toLowerCase()}`)) {
+  } else if (str.startsWith('@') && (str.includes('@From') || str.includes('@To'))) {
+    var fromString = `@from ${settings.activeProfile.characterName.toLowerCase()}:`;
+    if (str.toLowerCase().indexOf(fromString) > -1) {
+      var msg = str.substring(str.toLowerCase().indexOf(fromString) + fromString.length).trim();
+      if (msg === 'end') {
+        return;
+      } else {
+        return {
+          type: 'note',
+          text: msg,
+        };
+      }
+    }
+    if (str.toLowerCase().includes(`@to ${settings.activeProfile.characterName.toLowerCase()}`)) {
       return;
     }
-    return {  
-      type: "chat",
-      text: str.substring(str.indexOf("@")).trim()
+    return {
+      type: 'chat',
+      text: str.substring(str.indexOf('@')).trim(),
     };
   }
 }
 
 function hasMaster(str) {
-  let npc = str.substr(0, str.indexOf(":")).trim();
-  if(Constants.masters.includes(npc)) {
+  let npc = str.substr(0, str.indexOf(':')).trim();
+  if (Constants.masters.includes(npc)) {
     return str;
   }
   // 3.8.0: Jun sometimes does not talk at all during missions; scan for Syndicate member lines instead
-  if(Constants.syndicateMembers.includes(npc)) {
+  if (Constants.syndicateMembers.includes(npc)) {
     return `Jun, Veiled Master: [${str}]`;
   }
   return null;
 }
 
 function hasConqueror(str) {
-  let npc = str.substr(0, str.indexOf(":")).trim();
-  return (Constants.conquerors.includes(npc) ? str : null);
+  let npc = str.substr(0, str.indexOf(':')).trim();
+  return Constants.conquerors.includes(npc) ? str : null;
 }
 
 function hasNPC(str) {
-  let npc = str.substr(0, str.indexOf(":")).trim();
-  return (Constants.leagueNPCs.includes(npc) ? str : null);
+  let npc = str.substr(0, str.indexOf(':')).trim();
+  return Constants.leagueNPCs.includes(npc) ? str : null;
 }
 
 function hasMapBoss(str) {
-  let npc = str.substr(0, str.indexOf(":")).trim();
-  return (Constants.mapBosses.includes(npc) ? str : null);
+  let npc = str.substr(0, str.indexOf(':')).trim();
+  return Constants.mapBosses.includes(npc) ? str : null;
 }
 
-
 async function getOldNPCEvents() {
-  
   DB = require('./DB').getDB();
   settings = require('./settings').get();
 
   var fs = require('fs');
   var readline = require('readline');
-  
+
   var bounds = await new Promise((resolve, reject) => {
-    DB.get("select min(id) as minId, max(id) as maxId from events", (err, row) => { resolve(row); })
+    DB.get('select min(id) as minId, max(id) as maxId from events', (err, row) => {
+      resolve(row);
+    });
   });
-  
+
   logger.info(`Adding events in ${JSON.stringify(bounds)}`);
 
   var rl = readline.createInterface({
-      input: fs.createReadStream(settings.clientTxt),
-      terminal: false
+    input: fs.createReadStream(settings.clientTxt),
+    terminal: false,
   });
-    
-  rl.on('line', function(line) {
-    
+
+  rl.on('line', function (line) {
     var timestamp = line.substring(0, 19).replace(/[^0-9]/g, '');
-    if(timestamp < bounds.minId || timestamp > bounds.maxId) return;
-    
-    var str = line.substring(line.indexOf("] ") + 2);
+    if (timestamp < bounds.minId || timestamp > bounds.maxId) return;
+
+    var str = line.substring(line.indexOf('] ') + 2);
     var npcString = hasNPC(str);
-    if(npcString) {
+    if (npcString) {
       DB.run(
-        "insert into events(id, event_type, event_text, server) values(?, ?, ?, ?)",
-        [timestamp, "leagueNPC", npcString.trim(), ""],
+        'insert into events(id, event_type, event_text, server) values(?, ?, ?, ?)',
+        [timestamp, 'leagueNPC', npcString.trim(), ''],
         (err) => {
           if (err) {
-              if(!err.message.includes("UNIQUE constraint failed")) {
-                logger.info("Failed to insert event: " + err.message);
-              }
+            if (!err.message.includes('UNIQUE constraint failed')) {
+              logger.info('Failed to insert event: ' + err.message);
+            }
           } else {
             logger.info(`Inserted league NPC event ${timestamp} -> ${npcString}`);
           }
@@ -378,16 +391,16 @@ async function getOldNPCEvents() {
       );
       return;
     }
-    
-    if(hasConqueror(str)) {
+
+    if (hasConqueror(str)) {
       DB.run(
-        "insert into events(id, event_type, event_text, server) values(?, ?, ?, ?)",
-        [timestamp, "conqueror", str.trim(), ""],
+        'insert into events(id, event_type, event_text, server) values(?, ?, ?, ?)',
+        [timestamp, 'conqueror', str.trim(), ''],
         (err) => {
           if (err) {
-              if(!err.message.includes("UNIQUE constraint failed")) {
-                logger.info("Failed to insert event: " + err.message);
-              }
+            if (!err.message.includes('UNIQUE constraint failed')) {
+              logger.info('Failed to insert event: ' + err.message);
+            }
           } else {
             logger.info(`Inserted conqueror event ${timestamp} -> ${str}`);
           }
@@ -395,17 +408,17 @@ async function getOldNPCEvents() {
       );
       return;
     }
-    
-    if(str.startsWith(":")) {      
+
+    if (str.startsWith(':')) {
       str = str.substring(2).trim();
-      if(Constants.shrineQuotes[str] || Constants.darkshrineQuotes.includes(str)) {
+      if (Constants.shrineQuotes[str] || Constants.darkshrineQuotes.includes(str)) {
         DB.run(
-          "insert into events(id, event_type, event_text, server) values(?, ?, ?, ?)",
-          [timestamp, "shrine", str, ""],
+          'insert into events(id, event_type, event_text, server) values(?, ?, ?, ?)',
+          [timestamp, 'shrine', str, ''],
           (err) => {
             if (err) {
-              if(!err.message.includes("UNIQUE constraint failed")) {
-                logger.info("Failed to insert event: " + err.message);
+              if (!err.message.includes('UNIQUE constraint failed')) {
+                logger.info('Failed to insert event: ' + err.message);
               }
             } else {
               logger.info(`Inserted master event ${timestamp} -> ${str}`);
@@ -415,7 +428,6 @@ async function getOldNPCEvents() {
       }
     }
   });
-  
 }
 
 module.exports.start = start;

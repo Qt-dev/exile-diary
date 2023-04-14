@@ -1,7 +1,5 @@
 {
-  
-  "mapMods" : [
-    
+  "mapMods": [
     "# Blight Chests are Lucky",
     "-# to Monster Level of Area",
     "#% chance for Blight Chests to drop an additional Reward",
@@ -23,7 +21,7 @@
     "#% more Rare Monsters",
     "#% more Rare Shaper Items found in this Area",
     "#% more Unique Items found in this Area",
-    "#% reduced Cost of Building and Upgrading Towers",  
+    "#% reduced Cost of Building and Upgrading Towers",
     "#% reduced Monster Movement Speed",
     "+# to Monster Level of Area",
     "+#% Monster Chaos Resistance",
@@ -436,7 +434,7 @@
     "Unique Boss is augmented by Player choices",
     "Unique Monsters drop Corrupted Items",
     "When a Player Kills a Synthesised Rare Monster, they gain its Modifiers for 20 seconds",
-    
+
     "+# to Level of dropped Reward Items",
     "#% increased Quantity of Items contained in Vaal Vessel",
     "#% increased Rarity of Items contained in Vaal Vessel",
@@ -472,7 +470,7 @@
     "Vaal Vessel contains an additional Sacrifice Fragment",
     "Vaal Vessel contains an additional Vaal Gem with Experience",
     "Vaal Vessel contains an additional Vaal Orb",
-    
+
     "Delirium Reward Type: Jewellery",
     "Delirium Reward Type: Incubators",
     "Delirium Reward Type: Scarabs",
@@ -494,7 +492,7 @@
     "Delirium Reward Type: Armour",
     "Delirium Reward Type: Breach Items",
     "Delirium Reward Type: Fossils",
-    
+
     "Unique Bosses are possessed by Tormented Arsonist",
     "Unique Bosses are possessed by Tormented Blasphemer",
     "Unique Bosses are possessed by Tormented Cannibal",
@@ -519,7 +517,7 @@
     "Unique Bosses are possessed by Tormented Warlord",
     "Area is Overgrown with Large Caustic Plants",
     "Area is Overgrown with Parasitic Caustic Plants",
-    
+
     "Map has a Vaal Side Area",
     "Map doesn't consume Sextant charges",
     "Map boss is surrounded by Tormented Spirits",
@@ -536,13 +534,13 @@
     "The Labyrinth's rewards have been enriched",
     "Unique Boss drops an additional Harbinger Scroll",
     "Area's inhabitants are lying in ambush",
-    
+
     "Players are Cursed with Vulnerability, with #% increased Effect",
     "Players are Cursed with Conductivity, with #% increased Effect",
     "Players are Cursed with Flammability, with #% increased Effect",
     "Players are Cursed with Frostbite, with #% increased Effect",
     "Players are Cursed with Despair, with #% increased Effect",
-    
+
     "#% increased raising of Alert Level from opening Chests",
     "#% increased raising of Alert Level from Killing Monsters",
     "#% increased time before Lockdown",
@@ -573,12 +571,12 @@
     "Reward Rooms have #% increased Monsters",
     "Reward Room Monsters deal #% increased Damage",
     "Reward Room Monsters take #% reduced Damage",
-    
+
     "Nemesis Monsters drop 3 additional Basic Currency Items",
     "+#% increased Pack size",
     "Varieties of Items contained in # Blight Chests are Lucky",
     "#% increased Size of Synthesised Monster Packs",
-    
+
     "Area contains 2 additional Smuggler's Caches",
     "Area contains The Sacred Grove",
     "Map contains Al-Hezmin's Citadel",
@@ -590,7 +588,7 @@
     "Item Quantity increases amount of Rewards Drox drops by 20% of its value",
     "Item Quantity increases amount of Rewards Veritania drops by 20% of its value",
     "Map's Item Quantity Modifiers also affect Blight Chest count at 20% value",
-    
+
     "#% increased Explosive Placement Range",
     "#% increased Explosive Radius",
     "#% increased number of Explosives",
@@ -607,7 +605,5 @@
     "Area contains Vorana, Last to Fall",
     "Excavated Chests have a #% chance to contain twice as many Items",
     "Remnants have #% chance to have an additional Suffix Modifier"
-    
   ]
-
 }

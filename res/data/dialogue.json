@@ -1,5 +1,4 @@
 {
-
   "templeRoomQuotes": {
     "What on earth did they need this much energy for?": "Conduit of Lightning",
     "Whew... I'm sweating like a hog in heat.": "Crucible of Flame",
@@ -31,14 +30,13 @@
   },
 
   "beastCaptureQuotes": {
-
     "Haha! You are captured, stupid beast.": "yellow",
     "You have been captured, beast. You will be a survivor, or you will be food.": "yellow",
     "This one is captured. Einhar will take it.": "yellow",
     "Ohhh... That was a juicy one, exile.": "yellow",
     "Do not worry little beast! We are friends now!": "yellow",
     "Off you go, little beast! Away!": "yellow",
-    "We will be best friends beast! Until we slaughter you!": "yellow",    
+    "We will be best friends beast! Until we slaughter you!": "yellow",
 
     "Great job, Exile! Einhar will take the captured beast to the Menagerie.": "red",
     "The First Ones look upon this capture with pride, Exile. You hunt well.": "red",
@@ -55,10 +53,7 @@
     "So that was the Elder... what terrible, monstrous power! We must find a way to defeat it, exile. We seem to have driven it from this world. There must be a way to defeat it for good..."
   ],
 
-  "beastRecipeQuotes": [
-    "The ritual... is complete!",
-    "You are truly a survivor!"
-  ],
+  "beastRecipeQuotes": ["The ritual... is complete!", "You are truly a survivor!"],
 
   "conquerorBattleStartQuotes": {
     "Al-Hezmin, the Hunter": [
@@ -132,16 +127,8 @@
   },
 
   "legionDeathQuotes": {
-    "Queen Hyrri Ngamaku": [
-      "Back! Regroup!",
-      "Retreat! Draw them out!",
-      "Into the hills!"
-    ],
-    "General Marceus Lioneye": [
-      "To safety! Protect the Emperor!",
-      "To the gates!",
-      "Fall back!"
-    ],
+    "Queen Hyrri Ngamaku": ["Back! Regroup!", "Retreat! Draw them out!", "Into the hills!"],
+    "General Marceus Lioneye": ["To safety! Protect the Emperor!", "To the gates!", "Fall back!"],
     "Viper Napuatzi": [
       "These are Vaal lands. You only delay your destiny.",
       "Enjoy this brief victory. You will not have another.",
@@ -155,8 +142,8 @@
     "Aukuna, the Black Sekhema": [
       "To the high ground!",
       "Break formation!",
-      "Back, everyone! Back!"      
-    ]    
+      "Back, everyone! Back!"
+    ]
   },
 
   "syndicateMemberQuotes": {
@@ -168,7 +155,7 @@
       "You've lost. Time to speak, silent brother.": "Vorici, Silent Brother",
       "Too easy, assassin.": "Vorici, Silent Brother",
       "An impressive display, warrior, but not enough.": "Vagan, Victory's Herald",
-      "You forced us down this path, Tora.": "Tora, the Culler", 
+      "You forced us down this path, Tora.": "Tora, the Culler",
       "You're not the strongest here. We are. Tell us what we want to know.": "Thane Jorgin the Banished",
       "Where are your First Ones now, Ezomyte?": "Thane Jorgin the Banished",
       "Pathetic. Stay, dog.": "Rin Yuushu",
@@ -208,7 +195,7 @@
       "safehouseLeaderDefeated": "You may have claimed this victory, but we will rise again. You cannot win, exile. Not forever."
     },
     "Cameria the Coldblooded": {
-      "defeated": [        
+      "defeated": [
         "I don't understand how I lost.",
         "Why did I come here?",
         "Is this... is this a bloody prank?",
@@ -230,7 +217,7 @@
       "safehouseLeaderDefeated": "This is a lie... "
     },
     "Elreon, Light's Judge": {
-      "defeated": [        
+      "defeated": [
         "Lord, did I err?",
         "God's eyes are not upon us this day.",
         "Perhaps I deserve this vengeance.",
@@ -252,7 +239,7 @@
       "safehouseLeaderDefeated": "I thought God was working through me..."
     },
     "Gravicius Reborn": {
-      "defeated": [        
+      "defeated": [
         "Just a small misstep on the inevitable path to salvation.",
         "I don't have to win every battle to win the war.",
         "Turnabout is fair play.",
@@ -274,7 +261,7 @@
       "safehouseLeaderDefeated": "Bring your Inquisition, Exile. I guarantee I've personally run far worse than your darkest imagining."
     },
     "Guff \"Tiny\" Grenn": {
-      "defeated": [        
+      "defeated": [
         "Well, this is what I get for sticking me nose in!",
         "I should never have jumped in like that. Aye... not great thinking.",
         "Well, look as us aye! Back and forth, forth and back.",
@@ -296,7 +283,7 @@
       "safehouseLeaderDefeated": "Oh boy, hoo, Guff's done it now."
     },
     "Haku, Warmaster": {
-      "defeated": [        
+      "defeated": [
         "I was a fool... to follow my fury.",
         "This was... a cursed task.",
         "You... have learned much...",
@@ -318,7 +305,7 @@
       "safehouseLeaderDefeated": "Ancestors, have you forsaken me?"
     },
     "Hillock, the Blacksmith": {
-      "defeated": [        
+      "defeated": [
         "Stupid Hillock! Stupid!",
         "Bad... bad... BAD!",
         "My turn... already...?",
@@ -331,16 +318,11 @@
         "Uggggggh!",
         "Arrrgh!"
       ],
-      "killPlayer": [
-        "Easy easy easy.",
-        "Smushed.",
-        "What's mine is mine.",
-        "And stay out!"
-      ],
+      "killPlayer": ["Easy easy easy.", "Smushed.", "What's mine is mine.", "And stay out!"],
       "safehouseLeaderDefeated": "I don't... understand... I was the boss..."
     },
     "It That Fled": {
-      "defeated": [        
+      "defeated": [
         "It...lost...? It hurts within It. Dull and sharp... still and moving...",
         "It has failed the Lords. It seeks mercy! Give It mercy!",
         "Now It is It That Lost, too. Its are even... Its are fair...",
@@ -395,7 +377,7 @@
         "Extinguished...",
         "Up... in... smoke...",
         "Some things... do not burn...",
-        "Perhaps... I... was the fool... today..."        
+        "Perhaps... I... was the fool... today..."
       ],
       "killPlayer": [
         "I will incinerate the carcass. No traces.",
@@ -428,7 +410,7 @@
       "safehouseLeaderDefeated": "Bugger. How about a rematch, eh?"
     },
     "Riker Maloney, Midnight Tinkerer": {
-      "defeated": [        
+      "defeated": [
         "It's not like me to make mistakes.",
         "It is possible to commit no mistakes and still lose.",
         "A leap of progress, unpredicted...",
@@ -494,7 +476,7 @@
       "safehouseLeaderDefeated": "Good, exile. The strongest wins. I knew one day it would not be me."
     },
     "Tora, the Culler": {
-      "defeated": [        
+      "defeated": [
         "I pounced too recklessly.",
         "I was too slow...",
         "It seems... you've evolved...",
@@ -505,7 +487,7 @@
         "Only fair...",
         "Nature.. is wounded... here...",
         "Damn your lust for wreckage.",
-        "Nest invader!"        
+        "Nest invader!"
       ],
       "killPlayer": [
         "A successful hunt.",
@@ -516,7 +498,7 @@
       "safehouseLeaderDefeated": "Rise. If I must fall, respect the natural order by rising to your potential."
     },
     "Vagan, Victory's Herald": {
-      "defeated": [        
+      "defeated": [
         "Well this... is embarrassing...",
         "A proper good turnabout...",
         "I see... you've been training!",
@@ -821,7 +803,7 @@
     "Deliver pain exquisite.",
     "Hit hard. Hit once.",
     "Death doesn’t wait.",
-    "A portal to Izaro appears."    
+    "A portal to Izaro appears."
   ],
 
   "labyrinthQuotes": {
@@ -847,7 +829,7 @@
       "Disappointment is the epitome of the pallid moon.",
       "No, sister, we were not.",
       "You desecrate our sanctum!",
-      "Pay no worship to the garish sun!"        
+      "Pay no worship to the garish sun!"
     ],
     "Crimson Township": [
       "Another lawbreaker in our midst!",
@@ -893,10 +875,14 @@
 
   "mapBossKilledQuotes": {
     "Lava Lake": ["May a new dawn arise!"],
-    "Forge of the Phoenix": ["This is the key to a crucible that stretches the sanity of the mind."],
-    "Maze of the Minotaur": ["This is the key to a crucible that stretches the sanity of the mind."],    
+    "Forge of the Phoenix": [
+      "This is the key to a crucible that stretches the sanity of the mind."
+    ],
+    "Maze of the Minotaur": [
+      "This is the key to a crucible that stretches the sanity of the mind."
+    ],
     "Lair of the Hydra": ["This is the key to a crucible that stretches the sanity of the mind."],
-    "Pit of the Chimera": ["This is the key to a crucible that stretches the sanity of the mind."],    
+    "Pit of the Chimera": ["This is the key to a crucible that stretches the sanity of the mind."],
     "Cold River": [
       "Sister--... I-...",
       "I shall avenge, you, sister.",
@@ -905,27 +891,19 @@
       "I am... done...",
       "Dawn comes... at last..."
     ],
-    "Crimson Township": [
-      "Unlawful...",
-      "Meeting adjourned...",
-      "One with the crimson..."
-    ],
+    "Crimson Township": ["Unlawful...", "Meeting adjourned...", "One with the crimson..."],
     "Dark Forest": [
       "...First Ones, remember me.",
       "The Greatwolf has left me!",
       "Forgive me, Ezomyr.",
       "There is nothing to regret."
     ],
-    "Forking River": [
-      "Death... cannot stop... me.",
-      "You only delay...",
-      "I... will... return..."
-    ],
+    "Forking River": ["Death... cannot stop... me.", "You only delay...", "I... will... return..."],
     "Foundry": [
       "No... It's not... ready...",
       "The work... must... (blehhhh)",
       "So close... so...",
-      "M-... Madness..."        
+      "M-... Madness..."
     ],
     "Frozen Cabins": [
       "Curses...",
@@ -943,7 +921,7 @@
   },
 
   "ultimatumQuotes": {
-    "mods" : {      
+    "mods": {
       "Vengeance is cold indeed.": "Blistering Cold",
       "Death's cold grip is inescapable.": "Blistering Cold II",
       "Hate begets hate.": "Blistering Cold III",
@@ -989,18 +967,17 @@
       "Ruin hides in every corner.": "Restless Ground III",
       "Ruin surrounds you.": "Ruin III",
       "The sun is setting on your success.": "Siphoned Charges",
-      "Ruin seeks you.": "Stalking Ruin",      
-      "Steel and pain.": "Totem of Costly Might",    
+      "Ruin seeks you.": "Stalking Ruin",
+      "Steel and pain.": "Totem of Costly Might",
       "The fire of summer burns within.": "Totem of Costly Potency",
       "Confront that which you release.": "Treacherous Auras",
       "Be diminished.": "Unlucky Criticals",
-      
-      "You shall suffer your own bile." : "Ailment and Curse Reflection / Hindering Flasks",
-      "Ruin arrives suddenly." : "Ruin II / Stalking Ruin II",
-      "You will fall to ruin." : "Ruin / Stalking Ruin III"
-      
+
+      "You shall suffer your own bile.": "Ailment and Curse Reflection / Hindering Flasks",
+      "Ruin arrives suddenly.": "Ruin II / Stalking Ruin II",
+      "You will fall to ruin.": "Ruin / Stalking Ruin III"
     },
-    "start" : [
+    "start": [
       "Approach, Challenger.",
       "Can you be victorious twice in a row?",
       "Chaos would like to see you make it past round seven...",
@@ -1054,7 +1031,7 @@
       "You're still going to attempt my trials?",
       "You've been winning, but can you keep it up?"
     ],
-    "tookReward": [ 
+    "tookReward": [
       "So be it, as disappointing as it is.",
       "The expected choice.",
       "The safe choice."
@@ -1125,8 +1102,6 @@
       "Your series of losses has finally ended.",
       "Your series of victories continues."
     ],
-    "trialmasterDefeated": [
-      "My service... is finally over..."
-    ]
+    "trialmasterDefeated": ["My service... is finally over..."]
   }
 }

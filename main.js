@@ -1,20 +1,20 @@
 const { app, Menu, Tray, BrowserWindow, dialog, ipcMain } = require('electron');
-const logger = require("./modules/Log").getLogger(__filename);
-const ClientTxtWatcher = require("./modules/ClientTxtWatcher");
-const DB = require("./modules/DB");
+const logger = require('./modules/Log').getLogger(__filename);
+const ClientTxtWatcher = require('./modules/ClientTxtWatcher');
+const DB = require('./modules/DB');
 const KillTracker = require('./modules/KillTracker');
-const OCRWatcher = require("./modules/OCRWatcher");
-const RateGetterV2 = require("./modules/RateGetterV2");
+const OCRWatcher = require('./modules/OCRWatcher');
+const RateGetterV2 = require('./modules/RateGetterV2');
 const RunParser = require('./modules/RunParser');
 const InventoryGetter = require('./modules/InventoryGetter');
 const ItemFilter = require('./modules/ItemFilter');
 const MapSearcher = require('./modules/MapSearcher');
-const ScreenshotWatcher = require("./modules/ScreenshotWatcher");
-const Settings = require("./modules/settings");
-const { autoUpdater } = require("electron-updater");
-const StashGetter = require("./modules/StashGetter");
-const SkillTreeWatcher = require("./modules/SkillTreeWatcher");
-const Utils = require("./modules/Utils");
+const ScreenshotWatcher = require('./modules/ScreenshotWatcher');
+const Settings = require('./modules/settings');
+const { autoUpdater } = require('electron-updater');
+const StashGetter = require('./modules/StashGetter');
+const SkillTreeWatcher = require('./modules/SkillTreeWatcher');
+const Utils = require('./modules/Utils');
 const moment = require('moment');
 const fs = require('fs');
 const path = require('path');
@@ -27,39 +27,34 @@ let overlayWindow;
 let trayIcon;
 
 const lock = app.requestSingleInstanceLock();
-if(!lock) {
-  if(trayIcon) {
+if (!lock) {
+  if (trayIcon) {
     trayIcon.destroy();
   }
   app.quit();
 } else {
   // Someone tried to run a second instance, we should focus our window.
   if (mainWindow) {
-    if (mainWindow.isMinimized())
-      mainWindow.restore();
+    if (mainWindow.isMinimized()) mainWindow.restore();
     mainWindow.focus();
   }
 }
 
 var characterCheckStatus;
 
-
 async function checkCurrentActiveCharacter() {
-  
-  return new Promise( async (resolve, reject) => {
-    
+  return new Promise(async (resolve, reject) => {
     var settings = Settings.get();
-    
-    logger.info("Getting current active league...");
-    if(!settings || !settings.accountName || !settings.poesessid) {
-      
+
+    logger.info('Getting current active league...');
+    if (!settings || !settings.accountName || !settings.poesessid) {
       logger.info("Can't check, info missing from settings");
-      characterCheckStatus = "error";
+      characterCheckStatus = 'error';
       resolve();
-      
     } else {
-    
-      var path = `/character-window/get-characters?accountName=${encodeURIComponent(settings.accountName)}`;
+      var path = `/character-window/get-characters?accountName=${encodeURIComponent(
+        settings.accountName
+      )}`;
       var requestParams = Utils.getRequestParams(path, settings.poesessid);
 
       var request = require('https').request(requestParams, (response) => {
@@ -72,17 +67,17 @@ async function checkCurrentActiveCharacter() {
           try {
             var foundChar = false;
             var data = JSON.parse(body);
-            if(data.error && data.error.message === "Forbidden") {
-              characterCheckStatus = "error";
+            if (data.error && data.error.message === 'Forbidden') {
+              characterCheckStatus = 'error';
               resolve();
             } else {
-              for(var i = 0; i < data.length; i++) {
-                if(data[i].lastActive) {
+              for (var i = 0; i < data.length; i++) {
+                if (data[i].lastActive) {
                   foundChar = true;
-                  logger.info("Last active character:");
+                  logger.info('Last active character:');
                   logger.info(JSON.stringify(data[i]));
-                  Settings.set("activeProfile", {
-                    characterName : data[i].name,
+                  Settings.set('activeProfile', {
+                    characterName: data[i].name,
                     league: data[i].league,
                     overrideSSF: settings.activeProfile.overrideSSF,
                     noGearCheck: settings.activeProfile.noGearCheck,
@@ -92,59 +87,59 @@ async function checkCurrentActiveCharacter() {
                   await DB.initLeagueDB();
                   showActiveCharacterMessage(data[i]);
                   checkLeague(settings, data[i].league);
-                  characterCheckStatus = "valid";
+                  characterCheckStatus = 'valid';
                   break;
                 }
               }
-              if(!foundChar) {
-                characterCheckStatus = "notFound";
+              if (!foundChar) {
+                characterCheckStatus = 'notFound';
               }
               resolve();
             }
           } catch (err) {
             logger.info(`Error checking character status: ${err}`);
-            characterCheckStatus = "error";
+            characterCheckStatus = 'error';
             resolve();
           }
         });
         response.on('error', (err) => {
           logger.info(`Error checking character status: ${err}`);
-          characterCheckStatus = "error";
+          characterCheckStatus = 'error';
           resolve();
         });
       });
-      
+
       request.on('error', (err) => {
         logger.info(`Error checking character status: ${err}`);
-        characterCheckStatus = "error";
+        characterCheckStatus = 'error';
         resolve();
       });
       request.end();
-      
     }
-    
   });
-  
 }
 
 async function checkCurrentCharacterLeague() {
-  
   var settings = Settings.get();
-  return new Promise( async (resolve, reject) => {
-
+  return new Promise(async (resolve, reject) => {
     await DB.initDB();
     await DB.initLeagueDB();
     characterCheckStatus = null;
-    logger.info("Checking current character league...");
-    if(!settings || !settings.accountName || !settings.poesessid || !settings.activeProfile || !settings.activeProfile.characterName) {
-
+    logger.info('Checking current character league...');
+    if (
+      !settings ||
+      !settings.accountName ||
+      !settings.poesessid ||
+      !settings.activeProfile ||
+      !settings.activeProfile.characterName
+    ) {
       logger.info("Can't check, info missing from settings");
-      characterCheckStatus = "error";
+      characterCheckStatus = 'error';
       resolve();
-
     } else {
-
-      var path = `/character-window/get-characters?accountName=${encodeURIComponent(settings.accountName)}`;
+      var path = `/character-window/get-characters?accountName=${encodeURIComponent(
+        settings.accountName
+      )}`;
       var requestParams = Utils.getRequestParams(path, settings.poesessid);
 
       var request = require('https').request(requestParams, (response) => {
@@ -157,100 +152,100 @@ async function checkCurrentCharacterLeague() {
           try {
             var foundChar = false;
             var data = JSON.parse(body);
-            if(data.error && data.error.message === "Forbidden") {
-              characterCheckStatus = "error";
+            if (data.error && data.error.message === 'Forbidden') {
+              characterCheckStatus = 'error';
               resolve();
             } else {
-              for(var i = 0; i < data.length; i++) {
-                if(data[i].name === settings.activeProfile.characterName) {
+              for (var i = 0; i < data.length; i++) {
+                if (data[i].name === settings.activeProfile.characterName) {
                   foundChar = true;
                   logger.info(JSON.stringify(data[i]));
                   checkLeague(settings, data[i].league);
                   showActiveCharacterMessage(data[i]);
-                  characterCheckStatus = "valid";
+                  characterCheckStatus = 'valid';
                   break;
                 }
               }
-              if(!foundChar) {
-                characterCheckStatus = "notFound";
+              if (!foundChar) {
+                characterCheckStatus = 'notFound';
               }
               resolve();
             }
           } catch (err) {
             logger.info(`Error checking character status: ${err}`);
-            characterCheckStatus = "error";
+            characterCheckStatus = 'error';
             resolve();
           }
         });
         response.on('error', (err) => {
           logger.info(`Error checking character status: ${err}`);
-          characterCheckStatus = "error";
+          characterCheckStatus = 'error';
           resolve();
         });
       });
 
       request.on('error', (err) => {
         logger.info(`Error checking character status: ${err}`);
-        characterCheckStatus = "error";
+        characterCheckStatus = 'error';
         resolve();
       });
       request.end();
-
     }
-
   });
 }
 
 function checkLeague(settings, foundLeague) {
-  
-  if(settings.activeProfile.league !== foundLeague) {
-    logger.info(`Updating ${settings.activeProfile.characterName} from ${settings.activeProfile.league} to ${foundLeague}`);
+  if (settings.activeProfile.league !== foundLeague) {
+    logger.info(
+      `Updating ${settings.activeProfile.characterName} from ${settings.activeProfile.league} to ${foundLeague}`
+    );
     settings.activeProfile.league = foundLeague;
-    Settings.set("activeProfile", settings.activeProfile);
+    Settings.set('activeProfile', settings.activeProfile);
   }
   var db = DB.getDB();
   db.run(
-    "insert or ignore into leagues(timestamp, league) values(?, ?)", 
-    [moment().format('YYYYMMDDHHmmss'), foundLeague], 
+    'insert or ignore into leagues(timestamp, league) values(?, ?)',
+    [moment().format('YYYYMMDDHHmmss'), foundLeague],
     (err) => {
-      if(err) {
+      if (err) {
         logger.info(`Error inserting new league: ${JSON.stringify(err)}`);
       }
-    }      
+    }
   );
-  if(Utils.isPrivateLeague(foundLeague)) {
-    if(!settings.privateLeaguePriceMaps || !settings.privateLeaguePriceMaps[foundLeague]) {
-      addMessage(`<span onclick='window.location="config.html";' style='cursor:pointer;' class='eventText'>${foundLeague} is a private league, please click here to change item pricing settings</span>`, true);
+  if (Utils.isPrivateLeague(foundLeague)) {
+    if (!settings.privateLeaguePriceMaps || !settings.privateLeaguePriceMaps[foundLeague]) {
+      addMessage(
+        `<span onclick='window.location="config.html";' style='cursor:pointer;' class='eventText'>${foundLeague} is a private league, please click here to change item pricing settings</span>`,
+        true
+      );
     }
   }
 }
 
 async function init() {
-  
   return new Promise(async (resolve, reject) => {
-  
-    logger.info("Initializing components");
-    
-    if(!global.messages) {
+    logger.info('Initializing components');
+
+    if (!global.messages) {
       global.messages = [
         {
-          timestamp: moment().format("YYYY-MM-DD HH:mm:ss"),          
-          text: `Exile Diary v${app.getVersion()} started`
-        }        
+          timestamp: moment().format('YYYY-MM-DD HH:mm:ss'),
+          text: `Exile Diary v${app.getVersion()} started`,
+        },
       ];
     }
 
-    // remove settings file from cache, then restart all components 
+    // remove settings file from cache, then restart all components
     // to make sure they're using the current settings file
-    var settingsPath = path.join(app.getPath("userData"), "settings.json");
+    var settingsPath = path.join(app.getPath('userData'), 'settings.json');
     var tmpSettings = Settings.get();
-    if(fs.existsSync(settingsPath) && tmpSettings) {
+    if (fs.existsSync(settingsPath) && tmpSettings) {
       delete require.cache[require.resolve(settingsPath)];
       await checkCurrentCharacterLeague();
-      logger.info("Done checking, character status is " + characterCheckStatus);
-      if(characterCheckStatus === "valid") {
-        logger.info("Starting components");
-        setTimeout( () => {
+      logger.info('Done checking, character status is ' + characterCheckStatus);
+      if (characterCheckStatus === 'valid') {
+        logger.info('Starting components');
+        setTimeout(() => {
           RateGetterV2.Getter.update();
         }, 1000);
         ClientTxtWatcher.start();
@@ -260,25 +255,27 @@ async function init() {
       }
       resolve(true);
     } else {
-      if(fs.existsSync(settingsPath) && !tmpSettings) {
-        addMessage("<span class='eventText'>Settings file corrupted, please enter your account information again (no other data was lost)</span>");
+      if (fs.existsSync(settingsPath) && !tmpSettings) {
+        addMessage(
+          "<span class='eventText'>Settings file corrupted, please enter your account information again (no other data was lost)</span>"
+        );
       }
       resolve(false);
     }
   });
-
-
 }
 
 function initWindow(window) {
-  
   var webContents = window.webContents;
-  
+
   StashGetter.emitter.removeAllListeners();
-  StashGetter.emitter.on("invalidSessionID", () => {
-    addMessage(`<span class='eventText'>Unable to get stash information. Please check your POESESSID</span>`, true);
+  StashGetter.emitter.on('invalidSessionID', () => {
+    addMessage(
+      `<span class='eventText'>Unable to get stash information. Please check your POESESSID</span>`,
+      true
+    );
   });
-  StashGetter.emitter.on("noStashTabsSelected", () => {
+  StashGetter.emitter.on('noStashTabsSelected', () => {
     addMessage(`<span class='eventText'>No stash tabs are selected for monitoring.</span>`, true);
     addMessage(`
       <span class='eventText' style='cursor:pointer;' onclick='window.location.href="config.html?loadStash=true";'>
@@ -286,165 +283,197 @@ function initWindow(window) {
       </span>
     `);
   });
-  StashGetter.emitter.on("netWorthUpdated", () => {
-    webContents.send("netWorthUpdated");
+  StashGetter.emitter.on('netWorthUpdated', () => {
+    webContents.send('netWorthUpdated');
   });
-  StashGetter.emitter.on("fullStashUpdated", (data) => {
-    webContents.send("netWorthUpdated");
+  StashGetter.emitter.on('fullStashUpdated', (data) => {
+    webContents.send('netWorthUpdated');
     addMessage(
       `
         <span style='cursor:pointer;' onclick='window.location.href="stash.html";'>
         Net worth update for <span class='eventText'>${data.league}</span> league:
         <span class='eventText'>${data.value}</span> <img src='res/img/c.png' class='currencyText'>
-        ${data.change === "new" ? "" : ` (${Utils.formatSignedNumber(Number(data.change).toFixed(2))})`}
+        ${
+          data.change === 'new'
+            ? ''
+            : ` (${Utils.formatSignedNumber(Number(data.change).toFixed(2))})`
+        }
         </span>
       `,
       true
     );
   });
-  setTimeout( () => { let s = new StashGetter(); s.tryGet(); }, 1000);
-  
+  setTimeout(() => {
+    let s = new StashGetter();
+    s.tryGet();
+  }, 1000);
+
   InventoryGetter.emitter.removeAllListeners();
-  InventoryGetter.emitter.on("invalidSessionID", () => {
-    addMessage(`<span class='eventText'>Unable to get inventory information. Please check your POESESSID</span>`);
+  InventoryGetter.emitter.on('invalidSessionID', () => {
+    addMessage(
+      `<span class='eventText'>Unable to get inventory information. Please check your POESESSID</span>`
+    );
   });
-  
+
   SkillTreeWatcher.emitter.removeAllListeners();
-  SkillTreeWatcher.emitter.on("invalidSessionID", () => {
-    addMessage(`<span class='eventText'>Unable to get character information. Please check your POESESSID</span>`);
-  });  
-  
-  OCRWatcher.emitter.removeAllListeners();
-  OCRWatcher.emitter.on("OCRError", () => {
-    addMessage("Error getting area info from screenshot. Please try again", true)
+  SkillTreeWatcher.emitter.on('invalidSessionID', () => {
+    addMessage(
+      `<span class='eventText'>Unable to get character information. Please check your POESESSID</span>`
+    );
   });
-  OCRWatcher.emitter.on("areaInfoComplete", (info) => {
+
+  OCRWatcher.emitter.removeAllListeners();
+  OCRWatcher.emitter.on('OCRError', () => {
+    addMessage('Error getting area info from screenshot. Please try again', true);
+  });
+  OCRWatcher.emitter.on('areaInfoComplete', (info) => {
     const tier = Utils.getMapTierString({ level: parseInt(info.areaInfo.level) });
     let stats = `IIR: ${info.mapStats.iir} / IIQ: ${info.mapStats.iiq}`;
-    if(info.mapStats.packsize && info.mapStats.packsize > 0) stats+= ` / Pack Size: ${info.mapStats.packsize}`;
-    addMessage(`Got area info for <span class='eventText'>${info.areaInfo.name}</span> (${tier} - ${stats})`, true);
-  });
-  
-  ScreenshotWatcher.emitter.removeAllListeners();
-  ScreenshotWatcher.emitter.on("OCRError", () => {
-    addMessage("Error getting area info from screenshot. Please try again", true);
-  });  
-  ScreenshotWatcher.emitter.on("tooMuchScreenshotClutter", (totalSize) => {
-    var settings = Settings.get();
-    var dir = settings.screenshotDir.replace(/\\/g, "\\\\");    
-    addMessage(`Screenshot folder contains <span class='eventText'>${totalSize}</span> screenshots. Click <span class='eventText' style='cursor:pointer;' onclick='openShell("${dir}")'>here</span> to open it for cleanup`);
-  });  
-  
-  RunParser.emitter.removeAllListeners();
-  RunParser.emitter.on("runProcessed", (run) => {
-    
-    var f = new Intl.NumberFormat();
+    if (info.mapStats.packsize && info.mapStats.packsize > 0)
+      stats += ` / Pack Size: ${info.mapStats.packsize}`;
     addMessage(
-      `<span style='cursor:pointer;' onclick='window.location.href="map.html?id=${run.id}";'>`      
-        + `Completed run in <span class='eventText'>${run.name}</span> `
-        + `(${Utils.getRunningTime(run.firstevent, run.lastevent)}`
-        + (run.gained ? `, ${run.gained} <img src='res/img/c.png' class='currencyText'>` : "")
-        + (run.kills ? `, ${f.format(run.kills)} kills` : "")
-        + (run.xp ? `, ${f.format(run.xp)} XP` : "")
-        + `)</span>`,
+      `Got area info for <span class='eventText'>${info.areaInfo.name}</span> (${tier} - ${stats})`,
       true
     );
-    webContents.send("runProcessed", run);
-    
   });
-  
+
+  ScreenshotWatcher.emitter.removeAllListeners();
+  ScreenshotWatcher.emitter.on('OCRError', () => {
+    addMessage('Error getting area info from screenshot. Please try again', true);
+  });
+  ScreenshotWatcher.emitter.on('tooMuchScreenshotClutter', (totalSize) => {
+    var settings = Settings.get();
+    var dir = settings.screenshotDir.replace(/\\/g, '\\\\');
+    addMessage(
+      `Screenshot folder contains <span class='eventText'>${totalSize}</span> screenshots. Click <span class='eventText' style='cursor:pointer;' onclick='openShell("${dir}")'>here</span> to open it for cleanup`
+    );
+  });
+
+  RunParser.emitter.removeAllListeners();
+  RunParser.emitter.on('runProcessed', (run) => {
+    var f = new Intl.NumberFormat();
+    addMessage(
+      `<span style='cursor:pointer;' onclick='window.location.href="map.html?id=${run.id}";'>` +
+        `Completed run in <span class='eventText'>${run.name}</span> ` +
+        `(${Utils.getRunningTime(run.firstevent, run.lastevent)}` +
+        (run.gained ? `, ${run.gained} <img src='res/img/c.png' class='currencyText'>` : '') +
+        (run.kills ? `, ${f.format(run.kills)} kills` : '') +
+        (run.xp ? `, ${f.format(run.xp)} XP` : '') +
+        `)</span>`,
+      true
+    );
+    webContents.send('runProcessed', run);
+  });
+
   MapSearcher.emitter.removeAllListeners();
-  MapSearcher.emitter.on("mapSearchResults", (rows) => {
-    webContents.send("mapSearchResults", rows);
+  MapSearcher.emitter.on('mapSearchResults', (rows) => {
+    webContents.send('mapSearchResults', rows);
   });
-  MapSearcher.emitter.on("mapSummaryResults", (data) => {
-    webContents.send("mapSummaryResults", data);
+  MapSearcher.emitter.on('mapSummaryResults', (data) => {
+    webContents.send('mapSummaryResults', data);
   });
-  
+
   KillTracker.emitter.removeAllListeners();
-  KillTracker.emitter.on("incubatorsUpdated", (incubators) => {
-    webContents.send("incubatorsUpdated", incubators);
+  KillTracker.emitter.on('incubatorsUpdated', (incubators) => {
+    webContents.send('incubatorsUpdated', incubators);
   });
-  KillTracker.emitter.on("incubatorsMissing", (equipments) => {
-    if(equipments.length){
-      addMessage(`Following equipment has incubator missing: ` +
-        equipments.map(([name, icon]) => `<img src='${icon}' class='currencyText'/><span class='eventText'>${name}</span>`).join('; '), true);
+  KillTracker.emitter.on('incubatorsMissing', (equipments) => {
+    if (equipments.length) {
+      addMessage(
+        `Following equipment has incubator missing: ` +
+          equipments
+            .map(
+              ([name, icon]) =>
+                `<img src='${icon}' class='currencyText'/><span class='eventText'>${name}</span>`
+            )
+            .join('; '),
+        true
+      );
     }
-  })
+  });
 
   RateGetterV2.emitter.removeAllListeners();
-  RateGetterV2.emitter.on("gettingPrices", () => {
-    addMessage("<span class='eventText'>Getting item prices from poe.ninja...</span>")
+  RateGetterV2.emitter.on('gettingPrices', () => {
+    addMessage("<span class='eventText'>Getting item prices from poe.ninja...</span>");
   });
-  RateGetterV2.emitter.on("doneGettingPrices", () => {
-    addMessage("<span class='eventText'>Finished getting item prices from poe.ninja</span>")
+  RateGetterV2.emitter.on('doneGettingPrices', () => {
+    addMessage("<span class='eventText'>Finished getting item prices from poe.ninja</span>");
   });
-  RateGetterV2.emitter.on("gettingPricesFailed", () => {
-    addMessage("<span class='eventText removeRow' onclick='rateGetterRetry(this);'>Error getting item prices from poe.ninja, <span class='retry'>click on this message to try again</span></span>")
+  RateGetterV2.emitter.on('gettingPricesFailed', () => {
+    addMessage(
+      "<span class='eventText removeRow' onclick='rateGetterRetry(this);'>Error getting item prices from poe.ninja, <span class='retry'>click on this message to try again</span></span>"
+    );
   });
-  
+
   ClientTxtWatcher.emitter.removeAllListeners();
-  ClientTxtWatcher.emitter.on("localChatDisabled", () => {
-    addMessage("<span class='eventText'>Unable to track area changes. Please check if local chat is enabled.</span>", true);
+  ClientTxtWatcher.emitter.on('localChatDisabled', () => {
+    addMessage(
+      "<span class='eventText'>Unable to track area changes. Please check if local chat is enabled.</span>",
+      true
+    );
   });
-  ClientTxtWatcher.emitter.on("switchedCharacter", async (c) => {
+  ClientTxtWatcher.emitter.on('switchedCharacter', async (c) => {
     // clear message section to remove now-invalid links to previous character's map runs
     global.messages = [];
     await init();
-    if(mainWindow) {
+    if (mainWindow) {
       await initWindow(mainWindow);
       mainWindow.loadFile('index.html');
     }
   });
-  ClientTxtWatcher.emitter.on("clientTxtFileError", (path) => {
-    addMessage(`<span class='eventText'>Error reading ${path}. Please check if the file exists.</span>`, true);
+  ClientTxtWatcher.emitter.on('clientTxtFileError', (path) => {
+    addMessage(
+      `<span class='eventText'>Error reading ${path}. Please check if the file exists.</span>`,
+      true
+    );
   });
-  ClientTxtWatcher.emitter.on("clientTxtNotUpdated", (path) => {
-    addMessage(`<span class='eventText'>${path} has not been updated recently even though the game is running. Please check if PoE is using a different Client.txt file.</span>`, true);
+  ClientTxtWatcher.emitter.on('clientTxtNotUpdated', (path) => {
+    addMessage(
+      `<span class='eventText'>${path} has not been updated recently even though the game is running. Please check if PoE is using a different Client.txt file.</span>`,
+      true
+    );
   });
-  
 }
 
 async function createWindow() {
-
   logger.info(`Starting Exile Diary v${app.getVersion()}`);
-  
+
   await init();
-    
+
   var downloadingUpdate = false;
-  
-  ipcMain.on("reinitialize", async (event) => {
+
+  ipcMain.on('reinitialize', async (event) => {
     await init();
-    if(mainWindow) {
+    if (mainWindow) {
       await initWindow(mainWindow);
     }
-    event.sender.send("done-initializing");
+    event.sender.send('done-initializing');
   });
-  ipcMain.on("searchMaps", (event, data) => {
+  ipcMain.on('searchMaps', (event, data) => {
     MapSearcher.search(data);
   });
-  ipcMain.on("screenshotCaptured", (event, img) => {
+  ipcMain.on('screenshotCaptured', (event, img) => {
     saveScreenshot(img);
   });
-  ipcMain.on("exportSheetReady", (event, sheetData) => {
+  ipcMain.on('exportSheetReady', (event, sheetData) => {
     saveExport(sheetData);
   });
-  ipcMain.on("hideOverlay", () => {
+  ipcMain.on('hideOverlay', () => {
     overlayWindow.hide();
   });
-  ipcMain.on("showOverlay", () => {
+  ipcMain.on('showOverlay', () => {
     overlayWindow.showInactive();
   });
-  ipcMain.on('download-update', function(event) {
-    if(!downloadingUpdate) {
+  ipcMain.on('download-update', function (event) {
+    if (!downloadingUpdate) {
       downloadingUpdate = true;
       addMessage(`<span class='eventText'>Downloading...</span>`);
-      logger.info("Now downloading update");
+      logger.info('Now downloading update');
       autoUpdater.downloadUpdate();
     }
-  });  
-  ipcMain.on('apply-update', function(event) {
-    logger.info("Quitting to install update");
+  });
+  ipcMain.on('apply-update', function (event) {
+    logger.info('Quitting to install update');
     autoUpdater.quitAndInstall();
   });
   ipcMain.on('pastebin-success', (event, url) => {
@@ -453,19 +482,19 @@ async function createWindow() {
   ipcMain.on('pastebin-error', () => {
     addMessage(`Error uploading map list, please try again`);
   });
-  ipcMain.on('rateGetterRetry', function(event) {
+  ipcMain.on('rateGetterRetry', function (event) {
     RateGetterV2.Getter.update();
   });
   ipcMain.handle('refetchRates', (event) => {
-    addMessage("<span class='eventText'>Refreshing item prices from poe.ninja...</span>")
+    addMessage("<span class='eventText'>Refreshing item prices from poe.ninja...</span>");
     RateGetterV2.Getter.update(true);
   });
 
   require('./modules/electron-capture/src/main');
-  require('@electron/remote/main').initialize()
-  
+  require('@electron/remote/main').initialize();
+
   const isDev = require('electron-is-dev');
-  if(!isDev) {
+  if (!isDev) {
     Menu.setApplicationMenu(null);
   }
 
@@ -477,39 +506,39 @@ async function createWindow() {
     y: 0,
     show: false,
     transparent: false,
-    icon: path.join(__dirname, "res/img/icons/png/64x64.png"),
+    icon: path.join(__dirname, 'res/img/icons/png/64x64.png'),
     webPreferences: {
-        preload: path.join(__dirname, "/modules/electron-capture/src/preload.js"),
-        nodeIntegration: true,
-        contextIsolation: false
-    }
+      preload: path.join(__dirname, '/modules/electron-capture/src/preload.js'),
+      nodeIntegration: true,
+      contextIsolation: false,
+    },
   });
 
   var windowMoving;
   function saveWindowBounds() {
     clearTimeout(windowMoving);
     windowMoving = setTimeout(writeBounds, 1000);
-    function writeBounds() {      
+    function writeBounds() {
       try {
-        Settings.set("mainWindowBounds", mainWindow.getBounds());
-      } catch(e) {}
+        Settings.set('mainWindowBounds', mainWindow.getBounds());
+      } catch (e) {}
       // swallow exception that occurs on closing app
     }
   }
-  mainWindow.on("resize", saveWindowBounds);
-  mainWindow.on("move", saveWindowBounds);
-  
+  mainWindow.on('resize', saveWindowBounds);
+  mainWindow.on('move', saveWindowBounds);
+
   var windowScaling;
   function scaleWindow() {
     clearTimeout(windowScaling);
     windowScaling = setTimeout(setZoom, 250);
     function setZoom() {
       var width = mainWindow.getBounds().width;
-      mainWindow.webContents.send("rescale", Math.min(width, 1100) / 1100);
+      mainWindow.webContents.send('rescale', Math.min(width, 1100) / 1100);
     }
   }
-  mainWindow.on("resize", scaleWindow);
-  
+  mainWindow.on('resize', scaleWindow);
+
   overlayWindow = new BrowserWindow({
     maxHeight: 40,
     x: 0,
@@ -524,17 +553,17 @@ async function createWindow() {
     opacity: 0.75,
     show: false,
     skipTaskbar: true,
-    webPreferences: { 
+    webPreferences: {
       nodeIntegration: true,
-      contextIsolation: false 
-    }
+      contextIsolation: false,
+    },
   });
-  overlayWindow.loadFile("overlay.html");
+  overlayWindow.loadFile('overlay.html');
 
   overlayWindow.setBounds({
     ...OW.WINDOW_OPTS,
     width: 200,
-    height: 40
+    height: 40,
   });
   OW.on('attach', () => {
     overlayWindow.hide();
@@ -542,105 +571,117 @@ async function createWindow() {
 
   OW.attachTo(overlayWindow, 'Path of Exile');
 
-
   autoUpdater.logger = logger;
   autoUpdater.autoDownload = false;
   autoUpdater.on('update-available', (info) => {
     global.updateInfo = info;
     logger.info(JSON.stringify(info));
-    addMessage(`<span class='eventText' style='cursor:pointer' onclick='downloadUpdate()'>An update to version ${info.version} is available, click here to download</span>`);
+    addMessage(
+      `<span class='eventText' style='cursor:pointer' onclick='downloadUpdate()'>An update to version ${info.version} is available, click here to download</span>`
+    );
   });
   autoUpdater.on('update-downloaded', (info) => {
-    addMessage(`<span class='eventText' style='cursor:pointer' onclick='applyUpdate()'>Update to version ${info.version} has been downloaded, click here to install it now (requires restart)</span>`);
+    addMessage(
+      `<span class='eventText' style='cursor:pointer' onclick='applyUpdate()'>Update to version ${info.version} has been downloaded, click here to install it now (requires restart)</span>`
+    );
   });
   autoUpdater.checkForUpdates();
 
   // and load the index.html of the app.
   var settings = Settings.get();
-  if(!settings) {
+  if (!settings) {
     mainWindow.loadFile('config.html');
-  } else if(characterCheckStatus === "notFound") {
+  } else if (characterCheckStatus === 'notFound') {
     global.validCharacter = false;
-    addMessage(`Character <span class='eventText'>${settings.activeProfile.characterName}</span> not found in <span class='eventText'>${settings.activeProfile.league}</span> league!`);
+    addMessage(
+      `Character <span class='eventText'>${settings.activeProfile.characterName}</span> not found in <span class='eventText'>${settings.activeProfile.league}</span> league!`
+    );
     mainWindow.loadFile('config.html');
-  } else if(characterCheckStatus === "error") {
+  } else if (characterCheckStatus === 'error') {
     global.validCharacter = false;
-    addMessage(`<span class='eventText'>Error getting account info. Please check your character name and POESESSID</span>`);
+    addMessage(
+      `<span class='eventText'>Error getting account info. Please check your character name and POESESSID</span>`
+    );
     mainWindow.loadFile('config.html');
   } else {
     global.validCharacter = true;
-    global.ssf = settings.activeProfile && settings.activeProfile.league && settings.activeProfile.league.includes("SSF");
-    if(settings.activeProfile.overrideSSF === true) {
+    global.ssf =
+      settings.activeProfile &&
+      settings.activeProfile.league &&
+      settings.activeProfile.league.includes('SSF');
+    if (settings.activeProfile.overrideSSF === true) {
       global.ssf = false;
-    }    
-    global.hardcore = settings.activeProfile && settings.activeProfile.league && settings.activeProfile.league.includes("Hardcore");
+    }
+    global.hardcore =
+      settings.activeProfile &&
+      settings.activeProfile.league &&
+      settings.activeProfile.league.includes('Hardcore');
     mainWindow.loadFile('index.html');
   }
 
   // Emitted when the window is closed.
   mainWindow.on('closed', function () {
-    if(trayIcon) {
+    if (trayIcon) {
       trayIcon.destroy();
     }
     overlayWindow.destroy();
     overlayWindow = null;
     mainWindow = null;
   });
-  
+
   mainWindow.on('minimize', customMinimize);
 
-  mainWindow.webContents.on('new-window', function(event, urlToOpen) {
+  mainWindow.webContents.on('new-window', function (event, urlToOpen) {
     event.preventDefault();
     var win = new BrowserWindow({
       modal: true,
       show: false,
       frame: false,
-      titleBarStyle: "hidden",
+      titleBarStyle: 'hidden',
       width: Math.floor(mainWindow.getBounds().width * 0.85),
       height: Math.floor(mainWindow.getBounds().height * 0.85),
       parent: mainWindow,
-      webPreferences: { 
+      webPreferences: {
         nodeIntegration: true,
-        contextIsolation: false 
-      }
+        contextIsolation: false,
+      },
     });
     win.loadURL(urlToOpen);
     win.once('ready-to-show', () => {
       win.show();
     });
     event.newGuest = win;
-  });  
+  });
 
   initWindow(mainWindow);
-  
-  if(settings && settings.mainWindowBounds) {
+
+  if (settings && settings.mainWindowBounds) {
     mainWindow.setBounds(settings.mainWindowBounds);
   } else {
     mainWindow.maximize();
   }
-  
-  if(process.argv.includes("--start-minimized")) {
+
+  if (process.argv.includes('--start-minimized')) {
     mainWindow.minimize();
   } else {
     mainWindow.show();
   }
-    
 }
 
 function customMinimize(event) {
   try {
     let s = Settings.get();
-    if(s.minimizeToTray) {
-      if(!trayIcon) {
-        trayIcon = new Tray(path.join(__dirname, "res/img/icons/win/ExileDiary.ico"));
-        trayIcon.setToolTip(`Exile Diary v${app.getVersion()}\n${s.activeProfile.characterName} (${s.activeProfile.league} league)`);
-        trayIcon.setContextMenu(
-          Menu.buildFromTemplate([
-            { label: 'Quit', role: 'quit' } 
-          ])
+    if (s.minimizeToTray) {
+      if (!trayIcon) {
+        trayIcon = new Tray(path.join(__dirname, 'res/img/icons/win/ExileDiary.ico'));
+        trayIcon.setToolTip(
+          `Exile Diary v${app.getVersion()}\n${s.activeProfile.characterName} (${
+            s.activeProfile.league
+          } league)`
         );
+        trayIcon.setContextMenu(Menu.buildFromTemplate([{ label: 'Quit', role: 'quit' }]));
         trayIcon.on('double-click', () => {
-          if(mainWindow) {
+          if (mainWindow) {
             mainWindow.show();
           }
         });
@@ -648,129 +689,132 @@ function customMinimize(event) {
       event.preventDefault();
       mainWindow.hide();
     } else {
-      if(trayIcon) {
+      if (trayIcon) {
         trayIcon.destroy();
       }
     }
-  } catch(e) {
+  } catch (e) {
     // just swallow error and minimize normally
     mainWindow.minimize();
   }
 }
 
 function showActiveCharacterMessage(char) {
-  addMessage(`Now tracking: <span class='eventText'>${char.name}</span> (level ${char.level} ${char.class} in ${char.league} league)`, true);
+  addMessage(
+    `Now tracking: <span class='eventText'>${char.name}</span> (level ${char.level} ${char.class} in ${char.league} league)`,
+    true
+  );
 }
 
 function addMessage(text, sendToOverlay = false) {
   var msg = {
-    timestamp: moment().format("YYYY-MM-DD HH:mm:ss"),
-    text: text
+    timestamp: moment().format('YYYY-MM-DD HH:mm:ss'),
+    text: text,
   };
   global.messages.push(msg);
   global.messages = global.messages.slice(-10);
-  if(mainWindow && mainWindow.webContents) {
-    mainWindow.webContents.send("message", msg);
+  if (mainWindow && mainWindow.webContents) {
+    mainWindow.webContents.send('message', msg);
   }
-  
+
   var settings = Settings.get();
-  if(overlayWindow && overlayWindow.webContents && sendToOverlay && settings.overlayEnabled) {
-    overlayWindow.webContents.send("message", msg);
+  if (overlayWindow && overlayWindow.webContents && sendToOverlay && settings.overlayEnabled) {
+    overlayWindow.webContents.send('message', msg);
   }
 }
 
 function saveScreenshot(img) {
-  
-  img = (img.split(','))[1];
-  
+  img = img.split(',')[1];
+
   var settings = Settings.get();
-  if(settings.screenshotMode) {
-    switch(settings.screenshotMode) {
-      case "local":
+  if (settings.screenshotMode) {
+    switch (settings.screenshotMode) {
+      case 'local':
         saveLocal(img);
         return;
-      case "imgur":
+      case 'imgur':
         saveToImgur(img);
         return;
     }
   }
-  
-  let opts = {    
-    type: "question",
-    buttons: [ "Save to file", "Upload to imgur", "Cancel" ],
-    title: "Exile Diary",
-    message: "Screenshot generated",
-    detail: "Where should the generated screenshot be saved?",
-    checkboxLabel: "Don't ask again"  
+
+  let opts = {
+    type: 'question',
+    buttons: ['Save to file', 'Upload to imgur', 'Cancel'],
+    title: 'Exile Diary',
+    message: 'Screenshot generated',
+    detail: 'Where should the generated screenshot be saved?',
+    checkboxLabel: "Don't ask again",
   };
-  
-  dialog.showMessageBox(opts).then( result => {
-    switch(result.response) {
+
+  dialog.showMessageBox(opts).then((result) => {
+    switch (result.response) {
       case 0:
-        if(result.checkboxChecked) {
-          Settings.set("screenshotMode", "local");
+        if (result.checkboxChecked) {
+          Settings.set('screenshotMode', 'local');
         }
         saveLocal(img);
         break;
       case 1:
-        if(result.checkboxChecked) {
-          Settings.set("screenshotMode", "imgur");
+        if (result.checkboxChecked) {
+          Settings.set('screenshotMode', 'imgur');
         }
         saveToImgur(img);
         break;
       default:
         break;
     }
-  });  
+  });
 }
 
 function saveLocal(img) {
-  let fileName = `screenshot-${moment().format("YYYYMMDDhhmmss")}.png`;
+  let fileName = `screenshot-${moment().format('YYYYMMDDhhmmss')}.png`;
   let opts = {
     defaultPath: fileName,
-    filters: [{ name: 'PNG', extensions: ['png'] }]
+    filters: [{ name: 'PNG', extensions: ['png'] }],
   };
-  dialog.showSaveDialog(opts).then(r => {
-    if(r.filePath) {
+  dialog.showSaveDialog(opts).then((r) => {
+    if (r.filePath) {
       let Jimp = require('jimp');
-      Jimp.read(Buffer.from(img, 'base64')).then(imgdata => imgdata.write(r.filePath));
+      Jimp.read(Buffer.from(img, 'base64')).then((imgdata) => imgdata.write(r.filePath));
     }
   });
 }
 
 function saveExport(sheetData) {
-  let fileName = `export-${moment().format("YYYYMMDDhhmmss")}.xlsx`;
+  let fileName = `export-${moment().format('YYYYMMDDhhmmss')}.xlsx`;
   let opts = {
     defaultPath: fileName,
-    filters: [{ name: 'XLSX', extensions: ['xlsx'] }]
+    filters: [{ name: 'XLSX', extensions: ['xlsx'] }],
   };
-  dialog.showSaveDialog(opts).then(r => {
-    if(r.filePath) {
+  dialog.showSaveDialog(opts).then((r) => {
+    if (r.filePath) {
       let XLSX = require('xlsx');
       XLSX.writeFile(sheetData, r.filePath);
     }
-  });          
+  });
 }
 
 function saveToImgur(img) {
-  
-  addMessage("Uploading screenshot...");
+  addMessage('Uploading screenshot...');
   var imgur = require('imgur');
   imgur.setClientId('ba8f73761b94a1d');
-  imgur.uploadBase64(img)
-    .then(json => {
+  imgur
+    .uploadBase64(img)
+    .then((json) => {
       console.log(json);
-      if(json && json.error && json.error.message) {
+      if (json && json.error && json.error.message) {
         addMessage(`Error uploading image: ${json.error.message}`);
       } else {
         logger.info(`Delete link for uploaded image is http://imgur.com/delete/${json.deletehash}`);
-        addMessage(`Screenshot uploaded to <a class='opn-link' href='${json.link}'>${json.link}</a>`);
+        addMessage(
+          `Screenshot uploaded to <a class='opn-link' href='${json.link}'>${json.link}</a>`
+        );
       }
     })
-    .catch(err => {
+    .catch((err) => {
       addMessage(`Error uploading image: ${err}`);
     });
-  
 }
 
 // This method will be called when Electron has finished
@@ -779,15 +823,15 @@ function saveToImgur(img) {
 app.on('ready', createWindow);
 
 app.on('browser-window-created', (_, window) => {
-  require('@electron/remote/main').enable(window.webContents)
-})
+  require('@electron/remote/main').enable(window.webContents);
+});
 
 // Quit when all windows are closed.
 app.on('window-all-closed', function () {
   // On OS X it is common for applications and their menu bar
   // to stay active until the user quits explicitly with Cmd + Q
   if (process.platform !== 'darwin') {
-    if(trayIcon) {
+    if (trayIcon) {
       trayIcon.destroy();
     }
     app.quit();
@@ -801,4 +845,3 @@ app.on('activate', function () {
     createWindow();
   }
 });
-  

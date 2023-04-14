@@ -1,14 +1,13 @@
 const sqlite3 = require('sqlite3');
 const path = require('path');
-const logger = require("./Log").getLogger(__filename);
-const Utils = require("./Utils");
+const logger = require('./Log').getLogger(__filename);
+const Utils = require('./Utils');
 
 class DB {
-  
   static getDB(char) {
-    if(!char) {
+    if (!char) {
       var settings = require('./settings').get();
-      if(!settings) {
+      if (!settings) {
         logger.info("No settings file found, can't get DB");
         return null;
       }
@@ -19,29 +18,29 @@ class DB {
       char = settings.activeProfile.characterName;
     }
     var app = require('electron').app || require('@electron/remote').app;
-    var db = new sqlite3.cached.Database(path.join(app.getPath("userData"), `${char}.db`));
+    var db = new sqlite3.cached.Database(path.join(app.getPath('userData'), `${char}.db`));
     return db;
   }
-  
+
   static getLeagueDB(league) {
-    if(!league) {
+    if (!league) {
       var settings = require('./settings').get();
-      if(!settings || !settings.activeProfile || !settings.activeProfile.league) {
-        logger.info("Unable to get league DB");
+      if (!settings || !settings.activeProfile || !settings.activeProfile.league) {
+        logger.info('Unable to get league DB');
         return null;
       } else {
         league = settings.activeProfile.league;
       }
     }
-    var app = require('electron').app || require('@electron/remote').app;    
-    var db = new sqlite3.cached.Database(path.join(app.getPath("userData"), `${league}.leaguedb`));
+    var app = require('electron').app || require('@electron/remote').app;
+    var db = new sqlite3.cached.Database(path.join(app.getPath('userData'), `${league}.leaguedb`));
     return db;
   }
-  
+
   static async initDB(char) {
-    if(!char) {
+    if (!char) {
       var settings = require('./settings').get();
-      if(!settings) {
+      if (!settings) {
         logger.info("No settings file found, can't initialize DB");
         return null;
       }
@@ -51,43 +50,43 @@ class DB {
       }
       char = settings.activeProfile.characterName;
     }
-    var app = require('electron').app || require('@electron/remote').app;    
-    var db = new sqlite3.cached.Database(path.join(app.getPath("userData"), `${char}.db`));    
+    var app = require('electron').app || require('@electron/remote').app;
+    var db = new sqlite3.cached.Database(path.join(app.getPath('userData'), `${char}.db`));
     await this.init(db, initSQL, maintSQL);
     logger.info(`Completed initializing db for ${char}`);
     // allow time for DB file changes to be written
     await Utils.sleep(500);
     return db;
   }
-  
-  static async initLeagueDB(league, char) {    
+
+  static async initLeagueDB(league, char) {
     var settings = require('./settings').get();
-    if(!league) {
-      if(!settings || !settings.activeProfile || !settings.activeProfile.league) {
-        logger.info("Unable to get league DB");
+    if (!league) {
+      if (!settings || !settings.activeProfile || !settings.activeProfile.league) {
+        logger.info('Unable to get league DB');
         return null;
       } else {
         league = settings.activeProfile.league;
       }
     }
-    var app = require('electron').app || require('@electron/remote').app;    
-    var db = new sqlite3.cached.Database(path.join(app.getPath("userData"), `${league}.leaguedb`));
+    var app = require('electron').app || require('@electron/remote').app;
+    var db = new sqlite3.cached.Database(path.join(app.getPath('userData'), `${league}.leaguedb`));
     await this.init(db, leagueInitSQL);
     await Utils.sleep(250);
-    
-    if(!char) {
+
+    if (!char) {
       await this.addCharacter(db, settings.activeProfile.characterName);
       await Utils.sleep(250);
     }
-    
+
     return db;
   }
-  
+
   static async addCharacter(db, char) {
-    return new Promise( (resolve, reject) => {
-      db.run(" insert into characters values (?) ", [char], (err) => {
-        if(err) {
-          if(!err.message.includes("UNIQUE constraint failed")) {
+    return new Promise((resolve, reject) => {
+      db.run(' insert into characters values (?) ', [char], (err) => {
+        if (err) {
+          if (!err.message.includes('UNIQUE constraint failed')) {
             logger.info(`Error adding character ${char} to league db: ${err.message}`);
           }
         } else {
@@ -97,28 +96,27 @@ class DB {
       });
     });
   }
-  
 
   static async init(db, sqlList, maintSqlList) {
-    logger.info("Initializing " + path.basename(db.filename));
+    logger.info('Initializing ' + path.basename(db.filename));
     return new Promise((resolve, reject) => {
-      db.get("pragma user_version", (err, row) => {
-        if(err) {
-          logger.info("Error reading database version: " + err);
+      db.get('pragma user_version', (err, row) => {
+        if (err) {
+          logger.info('Error reading database version: ' + err);
           reject(err);
         } else {
           let ver = row.user_version;
           logger.info(`Database version is ${ver}`);
           db.serialize(() => {
-            for(let i = 0; i < sqlList.length; i++) {
-              if(ver === 0 || i > ver) {
+            for (let i = 0; i < sqlList.length; i++) {
+              if (ver === 0 || i > ver) {
                 logger.info(`Running initialization SQL for version ${i}`);
-                for(let j = 0; j < sqlList[i].length; j++) {
+                for (let j = 0; j < sqlList[i].length; j++) {
                   let sql = sqlList[i][j];
                   logger.info(sql);
                   db.run(sql, (err) => {
-                    if(err) {
-                      if(!err.toString().includes("duplicate column name")) {
+                    if (err) {
+                      if (!err.toString().includes('duplicate column name')) {
                         logger.info(`Error initializing DB: ${err}`);
                         reject(err);
                       }
@@ -127,16 +125,16 @@ class DB {
                 }
               }
             }
-            if(maintSqlList) {
-              for(let i = 0; i < maintSqlList.length; i++) {
+            if (maintSqlList) {
+              for (let i = 0; i < maintSqlList.length; i++) {
                 db.run(maintSqlList[i], (err) => {
-                  if(err) {
+                  if (err) {
                     logger.info(`Error running DB maintenance: ${err}`);
                     reject(err);
                   }
                 });
               }
-              logger.info("DB maintenance complete");
+              logger.info('DB maintenance complete');
             }
             resolve();
           });
@@ -144,11 +142,9 @@ class DB {
       });
     });
   }
-  
 }
 
 const initSQL = [
-  
   // version 0 - db initialize
   [
     `
@@ -203,7 +199,7 @@ const initSQL = [
         timestamp text primary key not null,
         xp number not null
       )
-    `,  
+    `,
     `
       create table if not exists mapruns (
         id text primary key not null,
@@ -234,21 +230,16 @@ const initSQL = [
         data text not null
       )
     `,
-    `alter table items add value number`
+    `alter table items add value number`,
   ],
-  
+
   // version 1 - testing db versioning
-  // every addition to initSQL must increment user_version 
-  [
-    `pragma user_version = 1`
-  ],
-  
+  // every addition to initSQL must increment user_version
+  [`pragma user_version = 1`],
+
   // version 2 - add runinfo
-  [
-    `pragma user_version = 2`,
-    `alter table mapruns add runinfo text`
-  ],
-  
+  [`pragma user_version = 2`, `alter table mapruns add runinfo text`],
+
   // version 3 - add gear checker
   [
     `pragma user_version = 3`,
@@ -259,17 +250,16 @@ const initSQL = [
         diff text,
         primary key (timestamp)
       )
-    `
+    `,
   ],
-  
-  
+
   // version 4 - fixes critical bug that caused previous versions to fail on first run
   [
     `pragma user_version = 4`,
     `alter table mapruns add kills number`,
-    `insert or ignore into mapruns(id, firstevent, lastevent, gained, kills, runinfo) values(-1, -1, -1, -1, -1, '{"ignored":true}')`
+    `insert or ignore into mapruns(id, firstevent, lastevent, gained, kills, runinfo) values(-1, -1, -1, -1, -1, '{"ignored":true}')`,
   ],
-  
+
   // version 5 - league start and end dates
   [
     'pragma user_version = 5',
@@ -279,26 +269,26 @@ const initSQL = [
         (select ifnull(min(timestamp), 99999999999999) from leagues l2 where l2.timestamp > leagues.timestamp) as end
         from leagues
         order by start
-    `
+    `,
   ],
-  
+
   // version 6 - migration of fullrates and stashes to separate league DB
   [
     // not incremented here, requires extra processing (see debug.js)
   ],
-  
+
   // version 7 - properly set ignored tag in runinfo, instead of relying on magic numbers
   [
     'pragma user_version = 7',
-    `update mapruns set runinfo = json_set(ifnull(runinfo, "{}"), '$.ignored', true) where kills = -1 and gained = -1`
+    `update mapruns set runinfo = json_set(ifnull(runinfo, "{}"), '$.ignored', true) where kills = -1 and gained = -1`,
   ],
-  
+
   // version 8 - passive tree history
   [
     'pragma user_version = 8',
-    `create table if not exists passives ( timestamp text primary key not null, data text not null )`
+    `create table if not exists passives ( timestamp text primary key not null, data text not null )`,
   ],
-  
+
   // version 9 - Einhar red/yellow beast tracking update
   [
     `pragma user_version = 9`,
@@ -332,18 +322,17 @@ const initSQL = [
         )
       )
       where runinfo like '%"Einhar, Beastmaster"%' and runinfo like '%"beasts"%'
-    `
-  ]
-  
+    `,
+  ],
 ];
 
 // db maintenance - execute on every app start
 const maintSQL = [
-   `delete from incubators where timestamp < (select min(timestamp) from (select timestamp from incubators order by timestamp desc limit 25))`
+  `delete from incubators where timestamp < (select min(timestamp) from (select timestamp from incubators order by timestamp desc limit 25))`,
 ];
 
 const leagueInitSQL = [
-  [ 
+  [
     `pragma user_version = 1`,
     `
       create table if not exists characters (
@@ -362,8 +351,8 @@ const leagueInitSQL = [
         items text not null,
         value text not null
       )
-    `
-  ]
+    `,
+  ],
 ];
 
 module.exports = DB;
