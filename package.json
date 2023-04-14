@@ -1,7 +1,7 @@
 {
   "name": "exile-diary",
   "version": "0.3.20",
-  "main": "main.js",
+  "main": "build/main/index.js",
   "build": {
     "appId": "com.pathofexile.exilediary",
     "productName": "Exile Diary",
@@ -38,7 +38,8 @@
     "react:start": "react-scripts start",
     "react:build": "react-scripts build",
     "react:test": "react-scripts test",
-    "react:eject": "react-scripts eject"
+    "react:eject": "react-scripts eject",
+    "electron:dev": "concurrently \"cross-env BROWSER=none npm run react:start\" \"wait-on http://localhost:3000 && tsc -p main -w\" \"wait-on http://localhost:3000 && tsc -p main && electron .\""
   },
   "eslintConfig": {
     "extends": [
@@ -102,13 +103,17 @@
     "@testing-library/jest-dom": "^5.16.5",
     "@testing-library/react": "^13.4.0",
     "@testing-library/user-event": "^13.5.0",
+    "concurrently": "^8.0.1",
+    "cross-env": "^7.0.3",
     "electron": "^20.0.3",
     "electron-builder": "^23.3.3",
+    "electron-reload": "^2.0.0-alpha.1",
     "prettier": "^2.8.7",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-scripts": "^5.0.1",
     "tslib": "^2.5.0",
+    "wait-on": "^7.0.1",
     "web-vitals": "^2.1.4"
   }
 }
