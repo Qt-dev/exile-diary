@@ -34,7 +34,29 @@
     "postinstall": "electron-builder install-app-deps",
     "pack": "electron-builder --dir",
     "dist": "electron-builder",
-    "pretty": "prettier --write \"**/*.{js,jsx,ts,tsx,json,css,scss,md}\""
+    "pretty": "prettier --write \"**/*.{js,jsx,ts,tsx,json,css,scss,md}\"",
+    "react:start": "react-scripts start",
+    "react:build": "react-scripts build",
+    "react:test": "react-scripts test",
+    "react:eject": "react-scripts eject"
+  },
+  "eslintConfig": {
+    "extends": [
+      "react-app",
+      "react-app/jest"
+    ]
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
   },
   "keywords": [
     "util",
@@ -52,6 +74,7 @@
   "dependencies": {
     "@electron/remote": "^2.0.8",
     "chokidar": "^3.5.3",
+    "classnames": "^2.3.2",
     "color-convert": "^2.0.1",
     "electron-is-dev": "^2.0.0",
     "electron-overlay-window": "^2.0.1",
@@ -74,8 +97,16 @@
     "xlsx": "^0.18.5"
   },
   "devDependencies": {
+    "@testing-library/jest-dom": "^5.16.5",
+    "@testing-library/react": "^13.4.0",
+    "@testing-library/user-event": "^13.5.0",
     "electron": "^20.0.3",
     "electron-builder": "^23.3.3",
-    "prettier": "^2.8.7"
+    "prettier": "^2.8.7",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-scripts": "^5.0.1",
+    "tslib": "^2.5.0",
+    "web-vitals": "^2.1.4"
   }
 }
