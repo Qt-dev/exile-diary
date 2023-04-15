@@ -44,15 +44,18 @@ var emitter = new EventEmitter();
 class RateGetterV2 {
   
   constructor() {
-    
     clearTimeout(nextRateGetTimer);
     this.ratesReady = false;
+    this.updateSettings();   
+  }
+
+  updateSettings() {
     this.settings = require('./settings').get();
-    this.league = this.settings.activeProfile.league;
+    this.league = this.settings?.activeProfile.league;
     this.priceCheckLeague = null;
     this.DB = require('./DB').getLeagueDB(this.league);
     
-    if(this.league.includes("SSF") && this.settings.activeProfile.overrideSSF) {
+    if(this.league && this.league.includes("SSF") && this.settings.activeProfile.overrideSSF) {
       // override ssf and get item prices from corresponding trade league
       // TODO undocumented league naming convention change in 3.13... must check this every league from now on
       // as of 3.13 "SSF Ritual HC" <--> "Hardcore Ritual"
@@ -62,14 +65,14 @@ class RateGetterV2 {
       }
       this.priceCheckLeague = l;
     }    
-    
   }
 
 /*
  * get today's rates from POE.ninja 
  */
   async update(isForced = false) {
-    
+    this.updateSettings();
+
     if(!this.league) {
       logger.info("No league set, will not attempt to get prices");
       return;
@@ -449,6 +452,13 @@ function cleanSeeds(arr, getLowConfidence = false) {
   return a;
 }
 
-let Updater = new RateGetterV2();
-module.exports.Getter = Updater;
+let Updater = null;
+module.exports.init = () => {
+  Updater = new RateGetterV2();
+};
+
+module.exports.getUpdater = () => {
+  return Updater;
+};
+
 module.exports.emitter = emitter;

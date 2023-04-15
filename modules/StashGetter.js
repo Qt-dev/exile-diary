@@ -5,7 +5,7 @@ const https = require('https');
 const Utils = require('./Utils');
 const ItemParser = require('./ItemParser');
 const ItemPricer = require('./ItemPricer');
-const RateGetterV2 = require('./RateGetterV2').Getter;
+const RateGetterV2 = require('./RateGetterV2');
 
 var emitter = new EventEmitter();
 
@@ -151,7 +151,7 @@ class StashGetter {
 
   async get(interval = 10) {
 
-    if(!RateGetterV2.ratesReady) {
+    if(!RateGetterV2.getUpdater().ratesReady) {
       if(interval > 60) {
         logger.info("Maximum retries exceeded, deferring to next stash getting interval");
       } else {
