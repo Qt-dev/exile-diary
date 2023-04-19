@@ -48,9 +48,10 @@ const createWindow = () => {
   });
 
   
-  ipcMain.handle('load-runs', async (e) => {
-    const runs = await Runs.getLastRuns(10);
-    console.log(runs);
+  ipcMain.handle('load-runs', async (e, {size}) => {
+    const runs = await Runs.getLastRuns(size);
+    console.log(size);
+    // console.log(runs);
     return runs;
   })
   

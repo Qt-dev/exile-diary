@@ -15,6 +15,7 @@ const RunList = ({ NumberOfMapsToShow = '10', store }) => {
   const togglePopupMenu = () => {};
   const handleMapFilterChange = (event: SelectChangeEvent) => {
     setNumberOfMapsToShow(event.target.value as string);
+    store.setSize(event.target.value);
   };
   const getXPClassName = (xp: number) => {
     return classNames({
@@ -51,7 +52,8 @@ const RunList = ({ NumberOfMapsToShow = '10', store }) => {
             </TableRow>
           </TableHead>
           <TableBody>
-            {store.sortedRuns.map((run) => {
+            {store.sortedRuns.map((run, i) => {
+              if (i > numberOfMapsToShow) return null;
               const deaths = [...Array(run.deaths || 0)].map((death, i) => <div key={`death-${i}`} className='Run__Death-Icon' />);
               return (<TableRow
                   key={run.id}
@@ -85,6 +87,7 @@ const RunList = ({ NumberOfMapsToShow = '10', store }) => {
           onChange={handleMapFilterChange}
           value={numberOfMapsToShow}
           size='small'>
+          <MenuItem className='Map_Filter-Selector__Item' value={5}>5</MenuItem>
           <MenuItem className='Map_Filter-Selector__Item' value={10}>10</MenuItem>
           <MenuItem className='Map_Filter-Selector__Item' value={25}>25</MenuItem>
           <MenuItem className='Map_Filter-Selector__Item' value={50}>50</MenuItem>

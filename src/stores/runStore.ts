@@ -6,16 +6,24 @@ import { Run } from './domain/run';
 export default class RunStore {
   runs : Run[] = [];
   isLoading = true;
+  size = 10;
 
   constructor() {
       makeAutoObservable(this);
-      this.loadRuns();
-      electronService.ipcRenderer.on('refresh-runs', () => this.loadRuns());
+      this.loadRuns(this.size);
+      electronService.ipcRenderer.on('refresh-runs', () => this.loadRuns(this.size));
   }
 
-  loadRuns() {
+  setSize(size: number) {
+    this.size = size;
+    if(this.runs.length < size) {
+      this.loadRuns(size);
+    }
+  }
+
+  loadRuns(size = 10) {
     this.isLoading = true;
-    electronService.ipcRenderer.invoke('load-runs').then((runs) => {
+    electronService.ipcRenderer.invoke('load-runs', {size}).then((runs) => {
       runInAction(() => {
         const ids = this.runs.map(r => r.runId);
         ids.forEach((id, i) => {
