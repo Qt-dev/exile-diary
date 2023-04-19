@@ -1,8 +1,11 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
+import Divider from '@mui/material/Divider';
+import Link from '@mui/material/Link';
+import { MenuList, MenuItem } from '@mui/material';
+import { Link as RouterLink } from 'react-router-dom';
 import { electronService } from '../../electron.service';
-import { Link } from 'react-router-dom';
 import ExclamationMark from '../../assets/img/ExclamationMark.png';
 import Logo from '../../assets/img/icons/png/128x128.png';
 import Chaos from '../../assets/img/c.png';
@@ -27,7 +30,7 @@ const SideNav = ({ version, isNewVersion, turnNewVersionOff }) => {
   ];
 
   return (
-    <div className="Side-Nav">
+    <div className="Side-Nav Box">
       <div className="Header">
         <div className="Header__Logo">
           <img src={Logo} />
@@ -36,30 +39,36 @@ const SideNav = ({ version, isNewVersion, turnNewVersionOff }) => {
         <div className="Header__Version">{version}</div>
       </div>
 
-      <hr className="Separator" />
+      <Divider className="Separator"/>
 
-      <div id="Side-Nav__Menu">
+      <MenuList id="Side-Nav__Menu" dense>
         {menuData.map((item) => (
-          <div className="Side-Nav__Link" key={`Side-Nav-${item.name}`}>
-            <Link to={item.link}>{item.name}</Link>
-          </div>
+          <MenuItem
+            className="Side-Nav__Link"
+            key={`Side-Nav-${item.name}`}
+            component={RouterLink}
+            to={item.link}>
+            {item.name}
+          </MenuItem>
         ))}
-      </div>
 
-      <hr className="Separator" />
+        <Divider light className="Separator"/>
 
-      <div className="Side-Nav__Link Side-Nav__Link--About" onClick={about}>
-        About
-        <img
-          className={classNames({
-            'New-Version-Icon': true,
-            'New-Version-Icon--hidden': !isNewVersion,
-          })}
-          src={ExclamationMark}
-        />
-      </div>
+        <MenuItem className="Side-Nav__Link Side-Nav__Link--About" onClick={about}>
+          About
+          <img
+            className={classNames({
+              'New-Version-Icon': true,
+              'New-Version-Icon--hidden': !isNewVersion,
+            })}
+            src={ExclamationMark}
+          />
+        </MenuItem>
+      </MenuList>
 
-      <hr className="Separator" />
+
+
+      <Divider className="Separator"/>
 
       <div className="Side-Nav__Link">
         <img onClick={openPatreon} className="Patreon-Button" src={Patreon} />

@@ -1,5 +1,6 @@
 import { app, BrowserWindow, ipcMain } from 'electron'
 import * as path from 'path';
+import Runs from './db/runs';
 const devUrl = 'http://localhost:3000'
 enum SYSTEMS {
   WINDOWS = 'win32',
@@ -45,8 +46,18 @@ const createWindow = () => {
       appLocale,
     };
   });
-  
 
+  
+  ipcMain.handle('load-runs', async (e) => {
+    const runs = await Runs.getLastRuns(10);
+    console.log(runs);
+    return runs;
+  })
+  
+  setInterval(() => {
+    win.webContents.send('refresh-runs'); // Change this to depend on when stuff changes in db
+  }, 3000);
+  
   win.on('close', (e: Event) => {
     return;
     // if (!isQuitting) {

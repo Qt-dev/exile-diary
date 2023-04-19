@@ -49,7 +49,7 @@ tr,
 td,
 div {
   vertical-align: middle;
-  font-family: FontinSmallCaps;
+  font-family: FontIn;
   font-size: 22px;
   font-weight: 400;
   font-style: normal;
@@ -78,4 +78,11 @@ span.negative {
     filter: brightness(100%) drop-shadow(-1px -1px 1px #000) drop-shadow(1px 1px 1px #000)
       drop-shadow(-1px 1px 1px #000) drop-shadow(1px -1px 1px #000);
   }
+}
+
+.Box {
+  border: 1px solid #333;
+  border-radius: 10px;
+  padding: 10px;
+  background-color: #111;
 }

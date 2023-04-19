@@ -1,0 +1,71 @@
+.lastMapsDiv {
+  /* padding:16px;
+  border: 1px solid #333;
+  background-color:#111;
+  border-radius: 16px; */
+}
+
+.searchResults {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 16px;
+}
+
+.Run-List__Header, .Run-List__Footer{
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  width: 100%;
+  margin: 0;
+}
+
+.Run-List__Header {
+  margin-bottom: 10px;
+}
+
+.Run-List__Footer {
+  margin-top: 10px;
+}
+
+.Run-List__Header__Burger {
+  margin-left: auto;
+}
+
+.Run-Filter-Selector {
+  /* border: 1px white solid; */
+}
+
+.Run-list__Run {
+  cursor: pointer;
+}
+
+.Run-List__List__Header__Icon {
+  vertical-align: middle;
+  width: 24px;
+  height: 24px;
+  margin: 0 auto;
+}
+
+.Run-list__Run .Run-List__XP--Positive {
+  color: #88cc88;
+}
+
+.Run-list__Run .Run-List__XP--Negative {
+  color: #cc8888;
+}
+
+.Run_Filter-Selector__Item.MuiMenuItem-root {
+  color: #fff;
+  padding-left: 10px;
+  font-size: 20px;
+}
+
+.Run__Death-Icon {
+  font-size: 1em;
+  margin: 2px auto;
+}
+
+.Run__Death-Icon:after {
+  color: red;
+  content: "\1F480\fe0e";
+}

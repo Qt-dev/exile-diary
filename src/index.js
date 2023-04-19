@@ -1,9 +1,14 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
+import { ThemeProvider, createTheme } from '@mui/material/styles';
 import Root from './routes/root';
 import './index.css';
 import reportWebVitals from './reportWebVitals';
+import MapList from './components/RunList/RunList';
+import Map from './components/Map/Map';
+import RunStore from './stores/runStore';
+const runStore = new RunStore();
 
 const router = createBrowserRouter([
   {
@@ -12,7 +17,11 @@ const router = createBrowserRouter([
     children: [
       {
         index: true,
-        element: <div>Index</div>,
+        element: <MapList store={runStore} />,
+      },
+      {
+        path: 'run/:mapId',
+        element: <div>Map</div>,
       },
       {
         path: 'stash',
@@ -41,11 +50,65 @@ const router = createBrowserRouter([
     ],
   },
 ]);
+const darkTheme = createTheme({
+  palette: {
+    mode: 'dark'
+  },
+  typography: {
+    fontFamily: [ 'Fontin' ].join(','),
+    fontSize: 16,
+    fontWeightLight: 300,
+    fontWeightRegular: 400,
+    fontWeightMedium: 500,
+  },
+  components: {
+    MuiDivider: {
+      styleOverrides: {
+        root: {
+          'border-width': '1px',
+        },
+      },
+    },
+    MuiLink: {
+      styleOverrides: {
+        root: {
+          fontSize: '24px',
+          color: '#6666ff',
+          fontFamily: 'FontinSmallCaps',
+          '&:hover': {
+            color: '#9999ff',
+          },
+        },
+      },
+    },
+    MuiSelect: {
+      styleOverrides: {
+        root: {
+          fontFamily: 'FontinSmallCaps',
+        },
+      },
+    },
+    MuiMenuItem: {
+      styleOverrides: {
+        root: {
+          fontSize: '24px',
+          fontFamily: 'FontinSmallCaps',
+          padding: '0 5px',
+          color: '#6666ff'
+        },
+      },
+    }
+  }
+});
+
+
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <React.StrictMode>
-    <script>var global = global || window;</script>
-    <RouterProvider router={router} />
+    <ThemeProvider theme={darkTheme}>
+      <script>var global = global || window;</script>
+      <RouterProvider router={router} />
+    </ThemeProvider>
   </React.StrictMode>
 );
 
