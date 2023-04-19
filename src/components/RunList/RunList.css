@@ -62,7 +62,8 @@
 
 .Run__Death-Icon {
   font-size: 1em;
-  margin: 2px auto;
+  margin: 2px;
+  display: inline-block;
 }
 
 .Run__Death-Icon:after {

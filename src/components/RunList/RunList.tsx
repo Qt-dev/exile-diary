@@ -1,7 +1,7 @@
 import './RunList.css';
 import React from 'react';
 import MenuIcon from '@mui/icons-material/Menu';
-import { TableContainer, Table, TableHead, TableRow, TableCell, TableBody, Select, MenuItem, SelectChangeEvent, Divider } from '@mui/material';
+import { TableContainer, Table, TableHead, TableRow, TableCell, TableBody, Select, MenuItem, SelectChangeEvent, Divider, Drawer } from '@mui/material';
 import classNames from 'classnames';
 import ChaosIcon from '../../assets/img/c.png';
 import CancelIcon from '@mui/icons-material/Cancel';
@@ -12,7 +12,12 @@ import { observer } from 'mobx-react-lite';
 const RunList = ({ NumberOfMapsToShow = '10', store }) => {
   const navigate = useNavigate();
   const [numberOfMapsToShow, setNumberOfMapsToShow] = React.useState(NumberOfMapsToShow);
-  const togglePopupMenu = () => {};
+  const [isDrawerOpen, setIsDrawerOpen] = React.useState(false);
+  
+  const togglePopupMenu = () => {
+    setIsDrawerOpen(!isDrawerOpen);
+  };
+
   const handleMapFilterChange = (event: SelectChangeEvent) => {
     setNumberOfMapsToShow(event.target.value as string);
     store.setSize(event.target.value);
@@ -27,6 +32,11 @@ const RunList = ({ NumberOfMapsToShow = '10', store }) => {
     navigate(`/run/${mapId}`);
   };
 
+  const FilterMenu = () => {
+    return (<div> This feature was disabled - Coming Soon </div>) // TODO: Add filter menu
+  }
+
+
   return (
     <div className="Run-List Box">
       <div className='Run-List__Header'>
@@ -34,6 +44,9 @@ const RunList = ({ NumberOfMapsToShow = '10', store }) => {
         <MenuIcon className='Run-List__Header__Burger' onClick={togglePopupMenu}>≡</MenuIcon>
       </div>
       <Divider />
+      <Drawer anchor='right' open={isDrawerOpen} onClose={togglePopupMenu}>
+        <div>MENU</div>
+      </Drawer>
       <TableContainer className='Run-List__List'>
         <Table size='small' align='center'>
           <TableHead>
@@ -69,7 +82,7 @@ const RunList = ({ NumberOfMapsToShow = '10', store }) => {
                   <TableCell align='center'>{run.packSize ? `${run.packSize}%` : '-'}</TableCell>
                   <TableCell>{moment.utc(run.duration.asMilliseconds()).format('mm:ss')}</TableCell>
                   <TableCell align='center' className={getXPClassName(run.xpPerHour)}>{run.xpPerHour.toLocaleString('en')}</TableCell>
-                  <TableCell align='center'>{run.profit.toFixed(2)}</TableCell>
+                  <TableCell align='center'>{run.profit?.toFixed(2)}</TableCell>
                   <TableCell align='center'>{deaths.length > 0 ? deaths : '-'}</TableCell>
                   <TableCell align='center'>{run.kills || '-'}</TableCell>
                 </TableRow>
