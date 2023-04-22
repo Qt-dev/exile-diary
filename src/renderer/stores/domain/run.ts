@@ -84,6 +84,11 @@ export class Run {
     this.initialxp = details.prevxp;
     this.events = details.events;
     this.items = details.items;
+
+    for(const timestamp in this.items) {
+      this.events.push({id: timestamp, event_type: 'loot', event_text: JSON.stringify(this.items[timestamp])});
+    }
+    this.events = this.events.sort((a, b) => a.id - b.id);
     // Do something
     console.log(this);
     console.log(details);

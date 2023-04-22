@@ -1,6 +1,7 @@
 import React from 'react';
 import moment from 'moment';
 import constants from '../../../helpers/constants';
+import { List, ListItem } from '@mui/material';
 
 const formatLine = (event, text) => {
   const time = moment(event.id, 'YYYYMMDDHHmmss').format('HH:mm:ss');
@@ -31,6 +32,15 @@ const textPerEventType = {
   },
   slain: () => {
     return (<>You were slain</>)
+  },
+  loot: (event) => {
+    const lootData = JSON.parse(event.event_text).map(loot => JSON.parse(loot));
+    const formattedItem = (loot, i) => {
+      const quantity = loot.pickupStackSize ? <span className="Item__Quantity">&nbsp;x {loot.pickupStackSize}</span> : <></>;
+      return <ListItem key={`Item-${i}`} className="Item"><span className={`Text--${loot.rarity}`}>{loot.baseType}</span>{quantity}</ListItem>
+    }
+    console.log(lootData);
+    return (<>Looted <List>{lootData.map(formattedItem)}</List></>)
   }
 }
 
