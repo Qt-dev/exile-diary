@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Outlet } from 'react-router-dom';
-// import './Root.css';
 import SideNav from '../components/SideNav/SideNav';
+import Box from '@mui/material/Box';
 
 const version = '1.0.0-DEV';
 
@@ -13,11 +13,13 @@ function Root() {
   return (
     <div className="Root">
       <div className="Left-Column">
-        <SideNav
-          version={version}
-          isNewVersion={isNewVersion}
-          turnNewVersionOff={turnNewVersionOff}
-        />
+        <Box className="Left-Container">
+          <SideNav
+            version={version}
+            isNewVersion={isNewVersion}
+            turnNewVersionOff={turnNewVersionOff}
+          />
+        </Box>
       </div>
       <div className="Right-Column">
         <Outlet />
