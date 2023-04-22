@@ -1,0 +1,72 @@
+.Run__Navigation {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  padding: 0 0 10px;
+}
+
+.Run__Navigation__Previous {
+  flex: 1;
+  text-align: left;
+}
+
+.Run__Navigation__Next {
+  flex: 1;
+  text-align: right;
+}
+
+.Run__Header {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 0;
+}
+
+.Run__Header__Left {
+  display: flex;
+  flex-direction: column;
+}
+
+.Run__Header__Name,
+.Run__Header__Level,
+.Run__Header__League {
+  font-size: 0.8em;
+  font-weight: lighter;
+}
+
+.Run__Header__Block {
+  text-align: center;
+  padding: 0 20px
+}
+
+.Run__Header__Block__Title {
+  color: #999;
+  font-family: FontinSmallCaps;
+}
+
+.Run__Header__Block__Value {
+  font-size: 1.5em;
+}
+
+.Run__XP--Positive {
+  color: #88cc88;
+}
+.Run__XP--Negative {
+  color: #cc8888;
+}
+
+.Run__Kills {
+  font-family: FontinSmallCaps;
+  font-size: 0.8em;
+}
+
+.Run__Event-Icons {
+  display: flex;
+  flex-direction: row;
+}
+
+.Run__Event__Time {
+  font-family: FontinSmallCaps;
+  font-size: 24px;
+}

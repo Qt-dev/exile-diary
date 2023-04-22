@@ -36,6 +36,20 @@ export default class RunStore {
       });
     });
   }
+  
+  loadRun(runId: number) {
+    electronService.ipcRenderer.invoke('load-run', {runId}).then((json) => {
+      runInAction(() => {
+        this.updateRunFromServer(json);
+      });
+    });
+  }
+
+  loadDetails(run: Run) {
+    electronService.ipcRenderer.invoke('load-run-details', {runId: run.runId}).then((details) => {
+      run.updateDetails(details);
+    });
+  }
 
   @computed get sortedRuns() {
     return this.runs.slice().sort((first, second) => first.runId > second.runId ? -1 : 1);

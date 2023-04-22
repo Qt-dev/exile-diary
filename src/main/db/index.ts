@@ -11,13 +11,12 @@ const sleep = (ms: number) => {
 }
 
 class DB {
-  static all(sql: string) {
+  static all(sql: string, params: any[] = []) {
     const db = this.getDB();
     if (!db) {
       return null;
     }
-    const result = db.prepare(sql).all();
-    console.log(result);
+    const result = db.prepare(sql).all(params);
     return result;
   }
 

@@ -19,5 +19,5 @@
     "noImplicitAny": false,
     "useDefineForClassFields": true
   },
-  "include": ["src", "typings"]
+  "include": ["src/renderer", "typings", "helpers"]
 }

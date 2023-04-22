@@ -39,7 +39,14 @@ export class Run {
   kills = null;
   runInfo = null;
 
-  store;n
+
+  // Details
+  league : String | null = null;
+  initialxp : number | null = null;
+  events: any[] = [];
+  items: any = {};
+
+  store;
   saveHandler = null;
 
   constructor(store, id = uuidv4()) {
@@ -70,6 +77,16 @@ export class Run {
     this.profit = json.gained;
     this.kills = json.kills;
     this.runInfo = JSON.parse(json.runinfo);
+  }
+
+  updateDetails(details) {
+    this.league = details.league;
+    this.initialxp = details.prevxp;
+    this.events = details.events;
+    this.items = details.items;
+    // Do something
+    console.log(this);
+    console.log(details);
   }
 
   get asJson() {

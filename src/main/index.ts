@@ -51,13 +51,25 @@ const createWindow = () => {
   ipcMain.handle('load-runs', async (e, {size}) => {
     const runs = await Runs.getLastRuns(size);
     console.log(size);
-    // console.log(runs);
+    // console.log(runs); 
     return runs;
   })
+
   
-  setInterval(() => {
-    win.webContents.send('refresh-runs'); // Change this to depend on when stuff changes in db
-  }, 3000);
+  ipcMain.handle('load-run', async (e, {runId}) => {
+    const run = await Runs.getRun(runId);
+    // console.log(runs);
+    return run;
+  })
+
+  ipcMain.handle('load-run-details', async (e, {runId}) => {
+    const run = await Runs.getRun(runId);
+    return run;
+  })
+  
+  // setInterval(() => {
+  //   win.webContents.send('refresh-runs'); // Change this to depend on when stuff changes in db
+  // }, 3000);
   
   win.on('close', (e: Event) => {
     return;

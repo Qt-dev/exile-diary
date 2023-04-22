@@ -39,7 +39,9 @@
     "react:build": "node scripts/build.js",
     "react:test": "node scripts/test.js",
     "react:eject": "node scripts/eject.js",
-    "electron:dev": "concurrently \"cross-env BROWSER=none npm run react:start\" \"wait-on http://localhost:3000 && tsc -p main -w\" \"wait-on http://localhost:3000 && tsc -p main && electron .\""
+    "react:try": "cross-env BROWSER=none npm run react:start",
+    "electron:try": "tsc -p src/main && electron .",
+    "electron:dev": "concurrently \"cross-env BROWSER=none npm run react:start\" \"wait-on http://localhost:3000 && tsc -p src/main -w\" \"wait-on http://localhost:3000 && tsc -p src/main && electron .\""
   },
   "eslintConfig": {
     "extends": [
@@ -73,6 +75,7 @@
   },
   "contributors": [],
   "dependencies": {
+    "constants": "file:./helpers/constants",
     "@babel/core": "^7.16.0",
     "@electron/remote": "^2.0.8",
     "@emotion/react": "^11.10.6",

@@ -5,8 +5,8 @@ import { ThemeProvider, createTheme } from '@mui/material/styles';
 import Root from './routes/root';
 import './index.css';
 import reportWebVitals from './reportWebVitals';
-import MapList from './components/RunList/RunList';
-import Map from './components/Map/Map';
+import RunList from './components/RunList/RunList';
+import Run from './components/Run/Run';
 import RunStore from './stores/runStore';
 const runStore = new RunStore();
 
@@ -17,11 +17,19 @@ const router = createBrowserRouter([
     children: [
       {
         index: true,
-        element: <MapList store={runStore} />,
+        element: <RunList store={runStore} />,
       },
       {
-        path: 'run/:mapId',
-        element: <div>Map</div>,
+        path: 'run/:runId',
+        element: <Run store={runStore} />,
+        loader: (async ({ params }) => {
+          const { runId } = params;
+          console.log(runId);
+          await runStore.loadRun(runId);
+          const run = runStore.runs.find((run) => run.runId === runId);
+          return { run };
+        }),
+        errorElement: <div>Error in Run parsing</div>,
       },
       {
         path: 'stash',
@@ -66,6 +74,7 @@ const darkTheme = createTheme({
       styleOverrides: {
         root: {
           'border-width': '1px',
+          'margin': '3px 0',
         },
       },
     },

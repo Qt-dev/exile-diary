@@ -4,7 +4,7 @@
     "module": "commonjs",
     "sourceMap": true,
     "strict": true,
-    "outDir": "../build",
+    "outDir": "../../build",
     "rootDir": "../",
     "noEmitOnError": true,
     "typeRoots": [
@@ -12,5 +12,7 @@
     ],
     "skipLibCheck": true,
     "esModuleInterop": true,
+    "resolveJsonModule": true,
+    "noImplicitAny": false,
   },
 }

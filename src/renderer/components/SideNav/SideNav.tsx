@@ -2,7 +2,6 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import Divider from '@mui/material/Divider';
-import Link from '@mui/material/Link';
 import { MenuList, MenuItem } from '@mui/material';
 import { Link as RouterLink } from 'react-router-dom';
 import { electronService } from '../../electron.service';
@@ -33,7 +32,7 @@ const SideNav = ({ version, isNewVersion, turnNewVersionOff }) => {
     <div className="Side-Nav Box">
       <div className="Header">
         <div className="Header__Logo">
-          <img src={Logo} />
+          <img src={Logo} alt="Exile Diary Logo" />
         </div>
         <div className="Header__Title">Exile Diary</div>
         <div className="Header__Version">{version}</div>
@@ -57,6 +56,7 @@ const SideNav = ({ version, isNewVersion, turnNewVersionOff }) => {
         <MenuItem className="Side-Nav__Link Side-Nav__Link--About" onClick={about}>
           About
           <img
+            alt="New Version Icon"
             className={classNames({
               'New-Version-Icon': true,
               'New-Version-Icon--hidden': !isNewVersion,
@@ -71,14 +71,14 @@ const SideNav = ({ version, isNewVersion, turnNewVersionOff }) => {
       <Divider className="Separator"/>
 
       <div className="Side-Nav__Link">
-        <img onClick={openPatreon} className="Patreon-Button" src={Patreon} />
+        <img alt="Patreon Button" onClick={openPatreon} className="Patreon-Button" src={Patreon} />
       </div>
 
       <div id="sideNetWorth" className="Net-Worth">
         <div>Net Worth</div>
         <div id="Net-Worth__Total">
           <span className="Net-Worth__Total__Text" id="sideNetWorthCValue"></span>
-          <img className="Net-Worth__Total__Icon" src={Chaos} />
+          <img alt="Net Worth Total" className="Net-Worth__Total__Icon" src={Chaos} />
         </div>
         <div id="Net-Worth__Graph"></div>
       </div>

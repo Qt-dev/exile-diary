@@ -4,7 +4,6 @@ import MenuIcon from '@mui/icons-material/Menu';
 import { TableContainer, Table, TableHead, TableRow, TableCell, TableBody, Select, MenuItem, SelectChangeEvent, Divider, Drawer } from '@mui/material';
 import classNames from 'classnames';
 import ChaosIcon from '../../assets/img/c.png';
-import CancelIcon from '@mui/icons-material/Cancel';
 import { useNavigate } from 'react-router-dom';
 import moment from 'moment';
 import { observer } from 'mobx-react-lite';
@@ -45,7 +44,7 @@ const RunList = ({ NumberOfMapsToShow = '10', store }) => {
       </div>
       <Divider />
       <Drawer anchor='right' open={isDrawerOpen} onClose={togglePopupMenu}>
-        <div>MENU</div>
+        {FilterMenu()}
       </Drawer>
       <TableContainer className='Run-List__List'>
         <Table size='small' align='center'>
@@ -70,7 +69,7 @@ const RunList = ({ NumberOfMapsToShow = '10', store }) => {
               const deaths = [...Array(run.deaths || 0)].map((death, i) => <div key={`death-${i}`} className='Run__Death-Icon' />);
               return (<TableRow
                   key={run.id}
-                  onClick={() => handleRunClick(run.id)}
+                  onClick={() => handleRunClick(run.runId)}
                   className='Run-list__Run'
                   hover
                   >
