@@ -27,7 +27,8 @@ type ItemRawData = {
   elder?: boolean,
   secretName?: string,
   value?: number,
-  pickupStackSize?: number
+  pickupStackSize?: number,
+  rarity?: string,
 }
 
 type Item = {
@@ -138,6 +139,7 @@ const Run = {
 
     for(const item of items) { 
       const rawData : ItemRawData = JSON.parse(item.rawdata);
+      rawData.rarity = item.rarity;
       if(!formattedItems.hasOwnProperty(item.id)) {
         formattedItems[item.id] = [];
       }
