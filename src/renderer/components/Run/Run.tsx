@@ -101,7 +101,7 @@ const Run = ({ store }) => {
       <Divider className="Separator" />
       <div className="Run__Events">
         {run.events.map((event, i) => (
-          <RunEvent event={event} runInfo={run.runInfo} previousEvent={i > 0 ? run.events[i-1] : null} />
+          <RunEvent key={`Event-${i}`} event={event} runInfo={run.runInfo} previousEvent={i > 0 ? run.events[i-1] : null} />
         ))}
       </div>
       <Divider className="Separator" />
