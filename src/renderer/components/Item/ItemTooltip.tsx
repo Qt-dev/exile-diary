@@ -522,6 +522,35 @@ const getDescription = (item) => {
   return <>{elements}</>;
 };
 
+const getIcon = (item) => {
+  const { rawData } = item;
+  const { w: width, h: height } = rawData;
+  let backgroundImage: any = null;
+  if (rawData.shaper) {
+    backgroundImage = require(`../../assets/img/ShaperBackground${width}x${height}.png`);
+  } else if (rawData.elder) {
+    backgroundImage = require(`../../assets/img/ElderBackground${width}x${height}.png`);
+  }
+  const style = {
+    width,
+    height,
+  };
+
+  return (
+    <div className="Item-Tooltip__Icon">
+      <div className="Item-Tooltip__Icon__Stack">
+        {rawData.maxStackSize ? rawData.pickupStackSize || rawData.stackSize : ''}
+      </div>
+      <img
+        style={{ minWidth: width, minHeight: height, backgroundImage }}
+        className="Item-Tooltip__Icon__Image"
+        alt={`Item Logo for ${rawData.typeLine}`}
+        src={rawData.icon}
+      />
+    </div>
+  );
+};
+
 const ItemTooltip = ({ item, influenceIcons }) => {
   const frameType = Constants.items.frameTypes[item.rawData.frameType]?.replace(/\b\w/g, (l) =>
     l.toUpperCase()
@@ -535,6 +564,7 @@ const ItemTooltip = ({ item, influenceIcons }) => {
 
   return (
     <div className={containerClasses}>
+      {getIcon(item)}
       {getHeader(item, influenceIcons)}
       <div className="Item-Tooltip__Content">{getDescription(item)}</div>
     </div>

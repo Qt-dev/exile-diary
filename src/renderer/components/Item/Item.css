@@ -698,3 +698,24 @@
   font-style: italic;
   letter-spacing: -0.2px;
 }
+
+.Item-Tooltip__Icon {
+  position: absolute;
+  display: block;
+  border: 1px solid #333;
+  background-color: black;
+  transform: translateX(-100%);
+}
+
+.Item-Tooltip__Icon__Stack {
+  top: 3px;
+  left: 3px;
+  z-index: 2;
+  color: white;
+  position: absolute;
+}
+
+.Item-Tooltip__Icon__Image {
+  padding: 0 4px;
+  /* display: block; */
+}
