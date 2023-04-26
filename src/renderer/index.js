@@ -24,7 +24,6 @@ const router = createBrowserRouter([
         element: <Run store={runStore} />,
         loader: async ({ params }) => {
           const { runId } = params;
-          console.log(runId);
           await runStore.loadRun(runId);
           const run = runStore.runs.find((run) => run.runId === runId);
           return { run };

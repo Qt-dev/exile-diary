@@ -81,8 +81,6 @@ export class Run {
       return isDifference === 0 ? isBLoot : isDifference;
     });
     // Do something
-    console.log(this);
-    console.log(details);
   }
 
   get asJson() {

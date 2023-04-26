@@ -1,7 +1,5 @@
 import React from 'react';
-import { electronService } from '../../electron.service';
 import { Divider } from '@mui/material';
-const logger = electronService.logger;
 
 // Mods are in this format:
 // <default>{Quality:} <augmented>{+20%}
@@ -41,7 +39,6 @@ const getMods = (rawData) => {
 
   const formattedMods: any = [];
   for (const mod of rawData.explicitMods[0].split('\r\n')) {
-    logger.info(mod);
     formattedMods.push(<div className="Mod">{parseMod(mod)}</div>);
   }
 

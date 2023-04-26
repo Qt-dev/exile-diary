@@ -96,7 +96,7 @@ const getCategory = (item, subcategory = false) => {
       if (Constants.items.baseTypes.gems[gemName]) {
         return Constants.items.baseTypes.gems[gemName];
       } else {
-        logger.info(`No base type found for gem [${type}]`);
+        logger.error(`No base type found for gem [${type}]`);
         return '';
       }
     case 5:
@@ -138,8 +138,8 @@ const getCategory = (item, subcategory = false) => {
     if (type.includes(baseTypeName)) return Constants.items.baseTypes.equipments[baseTypeName];
   }
 
-  logger.info(`No category found for item ${item.id || '(no id)'}! JSON follows:`);
-  logger.info(JSON.stringify(item));
+  logger.error(`No category found for item ${item.id || '(no id)'}! JSON follows:`);
+  logger.error(JSON.stringify(item));
   return null;
 };
 

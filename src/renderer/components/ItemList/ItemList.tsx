@@ -5,7 +5,6 @@ import Item from '../Item/Item';
 import './ItemList.css';
 
 const ItemList = ({ store }) => {
-  logger.info(store.items);
   return (
     <div className="Item-List">
       {store.items.map((item) => {

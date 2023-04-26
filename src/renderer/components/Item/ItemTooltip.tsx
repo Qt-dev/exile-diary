@@ -2,9 +2,6 @@ import React from 'react';
 import reactStringReplace from 'react-string-replace';
 import Constants from '../../../helpers/constants';
 import classNames from 'classnames';
-import { electronService } from '../../electron.service';
-import Divider from '@mui/material/Divider';
-const logger = electronService.logger;
 
 const getHeader = (item, influenceIcons: JSX.Element[]) => {
   const { rawData } = item;
@@ -263,7 +260,6 @@ const getExplicitMods = (item) => {
 
   if (rawData.explicitMods) {
     for (const mod of rawData.explicitMods) {
-      logger.info(mod);
       mod.split(/[\r\n]+/).forEach((splitMod) => {
         let formattedMod = splitMod.slice();
         // Essences have one empty line
@@ -304,7 +300,6 @@ const getExplicitMods = (item) => {
 
   if (rawData.veiledMods) {
     for (const mod of rawData.veiledMods) {
-      logger.info(mod);
       const veiledModClass = classNames({
         'Item-Tooltip__Property': true,
         'Text--Veiled': true,
