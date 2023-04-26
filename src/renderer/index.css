@@ -169,7 +169,7 @@ span.negative {
   font-style: italic;
 }
 
-.Text--Veiled{
+.Text--Veiled {
   padding: 0;
   display: inline-block;
   animation: animate-veiled-mod 3s steps(90) reverse infinite;

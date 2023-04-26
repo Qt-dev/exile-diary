@@ -77,8 +77,8 @@ export class Run {
     this.events = this.events.sort((a, b) => {
       // If events happen at the same time (= loot + back to hideout), put loot first
       const isDifference = a.id - b.id;
-      const isBLoot = (b.event_type === 'loot') ? 1 : -1;
-      return (isDifference === 0 )? isBLoot : isDifference;
+      const isBLoot = b.event_type === 'loot' ? 1 : -1;
+      return isDifference === 0 ? isBLoot : isDifference;
     });
     // Do something
     console.log(this);

@@ -132,11 +132,14 @@ const Item = ({ item }) => {
   const influenceIcons = getInfluenceIcons(item);
   const sockets = item.sockets.length > 0 ? <Sockets item={item} /> : null;
   const influencesDiv =
-    influenceIcons.length > 0 ? (
-      <div className="Item__Influences">{influenceIcons}</div>
-    ) : null;
+    influenceIcons.length > 0 ? <div className="Item__Influences">{influenceIcons}</div> : null;
 
-  const tooltip = item.rawData.frameType === 6 ? <CardTooltip item={item} /> : <ItemTooltip item={item} influenceIcons={influenceIcons} />;
+  const tooltip =
+    item.rawData.frameType === 6 ? (
+      <CardTooltip item={item} />
+    ) : (
+      <ItemTooltip item={item} influenceIcons={influenceIcons} />
+    );
 
   return (
     <StyledTooltip title={tooltip}>

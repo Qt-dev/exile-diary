@@ -68,16 +68,18 @@
   z-index: 0;
 }
 
-.Socket-0, .Socket-1 {
+.Socket-0,
+.Socket-1 {
   order: 0;
 }
 .Socket-2 {
-  order: 2
+  order: 2;
 }
 .Socket-3 {
   order: 1;
 }
-.Socket-4, .Socket-5 {
+.Socket-4,
+.Socket-5 {
   order: 3;
 }
 
@@ -131,7 +133,6 @@
   background-color: none;
   border: none;
 }
-
 
 /** TOOLTIP **/
 
@@ -190,7 +191,6 @@
   padding: 0px 10px 4px 10px;
 }
 
-
 .separator {
   border: none;
   height: 8px;
@@ -202,8 +202,8 @@
 }
 .Item-Tooltip__Container--Normal .Item-Tooltip__Header {
   background: url('../../assets/img/itemicons/header-normal-left.png') top left no-repeat,
-  url('../../assets/img/itemicons/header-normal-right.png') top right no-repeat,
-  url('../../assets/img/itemicons/header-normal-middle.png') top center repeat-x;
+    url('../../assets/img/itemicons/header-normal-right.png') top right no-repeat,
+    url('../../assets/img/itemicons/header-normal-middle.png') top center repeat-x;
 }
 
 .Item-Tooltip__Container--Normal .separator {
@@ -215,8 +215,8 @@
 }
 .Item-Tooltip__Container--Magic .Item-Tooltip__Header {
   background: url('../../assets/img/itemicons/header-magic-left.png') top left no-repeat,
-  url('../../assets/img/itemicons/header-magic-right.png') top right no-repeat,
-  url('../../assets/img/itemicons/header-magic-middle.png') top center repeat-x;
+    url('../../assets/img/itemicons/header-magic-right.png') top right no-repeat,
+    url('../../assets/img/itemicons/header-magic-middle.png') top center repeat-x;
 }
 
 .Item-Tooltip__Container--Magic .separator {
@@ -334,12 +334,10 @@
   background: url('../../assets/img/itemicons/seperator-relic.png') center no-repeat;
 }
 
-
 .Item-Tooltip__Content {
   font-family: fontInSmallCaps;
   color: #aaaaaa;
 }
-
 
 .Item-Tooltip__Experience-Bar__Background {
   background: url('../../assets/img/itemicons/experience-bar.png');
@@ -355,7 +353,6 @@
   height: 13px;
 }
 
-
 @keyframes animate-veiled-mod {
   100% {
     background-position: 0;
@@ -370,8 +367,6 @@
   will-change: background-position;
   white-space: nowrap;
 }
-
-
 
 .Text--Veiled__Content--Prefix {
   width: 158px;
@@ -421,7 +416,6 @@
 .Text--Veiled__Content.suffix06 {
   background-image: url('../../assets/img/itemicons/veiled/suffix_06.png');
 }
-
 
 .Glyph {
   background: url('../../assets/img/itemicons/glyph.png') no-repeat;
@@ -614,7 +608,7 @@
   font-family: fontinSmallCaps;
 }
 .Card__Name {
-  position:relative;
+  position: relative;
   top: 10px;
   font-size: 16px;
   text-align: center;
