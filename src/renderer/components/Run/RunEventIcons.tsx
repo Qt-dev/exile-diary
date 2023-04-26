@@ -23,48 +23,51 @@ const ElderGuardianMap = {
 
 // React component that displays the icons for the run events
 const iconMap = {
-  blight : (info) => {
+  blight: (info) => {
     return {
       condition: !!info.blightEncounter,
       icon: BlightIcon,
-      alt: 'Contained a Blight Encounter'
-    }
+      alt: 'Contained a Blight Encounter',
+    };
   },
   blightedMap: (info) => {
     return {
       condition: !!info.blightedMap,
       icon: BlightedMapIcon,
-      alt: 'Blighted Map'
-    }
+      alt: 'Blighted Map',
+    };
   },
   delirium: (info) => {
     return {
       condition: !!info.strangeVoiceEncountered,
       icon: DeliriumIcon,
-      alt: 'Contained a Delirium Encounter'
-    }
+      alt: 'Contained a Delirium Encounter',
+    };
   },
   envoy: (info) => {
     return {
       condition: !!info.envoy,
       icon: MavenIcon,
-      alt: 'Contained an Envoy Encounter'
-    }
+      alt: 'Contained an Envoy Encounter',
+    };
   },
   elderGuardian: (info) => {
-    const guardianKey = info.elderGuardian?.replace("The ", "");
+    const guardianKey = info.elderGuardian?.replace('The ', '');
     return {
       condition: !!info.elderGuardian,
       icon: ElderGuardianMap[guardianKey],
-      alt: `Contained a ${guardianKey} Encounter`
-    }
+      alt: `Contained a ${guardianKey} Encounter`,
+    };
   },
-  maven : (info) => {
+  maven: (info) => {
     return {
-      condition: (info.maven && info.name !== "The Maven's Crucible" && info.name !== "Absence of Mercy and Empathy"),
+      condition:
+        info.maven &&
+        info.name !== "The Maven's Crucible" &&
+        info.name !== 'Absence of Mercy and Empathy',
       icon: MavenIcon,
-      alt: 'Boss Battle witnessed by the Maven'
-    }
+      alt: 'Boss Battle witnessed by the Maven',
+    };
   },
 };
 
@@ -130,27 +133,22 @@ const iconMap = {
 */
 
 const RunEventIcons = ({ info }) => {
-  const icons : JSX.Element[] = [];
+  const icons: JSX.Element[] = [];
 
-  for(const index in iconMap) {
+  for (const index in iconMap) {
     const test = iconMap[index](info);
-    if(test.condition) {
+    if (test.condition) {
       icons.push(
-      <div className="Run__Event-Icon" key={`event-icon-${index}`}>
-        <Tooltip title={test.alt}>
-          <img src={test.icon} alt={test.alt} />
-        </Tooltip>
-      </div>
-      )
+        <div className="Run__Event-Icon" key={`event-icon-${index}`}>
+          <Tooltip title={test.alt}>
+            <img src={test.icon} alt={test.alt} />
+          </Tooltip>
+        </div>
+      );
     }
   }
 
-
-  return (
-    <div className="Run__Event-Icons">
-      {icons}
-    </div>
-  );
+  return <div className="Run__Event-Icons">{icons}</div>;
 };
 
 export default RunEventIcons;

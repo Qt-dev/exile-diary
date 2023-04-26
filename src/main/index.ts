@@ -1,12 +1,16 @@
-import { app, BrowserWindow, ipcMain } from 'electron'
+import { app, BrowserWindow, ipcMain } from 'electron';
 import * as path from 'path';
 import Runs from './db/runs';
-const devUrl = 'http://localhost:3000'
+import log from 'electron-log';
+const devUrl = 'http://localhost:3000';
 enum SYSTEMS {
   WINDOWS = 'win32',
   LINUX = 'debian',
   MACOS = 'darwin',
 }
+
+// Optional, initialize the logger for any renderer processses
+log.initialize({ preload: true });
 
 const createWindow = () => {
   let win = new BrowserWindow({
@@ -47,30 +51,28 @@ const createWindow = () => {
     };
   });
 
-  
-  ipcMain.handle('load-runs', async (e, {size}) => {
+  ipcMain.handle('load-runs', async (e, { size }) => {
     const runs = await Runs.getLastRuns(size);
     console.log(size);
-    // console.log(runs); 
+    // console.log(runs);
     return runs;
-  })
+  });
 
-  
-  ipcMain.handle('load-run', async (e, {runId}) => {
+  ipcMain.handle('load-run', async (e, { runId }) => {
     const run = await Runs.getRun(runId);
     // console.log(runs);
     return run;
-  })
+  });
 
-  ipcMain.handle('load-run-details', async (e, {runId}) => {
+  ipcMain.handle('load-run-details', async (e, { runId }) => {
     const run = await Runs.getRun(runId);
     return run;
-  })
-  
+  });
+
   // setInterval(() => {
   //   win.webContents.send('refresh-runs'); // Change this to depend on when stuff changes in db
   // }, 3000);
-  
+
   win.on('close', (e: Event) => {
     return;
     // if (!isQuitting) {
@@ -85,6 +87,6 @@ const createWindow = () => {
   });
 
   win.loadURL(devUrl);
-}
+};
 
 app.on('ready', createWindow);

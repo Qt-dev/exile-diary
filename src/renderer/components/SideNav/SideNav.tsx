@@ -16,7 +16,7 @@ const SideNav = ({ version, isNewVersion, turnNewVersionOff }) => {
     turnNewVersionOff();
   };
   const openPatreon = () => {
-    electronService.shell.openExternal("https://patreon.com/briansd9");
+    electronService.shell.openExternal('https://patreon.com/briansd9');
   };
 
   const menuData = [
@@ -38,7 +38,7 @@ const SideNav = ({ version, isNewVersion, turnNewVersionOff }) => {
         <div className="Header__Version">{version}</div>
       </div>
 
-      <Divider className="Separator"/>
+      <Divider className="Separator" />
 
       <MenuList id="Side-Nav__Menu" dense>
         {menuData.map((item) => (
@@ -46,12 +46,13 @@ const SideNav = ({ version, isNewVersion, turnNewVersionOff }) => {
             className="Side-Nav__Link"
             key={`Side-Nav-${item.name}`}
             component={RouterLink}
-            to={item.link}>
+            to={item.link}
+          >
             {item.name}
           </MenuItem>
         ))}
 
-        <Divider light className="Separator"/>
+        <Divider light className="Separator" />
 
         <MenuItem className="Side-Nav__Link Side-Nav__Link--About" onClick={about}>
           About
@@ -66,9 +67,7 @@ const SideNav = ({ version, isNewVersion, turnNewVersionOff }) => {
         </MenuItem>
       </MenuList>
 
-
-
-      <Divider className="Separator"/>
+      <Divider className="Separator" />
 
       <div className="Side-Nav__Link">
         <img alt="Patreon Button" onClick={openPatreon} className="Patreon-Button" src={Patreon} />

@@ -2,23 +2,6 @@ import { makeAutoObservable } from 'mobx';
 import { v4 as uuidv4 } from 'uuid';
 import moment, { Duration, Moment } from 'moment';
 
-// {
-//   "id": "20230414223328",
-//   "name": "Crimson Temple",
-//   "level": 75,
-//   "depth": null,
-//   "iiq": 81,
-//   "iir": 106,
-//   "packsize": 26,
-//   "firstevent": "20230414223322",
-//   "lastevent": "20230414224408",
-//   "xpgained": 24117130,
-//   "deaths": 0,
-//   "gained": 16.46,
-//   "kills": null,
-//   "runinfo": "{\"atlasRegion\":\"Lira Arthain\",\"areaTimes\":{\"Crimson Temple\":646},\"maven\":{\"firstLine\":\"20230414223601\",\"bossKilled\":\"20230414223711\"},\"bossBattle\":{\"time\":\"70\"}}"
-// }
-
 export class Run {
   id = null;
   runId = '';
@@ -28,21 +11,20 @@ export class Run {
   iiq = 0;
   iir = 0;
   packSize = 0;
-  firstEvent : Moment | null = null;
-  lastEvent : Moment | null = null;
+  firstEvent: Moment | null = null;
+  lastEvent: Moment | null = null;
   duration: Duration | null = null;
   xp = 0;
-  tier : number | null = null;
+  tier: number | null = null;
   xpPerHour = 0;
   deaths = 0;
   profit = 0;
   kills = null;
   runInfo = null;
 
-
   // Details
-  league : String | null = null;
-  initialxp : number | null = null;
+  league: String | null = null;
+  initialxp: number | null = null;
   events: any[] = [];
   items: any = {};
 
@@ -85,10 +67,19 @@ export class Run {
     this.events = details.events;
     this.items = details.items;
 
-    for(const timestamp in this.items) {
-      this.events.push({id: timestamp, event_type: 'loot', event_text: JSON.stringify(this.items[timestamp])});
+    for (const timestamp in this.items) {
+      this.events.push({
+        id: timestamp,
+        event_type: 'loot',
+        event_text: JSON.stringify(this.items[timestamp]),
+      });
     }
-    this.events = this.events.sort((a, b) => a.id - b.id);
+    this.events = this.events.sort((a, b) => {
+      // If events happen at the same time (= loot + back to hideout), put loot first
+      const isDifference = a.id - b.id;
+      const isBLoot = (b.event_type === 'loot') ? 1 : -1;
+      return (isDifference === 0 )? isBLoot : isDifference;
+    });
     // Do something
     console.log(this);
     console.log(details);

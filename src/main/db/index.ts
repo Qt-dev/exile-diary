@@ -8,7 +8,7 @@ import { app } from 'electron';
 
 const sleep = (ms: number) => {
   return new Promise((resolve) => setTimeout(resolve, ms));
-}
+};
 
 class DB {
   static all(sql: string, params: any[] = []) {
@@ -30,7 +30,7 @@ class DB {
     return result;
   }
 
-  static getDB(characterName : string = '') {
+  static getDB(characterName: string = '') {
     if (!characterName) {
       const settings = getSettings();
       if (!settings) {
@@ -47,7 +47,7 @@ class DB {
     return db;
   }
 
-  static getLeagueDB(league : string) {
+  static getLeagueDB(league: string) {
     if (!league) {
       var settings = require('./settings').get();
       if (!settings || !settings.activeProfile || !settings.activeProfile.league) {
@@ -62,7 +62,7 @@ class DB {
     return db;
   }
 
-  static async initDB(char : string) {
+  static async initDB(char: string) {
     if (!char) {
       var settings = require('./settings').get();
       if (!settings) {
@@ -87,7 +87,7 @@ class DB {
   static async initLeagueDB(league: string, char: string) {
     const settings = getSettings();
 
-    if(!settings || !settings.activeProfile) {
+    if (!settings || !settings.activeProfile) {
       return null;
     }
 

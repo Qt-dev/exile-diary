@@ -22,13 +22,13 @@ const router = createBrowserRouter([
       {
         path: 'run/:runId',
         element: <Run store={runStore} />,
-        loader: (async ({ params }) => {
+        loader: async ({ params }) => {
           const { runId } = params;
           console.log(runId);
           await runStore.loadRun(runId);
           const run = runStore.runs.find((run) => run.runId === runId);
           return { run };
-        }),
+        },
         errorElement: <div>Error in Run parsing</div>,
       },
       {
@@ -60,10 +60,10 @@ const router = createBrowserRouter([
 ]);
 const darkTheme = createTheme({
   palette: {
-    mode: 'dark'
+    mode: 'dark',
   },
   typography: {
-    fontFamily: [ 'Fontin' ].join(','),
+    fontFamily: ['Fontin'].join(','),
     fontSize: 16,
     fontWeightLight: 300,
     fontWeightRegular: 400,
@@ -74,7 +74,7 @@ const darkTheme = createTheme({
       styleOverrides: {
         root: {
           'border-width': '1px',
-          'margin': '3px 0',
+          margin: '3px 0',
         },
       },
     },
@@ -103,13 +103,12 @@ const darkTheme = createTheme({
           fontSize: '24px',
           fontFamily: 'FontinSmallCaps',
           padding: '0 5px',
-          color: '#6666ff'
+          color: '#6666ff',
         },
       },
-    }
-  }
+    },
+  },
 });
-
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(

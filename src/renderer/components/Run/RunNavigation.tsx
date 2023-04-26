@@ -6,7 +6,7 @@ const RunNavigation = ({ map, maps }) => {
   const navigate = useNavigate();
 
   const { id } = map;
-  
+
   const currentMapId = id ? parseInt(id, 10) : 0;
 
   const handleMapChange = (event: SelectChangeEvent) => {
@@ -17,36 +17,34 @@ const RunNavigation = ({ map, maps }) => {
     <div className="Map__Navigation">
       <Link
         component={RouterLink}
-        to={`/run/${currentMapId - 1 }`}
+        to={`/run/${currentMapId - 1}`}
         className="Map__Navigation__Previous"
-        underline='hover'>
-          {'<<'} Map {currentMapId - 1}
+        underline="hover"
+      >
+        {'<<'} Map {currentMapId - 1}
       </Link>
-      <Select 
+      <Select
         id="Map__Selector"
-        className='Map__Selector'
+        className="Map__Selector"
         onChange={handleMapChange}
         value={`${currentMapId}`}
-        size='small'
-        variant='outlined'>
-          {
-            maps.map((map) => {
-              return (
-                <MenuItem value={map.id}>{map.name}</MenuItem>
-              )
-            })
-          }
+        size="small"
+        variant="outlined"
+      >
+        {maps.map((map) => {
+          return <MenuItem value={map.id}>{map.name}</MenuItem>;
+        })}
       </Select>
       <Link
         component={RouterLink}
-        to={`/run/${currentMapId + 1 }`}
+        to={`/run/${currentMapId + 1}`}
         className="Map__Navigation__Next"
-        underline='hover'>
-          Map {currentMapId + 1} {'>>'}
+        underline="hover"
+      >
+        Map {currentMapId + 1} {'>>'}
       </Link>
     </div>
   );
 };
 
 export default RunNavigation;
-

@@ -11,7 +11,8 @@
   margin-bottom: 16px;
 }
 
-.Run-List__Header, .Run-List__Footer{
+.Run-List__Header,
+.Run-List__Footer {
   display: flex;
   gap: 10px;
   align-items: center;
@@ -68,5 +69,5 @@
 
 .Run__Death-Icon:after {
   color: red;
-  content: "\1F480\fe0e";
+  content: '\1F480\fe0e';
 }

@@ -1,46 +1,46 @@
 import DB from './index';
-import constants from '../../helpers/constants'
+import constants from '../../helpers/constants';
 
 type ItemProperty = {
-  "name": string,
-  "values": any[],
-  "displayMode": number,
-  "type": number
-}
+  name: string;
+  values: any[];
+  displayMode: number;
+  type: number;
+};
 
 type ItemRawData = {
-  verified: boolean,
-  icon: string,
-  stackSize: number,
-  maxStackSize: number,
-  league: string,
-  id: string,
-  name: string,
-  typeLine: string,
-  baseType: string,
-  identified: boolean,
-  ilvl: number,
-  properties: ItemProperty[],
-  explicitMods: string[],
-  descrText: string,
-  frameType: number,
-  elder?: boolean,
-  secretName?: string,
-  value?: number,
-  pickupStackSize?: number,
-  rarity?: string,
-}
+  verified: boolean;
+  icon: string;
+  stackSize: number;
+  maxStackSize: number;
+  league: string;
+  id: string;
+  name: string;
+  typeLine: string;
+  baseType: string;
+  identified: boolean;
+  ilvl: number;
+  properties: ItemProperty[];
+  explicitMods: string[];
+  descrText: string;
+  frameType: number;
+  elder?: boolean;
+  secretName?: string;
+  value?: number;
+  pickupStackSize?: number;
+  rarity?: string;
+};
 
 type Item = {
-  id: string,
-  rarity: string,
-  icon: string,
-  value: number,
-  stacksize: number,
-  rawdata: string
-}
+  id: string;
+  rarity: string;
+  icon: string;
+  value: number;
+  stacksize: number;
+  rawdata: string;
+};
 
-const getItemNameFromIcon = (iconUrl : string) =>  {
+const getItemNameFromIcon = (iconUrl: string) => {
   if (iconUrl.includes('?')) {
     iconUrl = iconUrl.substring(0, iconUrl.indexOf('?'));
   }
@@ -49,8 +49,10 @@ const getItemNameFromIcon = (iconUrl : string) =>  {
   if (iconUrl.includes('https://web.poecdn.com/gen/image/')) {
     let iconPath = iconUrl.replace('https://web.poecdn.com/gen/image/', '');
     iconPath = iconPath.substring(0, iconPath.indexOf('/'));
-    const decodedPath = JSON.parse(Buffer.from(iconPath, 'base64').toString('utf8'))[2].f
-                            .replace('2DItems/', '');
+    const decodedPath = JSON.parse(Buffer.from(iconPath, 'base64').toString('utf8'))[2].f.replace(
+      '2DItems/',
+      ''
+    );
 
     if (decodedPath.includes('/Flasks/')) {
       const flaskId = decodedPath.replace('Art/', '').replace('Flasks/', '');
@@ -64,7 +66,7 @@ const getItemNameFromIcon = (iconUrl : string) =>  {
   } else {
     return constants.uniqueIcons[iconUrl] || null;
   }
-}
+};
 
 const Run = {
   getLastRuns: async (numberOfRunsToShow: number) => {
@@ -86,7 +88,7 @@ const Run = {
     return runData;
   },
 
-  getRunMods: async (mapId: number) : Promise<any> => {
+  getRunMods: async (mapId: number): Promise<any> => {
     const mapModsQuery = `
       select mod
       from mapmods
@@ -111,7 +113,7 @@ const Run = {
     return events;
   },
 
-  getRunInfo: async (mapId: number) : Promise<any> => {
+  getRunInfo: async (mapId: number): Promise<any> => {
     const mapInfoQuery = `
       select name, level, depth, iiq, iir, packsize, xp, kills, runinfo, firstevent, lastevent,
       (select xp from mapruns m where m.id < mapruns.id and xp is not null order by m.id desc limit 1) prevxp,
@@ -133,25 +135,24 @@ const Run = {
       and items.event_id = events.id;
     `;
 
-    const items = await DB.all(itemsQuery, [mapId]) as Item[];
-    if(!items) return [];
-    const formattedItems : any = {};
+    const items = (await DB.all(itemsQuery, [mapId])) as Item[];
+    if (!items) return [];
+    const formattedItems: any = {};
 
-    for(const item of items) { 
-      const rawData : ItemRawData = JSON.parse(item.rawdata);
+    for (const item of items) {
+      const rawData: ItemRawData = JSON.parse(item.rawdata);
       rawData.rarity = item.rarity;
-      if(!formattedItems.hasOwnProperty(item.id)) {
+      if (!formattedItems.hasOwnProperty(item.id)) {
         formattedItems[item.id] = [];
       }
       let secretName = '';
-      if(item.rarity === 'Unique') {
+      if (item.rarity === 'Unique') {
         secretName = getItemNameFromIcon(item.icon);
       }
       if (secretName && secretName === 'Starforge' && rawData.elder) {
         secretName = 'Voidforge';
       }
-      
-      
+
       if (secretName || item.value || item.stacksize) {
         if (secretName) rawData.secretName = secretName;
         if (item.value) rawData.value = item.value;
@@ -164,7 +165,6 @@ const Run = {
     return formattedItems;
   },
 
-
   getRun: async (mapId: number) => {
     const mapInfo = await Run.getRunInfo(mapId);
     const mods = await Run.getRunMods(mapId);
@@ -175,11 +175,11 @@ const Run = {
       ...mapInfo[0],
       events,
       items,
-      mods
+      mods,
     };
 
     return run;
   },
-}
+};
 
 export default Run;

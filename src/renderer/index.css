@@ -4,6 +4,8 @@ body {
     'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  font-family: FontIn;
+  color: #aaaaaa;
 }
 
 code {
@@ -20,16 +22,9 @@ code {
   background-color: #000;
 }
 
-.Left-Column {
-}
-
 .Left-Container {
   position: sticky;
   top: 10px;
-}
-
-.Right-Column {
-  /* overflow-y: scroll; */
 }
 
 @font-face {
@@ -58,12 +53,9 @@ tr,
 td,
 div {
   vertical-align: middle;
-  font-family: FontIn;
-  font-size: 22px;
   font-weight: 400;
   font-style: normal;
   font-variant-ligatures: none;
-  color: #aaaaaa;
 }
 
 span.positive {
@@ -103,8 +95,6 @@ span.negative {
 .Text--Legendary--2 {
   color: #e07a31;
 }
-
-
 .Text--Magic {
   color: #8787fe;
 }
@@ -119,4 +109,76 @@ span.negative {
 }
 .Text--Prophecy {
   color: #b547fe;
+}
+
+.Text--Augmented {
+  color: #8888ff;
+}
+.Text--Unidentified,
+.Text--Unmet {
+  color: #d20000;
+}
+.Text--Unidentified {
+  font-weight: bold;
+}
+.Text--Physical-Damage {
+  color: white;
+}
+.Text--Fire-Damage {
+  color: #960000;
+}
+.Text--Cold-Damage {
+  color: #366492;
+}
+.Text--Lightning-Damage {
+  color: gold;
+}
+.Text--Chaos-Damage {
+  color: #d02090;
+}
+.Text--Harvest-Red {
+  color: magenta;
+}
+.Text--Harvest-Green {
+  color: yellow;
+}
+.Text--Harvest-Blue {
+  color: cyan;
+}
+.Text--Default {
+  color: #fff;
+}
+
+.Text--Crafted,
+.Text--Enchantment {
+  color: #b8daf1;
+}
+
+.Text--Explicit,
+.Text--Implicit,
+.Text--Utility {
+  color: #8888ff;
+}
+
+.Text--Secret-Description {
+  color: #c8c8c8;
+}
+
+.Text--Flavour,
+.Text--Description {
+  font-style: italic;
+}
+
+.Text--Veiled{
+  padding: 0;
+  display: inline-block;
+  animation: animate-veiled-mod 3s steps(90) reverse infinite;
+  will-change: background-position;
+  white-space: nowrap;
+}
+.Text--Veiled .lc.prefix {
+  width: 158px;
+  background-position: -14220px;
+  user-select: auto;
+  color: transparent;
 }

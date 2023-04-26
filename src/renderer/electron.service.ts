@@ -1,3 +1,4 @@
+import logger from 'electron-log/renderer';
 const { webFrame, ipcRenderer, shell, BrowserWindow, clipboard } = require('electron');
 const childProcess = require('child_process');
 const fs = require('fs');
@@ -14,4 +15,5 @@ export const electronService = {
   appPath,
   appLocale,
   clipboard,
+  logger,
 };

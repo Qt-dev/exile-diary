@@ -9,7 +9,7 @@ const Error = ({ error }) => {
       <p>{error.statusText}</p>
       {error.data?.message && <p>{error.data.message}</p>}
     </div>
-  )
-}
+  );
+};
 
 export default Error;

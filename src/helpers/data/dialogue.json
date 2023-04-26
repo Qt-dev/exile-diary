@@ -557,9 +557,7 @@
     "So be it. Keep your precious sanity, my agent of chaos. You shall serve me, whether you like it or not. I'm not going anywhere...": "completed"
   },
 
-  "blightStartQuote": [
-    "Oh!"
-  ],
+  "blightStartQuote": ["Oh!"],
 
   "blightBranchQuotes": [
     "The Blight is trying to spread!",

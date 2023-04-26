@@ -1,0 +1,706 @@
+.Item {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  padding: 0 10px;
+  justify-content: center;
+  gap: 10px;
+  min-height: 1.7rem;
+}
+
+.Item__Name {
+  color: inherit;
+  font-size: inherit;
+}
+
+.Item__Name__Line {
+  color: inherit;
+  font-size: inherit;
+  text-align: center;
+  font-family: fontInSmallCaps;
+}
+
+.Item__Influences {
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  padding: 0.25rem 0;
+  height: 100%;
+}
+
+.Item__Influence {
+  width: 1.5rem;
+  height: 1.5rem;
+}
+
+.Sockets {
+  display: flex;
+  flex-direction: row;
+  gap: 3px;
+  padding: 3px 0;
+  max-width: 22px;
+  flex-wrap: wrap;
+}
+
+.Socket-Container {
+  width: 9px;
+  height: 9px;
+  position: relative;
+}
+
+.Socket {
+  width: 7px;
+  height: 7px;
+  border: 1px solid darkgray;
+  position: relative;
+  z-index: 1;
+  border-radius: 50%;
+}
+
+.Socket-Link {
+  width: 3px;
+  height: 9px;
+  background-color: white;
+  margin: auto;
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 0;
+}
+
+.Socket-0, .Socket-1 {
+  order: 0;
+}
+.Socket-2 {
+  order: 2
+}
+.Socket-3 {
+  order: 1;
+}
+.Socket-4, .Socket-5 {
+  order: 3;
+}
+
+/* To link to the next block on the right */
+.Socket-0 .Socket-Link,
+.Socket-4 .Socket-Link {
+  width: 9px;
+  height: 3px;
+  right: -5px;
+  left: auto;
+  top: 3px;
+}
+
+/* To link to the next block down */
+.Socket-1 .Socket-Link,
+.Socket-3 .Socket-Link {
+  /* transform: translate(0, -3px); */
+  top: auto;
+  bottom: -5px;
+  left: 3px;
+}
+
+.Socket-2 .Socket-Link {
+  width: 9px;
+  height: 3px;
+  left: -5px;
+  top: 3px;
+}
+
+.Socket-R {
+  background-color: #ff0000;
+}
+
+.Socket-G {
+  background-color: #80ff33;
+}
+
+.Socket-B {
+  background-color: #8888ff;
+}
+
+.Socket-W {
+  background-color: #ffffff;
+}
+
+.Socket-A {
+  background-color: #3b3b3b;
+}
+
+.Socket-None {
+  background-color: none;
+  border: none;
+}
+
+
+/** TOOLTIP **/
+
+.Item-Tooltip__Container {
+  display: inline-block;
+  text-align: center;
+  background-color: rgba(0, 0, 0, 0.95);
+  border: 1px solid #333;
+  border-collapse: collapse;
+  padding: 0px;
+  font-size: 18px;
+}
+
+.Item-Tooltip__Header {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 5px;
+  min-height: 34px;
+}
+.Item-Tooltip__Header--Double {
+  min-height: 54px;
+}
+
+.Item-Tooltip__Header__Text {
+  display: flex;
+  flex-direction: column;
+  margin: auto;
+  align-content: center;
+  justify-content: center;
+}
+
+.Item-Tooltip__Header__Influence {
+  width: 26px;
+  height: 26px;
+}
+
+.Item-Tooltip__Header,
+.Item-Tooltip__Header__Text {
+  color: inherit;
+}
+
+.Item-Tooltip__Header__Name,
+.Item-Tooltip__Header__Type {
+  /* font-size: 18px; */
+  font-family: fontInSmallCaps;
+  color: inherit;
+}
+.Item-Tooltip__Header__Name--Secret {
+  opacity: 0.7;
+}
+.Item-Tooltip__Content {
+  min-width: 400px;
+  max-width: 900px;
+  padding: 0px 10px 4px 10px;
+}
+
+
+.separator {
+  border: none;
+  height: 8px;
+  margin: 0;
+}
+
+.Item-Tooltip__Container--Normal {
+  color: #c8c8c8;
+}
+.Item-Tooltip__Container--Normal .Item-Tooltip__Header {
+  background: url('../../assets/img/itemicons/header-normal-left.png') top left no-repeat,
+  url('../../assets/img/itemicons/header-normal-right.png') top right no-repeat,
+  url('../../assets/img/itemicons/header-normal-middle.png') top center repeat-x;
+}
+
+.Item-Tooltip__Container--Normal .separator {
+  background: url('../../assets/img/itemicons/seperator-normal.png') center no-repeat;
+}
+
+.Item-Tooltip__Container--Magic {
+  color: #8888ff;
+}
+.Item-Tooltip__Container--Magic .Item-Tooltip__Header {
+  background: url('../../assets/img/itemicons/header-magic-left.png') top left no-repeat,
+  url('../../assets/img/itemicons/header-magic-right.png') top right no-repeat,
+  url('../../assets/img/itemicons/header-magic-middle.png') top center repeat-x;
+}
+
+.Item-Tooltip__Container--Magic .separator {
+  background: url('../../assets/img/itemicons/seperator-magic.png') center no-repeat;
+}
+
+.Item-Tooltip__Container--Rare {
+  color: #ffff77;
+}
+.Item-Tooltip__Container--Rare .Item-Tooltip__Header {
+  background: url('../../assets/img/itemicons/header-rare-left.png') top left no-repeat,
+    url('../../assets/img/itemicons/header-rare-right.png') top right no-repeat,
+    url('../../assets/img/itemicons/header-rare-middle.png') top center repeat-x;
+}
+
+.Item-Tooltip__Container--Rare .Item-Tooltip__Header--Double {
+  background: url('../../assets/img/itemicons/header-double-rare-left.png') top left no-repeat,
+    url('../../assets/img/itemicons/header-double-rare-right.png') top right no-repeat,
+    url('../../assets/img/itemicons/header-double-rare-middle.png') top center repeat-x;
+}
+
+.Item-Tooltip__Container--Rare .separator {
+  background: url('../../assets/img/itemicons/seperator-rare.png') center no-repeat;
+}
+
+.Item-Tooltip__Container--Unique {
+  color: #af6025;
+}
+.Item-Tooltip__Container--Unique .Item-Tooltip__Header {
+  background: url('../../assets/img/itemicons/header-unique-left.png') top left no-repeat,
+    url('../../assets/img/itemicons/header-unique-right.png') top right no-repeat,
+    url('../../assets/img/itemicons/header-unique-middle.png') top center repeat-x;
+}
+
+.Item-Tooltip__Container--Unique .Item-Tooltip__Header--Double {
+  background: url('../../assets/img/itemicons/header-double-unique-left.png') top left no-repeat,
+    url('../../assets/img/itemicons/header-double-unique-right.png') top right no-repeat,
+    url('../../assets/img/itemicons/header-double-unique-middle.png') top center repeat-x;
+}
+
+.Item-Tooltip__Container--Unique .separator {
+  background: url('../../assets/img/itemicons/seperator-unique.png') center no-repeat;
+}
+
+.Item-Tooltip__Container--Gem {
+  color: #1ba29b;
+}
+.Item-Tooltip__Container--Gem .Item-Tooltip__Header {
+  background: url('../../assets/img/itemicons/header-gem-left.png') top left no-repeat,
+    url('../../assets/img/itemicons/header-gem-right.png') top right no-repeat,
+    url('../../assets/img/itemicons/header-gem-middle.png') top center repeat-x;
+}
+
+.Item-Tooltip__Container--Gem .separator {
+  background: url('../../assets/img/itemicons/seperator-gem.png') center no-repeat;
+}
+
+.Item-Tooltip__Container--Currency {
+  color: #aa9e82;
+}
+
+.Item-Tooltip__Container--Currency .Item-Tooltip__Header {
+  background: url('../../assets/img/itemicons/header-currency-left.png') top left no-repeat,
+    url('../../assets/img/itemicons/header-currency-right.png') top right no-repeat,
+    url('../../assets/img/itemicons/header-currency-middle.png') top center repeat-x;
+}
+
+.Item-Tooltip__Container--Currency .separator {
+  background: url('../../assets/img/itemicons/seperator-currency.png') center no-repeat;
+}
+
+.Item-Tooltip__Container--Quest {
+  color: #4ae63a;
+}
+.Item-Tooltip__Container--Quest .Item-Tooltip__Header {
+  background: url('../../assets/img/itemicons/header-quest-left.png') top left no-repeat,
+    url('../../assets/img/itemicons/header-quest-right.png') top right no-repeat,
+    url('../../assets/img/itemicons/header-quest-middle.png') top center repeat-x;
+}
+
+.Item-Tooltip__Container--Quest .separator {
+  background: url('../../assets/img/itemicons/seperator-quest.png') center no-repeat;
+}
+
+.Item-Tooltip__Container--Prophecy {
+  color: #b54bff;
+}
+.Item-Tooltip__Container--Prophecy .Item-Tooltip__Header {
+  background: url('../../assets/img/itemicons/header-prophecy-left.png') top left no-repeat,
+    url('../../assets/img/itemicons/header-prophecy-right.png') top right no-repeat,
+    url('../../assets/img/itemicons/header-prophecy-middle.png') top center repeat-x;
+}
+
+.Item-Tooltip__Container--Prophecy .separator {
+  background: url('../../assets/img/itemicons/seperator-prophecy.png') center no-repeat;
+}
+
+.Item-Tooltip__Container--Relic {
+  color: #82ad6a;
+}
+
+.Item-Tooltip__Container--Relic .Item-Tooltip__Header {
+  background: url('../../assets/img/itemicons/header-relic-left.png') top left no-repeat,
+    url('../../assets/img/itemicons/header-relic-right.png') top right no-repeat,
+    url('../../assets/img/itemicons/header-relic-middle.png') top center repeat-x;
+}
+
+.Item-Tooltip__Container--Relic .Item-Tooltip__Header--Double {
+  background: url('../../assets/img/itemicons/header-double-relic-left.png') top left no-repeat,
+    url('../../assets/img/itemicons/header-double-relic-right.png') top right no-repeat,
+    url('../../assets/img/itemicons/header-double-relic-middle.png') top center repeat-x;
+}
+
+.Item-Tooltip__Container--Relic .separator {
+  background: url('../../assets/img/itemicons/seperator-relic.png') center no-repeat;
+}
+
+
+.Item-Tooltip__Content {
+  font-family: fontInSmallCaps;
+  color: #aaaaaa;
+}
+
+
+.Item-Tooltip__Experience-Bar__Background {
+  background: url('../../assets/img/itemicons/experience-bar.png');
+  width: 212px;
+  height: 13px;
+  margin: 0 4px;
+  display: inline-block;
+  text-align: left;
+}
+.Item-Tooltip__Experience-Bar__Foreground {
+  background: url('../../assets/img/itemicons/experience-bar-fill.png') repeat-x;
+  display: inline-block;
+  height: 13px;
+}
+
+
+@keyframes animate-veiled-mod {
+  100% {
+    background-position: 0;
+  }
+}
+
+.Text--Veiled__Content--Prefix,
+.Text--Veiled__Content--Suffix {
+  padding: 0;
+  display: inline-block;
+  animation: animate-veiled-mod 3s steps(90) reverse infinite;
+  will-change: background-position;
+  white-space: nowrap;
+}
+
+
+
+.Text--Veiled__Content--Prefix {
+  width: 158px;
+  background-position: -14220px;
+  user-select: auto;
+  color: transparent;
+}
+.Text--Veiled__Content.prefix01 {
+  background-image: url('../../assets/img/itemicons/veiled/prefix_01.png');
+}
+.Text--Veiled__Content.prefix02 {
+  background-image: url('../../assets/img/itemicons/veiled/prefix_02.png');
+}
+.Text--Veiled__Content.prefix03 {
+  background-image: url('../../assets/img/itemicons/veiled/prefix_03.png');
+}
+.Text--Veiled__Content.prefix04 {
+  background-image: url('../../assets/img/itemicons/veiled/prefix_04.png');
+}
+.Text--Veiled__Content.prefix05 {
+  background-image: url('../../assets/img/itemicons/veiled/prefix_05.png');
+}
+.Text--Veiled__Content.prefix06 {
+  background-image: url('../../assets/img/itemicons/veiled/prefix_06.png');
+}
+.Text--Veiled__Content--Suffix {
+  width: 85px;
+  background-position: -7650px;
+  user-select: auto;
+  color: transparent;
+}
+.Text--Veiled__Content.suffix01 {
+  background-image: url('../../assets/img/itemicons/veiled/suffix_01.png');
+}
+.Text--Veiled__Content.suffix02 {
+  background-image: url('../../assets/img/itemicons/veiled/suffix_02.png');
+}
+.Text--Veiled__Content.suffix03 {
+  background-image: url('../../assets/img/itemicons/veiled/suffix_03.png');
+}
+.Text--Veiled__Content.suffix04 {
+  background-image: url('../../assets/img/itemicons/veiled/suffix_04.png');
+}
+.Text--Veiled__Content.suffix05 {
+  background-image: url('../../assets/img/itemicons/veiled/suffix_05.png');
+}
+.Text--Veiled__Content.suffix06 {
+  background-image: url('../../assets/img/itemicons/veiled/suffix_06.png');
+}
+
+
+.Glyph {
+  background: url('../../assets/img/itemicons/glyph.png') no-repeat;
+  display: inline-block;
+  height: 18px;
+}
+.Glyph--HBG00 {
+  background-position: -60px -90px;
+  width: 5px;
+}
+.Glyph--HBG01 {
+  background-position: -38px -90px;
+  width: 8px;
+}
+.Glyph--HBG02 {
+  background-position: -28px -90px;
+  width: 10px;
+}
+.Glyph--HBG03 {
+  background-position: -46px -90px;
+  width: 8px;
+}
+.Glyph--HBG04 {
+  background-position: -18px -90px;
+  width: 10px;
+}
+.Glyph--HBGAa {
+  background-position: -40px 0px;
+  width: 20px;
+}
+.Glyph--HBGAb {
+  background-position: -40px -18px;
+  width: 20px;
+}
+.Glyph--HBGAc {
+  background-position: 0px -36px;
+  width: 20px;
+}
+.Glyph--HBGAd {
+  background-position: -20px -36px;
+  width: 20px;
+}
+.Glyph--HBGAe {
+  background-position: -40px -36px;
+  width: 20px;
+}
+.Glyph--HBGAf {
+  background-position: -60px 0px;
+  width: 20px;
+}
+.Glyph--HBGAg {
+  background-position: -60px -18px;
+  width: 20px;
+}
+.Glyph--HBGAh {
+  background-position: -60px -36px;
+  width: 20px;
+}
+.Glyph--HBGAi {
+  background-position: 0px -54px;
+  width: 20px;
+}
+.Glyph--HBGAj {
+  background-position: -20px -54px;
+  width: 20px;
+}
+.Glyph--HBGAk {
+  background-position: -40px -54px;
+  width: 20px;
+}
+.Glyph--HBGAl {
+  background-position: 0px 0px;
+  width: 20px;
+}
+.Glyph--HBGAm {
+  background-position: -80px 0px;
+  width: 20px;
+}
+.Glyph--HBGAn {
+  background-position: -20px 0px;
+  width: 20px;
+}
+.Glyph--HBGAo {
+  background-position: -80px -36px;
+  width: 20px;
+}
+.Glyph--HBGAp {
+  background-position: -80px -54px;
+  width: 20px;
+}
+.Glyph--HBGAq {
+  background-position: 0px -72px;
+  width: 20px;
+}
+.Glyph--HBGAr {
+  background-position: -20px -72px;
+  width: 20px;
+}
+.Glyph--HBGAs {
+  background-position: -40px -72px;
+  width: 20px;
+}
+.Glyph--HBGAt {
+  background-position: -60px -72px;
+  width: 20px;
+}
+.Glyph--HBGAu {
+  background-position: -80px -72px;
+  width: 20px;
+}
+.Glyph--HBGAv {
+  background-position: -100px 0px;
+  width: 20px;
+}
+.Glyph--HBGAw {
+  background-position: -100px -18px;
+  width: 20px;
+}
+.Glyph--HBGAx {
+  background-position: -100px -36px;
+  width: 20px;
+}
+.Glyph--HBGAy {
+  background-position: -100px -54px;
+  width: 20px;
+}
+.Glyph--HBGAz {
+  background-position: -100px -72px;
+  width: 20px;
+}
+.Glyph--HBGBa {
+  background-position: -80px -18px;
+  width: 20px;
+}
+.Glyph--HBGBc {
+  background-position: -20px -18px;
+  width: 20px;
+}
+.Glyph--HBGBd {
+  background-position: 0px -18px;
+  width: 20px;
+}
+.Glyph--HBGBe {
+  background-position: -60px -54px;
+  width: 20px;
+}
+.Glyph--hbgi00 {
+  background-position: -54px -90px;
+  width: 6px;
+}
+.Glyph--hbgi04 {
+  background-position: 0px -90px;
+  width: 18px;
+}
+
+.Card {
+  width: 268px;
+  height: 401px;
+  background: transparent;
+  font-size: 14px;
+  position: relative;
+}
+.Card__Face {
+  position: absolute;
+  left: 4%;
+  top: 8%;
+  height: 42%;
+  width: 90%;
+  background: #1e1e1e;
+  overflow: hidden;
+}
+.Card__Face img {
+  height: 100%;
+  width: 100%;
+}
+
+.Card__Background {
+  width: 100%;
+  height: 100%;
+  background: transparent url('../../assets/img/itemicons/divination-card.png') no-repeat center;
+  background-size: cover;
+  position: relative;
+}
+
+.Card__Text {
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  top: 0;
+  font-family: fontinSmallCaps;
+}
+.Card__Name {
+  position:relative;
+  top: 10px;
+  font-size: 16px;
+  text-align: center;
+  color: #111;
+}
+.Card_Stack {
+  position: relative;
+  margin-top: 170px;
+  margin-left: 36px;
+}
+.Card__Text__Main {
+  position: relative;
+  margin-top: 20px;
+  height: 140px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-evenly;
+  text-align: center;
+  font-size: 16px;
+}
+.Card__Mods {
+  text-align: center;
+}
+.Card__Divider {
+  display: block;
+  height: 3px;
+  width: 70%;
+  margin: 0 auto;
+  background: url('../../assets/img/itemicons/divination-card-divider.png') no-repeat center;
+  background-size: contain;
+}
+.Card__FlavourText {
+  max-width: 80%;
+}
+
+/* Class names built from the API response */
+.Card .Text--default {
+  color: #7f7f7f;
+}
+.Card .Text--uniqueitem {
+  color: #af6025;
+}
+.Card .Text--rareitem {
+  color: #ffff77;
+}
+.Card .Text--magicitem {
+  color: #8888ff;
+}
+.Card .Text--whiteitem {
+  color: #c8c8c8;
+}
+.Card .Text--gemitem {
+  color: #1ba29b;
+}
+.Card .Text--currencyitem {
+  color: #aa9e82;
+}
+.Card .Text--questitem {
+  color: #4ae63a;
+}
+.Card .Text--crafted {
+  color: #b4b4ff;
+}
+.Card .Text--divination {
+  color: #aae6e6;
+}
+.Card .Text--corrupted {
+  color: #d20000;
+}
+.Card .Text--enchanted {
+  color: #b8daf2;
+}
+.Card .Text--bold {
+  font-weight: bold;
+}
+.Card .Text--italic {
+  font-style: italic;
+}
+.Card .Text--normal {
+  font-weight: normal;
+  font-style: normal;
+  color: #c8c8c8;
+}
+.Card .Text--flavour {
+  color: #af6025;
+  font-style: italic;
+  letter-spacing: -0.2px;
+}
