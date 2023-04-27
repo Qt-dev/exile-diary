@@ -3,7 +3,7 @@ import { Outlet } from 'react-router-dom';
 import SideNav from '../components/SideNav/SideNav';
 import Box from '@mui/material/Box';
 
-const version = '1.0.0-DEV';
+const version = require('../../../package.json').version;
 
 function Root() {
   const [isNewVersion, setIsNewVersion] = useState(true); // Change this to make it save

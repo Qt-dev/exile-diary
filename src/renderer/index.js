@@ -6,6 +6,7 @@ import Root from './routes/root';
 import './index.css';
 import reportWebVitals from './reportWebVitals';
 import RunList from './components/RunList/RunList';
+import Settings from './components/Settings/Settings';
 import Run from './components/Run/Run';
 import RunStore from './stores/runStore';
 const runStore = new RunStore();
@@ -44,7 +45,7 @@ const router = createBrowserRouter([
       },
       {
         path: 'settings',
-        element: <div>Settings</div>,
+        element: <Settings />,
       },
       {
         path: 'gear',
@@ -60,6 +61,12 @@ const router = createBrowserRouter([
 const darkTheme = createTheme({
   palette: {
     mode: 'dark',
+    primary: {
+      main: '#8787fe',
+    },
+    secondary: {
+      main: '#af5f1c',
+    },
   },
   typography: {
     fontFamily: ['Fontin'].join(','),
