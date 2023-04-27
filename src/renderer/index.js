@@ -61,6 +61,12 @@ const router = createBrowserRouter([
 const darkTheme = createTheme({
   palette: {
     mode: 'dark',
+    primary: {
+      main: '#8787fe',
+    },
+    secondary: {
+      main: '#af5f1c',
+    },
   },
   typography: {
     fontFamily: ['Fontin'].join(','),
