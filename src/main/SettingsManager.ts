@@ -5,7 +5,6 @@ import { app } from 'electron';
 
 const settingsPath = path.join(app.getPath('userData'), 'settings.json');
 
-
 class SettingsManager {
   settings: any;
   saveScheduler: NodeJS.Timeout | null = null;
@@ -13,10 +12,10 @@ class SettingsManager {
   constructor() {
     this.settings = {};
   }
-  
+
   async initialize() {
     logger.info('Initializing Settings Manager');
-    if(!fs.stat(settingsPath)) {
+    if (!fs.stat(settingsPath)) {
       logger.info('Initializing settings.json');
       await fs.unlink(settingsPath);
       await fs.writeFile(settingsPath, JSON.stringify({}));
@@ -37,10 +36,10 @@ class SettingsManager {
     this.settings[key] = value;
     this.scheduleSave();
   }
-  
+
   scheduleSave() {
     logger.info('Scheduling settings save');
-    if(this.saveScheduler) clearTimeout(this.saveScheduler);
+    if (this.saveScheduler) clearTimeout(this.saveScheduler);
 
     this.saveScheduler = setTimeout(() => {
       this.save();
@@ -54,7 +53,7 @@ class SettingsManager {
     logger.info(`Renaming ${tempFilePath} into  ${settingsPath}`);
     await fs.rename(tempFilePath, settingsPath);
   }
-};
+}
 
 const manager = new SettingsManager();
 

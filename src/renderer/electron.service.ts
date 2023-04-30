@@ -8,13 +8,12 @@ let appLocale = '';
 let appVersion = '';
 
 const refreshGlobals = async () => {
-  await ipcRenderer.invoke('app-globals')
-          .then((params) => {
-            appPath = params.appPath;
-            appLocale = params.appLocale;
-            appVersion = params.appVersion;
-          });
-}
+  await ipcRenderer.invoke('app-globals').then((params) => {
+    appPath = params.appPath;
+    appLocale = params.appLocale;
+    appVersion = params.appVersion;
+  });
+};
 
 export const electronService = {
   BrowserWindow,

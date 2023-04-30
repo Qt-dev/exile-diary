@@ -48,10 +48,10 @@ const router = createBrowserRouter([
       {
         path: 'settings',
         element: <Settings />,
-        loader: async() => {
+        loader: async () => {
           const settings = await ipcRenderer.invoke('get-settings');
           const characters = await ipcRenderer.invoke('get-characters');
-          return { settings, characters }
+          return { settings, characters };
         },
       },
       {

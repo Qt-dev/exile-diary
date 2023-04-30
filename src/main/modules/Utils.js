@@ -38,7 +38,7 @@ const Utils = {
     return false;
   },
 
-  getDisplayName:(item) => {
+  getDisplayName: (item) => {
     let baseName = Utils.getBaseName(item);
     let uniqueName = item.secretName || Utils.getItemName(item.icon);
     let suffix = Utils.getSuffix(item);
@@ -65,7 +65,7 @@ const Utils = {
     return displayName;
   },
 
-  getBaseName:(item) => {
+  getBaseName: (item) => {
     if (item.typeLine) {
       return Utils.getBaseNameJSON(item);
     } else {
@@ -426,7 +426,7 @@ const Utils = {
     }
     logger.info(`No area type found for "${area}"`);
     return 'Other';
-  }, 
+  },
 
   // private league IDs end with (PL#####)
   isPrivateLeague: (league) => {
@@ -449,7 +449,7 @@ const Utils = {
       }
     }
     return false;
-  }
-}
+  },
+};
 
 export default Utils;

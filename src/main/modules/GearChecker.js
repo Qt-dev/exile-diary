@@ -1,5 +1,5 @@
 const logger = require('electron-log');
-import GGGAPI from '../GGGAPI'
+import GGGAPI from '../GGGAPI';
 const Utils = require('./Utils').default;
 const https = require('https');
 const zlib = require('zlib');

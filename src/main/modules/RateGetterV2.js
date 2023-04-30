@@ -453,5 +453,6 @@ function cleanSeeds(arr, getLowConfidence = false) {
 const Getter = new RateGetterV2();
 
 export default {
-  Getter, emitter
+  Getter,
+  emitter,
 };

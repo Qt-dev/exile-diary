@@ -11,13 +11,12 @@ import Button from '@mui/material/Button';
 import ButtonGroup from '@mui/material/ButtonGroup';
 import './Settings.css';
 import { useLoaderData } from 'react-router';
-import { electronService  } from '../electron.service';
+import { electronService } from '../electron.service';
 import { useNavigate } from 'react-router-dom';
 import MenuItem from '@mui/material/MenuItem';
 import FormHelperText from '@mui/material/FormHelperText';
 import * as path from 'path';
 const { logger, ipcRenderer } = electronService;
-
 
 // Fix to allow for directory selection in inputs
 declare module 'react' {
@@ -43,11 +42,13 @@ function a11yProps(index: number) {
 const Settings = () => {
   const navigate = useNavigate();
   const { settings, characters } = useLoaderData() as SettingsLoaderData;
-  const [ tabValue, setTabValue] = React.useState(0);
-  const [ hidePoesessid, setHidePoesessid ] = React.useState(true);
-  
+  const [tabValue, setTabValue] = React.useState(0);
+  const [hidePoesessid, setHidePoesessid] = React.useState(true);
+
   // Character
-  const [character, setCharacter] = React.useState(settings.activeProfile.characterName ? settings.activeProfile.characterName : '');
+  const [character, setCharacter] = React.useState(
+    settings.activeProfile.characterName ? settings.activeProfile.characterName : ''
+  );
   const handleCharacterChange = (e) => {
     e.preventDefault();
     setCharacter(e.target.value);
@@ -60,7 +61,7 @@ const Settings = () => {
     e.preventDefault();
     setClientFileLocation(path.join(e.target.files[0].path, e.target.files[0].name));
   };
-  
+
   // Screenshot Folder Location
   const [screenshotLocation, setScreenshotLocation] = React.useState(settings.screenshotDir);
   const screenshotLocationRef = useRef(screenshotLocation);
@@ -68,11 +69,15 @@ const Settings = () => {
     e.preventDefault();
     setScreenshotLocation(path.join(e.target.files[0].path));
   };
-  
+
   const accountName = settings.accountName ? settings.accountName : '';
   const poesessid = settings.poesessid ? settings.poesessid : '';
   const league = settings.activeProfile.league ? settings.activeProfile.league : 'Unknown';
-  const charactersOptions = characters.map((character: any) => <MenuItem key={character.name} value={character.name}>{character.name} (Level {character.level}) {character.class} - {character.league}</MenuItem>);
+  const charactersOptions = characters.map((character: any) => (
+    <MenuItem key={character.name} value={character.name}>
+      {character.name} (Level {character.level}) {character.class} - {character.league}
+    </MenuItem>
+  ));
 
   const handleBack = () => {
     navigate('/');
@@ -98,29 +103,52 @@ const Settings = () => {
     ipcRenderer.invoke('save-settings', { settings: data });
   };
 
-
   return (
     <div className="Settings">
       <Box>
-        <Tabs value={tabValue} centered aria-label="Settings Tabs" onChange={handleTabChange} >
-          <Tab label="Account" {...a11yProps(0)}/>
+        <Tabs value={tabValue} centered aria-label="Settings Tabs" onChange={handleTabChange}>
+          <Tab label="Account" {...a11yProps(0)} />
           {/* Add new stuff here */}
         </Tabs>
       </Box>
-      <form onSubmit={handleSubmit}
-          role='tabpanel'
-          hidden={tabValue !== 0}> 
-          {tabValue === 0 && (
-            <Box sx={{ p: 3 }}>
+      <form onSubmit={handleSubmit} role="tabpanel" hidden={tabValue !== 0}>
+        {tabValue === 0 && (
+          <Box sx={{ p: 3 }}>
             <div className="Settings__Row">
-              <TextField fullWidth label="Account Name" id="account" variant="filled"  size="small" value={accountName}/>
+              <TextField
+                fullWidth
+                label="Account Name"
+                id="account"
+                variant="filled"
+                size="small"
+                value={accountName}
+              />
             </div>
             <div className="Settings__Row">
-              <TextField fullWidth label="POESESSID" id="poesessid" variant="filled" size="small" value={poesessid} type={ hidePoesessid ? 'password' : 'text'} />
-              <FormControlLabel control={<Checkbox checked={hidePoesessid} onChange={() => setHidePoesessid(!hidePoesessid)} />} label="Hide value" />
+              <TextField
+                fullWidth
+                label="POESESSID"
+                id="poesessid"
+                variant="filled"
+                size="small"
+                value={poesessid}
+                type={hidePoesessid ? 'password' : 'text'}
+              />
+              <FormControlLabel
+                control={
+                  <Checkbox
+                    checked={hidePoesessid}
+                    onChange={() => setHidePoesessid(!hidePoesessid)}
+                  />
+                }
+                label="Hide value"
+              />
             </div>
-            <Divider className="Settings__Separator"/>
-            Currently Active Character: <div className='Text--Rare'>{character ? character : 'Unknown Character'} ({league} League)</div>
+            <Divider className="Settings__Separator" />
+            Currently Active Character:{' '}
+            <div className="Text--Rare">
+              {character ? character : 'Unknown Character'} ({league} League)
+            </div>
             <div className="Settings__Row">
               <Select
                 fullWidth
@@ -130,23 +158,36 @@ const Settings = () => {
                 size="small"
                 disabled={charactersOptions.length === 0}
                 value={character}
-                onChange={handleCharacterChange}>
-                  {charactersOptions}
+                onChange={handleCharacterChange}
+              >
+                {charactersOptions}
               </Select>
-              {charactersOptions.length === 0 ? <FormHelperText>Disabled - No character retrieved</FormHelperText> : ''}
+              {charactersOptions.length === 0 ? (
+                <FormHelperText>Disabled - No character retrieved</FormHelperText>
+              ) : (
+                ''
+              )}
             </div>
-            <Divider className="Settings__Separator"/>
+            <Divider className="Settings__Separator" />
             <div className="Settings__Row">
               <TextField
                 fullWidth
                 label="Client.TXT Location"
                 id="log_location"
                 variant="filled"
-                size="small" value={clientFileLocation}
-                onChange={e => setClientFileLocation(e.target.value)} />
-              <Button component="label" >
+                size="small"
+                value={clientFileLocation}
+                onChange={(e) => setClientFileLocation(e.target.value)}
+              />
+              <Button component="label">
                 Choose Folder
-                <input hidden accept="Client.txt" type="file" ref={clientFileLocationRef} onInput={handleOpenClientLocation}/>
+                <input
+                  hidden
+                  accept="Client.txt"
+                  type="file"
+                  ref={clientFileLocationRef}
+                  onInput={handleOpenClientLocation}
+                />
               </Button>
             </div>
             <div className="Settings__Row">
@@ -157,9 +198,9 @@ const Settings = () => {
                 variant="filled"
                 size="small"
                 value={screenshotLocation}
-                onChange={e => setScreenshotLocation(e.target.value)}
-                />
-              <Button component="label" >
+                onChange={(e) => setScreenshotLocation(e.target.value)}
+              />
+              <Button component="label">
                 Choose Folder
                 <input
                   hidden
@@ -167,21 +208,46 @@ const Settings = () => {
                   directory=""
                   type="file"
                   ref={screenshotLocationRef}
-                  onInput={handleOpenScreenshotLocation}/>
+                  onInput={handleOpenScreenshotLocation}
+                />
               </Button>
             </div>
-            <Divider className="Settings__Separator"/>
+            <Divider className="Settings__Separator" />
             <div>This section is not plugged in yet</div>
-            <div className="Settings__Checkbox__Row"><FormControlLabel control={<Checkbox disabled />} label="Minimize to Tray" /></div>
-            <div className="Settings__Checkbox__Row"><FormControlLabel control={<Checkbox disabled />} label="Enable Overlay Popup Messages" /></div>
-            <div className="Settings__Checkbox__Row"><FormControlLabel control={<Checkbox disabled />} label="Get Item Prices even in SSF Mode" /></div>
-            <div className="Settings__Checkbox__Row"><FormControlLabel control={<Checkbox disabled />} label="Get Low-Confidence Pricing Data from poe.ninja" /></div>
-            <div className="Settings__Checkbox__Row"><FormControlLabel control={<Checkbox disabled />} label="Enable Incubator Running Out Alert" /></div>
-            <div className="Settings__Checkbox__Row"><FormControlLabel control={<Checkbox disabled />} label="Disable Gear Tracking" /></div>
-            <Divider className="Settings__Separator"/>
+            <div className="Settings__Checkbox__Row">
+              <FormControlLabel control={<Checkbox disabled />} label="Minimize to Tray" />
+            </div>
+            <div className="Settings__Checkbox__Row">
+              <FormControlLabel
+                control={<Checkbox disabled />}
+                label="Enable Overlay Popup Messages"
+              />
+            </div>
+            <div className="Settings__Checkbox__Row">
+              <FormControlLabel
+                control={<Checkbox disabled />}
+                label="Get Item Prices even in SSF Mode"
+              />
+            </div>
+            <div className="Settings__Checkbox__Row">
+              <FormControlLabel
+                control={<Checkbox disabled />}
+                label="Get Low-Confidence Pricing Data from poe.ninja"
+              />
+            </div>
+            <div className="Settings__Checkbox__Row">
+              <FormControlLabel
+                control={<Checkbox disabled />}
+                label="Enable Incubator Running Out Alert"
+              />
+            </div>
+            <div className="Settings__Checkbox__Row">
+              <FormControlLabel control={<Checkbox disabled />} label="Disable Gear Tracking" />
+            </div>
+            <Divider className="Settings__Separator" />
             <ButtonGroup variant="outlined" fullWidth aria-label="Settings Control Buttons">
-              <Button type="submit" >Save</Button>
-              <Button onClick={handleBack} >Cancel</Button>
+              <Button type="submit">Save</Button>
+              <Button onClick={handleBack}>Cancel</Button>
             </ButtonGroup>
           </Box>
         )}

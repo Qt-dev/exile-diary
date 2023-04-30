@@ -37,7 +37,7 @@ const getYboundsFromImage = (rawImage, metadata) => {
   const endDetectionHeight = 15; // Height of the bottom limit we detect (Answer to "After how many pixels do we consider this box to be done?")
   const detectionWidth = 50; // Number of pixels to check for detection. We do not need the full line but we need enough pixels to start capturing blue pixels
   const startDetectionHeight = 2; // Height of the top limit we detect (Answer to "After how many black pixels do we consider this box to start?")
-  const minBluePixels = 5
+  const minBluePixels = 5;
 
   const errorMargin = 2;
 
@@ -75,23 +75,27 @@ const getYboundsFromImage = (rawImage, metadata) => {
       });
 
       const lastLines = lines.slice(lines.length - endDetectionHeight - 2, lines.length - 2);
-      const lastLinesForStart = lastLines.slice(lastLines.length - startDetectionHeight - 2, lastLines.length -2)
+      const lastLinesForStart = lastLines.slice(
+        lastLines.length - startDetectionHeight - 2,
+        lastLines.length - 2
+      );
 
       const lastBlues = Math.max(...lastLinesForStart.map((line) => line.blue));
       const lastBlacks = Math.min(...lastLinesForStart.map((line) => line.black));
-      const isFirstLine = 
+      const isFirstLine =
         firstLine <= 0 &&
         bluePixels > minBluePixels &&
         // bluePixels + blackPixels >= detectionWidth - errorMargin &&
         // lastLinesForStart.length >= startDetectionHeight &&
-        lastBlues === 0
-        && lastBlacks >= detectionWidth - errorMargin;
+        lastBlues === 0 &&
+        lastBlacks >= detectionWidth - errorMargin;
 
-
-      if(bluePixels > minBluePixels) {
-          logger.info(`y=${y} bluePixels=${bluePixels} blackPixels=${blackPixels} lastBlacks=${lastBlacks} lastBlues=${lastBlues} lastLes=${lastLinesForStart.length} isFirstLine=${isFirstLine}}`);
-          logger.info('last', lastLinesForStart);
-        }
+      if (bluePixels > minBluePixels) {
+        logger.info(
+          `y=${y} bluePixels=${bluePixels} blackPixels=${blackPixels} lastBlacks=${lastBlacks} lastBlues=${lastBlues} lastLes=${lastLinesForStart.length} isFirstLine=${isFirstLine}}`
+        );
+        logger.info('last', lastLinesForStart);
+      }
 
       // If we do not have a first line, and we are getting a first line with blues, this is the one
       if (isFirstLine) {
@@ -112,7 +116,9 @@ const getYboundsFromImage = (rawImage, metadata) => {
         Math.max(...lastLines.map((line) => line.blue)) === 0; // The maximum amount of blue pixels in the batch is the same we're getting now
 
       if (firstLine > 0 && lastLine < 0 && (isEndOfBlackBackground || isTooFarAfterBlueText)) {
-        logger.info(`Found last line of the mod box on y=${y}. isEndOfBlackBackground=${isEndOfBlackBackground} & isTooFarAfterBlueText=${isTooFarAfterBlueText}`);
+        logger.info(
+          `Found last line of the mod box on y=${y}. isEndOfBlackBackground=${isEndOfBlackBackground} & isTooFarAfterBlueText=${isTooFarAfterBlueText}`
+        );
         lastLine = y;
         isDone = true;
         break;
@@ -126,7 +132,7 @@ const getYboundsFromImage = (rawImage, metadata) => {
   if (!firstLine) logger.error('Error: Could not find a proper boundary for the mods box');
   if (lastLine === -1) lastLine = metadata.height;
   return [firstLine, lastLine];
-}
+};
 
 /**
  * Detects the left border of the mods box
@@ -160,7 +166,7 @@ const getXBoundsFromImage = (rawImage, metadata, yBounds) => {
     blueArray.push(pixelCount);
 
     // If we have enough lines in the moving array
-    if ( blueArray.length === widthMargin) {
+    if (blueArray.length === widthMargin) {
       const blueAvg = blueArray.reduce((acc, curr) => acc + curr) / widthMargin;
       // If first line with no blue, boundary is here
       if (blueAvg < 1) {
@@ -172,7 +178,7 @@ const getXBoundsFromImage = (rawImage, metadata, yBounds) => {
   }
 
   return [xBoundary, metadata.width];
-}
+};
 
 const getPixelColor = (rawData, x, y, width) => {
   const offset = (y * width + x) * 3;
@@ -182,10 +188,10 @@ const getPixelColor = (rawData, x, y, width) => {
     b: rawData[offset + 2],
     // a: rawData[offset + 3],
   };
-}
+};
 
 const getBounds = async (image) => {
-  const {data, info} = await image.raw({depth: 'char'}).toBuffer({ resolveWithObject: true });
+  const { data, info } = await image.raw({ depth: 'char' }).toBuffer({ resolveWithObject: true });
   logger.info(info);
   const yBounds = getYboundsFromImage(data, info);
   const xBounds = getXBoundsFromImage(data, info, yBounds);
@@ -194,9 +200,8 @@ const getBounds = async (image) => {
   return {
     x: xBounds,
     y: yBounds,
-  }
-}
-
+  };
+};
 
 function tryClose() {
   if (watcher) {
@@ -238,15 +243,9 @@ async function process(file) {
   const filepath = path.join(app.getPath('userData'), '.temp_capture');
   const filePrefix = moment().format('YMMDDHHmmss');
   if (file.length > 0) {
-    const kernel = [
-      -1 / 8, -1 / 8, -1 / 8,
-      -1 / 8, 2, -1 / 8,
-      -1 / 8, -1 / 8, -1 / 8,
-    ];  
-    const image = await sharp(file)
-    .jpeg()
-    .sharpen()
-    
+    const kernel = [-1 / 8, -1 / 8, -1 / 8, -1 / 8, 2, -1 / 8, -1 / 8, -1 / 8, -1 / 8];
+    const image = await sharp(file).jpeg().sharpen();
+
     // We might need to deal with scaleFactor later
     // await image.metadata().then(({ width }) => {
     //   // 1920 x 1080 image scaled up 3x;
@@ -257,33 +256,46 @@ async function process(file) {
     const metadata = await image.metadata();
     logger.info('Image', metadata);
     const bounds = await getBounds(image);
-    
+
     // take only rightmost 14% of screen for area info (no area name is longer than this)
     const areaInfoWidth = Math.floor(metadata.width * 0.14);
 
     // Stats
-    const statsDimensions = { width: areaInfoWidth, height: bounds.y[0] - 24, top: 24, left: metadata.width - areaInfoWidth };
+    const statsDimensions = {
+      width: areaInfoWidth,
+      height: bounds.y[0] - 24,
+      top: 24,
+      left: metadata.width - areaInfoWidth,
+    };
     const statsPath = path.join(filepath, `${filePrefix}_area.png`);
     logger.info(`Saving stats to ${statsPath} with dimenstions: `, statsDimensions);
-    await image.clone().extract(statsDimensions)
-      .normalise({lower: 0, upper: 100})
+    await image
+      .clone()
+      .extract(statsDimensions)
+      .normalise({ lower: 0, upper: 100 })
       .negate()
       .greyscale()
-      .convolve({width: 3, height: 3, kernel})
+      .convolve({ width: 3, height: 3, kernel })
       .png()
       .toFile(statsPath);
-  
+
     // MODS:
-    const modsDimensions = { width: bounds.x[1] - bounds.x[0], height: bounds.y[1] - bounds.y[0], top: bounds.y[0], left: bounds.x[0]};
+    const modsDimensions = {
+      width: bounds.x[1] - bounds.x[0],
+      height: bounds.y[1] - bounds.y[0],
+      top: bounds.y[0],
+      left: bounds.x[0],
+    };
     const modsPath = path.join(filepath, `${filePrefix}_mods.png`);
     logger.info(`Saving mods to ${modsPath} with dimensions: `, modsDimensions);
-    await image.clone().extract(modsDimensions)
+    await image
+      .clone()
+      .extract(modsDimensions)
       .negate()
       .greyscale()
-      .convolve({width: 3, height: 3, kernel})
+      .convolve({ width: 3, height: 3, kernel })
       .png()
       .toFile(modsPath);
-      
   }
 }
 
@@ -321,26 +333,29 @@ function isBlue(rgba) {
   const blue = {
     r: 88,
     g: 88,
-    b:255
-  }
+    b: 255,
+  };
 
   const { r, g, b } = {
     r: Math.abs(rgba.r - blue.r),
     g: Math.abs(rgba.g - blue.g),
-    b: Math.abs(rgba.b - blue.b)
-  }
-  const isBlue = (r*r + g*g + b*b) < 20000;
+    b: Math.abs(rgba.b - blue.b),
+  };
+  const isBlue = r * r + g * g + b * b < 20000;
   return isBlue;
 }
 
 function isBlack(rgba, tolerance) {
-  const linear = {} = rgba;
-  for(const key in linear) {
-    linear[key] = linear[key] <= 0.04045 ? linear[key] / 12.92 : Math.pow((linear[key] + 0.055) / 1.055, 2.4);
+  const linear = ({} = rgba);
+  for (const key in linear) {
+    linear[key] =
+      linear[key] <= 0.04045 ? linear[key] / 12.92 : Math.pow((linear[key] + 0.055) / 1.055, 2.4);
   }
   const { r, g, b } = linear;
   const luminance = 0.2126 * linear.r + 0.7152 * linear.g + 0.0722 * linear.b;
-  const lstar = (luminance < (216/24389) ? luminance * (24389/27) : Math.pow(luminance, 1/3) * 116 - 16) / 100;
+  const lstar =
+    (luminance < 216 / 24389 ? luminance * (24389 / 27) : Math.pow(luminance, 1 / 3) * 116 - 16) /
+    100;
 
   // if(lstar > 90) logger.info(`Luminance: ${luminance} lstar: ${lstar}`)
   // logger.info(Math.sqrt(
@@ -354,7 +369,6 @@ function isBlack(rgba, tolerance) {
   //   0.114 * (b * b)
   //   ) > 127.5;
   return lstar <= tolerance;
-
 
   // // sRGB luminance(Y) values
   // const rY = 0.212655;
@@ -374,5 +388,5 @@ function test(file) {
 export default {
   start,
   emitter,
-  test
-}
+  test,
+};

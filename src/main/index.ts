@@ -9,9 +9,9 @@ import League from './db/leagues';
 // Old stuff
 import RateGetterV2 from './modules/RateGetterV2';
 import Utils from './modules/Utils';
-import ScreenshotWatcher  from './modules/ScreenshotWatcher';
+import ScreenshotWatcher from './modules/ScreenshotWatcher';
 import * as ClientTxtWatcher from './modules/ClientTxtWatcher';
-import * as OCRWatcher  from './modules/OCRWatcher';
+import * as OCRWatcher from './modules/OCRWatcher';
 import * as RunParser from './modules/RunParser';
 
 const devUrl = 'http://localhost:3000';
@@ -30,28 +30,29 @@ logger.errorHandler.startCatching({
     if (processType === 'renderer') {
       return;
     }
-    
-    dialog.showMessageBox({
-      title: 'An error occurred',
-      message: error.message,
-      detail: error.stack,
-      type: 'error',
-      buttons: ['Ignore', 'Report', 'Exit'],
-    })
+
+    dialog
+      .showMessageBox({
+        title: 'An error occurred',
+        message: error.message,
+        detail: error.stack,
+        type: 'error',
+        buttons: ['Ignore', 'Report', 'Exit'],
+      })
       .then((result) => {
         if (result.response === 1) {
           createIssue('https://github.com/qt-dev/exile-diary/issues/new', {
             title: `Error report for ${versions.app}`,
-            body: 'Error:\n```' + error.stack + '\n```\n' + `OS: ${versions.os}`
+            body: 'Error:\n```' + error.stack + '\n```\n' + `OS: ${versions.os}`,
           });
           return;
         }
-      
+
         if (result.response === 2) {
           app.quit();
         }
       });
-    }
+  },
 });
 
 const getMapTierString = (map) => {
@@ -62,30 +63,35 @@ const getMapTierString = (map) => {
   } else {
     return '';
   }
-}
+};
 
 const init = async () => {
   logger.info('Initializing components');
 
   // Settings
   await SettingsManager.initialize();
-  if(!SettingsManager.settings.accountName) {
+  if (!SettingsManager.settings.accountName) {
     logger.error('No account name set. Please set your account name in the settings.');
   } else {
     try {
       logger.info('Getting character and league info');
       const character = await GGGAPI.getCurrentCharacter();
       League.addLeague(character.league);
-      SettingsManager.set('activeProfile',  { characterName: character.name, league: character.league, valid: true });
+      SettingsManager.set('activeProfile', {
+        characterName: character.name,
+        league: character.league,
+        valid: true,
+      });
       logger.info(`Settings updated. Character: ${character.name}, League: ${character.league}`);
-    } catch(e) {
-      logger.error(`Could not set active character and league. Please check your settings. (Current Account: ${SettingsManager.settings.accountName}})`)
+    } catch (e) {
+      logger.error(
+        `Could not set active character and league. Please check your settings. (Current Account: ${SettingsManager.settings.accountName}})`
+      );
       logger.error(e);
     }
   }
 
-  if( SettingsManager.settings.activeProfile
-    && SettingsManager.settings.activeProfile.valid) {
+  if (SettingsManager.settings.activeProfile && SettingsManager.settings.activeProfile.valid) {
     logger.info('Starting components');
     setTimeout(() => {
       RateGetterV2.Getter.update();
@@ -95,7 +101,6 @@ const init = async () => {
     OCRWatcher.start();
     // ItemFilter.load(); not working yet
   }
-
 };
 
 const createWindow = async () => {
@@ -106,8 +111,16 @@ const createWindow = async () => {
 
   const { settings } = SettingsManager;
 
-  const events = ['app-globals', 'load-runs', 'load-run', 'load-run-details', 'get-settings', 'get-characters', 'save-settings'];
-  for(const event of events) {
+  const events = [
+    'app-globals',
+    'load-runs',
+    'load-run',
+    'load-run-details',
+    'get-settings',
+    'get-characters',
+    'save-settings',
+  ];
+  for (const event of events) {
     ipcMain.handle(event, Responder[event]);
   }
 
@@ -164,7 +177,6 @@ const createWindow = async () => {
     );
   });
 
-  
   ClientTxtWatcher.emitter.removeAllListeners();
   ClientTxtWatcher.emitter.on('localChatDisabled', () => {
     logger.info(
@@ -186,18 +198,18 @@ const createWindow = async () => {
     );
   });
 
-  let saveBoundsCallback : any = null;
+  let saveBoundsCallback: any = null;
   const saveWindowBounds = () => {
     const bounds = win.getBounds();
     const { width } = bounds;
 
     // We do not want to save the settings on every single ping, so we work with a timeout
-    if(saveBoundsCallback) clearTimeout(saveBoundsCallback);
+    if (saveBoundsCallback) clearTimeout(saveBoundsCallback);
     saveBoundsCallback = setTimeout(() => {
       SettingsManager.set('mainWindowBounds', bounds);
       logger.info('saving bounds', bounds);
       // Set min width to 1100
-      win.webContents.send('rescale', Math.min(width, 1100) / 1100)
+      win.webContents.send('rescale', Math.min(width, 1100) / 1100);
     }, 1000);
   };
 
@@ -222,7 +234,6 @@ const createWindow = async () => {
     win.maximize();
   }
 
-
   require('electron-reload')(__dirname, {
     electron: path.join(
       __dirname,
@@ -236,10 +247,7 @@ const createWindow = async () => {
     hardResetMethod: 'exit',
   });
 
-
   // Save Window bounds
-
-
 
   // setInterval(() => {
   //   win.webContents.send('refresh-runs'); // Change this to depend on when stuff changes in db
