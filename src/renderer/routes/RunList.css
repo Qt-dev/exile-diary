@@ -68,6 +68,6 @@
 }
 
 .Run__Death-Icon:after {
-  color: red;
+  color: #cc8888; /* Same color as Run-List__XP--Negative */
   content: '\1F480\fe0e';
 }

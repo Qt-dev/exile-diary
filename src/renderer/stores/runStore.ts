@@ -1,6 +1,7 @@
 import { computed, makeAutoObservable, runInAction } from 'mobx';
 import { electronService } from '../electron.service';
 import { Run } from './domain/run';
+const { logger } = electronService;
 
 // Mobx store for maps
 export default class RunStore {
@@ -23,9 +24,11 @@ export default class RunStore {
   }
 
   loadRuns(size = 10) {
+    logger.info(`Loading runs from the server with size: ${size}`);
     this.isLoading = true;
     electronService.ipcRenderer.invoke('load-runs', { size }).then((runs) => {
       runInAction(() => {
+        logger.info(`Runs fetched from the server. Found ${runs.length} runs.`);
         const ids = this.runs
           .sort((first, second) => (first.runId > second.runId ? -1 : 1))
           .map((r) => r.runId);

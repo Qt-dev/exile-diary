@@ -1,194 +1,145 @@
-import DatabaseConstructor, { Database, SqliteError } from 'better-sqlite3';
-// import { Database } from 'sqlite3';
-import * as path from 'path';
-// import logger from './Log'.getLogger(__filename);
-// import Utils from './Utils';
-import { get as getSettings } from './settings';
-import { app } from 'electron';
-
-const sleep = (ms: number) => {
-  return new Promise((resolve) => setTimeout(resolve, ms));
-};
+const sqlite3 = require('sqlite3');
+const path = require('path');
+const logger = require('electron-log');
+const Utils = require('./Utils').default;
 
 class DB {
-  static all(sql: string, params: any[] = []) {
-    const db = this.getDB();
-    if (!db) {
-      return null;
-    }
-    const result = db.prepare(sql).all(params);
-    return result;
-  }
-
-  static run(sql: string, params: any[] = []) {
-    const db = this.getDB();
-    if (!db) {
-      return null;
-    }
-    const result = db.prepare(sql).run(params);
-    return result;
-  }
-
-  static getDB(characterName: string = '') {
-    if (!characterName) {
-      const settings = getSettings();
-      if (!settings) {
-        // logger.info("No settings file found, can't get DB");
-        return null;
-      }
-      if (!settings.activeProfile || !settings.activeProfile.characterName) {
-        // logger.info("No active profile selected, can't get DB");
-        return null;
-      }
-      characterName = settings.activeProfile.characterName;
-    }
-    const db = new DatabaseConstructor(path.join(app.getPath('userData'), `${characterName}.db`));
-    return db;
-  }
-
-  static getLeagueDB(league: string) {
-    if (!league) {
-      var settings = require('./settings').get();
-      if (!settings || !settings.activeProfile || !settings.activeProfile.league) {
-        // logger.info('Unable to get league DB');
-        return null;
-      } else {
-        league = settings.activeProfile.league;
-      }
-    }
-    var app = require('electron').app || require('@electron/remote').app;
-    var db = new DatabaseConstructor(path.join(app.getPath('userData'), `${league}.leaguedb`));
-    return db;
-  }
-
-  static async initDB(char: string) {
+  static getDB(char) {
     if (!char) {
       var settings = require('./settings').get();
       if (!settings) {
-        // logger.info("No settings file found, can't initialize DB");
+        logger.info("No settings file found, can't get DB");
         return null;
       }
       if (!settings.activeProfile || !settings.activeProfile.characterName) {
-        // logger.info("No active profile selected, can't initialize DB");
+        logger.info("No active profile selected, can't get DB");
         return null;
       }
       char = settings.activeProfile.characterName;
     }
     var app = require('electron').app || require('@electron/remote').app;
-    var db = new DatabaseConstructor(path.join(app.getPath('userData'), `${char}.db`));
-    await this.init(db, initSQL, maintSQL);
-    // logger.info(`Completed initializing db for ${char}`);
-    // allow time for DB file changes to be written
-    await sleep(500);
+    var db = new sqlite3.cached.Database(path.join(app.getPath('userData'), `${char}.db`));
     return db;
   }
 
-  static async initLeagueDB(league: string, char: string) {
-    const settings = getSettings();
-
-    if (!settings || !settings.activeProfile) {
-      return null;
-    }
-
+  static getLeagueDB(league) {
     if (!league) {
-      if (!settings.activeProfile.league) {
-        // logger.info('Unable to get league DB');
+      var settings = require('./settings').get();
+      if (!settings || !settings.activeProfile || !settings.activeProfile.league) {
+        logger.info('Unable to get league DB');
         return null;
       } else {
         league = settings.activeProfile.league;
       }
     }
+    var app = require('electron').app || require('@electron/remote').app;
+    var db = new sqlite3.cached.Database(path.join(app.getPath('userData'), `${league}.leaguedb`));
+    return db;
+  }
 
-    const db = new DatabaseConstructor(path.join(app.getPath('userData'), `${league}.leaguedb`));
+  static async initDB(char) {
+    if (!char) {
+      var settings = require('./settings').get();
+      if (!settings) {
+        logger.info("No settings file found, can't initialize DB");
+        return null;
+      }
+      if (!settings.activeProfile || !settings.activeProfile.characterName) {
+        logger.info("No active profile selected, can't initialize DB");
+        return null;
+      }
+      char = settings.activeProfile.characterName;
+    }
+    var app = require('electron').app || require('@electron/remote').app;
+    var db = new sqlite3.cached.Database(path.join(app.getPath('userData'), `${char}.db`));
+    await this.init(db, initSQL, maintSQL);
+    logger.info(`Completed initializing db for ${char}`);
+    // allow time for DB file changes to be written
+    await Utils.sleep(500);
+    return db;
+  }
+
+  static async initLeagueDB(league, char) {
+    var settings = require('./settings').get();
+    if (!league) {
+      if (!settings || !settings.activeProfile || !settings.activeProfile.league) {
+        logger.info('Unable to get league DB');
+        return null;
+      } else {
+        league = settings.activeProfile.league;
+      }
+    }
+    var app = require('electron').app || require('@electron/remote').app;
+    var db = new sqlite3.cached.Database(path.join(app.getPath('userData'), `${league}.leaguedb`));
     await this.init(db, leagueInitSQL);
+    await Utils.sleep(250);
 
-    if (!char && settings.activeProfile.characterName) {
+    if (!char) {
       await this.addCharacter(db, settings.activeProfile.characterName);
+      await Utils.sleep(250);
     }
 
     return db;
   }
 
-  static async addCharacter(db: Database, char: string) {
-    return db.prepare(' insert into characters values (?) ').run(char);
-    // return new Promise((resolve, reject) => {
-    //   db.run(' insert into characters values (?) ', [char], (err) => {
-    //     if (err) {
-    //       if (!err.message.includes('UNIQUE constraint failed')) {
-    //         // logger.info(`Error adding character ${char} to league db: ${err.message}`);
-    //       }
-    //     } else {
-    //       // logger.info(`Character ${char} added to league db`);
-    //     }
-    //     resolve(1);
-    //   });
-    // });
+  static async addCharacter(db, char) {
+    return new Promise((resolve, reject) => {
+      db.run(' insert into characters values (?) ', [char], (err) => {
+        if (err) {
+          if (!err.message.includes('UNIQUE constraint failed')) {
+            logger.info(`Error adding character ${char} to league db: ${err.message}`);
+          }
+        } else {
+          logger.info(`Character ${char} added to league db`);
+        }
+        resolve(1);
+      });
+    });
   }
 
-  static async init(db: Database, sqlList: string[][], maintSqlList: string[] = []) {
-    // logger.info('Initializing ' + path.basename(db.filename));
+  static async init(db, sqlList, maintSqlList) {
+    logger.info('Initializing ' + path.basename(db.filename));
     return new Promise((resolve, reject) => {
-      let version = 0;
-      try {
-        version = db.pragma('user_version') as number;
-      } catch (err) {
-        // logger.info('Error reading database version: ' + err);
-        reject(err);
-      }
-
-      sqlList.forEach((commands, index) => {
-        if (version === 0 || index > version) {
-          commands.forEach((command) => {
-            db.prepare(command).run();
+      db.get('pragma user_version', (err, row) => {
+        if (err) {
+          logger.info('Error reading database version: ' + err);
+          reject(err);
+        } else {
+          let ver = row.user_version;
+          logger.info(`Database version is ${ver}`);
+          db.serialize(() => {
+            for (let i = 0; i < sqlList.length; i++) {
+              if (ver === 0 || i > ver) {
+                logger.info(`Running initialization SQL for version ${i}`);
+                for (let j = 0; j < sqlList[i].length; j++) {
+                  let sql = sqlList[i][j];
+                  logger.info(sql);
+                  db.run(sql, (err) => {
+                    if (err) {
+                      if (!err.toString().includes('duplicate column name')) {
+                        logger.info(`Error initializing DB: ${err}`);
+                        reject(err);
+                      }
+                    }
+                  });
+                }
+              }
+            }
+            if (maintSqlList) {
+              for (let i = 0; i < maintSqlList.length; i++) {
+                db.run(maintSqlList[i], (err) => {
+                  if (err) {
+                    logger.info(`Error running DB maintenance: ${err}`);
+                    reject(err);
+                  }
+                });
+              }
+              logger.info('DB maintenance complete');
+            }
+            resolve();
           });
         }
       });
-      maintSqlList.forEach((command) => {
-        db.prepare(command).run();
-      });
-
-      resolve(null);
-
-      // db.get('pragma user_version', (err, row) => {
-      //   if (err) {
-      //     // logger.info('Error reading database version: ' + err);
-      //     reject(err);
-      //   } else {
-      //     let ver = row.user_version;
-      //     // logger.info(`Database version is ${ver}`);
-      //     db.serialize(() => {
-      //       // for (let i = 0; i < sqlList.length; i++) {
-      //       //   if (ver === 0 || i > ver) {
-      //       //     // logger.info(`Running initialization SQL for version ${i}`);
-      //       //     for (let j = 0; j < sqlList[i].length; j++) {
-      //       //       let sql = sqlList[i][j];
-      //       //       // logger.info(sql);
-      //       //       db.run(sql, (err) => {
-      //       //         if (err) {
-      //       //           if (!err.toString().includes('duplicate column name')) {
-      //       //             // logger.info(`Error initializing DB: ${err}`);
-      //       //             reject(err);
-      //       //           }
-      //       //         }
-      //       //       });
-      //       //     }
-      //       //   }
-      //       // }
-      //       if (maintSqlList) {
-      //         for (let i = 0; i < maintSqlList.length; i++) {
-      //           db.run(maintSqlList[i], (err) => {
-      //             if (err) {
-      //               // logger.info(`Error running DB maintenance: ${err}`);
-      //               reject(err);
-      //             }
-      //           });
-      //         }
-      //         // logger.info('DB maintenance complete');
-      //       }
-      //       resolve();
-      //     });
-      //   }
-      // });
     });
   }
 }
@@ -404,4 +355,4 @@ const leagueInitSQL = [
   ],
 ];
 
-export default DB;
+module.exports = DB;

@@ -1,6 +1,7 @@
 import { makeAutoObservable } from 'mobx';
 import { v4 as uuidv4 } from 'uuid';
 import moment, { Duration, Moment } from 'moment';
+import { electronService } from '../../electron.service';
 
 export class Run {
   id = null;

@@ -6,9 +6,9 @@ import { observer } from 'mobx-react-lite';
 import classNames from 'classnames';
 import moment from 'moment';
 import './Run.css';
-import { Run as RunType } from '../../stores/domain/run';
-import RunEventIcons from './RunEventIcons';
-import RunEvent from './RunEvent';
+import { Run as RunType } from '../stores/domain/run';
+import RunEventIcons from '../components/RunEvent/RunEventIcons';
+import RunEvent from '../components/RunEvent/RunEvent';
 
 type RunLoaderData = {
   run: RunType;

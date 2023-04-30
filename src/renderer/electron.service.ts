@@ -3,7 +3,18 @@ const { webFrame, ipcRenderer, shell, BrowserWindow, clipboard } = require('elec
 const childProcess = require('child_process');
 const fs = require('fs');
 
-const { appPath, appLocale } = ipcRenderer.sendSync('app-globals', '');
+let appPath = '';
+let appLocale = '';
+let appVersion = '';
+
+const refreshGlobals = async () => {
+  await ipcRenderer.invoke('app-globals')
+          .then((params) => {
+            appPath = params.appPath;
+            appLocale = params.appLocale;
+            appVersion = params.appVersion;
+          });
+}
 
 export const electronService = {
   BrowserWindow,
@@ -14,6 +25,9 @@ export const electronService = {
   shell,
   appPath,
   appLocale,
+  appVersion,
   clipboard,
-  logger,
+  logger: logger.scope('renderer'),
+  refreshGlobals,
+  getAppVersion: () => appVersion,
 };
