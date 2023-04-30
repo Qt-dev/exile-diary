@@ -1,5 +1,4 @@
 import React from 'react';
-import logger from 'electron-log/renderer';
 import { observer } from 'mobx-react-lite';
 import Item from '../Item/Item';
 import './ItemList.css';

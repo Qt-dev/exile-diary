@@ -3,7 +3,6 @@ import moment from 'moment';
 import constants from '../../../helpers/constants';
 import ItemStore from '../../stores/itemStore';
 import ItemList from '../ItemList/ItemList';
-import { electronService } from '../../electron.service';
 
 const formatLine = (event, text) => {
   const time = moment(event.id, 'YYYYMMDDHHmmss').format('HH:mm:ss');

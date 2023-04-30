@@ -10,7 +10,6 @@ import Root from './routes/root';
 import Settings from './routes/Settings';
 import RunList from './routes/RunList';
 import Run from './routes/Run';
-import { electronService } from './electron.service';
 const runStore = new RunStore();
 
 const router = createBrowserRouter([

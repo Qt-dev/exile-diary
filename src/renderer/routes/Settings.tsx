@@ -16,7 +16,7 @@ import { useNavigate } from 'react-router-dom';
 import MenuItem from '@mui/material/MenuItem';
 import FormHelperText from '@mui/material/FormHelperText';
 import * as path from 'path';
-const { logger, ipcRenderer } = electronService;
+const { ipcRenderer } = electronService;
 
 // Fix to allow for directory selection in inputs
 declare module 'react' {

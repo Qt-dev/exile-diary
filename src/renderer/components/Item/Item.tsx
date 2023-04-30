@@ -1,12 +1,10 @@
 import React from 'react';
-import { electronService } from '../../electron.service';
 import Tooltip, { TooltipProps, tooltipClasses } from '@mui/material/Tooltip';
 import { styled } from '@mui/material/styles';
 import Sockets from './Sockets';
 import './Item.css';
 import ItemTooltip from './ItemTooltip';
 import CardTooltip from './CardTooltip';
-const logger = electronService.logger;
 
 const Rarity = {
   Normal: 0,
@@ -107,7 +105,7 @@ const getInfluenceIcons = (item) => {
 
   for (const icon of influenceIcons) {
     const Icon = require(`../../assets/img/${icon}.png`);
-    icons.push(<img className="Item__Influence" key={`influence-${icon}`} src={Icon} />);
+    icons.push(<img alt={`influence-${icon}`} className="Item__Influence" key={`influence-${icon}`} src={Icon} />);
   }
   return icons;
 };

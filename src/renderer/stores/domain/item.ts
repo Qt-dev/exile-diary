@@ -63,7 +63,7 @@ const getCategory = (item, subcategory = false) => {
   let type = item.hybrid ? item.hybrid.baseTypeName : item.typeLine;
   if (!type) return null;
 
-  const iconFileName = item.icon.replace(/^.*[\\\/]/, '');
+  const iconFileName = item.icon.replace(/^.*[\\/]/, '');
 
   // Easiest cases
   if (type === 'Expedition Logbook') return type;
@@ -413,7 +413,7 @@ export class Item {
     if (!this.enchantMods) return false;
     const cleanEnchantmentString = mod.replace('Enchantment ', '');
     return this.enchantMods.some((mod) => {
-      mod.includes(cleanEnchantmentString);
+      return mod.includes(cleanEnchantmentString);
     });
   }
 }

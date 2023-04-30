@@ -12,7 +12,7 @@ function Root() {
       const newVersion = electronService.getAppVersion();
       if (version !== newVersion) setVersion(newVersion);
     });
-  }, []);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
   const turnNewVersionOff = () => {
     setIsNewVersion(false);
   };

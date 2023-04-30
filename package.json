@@ -1,13 +1,18 @@
 {
   "name": "exile-diary",
   "version": "1.0.0-Dev",
-  "main": "build/main/index.js",
+  "main": "./build/main/index.js",
   "build": {
-    "appId": "com.pathofexile.exilediary",
-    "productName": "Exile Diary",
+    "appId": "com.pathofexile.exilediary.reborn",
+    "productName": "Exile Diary Reborn",
+    "files": [
+      "build/**/*",
+      "public/icon.*",
+      "public/icon512x512.*"
+    ],
     "win": {
       "target": "nsis",
-      "artifactName": "exile-diary-setup-${version}.${ext}",
+      "artifactName": "exile-diary-reborn-setup-${version}.${ext}",
       "icon": "./res/img/icons/win/ExileDiary.ico",
       "extraResources": [
         "eng.traineddata"
@@ -39,15 +44,17 @@
     "react:build": "node scripts/build.js",
     "react:test": "node scripts/test.js",
     "react:eject": "node scripts/eject.js",
-    "react:try": "cross-env BROWSER=none npm run react:start",
-    "electron:try": "tsc -p src/main && electron .",
-    "electron:dev": "concurrently \"cross-env BROWSER=none npm run react:start\" \"wait-on http://localhost:3000 && tsc -p src/main -w\" \"wait-on http://localhost:3000 && tsc -p src/main && electron .\""
+    "build": "npm run react:build && tsc -p src/main && electron-builder",
+    "dev": "concurrently \"cross-env BROWSER=none npm run react:start\" \"wait-on http://localhost:3000 && tsc -p src/main -w\" \"wait-on http://localhost:3000 && tsc -p src/main && electron .\""
   },
   "eslintConfig": {
     "extends": [
       "react-app",
       "react-app/jest"
-    ]
+    ],
+    "rules": {
+      "no-throw-literal": "off"
+    }
   },
   "browserslist": {
     "production": [

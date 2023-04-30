@@ -118,7 +118,7 @@ const getPropertyString = (property: Property): JSX.Element[] | null => {
         const isStoredExperience = propertyLines[0].startsWith('Stored Experience');
         const formatExperience = (xp) => new Intl.NumberFormat().format(Number.parseInt(xp));
         const propertyElements: any[] = [];
-        const pattern = /[%\{](?<id>\d)\}*/g;
+        const pattern = /[%{](?<id>\d)\}*/g;
 
         for (const line of propertyLines) {
           propertyElements.push(
@@ -418,7 +418,7 @@ const getFlavourTextParsed = (item) => {
   for (const line of glyphLines) {
     for (const letter in line) {
       flavourTextParsed.push(
-        <div className="Item-Tooltip__Property Text--Flavour">
+        <div key={`Flavour-Text-${line}`} className="Item-Tooltip__Property Text--Flavour">
           <div className={`Glyph Glyph--${letter}`} />
         </div>
       );
@@ -450,9 +450,8 @@ const getIncubatedItem = (item) => {
   const { rawData } = item;
   if (!rawData.incubatedItem) return null;
 
-  const { progress, level, total, name } = rawData.incubatedItem;
+  const { progress, level, total } = rawData.incubatedItem;
   const progressPercent = Math.floor((progress / total) * 100);
-  const parsedLevel = level + (level === 68 ? '+' : '');
   const { format } = new Intl.NumberFormat();
 
   return [
@@ -526,10 +525,6 @@ const getIcon = (item) => {
   } else if (rawData.elder) {
     backgroundImage = require(`../../assets/img/itemicons/ElderBackground${width}x${height}.png`);
   }
-  const style = {
-    width,
-    height,
-  };
 
   return (
     <div className="Item-Tooltip__Icon">
