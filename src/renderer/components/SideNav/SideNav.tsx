@@ -34,7 +34,7 @@ const SideNav = ({ version, isNewVersion, turnNewVersionOff }) => {
         <div className="Header__Logo">
           <img src={Logo} alt="Exile Diary Logo" />
         </div>
-        <div className="Header__Title">Exile Diary</div>
+        <div className="Header__Title">Exile Diary <span className="Text--Legendary">Reborn</span></div>
         <div className="Header__Version">{version}</div>
       </div>
 

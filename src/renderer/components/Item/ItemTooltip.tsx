@@ -522,9 +522,9 @@ const getIcon = (item) => {
   const { w: width, h: height } = rawData;
   let backgroundImage: any = null;
   if (rawData.shaper) {
-    backgroundImage = require(`../../assets/img/ShaperBackground${width}x${height}.png`);
+    backgroundImage = require(`../../assets/img/itemicons/ShaperBackground${width}x${height}.png`);
   } else if (rawData.elder) {
-    backgroundImage = require(`../../assets/img/ElderBackground${width}x${height}.png`);
+    backgroundImage = require(`../../assets/img/itemicons/ElderBackground${width}x${height}.png`);
   }
   const style = {
     width,

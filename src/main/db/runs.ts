@@ -68,7 +68,7 @@ const getItemNameFromIcon = (iconUrl: string) => {
   }
 };
 
-const Run = {
+const Runs = {
   getLastRuns: async (numberOfRunsToShow: number) => {
     // var numberOfShownMaps = $("#numberOfShownMaps").val() || 10;
     const lastRunsQuery = `
@@ -166,10 +166,10 @@ const Run = {
   },
 
   getRun: async (mapId: number) => {
-    const mapInfo = await Run.getRunInfo(mapId);
-    const mods = await Run.getRunMods(mapId);
-    const events = await Run.getEvents(mapId);
-    const items = await Run.getItems(mapId);
+    const mapInfo = await Runs.getRunInfo(mapId);
+    const mods = await Runs.getRunMods(mapId);
+    const events = await Runs.getEvents(mapId);
+    const items = await Runs.getItems(mapId);
 
     const run = {
       ...mapInfo[0],
@@ -182,4 +182,4 @@ const Run = {
   },
 };
 
-export default Run;
+export default Runs;

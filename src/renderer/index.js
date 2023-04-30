@@ -2,13 +2,15 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
-import Root from './routes/root';
+import { ipcRenderer } from 'electron';
 import './index.css';
 import reportWebVitals from './reportWebVitals';
-import RunList from './components/RunList/RunList';
-import Settings from './components/Settings/Settings';
-import Run from './components/Run/Run';
 import RunStore from './stores/runStore';
+import Root from './routes/root';
+import Settings from './routes/Settings';
+import RunList from './routes/RunList';
+import Run from './routes/Run';
+import { electronService } from './electron.service';
 const runStore = new RunStore();
 
 const router = createBrowserRouter([
@@ -46,6 +48,11 @@ const router = createBrowserRouter([
       {
         path: 'settings',
         element: <Settings />,
+        loader: async() => {
+          const settings = await ipcRenderer.invoke('get-settings');
+          const characters = await ipcRenderer.invoke('get-characters');
+          return { settings, characters }
+        },
       },
       {
         path: 'gear',

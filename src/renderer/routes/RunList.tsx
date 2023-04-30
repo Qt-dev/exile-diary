@@ -15,7 +15,7 @@ import {
   Drawer,
 } from '@mui/material';
 import classNames from 'classnames';
-import ChaosIcon from '../../assets/img/c.png';
+import ChaosIcon from '../assets/img/c.png';
 import { useNavigate } from 'react-router-dom';
 import moment from 'moment';
 import { observer } from 'mobx-react-lite';
