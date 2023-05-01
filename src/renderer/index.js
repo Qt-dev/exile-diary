@@ -1,6 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-import { createBrowserRouter, RouterProvider } from 'react-router-dom';
+import { createHashRouter, RouterProvider } from 'react-router-dom';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import { ipcRenderer } from 'electron';
 import './index.css';
@@ -12,7 +12,7 @@ import RunList from './routes/RunList';
 import Run from './routes/Run';
 const runStore = new RunStore();
 
-const router = createBrowserRouter([
+const router = createHashRouter([
   {
     path: '/',
     element: <Root />,
