@@ -1,10 +1,11 @@
-import { app, BrowserWindow, ipcMain, dialog } from 'electron';
+import { app, BrowserWindow, ipcMain, dialog, Menu } from 'electron';
 import * as path from 'path';
 import logger from 'electron-log';
 import Responder from './Responder';
 import SettingsManager from './SettingsManager';
 import GGGAPI from './GGGAPI';
 import League from './db/leagues';
+import * as url from 'url';
 
 // Old stuff
 import RateGetterV2 from './modules/RateGetterV2';
@@ -234,18 +235,21 @@ const createWindow = async () => {
     win.maximize();
   }
 
-  require('electron-reload')(__dirname, {
-    electron: path.join(
-      __dirname,
-      '..',
-      '..',
-      'node_modules',
-      '.bin',
-      'electron' + (process.platform === SYSTEMS.WINDOWS ? '.cmd' : '')
-    ),
-    // forceHardReset: true,
-    hardResetMethod: 'exit',
-  });
+  const isDev = require('electron-is-dev')
+  if(isDev) {
+    require('electron-reload')(__dirname, {
+      electron: path.join(
+        __dirname,
+        '..',
+        '..',
+        'node_modules',
+        '.bin',
+        'electron' + (process.platform === SYSTEMS.WINDOWS ? '.cmd' : '')
+      ),
+      forceHardReset: true,
+      hardResetMethod: 'exit',
+    });
+  }
 
   // Save Window bounds
 
@@ -266,7 +270,14 @@ const createWindow = async () => {
     win.show();
   });
 
-  win.loadURL(devUrl);
+  if(isDev) {
+    win.loadURL(devUrl);
+  } else {
+    Menu.setApplicationMenu(null);
+    const URL = url.pathToFileURL(path.join(__dirname, '..', 'index.html')).toString();
+    win.loadURL(URL);
+  }
+    
 };
 
 app.on('ready', createWindow);
