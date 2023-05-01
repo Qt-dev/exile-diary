@@ -1,14 +1,16 @@
 {
   "name": "exile-diary",
-  "version": "0.3.21",
+  "version": "0.3.22",
   "main": "main.js",
   "build": {
-    "publish": [{
-      "provider": "github",
-      "owner": "qt-dev",
-      "repo": "exile-diary",
-      "channel": "latest"
-    }],
+    "publish": [
+      {
+        "provider": "github",
+        "owner": "qt-dev",
+        "repo": "exile-diary",
+        "channel": "latest"
+      }
+    ],
     "appId": "com.pathofexile.exilediary",
     "productName": "Exile Diary",
     "win": {
