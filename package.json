@@ -75,7 +75,7 @@
     "pastebin-js": "^1.0.6",
     "ps-list": "^7.2.0",
     "request": "^2.88.2",
-    "sqlite3": "^5.0.11",
+    "sqlite3": "^5.1.5",
     "tesseract.js": "^3.0.2",
     "winston": "^3.8.1",
     "xlsx": "^0.18.5"
