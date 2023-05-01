@@ -3,6 +3,12 @@
   "version": "0.3.21",
   "main": "main.js",
   "build": {
+    "publish": [{
+      "provider": "github",
+      "owner": "qt-dev",
+      "repo": "exile-diary",
+      "channel": "latest"
+    }],
     "appId": "com.pathofexile.exilediary",
     "productName": "Exile Diary",
     "win": {
