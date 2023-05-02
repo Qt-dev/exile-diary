@@ -2,6 +2,7 @@ import logger from 'electron-log';
 import * as path from 'path';
 import * as fs from 'fs/promises';
 import { app } from 'electron';
+import DB from './db';
 
 const settingsPath = path.join(app.getPath('userData'), 'settings.json');
 
@@ -33,6 +34,10 @@ class SettingsManager {
 
   async set(key, value) {
     if (key !== 'mainWindowBounds') logger.info(`Set "${key}" to ${JSON.stringify(value)}`);
+    if (
+      key === 'activeProfile' &&
+      value.characterName && this.settings.activeProfile &&
+      value.characterName !== this.settings.activeProfile.characterName) await DB.initDB(value.characterName);
     this.settings[key] = value;
     this.scheduleSave();
   }

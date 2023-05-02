@@ -73,7 +73,7 @@ function getCategory(item, subcategory = false) {
   }
 
   if (t.includes('Contract')) {
-    return data.items.names.heistQuestItems.includes(t) ? 'Quest Items' : 'Contract';
+    return data.names.heistQuestItems.includes(t) ? 'Quest Items' : 'Contract';
   }
 
   if (t.includes('Blueprint')) {
