@@ -87,7 +87,7 @@ function processImage(file) {
       } = await worker.recognize(file);
 
       const filename = path.basename(file);
-      const timestamp = filename.substring(0, filename.indexOf('.'));
+      const timestamp = filename.substring(0, filename.indexOf('_'));
       const lines = [];
       text.split('\n').forEach((line) => {
         lines.push(line.trim());

@@ -57,7 +57,7 @@ async function tryProcess(obj) {
   if (!lastEvent) return;
   logger.info('Last town event found:');
   logger.info(JSON.stringify(lastEvent));
-
+  
   var mapStats;
   var mapMods;
   var areaInfo = await getAreaInfo(firstEvent, lastEvent);
@@ -75,6 +75,7 @@ async function tryProcess(obj) {
       packsize: null,
     };
   }
+  logger.info(`Stats: ${areaInfo}`);
 
   var xp = XPTracker.isMaxXP()
     ? Constants.MAX_XP
@@ -112,6 +113,7 @@ async function tryProcess(obj) {
     ignoreMapRun = true;
     logger.info('No items or xp gained, map run will be logged as invisible');
   }
+  logger.info(`Map stats: ${JSON.stringify(mapStats)}`);
 
   var runArr = [
     areaInfo.id,
@@ -294,6 +296,7 @@ async function process() {
   logger.info(`Processing run in ${currArea.name}`);
 
   var mapStats = getMapStats(mods);
+  logger.info(`Map stats: ${JSON.stringify(mapStats)}, mods: ${JSON.stringify(mods)}`);
 
   var lastUsedEvent = await getLastUsedEvent();
   if (!lastUsedEvent) return;
