@@ -1,0 +1,75 @@
+.Log-Box__Overlay {
+  position: fixed;
+  width: 100vw;
+  margin: 0;
+  bottom: 0;
+  left: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  color: #fff;
+  z-index: 999;
+  min-height: 1.2em; 
+  background-color: #111;
+  border-top: 1px solid #333;
+  font-size: 1.2em;
+}
+
+.Log-Box {
+  max-height: 1.2em;
+  transition: max-height 0.3s ease-in-out;
+
+  padding: 5px;
+  display: flex;
+  flex-direction: row;
+  gap: 10px;
+  align-items: flex-end;
+  overflow: hidden;
+}
+
+.Log-Box--Open {
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.Log-Box__Content {
+  padding: 5px;
+  display: flex;
+  flex-direction: row;
+  gap: 10px;
+  align-items: flex-end;
+  overflow: hidden;
+}
+
+.Log-Box__Icon {
+  cursor: pointer;
+  border: 1px solid transparent;
+  border-radius: 10%;
+  height: 1.2em;
+  justify-self: flex-start;
+}
+
+.Log-Box__Icon:hover {
+  border: 1px solid grey;
+}
+
+.Log-Box__Lines {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  justify-content: flex-end;
+}
+
+.Log-Box__Old_Lines {
+  transform: scaleY(0);
+  transition: transform 0.1s ease-in-out;
+  transform-origin: bottom;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  justify-content: flex-end;
+}
+
+.Log-Box--Open .Log-Box__Old_Lines {
+  transform: scaleY(1);
+}

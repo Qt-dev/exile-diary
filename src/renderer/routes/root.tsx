@@ -3,6 +3,9 @@ import { Outlet } from 'react-router-dom';
 import SideNav from '../components/SideNav/SideNav';
 import Box from '@mui/material/Box';
 import { electronService } from '../electron.service';
+import LogBox from '../components/LogBox/LogBox';
+import LogStore from '../stores/logStore';
+const logStore = new LogStore([]);
 
 function Root() {
   const [isNewVersion, setIsNewVersion] = useState(true); // Change this to make it save
@@ -29,6 +32,9 @@ function Root() {
       </div>
       <div className="Right-Column">
         <Outlet />
+      </div>
+      <div className="Log-Box__Overlay">
+        <LogBox store={logStore} />
       </div>
     </div>
   );
