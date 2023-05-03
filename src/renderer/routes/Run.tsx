@@ -46,7 +46,7 @@ const Run = ({ store }) => {
         <div className="Run__Header__Left">
           <div className="Run__Header__Name Text--Legendary">{run.name}</div>
           <div className="Run__Header__Level Text--Legendary">
-            Monster level: {run.level} (Tier: {run.tier})
+            Monster level: {run.level} (Tier: {run.tier ? run.tier : '??'})
           </div>
           <div className="Run__Header__League Text--Legendary">{run.league} League</div>
         </div>
