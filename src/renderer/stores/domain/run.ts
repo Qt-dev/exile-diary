@@ -27,6 +27,7 @@ export class Run {
   initialxp: number | null = null;
   events: any[] = [];
   items: any = {};
+  profitPerHour: any = 0;
 
   store;
   saveHandler = null;
@@ -57,6 +58,7 @@ export class Run {
     this.xpPerHour = this.xp / this.duration.asHours();
     this.deaths = json.deaths;
     this.profit = json.gained;
+    this.profitPerHour = this.profit / this.duration.asHours();
     this.kills = json.kills;
     this.runInfo = JSON.parse(json.runinfo);
   }

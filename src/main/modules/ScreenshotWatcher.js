@@ -90,13 +90,6 @@ const getYboundsFromImage = (rawImage, metadata) => {
         lastBlues === 0 &&
         lastBlacks >= detectionWidth - errorMargin;
 
-      if (bluePixels > minBluePixels) {
-        logger.info(
-          `y=${y} bluePixels=${bluePixels} blackPixels=${blackPixels} lastBlacks=${lastBlacks} lastBlues=${lastBlues} lastLes=${lastLinesForStart.length} isFirstLine=${isFirstLine}}`
-        );
-        logger.info('last', lastLinesForStart);
-      }
-
       // If we do not have a first line, and we are getting a first line with blues, this is the one
       if (isFirstLine) {
         logger.info(`Found first line of the mod box with ${bluePixels} blues at y=${y}`);

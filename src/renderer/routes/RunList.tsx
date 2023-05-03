@@ -70,10 +70,13 @@ const RunList = ({ NumberOfMapsToShow = '10', store }) => {
               <TableCell align="center">IIR</TableCell>
               <TableCell align="center">Pack Size</TableCell>
               <TableCell>Duration</TableCell>
-              <TableCell align="center">XP/Hr</TableCell>
               <TableCell align="center">
                 <img className="Run-List__List__Header__Icon" src={ChaosIcon} alt="profit" />
               </TableCell>
+              <TableCell align="center">
+                <img className="Run-List__List__Header__Icon" src={ChaosIcon} alt="profit" />/Hr
+              </TableCell>
+              <TableCell align="center">XP/Hr</TableCell>
               <TableCell align="center">Deaths</TableCell>
               <TableCell align="center">Kills</TableCell>
             </TableRow>
@@ -101,10 +104,11 @@ const RunList = ({ NumberOfMapsToShow = '10', store }) => {
                   <TableCell align="center">{run.iir ? `${run.iir}%` : '-'}</TableCell>
                   <TableCell align="center">{run.packSize ? `${run.packSize}%` : '-'}</TableCell>
                   <TableCell>{moment.utc(run.duration.asMilliseconds()).format('mm:ss')}</TableCell>
+                  <TableCell align="center">{run.profit?.toFixed(2)}</TableCell>
+                  <TableCell align="center">{run.profitPerHour?.toFixed(2)}</TableCell>
                   <TableCell align="center" className={getXPClassName(run.xpPerHour)}>
                     {run.xpPerHour.toLocaleString('en')}
                   </TableCell>
-                  <TableCell align="center">{run.profit?.toFixed(2)}</TableCell>
                   <TableCell align="center">{deaths.length > 0 ? deaths : '-'}</TableCell>
                   <TableCell align="center">{run.kills || '-'}</TableCell>
                 </TableRow>

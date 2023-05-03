@@ -1,6 +1,7 @@
 import Constants from '../../../helpers/constants';
-import logger from 'electron-log/renderer';
 import { makeAutoObservable, computed } from 'mobx';
+import { electronService } from '../../electron.service';
+const { logger } = electronService;
 
 const countSockets = (sockets) => {
   if (!sockets || !sockets.length) return 0;
