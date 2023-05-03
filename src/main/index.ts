@@ -5,6 +5,7 @@ import Responder from './Responder';
 import SettingsManager from './SettingsManager';
 import GGGAPI from './GGGAPI';
 import League from './db/leagues';
+import RendererLogger from './RendererLogger';
 import * as url from 'url';
 
 // Old stuff
@@ -137,6 +138,22 @@ const createWindow = async () => {
     logger.info(
       `Got area info for <span class='eventText'>${info.areaInfo.name}</span> (${tier} - ${stats})`
     );
+    RendererLogger.log([
+      {
+        messages: [
+          {
+            text: "Got area info for ",
+          },
+          {
+            text: info.areaInfo.name,
+            type: 'important',
+          },
+          {
+            text: ` (${tier} - ${stats})`,
+          }
+        ]
+      }
+    ])
   });
 
   ScreenshotWatcher.emitter.removeAllListeners();
@@ -162,6 +179,36 @@ const createWindow = async () => {
         (run.xp ? `, ${f.format(run.xp)} XP` : '') +
         `)</span>`
     );
+    RendererLogger.log([
+      {
+        messages: [
+          {
+            text: "Completed run in ",
+          },
+          {
+            text: run.name,
+            type: 'important',
+            link: `run/${run.id}`,
+          },
+          {
+            text: ` (${Utils.getRunningTime(run.firstevent, run.lastevent)}`,
+          },
+          {
+            text: run.gained ? `, ${run.gained}c ` : '',
+            type: 'currency',
+          },
+          {
+            text: run.kills ? `, ${f.format(run.kills)} kills` : '',
+          },
+          {
+            text: run.xp ? `, ${f.format(run.xp)} XP` : '',
+          },
+          {
+            text: ')',
+          }
+        ]
+      }
+    ]);
     win.webContents.send('refresh-runs');
   });
 
@@ -225,6 +272,8 @@ const createWindow = async () => {
     show: false,
   });
 
+  RendererLogger.init(win.webContents);
+
   win.on('resize', saveWindowBounds);
   win.on('move', saveWindowBounds);
 
@@ -268,6 +317,22 @@ const createWindow = async () => {
 
   win.once('ready-to-show', () => {
     win.show();
+    logger.info('ready to show');
+    
+    RendererLogger.log([{
+      messages: [
+        {
+          text: 'Exile Diary Reborn '
+        },
+        {
+          text: `v${app.getVersion()}`,
+          type: 'important'
+        },
+        {
+          text: ' started.'
+        }]
+    }]
+    );
   });
 
   if(isDev) {

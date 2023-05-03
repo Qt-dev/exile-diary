@@ -1,3 +1,5 @@
+import RendererLogger from '../RendererLogger';
+
 const EventEmitter = require('events');
 const moment = require('moment');
 const logger = require('electron-log');
@@ -111,6 +113,10 @@ class RateGetterV2 {
 
     emitter.emit('gettingPrices');
     logger.info(`Getting new ${this.league} rates for ${today}`);
+    const message = {
+      text: `Getting new ${this.league} rates for today (${today})`,
+    }
+    RendererLogger.log([message]);
     this.getRates(today);
   }
 
