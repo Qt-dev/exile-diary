@@ -3,9 +3,11 @@ import { observer } from 'mobx-react-lite';
 import { electronService } from '../../electron.service';
 import './LogBox.css'
 import { Link } from 'react-router-dom';
+import MuiLink from '@mui/material/Link';
 import classNames from 'classnames';
 import OpenInFullIcon from '@mui/icons-material/OpenInFull';
 import CloseFullscreenIcon from '@mui/icons-material/CloseFullscreen';
+import { ipcRenderer } from 'electron';
 const { logger } = electronService;
 
 const classPerType = {
@@ -15,9 +17,18 @@ const classPerType = {
 };
 
 const Line = ({ messages, timestamp }) => {
-  const formattedMessages = messages.map(({type, text, link}) => {
+  const formattedMessages = messages.map(({type, text, link, linkEvent}) => {
     const Element = type ? <span className={classPerType[type]}>{text}</span> : <>{text}</>
-    return link ? <Link to={link} style={{fontSize: 'inherit'}}>{Element}</Link> : <>{Element}</>;
+    if(link) {
+      return <Link to={link} style={{fontSize: 'inherit'}}>{Element}</Link>
+    } else if (linkEvent) {
+      const triggerEvent = () => {
+        ipcRenderer.send(linkEvent);
+      }
+      return <MuiLink href="#" onClick={triggerEvent} style={{fontSize: 'inherit'}}>{Element}</MuiLink>
+    } else {
+      return <>{Element}</>
+    }
   });
   const time = timestamp.format('YYYY-MM-DD HH:mm:ss');
   return <div className="Log-Box__Line"><span className="Text--Legendary--2">[{time}] </span>{formattedMessages}</div>
