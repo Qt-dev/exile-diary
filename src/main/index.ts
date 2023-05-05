@@ -1,4 +1,5 @@
 import { app, BrowserWindow, ipcMain, dialog, Menu } from 'electron';
+import { autoUpdater } from 'electron-updater';
 import * as path from 'path';
 import logger from 'electron-log';
 import Responder from './Responder';
@@ -125,6 +126,40 @@ const createWindow = async () => {
   for (const event of events) {
     ipcMain.handle(event, Responder[event]);
   }
+
+
+  let isDownloadingUpdate = false;
+
+  ipcMain.on('download-update', function (event) {
+    if (!isDownloadingUpdate) {
+      isDownloadingUpdate = true;
+      RendererLogger.log([{
+        text: 'Downloading update...',
+      }]);
+      logger.info('Now downloading update');
+      autoUpdater.downloadUpdate();
+    }
+  });
+  ipcMain.on('apply-update', function (event) {
+    logger.info('Restarting to apply update');
+    autoUpdater.quitAndInstall();
+  });
+    
+  autoUpdater.logger = logger;
+  autoUpdater.autoDownload = false;
+  autoUpdater.on('update-available', (info) => {
+    global.updateInfo = info;
+    logger.info('Fetched Update Info:', JSON.stringify(info));
+    RendererLogger.log(
+      { text: `An update to version ${info.version} is available, click here to download`, linkEvent: 'download-update' },
+    );
+  });
+  autoUpdater.on('update-downloaded', (info) => {
+    RendererLogger.log([{
+      text: `Update to version ${info.version} has been downloaded, click here to install it now (requires restart)`, linkEvent: 'apply-update'
+    }])
+  });
+  autoUpdater.checkForUpdates();
 
   OCRWatcher.emitter.removeAllListeners();
   OCRWatcher.emitter.on('OCRError', () => {
