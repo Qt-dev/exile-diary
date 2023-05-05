@@ -24,7 +24,7 @@ const Line = ({ messages, timestamp }) => {
 };
 
 const LogBox = ({ store }) => {
-  const messages = store.logs.map(({ id, messages, timestamp }) => <Line key={`Log-${id}`} timestamp={timestamp} messages={messages} />);
+  const messages = store.logs.length > 0 ? store.logs.map(({ id, messages, timestamp }) => <Line key={`Log-${id}`} timestamp={timestamp} messages={messages} />) : '';
   const [isOpen, toggleOpenState] = useState(false);
   const classes = classNames({
     'Log-Box': true,
@@ -36,7 +36,7 @@ const LogBox = ({ store }) => {
     <div className={classes}>
       {icon}
       <div className='Log-Box__Lines'>
-        <div className="Log-Box__Old_Lines">{messages.slice(0, -1)}</div>
+        <div className="Log-Box__Old_Lines">{messages.length > 1 ? messages.slice(0, -1) : ''}</div>
         <div className="Log-Box__Last_Line">{messages.slice(-1)}</div>
       </div>
     </div>
