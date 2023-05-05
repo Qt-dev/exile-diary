@@ -1,4 +1,5 @@
 import RendererLogger from '../RendererLogger';
+import SettingsManager from '../SettingsManager';
 
 const EventEmitter = require('events');
 const moment = require('moment');
@@ -46,7 +47,7 @@ class RateGetterV2 {
   constructor() {
     clearTimeout(nextRateGetTimer);
     this.ratesReady = false;
-    this.settings = require('./settings').get();
+    this.settings = this.refreshSettings();
     this.league = this.settings.activeProfile.league;
     this.priceCheckLeague = null;
     this.DB = require('./DB').getLeagueDB(this.league);
@@ -63,10 +64,15 @@ class RateGetterV2 {
     }
   }
 
+  refreshSettings() {
+    this.settings = SettingsManager.get();
+  }
+
   /*
    * get today's rates from POE.ninja
    */
   async update(isForced = false) {
+    this.refreshSettings();
     if (!this.league) {
       logger.info('No league set, will not attempt to get prices');
       return;
