@@ -77,6 +77,10 @@ class RateGetterV2 {
       logger.info('No league set, will not attempt to get prices');
       return;
     }
+    if(!this.settings) {
+      logger.error('No settings found, will not attempt to get prices');
+      return;
+    }
 
     // no need for exchange rates in SSF
     if (this.league.includes('SSF') && !this.settings.activeProfile.overrideSSF) {
