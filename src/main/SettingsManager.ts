@@ -33,7 +33,8 @@ class SettingsManager {
   }
 
   async set(key, value) {
-    if (key !== 'mainWindowBounds') logger.info(`Set "${key}" to ${JSON.stringify(value)}`);
+    if (key !== 'mainWindowBounds' && key !== 'poesessid') logger.info(`Set "${key}" to ${JSON.stringify(value)}`);
+    if (key === 'poesessid') logger.info(`Set ${key}`);
     if (
       key === 'activeProfile' &&
       value.characterName && this.settings.activeProfile &&
