@@ -144,7 +144,8 @@ const createWindow = async () => {
     logger.info('Restarting to apply update');
     autoUpdater.quitAndInstall();
   });
-    
+  
+  autoUpdater.channel = 'alpha'; // TODO: change this when pushing to prod
   autoUpdater.logger = logger;
   autoUpdater.autoDownload = false;
   autoUpdater.on('update-available', (info) => {
