@@ -28,11 +28,12 @@ const log = false;
 var ratesCache = {};
 
 function getRatesFor(timestamp, league) {
+  const { activeProfile } = SettingsManager.getAll();
   if (!league) {
-    league = settings.activeProfile.league;
+    league = activeProfile.league;
   }
 
-  if (league.includes('SSF') && !settings.activeProfile.overrideSSF) {
+  if (league.includes('SSF') && !activeProfile.overrideSSF) {
     return null;
   }
 
@@ -218,6 +219,8 @@ async function price(item, league) {
   /* sub-functions for getting value per item type*/
 
   function getValueFromTable(table, identifier = null) {
+    const { alternateSplinterPricing } = SettingsManager.get();
+
     // RIP harvest :-(
     if (table === 'Seed') return 0;
 
@@ -247,9 +250,9 @@ async function price(item, league) {
       return shardValue >= minItemValue ? stackValue : 0;
     }
 
-    if (settings.alternateSplinterPricing && Constants.fragmentTypes[identifier]) {
-      let f = Constants.fragmentTypes[identifier];
-      let splinterValue = rates[f.itemType || 'Fragment'][f.item] / f.stackSize;
+    if (alternateSplinterPricing && Constants.fragmentTypes[identifier]) {
+      let fragmentType = Constants.fragmentTypes[identifier];
+      let splinterValue = rates[f.itemType || 'Fragment'][fragmentType.item] / fragmentType.stackSize;
       let stackValue = splinterValue * item.stacksize;
       if (splinterValue >= minItemValue) {
         logger.info(

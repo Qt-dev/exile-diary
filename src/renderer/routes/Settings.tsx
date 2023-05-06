@@ -78,6 +78,7 @@ const Settings = () => {
       {character.name} (Level {character.level}) {character.class} - {character.league}
     </MenuItem>
   ));
+  const alternateSplinterPricing = !!settings.alternateSplinterPricing;
 
   const handleBack = () => {
     navigate('/');
@@ -99,6 +100,7 @@ const Settings = () => {
       },
       clientTxt: e.target.log_location.value,
       screenshotDir: e.target.screenshot_location.value,
+      alternateSplinterPricing: e.target.alternate_splinter_pricing.checked,
     };
     ipcRenderer.invoke('save-settings', { settings: data });
   };
@@ -212,6 +214,14 @@ const Settings = () => {
                 />
               </Button>
             </div>
+            <Divider className="Settings__Separator" />
+            <div className="Settings__Checkbox__Row">
+              <FormControlLabel
+                control={<Checkbox id="alternate_splinter_pricing" defaultChecked={alternateSplinterPricing} />}
+                label="Enable Alternate Splinter Pricing"
+              />
+            </div>
+            {/* alternateSplinterPricing */}
             <Divider className="Settings__Separator" />
             <div>This section is not plugged in yet</div>
             <div className="Settings__Checkbox__Row">
