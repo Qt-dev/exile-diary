@@ -17,6 +17,7 @@ const classPerType = {
 };
 
 const Line = ({ messages, timestamp }) => {
+  if(!messages) return null;
   const formattedMessages = messages.map(({type, text, link, linkEvent}) => {
     const Element = type ? <span className={classPerType[type]}>{text}</span> : <>{text}</>
     if(link) {
