@@ -1,0 +1,16 @@
+.Loot-Table__Item-Icon {
+  height: 80%;
+  margin: 2px auto;
+}
+
+.Loot-Table__Chaos-Icon {
+  vertical-align: middle;
+  width: 24px;
+  height: 24px;
+  margin: 0 auto;
+}
+
+.Loot-Table__Header {
+  width: 100%;
+  text-align: center;
+}
