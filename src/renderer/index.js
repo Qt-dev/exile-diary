@@ -85,7 +85,7 @@ const darkTheme = createTheme({
     MuiDivider: {
       styleOverrides: {
         root: {
-          'border-width': '1px',
+          borderWidth: '1px',
           margin: '3px 0',
         },
       },
