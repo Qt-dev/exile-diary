@@ -144,8 +144,8 @@ const Item = ({ item }) => {
       <div className="Item" style={style}>
         {influencesDiv}
         <div className="Item__Name">
-          {item.getDisplayName().map((line) => (
-            <div className="Item__Name__Line">{line}</div>
+          {item.getDisplayName().map((line, index) => (
+            <div key={`Item__Name__Line-${index}`} className="Item__Name__Line">{line}</div>
           ))}
         </div>
         {sockets}
