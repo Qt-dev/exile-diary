@@ -170,7 +170,7 @@ const createWindow = async () => {
         ]
       })
   });
-  autoUpdater.checkForUpdates();
+  autoUpdater.checkForUpdates().then((result) => {logger.info('Update check result:', result)});
 
   OCRWatcher.emitter.removeAllListeners();
   OCRWatcher.emitter.on('OCRError', () => {
