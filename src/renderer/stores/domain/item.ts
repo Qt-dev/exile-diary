@@ -224,6 +224,8 @@ const getGemLevel = (data: ItemData) => {
 };
 
 type ItemData = {
+  pickupStackSize: number;
+  maxStackSize: any;
   properties?: any[];
   requirements?: any;
   frameType: number;
@@ -257,6 +259,8 @@ type ItemData = {
   enchantMods: string[];
   w: number;
   h: number;
+  value: number;
+  secretName?: string;
 };
 
 export class Item {
@@ -293,6 +297,7 @@ export class Item {
   gemLevel: number;
   outerElement: HTMLElement | null;
   domElement: HTMLElement | null;
+  value: number;
 
   constructor(store, itemdata: ItemData) {
     makeAutoObservable(this, {
@@ -355,6 +360,8 @@ export class Item {
 
     this.outerElement = null;
     this.domElement = null;
+
+    this.value = itemdata.value;
   }
 
   // Get the full name to display for an item
@@ -416,5 +423,18 @@ export class Item {
     return this.enchantMods.some((mod) => {
       return mod.includes(cleanEnchantmentString);
     });
+  }
+
+  toLootTable() {
+    const { id, value = 0, rawData } = this;
+    const { icon } = rawData;
+    const name = rawData.name || rawData.secretName;
+    const type = rawData.hybrid ? rawData.hybrid.baseTypeName : rawData.typeLine;
+    const quantity = (rawData.maxStackSize ? rawData.pickupStackSize || rawData.stackSize : 1);
+    const totalValue = value * quantity;
+    const fullName = type + (name ? ` (${name})` : '');
+    return {
+      id, name: fullName, value, totalValue , icon, quantity
+    }
   }
 }

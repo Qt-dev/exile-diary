@@ -1,3 +1,7 @@
+.Run {
+  padding-bottom: 2em;
+}
+
 .Run__Navigation {
   display: flex;
   flex-direction: row;

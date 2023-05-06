@@ -17,4 +17,8 @@ export default class ItemStore {
       this.isLoading = false;
     });
   }
+  
+  getItemsForLootTable() {
+    return this.items.map((item) => item.toLootTable());
+  }
 }
