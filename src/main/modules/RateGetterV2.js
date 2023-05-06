@@ -47,57 +47,62 @@ class RateGetterV2 {
   constructor() {
     clearTimeout(nextRateGetTimer);
     this.ratesReady = false;
-    this.settings = this.refreshSettings();
-    this.league = this.settings.activeProfile.league;
+    this.league = null;
+  }
+
+  init() {
+    const activeProfile = SettingsManager.get('activeProfile');
+    if(activeProfile) {
+      this.league = activeProfile.league;
+    }
     this.priceCheckLeague = null;
     this.DB = require('./DB').getLeagueDB(this.league);
 
-    if (this.league.includes('SSF') && this.settings.activeProfile.overrideSSF) {
+    if (
+      this.league && this.league.includes('SSF') && 
+      activeProfile && activeProfile.overrideSSF) {
       // override ssf and get item prices from corresponding trade league
       // TODO undocumented league naming convention change in 3.13... must check this every league from now on
       // as of 3.13 "SSF Ritual HC" <--> "Hardcore Ritual"
-      let l = this.league.replace('SSF', '').trim();
-      if (l.includes('HC')) {
-        l = 'Hardcore ' + l.replace('HC', '').trim();
+      let league = this.league.replace('SSF', '').trim();
+      if (league.includes('HC')) {
+        league = 'Hardcore ' + league.replace('HC', '').trim();
       }
-      this.priceCheckLeague = l;
+      this.priceCheckLeague = league;
     }
-  }
-
-  refreshSettings() {
-    this.settings = SettingsManager.get();
   }
 
   /*
    * get today's rates from POE.ninja
    */
   async update(isForced = false) {
-    this.refreshSettings();
+    const activeProfile = SettingsManager.get('activeProfile');
+    const privateLeaguePriceMaps = SettingsManager.get('privateLeaguePriceMaps');
     if (!this.league) {
       logger.info('No league set, will not attempt to get prices');
       return;
     }
-    if(!this.settings) {
+    if(!activeProfile) {
       logger.error('No settings found, will not attempt to get prices');
       return;
     }
 
     // no need for exchange rates in SSF
-    if (this.league.includes('SSF') && !this.settings.activeProfile.overrideSSF) {
+    if (this.league.includes('SSF') && !activeProfile.overrideSSF) {
       return;
     }
 
     if (Utils.isPrivateLeague(this.league)) {
       if (
-        this.settings.privateLeaguePriceMaps &&
-        this.settings.privateLeaguePriceMaps[this.league]
+        privateLeaguePriceMaps &&
+        privateLeaguePriceMaps[this.league]
       ) {
         logger.info(
           `Private league ${this.league} will use prices from ${
-            this.settings.privateLeaguePriceMaps[this.league]
+            privateLeaguePriceMaps[this.league]
           }`
         );
-        this.league = this.settings.privateLeaguePriceMaps[this.league];
+        this.league = privateLeaguePriceMaps[this.league];
       } else {
         logger.info(
           `No price map set for private league ${this.league}, will not attempt to get prices`
@@ -126,7 +131,7 @@ class RateGetterV2 {
     const message = {
       text: `Getting new ${this.league} rates for today (${today})`,
     }
-    RendererLogger.log([message]);
+    RendererLogger.log({messages: [message]});
     this.getRates(today);
   }
 
@@ -156,11 +161,7 @@ class RateGetterV2 {
 
   async getRates(date) {
     var tempRates = {};
-
-    let useGzip = this.settings.hasOwnProperty('useGzip') ? this.settings.useGzip : true;
-    let getLowConfidence = this.settings.hasOwnProperty('getLowConfidence')
-      ? this.settings.getLowConfidence
-      : false;
+    const { useGzip = true, getLowConfidence = false } = SettingsManager.getAll();
 
     try {
       for (var key in rateTypes) {

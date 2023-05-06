@@ -96,6 +96,7 @@ const init = async () => {
 
   if (SettingsManager.settings.activeProfile && SettingsManager.settings.activeProfile.valid) {
     logger.info('Starting components');
+    RateGetterV2.Getter.init();
     setTimeout(() => {
       RateGetterV2.Getter.update();
     }, 1000);
@@ -133,9 +134,11 @@ const createWindow = async () => {
   ipcMain.on('download-update', function (event) {
     if (!isDownloadingUpdate) {
       isDownloadingUpdate = true;
-      RendererLogger.log([{
-        text: 'Downloading update...',
-      }]);
+      RendererLogger.log({
+        messages: [
+          { text: 'Downloading update...' },
+        ]
+      });
       logger.info('Now downloading update');
       autoUpdater.downloadUpdate();
     }
@@ -151,14 +154,21 @@ const createWindow = async () => {
   autoUpdater.on('update-available', (info) => {
     global.updateInfo = info;
     logger.info('Fetched Update Info:', JSON.stringify(info));
-    RendererLogger.log(
-      { text: `An update to version ${info.version} is available, click here to download`, linkEvent: 'download-update' },
-    );
+    RendererLogger.log({
+      messages: [
+        { text: `An update to version ${info.version} is available, click here to download`, linkEvent: 'download-update' },
+      ]
+    });
   });
   autoUpdater.on('update-downloaded', (info) => {
-    RendererLogger.log([{
-      text: `Update to version ${info.version} has been downloaded, click here to install it now (requires restart)`, linkEvent: 'apply-update'
-    }])
+    RendererLogger.log(
+      { 
+        messages: [
+        {
+          text: `Update to version ${info.version} has been downloaded, click here to install it now (requires restart)`, linkEvent: 'apply-update'
+        }
+        ]
+      })
   });
   autoUpdater.checkForUpdates();
 
@@ -174,7 +184,7 @@ const createWindow = async () => {
     logger.info(
       `Got area info for <span class='eventText'>${info.areaInfo.name}</span> (${tier} - ${stats})`
     );
-    RendererLogger.log([
+    RendererLogger.log(
       {
         messages: [
           {
@@ -189,7 +199,7 @@ const createWindow = async () => {
           }
         ]
       }
-    ])
+    )
   });
 
   ScreenshotWatcher.emitter.removeAllListeners();
@@ -215,7 +225,7 @@ const createWindow = async () => {
         (run.xp ? `, ${f.format(run.xp)} XP` : '') +
         `)</span>`
     );
-    RendererLogger.log([
+    RendererLogger.log(
       {
         messages: [
           {
@@ -244,7 +254,7 @@ const createWindow = async () => {
           }
         ]
       }
-    ]);
+    );
     win.webContents.send('refresh-runs');
   });
 
