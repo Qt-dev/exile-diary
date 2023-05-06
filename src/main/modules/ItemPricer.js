@@ -219,7 +219,7 @@ async function price(item, league) {
   /* sub-functions for getting value per item type*/
 
   function getValueFromTable(table, identifier = null) {
-    const { alternateSplinterPricing } = SettingsManager.get();
+    const { alternateSplinterPricing } = SettingsManager.getAll();
 
     // RIP harvest :-(
     if (table === 'Seed') return 0;
