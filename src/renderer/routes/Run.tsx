@@ -9,6 +9,8 @@ import './Run.css';
 import { Run as RunType } from '../stores/domain/run';
 import RunEventIcons from '../components/RunEvent/RunEventIcons';
 import RunEvent from '../components/RunEvent/RunEvent';
+import LootTable from '../components/LootTable/LootTable';
+import ItemStore from '../stores/itemStore';
 
 type RunLoaderData = {
   run: RunType;
@@ -37,6 +39,16 @@ const Run = ({ store }) => {
       'Run__XP--Negative': xp <= 0,
     });
   };
+
+  const items : any = [];
+  for(const lootTime in run.items) {
+    run.items[lootTime].forEach((item) => {
+      const newItem = JSON.parse(item);
+      newItem.lootTime = lootTime;
+      items.push(newItem);
+    });
+  }
+  const itemStore = new ItemStore(items);
 
   return (
     <div className="Run">
@@ -96,6 +108,7 @@ const Run = ({ store }) => {
         ))}
       </div>
       <Divider className="Separator" />
+      <LootTable profit={run.profit} store={itemStore} />
     </div>
   );
 };
