@@ -365,7 +365,7 @@ const createWindow = async () => {
     win.show();
     logger.info('ready to show');
     
-    RendererLogger.log([{
+    RendererLogger.log({
       messages: [
         {
           text: 'Exile Diary Reborn '
@@ -377,7 +377,7 @@ const createWindow = async () => {
         {
           text: ' started.'
         }]
-    }]
+    }
     );
   });
 
