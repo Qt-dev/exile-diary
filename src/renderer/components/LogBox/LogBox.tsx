@@ -35,7 +35,7 @@ const Line = ({ messages, timestamp }) => {
 };
 
 const LogBox = ({ store }) => {
-  const messages = store.logs.length > 0 ? store.logs.map(({ id, messages, timestamp }) => <Line key={`Log-${id}`} timestamp={timestamp} messages={messages} />) : '';
+  const messages = (store.logs && store.logs.length) > 0 ? store.logs.map(({ id, messages, timestamp }) => <Line key={`Log-${id}`} timestamp={timestamp} messages={messages} />) : '';
   const [isOpen, toggleOpenState] = useState(false);
   const classes = classNames({
     'Log-Box': true,
