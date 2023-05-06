@@ -12,19 +12,17 @@ export default class ItemStore {
   constructor(logData) {
     makeAutoObservable(this);
     this.createLogs(logData);
-    ipcRenderer.on('add-log', (event, log: LogData[]) => {
+    ipcRenderer.on('add-log', (event, log: LogData) => {
       this.createLogs(log);
     });
   }
 
-  createLogs(logData: LogData[]) {
-    logger.info(`Creating frontend log messages. Logs: ${logData.length}/${this.maxSize}`);
+  createLogs(logData: LogData) {
+    logger.info(`Creating frontend log messages. Logs: ${this.logs.length}/${this.maxSize}`);
     this.isLoading = true;
     runInAction(() => {
-      for(const data of logData) {
-        const log = new Log(this, data);
-        this.logs.push(log);
-      }
+      const log = new Log(this, logData);
+      this.logs.push(log);
       if(this.logs.length > this.maxSize) {
         this.logs.splice(this.maxSize, this.logs.length - this.maxSize);
       }
