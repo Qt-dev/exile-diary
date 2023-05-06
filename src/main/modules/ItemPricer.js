@@ -1,3 +1,4 @@
+import SettingsManager from '../../main/SettingsManager';
 const logger = require('electron-log');
 const Constants = require('../../helpers/constants').default;
 const ItemData = require('./ItemData');
@@ -6,7 +7,6 @@ const ItemParser = require('./ItemParser');
 const ItemFilter = require('./ItemFilter');
 const Utils = require('./Utils').default;
 const zlib = require('zlib');
-const settings = require('./settings').get();
 
 const baseTypeRarities = ['Normal', 'Magic', 'Rare'];
 const nonPricedCategories = [
