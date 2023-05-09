@@ -1,6 +1,5 @@
 import GGGAPI from '../GGGAPI';
 const logger = require('electron-log');
-const https = require('https');
 const moment = require('moment');
 const XPTracker = require('./XPTracker');
 const KillTracker = require('./KillTracker');
