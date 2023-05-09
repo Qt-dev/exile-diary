@@ -5,7 +5,7 @@ import logger from 'electron-log';
 import Responder from './Responder';
 import SettingsManager from './SettingsManager';
 import GGGAPI from './GGGAPI';
-import League from './db/leagues';
+import League from './db/league';
 import RendererLogger from './RendererLogger';
 import * as url from 'url';
 

@@ -1,6 +1,6 @@
 import logger from 'electron-log';
 import { app } from 'electron';
-import Runs from './db/runs';
+import Runs from './db/run';
 import SettingsManager from './SettingsManager';
 import GGGAPI from './GGGAPI';
 
