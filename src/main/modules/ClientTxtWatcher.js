@@ -95,7 +95,7 @@ function start() {
                 mode: 'automatic',
               });
             }
-            tree.checkPassiveTree(timestamp);
+            tree.saveNewTree(timestamp);
             inv.getInventoryDiffs(timestamp).then(async (diff) => {
               if (diff && Object.keys(diff).length > 0) {
                 await ItemParser.insertItems(diff, timestamp);
