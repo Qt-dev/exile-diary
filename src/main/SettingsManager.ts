@@ -16,9 +16,10 @@ class SettingsManager {
 
   async initialize() {
     logger.info('Initializing Settings Manager');
-    if (!fs.stat(settingsPath)) {
+    try {
+      await fs.stat(settingsPath);
+    } catch (e) {
       logger.info('Initializing settings.json');
-      await fs.unlink(settingsPath);
       await fs.writeFile(settingsPath, JSON.stringify({}));
     }
     this.settings = require(path.join(app.getPath('userData'), 'settings.json'));
