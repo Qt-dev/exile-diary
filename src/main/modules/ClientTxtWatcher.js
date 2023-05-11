@@ -39,7 +39,7 @@ function start() {
 
     tail = new Tail(`${settings.clientTxt}`, { usePolling: true, disableGlobbing: true });
     inv = new InventoryGetter();
-    tree = new SkillTreeWatcher();
+    tree = SkillTreeWatcher;
 
     tail.on('line', (line) => {
       if (process.platform === 'linux') {
