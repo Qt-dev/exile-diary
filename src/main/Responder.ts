@@ -3,6 +3,7 @@ import { app } from 'electron';
 import Runs from './db/run';
 import SettingsManager from './SettingsManager';
 import GGGAPI from './GGGAPI';
+import AuthManager from './AuthManager';
 
 const getAppGlobals = async () => {
   logger.info('Loading global settings for the renderer process');
@@ -58,6 +59,12 @@ const saveSettings = async (e, { settings }) => {
   return;
 };
 
+const getAuthInfo = async (e) => {
+  logger.info('Getting code info for the renderer process');
+  const info = AuthManager.getAuthInfo();
+  return info;
+};
+
 const Responder = {
   'app-globals': getAppGlobals,
   'load-runs': loadRuns,
@@ -66,6 +73,7 @@ const Responder = {
   'get-settings': getSettings,
   'get-characters': getCharacters,
   'save-settings': saveSettings,
+  'oauth:get-info': getAuthInfo,
 };
 
 export default Responder;
