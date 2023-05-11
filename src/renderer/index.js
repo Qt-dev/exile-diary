@@ -1,6 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-import { createHashRouter, RouterProvider } from 'react-router-dom';
+import { createHashRouter, RouterProvider, redirect } from 'react-router-dom';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import { ipcRenderer } from 'electron';
 import './index.css';
@@ -10,12 +10,23 @@ import Root from './routes/root';
 import Settings from './routes/Settings';
 import RunList from './routes/RunList';
 import Run from './routes/Run';
+import Login from './routes/Login';
+import { electronService } from './electron.service';
+const { logger } = electronService;
 const runStore = new RunStore();
 
 const router = createHashRouter([
   {
     path: '/',
     element: <Root />,
+    loader: async () => {
+      const isAuthenticated = await ipcRenderer.invoke('oauth:is-authenticated');
+      if(!isAuthenticated) {
+        logger.info('User is not authenticated, redirecting to the login page');
+        return redirect('/login');
+      }
+      return {};
+    },
     children: [
       {
         index: true,
@@ -62,6 +73,14 @@ const router = createHashRouter([
         element: <div>About</div>,
       },
     ],
+  },
+  {
+    path: '/login',
+    element: <Login />,
+    loader: async () => {
+      const { code_challenge, state } = await ipcRenderer.invoke('oauth:get-info');
+      return { code_challenge, state };
+    }
   },
 ]);
 const darkTheme = createTheme({

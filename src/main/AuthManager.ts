@@ -5,7 +5,11 @@ import logger from 'electron-log';
 import axios, { AxiosResponse } from 'axios';
 import RendererLogger from './RendererLogger';
 import moment from 'moment';
+import keytar from 'keytar';
+import SettingsManager from './SettingsManager';
 
+const account = 'ggg:token';
+const service = 'exilediary';
 const code_verifier = randomstring.generate(128);
 const base64Digest = crypto
   .createHash("sha256")
@@ -68,4 +72,20 @@ export default {
     });
     return token;
   },
-}
+  saveToken: async (token) => {
+    const { access_token, expires_in, token_type, scope, sub, username } = token;
+    logger.info('Saving token to the local storage');
+    SettingsManager.set('tokenExpirationDate', moment().add(token.expires_in, 'seconds').format('YYYY-MM-DD HH:mm:ss'));
+    await keytar.setPassword(service, account, access_token);
+  },
+  isAuthenticated: async () => {
+    logger.info('Checking if the user is authenticated');
+    const password = await keytar.getPassword(service, account);
+    const expirationDate = SettingsManager.get('tokenExpirationDate');
+    return (
+      password !== null &&
+      expirationDate !== null &&
+      moment().isBefore(expirationDate)
+    );
+  },
+};

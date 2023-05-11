@@ -65,6 +65,12 @@ const getAuthInfo = async (e) => {
   return info;
 };
 
+const isAuthenticated = async (e) => {
+  logger.info('Checking if user is authenticated for the renderer process');
+  const authenticated = await AuthManager.isAuthenticated();
+  return authenticated;
+};
+
 const Responder = {
   'app-globals': getAppGlobals,
   'load-runs': loadRuns,
@@ -74,6 +80,7 @@ const Responder = {
   'get-characters': getCharacters,
   'save-settings': saveSettings,
   'oauth:get-info': getAuthInfo,
+  'oauth:is-authenticated': isAuthenticated,
 };
 
 export default Responder;

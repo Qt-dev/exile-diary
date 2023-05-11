@@ -134,6 +134,7 @@ const createWindow = async () => {
     'get-characters',
     'save-settings',
     'oauth:get-info',
+    'oauth:is-authenticated',
   ];
   for (const event of events) {
     ipcMain.handle(event, Responder[event]);
@@ -422,8 +423,9 @@ const createWindow = async () => {
 
       if(code && state && AuthManager.verifyState(state)) {
         logger.info('We got an access token from Lambda');
-        AuthManager.getOauthToken(code).then((token) => {
-          logger.info('We got an access token from Lambda');
+        AuthManager.getOauthToken(code).then(AuthManager.saveToken).then(async () => {
+          const isAuthenticated = await AuthManager.isAuthenticated();
+          logger.info('isAuthenticated', isAuthenticated);
         });
       } else {
         logger.info('No access token from Lambda', code, state, AuthManager.getState());
