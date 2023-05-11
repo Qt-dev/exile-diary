@@ -39,7 +39,7 @@ function start() {
 
     tail = new Tail(`${settings.clientTxt}`, { usePolling: true, disableGlobbing: true });
     inv = new InventoryGetter();
-    tree = new SkillTreeWatcher();
+    tree = SkillTreeWatcher;
 
     tail.on('line', (line) => {
       if (process.platform === 'linux') {
@@ -95,7 +95,7 @@ function start() {
                 mode: 'automatic',
               });
             }
-            tree.checkPassiveTree(timestamp);
+            tree.saveNewTree(timestamp);
             inv.getInventoryDiffs(timestamp).then(async (diff) => {
               if (diff && Object.keys(diff).length > 0) {
                 await ItemParser.insertItems(diff, timestamp);
@@ -126,60 +126,60 @@ async function checkValidLogfile(path) {
   });
 }
 
-async function checkLastActiveCharacter() {
-  if (!login) {
-    return;
-  } else {
-    login = false;
-  }
+// async function checkLastActiveCharacter() {
+//   if (!login) {
+//     return;
+//   } else {
+//     login = false;
+//   }
 
-  var settings = require('./settings').get();
-  var path = `/character-window/get-characters?accountName=${encodeURIComponent(
-    settings.accountName
-  )}`;
-  var requestParams = Utils.getRequestParams(path, settings.poesessid);
+//   var settings = require('./settings').get();
+//   var path = `/character-window/get-characters?accountName=${encodeURIComponent(
+//     settings.accountName
+//   )}`;
+//   var requestParams = Utils.getRequestParams(path, settings.poesessid);
 
-  return new Promise((resolve, reject) => {
-    var request = require('https').request(requestParams, (response) => {
-      var body = '';
-      response.setEncoding('utf8');
-      response.on('data', (chunk) => {
-        body += chunk;
-      });
-      response.on('end', () => {
-        try {
-          var data = JSON.parse(body);
-          data.forEach((char) => {
-            if (char.lastActive) {
-              if (
-                char.name !== settings.activeProfile.characterName ||
-                char.league !== settings.activeProfile.league
-              ) {
-                logger.info(
-                  `Changed active character ${settings.activeProfile.characterName} in ${settings.activeProfile.league} => ${char.name} in ${char.league} `
-                );
-                emitter.emit('switchedCharacter', char);
-              }
-              resolve(null);
-            }
-          });
-        } catch (err) {
-          logger.info(`Failed to check last active character: ${err}`);
-          resolve(null);
-        }
-      });
-      response.on('error', (err) => {
-        logger.info(`Failed to check last active character: ${err}`);
-        resolve(null);
-      });
-    });
-    request.on('error', (err) => {
-      logger.info(`Failed to check last active character: ${err}`);
-      resolve(null);
-    });
-    request.end();
-  });
-}
+//   return new Promise((resolve, reject) => {
+//     var request = require('https').request(requestParams, (response) => {
+//       var body = '';
+//       response.setEncoding('utf8');
+//       response.on('data', (chunk) => {
+//         body += chunk;
+//       });
+//       response.on('end', () => {
+//         try {
+//           var data = JSON.parse(body);
+//           data.forEach((char) => {
+//             if (char.lastActive) {
+//               if (
+//                 char.name !== settings.activeProfile.characterName ||
+//                 char.league !== settings.activeProfile.league
+//               ) {
+//                 logger.info(
+//                   `Changed active character ${settings.activeProfile.characterName} in ${settings.activeProfile.league} => ${char.name} in ${char.league} `
+//                 );
+//                 emitter.emit('switchedCharacter', char);
+//               }
+//               resolve(null);
+//             }
+//           });
+//         } catch (err) {
+//           logger.info(`Failed to check last active character: ${err}`);
+//           resolve(null);
+//         }
+//       });
+//       response.on('error', (err) => {
+//         logger.info(`Failed to check last active character: ${err}`);
+//         resolve(null);
+//       });
+//     });
+//     request.on('error', (err) => {
+//       logger.info(`Failed to check last active character: ${err}`);
+//       resolve(null);
+//     });
+//     request.end();
+//   });
+// }
 
 function insertEvent(event, timestamp) {
   DB.run(

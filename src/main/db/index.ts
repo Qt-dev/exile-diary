@@ -20,6 +20,15 @@ class DB {
     return result;
   }
 
+  static get(sql: string, params: any[] = []) {
+    const db = this.getDB();
+    if (!db) {
+      return null;
+    }
+    const result = db.prepare(sql).get(params);
+    return result;
+  }
+
   static run(sql: string, params: any[] = []) {
     const db = this.getDB();
     if (!db) {

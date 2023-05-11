@@ -16,6 +16,14 @@ const Endpoints = {
     `https://www.pathofexile.com/character-window/get-items?league=${league}&accountName=${encodeURIComponent(
       accountName
     )}&character=${encodeURIComponent(characterName)}`,
+  stash: ({ accountName, league, tabIndex }) =>
+    `https://www.pathofexile.com/character-window/get-stash-items?league=${league}&accountName=${encodeURIComponent(
+      accountName
+    )}&tabs=0&tabIndex=${tabIndex}&accountName=${encodeURIComponent(accountName)}`,
+  stashes: ({ accountName, league }) =>
+    `https://www.pathofexile.com/character-window/get-stash-items?league=${league}&accountName=${encodeURIComponent(
+      accountName
+    )}&tabs=1&tabIndex=0&accountName=${encodeURIComponent(accountName)}`,
 };
 
 const getRequestParams = (path, poesessid) => {
@@ -71,6 +79,28 @@ const getSkillTree = async () => {
   return skillTree;
 };
 
+const getStash = async (tabIndex) => {
+  logger.info('Getting stash from the GGG API');
+  const { poesessid, accountName, activeProfile } = getSettings();
+  const { league } = activeProfile;
+  const url = Endpoints.stash({ accountName, league, tabIndex });
+  const response: AxiosResponse = await axios.get(url, getRequestParams(url, poesessid));
+  const stash = await response.data;
+  logger.info(`Found stash for account: ${accountName}`);
+  return stash;
+};
+
+const getStashes = async () => {
+  logger.info('Getting stashes from the GGG API');
+  const { poesessid, accountName, activeProfile } = getSettings();
+  const { league } = activeProfile;
+  const url = Endpoints.stashes({ accountName, league });
+  const response: AxiosResponse = await axios.get(url, getRequestParams(url, poesessid));
+  const stashes = await response.data;
+  logger.info(`Found stashes for account: ${accountName}`);
+  return stashes;
+};
+
 const APIManager = {
   getCurrentCharacter: async () => {
     const characters = await getAllCharacters();
@@ -91,6 +121,15 @@ const APIManager = {
   getSkillTree: async () => {
     const skillTree = await getSkillTree();
     return skillTree;
+  },
+  getStashes: async () => {
+    const stashes = await getStashes();
+    return stashes;
+  },
+
+  getStash: async (tabIndex) => {
+    const stash = await getStash(tabIndex);
+    return stash;
   },
 };
 

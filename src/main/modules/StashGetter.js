@@ -296,101 +296,40 @@ class StashGetter {
     return new Promise((res) => setTimeout(res, ms));
   }
 
-  getTabList(s) {
-    var path = `/character-window/get-stash-items?league=${encodeURIComponent(
-      s.league
-    )}&accountName=${encodeURIComponent(s.accountName)}&tabs=1&tabIndex=0`;
-    var requestParams = Utils.getRequestParams(path, s.poesessid);
+  async getTabList(s) {
+    try {
+      const tabList = [];
+      const { tabs } = await API.getStashes();
+      tabs.forEach((tab) => {
+        if (s.tabs === null || s.tabs.includes(tab.id)) {
+          tabList.push({ index: tab.i, name: tab.n, type: tab.type });
+        }
+      });
+    } catch (e) {
+      logger.error(`Failed to get tabs for ${s.accountName} in ${s.league}: ${e}`);
+      return [];
+    }
 
-    return new Promise((resolve, reject) => {
-      var request = https.request(requestParams, (response) => {
-        var body = '';
-        response.setEncoding('utf8');
-        response.on('data', (chunk) => {
-          body += chunk;
-        });
-        response.on('end', () => {
-          try {
-            var data = JSON.parse(body);
-            if (data.error && data.error.message === 'Forbidden') {
-              emitter.emit('invalidSessionID');
-              resolve();
-            } else if (data.tabs) {
-              var tabList = [];
-              data.tabs.forEach((tab) => {
-                // if tabs to watch not yet set, default to previous behavior (get all tabs)
-                if (s.tabs === null || s.tabs.includes(tab.id)) {
-                  tabList.push({ index: tab.i, name: tab.n, type: tab.type });
-                }
-              });
-              logger.info(`Retrieving tabs for ${s.accountName} in ${s.league}`);
-              resolve(tabList);
-            } else {
-              logger.info(`Error getting tabs; data follows: ${body}`);
-              resolve();
-            }
-          } catch (err) {
-            logger.info(`Failed to get tabs: ${err}`);
-            resolve();
-          }
-        });
-        response.on('error', (err) => {
-          logger.info(`Failed to get number of tabs: ${err}`);
-          resolve();
-        });
-      });
-      request.on('error', (err) => {
-        logger.info(`Failed to get number of tabs: ${err}`);
-        resolve();
-      });
-      request.end();
-    });
   }
 
   async getTab(t, s) {
-    var path = `/character-window/get-stash-items?league=${encodeURIComponent(
-      s.league
-    )}&accountName=${encodeURIComponent(s.accountName)}&tabIndex=${t.index}`;
-    var requestParams = Utils.getRequestParams(path, s.poesessid);
-
-    return new Promise((resolve, reject) => {
-      var request = https.request(requestParams, (response) => {
-        var body = '';
-        response.setEncoding('utf8');
-        response.on('data', (chunk) => {
-          body += chunk;
-        });
-        response.on('end', async () => {
-          try {
-            var data = JSON.parse(body);
-            var tabData = await this.parseTab(data.items, s.timestamp);
-            resolve(tabData);
-          } catch (err) {
-            logger.info(`Failed to get tab ${t.name}: ${err}`);
-            resolve(-1);
-          }
-        });
-        response.on('error', (err) => {
-          logger.info(`Failed to get tab ${t.name}: ${err}`);
-          resolve(-1);
-        });
-      });
-      request.on('error', (err) => {
-        logger.info(`Failed to get tab ${t.name}: ${err}`);
-        resolve(-1);
-      });
-      request.end();
-    });
+    try {
+      const tabData = this.parseTab(await API.getStash(t.index).items, s.timestamp);
+      return tabData;
+    } catch (e) {
+      logger.error(`Failed to get tab ${t.index} for ${s.accountName} in ${s.league}: ${e}`);
+      return { value: 0, items: [] };
+    }
   }
 
   async parseTab(items, timestamp) {
-    var totalValue = 0;
-    var tabItems = [];
+    const totalValue = 0;
+    const tabItems = [];
 
-    for (var i = 0; i < items.length; i++) {
-      var item = items[i];
-      var parsedItem = this.parseItem(item, timestamp);
-      var val = await ItemPricer.price(parsedItem, this.league);
+    for (let i = 0; i < items.length; i++) {
+      const item = items[i];
+      const parsedItem = this.parseItem(item, timestamp);
+      const val = await ItemPricer.price(parsedItem, this.league);
 
       // vendor recipes handled manually
       totalValue += val.isVendor ? 0 : val;
@@ -404,7 +343,7 @@ class StashGetter {
   }
 
   parseItem(rawdata, timestamp) {
-    var arr = ItemParser.parseItem(rawdata);
+    const arr = ItemParser.parseItem(rawdata);
     return {
       id: arr[0],
       event_id: timestamp,

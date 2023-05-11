@@ -1,11 +1,11 @@
-import { app, BrowserWindow, ipcMain, dialog, Menu } from 'electron';
+import { app, BrowserWindow, ipcMain, dialog, Menu, session } from 'electron';
 import { autoUpdater } from 'electron-updater';
 import * as path from 'path';
 import logger from 'electron-log';
 import Responder from './Responder';
 import SettingsManager from './SettingsManager';
 import GGGAPI from './GGGAPI';
-import League from './db/leagues';
+import League from './db/league';
 import RendererLogger from './RendererLogger';
 import * as url from 'url';
 
@@ -16,6 +16,8 @@ import ScreenshotWatcher from './modules/ScreenshotWatcher';
 import * as ClientTxtWatcher from './modules/ClientTxtWatcher';
 import * as OCRWatcher from './modules/OCRWatcher';
 import * as RunParser from './modules/RunParser';
+import moment from 'moment';
+import AuthManager from './AuthManager';
 
 const devUrl = 'http://localhost:3000';
 enum SYSTEMS {
@@ -113,6 +115,14 @@ const createWindow = async () => {
 
   await init();
 
+  if (process.defaultApp) {
+    if (process.argv.length >= 2) {
+      app.setAsDefaultProtocolClient('exile-diary', process.execPath, [path.resolve(process.argv[1])])
+    }
+  } else {
+    app.setAsDefaultProtocolClient('exile-diary');
+  }
+
   const { settings } = SettingsManager;
 
   const events = [
@@ -123,6 +133,8 @@ const createWindow = async () => {
     'get-settings',
     'get-characters',
     'save-settings',
+    'oauth:get-info',
+    'oauth:is-authenticated',
   ];
   for (const event of events) {
     ipcMain.handle(event, Responder[event]);
@@ -313,7 +325,7 @@ const createWindow = async () => {
       nodeIntegration: true,
       nodeIntegrationInWorker: true,
       contextIsolation: false,
-      webSecurity: false,
+      // webSecurity: false,
     },
     show: false,
   });
@@ -373,13 +385,56 @@ const createWindow = async () => {
         {
           text: `v${app.getVersion()}`,
           type: 'important'
-        },
+      },
         {
           text: ' started.'
         }]
     }
     );
   });
+
+  const poeAuthSession = session.fromPartition('persist:poeAuth');
+
+  await poeAuthSession.cookies.set({
+    url: "https://exilediary.com",
+    name: 'code_challenge',
+    value: 'test',
+    expirationDate: moment().add(1, 'week').unix(),
+  });
+
+
+  
+  const gotTheLock = app.requestSingleInstanceLock()
+
+  if (!gotTheLock) {
+    app.quit()
+  } else {
+    app.on('second-instance', (event, commandLine, workingDirectory) => {
+      // Someone tried to run a second instance, we should focus our window.
+      if (win) {
+        if (win.isMinimized()) win.restore()
+        win.focus()
+      }
+
+      const callCommand = commandLine.pop();
+      const params = new URLSearchParams(callCommand?.split('?')[1]);
+      const code = params.get('code');
+      const state = params.get('state');
+
+      if(code && state && AuthManager.verifyState(state)) {
+        logger.info('We got an access token from Lambda');
+        AuthManager.getOauthToken(code).then(AuthManager.saveToken).then(async () => {
+          const isAuthenticated = await AuthManager.isAuthenticated();
+          logger.info('isAuthenticated', isAuthenticated);
+        });
+      } else {
+        logger.info('No access token from Lambda', code, state, AuthManager.getState());
+        logger.info(callCommand);
+        logger.info(commandLine);
+      }
+    })
+  }
+
 
   if(isDev) {
     win.loadURL(devUrl);
