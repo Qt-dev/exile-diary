@@ -88,7 +88,7 @@ const SkillTreeWatcher = {
     const previousTree = await SkillTreeWatcher.getPreviousTree();
     const newTree = JSON.stringify(await SkillTreeWatcher.getSkillTree(timestamp).hashes);
 
-    if (previousTree && newTreee && newTree !== previousTree) {
+    if (previousTree && newTree && newTree !== previousTree) {
       logger.info(`New skill tree found at ${timestamp}`);
       logger.info(`Previous Skill Tree: ${previousTree}`);
       logger.info(`New Skill Tree: ${newTree}`);

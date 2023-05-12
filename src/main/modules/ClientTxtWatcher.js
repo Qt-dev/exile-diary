@@ -28,7 +28,7 @@ function start() {
     try {
       tail.close();
     } catch (err) {
-      logger.info(err);
+      logger.error(err);
     }
   }
 

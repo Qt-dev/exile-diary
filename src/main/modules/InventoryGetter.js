@@ -96,10 +96,10 @@ class InventoryGetter extends EventEmitter {
   }
 
   async getCurrentInventory(timestamp) {
-    const data = await GGGAPI.getInventory();
-    const inventory = this.getInventory(data);
-    this.emit('xp', timestamp, data.character.experience);
-    this.emit('equipment', timestamp, inventory.equippedItems);
+    const data = await GGGAPI.getDataForInventory();
+    const inventory = this.getInventory(data.inventory);
+    this.emit('xp', timestamp, data.experience);
+    this.emit('equipment', timestamp, data.equipment);
     return inventory.mainInventory;
   }
 
@@ -126,10 +126,10 @@ class InventoryGetter extends EventEmitter {
     });
   }
 
-  getInventory(inv) {
+  getInventory(inventory) {
     var mainInventory = {};
     var equippedItems = {};
-    inv.items.forEach((item) => {
+    inventory.forEach((item) => {
       if (item.inventoryId === 'MainInventory') {
         mainInventory[item.id] = item;
       } else {
