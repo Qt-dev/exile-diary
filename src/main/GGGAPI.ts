@@ -2,6 +2,7 @@ import logger from 'electron-log';
 import { app } from 'electron';
 import axios, { AxiosResponse } from 'axios';
 import SettingsManager from './SettingsManager';
+import AuthManager from './AuthManager';
 
 const Endpoints = {
   character: ({ accountName }) =>
@@ -26,6 +27,13 @@ const Endpoints = {
     )}&tabs=1&tabIndex=0&accountName=${encodeURIComponent(accountName)}`,
 };
 
+const newEndPoints = {
+  character: () =>
+    '/character',
+}
+
+const adminEmail = 'quentin@devauchelle.com';
+
 const getRequestParams = (path, poesessid) => {
   return {
     hostname: 'www.pathofexile.com',
@@ -39,6 +47,19 @@ const getRequestParams = (path, poesessid) => {
   };
 };
 
+const getNewRequestParams = (url, token) => {
+  return {
+    baseURL: 'https://api.pathofexile.com',
+    url,
+    method: 'GET',
+    headers: {
+      'User-Agent': `OAuth exile-diary-reborn/${app.getVersion()} (contact: ${adminEmail})`,
+      Authorization: `Bearer ${token}`,
+    }
+  }
+};
+
+
 const getSettings = () => {
   const { settings } = SettingsManager;
   const { poesessid, accountName, activeProfile } = settings;
@@ -49,10 +70,10 @@ const getSettings = () => {
 
 const getAllCharacters = async () => {
   logger.info('Getting characters from the GGG API');
-  const { poesessid, accountName } = getSettings();
-  const url = Endpoints.character({ accountName });
-  const response: AxiosResponse = await axios.get(url, getRequestParams(url, poesessid));
-  const characters = await response.data;
+  const { accountName } = getSettings();
+  const token = await AuthManager.getToken();
+  const response: AxiosResponse = await axios(getNewRequestParams(newEndPoints.character(), token));
+  const characters = await response.data.characters;
   logger.info(`Found ${characters.length} characters from the GGG API for account: ${accountName}`);
   return characters;
 };
@@ -106,7 +127,7 @@ const APIManager = {
     const characters = await getAllCharacters();
     const { activeProfile } = SettingsManager.settings;
     const currentCharacter = characters.find(
-      (character) => character.name === activeProfile.characterName
+      (character) => (activeProfile && activeProfile.charactername) ? character.name === activeProfile.characterName : character.current
     );
     return currentCharacter;
   },
