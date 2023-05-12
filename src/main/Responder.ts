@@ -71,6 +71,12 @@ const isAuthenticated = async (e) => {
   return authenticated;
 };
 
+const logout = async (e) => {
+  logger.info('Logging out the user after call from the renderer process');
+  await AuthManager.logout();
+  return;
+};
+
 const Responder = {
   'app-globals': getAppGlobals,
   'load-runs': loadRuns,
@@ -81,6 +87,7 @@ const Responder = {
   'save-settings': saveSettings,
   'oauth:get-info': getAuthInfo,
   'oauth:is-authenticated': isAuthenticated,
+  'oauth:logout': logout,
 };
 
 export default Responder;

@@ -59,6 +59,12 @@ class SettingsManager {
     logger.info(`Renaming ${tempFilePath} into  ${settingsPath}`);
     await fs.rename(tempFilePath, settingsPath);
   }
+
+  async delete(key) {
+    logger.info(`Deleting ${key} from settings`);
+    delete this.settings[key];
+    await this.save();
+  }
 }
 
 const manager = new SettingsManager();

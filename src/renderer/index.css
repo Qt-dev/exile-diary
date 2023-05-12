@@ -6,6 +6,7 @@ body {
   -moz-osx-font-smoothing: grayscale;
   font-family: FontIn;
   color: #aaaaaa;
+  background-color: #000;
 }
 
 code {
@@ -19,7 +20,6 @@ code {
   min-height: calc(100vh - 20px);
   grid-column-gap: 10px;
   padding: 10px;
-  background-color: #000;
 }
 
 .Left-Container {
@@ -115,7 +115,8 @@ span.negative {
   color: #8888ff;
 }
 .Text--Unidentified,
-.Text--Unmet {
+.Text--Unmet,
+.Text--Error {
   color: #d20000;
 }
 .Text--Unidentified {

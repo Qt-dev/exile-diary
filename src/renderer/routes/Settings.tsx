@@ -70,6 +70,13 @@ const Settings = () => {
     setScreenshotLocation(path.join(e.target.files[0].path));
   };
 
+  const handleRedirectToLogin = () => {
+    navigate('/login');
+  };
+  const handleLogout = () => {
+    ipcRenderer.invoke('oauth:logout');
+  };
+
   const accountName = settings.accountName ? settings.accountName : '';
   const poesessid = settings.poesessid ? settings.poesessid : '';
   const league = settings.activeProfile.league ? settings.activeProfile.league : 'Unknown';
@@ -146,6 +153,10 @@ const Settings = () => {
                 label="Hide value"
               />
             </div>
+            <ButtonGroup variant="contained" color="primary" aria-label="contained primary button group">
+              <Button onClick={handleLogout}>Logout</Button>
+              <Button onClick={handleRedirectToLogin}>Refresh Login</Button>
+            </ButtonGroup>
             <Divider className="Settings__Separator" />
             Currently Active Character:{' '}
             <div className="Text--Rare">
