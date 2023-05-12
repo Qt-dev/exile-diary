@@ -154,6 +154,11 @@ const AuthManager = {
       }
     }
   },
+  getToken: async () => {
+    logger.info('Getting token from the local storage');
+    const password = await keytar.getPassword(service, account);
+    return password;
+  },
 };
 
 export default AuthManager;
