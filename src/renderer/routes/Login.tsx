@@ -30,6 +30,9 @@ function Login({}) {
     setIsOngoing(true);
   };
   const navigate = useNavigate();
+  const [ isFetchingOauthToken, setIsFetchingOauthToken ] = useState(false);
+  const [ isOngoing, setIsOngoing ] = useState(false);
+  const [ isError, setIsError ] = useState(false);
   
   useEffect(() => {
     ipcRenderer.on('oauth:auth-failure', (event, arg) => {
@@ -40,7 +43,6 @@ function Login({}) {
     });
     
     ipcRenderer.on('oauth:received-code', (event, arg) => {
-      setIsOngoing(false);
       setIsFetchingOauthToken(true);
     });
     
@@ -48,25 +50,26 @@ function Login({}) {
       logger.info('Auth Success, redirecting to the root page');
       navigate('/', { replace: true });
     });
+
+    setIsError(false);
+    setIsOngoing(false);
+    setIsFetchingOauthToken(false);
   }, []);
   
-  const [ isFetchingOauthToken, setIsFetchingOauthToken ] = useState(false);
-  const [ isOngoing, setIsOngoing ] = useState(false);
-  const [ isError, setIsError ] = useState(false);
 
-  const warning = isOngoing ? <p>Please authenticate through the window that just opened</p> : null;
+  const warning = isOngoing && !isFetchingOauthToken ? <p>Please authenticate through the window that just opened</p> : null;
   
   return (
     <div className="Login">
       <div className="Login__Box">
         <img src={Logo} alt="Exile Diary Logo" className="Login__Logo"/>
         <h3>Exile Diary <span className="Text--Legendary">Reborn</span> requires you to log in with the PoE API to function</h3>
-        {isFetchingOauthToken ? <p>Received Code, Fetching Oauth Token...</p> : null}
         {isError ? <p className='Test--Error'>Something went wrong, please try again</p> : null}
         <Button variant={isOngoing ? "outlined" : "contained"} color="primary" onClick={openLink}>
           Login with PoE
         </Button>
-        <p className="Login__Warning">{warning}</p>
+        {isFetchingOauthToken ? <p>Received Code, Fetching Oauth Token...</p> : null}
+        {isOngoing && !isFetchingOauthToken ? <p>Please authenticate through the window that just opened</p> : null}
       </div>
     </div>
   );
