@@ -23,7 +23,7 @@ const getAuthToken = async ({ secretKey, code, code_verifier }) => {
   urlencodedParams.append("grant_type", "authorization_code");
   urlencodedParams.append("code", code);
   urlencodedParams.append("redirect_uri", "https://exilediary.com/auth/success");
-  urlencodedParams.append("scope", "account:characters account:stashes");
+  urlencodedParams.append("scope", "account:characters account:stashes account:league_accounts account:item_filter");
   urlencodedParams.append("code_verifier", code_verifier);
   
   console.log(urlencodedParams.toString());

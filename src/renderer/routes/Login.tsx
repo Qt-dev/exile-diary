@@ -13,10 +13,17 @@ type AuthData = {
   code_challenge: string,
 }
 
-// https://www.pathofexile.com/oauth/authorize?client_id=exilediaryreborn&response_type=code&scope=account:characters account:stashes&state=7815696ecbf1c96e6894b779456d330e&redirect_uri=https://exilediary.com/auth/success&code_challenge=IEaJXycQHHBqdlm8r_KwXaS1iAwV7Hoh_DTWYNmPx74&code_challenge_method=S256
 function Login({}) {
   const { code_challenge, state } = useLoaderData() as AuthData;
-  const url = `https://www.pathofexile.com/oauth/authorize?client_id=exilediaryreborn&response_type=code&scope=account:characters account:stashes&state=${state}&redirect_uri=https://exilediary.com/auth/success&code_challenge=${code_challenge}&code_challenge_method=S256`
+  const url = 'https://www.pathofexile.com/oauth/authorize?' +
+    'client_id=exilediaryreborn' +
+    '&response_type=code' +
+    '&scope=account:characters account:stashes account:league_accounts account:item_filter' +
+    `&state=${state}` +
+    '&redirect_uri=https://exilediary.com/auth/success' +
+    `&code_challenge=${code_challenge}` +
+    '&code_challenge_method=S256';
+
   const openLink = () => {
     openExternal(url);
     setIsError(false);
