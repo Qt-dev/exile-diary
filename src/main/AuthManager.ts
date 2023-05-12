@@ -47,7 +47,6 @@ const AuthManager = {
 
     const urlencodedParams = new URLSearchParams();
     urlencodedParams.append("code", code);
-    urlencodedParams.append("scope", "account:characters account:stashes");
     urlencodedParams.append("code_verifier", code_verifier);
 
     const response: AxiosResponse = await axios.post(url, urlencodedParams);
@@ -79,11 +78,17 @@ const AuthManager = {
     return token;
   },
   saveToken: async (token) => {
-    const { access_token, expires_in, token_type, scope, sub, username } = token;
-    logger.info('Saving token to the local storage');
-    SettingsManager.set('tokenExpirationDate', moment().add(token.expires_in, 'seconds').format('YYYY-MM-DD HH:mm:ss'));
-    await keytar.setPassword(service, account, access_token);
-    await AuthManager.setLogoutTimer();
+    const { access_token, expires_in } = token;
+    if(access_token === undefined || expires_in === undefined) {
+      logger.error('Received bad information from the API', token);
+      messenger.send('oauth:auth-failure');
+      return;
+    } else {
+      logger.info('Saving token to the local storage');
+      SettingsManager.set('tokenExpirationDate', moment().add(expires_in, 'seconds').format('YYYY-MM-DD HH:mm:ss'));
+      await keytar.setPassword(service, account, access_token);
+      await AuthManager.setLogoutTimer();
+    }
   },
   isAuthenticated: async () => {
     logger.info('Checking if the user is authenticated');
