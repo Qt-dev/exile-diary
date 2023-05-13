@@ -1,3 +1,4 @@
+import GGGAPI from '../GGGAPI';
 const logger = require('electron-log');
 const Utils = require('./Utils').default;
 const EventEmitter = require('events');
@@ -1474,7 +1475,7 @@ async function recheckGained(startDate = null) {
   }
 }
 
-module.exports = {
+export default {
   process,
   tryProcess,
   emitter,

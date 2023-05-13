@@ -4,7 +4,7 @@ const chokidar = require('chokidar');
 const logger = require('electron-log');
 const EventEmitter = require('events');
 const StringMatcher = require('./StringMatcher');
-const { getMapStats } = require('./RunParser');
+const { getMapStats } = require('./RunParser').default;
 const { createWorker } = require('tesseract.js');
 
 let DB;

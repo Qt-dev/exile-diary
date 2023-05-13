@@ -15,7 +15,7 @@ import Utils from './modules/Utils';
 import ScreenshotWatcher from './modules/ScreenshotWatcher';
 import * as ClientTxtWatcher from './modules/ClientTxtWatcher';
 import * as OCRWatcher from './modules/OCRWatcher';
-import * as RunParser from './modules/RunParser';
+import RunParser from './modules/RunParser';
 import moment from 'moment';
 import AuthManager from './AuthManager';
 
