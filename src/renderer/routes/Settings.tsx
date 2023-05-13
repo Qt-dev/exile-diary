@@ -76,7 +76,7 @@ const Settings = () => {
     ipcRenderer.invoke('oauth:logout');
   };
 
-  const accountName = settings.accountName ? settings.accountName : '';
+  const username = settings.username ? settings.username : '';
   const league = settings.activeProfile.league ? settings.activeProfile.league : 'Unknown';
   const charactersOptions = characters.map((character: any) => (
     <MenuItem key={character.name} value={character.name}>
@@ -128,7 +128,7 @@ const Settings = () => {
                 variant="standard"
                 disabled
                 size="small"
-                value={accountName}
+                value={username}
               />
             </div>
             <ButtonGroup

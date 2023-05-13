@@ -17,12 +17,6 @@ class InventoryGetter extends EventEmitter {
     DB = require('./DB').getDB();
     settings = require('./settings').get();
 
-    var league = encodeURIComponent(settings.activeProfile.league);
-    var accountName = encodeURIComponent(settings.accountName);
-    var characterName = encodeURIComponent(settings.activeProfile.characterName);
-
-    this.queryPath = `/character-window/get-items?league=${league}&accountName=${accountName}&character=${characterName}`;
-
     this.on('xp', XPTracker.logXP);
     this.on('equipment', KillTracker.logKillCount);
     this.on('equipment', GearChecker.check);

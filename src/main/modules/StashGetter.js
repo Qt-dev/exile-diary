@@ -185,7 +185,7 @@ class StashGetter {
     var params = {
       league: this.league,
       tabs: watchedTabs,
-      accountName: this.settings.accountName,
+      accountName: this.settings.username,
       poesessid: this.settings.poesessid,
       timestamp: timestamp,
     };
@@ -306,7 +306,7 @@ class StashGetter {
         }
       });
     } catch (e) {
-      logger.error(`Failed to get tabs for ${s.accountName} in ${s.league}: ${e}`);
+      logger.error(`Failed to get tabs for ${s.username} in ${s.league}: ${e}`);
       return [];
     }
   }
@@ -316,7 +316,7 @@ class StashGetter {
       const tabData = this.parseTab(await API.getStash(t.index).items, s.timestamp);
       return tabData;
     } catch (e) {
-      logger.error(`Failed to get tab ${t.index} for ${s.accountName} in ${s.league}: ${e}`);
+      logger.error(`Failed to get tab ${t.index} for ${s.username} in ${s.league}: ${e}`);
       return { value: 0, items: [] };
     }
   }

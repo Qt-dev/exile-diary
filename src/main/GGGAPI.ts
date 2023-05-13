@@ -24,26 +24,26 @@ limiter.on('failed', async (error, jobInfo) => {
 });
 
 // const Endpoints = {
-//   // character: ({ accountName }) =>
-//   //   `https://www.pathofexile.com/character-window/get-characters?accountName=${encodeURIComponent(
-//   //     accountName
+//   // character: ({ username }) =>
+//   //   `https://www.pathofexile.com/character-window/get-characters?username=${encodeURIComponent(
+//   //     username
 //   //   )}`,
-//   skillTree: ({ accountName, league, characterName }) =>
-//     `https://www.pathofexile.com/character-window/get-passive-skills?league=${league}&accountName=${encodeURIComponent(
-//       accountName
+//   skillTree: ({ username, league, characterName }) =>
+//     `https://www.pathofexile.com/character-window/get-passive-skills?league=${league}&username=${encodeURIComponent(
+//       username
 //     )}&character=${encodeURIComponent(characterName)}`,
-//   inventory: ({ accountName, league, characterName }) =>
-//     `https://www.pathofexile.com/character-window/get-items?league=${league}&accountName=${encodeURIComponent(
-//       accountName
+//   inventory: ({ username, league, characterName }) =>
+//     `https://www.pathofexile.com/character-window/get-items?league=${league}&username=${encodeURIComponent(
+//       username
 //     )}&character=${encodeURIComponent(characterName)}`,
-//   stash: ({ accountName, league, tabIndex }) =>
-//     `https://www.pathofexile.com/character-window/get-stash-items?league=${league}&accountName=${encodeURIComponent(
-//       accountName
-//     )}&tabs=0&tabIndex=${tabIndex}&accountName=${encodeURIComponent(accountName)}`,
-//   stashes: ({ accountName, league }) =>
-//     `https://www.pathofexile.com/character-window/get-stash-items?league=${league}&accountName=${encodeURIComponent(
-//       accountName
-//     )}&tabs=1&tabIndex=0&accountName=${encodeURIComponent(accountName)}`,
+//   stash: ({ username, league, tabIndex }) =>
+//     `https://www.pathofexile.com/character-window/get-stash-items?league=${league}&username=${encodeURIComponent(
+//       username
+//     )}&tabs=0&tabIndex=${tabIndex}&username=${encodeURIComponent(username)}`,
+//   stashes: ({ username, league }) =>
+//     `https://www.pathofexile.com/character-window/get-stash-items?league=${league}&username=${encodeURIComponent(
+//       username
+//     )}&tabs=1&tabIndex=0&username=${encodeURIComponent(username)}`,
 // };
 
 const Endpoints = {
@@ -76,12 +76,12 @@ const request = (params, priority = 5) => {
 
 const getSettings = async () => {
   const { settings } = SettingsManager;
-  const { accountName, activeProfile } = settings;
-  if (!accountName) throw new Error('Missing accountName');
+  const { username, activeProfile } = settings;
+  if (!username) throw new Error('Missing username');
   if (!activeProfile || !activeProfile.characterName) throw new Error('Missing Active Profile');
   const token = await AuthManager.getToken();
   return {
-    accountName,
+    username,
     characterName: activeProfile.characterName,
     league: activeProfile.league,
     token,
@@ -91,11 +91,11 @@ const getSettings = async () => {
 const getAllCharacters = async () => {
   logger.info('Getting characters from the GGG API');
   try {
-    const { accountName, token } = await getSettings();
+    const { username, token } = await getSettings();
     const response: any = await request(getRequestParams(Endpoints.characters(), token));
     const characters = await response.data.characters;
     logger.info(
-      `Found ${characters.length} characters from the GGG API for account: ${accountName}`
+      `Found ${characters.length} characters from the GGG API for account: ${username}`
     );
     return characters;
   } catch (e: any) {
@@ -145,12 +145,12 @@ const getSkillTree = async () => {
 const getStash = async (stashId) => {
   logger.info('Getting stash from the GGG API');
   try {
-    const { accountName, league, token } = await getSettings();
+    const { username, league, token } = await getSettings();
     const response: any = await request(
       getRequestParams(Endpoints.stash({ league, stashId }), token)
     );
     const stash = await response.data.stash;
-    logger.info(`Found stash ${stashId} for account: ${accountName}`);
+    logger.info(`Found stash ${stashId} for account: ${username}`);
     return stash;
   } catch (e: any) {
     logger.error(`Error while getting stash from the GGG API: ${e.message}`);
@@ -161,10 +161,10 @@ const getStash = async (stashId) => {
 const getStashes = async () => {
   logger.info('Getting stashes from the GGG API');
   try {
-    const { accountName, league, token } = await getSettings();
+    const { username, league, token } = await getSettings();
     const response: any = await request(getRequestParams(Endpoints.stashes(league), token));
     const stashes = await response.data.stashes;
-    logger.info(`Found stashes for account: ${accountName}`);
+    logger.info(`Found stashes for account: ${username}`);
     return stashes;
   } catch (e: any) {
     logger.error(`Error while getting stashes from the GGG API: ${e.message}`);

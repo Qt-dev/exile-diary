@@ -75,7 +75,7 @@ const init = async () => {
 
   // Settings
   await SettingsManager.initialize();
-  if (!SettingsManager.settings.accountName) {
+  if (!SettingsManager.settings.username) {
     logger.error('No account name set. Please set your account name in the settings.');
   } else {
     try {
@@ -90,7 +90,7 @@ const init = async () => {
       logger.info(`Settings updated. Character: ${character.name}, League: ${character.league}`);
     } catch (e) {
       logger.error(
-        `Could not set active character and league. Please check your settings. (Current Account: ${SettingsManager.settings.accountName}})`
+        `Could not set active character and league. Please check your settings. (Current Account: ${SettingsManager.settings.username}})`
       );
       logger.error(e);
     }
