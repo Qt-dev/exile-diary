@@ -429,6 +429,15 @@ const createWindow = async () => {
           const isAuthenticated = await AuthManager.isAuthenticated();
           if(isAuthenticated) {
             win.webContents.send('oauth:auth-success');
+            const character = await GGGAPI.getCurrentCharacter();
+            const activeProfile = SettingsManager.get('activeProfile');
+            if(!activeProfile || !activeProfile.valid || !activeProfile.characterName || !activeProfile.league) {
+              SettingsManager.set('activeProfile', {
+                characterName: character.name,
+                league: character.league,
+                valid: true
+              });
+            }
           }
         });
       } else {
