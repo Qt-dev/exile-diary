@@ -26,8 +26,7 @@ const SkillTree = {
       logger.error(`Error inserting new skill tree: ${JSON.stringify(err)}`);
       return false;
     }
-  }
-  
-}
+  },
+};
 
 export default SkillTree;

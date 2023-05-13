@@ -11,10 +11,7 @@ import SettingsManager from './SettingsManager';
 const account = 'ggg:token';
 const service = 'exilediary';
 const code_verifier = randomstring.generate(128);
-const base64Digest = crypto
-  .createHash("sha256")
-  .update(code_verifier)
-  .digest("base64");
+const base64Digest = crypto.createHash('sha256').update(code_verifier).digest('base64');
 const code_challenge = base64url.fromBase64(base64Digest);
 
 const state = randomstring.generate(32);
@@ -28,8 +25,10 @@ const AuthManager = {
   },
   getAuthInfo: () => {
     return {
-      code_verifier, code_challenge, state
-    }
+      code_verifier,
+      code_challenge,
+      state,
+    };
   },
   verifyState: (inputState) => {
     return state === inputState;
@@ -43,49 +42,54 @@ const AuthManager = {
     messenger.send('oauth:received-code');
 
     const headers = new Headers();
-    headers.append("Content-Type", "application/x-www-form-urlencoded");
+    headers.append('Content-Type', 'application/x-www-form-urlencoded');
 
     const urlencodedParams = new URLSearchParams();
-    urlencodedParams.append("code", code);
-    urlencodedParams.append("code_verifier", code_verifier);
+    urlencodedParams.append('code', code);
+    urlencodedParams.append('code_verifier', code_verifier);
 
     const response: AxiosResponse = await axios.post(url, urlencodedParams);
     const token = await response.data;
 
     const expirationTime = moment().add(token.expires_in, 'seconds').format('YYYY-MM-DD HH:mm:ss');
-    logger.info(`Fetched token from the GGG API for ${token.username}. It expires on ${expirationTime} (${token.expires_in} seconds)`);
+    logger.info(
+      `Fetched token from the GGG API for ${token.username}. It expires on ${expirationTime} (${token.expires_in} seconds)`
+    );
     RendererLogger.log({
       messages: [
         {
-          text: 'Got a token for '
+          text: 'Got a token for ',
         },
         {
           text: token.username,
-          type: 'important'
+          type: 'important',
         },
         {
-          text: '. It expires on '
+          text: '. It expires on ',
         },
         {
           text: expirationTime,
-          type: 'important'
+          type: 'important',
         },
         {
-          text: ` (in ${token.expires_in} seconds).`
-        }
-      ]
+          text: ` (in ${token.expires_in} seconds).`,
+        },
+      ],
     });
     return token;
   },
   saveToken: async (token) => {
     const { access_token, expires_in, username } = token;
-    if(access_token === undefined || expires_in === undefined) {
+    if (access_token === undefined || expires_in === undefined) {
       logger.error('Received bad information from the API', token);
       messenger.send('oauth:auth-failure');
       return;
     } else {
       logger.info('Saving token to the local storage');
-      SettingsManager.set('tokenExpirationDate', moment().add(expires_in, 'seconds').format('YYYY-MM-DD HH:mm:ss'));
+      SettingsManager.set(
+        'tokenExpirationDate',
+        moment().add(expires_in, 'seconds').format('YYYY-MM-DD HH:mm:ss')
+      );
       SettingsManager.set('username', username);
       await keytar.setPassword(service, account, access_token);
       await AuthManager.setLogoutTimer();
@@ -95,12 +99,12 @@ const AuthManager = {
     logger.info('Checking if the user is authenticated');
     const password = await keytar.getPassword(service, account);
     const expirationDate = SettingsManager.get('tokenExpirationDate');
-    const isAuthenticated = (
-      password !== null &&
-      expirationDate !== null &&
-      moment().isBefore(expirationDate)
-    );
-    logger.info(`User is ${isAuthenticated ? '' : 'not '}authenticated`, { password: !!password, expirationDate });
+    const isAuthenticated =
+      password !== null && expirationDate !== null && moment().isBefore(expirationDate);
+    logger.info(`User is ${isAuthenticated ? '' : 'not '}authenticated`, {
+      password: !!password,
+      expirationDate,
+    });
     return isAuthenticated;
   },
   logout: async () => {
@@ -110,48 +114,56 @@ const AuthManager = {
     messenger.send('oauth:logged-out');
   },
   setLogoutTimer: async () => {
-    if(await AuthManager.isAuthenticated()) {
+    if (await AuthManager.isAuthenticated()) {
       const tokenExiprationDate = SettingsManager.get('tokenExpirationDate');
       const realExpirationDate = moment(tokenExiprationDate).subtract(15, 'minutes');
       const millisecondsToExpiration = realExpirationDate.diff(moment());
-      logger.info(`Setting logout timer to ${realExpirationDate.format('YYYY-MM-DD HH:mm:ss')}, in ${millisecondsToExpiration} milliseconds`);
+      logger.info(
+        `Setting logout timer to ${realExpirationDate.format(
+          'YYYY-MM-DD HH:mm:ss'
+        )}, in ${millisecondsToExpiration} milliseconds`
+      );
       RendererLogger.log({
         messages: [
           {
-            text: 'Your GGG Token expires on '
+            text: 'Your GGG Token expires on ',
           },
           {
             text: realExpirationDate.format('YYYY-MM-DD HH:mm:ss'),
-            type: 'important'
+            type: 'important',
           },
           {
-            text: '. Exile Diary will log you out on that time if you do not log in again before that from the '
+            text: '. Exile Diary will log you out on that time if you do not log in again before that from the ',
           },
           {
             text: 'Settings page',
             type: 'important',
-            link: '/settings'
+            link: '/settings',
           },
           {
-            text: '.'
-          }
-        ]
+            text: '.',
+          },
+        ],
       });
 
       clearTimeout(logoutTimer);
       const maxTimeout = 2147483647; // Max timeout for setTimeout
-      if(millisecondsToExpiration > maxTimeout) {
-        logger.info(`Logout timer is too long (${millisecondsToExpiration} milliseconds), checking again in  ${maxTimeout/2} milliseconds`);
+      if (millisecondsToExpiration > maxTimeout) {
+        logger.info(
+          `Logout timer is too long (${millisecondsToExpiration} milliseconds), checking again in  ${
+            maxTimeout / 2
+          } milliseconds`
+        );
         logoutTimer = setTimeout(() => {
           AuthManager.setLogoutTimer();
-        }, maxTimeout/2);
+        }, maxTimeout / 2);
       } else {
         logoutTimer = setTimeout(() => {
           logger.info('Token expired, logging out');
           AuthManager.logout().then(() => {
             messenger.send('oauth:expired-token');
           });
-        }, millisecondsToExpiration );
+        }, millisecondsToExpiration);
       }
     }
   },

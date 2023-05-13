@@ -117,7 +117,9 @@ const createWindow = async () => {
 
   if (process.defaultApp) {
     if (process.argv.length >= 2) {
-      app.setAsDefaultProtocolClient('exile-diary', process.execPath, [path.resolve(process.argv[1])])
+      app.setAsDefaultProtocolClient('exile-diary', process.execPath, [
+        path.resolve(process.argv[1]),
+      ]);
     }
   } else {
     app.setAsDefaultProtocolClient('exile-diary');
@@ -141,16 +143,13 @@ const createWindow = async () => {
     ipcMain.handle(event, Responder[event]);
   }
 
-
   let isDownloadingUpdate = false;
 
   ipcMain.on('download-update', function (event) {
     if (!isDownloadingUpdate) {
       isDownloadingUpdate = true;
       RendererLogger.log({
-        messages: [
-          { text: 'Downloading update...' },
-        ]
+        messages: [{ text: 'Downloading update...' }],
       });
       logger.info('Now downloading update');
       autoUpdater.downloadUpdate();
@@ -160,7 +159,7 @@ const createWindow = async () => {
     logger.info('Restarting to apply update');
     autoUpdater.quitAndInstall();
   });
-  
+
   autoUpdater.channel = 'alpha'; // TODO: change this when pushing to prod
   autoUpdater.logger = logger;
   autoUpdater.autoDownload = false;
@@ -169,21 +168,26 @@ const createWindow = async () => {
     logger.info('Fetched Update Info:', JSON.stringify(info));
     RendererLogger.log({
       messages: [
-        { text: `An update to version ${info.version} is available, click here to download`, linkEvent: 'download-update' },
-      ]
+        {
+          text: `An update to version ${info.version} is available, click here to download`,
+          linkEvent: 'download-update',
+        },
+      ],
     });
   });
   autoUpdater.on('update-downloaded', (info) => {
-    RendererLogger.log(
-      { 
-        messages: [
+    RendererLogger.log({
+      messages: [
         {
-          text: `Update to version ${info.version} has been downloaded, click here to install it now (requires restart)`, linkEvent: 'apply-update'
-        }
-        ]
-      })
+          text: `Update to version ${info.version} has been downloaded, click here to install it now (requires restart)`,
+          linkEvent: 'apply-update',
+        },
+      ],
+    });
   });
-  autoUpdater.checkForUpdates().then((result) => {logger.info('Update check result:', result)});
+  autoUpdater.checkForUpdates().then((result) => {
+    logger.info('Update check result:', result);
+  });
 
   OCRWatcher.emitter.removeAllListeners();
   OCRWatcher.emitter.on('OCRError', () => {
@@ -197,22 +201,20 @@ const createWindow = async () => {
     logger.info(
       `Got area info for <span class='eventText'>${info.areaInfo.name}</span> (${tier} - ${stats})`
     );
-    RendererLogger.log(
-      {
-        messages: [
-          {
-            text: "Got area info for ",
-          },
-          {
-            text: info.areaInfo.name,
-            type: 'important',
-          },
-          {
-            text: ` (${tier} - ${stats})`,
-          }
-        ]
-      }
-    )
+    RendererLogger.log({
+      messages: [
+        {
+          text: 'Got area info for ',
+        },
+        {
+          text: info.areaInfo.name,
+          type: 'important',
+        },
+        {
+          text: ` (${tier} - ${stats})`,
+        },
+      ],
+    });
   });
 
   ScreenshotWatcher.emitter.removeAllListeners();
@@ -238,36 +240,34 @@ const createWindow = async () => {
         (run.xp ? `, ${f.format(run.xp)} XP` : '') +
         `)</span>`
     );
-    RendererLogger.log(
-      {
-        messages: [
-          {
-            text: "Completed run in ",
-          },
-          {
-            text: run.name,
-            type: 'important',
-            link: `run/${run.id}`,
-          },
-          {
-            text: ` (${Utils.getRunningTime(run.firstevent, run.lastevent)}`,
-          },
-          {
-            text: run.gained ? `, ${run.gained}c ` : '',
-            type: 'currency',
-          },
-          {
-            text: run.kills ? `, ${f.format(run.kills)} kills` : '',
-          },
-          {
-            text: run.xp ? `, ${f.format(run.xp)} XP` : '',
-          },
-          {
-            text: ')',
-          }
-        ]
-      }
-    );
+    RendererLogger.log({
+      messages: [
+        {
+          text: 'Completed run in ',
+        },
+        {
+          text: run.name,
+          type: 'important',
+          link: `run/${run.id}`,
+        },
+        {
+          text: ` (${Utils.getRunningTime(run.firstevent, run.lastevent)}`,
+        },
+        {
+          text: run.gained ? `, ${run.gained}c ` : '',
+          type: 'currency',
+        },
+        {
+          text: run.kills ? `, ${f.format(run.kills)} kills` : '',
+        },
+        {
+          text: run.xp ? `, ${f.format(run.xp)} XP` : '',
+        },
+        {
+          text: ')',
+        },
+      ],
+    });
     win.webContents.send('refresh-runs');
   });
 
@@ -344,8 +344,8 @@ const createWindow = async () => {
     win.maximize();
   }
 
-  const isDev = require('electron-is-dev')
-  if(isDev) {
+  const isDev = require('electron-is-dev');
+  if (isDev) {
     require('electron-reload')(__dirname, {
       electron: path.join(
         __dirname,
@@ -378,19 +378,20 @@ const createWindow = async () => {
   win.once('ready-to-show', () => {
     win.show();
     logger.info('ready to show');
-    
+
     RendererLogger.log({
       messages: [
         {
-          text: 'Exile Diary Reborn '
+          text: 'Exile Diary Reborn ',
         },
         {
           text: `v${app.getVersion()}`,
-          type: 'important'
-      },
+          type: 'important',
+        },
         {
-          text: ' started.'
-        }]
+          text: ' started.',
+        },
+      ],
     });
     AuthManager.setLogoutTimer();
   });
@@ -398,24 +399,22 @@ const createWindow = async () => {
   const poeAuthSession = session.fromPartition('persist:poeAuth');
 
   await poeAuthSession.cookies.set({
-    url: "https://exilediary.com",
+    url: 'https://exilediary.com',
     name: 'code_challenge',
     value: 'test',
     expirationDate: moment().add(1, 'week').unix(),
   });
 
-
-  
-  const gotTheLock = app.requestSingleInstanceLock()
+  const gotTheLock = app.requestSingleInstanceLock();
 
   if (!gotTheLock) {
-    app.quit()
+    app.quit();
   } else {
     app.on('second-instance', (event, commandLine, workingDirectory) => {
       // Someone tried to run a second instance, we should focus our window.
       if (win) {
-        if (win.isMinimized()) win.restore()
-        win.focus()
+        if (win.isMinimized()) win.restore();
+        win.focus();
       }
 
       const callCommand = commandLine.pop();
@@ -423,40 +422,45 @@ const createWindow = async () => {
       const code = params.get('code');
       const state = params.get('state');
 
-      if(code && state && AuthManager.verifyState(state)) {
+      if (code && state && AuthManager.verifyState(state)) {
         logger.info('We got an access token from Lambda');
-        AuthManager.getOauthToken(code).then(AuthManager.saveToken).then(async () => {
-          const isAuthenticated = await AuthManager.isAuthenticated();
-          if(isAuthenticated) {
-            win.webContents.send('oauth:auth-success');
-            const character = await GGGAPI.getCurrentCharacter();
-            const activeProfile = SettingsManager.get('activeProfile');
-            if(!activeProfile || !activeProfile.valid || !activeProfile.characterName || !activeProfile.league) {
-              SettingsManager.set('activeProfile', {
-                characterName: character.name,
-                league: character.league,
-                valid: true
-              });
+        AuthManager.getOauthToken(code)
+          .then(AuthManager.saveToken)
+          .then(async () => {
+            const isAuthenticated = await AuthManager.isAuthenticated();
+            if (isAuthenticated) {
+              win.webContents.send('oauth:auth-success');
+              const character = await GGGAPI.getCurrentCharacter();
+              const activeProfile = SettingsManager.get('activeProfile');
+              if (
+                !activeProfile ||
+                !activeProfile.valid ||
+                !activeProfile.characterName ||
+                !activeProfile.league
+              ) {
+                SettingsManager.set('activeProfile', {
+                  characterName: character.name,
+                  league: character.league,
+                  valid: true,
+                });
+              }
             }
-          }
-        });
+          });
       } else {
         logger.info('No access token from Lambda', code, state, AuthManager.getState());
         logger.info(callCommand);
         logger.info(commandLine);
       }
-    })
+    });
   }
 
-
-  if(isDev) {
+  if (isDev) {
     win.loadURL(devUrl);
   } else {
     Menu.setApplicationMenu(null);
     const URL = url.pathToFileURL(path.join(__dirname, '..', 'index.html')).toString();
     win.loadURL(URL);
   }
-    
 };
 
 app.on('ready', createWindow);

@@ -105,7 +105,14 @@ const getInfluenceIcons = (item) => {
 
   for (const icon of influenceIcons) {
     const Icon = require(`../../assets/img/${icon}.png`);
-    icons.push(<img alt={`influence-${icon}`} className="Item__Influence" key={`influence-${icon}`} src={Icon} />);
+    icons.push(
+      <img
+        alt={`influence-${icon}`}
+        className="Item__Influence"
+        key={`influence-${icon}`}
+        src={Icon}
+      />
+    );
   }
   return icons;
 };
@@ -145,7 +152,9 @@ const Item = ({ item }) => {
         {influencesDiv}
         <div className="Item__Name">
           {item.getDisplayName().map((line, index) => (
-            <div key={`Item__Name__Line-${index}`} className="Item__Name__Line">{line}</div>
+            <div key={`Item__Name__Line-${index}`} className="Item__Name__Line">
+              {line}
+            </div>
           ))}
         </div>
         {sockets}

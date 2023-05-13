@@ -21,7 +21,7 @@ const router = createHashRouter([
     element: <Root />,
     loader: async () => {
       const isAuthenticated = await ipcRenderer.invoke('oauth:is-authenticated');
-      if(!isAuthenticated) {
+      if (!isAuthenticated) {
         logger.info('User is not authenticated, redirecting to the login page');
         return redirect('/login');
       }
@@ -80,7 +80,7 @@ const router = createHashRouter([
     loader: async () => {
       const { code_challenge, state } = await ipcRenderer.invoke('oauth:get-info');
       return { code_challenge, state };
-    }
+    },
   },
 ]);
 const darkTheme = createTheme({

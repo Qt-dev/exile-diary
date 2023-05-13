@@ -74,7 +74,8 @@ const RunList = ({ NumberOfMapsToShow = '10', store }) => {
                 <img className="Run-List__List__Header__Icon" src={ChaosIcon} alt="profit" />
               </TableCell>
               <TableCell align="center">
-                <img className="Run-List__List__Header__Icon" src={ChaosIcon} alt="profit" />/Hr
+                <img className="Run-List__List__Header__Icon" src={ChaosIcon} alt="profit" />
+                /Hr
               </TableCell>
               <TableCell align="center">XP/Hr</TableCell>
               <TableCell align="center">Deaths</TableCell>

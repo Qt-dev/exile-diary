@@ -40,8 +40,8 @@ const Run = ({ store }) => {
     });
   };
 
-  const items : any = [];
-  for(const lootTime in run.items) {
+  const items: any = [];
+  for (const lootTime in run.items) {
     run.items[lootTime].forEach((item) => {
       const newItem = JSON.parse(item);
       newItem.lootTime = lootTime;

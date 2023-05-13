@@ -52,15 +52,13 @@ class RateGetterV2 {
 
   init() {
     const activeProfile = SettingsManager.get('activeProfile');
-    if(activeProfile) {
+    if (activeProfile) {
       this.league = activeProfile.league;
     }
     this.priceCheckLeague = null;
     this.DB = require('./DB').getLeagueDB(this.league);
 
-    if (
-      this.league && this.league.includes('SSF') && 
-      activeProfile && activeProfile.overrideSSF) {
+    if (this.league && this.league.includes('SSF') && activeProfile && activeProfile.overrideSSF) {
       // override ssf and get item prices from corresponding trade league
       // TODO undocumented league naming convention change in 3.13... must check this every league from now on
       // as of 3.13 "SSF Ritual HC" <--> "Hardcore Ritual"
@@ -82,7 +80,7 @@ class RateGetterV2 {
       logger.info('No league set, will not attempt to get prices');
       return;
     }
-    if(!activeProfile) {
+    if (!activeProfile) {
       logger.error('No settings found, will not attempt to get prices');
       return;
     }
@@ -93,10 +91,7 @@ class RateGetterV2 {
     }
 
     if (Utils.isPrivateLeague(this.league)) {
-      if (
-        privateLeaguePriceMaps &&
-        privateLeaguePriceMaps[this.league]
-      ) {
+      if (privateLeaguePriceMaps && privateLeaguePriceMaps[this.league]) {
         logger.info(
           `Private league ${this.league} will use prices from ${
             privateLeaguePriceMaps[this.league]
@@ -130,8 +125,8 @@ class RateGetterV2 {
     logger.info(`Getting new ${this.league} rates for ${today}`);
     const message = {
       text: `Getting new ${this.league} rates for today (${today})`,
-    }
-    RendererLogger.log({messages: [message]});
+    };
+    RendererLogger.log({ messages: [message] });
     this.getRates(today);
   }
 

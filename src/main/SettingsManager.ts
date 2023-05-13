@@ -33,12 +33,16 @@ class SettingsManager {
   }
 
   async set(key, value) {
-    if (key !== 'mainWindowBounds' && key !== 'poesessid') logger.info(`Set "${key}" to ${JSON.stringify(value)}`);
+    if (key !== 'mainWindowBounds' && key !== 'poesessid')
+      logger.info(`Set "${key}" to ${JSON.stringify(value)}`);
     if (key === 'poesessid') logger.info(`Set ${key}`);
     if (
       key === 'activeProfile' &&
-      value.characterName && this.settings.activeProfile &&
-      value.characterName !== this.settings.activeProfile.characterName) await DB.initDB(value.characterName);
+      value.characterName &&
+      this.settings.activeProfile &&
+      value.characterName !== this.settings.activeProfile.characterName
+    )
+      await DB.initDB(value.characterName);
     this.settings[key] = value;
     this.scheduleSave();
   }

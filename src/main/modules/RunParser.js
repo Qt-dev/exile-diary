@@ -57,7 +57,7 @@ async function tryProcess(obj) {
   if (!lastEvent) return;
   logger.info('Last town event found:');
   logger.info(JSON.stringify(lastEvent));
-  
+
   var mapStats;
   var mapMods;
   var areaInfo = await getAreaInfo(firstEvent, lastEvent);

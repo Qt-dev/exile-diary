@@ -252,7 +252,8 @@ async function price(item, league) {
 
     if (alternateSplinterPricing && Constants.fragmentTypes[identifier]) {
       let fragmentType = Constants.fragmentTypes[identifier];
-      let splinterValue = rates[f.itemType || 'Fragment'][fragmentType.item] / fragmentType.stackSize;
+      let splinterValue =
+        rates[f.itemType || 'Fragment'][fragmentType.item] / fragmentType.stackSize;
       let stackValue = splinterValue * item.stacksize;
       if (splinterValue >= minItemValue) {
         logger.info(

@@ -1,5 +1,5 @@
 import DB from '../db/skilltree';
-import API from '../GGGAPI'
+import API from '../GGGAPI';
 import logger from 'electron-log';
 import EventEmitter from 'events';
 const emitter = new EventEmitter();
@@ -19,8 +19,8 @@ const SkillTreeWatcher = {
       logger.info(`New Skill Tree: ${newTree}`);
       SkillTreeWatcher.insertPassiveTree(timestamp, newTree);
     }
-  }
-}
+  },
+};
 
 module.exports = SkillTreeWatcher;
 module.exports.emitter = emitter;

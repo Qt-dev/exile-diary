@@ -9,13 +9,14 @@ const { openExternal } = electronService.shell;
 const { logger } = electronService;
 
 type AuthData = {
-  state: string,
-  code_challenge: string,
-}
+  state: string;
+  code_challenge: string;
+};
 
 function Login({}) {
   const { code_challenge, state } = useLoaderData() as AuthData;
-  const url = 'https://www.pathofexile.com/oauth/authorize?' +
+  const url =
+    'https://www.pathofexile.com/oauth/authorize?' +
     'client_id=exilediaryreborn' +
     '&response_type=code' +
     '&scope=account:characters account:stashes account:league_accounts account:item_filter' +
@@ -30,10 +31,10 @@ function Login({}) {
     setIsOngoing(true);
   };
   const navigate = useNavigate();
-  const [ isFetchingOauthToken, setIsFetchingOauthToken ] = useState(false);
-  const [ isOngoing, setIsOngoing ] = useState(false);
-  const [ isError, setIsError ] = useState(false);
-  
+  const [isFetchingOauthToken, setIsFetchingOauthToken] = useState(false);
+  const [isOngoing, setIsOngoing] = useState(false);
+  const [isError, setIsError] = useState(false);
+
   useEffect(() => {
     ipcRenderer.on('oauth:auth-failure', (event, arg) => {
       logger.info('Auth Failure, redirecting to the root page');
@@ -41,11 +42,11 @@ function Login({}) {
       setIsFetchingOauthToken(false);
       setIsError(true);
     });
-    
+
     ipcRenderer.on('oauth:received-code', (event, arg) => {
       setIsFetchingOauthToken(true);
     });
-    
+
     ipcRenderer.on('oauth:auth-success', (event, arg) => {
       logger.info('Auth Success, redirecting to the root page');
       navigate('/', { replace: true });
@@ -55,21 +56,28 @@ function Login({}) {
     setIsOngoing(false);
     setIsFetchingOauthToken(false);
   }, []);
-  
 
-  const warning = isOngoing && !isFetchingOauthToken ? <p>Please authenticate through the window that just opened</p> : null;
-  
+  const warning =
+    isOngoing && !isFetchingOauthToken ? (
+      <p>Please authenticate through the window that just opened</p>
+    ) : null;
+
   return (
     <div className="Login">
       <div className="Login__Box">
-        <img src={Logo} alt="Exile Diary Logo" className="Login__Logo"/>
-        <h3>Exile Diary <span className="Text--Legendary">Reborn</span> requires you to log in with the PoE API to function</h3>
-        {isError ? <p className='Test--Error'>Something went wrong, please try again</p> : null}
-        <Button variant={isOngoing ? "outlined" : "contained"} color="primary" onClick={openLink}>
+        <img src={Logo} alt="Exile Diary Logo" className="Login__Logo" />
+        <h3>
+          Exile Diary <span className="Text--Legendary">Reborn</span> requires you to log in with
+          the PoE API to function
+        </h3>
+        {isError ? <p className="Test--Error">Something went wrong, please try again</p> : null}
+        <Button variant={isOngoing ? 'outlined' : 'contained'} color="primary" onClick={openLink}>
           Login with PoE
         </Button>
         {isFetchingOauthToken ? <p>Received Code, Fetching Oauth Token...</p> : null}
-        {isOngoing && !isFetchingOauthToken ? <p>Please authenticate through the window that just opened</p> : null}
+        {isOngoing && !isFetchingOauthToken ? (
+          <p>Please authenticate through the window that just opened</p>
+        ) : null}
       </div>
     </div>
   );

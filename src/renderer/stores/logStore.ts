@@ -23,7 +23,7 @@ export default class ItemStore {
     runInAction(() => {
       const log = new Log(this, logData);
       this.logs.push(log);
-      if(this.logs.length > this.maxSize) {
+      if (this.logs.length > this.maxSize) {
         this.logs.splice(this.maxSize, this.logs.length - this.maxSize);
       }
       this.isLoading = false;

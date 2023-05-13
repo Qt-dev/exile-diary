@@ -309,7 +309,6 @@ class StashGetter {
       logger.error(`Failed to get tabs for ${s.accountName} in ${s.league}: ${e}`);
       return [];
     }
-
   }
 
   async getTab(t, s) {

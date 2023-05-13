@@ -11,7 +11,9 @@ const columns: GridColDef[] = [
     headerName: '',
     sortable: false,
     filterable: false,
-    renderCell: (params:  GridRenderCellParams) => <img src={params.row.icon} alt="Item Icon" className="Loot-Table__Item-Icon" />,
+    renderCell: (params: GridRenderCellParams) => (
+      <img src={params.row.icon} alt="Item Icon" className="Loot-Table__Item-Icon" />
+    ),
   },
   {
     field: 'value',
@@ -41,22 +43,25 @@ const columns: GridColDef[] = [
   },
 ];
 
-
 const LootTable = ({ profit, store }) => {
   return (
     <div>
-      <h2 className='Loot-Table__Header'>Profit Breakdown (Total = {profit}<img className="Loot-Table__Chaos-Icon" src={ChaosIcon} alt="profit" />)</h2>
+      <h2 className="Loot-Table__Header">
+        Profit Breakdown (Total = {profit}
+        <img className="Loot-Table__Chaos-Icon" src={ChaosIcon} alt="profit" />)
+      </h2>
       <DataGrid
-        density='compact'
+        density="compact"
         disableColumnFilter
         disableColumnMenu
         disableColumnSelector
         disableRowSelectionOnClick
         disableDensitySelector
-        initialState={{ sorting: { sortModel: [{ field: 'totalValue', sort: 'desc' }] }}}
+        initialState={{ sorting: { sortModel: [{ field: 'totalValue', sort: 'desc' }] } }}
         rows={store.getItemsForLootTable()}
         columns={columns}
-        paginationModel={{ page: 0, pageSize: 100 }} />
+        paginationModel={{ page: 0, pageSize: 100 }}
+      />
     </div>
   );
 };

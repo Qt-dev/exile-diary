@@ -430,11 +430,16 @@ export class Item {
     const { icon } = rawData;
     const name = rawData.name || rawData.secretName;
     const type = rawData.hybrid ? rawData.hybrid.baseTypeName : rawData.typeLine;
-    const quantity = (rawData.maxStackSize ? rawData.pickupStackSize || rawData.stackSize : 1);
+    const quantity = rawData.maxStackSize ? rawData.pickupStackSize || rawData.stackSize : 1;
     const totalValue = value * quantity;
     const fullName = type + (name ? ` (${name})` : '');
     return {
-      id, name: fullName, value, totalValue , icon, quantity
-    }
+      id,
+      name: fullName,
+      value,
+      totalValue,
+      icon,
+      quantity,
+    };
   }
 }

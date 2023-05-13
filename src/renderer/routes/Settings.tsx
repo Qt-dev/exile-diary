@@ -80,7 +80,8 @@ const Settings = () => {
   const league = settings.activeProfile.league ? settings.activeProfile.league : 'Unknown';
   const charactersOptions = characters.map((character: any) => (
     <MenuItem key={character.name} value={character.name}>
-      {character.name} (Level {character.level}) {character.class} - {character.league} {character.current ? '(Last Active)' : ''}
+      {character.name} (Level {character.level}) {character.class} - {character.league}{' '}
+      {character.current ? '(Last Active)' : ''}
     </MenuItem>
   ));
   const alternateSplinterPricing = !!settings.alternateSplinterPricing;
@@ -130,13 +131,18 @@ const Settings = () => {
                 value={accountName}
               />
             </div>
-            <ButtonGroup variant="outlined" fullWidth color="primary" aria-label="contained primary button group">
+            <ButtonGroup
+              variant="outlined"
+              fullWidth
+              color="primary"
+              aria-label="contained primary button group"
+            >
               <Button onClick={handleLogout}>Logout</Button>
               <Button onClick={handleRedirectToLogin}>Refresh Login</Button>
             </ButtonGroup>
             <Divider className="Settings__Separator" />
             <div className="Settings__Row">
-              <div className="Text--Normal">Currently Active Character:{' '}</div>
+              <div className="Text--Normal">Currently Active Character: </div>
               <div className="Text--Rare">
                 {character ? character : 'Unknown Character'} ({league} League)
               </div>
@@ -207,7 +213,12 @@ const Settings = () => {
             <Divider className="Settings__Separator" />
             <div className="Settings__Checkbox__Row">
               <FormControlLabel
-                control={<Checkbox id="alternate_splinter_pricing" defaultChecked={alternateSplinterPricing} />}
+                control={
+                  <Checkbox
+                    id="alternate_splinter_pricing"
+                    defaultChecked={alternateSplinterPricing}
+                  />
+                }
                 label="Enable Alternate Splinter Pricing"
               />
             </div>

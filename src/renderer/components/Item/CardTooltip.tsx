@@ -82,7 +82,10 @@ const DivinationTooltip = ({ item }) => {
   return (
     <div className="Card">
       <div className="Card__Face">
-        <img alt="Exile Diary Reborn Logo" src={`https://web.poecdn.com/image/divination-card/${rawData.artFilename}.png`} />
+        <img
+          alt="Exile Diary Reborn Logo"
+          src={`https://web.poecdn.com/image/divination-card/${rawData.artFilename}.png`}
+        />
       </div>
       <div className="Card__Background"></div>
       <div className="Card__Text">

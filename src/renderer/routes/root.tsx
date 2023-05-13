@@ -11,7 +11,7 @@ const { ipcRenderer, logger } = electronService;
 function Root() {
   const [isNewVersion, setIsNewVersion] = useState(true); // Change this to make it save
   const [version, setVersion] = useState('');
-  const navigate = useNavigate()
+  const navigate = useNavigate();
   useEffect(() => {
     electronService.refreshGlobals().then(() => {
       const newVersion = electronService.getAppVersion();
@@ -26,7 +26,6 @@ function Root() {
       logger.info('User Token expired, redirecting to the login page');
       navigate('/login');
     });
-    
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
   const turnNewVersionOff = () => {
     setIsNewVersion(false);
