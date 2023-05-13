@@ -38,7 +38,7 @@ export default class RunStore {
           }
         });
         runs.forEach((json) => this.updateRunFromServer(json));
-        if (this.runs.length > this.maxSize) {
+        if (this.runs.length > this.maxSize - 1) {
           this.runs.splice(this.maxSize, this.runs.length - this.maxSize);
         }
         this.isLoading = false;
