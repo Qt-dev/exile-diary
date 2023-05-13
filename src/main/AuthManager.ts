@@ -78,7 +78,7 @@ const AuthManager = {
     return token;
   },
   saveToken: async (token) => {
-    const { access_token, expires_in } = token;
+    const { access_token, expires_in, username } = token;
     if(access_token === undefined || expires_in === undefined) {
       logger.error('Received bad information from the API', token);
       messenger.send('oauth:auth-failure');
@@ -86,6 +86,7 @@ const AuthManager = {
     } else {
       logger.info('Saving token to the local storage');
       SettingsManager.set('tokenExpirationDate', moment().add(expires_in, 'seconds').format('YYYY-MM-DD HH:mm:ss'));
+      SettingsManager.set('username', username);
       await keytar.setPassword(service, account, access_token);
       await AuthManager.setLogoutTimer();
     }

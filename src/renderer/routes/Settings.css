@@ -5,3 +5,7 @@
 .Settings .Settings__Separator {
   margin: 20px 0;
 }
+
+.Settings {
+  margin-bottom: 20px;
+}

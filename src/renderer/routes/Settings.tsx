@@ -43,7 +43,6 @@ const Settings = () => {
   const navigate = useNavigate();
   const { settings, characters } = useLoaderData() as SettingsLoaderData;
   const [tabValue, setTabValue] = React.useState(0);
-  const [hidePoesessid, setHidePoesessid] = React.useState(true);
 
   // Character
   const [character, setCharacter] = React.useState(
@@ -78,11 +77,10 @@ const Settings = () => {
   };
 
   const accountName = settings.accountName ? settings.accountName : '';
-  const poesessid = settings.poesessid ? settings.poesessid : '';
   const league = settings.activeProfile.league ? settings.activeProfile.league : 'Unknown';
   const charactersOptions = characters.map((character: any) => (
     <MenuItem key={character.name} value={character.name}>
-      {character.name} (Level {character.level}) {character.class} - {character.league}
+      {character.name} (Level {character.level}) {character.class} - {character.league} {character.current ? '(Last Active)' : ''}
     </MenuItem>
   ));
   const alternateSplinterPricing = !!settings.alternateSplinterPricing;
@@ -98,8 +96,6 @@ const Settings = () => {
   const handleSubmit = (e) => {
     e.preventDefault();
     const data = {
-      accountName: e.target.account.value,
-      poesessid: e.target.poesessid.value,
       activeProfile: {
         characterName: character,
         league: characters.find((char: any) => char.name === character).league,
@@ -128,39 +124,22 @@ const Settings = () => {
                 fullWidth
                 label="Account Name"
                 id="account"
-                variant="filled"
+                variant="standard"
+                disabled
                 size="small"
                 value={accountName}
               />
             </div>
-            <div className="Settings__Row">
-              <TextField
-                fullWidth
-                label="POESESSID"
-                id="poesessid"
-                variant="filled"
-                size="small"
-                value={poesessid}
-                type={hidePoesessid ? 'password' : 'text'}
-              />
-              <FormControlLabel
-                control={
-                  <Checkbox
-                    checked={hidePoesessid}
-                    onChange={() => setHidePoesessid(!hidePoesessid)}
-                  />
-                }
-                label="Hide value"
-              />
-            </div>
-            <ButtonGroup variant="contained" color="primary" aria-label="contained primary button group">
+            <ButtonGroup variant="outlined" fullWidth color="primary" aria-label="contained primary button group">
               <Button onClick={handleLogout}>Logout</Button>
               <Button onClick={handleRedirectToLogin}>Refresh Login</Button>
             </ButtonGroup>
             <Divider className="Settings__Separator" />
-            Currently Active Character:{' '}
-            <div className="Text--Rare">
-              {character ? character : 'Unknown Character'} ({league} League)
+            <div className="Settings__Row">
+              <div className="Text--Normal">Currently Active Character:{' '}</div>
+              <div className="Text--Rare">
+                {character ? character : 'Unknown Character'} ({league} League)
+              </div>
             </div>
             <div className="Settings__Row">
               <Select
