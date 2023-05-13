@@ -79,8 +79,8 @@ const request = (params, priority = 5) => {
 
 const getSettings = async () => {
   const { settings } = SettingsManager;
-  const { poesessid, accountName, activeProfile } = settings;
-  if (!poesessid || !accountName) throw new Error('Missing poesessid or accountName');
+  const { accountName, activeProfile } = settings;
+  if (!accountName) throw new Error('Missing accountName');
   if (!activeProfile || !activeProfile.characterName) throw new Error('Missing Active Profile');
   const token = await AuthManager.getToken();
   return { accountName, characterName: activeProfile.characterName, league: activeProfile.league, token };
