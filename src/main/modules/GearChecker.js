@@ -132,7 +132,7 @@ async function check(timestamp, eqp) {
 
 async function getEquippedJewels() {
   const skillTree = await GGGAPI.getSkillTree();
-  const jewels = skillTree.items;
+  const jewels = skillTree.jewel_data;
   return jewels;
 }
 

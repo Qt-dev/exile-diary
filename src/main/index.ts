@@ -135,6 +135,7 @@ const createWindow = async () => {
     'save-settings',
     'oauth:get-info',
     'oauth:is-authenticated',
+    'oauth:logout',
   ];
   for (const event of events) {
     ipcMain.handle(event, Responder[event]);
@@ -330,6 +331,7 @@ const createWindow = async () => {
     show: false,
   });
 
+  AuthManager.setMessenger(win.webContents);
   RendererLogger.init(win.webContents);
 
   win.on('resize', saveWindowBounds);
@@ -389,8 +391,8 @@ const createWindow = async () => {
         {
           text: ' started.'
         }]
-    }
-    );
+    });
+    AuthManager.setLogoutTimer();
   });
 
   const poeAuthSession = session.fromPartition('persist:poeAuth');
@@ -425,7 +427,18 @@ const createWindow = async () => {
         logger.info('We got an access token from Lambda');
         AuthManager.getOauthToken(code).then(AuthManager.saveToken).then(async () => {
           const isAuthenticated = await AuthManager.isAuthenticated();
-          logger.info('isAuthenticated', isAuthenticated);
+          if(isAuthenticated) {
+            win.webContents.send('oauth:auth-success');
+            const character = await GGGAPI.getCurrentCharacter();
+            const activeProfile = SettingsManager.get('activeProfile');
+            if(!activeProfile || !activeProfile.valid || !activeProfile.characterName || !activeProfile.league) {
+              SettingsManager.set('activeProfile', {
+                characterName: character.name,
+                league: character.league,
+                valid: true
+              });
+            }
+          }
         });
       } else {
         logger.info('No access token from Lambda', code, state, AuthManager.getState());

@@ -414,54 +414,8 @@ async function getXP(firstEvent, lastEvent) {
 }
 
 async function getXPManual() {
-  var settings = require('./settings').get();
-  var path = `/character-window/get-characters?accountName=${encodeURIComponent(
-    settings.accountName
-  )}`;
-  var requestParams = Utils.getRequestParams(path, settings.poesessid);
-
-  return new Promise((resolve, reject) => {
-    var request = https.request(requestParams, (response) => {
-      var body = '';
-      response.setEncoding('utf8');
-      response.on('data', (chunk) => {
-        body += chunk;
-      });
-      response.on('end', () => {
-        try {
-          var data = JSON.parse(body);
-          var xp = -1;
-          data.forEach((char) => {
-            if (
-              char.name === settings.activeProfile.characterName &&
-              char.league === settings.activeProfile.league
-            ) {
-              xp = char.experience;
-            }
-          });
-          if (xp === -1) {
-            logger.info('Failed to get xp!');
-            resolve(null);
-          } else {
-            logger.info('Manually retrieved xp: ' + xp);
-            resolve(xp);
-          }
-        } catch (err) {
-          logger.info(`Failed to get xp: ${err}`);
-          resolve(null);
-        }
-      });
-      response.on('error', (err) => {
-        logger.info(`Failed to get xp: ${err}`);
-        resolve(null);
-      });
-    });
-    request.on('error', (err) => {
-      logger.info(`Failed to get xp: ${err}`);
-      resolve(null);
-    });
-    request.end();
-  });
+  const { experience } = await GGGAPI.getDataForInventory();
+  return experience;
 }
 
 async function getLastInventoryTimestamp() {
