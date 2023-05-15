@@ -15,13 +15,19 @@ const limiter = new Bottleneck({
 limiter.on('failed', async (error, jobInfo) => {
   const { retryCount } = jobInfo;
   logger.error(
-    `Request ${jobInfo.options.id} failed with ${error.message}. Retrying ${retryCount} times.`
+    `Request ${jobInfo.options.id} failed with ${error.message}. Retried ${retryCount} times.`
   );
-  logger.error(error, jobInfo);
-  if (retryCount === 0) {
-    logger.error(`Request ${jobInfo.options.id} failed. Retrying...`);
-  } else {
+  if(error.stats === 429) {
+    logger.error('Too many requests. Waiting 10 seconds before retrying...');
+    logger.error(`Retry-After Header: ${error.getResponseHeader("Retry-After")}`);
+    return ((error.getResponseHeader("Retry-After") || 1) * 1000) + 1000
+  }
+
+  if (retryCount > 2) {
     logger.error(`Request ${jobInfo.options.id} failed ${retryCount} times. No more retries.`);
+  } else {
+    logger.error(`Request ${jobInfo.options.id} failed. Retrying... in 5 second.`);
+    return 5000;
   }
 });
 
