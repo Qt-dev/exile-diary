@@ -1,9 +1,11 @@
 import logger from 'electron-log';
 import { app } from 'electron';
-import axios, { AxiosResponse } from 'axios';
+import Axios from 'axios';
+import { setupCache } from 'axios-cache-interceptor';
 import SettingsManager from './SettingsManager';
 import AuthManager from './AuthManager';
 import Bottleneck from 'bottleneck';
+const axios = setupCache(Axios);
 
 const limiter = new Bottleneck({
   maxConcurrent: 1,
@@ -70,7 +72,15 @@ const getRequestParams = (url, token) => {
 const request = (params, priority = 5) => {
   return limiter.schedule({ priority }, () => {
     logger.info('Running request');
-    return axios(params);
+    if(!params.cache) {
+      params.cache = {
+        ttl: 1000 * 15 // 15 seconds
+      };
+    }
+    return axios(params).then((response) => {
+      if(response.cached) logger.info(`Response from cache for ${params.url}`);
+      return response;
+    });
   });
 };
 
