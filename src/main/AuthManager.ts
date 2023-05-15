@@ -99,8 +99,9 @@ const AuthManager = {
     logger.info('Checking if the user is authenticated');
     const password = await keytar.getPassword(service, account);
     const expirationDate = SettingsManager.get('tokenExpirationDate');
+    const username = SettingsManager.get('username');
     const isAuthenticated =
-      password !== null && expirationDate !== null && moment().isBefore(expirationDate);
+      password !== null && expirationDate !== null && moment().isBefore(expirationDate) && !!username;
     logger.info(`User is ${isAuthenticated ? '' : 'not '}authenticated`, {
       password: !!password,
       expirationDate,
