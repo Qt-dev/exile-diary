@@ -1,14 +1,14 @@
 import sharp from 'sharp';
-const Jimp = require('jimp');
+// const Jimp = require('jimp');
+// const convert = require('color-convert');
+// const fs = require('fs');
 const path = require('path');
-const convert = require('color-convert');
 const moment = require('moment');
 const chokidar = require('chokidar');
 const logger = require('electron-log').scope('main-screenshot-watcher');
 const EventEmitter = require('events');
-const fs = require('fs');
 
-const SCREENSHOT_DIRECTORY_SIZE_LIMIT = 400;
+// const SCREENSHOT_DIRECTORY_SIZE_LIMIT = 400;
 
 var settings;
 var watcher;
@@ -292,30 +292,31 @@ async function process(file) {
   }
 }
 
-function enhanceImage(image, scaleFactor) {
-  image.scale(scaleFactor, Jimp.RESIZE_BEZIER);
-  image.invert();
-  image.greyscale();
-  /*
-  image.convolute([
-    [0, 0, 0, 0, 0],
-    [0, 0, -1, 0, 0],
-    [0, -1, 5, -1, 0],
-    [0, 0, -1, 0, 0],
-    [0, 0, 0, 0, 0]
-  ]);
-  */
-  image.convolute([
-    [-1 / 8, -1 / 8, -1 / 8],
-    [-1 / 8, 2, -1 / 8],
-    [-1 / 8, -1 / 8, -1 / 8],
-  ]);
-  image.brightness(-0.43);
-  image.contrast(0.75);
-}
+// function enhanceImage(image, scaleFactor) {
+//   image.scale(scaleFactor, Jimp.RESIZE_BEZIER);
+//   image.invert();
+//   image.greyscale();
+//   /*
+//   image.convolute([
+//     [0, 0, 0, 0, 0],
+//     [0, 0, -1, 0, 0],
+//     [0, -1, 5, -1, 0],
+//     [0, 0, -1, 0, 0],
+//     [0, 0, 0, 0, 0]
+//   ]);
+//   */
+//   image.convolute([
+//     [-1 / 8, -1 / 8, -1 / 8],
+//     [-1 / 8, 2, -1 / 8],
+//     [-1 / 8, -1 / 8, -1 / 8],
+//   ]);
+//   image.brightness(-0.43);
+//   image.contrast(0.75);
+// }
 
 function isBlue(rgba) {
-  var hsv = convert.rgb.hsl([rgba.r, rgba.g, rgba.b]);
+  // Old code:
+  // var hsv = convert.rgb.hsl([rgba.r, rgba.g, rgba.b]);
   // map mod blue:
   // hue 240
   // saturation + value > 40
