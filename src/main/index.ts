@@ -25,6 +25,8 @@ enum SYSTEMS {
   LINUX = 'debian',
   MACOS = 'darwin',
 }
+let autoUpdaterInterval: NodeJS.Timeout;
+const autoUpdaterIntervalTime = 1000 * 60 * 60; // 1 hour
 
 // Initialize logger settings
 logger.initialize({ preload: true });
@@ -185,8 +187,14 @@ const createWindow = async () => {
       ],
     });
   });
+
+
   autoUpdater.checkForUpdates().then((result) => {
-    logger.info('Update check result:', result);
+    const msg = `Update check done. ${!!result ? `Update ${result.updateInfo.releaseName} is available` : 'No Update available'}:`
+    logger.info(msg);
+    autoUpdaterInterval = setInterval(() => {
+      autoUpdater.checkForUpdates().then((result) => { logger.info(msg); });
+    }, autoUpdaterIntervalTime);
   });
 
   OCRWatcher.emitter.removeAllListeners();
@@ -367,6 +375,7 @@ const createWindow = async () => {
   // }, 3000);
 
   win.on('close', (e: Event) => {
+    clearInterval(autoUpdaterInterval);
     return;
     // if (!isQuitting) {
     //   e.preventDefault();
