@@ -50,7 +50,7 @@ logger.errorHandler.startCatching({
         if (result.response === 1) {
           createIssue('https://github.com/qt-dev/exile-diary/issues/new', {
             title: `Error report for ${versions.app}`,
-            body: 'Error:\n```' + error.stack + '\n```\n' + `OS: ${versions.os}`,
+            body: 'Error:\n```\n' + error.stack + '\n```\n' + `OS: ${versions.os}`,
           });
           return;
         }
