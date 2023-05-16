@@ -1,5 +1,5 @@
 const logger = require('./Log').getLogger(__filename);
-const data = require('../res/data/itemCategories.json');
+const data = require('../../res/data/itemCategories.json');
 
 const equipmentBaseTypes = data.equipmentBaseTypes;
 const gemBaseTypes = data.gemBaseTypes;
