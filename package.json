@@ -1,6 +1,6 @@
 {
   "name": "exile-diary",
-  "version": "1.0.0-alpha.10",
+  "version": "1.0.0-alpha.11",
   "main": "./build/main/index.js",
   "homepage": "./",
   "build": {
@@ -14,7 +14,7 @@
     "win": {
       "target": "nsis",
       "artifactName": "exile-diary-reborn-setup-${version}.${ext}",
-      "icon": "./res/img/icons/win/ExileDiary.ico",
+      "icon": "./src/renderer/assets/img/icons/win/ExileDiary.ico",
       "extraResources": [
         "eng.traineddata"
       ]
@@ -23,14 +23,14 @@
       "oneClick": "false",
       "allowElevation": "false",
       "allowToChangeInstallationDirectory": "true",
-      "installerIcon": "./res/img/icons/win/ExileDiary.ico",
-      "uninstallerIcon": "./res/img/icons/win/ExileDiary.ico",
-      "installerHeaderIcon": "./res/img/icons/win/ExileDiary.ico"
+      "installerIcon": "./src/renderer/assets/img/icons/win/ExileDiary.ico",
+      "uninstallerIcon": "./src/renderer/assets/img/icons/win/ExileDiary.ico",
+      "installerHeaderIcon": "./src/renderer/assets/img/icons/win/ExileDiary.ico"
     },
     "linux": {
       "target": "deb",
       "executableName": "Exile-Diary",
-      "icon": "./res/img/icons/png",
+      "icon": "./src/renderer/assets/img/icons/png",
       "category": "Utility",
       "maintainer": "briansd9"
     }
