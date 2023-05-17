@@ -90,16 +90,16 @@ const request = (params, priority = 5) => {
   });
 };
 
-const getSettings = async () => {
+const getSettings = async (needProfile = true) => {
   const { settings } = SettingsManager;
   const { username, activeProfile } = settings;
   if (!username) throw new Error('Missing username');
-  if (!activeProfile || !activeProfile.characterName) throw new Error('Missing Active Profile');
+  if ((!activeProfile || !activeProfile.characterName) && needProfile) throw new Error('Missing Active Profile');
   const token = await AuthManager.getToken();
   return {
     username,
-    characterName: activeProfile.characterName,
-    league: activeProfile.league,
+    characterName: activeProfile?.characterName,
+    league: activeProfile?.league,
     token,
   };
 };
@@ -107,7 +107,7 @@ const getSettings = async () => {
 const getAllCharacters = async () => {
   logger.info('Getting characters from the GGG API');
   try {
-    const { username, token } = await getSettings();
+    const { username, token } = await getSettings(false);
     const response: any = await request(getRequestParams(Endpoints.characters(), token));
     const characters = await response.data.characters;
     logger.info(
