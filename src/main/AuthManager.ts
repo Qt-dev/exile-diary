@@ -41,9 +41,6 @@ const AuthManager = {
     const url = `https://exilediary.com/auth/token`;
     messenger.send('oauth:received-code');
 
-    const headers = new Headers();
-    headers.append('Content-Type', 'application/x-www-form-urlencoded');
-
     const urlencodedParams = new URLSearchParams();
     urlencodedParams.append('code', code);
     urlencodedParams.append('code_verifier', code_verifier);
