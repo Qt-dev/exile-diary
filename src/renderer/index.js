@@ -11,6 +11,7 @@ import Settings from './routes/Settings';
 import RunList from './routes/RunList';
 import Run from './routes/Run';
 import Login from './routes/Login';
+import Stats from './routes/Stats';
 import { electronService } from './electron.service';
 const { logger } = electronService;
 const runStore = new RunStore();
@@ -53,7 +54,11 @@ const router = createHashRouter([
       },
       {
         path: 'stats',
-        element: <div>Stats</div>,
+        element: <Stats />,
+        loader: async () => {
+          const stats = await ipcRenderer.invoke('get-all-stats');
+          return { stats };
+        }
       },
       {
         path: 'settings',

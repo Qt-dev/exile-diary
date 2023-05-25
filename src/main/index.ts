@@ -140,6 +140,7 @@ const createWindow = async () => {
     'oauth:get-info',
     'oauth:is-authenticated',
     'oauth:logout',
+    'get-all-stats',
   ];
   for (const event of events) {
     ipcMain.handle(event, Responder[event]);
