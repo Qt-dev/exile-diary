@@ -119,7 +119,7 @@ const Settings = () => {
       </Box>
       <form onSubmit={handleSubmit} role="tabpanel" hidden={tabValue !== 0}>
         {tabValue === 0 && (
-          <Box sx={{ p: 3 }}>
+          <Box sx={{ p: 1 }}>
             <div className="Settings__Row">
               <TextField
                 fullWidth

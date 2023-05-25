@@ -4,6 +4,7 @@ import Runs from './db/run';
 import SettingsManager from './SettingsManager';
 import GGGAPI from './GGGAPI';
 import AuthManager from './AuthManager';
+import StatsManager from './StatsManager';
 
 const getAppGlobals = async () => {
   logger.info('Loading global settings for the renderer process');
@@ -77,6 +78,15 @@ const logout = async (e) => {
   return;
 };
 
+const getAllStats = async (e, params) => {
+  logger.info('Getting all stats for the renderer process');
+  const profile = SettingsManager.get('activeProfile');
+  const league = params?.league ?? profile.league;
+  const characterName = params?.characterName ?? profile.characterName;
+  const stats = StatsManager.getAllStats({ league, characterName });
+  return stats;
+};
+
 const Responder = {
   'app-globals': getAppGlobals,
   'load-runs': loadRuns,
@@ -88,6 +98,7 @@ const Responder = {
   'oauth:get-info': getAuthInfo,
   'oauth:is-authenticated': isAuthenticated,
   'oauth:logout': logout,
+  'get-all-stats': getAllStats,
 };
 
 export default Responder;

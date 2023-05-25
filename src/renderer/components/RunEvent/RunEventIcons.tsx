@@ -3,10 +3,10 @@ import MavenIcon from '../../assets/img/encountericons/maven.png';
 import BlightIcon from '../../assets/img/encountericons/blight.png';
 import BlightedMapIcon from '../../assets/img/encountericons/blightedmap.png';
 import DeliriumIcon from '../../assets/img/encountericons/delirium.png';
-import BaranIcon from '../../assets/img/encountericons/crusader.png';
-import AlHezminIcon from '../../assets/img/encountericons/hunter.png';
-import VeritaniaIcon from '../../assets/img/encountericons/redeemer.png';
-import DroxIcon from '../../assets/img/encountericons/warlord.png';
+import BaranIcon from '../../assets/img/encountericons/baran.png';
+import AlHezminIcon from '../../assets/img/encountericons/al-hezmin.png';
+import VeritaniaIcon from '../../assets/img/encountericons/veritania.png';
+import DroxIcon from '../../assets/img/encountericons/drox.png';
 // import BaranIcon from , the Crusader'
 // 'Al-Hezmin, the Hunter'
 // 'Veritania, the Redeemer'
