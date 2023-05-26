@@ -9,13 +9,10 @@ import TableRow from "@mui/material/TableRow";
 import ChaosIcon from '../../assets/img/c.png';
 import { Order } from '../../../helpers/types'
 import TableSortLabel from '@mui/material/TableSortLabel';
-import { electronService } from '../../electron.service';
 import IconButton from '@mui/material/IconButton';
 import AddIcon from '@mui/icons-material/Add';
 import RemoveIcon from '@mui/icons-material/Remove';
 import Collapse from '@mui/material/Collapse';
-import Typography from '@mui/material/Typography';
-const { logger } = electronService;
 
 const MapRow = ({ maps }) => {
   return (
