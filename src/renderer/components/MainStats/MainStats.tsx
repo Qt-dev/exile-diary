@@ -1,7 +1,5 @@
 import React from 'react';
 import './MainStats.css';
-import { electronService } from '../../electron.service';
-import { useLoaderData } from 'react-router';
 import KillIcon from '../../assets/img/encountericons/kills.png';
 import DeathIcon from '../../assets/img/encountericons/deaths.png';
 import KillDeathIcon from '../../assets/img/encountericons/kd.png';
@@ -26,58 +24,9 @@ import NikoIcon from '../../assets/img/encountericons/niko.png';
 import JunIcon from '../../assets/img/encountericons/jun.png';
 
 import { Table, TableBody, TableCell, TableHead, TableRow} from '@mui/material';
-const { logger } = electronService;
-
-
-/* Stats we want:
-
-- Value of drops
-- Raw divine drops
-- Monsters slain
-- Deaths
-- K/D Ratio
-
-- Maven Crucibles
-- Abyssal Depths entered
-- Vaal side areas entered
-
-- Envoy encountered
-- Total words spoken ?
-- Blight encounters
-- Blighted Maps
-- Unrighteous turned to ash ?
-
-- Delirium Mirrors
-- Metamorphs
-- Metamorph specific organs
-
-- Legion General encounters
-- Each Legion General
-
-- Lab trials completed
-
-- Shrines activated
-
------
-
-Conquerors defeated
-
------
-
-Masters
-- Encounters, Missions completed
-- Beasts captured ?
-- Incursions completed?
-- Sulphie deposits?
-
-Syndicate
-- Mastermind 
-- Each member
-*/
 
 const MainStats = ({ stats }) => {
 	const whiteBeasts = stats.misc.masters.einhar.details.beasts - stats.misc.masters.einhar.details.yellowBeasts - stats.misc.masters.einhar.details.redBeasts;
-	logger.info('Stats', stats);
 	return (
 		<div className="Stats">
 			<h2 className="Stats__Header">Total Stats</h2>
