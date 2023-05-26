@@ -1,0 +1,35 @@
+.Area-Stats__Profit-Icon {
+  height: 1.2em;
+  vertical-align: middle;
+}
+
+.Area-Stats__Header {
+  background-color: rgba(155,155,155,0.2);
+}
+
+.Area-Stats__Sub-Table {
+  background-color: rgba(60,60,60,0.2)
+}
+
+.Area-Stats__Header th:nth-child(1) {
+  border-radius: 4px 0px 0px 0px;
+}
+
+.Area-Stats__Header th:nth-last-child(1) {
+  border-radius: 0px 4px 0px 0px;
+}
+
+.Stats__Map-List {
+  margin: 15px 0;
+}
+
+.Stats__Map-List__Table {
+  background-color: rgba(30,30,30,0.2);
+}
+
+.Stats__Map-List__Header {
+  font-family: FontinSmallCaps;
+  width: 100%;
+  text-align: center;
+  margin: 12px;
+}

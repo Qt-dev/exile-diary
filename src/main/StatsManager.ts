@@ -1,8 +1,8 @@
+import logger from "electron-log";
+import moment from "moment";
 import DB from "./db/stats";
 import { Run } from "../helpers/types";
 import Constant from "../helpers/constants";
-import logger from "electron-log";
-import moment from "moment";
 const { areas } = Constant;
 
 type GetStatsParams = {
@@ -284,7 +284,7 @@ class StatsManager {
             if(
               !!run.parsedRunInfo?.shaperBattle?.[previousPhaseName] &&
               !!run.parsedRunInfo?.shaperBattle?.[currentPhaseName]) {
-                const runningTime = this.getRunningTime(run.parsedRunInfo?.shaperBattle?.[previousPhaseName], run.parsedRunInfo?.shaperBattle?.[currentPhaseName], 's');
+                const runningTime = this.getRunningTime(run.parsedRunInfo?.shaperBattle?.[previousPhaseName], run.parsedRunInfo?.shaperBattle?.[currentPhaseName]);
                 this.stats.misc.shaper.phases[currentPhaseName].count++;
                 this.stats.misc.shaper.phases[currentPhaseName].totalTime += Number(runningTime);
           }
@@ -384,8 +384,7 @@ class StatsManager {
         if(run.parsedRunInfo.sirusBattle.finalPhaseStart) {
           let lastPhaseTime = this.getRunningTime(
             run.parsedRunInfo.sirusBattle.finalPhaseStart,
-            run.parsedRunInfo.sirusBattle.completed,
-            's'
+            run.parsedRunInfo.sirusBattle.completed
           );
           this.stats.misc.sirus.lastPhaseTime += Number(lastPhaseTime);
         }
@@ -483,27 +482,42 @@ class StatsManager {
     }
 
     // Area Stats
+    const time = Number(this.getRunningTime(run.firstevent, run.lastevent));
+
     this.stats.areas[run.areaType] = this.stats.areas[run.areaType] ?? { count: 0, gained: 0, kills: 0, time: 0, deaths: 0 };
     const stats = this.stats.areas[run.areaType];
+    stats.name = run.areaType;
     stats.count++;
     stats.gained += run.gained;
     stats.kills += run.kills;
-    stats.time += Number(this.getRunningTime(run.firstevent, run.lastevent, 's'));
+    stats.time += time;
+    stats.profitPerHour = stats.gained/(stats.time/3600);
 
-    if(run?.deaths && run.deaths > 0) {
-      stats.deaths += run.deaths;
+    if(run.parsedRunInfo?.deaths && run.parsedRunInfo.deaths > 0) {
+      stats.deaths += run.parsedRunInfo.deaths;
     }
 
     stats.areas = stats.areas ?? {};
     stats.areas[run.name] = stats.areas[run.name] ?? { count: 0, gained: 0, kills: 0, time: 0, deaths: 0 };
     const areaStats = stats.areas[run.name];
+    areaStats.name = run.name;
     areaStats.count++;
     areaStats.gained += run.gained;
     areaStats.kills += run.kills;
-    areaStats.time += Number(this.getRunningTime(run.firstevent, run.lastevent, 's'));
+    areaStats.time += time;
+    areaStats.profitPerHour = areaStats.time > 0 ? areaStats.gained/(areaStats.time/3600) : 0;
     if(run.parsedRunInfo?.deaths && run.parsedRunInfo?.deaths > 0) {
       areaStats.deaths += run.parsedRunInfo?.deaths;
     }
+
+    areaStats.maps = areaStats.maps ?? [];
+    areaStats.maps.push({
+      date: run.firstevent,
+      time: time,
+      gained: run.gained,
+      profitPerHour: (!!run.gained && time > 0) ? run.gained/(time/3600) : 0,
+      kills: run.kills ?? 0,
+      deaths: run.parsedRunInfo?.deaths ?? 0});
   }
 
   addBossStats(run : Run) {
@@ -679,12 +693,11 @@ class StatsManager {
   }
 
   // Utility functions
-  getRunningTime (firstevent, lastevent, format : string | undefined = undefined ) {
+  getRunningTime (firstevent, lastevent, format : moment.unitOfTime.Base = 'seconds' ) {
     const duration = moment
       .duration(moment(lastevent, 'YYYYMMDDHHmmss').diff(moment(firstevent, 'YYYYMMDDHHmmss')));
-    return moment
-      .utc(duration.as('milliseconds'))
-      .format(format);
+      logger.debug(`duration: ${duration.as('milliseconds')}`);
+    return duration.as(format);
   }
 }
 

@@ -1,0 +1,173 @@
+.Stats {
+  margin-left: 10px;
+}
+
+.Stats__Header {
+  padding: 0;
+  margin: 2px 0;
+  color: #ffecaf;
+  letter-spacing: 3px;
+  text-shadow: 2px 2px black;
+  background-image: linear-gradient(to right, rgba(0, 0, 0, 0), #444 5%, rgba(0, 0, 0, 0));
+  font-weight: normal;
+  font-size: 1.5em;
+  /* margin-left: 10px; */
+  margin-bottom: 15px;
+  padding: 6px 20px;
+}
+
+.Stats__Container {
+  margin-bottom: 30px;
+}
+
+.Stats__Column {
+  width: calc(50% - 10px);
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.Stat {
+  color: white;
+  font-family: FontinSmallCaps;
+}
+.Stat__Text {
+  display: flex;
+  align-items: center;
+  align-content: center;
+  gap: 3px;
+}
+
+.Stat__Value {
+  color: #fefe76;
+}
+
+.Stat__Icon {
+  height: 1.2em;
+  margin-right: 3px;
+}
+
+.Stat__Table__Icon {
+  vertical-align: middle;
+  height: 1.3em;
+}
+
+.Stat__Table-Container {
+  margin-top: 10px;
+}
+
+.Stats--Conquerors .Stat__Text {
+  margin-left: 1.5em;
+}
+
+.Stats--Two-Columns {
+  margin-top: 25px;
+  display: flex;
+  flex-direction: row;
+  column-gap: 10px;
+  row-gap: 25px;
+  flex-wrap: wrap;
+}
+
+.Stats--Two-Columns > .Stat {
+  width: calc(50% - 10px);
+}
+
+.Stats--One-Column {
+  display: flex;
+  flex-direction: column;
+  row-gap: 20px;
+}
+
+.Stats--One-Column .Stat__Section {
+  margin-top: 10px;
+  width: 100%;
+}
+
+.Stat__Header, .Stat__Section-Header {
+  height: 2em;
+  vertical-align: middle;
+  border-radius: 3em;
+  margin-bottom: 5px;
+  text-shadow: 2px 2px black;
+  color: white;
+  display: flex;
+  align-items: center;
+  gap: 5px
+}
+
+.Stat__Header__Icon {
+  height: 2em;
+}
+
+.Stat__Header--al-hezmin {
+  background-image: linear-gradient(to right, #526942, rgba(0, 0, 0, 0) 75%);
+}
+.Stat__Header--baran {
+  background-image: linear-gradient(to right, #5d1e19, rgba(0, 0, 0, 0) 75%);
+}
+.Stat__Header--drox {
+  background-image: linear-gradient(to right, #63513a, rgba(0, 0, 0, 0) 75%);
+}
+.Stat__Header--veritania {
+  background-image: linear-gradient(to right, #363a96, rgba(0, 0, 0, 0) 75%);
+}
+
+.Stat__Section,
+.Stat__Section__Column {
+  display: flex;
+  gap: 3px;
+  width: 100%;
+}
+
+.Stat__Section--One-Column,
+.Stat__Section__Column {
+  flex-direction: column;
+}
+
+.Stat__Section--Two-Columns {
+  flex-direction: row;
+  flex-wrap: wrap;
+}
+
+.Stat__Section-Header {
+  width: 100%;
+  margin-bottom: 10px;
+}
+
+.Stat__Section .Stat__Header__Icon {
+  height: 3em;
+  margin-left: -0.5em
+}
+
+.Stat__Section--Two-Columns .Stat__Section__Column {
+  width: calc(50% - 10px);
+}
+
+.Stat__Header--alva {
+  background-image: linear-gradient(to right, #3f131d 35%, #58ae8f 65%, rgba(0, 0, 0, 0) 98%);
+}
+.Stat__Header--einhar {
+  background-image: linear-gradient(to right, #3f1411 35%, #b5b28c 65%, rgba(0, 0, 0, 0) 98%);
+}
+.Stat__Header--niko {
+  background-image: linear-gradient(to right, #15191e 35%, #31f7ff 65%, rgba(0, 0, 0, 0) 98%);
+}
+.Stat__Header--jun {
+  background-image: linear-gradient(to right, #3f2e0f 35%, #b7b13e 65%, rgba(0, 0, 0, 0) 98%);
+}
+
+.Stat__Section .Stat {
+  margin-left: 1.5em;
+}
+
+.Stat__Beast-Icon {
+  height: 1.5em;
+}
+.Stat__Value--Beasts {
+  font-family: initial;
+  display: flex;
+  align-items: center;
+  align-content: center;
+  color: rgba(255,255,255,0.7);
+}
