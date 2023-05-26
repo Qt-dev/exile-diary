@@ -93,5 +93,7 @@ type Run = {
   deaths?: number;
 };
 
+type Order = 'asc' | 'desc';
 
-export type { Run };
+
+export type { Run, Order, RunInfo };
