@@ -82,11 +82,13 @@ const Stats = () => {
 	const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
     setTabValue(newValue);
   };
+	logger.info(stats);
 	return (
 		<div className="Stats__Page Box">
         <Tabs value={tabValue} aria-label="Settings Tabs" className="Stats__Tabs" onChange={handleTabChange}>
           <Tab label="Main Stats" {...a11yProps(0)} />
           <Tab label="Area Stats" {...a11yProps(1)} />
+					<Tab label="Boss Stats" {...a11yProps(2)} />
           {/* Add new stuff here */}
         </Tabs>
 				<TabPanel value={tabValue} index={0}>
@@ -94,6 +96,10 @@ const Stats = () => {
 				</TabPanel>
 				<TabPanel value={tabValue} index={1}>
 					<AreaStats stats={stats} />
+				</TabPanel>
+				<TabPanel value={tabValue} index={2}>
+					<h1>Coming Soon</h1>
+					{JSON.stringify(stats.bosses)}
 				</TabPanel>
 		</div>
 		);
