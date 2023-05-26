@@ -3,11 +3,22 @@ type RunInfo = {
   maven?: {
     crucibleCompleted?: boolean;
     mavenDefeated?: boolean;
+    firstLine: number;
+  };
+  oshabiBattle?: {
+    start: number;
+    completed: boolean;
+  };
+  venariusBattle?: {
+    start: number;
+    completed: boolean;
   };
   shaperBattle?: {
+    phase1start: number;
     completed: boolean;
   };
   mastermindBattle?: {
+    battle2start: number;
     completed: boolean;
   };
   envoy?: {
@@ -40,6 +51,7 @@ type RunInfo = {
     };
   };
   sirusBattle?: {
+    start: number;
     completed: boolean;
     finalPhaseStart: number;
     dieBeamsFired: number;
@@ -91,6 +103,14 @@ type Run = {
   firstevent: number;
   lastevent: number;
   deaths?: number;
+  conqueror_time?: number;
+  conqueror_deaths?: number;
+  mastermind_deaths?: number;
+  sirus_deaths?: number;
+  shaper_deaths?: number;
+  maven_deaths?: number;
+  oshabi_deaths?: number;
+  venarius_deaths?: number;
 };
 
 type Order = 'asc' | 'desc';

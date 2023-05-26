@@ -2,8 +2,8 @@ import logger from "electron-log";
 import moment from "moment";
 import DB from "./db/stats";
 import { Run } from "../helpers/types";
-import Constant from "../helpers/constants";
-const { areas } = Constant;
+import Constants from "../helpers/constants";
+const { areas } = Constants;
 
 type GetStatsParams = {
   league: string;
@@ -200,7 +200,17 @@ class StatsManager {
       },
     },
     areas: {},
-    bosses: {},
+    bosses: {
+      maps: {},
+      shaperGuardians: {},
+      elderGuardians: {},
+      conquerors: {},
+      mastermind: { count: 0, totalTime: 0, fastest: Number.MAX_SAFE_INTEGER, deaths: 0 },
+      sirus: { count: 0, totalTime: 0, fastest: Number.MAX_SAFE_INTEGER, deaths: 0 },
+      shaper: { count: 0, totalTime: 0, fastest: Number.MAX_SAFE_INTEGER, deaths: 0 },
+      oshabi: { count: 0, totalTime: 0, fastest: Number.MAX_SAFE_INTEGER, deaths: 0 },
+      venarius: { count: 0, totalTime: 0, fastest: Number.MAX_SAFE_INTEGER, deaths: 0 },
+    },
   };
   constructor(runs: Run[] = []) {
     for(const phase of shaperBattlePhases) {
@@ -208,6 +218,7 @@ class StatsManager {
     }
     for(const run of runs) {
       this.addStatsForRun(run);
+      this.addBossStats(run);
     }
   }
 
@@ -521,182 +532,145 @@ class StatsManager {
   }
 
   addBossStats(run : Run) {
+    const detectedBosses : string[] = [];
+
+    if(run.parsedRunInfo?.conqueror) {
+      for(let conquerorName in run.parsedRunInfo.conqueror) {
+        detectedBosses.push(conquerorName);
+        this.stats.bosses.conquerors[conquerorName] = this.stats.bosses.conquerors[conquerorName] ?? { count: 0, totalTime: 0, fastest: Number.MAX_SAFE_INTEGER, deaths: 0 };
+        const stats = this.stats.bosses.conquerors[conquerorName];
+
+        stats.count++;
+        const battleTime = Number(run.conqueror_time ?? 0);
+        stats.totalTime += battleTime;
+        stats.fastest = Number(Math.min(stats.fastest, battleTime));
+        stats.deaths += Number(run.conqueror_deaths ?? 0);
+      }
+    }
+
+    if(run.parsedRunInfo?.mastermindBattle && run.parsedRunInfo.mastermindBattle.battle2start && run.parsedRunInfo.mastermindBattle.completed) {
+      const boss = 'Catarina, Master of Undeath';
+      detectedBosses.push(boss);
+      const stats = this.stats.bosses.mastermind;
+
+      stats.count++;
+      const battleTime = this.getRunningTime(run.parsedRunInfo.mastermindBattle.battle2start, run.parsedRunInfo.mastermindBattle.completed);
+      stats.totalTime += battleTime;
+      stats.fastest = Number(Math.min(stats.fastest, battleTime));
+      stats.deaths += Number(run.mastermind_deaths ?? 0);
+    }
+
+    if(run.parsedRunInfo?.sirusBattle && run.parsedRunInfo.sirusBattle.start && run.parsedRunInfo.sirusBattle.completed) {
+      const boss = 'Sirus, Awakener of Worlds';
+      detectedBosses.push(boss);
+      const stats = this.stats.bosses.sirus;
+
+      stats.count++;
+      const battleTime = this.getRunningTime(run.parsedRunInfo.sirusBattle.start, run.parsedRunInfo.sirusBattle.completed);
+      stats.totalTime += battleTime;
+      stats.fastest = Number(Math.min(stats.fastest, battleTime));
+      stats.deaths += Number(run.sirus_deaths ?? 0);
+    }
+
+    if(run.parsedRunInfo?.shaperBattle && run.parsedRunInfo.shaperBattle.phase1start && run.parsedRunInfo.shaperBattle.completed) {
+      const boss = 'The Shaper';
+      detectedBosses.push(boss);
+      const stats = this.stats.bosses.shaper;
+
+      stats.count++;
+      const battleTime = this.getRunningTime(run.parsedRunInfo.shaperBattle.phase1start, run.parsedRunInfo.shaperBattle.completed);
+      stats.totalTime += battleTime;
+      stats.fastest = Number(Math.min(stats.fastest, battleTime));
+      stats.deaths += Number(run.shaper_deaths ?? 0);
+    }
+    
+    if(run.parsedRunInfo?.maven && run.parsedRunInfo.maven.firstLine && run.parsedRunInfo.maven.mavenDefeated) {
+      const boss = 'The Maven';
+      detectedBosses.push(boss);
+      const stats = this.stats.bosses.maven;
+
+      stats.count++;
+      const battleTime = this.getRunningTime(run.parsedRunInfo.maven.firstLine, run.parsedRunInfo.maven.mavenDefeated);
+      stats.totalTime += battleTime;
+      stats.fastest = Number(Math.min(stats.fastest, battleTime));
+      stats.deaths += Number(run.maven_deaths ?? 0);
+    }
+
+    if(run.parsedRunInfo?.oshabiBattle && run.parsedRunInfo.oshabiBattle.start && run.parsedRunInfo.oshabiBattle.completed) {
+      const boss = 'Oshabi, Avatar of the Grove';
+      detectedBosses.push(boss);
+      const stats = this.stats.bosses.oshabi;
+
+      stats.count++;
+      const battleTime = this.getRunningTime(run.parsedRunInfo.oshabiBattle.start, run.parsedRunInfo.oshabiBattle.completed);
+      stats.totalTime += battleTime;
+      stats.fastest = Number(Math.min(stats.fastest, battleTime));
+      stats.deaths += Number(run.oshabi_deaths ?? 0);
+    }
+
+    if(run.parsedRunInfo?.venariusBattle && run.parsedRunInfo.venariusBattle.start && run.parsedRunInfo.venariusBattle.completed) {
+      const boss = 'Venarius, the Eternal';
+      detectedBosses.push(boss);
+      const stats = this.stats.bosses.venarius;
+
+      stats.count++;
+      const battleTime = this.getRunningTime(run.parsedRunInfo.venariusBattle.start, run.parsedRunInfo.venariusBattle.completed);
+      stats.totalTime += battleTime;
+      stats.fastest = Number(Math.min(stats.fastest, battleTime));
+      stats.deaths += Number(run.venarius_deaths ?? 0);
+    }
+
+    // Read mapBoss Info -> Special boss
+    // If bossBattle -> Fill info
+    // If not bossBattle -> Add info about uncounted boss
+    // Read bossBattle only -> Fill info
+
+    // Special handling for elder guardian bosses
+    if(run.parsedRunInfo?.bossBattle && run.parsedRunInfo.elderGuardian) {
+      const name = run.parsedRunInfo.elderGuardian;
+      let statKey = 'elderGuardians';
+      this.stats.bosses[statKey][name] = this.stats.bosses[statKey][name] ?? { count: 0, totalTime: 0, fastest: Number.MAX_SAFE_INTEGER, deaths: 0 };
+      const stats = this.stats.bosses[statKey][name];
+      stats.count++;
+      const battleTime = Number(run.parsedRunInfo.bossBattle.time ?? 0);
+      stats.totalTime += battleTime;
+      stats.fastest = Math.min(stats.fastest, battleTime);
+      if(run.parsedRunInfo.bossBattle.deaths) {
+        stats.deaths += Number(run.parsedRunInfo?.bossBattle.deaths);
+      }
+    }
+
     // Manually detected Bosses
     if(run.parsedRunInfo?.mapBoss) {
       for(let boss in run.parsedRunInfo.mapBoss) {
-        this.stats.misc.mapBoss[boss] = this.stats.misc.mapBoss[boss] ?? { count: 0, totalTime: 0, fastest: Number.MAX_SAFE_INTEGER, deaths: 0 };
-        const stats = this.stats.misc.mapBoss[boss];
+        if(detectedBosses.includes(boss)) continue;
+        let statKey;
+        if(Constants.shaperGuardiansMaps.includes(boss)) {
+          statKey = 'shaperGuardians';
+        } else {
+          statKey = 'maps'
+        }
+        this.stats.bosses[statKey][boss] = this.stats.bosses[statKey][boss] ?? { count: 0, totalTime: 0, fastest: Number.MAX_SAFE_INTEGER, deaths: 0 };
+        const stats = this.stats.bosses[statKey][boss];
         const parsedStats = run.parsedRunInfo.mapBoss[boss];
+        const battleTime = (run.parsedRunInfo?.bossBattle?.time) ? Number(run.parsedRunInfo.bossBattle.time) : 0;
+        
         stats.count++;
-        stats.totalTime += Number(parsedStats.time);
-        stats.fastest = Math.min(stats.fastest, parsedStats.time);
+        stats.totalTime += battleTime;
+        stats.fastest = battleTime > 0 ? Number(Math.min(stats.fastest, battleTime)) : stats.fastest;
         if(parsedStats.deaths) {
           stats.deaths += parsedStats.deaths;
         }
       }
     }
+    
 
-    // Special handling for elder guardian bosses
-    if(run.parsedRunInfo?.bossBattle) {
-      const name = run.parsedRunInfo?.elderGuardian ?? run.name;
-      this.stats.boss.kills[name] = this.stats.boss.kills[name] ?? { count: 0, totalTime: 0, fastest: Number.MAX_SAFE_INTEGER, deaths: 0 };
-      const stats = this.stats.boss.kills[name];
-      stats.count++;
-      stats.totalTime += Number(run.parsedRunInfo?.bossBattle.time);
-      stats.fastest = Math.min(stats.fastest, run.parsedRunInfo.bossBattle.time);
-      if(run.parsedRunInfo?.bossBattle.deaths) {
-        stats.deaths += Number(run.parsedRunInfo?.bossBattle.deaths);
-      }
-    }
-
-
-// if (r.conqueror) {
-//     for (let i = 0; i < Constants.conquerors.length; i++) {
-//       let conq = Constants.conquerors[i];
-//       if (r.conqueror[conq] && r.conqueror[conq].defeated) {
-//         let killInfo = await getConquerorKillInfo(char, map.id);
-//         if (killInfo) {
-//           bossKills[conq] = bossKills[conq] || {
-//             count: 0,
-//             totalTime: 0,
-//             fastest: Number.MAX_SAFE_INTEGER,
-//             deaths: 0,
-//           };
-//           bossKills[conq].count++;
-//           bossKills[conq].fastest = Math.min(bossKills[conq].fastest, killInfo.time);
-//           bossKills[conq].totalTime += Number(killInfo.time);
-//           bossKills[conq].deaths += Number(killInfo.deaths);
-//         }
-//       }
-//     }
-//   }
-
-//   if (r.mastermindBattle && r.mastermindBattle.battle2start && r.mastermindBattle.completed) {
-//     let boss = 'Catarina, Master of Undeath';
-//     let killInfo = await getKillInfo(
-//       char,
-//       r.mastermindBattle.battle2start,
-//       r.mastermindBattle.completed
-//     );
-//     if (killInfo) {
-//       bossKills[boss] = bossKills[boss] || {
-//         count: 0,
-//         totalTime: 0,
-//         fastest: Number.MAX_SAFE_INTEGER,
-//         deaths: 0,
-//       };
-//       bossKills[boss].count++;
-//       bossKills[boss].fastest = Math.min(bossKills[boss].fastest, killInfo.time);
-//       bossKills[boss].totalTime += Number(killInfo.time);
-//       bossKills[boss].deaths += Number(killInfo.deaths);
-//     }
-//   }
-
-//   if (r.sirusBattle && r.sirusBattle.start && r.sirusBattle.completed) {
-//     let boss = 'Sirus, Awakener of Worlds';
-//     let killInfo = await getKillInfo(char, r.sirusBattle.start, r.sirusBattle.completed);
-//     if (killInfo) {
-//       bossKills[boss] = bossKills[boss] || {
-//         count: 0,
-//         totalTime: 0,
-//         fastest: Number.MAX_SAFE_INTEGER,
-//         deaths: 0,
-//       };
-//       bossKills[boss].count++;
-//       bossKills[boss].fastest = Math.min(bossKills[boss].fastest, killInfo.time);
-//       bossKills[boss].totalTime += Number(killInfo.time);
-//       bossKills[boss].deaths += Number(killInfo.deaths);
-//     }
-//   }
-
-//   if (r.shaperBattle && r.shaperBattle.phase1start && r.shaperBattle.completed) {
-//     let boss = 'The Shaper';
-//     let killInfo = await getKillInfo(char, r.shaperBattle.phase1start, r.shaperBattle.completed);
-//     if (killInfo) {
-//       bossKills[boss] = bossKills[boss] || {
-//         count: 0,
-//         totalTime: 0,
-//         fastest: Number.MAX_SAFE_INTEGER,
-//         deaths: 0,
-//       };
-//       bossKills[boss].count++;
-//       bossKills[boss].fastest = Math.min(bossKills[boss].fastest, killInfo.time);
-//       bossKills[boss].totalTime += Number(killInfo.time);
-//       bossKills[boss].deaths += Number(killInfo.deaths);
-//     }
-//   }
-
-//   if (r.maven && r.maven.mavenDefeated && r.maven.firstLine) {
-//     let boss = 'The Maven';
-//     let killInfo = await getKillInfo(char, r.maven.firstLine, r.maven.mavenDefeated);
-//     if (killInfo) {
-//       bossKills[boss] = bossKills[boss] || {
-//         count: 0,
-//         totalTime: 0,
-//         fastest: Number.MAX_SAFE_INTEGER,
-//         deaths: 0,
-//       };
-//       bossKills[boss].count++;
-//       bossKills[boss].fastest = Math.min(bossKills[boss].fastest, killInfo.time);
-//       bossKills[boss].totalTime += Number(killInfo.time);
-//       bossKills[boss].deaths += Number(killInfo.deaths);
-//     }
-//   }
-
-//   if (r.oshabiBattle && r.oshabiBattle.start && r.oshabiBattle.completed) {
-//     let boss = 'Oshabi, Avatar of the Grove';
-//     let killInfo = await getKillInfo(char, r.oshabiBattle.start, r.oshabiBattle.completed);
-//     if (killInfo) {
-//       bossKills[boss] = bossKills[boss] || {
-//         count: 0,
-//         totalTime: 0,
-//         fastest: Number.MAX_SAFE_INTEGER,
-//         deaths: 0,
-//       };
-//       bossKills[boss].count++;
-//       bossKills[boss].fastest = Math.min(bossKills[boss].fastest, killInfo.time);
-//       bossKills[boss].totalTime += Number(killInfo.time);
-//       bossKills[boss].deaths += Number(killInfo.deaths);
-//     }
-//   }
-
-//   // special handling for Synthesis unique maps
-//   if (r.venariusBattle && r.venariusBattle.start && r.venariusBattle.completed) {
-//     let area = map.name;
-//     // if it's a Zana mission map, get the sub-area name
-//     if (r.masters && r.masters['Zana, Master Cartographer']) {
-//       area = r.masters['Zana, Master Cartographer'].missionMap;
-//       if (!Constants.synthesisUniqueMaps.includes(area)) {
-//         // the Zana mission map isn't a Synthesis map, ???
-//         // this should never happen, but if it does, just return
-//         return;
-//       }
-//     } else if (r.maven && r.maven.firstLine && r.maven.bossKilled) {
-//       // if it's an actual Synthesis map but already witnessed by the Maven, don't double count
-//       return;
-//     }
-
-//     let killInfo = await getKillInfo(char, r.venariusBattle.start, r.venariusBattle.completed);
-//     if (killInfo) {
-//       bossKills[area] = bossKills[area] || {
-//         count: 0,
-//         totalTime: 0,
-//         fastest: Number.MAX_SAFE_INTEGER,
-//         deaths: 0,
-//       };
-//       bossKills[area].count++;
-//       bossKills[area].fastest = Math.min(bossKills[area].fastest, killInfo.time);
-//       bossKills[area].totalTime += Number(killInfo.time);
-//       bossKills[area].deaths += Number(killInfo.deaths);
-//     }
-//   }
   }
 
   // Utility functions
   getRunningTime (firstevent, lastevent, format : moment.unitOfTime.Base = 'seconds' ) {
     const duration = moment
       .duration(moment(lastevent, 'YYYYMMDDHHmmss').diff(moment(firstevent, 'YYYYMMDDHHmmss')));
-      logger.debug(`duration: ${duration.as('milliseconds')}`);
     return duration.as(format);
   }
 }

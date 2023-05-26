@@ -37,6 +37,8 @@
     "The Cursed King"
   ],
 
+  "shaperGuardiansMaps": ["Maze of the Minotaur", "Forge of the Phoenix", "Lair of the Hydra", "Pit of the Chimera"],
+
   "elderGuardians": ["The Constrictor", "The Enslaver", "The Eradicator", "The Purifier"],
 
   "conquerors": [
@@ -109,34 +111,6 @@
     "The Rogue Harbour"
   ],
 
-  "uniqueMaps": {
-    "Chateau Map": "The Perandus Manor",
-    "Museum Map": "The Putrid Cloister",
-    "Moon Temple Map": "The Twilight Temple",
-    "Courtyard Map": "The Vinktar Square",
-    "Temple Map": "Poorjoy's Asylum",
-    "Shore Map": "Mao Kun",
-    "Promenade Map": "Hall of Grandmasters",
-    "Torture Chamber Map": "Oba's Cursed Trove",
-    "Underground Sea Map": "Oba's Cursed Trove",
-    "Vaal Pyramid Map": "Vaults of Atziri",
-    "Cursed Crypt Map": "The Coward's Trial",
-    "Underground River Map": "Caer Blaidd, Wolfpack's Den",
-    "Cemetery Map": "Hallowed Ground",
-    "Bone Crypt Map": "Olmec's Sanctum",
-    "Overgrown Shrine Map": "Acton's Nightmare",
-    "Necropolis Map": "Death and Taxes",
-    "Dunes Map": "Pillars of Arun",
-    "Atoll Map": "Maelström of Chaos",
-    "Strand Map": "Whakawairua Tuahu",
-    "Maze Map": "Doryani's Machinarium",
-    "Relic Chambers Map": "Cortex",
-    "Siege Map": "Altered Distant Memory",
-    "Basilica Map": "Rewritten Distant Memory",
-    "Park Map": "Twisted Distant Memory",
-    "Courthouse Map": "Augmented Distant Memory"
-  },
-
   "synthesisUniqueMaps": [
     "Cortex",
     "Altered Distant Memory",
@@ -179,6 +153,31 @@
   },
 
   "uniqueMaps": {
+    "Chateau Map": "The Perandus Manor",
+    "Museum Map": "The Putrid Cloister",
+    "Moon Temple Map": "The Twilight Temple",
+    "Courtyard Map": "The Vinktar Square",
+    "Temple Map": "Poorjoy's Asylum",
+    "Shore Map": "Mao Kun",
+    "Promenade Map": "Hall of Grandmasters",
+    "Torture Chamber Map": "Oba's Cursed Trove",
+    "Underground Sea Map": "Oba's Cursed Trove",
+    "Vaal Pyramid Map": "Vaults of Atziri",
+    "Cursed Crypt Map": "The Coward's Trial",
+    "Underground River Map": "Caer Blaidd, Wolfpack's Den",
+    "Cemetery Map": "Hallowed Ground",
+    "Bone Crypt Map": "Olmec's Sanctum",
+    "Overgrown Shrine Map": "Acton's Nightmare",
+    "Necropolis Map": "Death and Taxes",
+    "Dunes Map": "Pillars of Arun",
+    "Atoll Map": "Maelström of Chaos",
+    "Strand Map": "Whakawairua Tuahu",
+    "Maze Map": "Doryani's Machinarium",
+    "Relic Chambers Map": "Cortex",
+    "Siege Map": "Altered Distant Memory",
+    "Basilica Map": "Rewritten Distant Memory",
+    "Park Map": "Twisted Distant Memory",
+    "Courthouse Map": "Augmented Distant Memory",
     "SynthesisBossGuardianMap": "Cortex",
     "SynthesisFireGuardianMap": "Augmented Distant Memory",
     "UniqueMapEye": "Whakawairua Tuahu",
