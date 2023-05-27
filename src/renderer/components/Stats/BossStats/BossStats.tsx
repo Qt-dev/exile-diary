@@ -48,17 +48,72 @@ type BossStatColumn = {
 
 const columns : BossStatColumn[] = [
   { id: 'name', label: 'Name', },
-  { id: 'count', label: 'Times Entered' },
+  { id: 'count', label: 'Times Killed' },
   { id: 'totalTime', label: 'Time', align: 'center' },
   { id: 'fastest', label: 'Fastest Time', align: 'center' },
   { id: 'deaths', label: 'Deaths', align: 'right' },
 ]
 
+const BossTable = ({ stats } : { stats: { [key: string] : BossStat } }) => {
+  const [order, setOrder] : [ Order, Function ] = React.useState<Order>('desc');
+  const [orderBy, setOrderBy] : [ BossStatOrder, Function ] = React.useState<BossStatOrder>('name');
+  const sort = (key, order) => {
+    return () => {
+      const realOrder = order === 'desc' && orderBy === key ? 'asc' : 'desc';
+      setOrder(realOrder);
+      setOrderBy(key);
+    }
+  };
+  const sortedKeys = Object.keys(stats).sort((a, b) => {
+    if (stats[a][orderBy] > stats[b][orderBy]) {
+      return order === 'asc' ? 1 : -1;
+    }
+    if (stats[a][orderBy] < stats[b][orderBy]) {
+      return order === 'asc' ? -1 : 1;
+    }
+    return 0;
+  });
+  return (
+    <Table size="small" sx={{marginTop: '5px', marginBottom: '15px', width: '100%'}} className="Boss-Stats__Table">
+      <TableHead>
+        <TableRow className='Boss-Stats__Table-Header'>
+          <TableCell />
+          {columns.map((column) => (
+            <TableCell
+              key={column.id}
+              variant="head"
+              align={column.align ?? 'center'}
+              sx={{width: 100}}
+            >
+              <TableSortLabel
+                active={orderBy === column.id}
+                direction={orderBy === column.id ? order : 'desc'}
+                onClick={sort(column.id, order)}
+              >
+                {column.label}
+              </TableSortLabel>
+            </TableCell>
+          ))}
+        </TableRow>
+      </TableHead>
+      <TableBody>
+        {
+          sortedKeys.map((key) => {
+            const stat = stats[key];
+            return <BossStatsRow stat={stat} />;
+          })
+          // sortedKeys.map((areaKey) => (<AreaStatsRow stats={stats.areas[areaKey]} key={stats.areas[areaKey].name} />))
+        }
+      </TableBody>
+    </Table>
+  );
+};
+
 const SubTable = ({ details , open } : { details: { [key: string] : BossStat }, open: boolean }) => (
   <TableRow>
     <TableCell style={{ paddingBottom: 0, paddingTop: 0 }} colSpan={6} className="Boss-Stats__Sub-Table">
       <Collapse in={open} timeout="auto" unmountOnExit sx={{width: '100%'}}>
-        <BossStats stats={details} />
+        <BossTable stats={details} />
       </Collapse>
     </TableCell>
   </TableRow>
@@ -97,61 +152,12 @@ const BossStatsRow = ({ stat } : { stat: BossStat }) => {
 };
 
 const BossStats = ({ stats } : { stats: { [key: string] : BossStat } } ) => {
-  const [order, setOrder] : [ Order, Function ] = React.useState<Order>('desc');
-  const [orderBy, setOrderBy] : [ BossStatOrder, Function ] = React.useState<BossStatOrder>('name');
-  const sort = (key, order) => {
-    return () => {
-      const realOrder = order === 'desc' && orderBy === key ? 'asc' : 'desc';
-      setOrder(realOrder);
-      setOrderBy(key);
-    }
-  };
-  const sortedKeys = Object.keys(stats).sort((a, b) => {
-    if (stats[a][orderBy] > stats[b][orderBy]) {
-      return order === 'asc' ? 1 : -1;
-    }
-    if (stats[a][orderBy] < stats[b][orderBy]) {
-      return order === 'asc' ? -1 : 1;
-    }
-    return 0;
-  });
   return (
     <div className="Boss-Stats">
       <div className="Boss-Stats__Header">
         This list may be incomplete. Most boss battles can only be recorded when witnessed by the Maven.
       </div>
-      <Table size="small" sx={{marginTop: '5px', marginBottom: '15px', width: '100%'}} className="Boss-Stats__Table">
-        <TableHead>
-          <TableRow className='Boss-Stats__Table-Header'>
-            <TableCell />
-            {columns.map((column) => (
-              <TableCell
-                key={column.id}
-                variant="head"
-                align={column.align ?? 'center'}
-                sx={{width: 100}}
-              >
-                <TableSortLabel
-                  active={orderBy === column.id}
-                  direction={orderBy === column.id ? order : 'desc'}
-                  onClick={sort(column.id, order)}
-                >
-                  {column.label}
-                </TableSortLabel>
-              </TableCell>
-            ))}
-          </TableRow>
-        </TableHead>
-        <TableBody>
-          {
-            sortedKeys.map((key) => {
-              const stat = stats[key];
-              return <BossStatsRow stat={stat} />;
-            })
-            // sortedKeys.map((areaKey) => (<AreaStatsRow stats={stats.areas[areaKey]} key={stats.areas[areaKey].name} />))
-          }
-        </TableBody>
-      </Table>
+      <BossTable stats={stats} />
     </div>
   );
 };
