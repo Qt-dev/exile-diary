@@ -1,27 +1,27 @@
 import React from 'react';
 import './MainStats.css';
-import KillIcon from '../../assets/img/encountericons/kills.png';
-import DeathIcon from '../../assets/img/encountericons/deaths.png';
-import KillDeathIcon from '../../assets/img/encountericons/kd.png';
-import MavenIcon from '../../assets/img/encountericons/maven.png';
-import AbyssalDepthIcon from '../../assets/img/encountericons/abyss.png';
-import VaalSideAreaIcon from '../../assets/img/encountericons/vaalsidearea.png';
-import ShrinesIcon from '../../assets/img/encountericons/shrine.png';
-import EnvoyEncounterIcon from '../../assets/img/encountericons/envoy.png';
-import EnvoyWordsIcon from '../../assets/img/encountericons/words.png';
-import BlightIcon from '../../assets/img/encountericons/blight.png';
-import BlightedMapIcon from '../../assets/img/encountericons/blightedmap.png';
-import UnrighteousIcon from '../../assets/img/encountericons/cassia.png';
-import DeliriumMirrorIcon from '../../assets/img/encountericons/delirium.png';
-import MetamorphIcon from '../../assets/img/encountericons/metamorph.png';
-import LegionIcon from '../../assets/img/encountericons/legion.png';
-import AlvaIcon from '../../assets/img/encountericons/alva.png';
-import EinharIcon from '../../assets/img/encountericons/einhar.png';
-import RedBeastIcon from '../../assets/img/redBeast.png';
-import YellowBeastIcon from '../../assets/img/yellowBeast.png';
-import WhiteBeastIcon from '../../assets/img/whiteBeast.png';
-import NikoIcon from '../../assets/img/encountericons/niko.png';
-import JunIcon from '../../assets/img/encountericons/jun.png';
+import KillIcon from '../../../assets/img/encountericons/kills.png';
+import DeathIcon from '../../../assets/img/encountericons/deaths.png';
+import KillDeathIcon from '../../../assets/img/encountericons/kd.png';
+import MavenIcon from '../../../assets/img/encountericons/maven.png';
+import AbyssalDepthIcon from '../../../assets/img/encountericons/abyss.png';
+import VaalSideAreaIcon from '../../../assets/img/encountericons/vaalsidearea.png';
+import ShrinesIcon from '../../../assets/img/encountericons/shrine.png';
+import EnvoyEncounterIcon from '../../../assets/img/encountericons/envoy.png';
+import EnvoyWordsIcon from '../../../assets/img/encountericons/words.png';
+import BlightIcon from '../../../assets/img/encountericons/blight.png';
+import BlightedMapIcon from '../../../assets/img/encountericons/blightedmap.png';
+import UnrighteousIcon from '../../../assets/img/encountericons/cassia.png';
+import DeliriumMirrorIcon from '../../../assets/img/encountericons/delirium.png';
+import MetamorphIcon from '../../../assets/img/encountericons/metamorph.png';
+import LegionIcon from '../../../assets/img/encountericons/legion.png';
+import AlvaIcon from '../../../assets/img/encountericons/alva.png';
+import EinharIcon from '../../../assets/img/encountericons/einhar.png';
+import RedBeastIcon from '../../../assets/img/redBeast.png';
+import YellowBeastIcon from '../../../assets/img/yellowBeast.png';
+import WhiteBeastIcon from '../../../assets/img/whiteBeast.png';
+import NikoIcon from '../../../assets/img/encountericons/niko.png';
+import JunIcon from '../../../assets/img/encountericons/jun.png';
 
 import { Table, TableBody, TableCell, TableHead, TableRow} from '@mui/material';
 
@@ -92,7 +92,7 @@ const MainStats = ({ stats }) => {
 							</TableHead>
 							<TableBody>
 								{Object.keys(stats.misc.shrines.types).sort((a, b) => stats.misc.shrines.types[b] - stats.misc.shrines.types[a]).map((shrineType: string) => {
-									const Icon = require(`../../assets/img/shrineicons/${shrineType.replace(' Shrine', '')}.png`);
+									const Icon = require(`../../../assets/img/shrineicons/${shrineType.replace(' Shrine', '')}.png`);
 									return (
 										<TableRow className='Stat' key={shrineType}>
 											<TableCell sx={{width: '1.5em'}} align="center">
@@ -160,7 +160,7 @@ const MainStats = ({ stats }) => {
 						</div>
 					</div>
 					{Object.keys(stats.misc.metamorph.organs).map((organ: string) => {
-						const Icon = require(`../../assets/img/metamorphicons/${organ.replace(' ', '')}.png`);
+						const Icon = require(`../../../assets/img/metamorphicons/${organ.replace(' ', '')}.png`);
 						return (
 							<div className='Stat' key={organ}>
 								<div className="Stat__Text">
@@ -178,7 +178,7 @@ const MainStats = ({ stats }) => {
 						</div>
 					</div>
 					{Object.keys(stats.misc.legionGenerals.generals).map((general: string) => {
-						const LegionGeneralIcon = require(`../../assets/img/legionicons/${general.replace(',', '').split(' ')[0].toLowerCase()}.png`);
+						const LegionGeneralIcon = require(`../../../assets/img/legionicons/${general.replace(',', '').split(' ')[0].toLowerCase()}.png`);
 						return (
 							<div className='Stat' key={general}>
 								<div className="Stat__Text">
@@ -193,7 +193,7 @@ const MainStats = ({ stats }) => {
 			<div className='Stats__Container Stats--Two-Columns Stats--Conquerors'>
 				{Object.keys(stats.misc.conquerors).map((conqueror: string) => {
 					const conquerorPrefix = conqueror.replace(',', '').split(' ')[0].toLowerCase();
-					const ConquerorIcon = require(`../../assets/img/encountericons/${conquerorPrefix}.png`);
+					const ConquerorIcon = require(`../../../assets/img/encountericons/${conquerorPrefix}.png`);
 					return (
 						<div className='Stat' key={conqueror}>
 							<div className={`Stat__Header Stat__Header--${conquerorPrefix}`}>

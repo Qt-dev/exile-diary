@@ -201,15 +201,16 @@ class StatsManager {
     },
     areas: {},
     bosses: {
-      maps: {},
-      shaperGuardians: {},
-      elderGuardians: {},
-      conquerors: {},
-      mastermind: { count: 0, totalTime: 0, fastest: Number.MAX_SAFE_INTEGER, deaths: 0 },
-      sirus: { count: 0, totalTime: 0, fastest: Number.MAX_SAFE_INTEGER, deaths: 0 },
-      shaper: { count: 0, totalTime: 0, fastest: Number.MAX_SAFE_INTEGER, deaths: 0 },
-      oshabi: { count: 0, totalTime: 0, fastest: Number.MAX_SAFE_INTEGER, deaths: 0 },
-      venarius: { count: 0, totalTime: 0, fastest: Number.MAX_SAFE_INTEGER, deaths: 0 },
+      maps: { name: 'Map Bosses', count: 0, totalTime: 0, fastest: Number.MAX_SAFE_INTEGER, deaths: 0, details: {} },
+      shaperGuardians: { name: 'Shaper Guardians', count: 0, totalTime: 0, fastest: Number.MAX_SAFE_INTEGER, deaths: 0, details: {} },
+      elderGuardians: { name: 'Elder Guardians', count: 0, totalTime: 0, fastest: Number.MAX_SAFE_INTEGER, deaths: 0, details: {} },
+      conquerors: { name: 'Conquerors', count: 0, totalTime: 0, fastest: Number.MAX_SAFE_INTEGER, deaths: 0, details: {} },
+      mastermind: { name: 'Catarina, Master of Undeath', count: 0, totalTime: 0, fastest: Number.MAX_SAFE_INTEGER, deaths: 0 },
+      sirus: { name: 'Sirus, Awakener of Worlds', count: 0, totalTime: 0, fastest: Number.MAX_SAFE_INTEGER, deaths: 0 },
+      shaper: { name: 'The Shaper', count: 0, totalTime: 0, fastest: Number.MAX_SAFE_INTEGER, deaths: 0 },
+      oshabi: { name: 'Oshabi, Avatar of the Grove', count: 0, totalTime: 0, fastest: Number.MAX_SAFE_INTEGER, deaths: 0 },
+      maven: { name: 'The Maven', count: 0, totalTime: 0, fastest: Number.MAX_SAFE_INTEGER, deaths: 0 },
+      venarius: { name: 'Venarius, the Eternal', count: 0, totalTime: 0, fastest: Number.MAX_SAFE_INTEGER, deaths: 0 },
     },
   };
   constructor(runs: Run[] = []) {
@@ -537,7 +538,7 @@ class StatsManager {
     if(run.parsedRunInfo?.conqueror) {
       for(let conquerorName in run.parsedRunInfo.conqueror) {
         detectedBosses.push(conquerorName);
-        this.stats.bosses.conquerors[conquerorName] = this.stats.bosses.conquerors[conquerorName] ?? { count: 0, totalTime: 0, fastest: Number.MAX_SAFE_INTEGER, deaths: 0 };
+        this.stats.bosses.conquerors[conquerorName] = this.stats.bosses.conquerors[conquerorName] ?? { name: conquerorName, count: 0, totalTime: 0, fastest: Number.MAX_SAFE_INTEGER, deaths: 0 };
         const stats = this.stats.bosses.conquerors[conquerorName];
 
         stats.count++;
@@ -620,24 +621,23 @@ class StatsManager {
       stats.deaths += Number(run.venarius_deaths ?? 0);
     }
 
-    // Read mapBoss Info -> Special boss
-    // If bossBattle -> Fill info
-    // If not bossBattle -> Add info about uncounted boss
-    // Read bossBattle only -> Fill info
-
     // Special handling for elder guardian bosses
     if(run.parsedRunInfo?.bossBattle && run.parsedRunInfo.elderGuardian) {
       const name = run.parsedRunInfo.elderGuardian;
       let statKey = 'elderGuardians';
-      this.stats.bosses[statKey][name] = this.stats.bosses[statKey][name] ?? { count: 0, totalTime: 0, fastest: Number.MAX_SAFE_INTEGER, deaths: 0 };
-      const stats = this.stats.bosses[statKey][name];
-      stats.count++;
+      this.stats.bosses[statKey].details[name] = this.stats.bosses[statKey].details[name] ?? { name, count: 0, totalTime: 0, fastest: Number.MAX_SAFE_INTEGER, deaths: 0 };
+      const stats = this.stats.bosses[statKey].details[name];
+      const totalStats = this.stats.bosses[statKey]
       const battleTime = Number(run.parsedRunInfo.bossBattle.time ?? 0);
+
+      stats.count++;
       stats.totalTime += battleTime;
       stats.fastest = Math.min(stats.fastest, battleTime);
-      if(run.parsedRunInfo.bossBattle.deaths) {
-        stats.deaths += Number(run.parsedRunInfo?.bossBattle.deaths);
-      }
+      stats.deaths += Number(run.parsedRunInfo?.bossBattle.deaths ?? 0);
+      totalStats.count++;
+      totalStats.totalTime += battleTime;
+      totalStats.fastest = Math.min(totalStats.fastest, battleTime);
+      totalStats.deaths += Number(run.parsedRunInfo?.bossBattle.deaths ?? 0);
     }
 
     // Manually detected Bosses
@@ -650,17 +650,21 @@ class StatsManager {
         } else {
           statKey = 'maps'
         }
-        this.stats.bosses[statKey][boss] = this.stats.bosses[statKey][boss] ?? { count: 0, totalTime: 0, fastest: Number.MAX_SAFE_INTEGER, deaths: 0 };
-        const stats = this.stats.bosses[statKey][boss];
+        this.stats.bosses[statKey].details[boss] = this.stats.bosses[statKey].details[boss] ?? { name: boss, count: 0, totalTime: 0, fastest: Number.MAX_SAFE_INTEGER, deaths: 0 };
+        const stats = this.stats.bosses[statKey].details[boss];
+        const totalStats = this.stats.bosses[statKey];
         const parsedStats = run.parsedRunInfo.mapBoss[boss];
         const battleTime = (run.parsedRunInfo?.bossBattle?.time) ? Number(run.parsedRunInfo.bossBattle.time) : 0;
         
         stats.count++;
         stats.totalTime += battleTime;
         stats.fastest = battleTime > 0 ? Number(Math.min(stats.fastest, battleTime)) : stats.fastest;
-        if(parsedStats.deaths) {
-          stats.deaths += parsedStats.deaths;
-        }
+        stats.deaths += parsedStats.deaths ?? 0;
+        
+        totalStats.count++;
+        totalStats.totalTime += battleTime;
+        totalStats.fastest = battleTime > 0 ? Number(Math.min(stats.fastest, battleTime)) : stats.fastest;
+        totalStats.deaths += parsedStats.deaths ?? 0;
       }
     }
     

@@ -2,10 +2,11 @@ import React from 'react';
 import './Stats.css';
 import { electronService } from '../electron.service';
 import { useLoaderData } from 'react-router';
-import MainStats from '../components/MainStats/MainStats';
-import AreaStats from '../components/AreaStats/AreaStats';
+import MainStats from '../components/Stats/MainStats/MainStats';
+import AreaStats from '../components/Stats/AreaStats/AreaStats';
 
 import { Tab, Tabs} from '@mui/material';
+import BossStats from '../components/Stats/BossStats/BossStats';
 const { logger } = electronService;
 
 
@@ -98,8 +99,7 @@ const Stats = () => {
 					<AreaStats stats={stats} />
 				</TabPanel>
 				<TabPanel value={tabValue} index={2}>
-					<h1>Coming Soon</h1>
-					{JSON.stringify(stats.bosses)}
+					<BossStats stats={stats.bosses} />
 				</TabPanel>
 		</div>
 		);
