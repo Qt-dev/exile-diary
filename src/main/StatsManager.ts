@@ -1,6 +1,7 @@
 import logger from "electron-log";
 import moment from "moment";
 import DB from "./db/stats";
+import RatesManager from "./RatesManager";
 import { Run } from "../helpers/types";
 import Constants from "../helpers/constants";
 const { areas } = Constants;
@@ -212,8 +213,12 @@ class StatsManager {
       maven: { name: 'The Maven', count: 0, totalTime: 0, fastest: Number.MAX_SAFE_INTEGER, deaths: 0 },
       venarius: { name: 'Venarius, the Eternal', count: 0, totalTime: 0, fastest: Number.MAX_SAFE_INTEGER, deaths: 0 },
     },
+    items: {
+      divinePrice: 0,
+      loot: []
+    },
   };
-  constructor(runs: Run[] = []) {
+  constructor({ runs, items, divinePrice} : { runs: Run[], items: any[], divinePrice: number} = { runs: [], items: [], divinePrice: 0 }) {
     for(const phase of shaperBattlePhases) {
       this.stats.misc.shaper.phases[phase.name] = { count: 0, totalTime: 0 };
     }
@@ -221,6 +226,10 @@ class StatsManager {
       this.addStatsForRun(run);
       this.addBossStats(run);
     }
+    this.stats.items.divinePrice = divinePrice;
+    this.stats.items.loot = items;
+    this.stats.misc.rawDivineDrops = items.filter(item => item.typeline === 'Divine Orb').length;
+    this.stats.misc.valueOfDrops = items.reduce((sum, item) => sum + (item.value ?? 0), 0);
   }
 
   addStatsForRun(run: Run) {
@@ -683,7 +692,9 @@ class StatsManager {
 export default {
   getAllStats: async ({ league, characterName } : GetStatsParams) => {
     const runs = (await DB.getAllRuns(league))?.map(formatRun);
-    const manager = new StatsManager(runs);
+    const items = (await DB.getAllItems(league));
+    const divinePrice = await RatesManager.getCurrencyValue(league, moment().format('YYYYMMDD'), 'Divine Orb');
+    const manager = new StatsManager({ runs, items, divinePrice });
 
     return manager.stats;
   }
