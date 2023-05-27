@@ -3,7 +3,7 @@ import logger from 'electron-log';
 import { Run } from '../../helpers/types';
 
 export default {
-  getAllRuns: async (league: string) : Promise<Run[] | null> => {
+  getAllRuns: async (league: string) : Promise<Run[]> => {
     logger.info('Getting all maps');
     const query = `
       SELECT
@@ -42,7 +42,7 @@ export default {
       return maps;
     } catch (err) {
       logger.error(`Error getting all maps: ${JSON.stringify(err)}`);
-      return null;
+      return [];
     }
   }
 };
