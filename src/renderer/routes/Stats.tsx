@@ -1,60 +1,16 @@
 import React from 'react';
 import './Stats.css';
-import { electronService } from '../electron.service';
 import { useLoaderData } from 'react-router';
+import Tab from '@mui/material/Tab';
+import Tabs from '@mui/material/Tabs';
 import MainStats from '../components/Stats/MainStats/MainStats';
 import AreaStats from '../components/Stats/AreaStats/AreaStats';
-
-import { Tab, Tabs} from '@mui/material';
 import BossStats from '../components/Stats/BossStats/BossStats';
+import LootStats from '../components/Stats/LootStats/LootStats';
+
+import ItemStore from '../stores/itemStore';
+import { electronService } from '../electron.service';
 const { logger } = electronService;
-
-
-/* Stats we want:
-
-- Value of drops
-- Raw divine drops
-- Monsters slain
-- Deaths
-- K/D Ratio
-
-- Maven Crucibles
-- Abyssal Depths entered
-- Vaal side areas entered
-
-- Envoy encountered
-- Total words spoken ?
-- Blight encounters
-- Blighted Maps
-- Unrighteous turned to ash ?
-
-- Delirium Mirrors
-- Metamorphs
-- Metamorph specific organs
-
-- Legion General encounters
-- Each Legion General
-
-- Lab trials completed
-
-- Shrines activated
-
------
-
-Conquerors defeated
-
------
-
-Masters
-- Encounters, Missions completed
-- Beasts captured ?
-- Incursions completed?
-- Sulphie deposits?
-
-Syndicate
-- Mastermind 
-- Each member
-*/
 
 function a11yProps(index: number) {
   return {
@@ -77,12 +33,15 @@ const TabPanel = ({ children, index, value, ...other }) => {
 	);
 };
 
+const itemStore = new ItemStore([]);
+
 const Stats = () => {
   const [tabValue, setTabValue] = React.useState(0);
 	const { stats } =  useLoaderData() as any;
 	const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
     setTabValue(newValue);
   };
+	itemStore.createItems(stats.items.loot.map((item) => ({...item, ...JSON.parse(item.rawdata)})));
 	logger.info(stats);
 	return (
 		<div className="Stats__Page Box">
@@ -90,7 +49,7 @@ const Stats = () => {
           <Tab label="Main Stats" {...a11yProps(0)} />
           <Tab label="Area Stats" {...a11yProps(1)} />
 					<Tab label="Boss Stats" {...a11yProps(2)} />
-          {/* Add new stuff here */}
+					<Tab label="Loot Stats" {...a11yProps(3)} />
         </Tabs>
 				<TabPanel value={tabValue} index={0}>
 					<MainStats stats={stats} />
@@ -100,6 +59,9 @@ const Stats = () => {
 				</TabPanel>
 				<TabPanel value={tabValue} index={2}>
 					<BossStats stats={stats.bosses} />
+				</TabPanel>
+				<TabPanel value={tabValue} index={3}>
+					<LootStats stats={stats.items} store={itemStore}/>
 				</TabPanel>
 		</div>
 		);
