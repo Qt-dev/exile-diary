@@ -22,6 +22,8 @@ import YellowBeastIcon from '../../../assets/img/yellowBeast.png';
 import WhiteBeastIcon from '../../../assets/img/whiteBeast.png';
 import NikoIcon from '../../../assets/img/encountericons/niko.png';
 import JunIcon from '../../../assets/img/encountericons/jun.png';
+import ChaosIcon from '../../../assets/img/c.png';
+import DivineIcon from '../../../assets/img/div.png';
 
 import { Table, TableBody, TableCell, TableHead, TableRow} from '@mui/material';
 
@@ -34,12 +36,12 @@ const MainStats = ({ stats }) => {
 				<div className='Stats__Column Stats__Left-Column'>
 					<div className='Stat'>
 						<div className="Stat__Text">
-							Value of drops <span className="Stat__Value">{stats.valueOfDrops}</span>
+							<img src={ChaosIcon} alt="Chaos Icon" className="Stat__Icon" />Value of drops: <span className="Stat__Value">{stats.misc.valueOfDrops.toLocaleString('en-US', { maximumFractionDigits: 2 })}</span>
 						</div>
 					</div>
 					<div className='Stat'>
 						<div className="Stat__Text">
-							Raw divine drops <span className="Stat__Value">{stats.rawDivineDrops}</span>
+							<img src={DivineIcon} alt="Divine Icon" className="Stat__Icon" />Raw divine drops: <span className="Stat__Value">{stats.misc.rawDivineDrops}</span>
 						</div>
 					</div>
 					<br />

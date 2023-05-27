@@ -1,0 +1,11 @@
+.Loot-Stats__Item-Container {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  margin: 5px auto;
+}
+
+.Loot-Stats__Profit-Icon {
+  height: 1.2em;
+  vertical-align: middle;
+}
