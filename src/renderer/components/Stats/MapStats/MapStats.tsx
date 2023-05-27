@@ -6,8 +6,8 @@ import TableBody from "@mui/material/TableBody";
 import TableCell from "@mui/material/TableCell";
 import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
-import ChaosIcon from '../../assets/img/c.png';
-import { Order } from '../../../helpers/types'
+import ChaosIcon from '../../../assets/img/c.png';
+import { Order } from '../../../../helpers/types'
 import TableSortLabel from '@mui/material/TableSortLabel';
 import IconButton from '@mui/material/IconButton';
 import AddIcon from '@mui/icons-material/Add';
@@ -110,13 +110,13 @@ const MapStats = ({ stats }) => {
       <TableHead>
         <TableRow className='Area-Stats__Header '>
           <TableCell variant="head" />
-          <TableCell variant="head"><TableSortLabel active={orderBy === 'name'} direction={orderBy === 'name' ? order : 'desc'} onClick={sort('name', order)} />Area</TableCell>
-          <TableCell variant="head" align="center"><TableSortLabel active={orderBy === 'count'} direction={orderBy === 'count' ? order : 'desc'} onClick={sort('count', order)} />Times Entered</TableCell>
-          <TableCell variant="head" align="center"><TableSortLabel active={orderBy === 'time'} direction={orderBy === 'time' ? order : 'desc'} onClick={sort('time', order)} />Time</TableCell>
-          <TableCell variant="head" align="right"><TableSortLabel active={orderBy === 'gained'} direction={orderBy === 'gained' ? order : 'desc'} onClick={sort('gained', order)} /><img src={ChaosIcon} alt="Chaos Icon" className="Area-Stats__Profit-Icon" /></TableCell>
-          <TableCell variant="head" align="right"><TableSortLabel active={orderBy === 'profitPerHour'} direction={orderBy === 'profitPerHour' ? order : 'desc'} onClick={sort('profitPerHour', order)} /><img src={ChaosIcon} alt="Chaos Icon" className="Area-Stats__Profit-Icon" />/hr</TableCell>
-          <TableCell variant="head" align="right"><TableSortLabel active={orderBy === 'kills'} direction={orderBy === 'kills' ? order : 'desc'} onClick={sort('kills', order)} />Kills</TableCell>
-          <TableCell variant="head" align="right"><TableSortLabel active={orderBy === 'deaths'} direction={orderBy === 'deaths' ? order : 'desc'} onClick={sort('deaths', order)} />Deaths</TableCell>
+          <TableCell variant="head"><TableSortLabel active={orderBy === 'name'} direction={orderBy === 'name' ? order : 'desc'} onClick={sort('name', order)}>Area</TableSortLabel></TableCell>
+          <TableCell variant="head" align="center"><TableSortLabel active={orderBy === 'count'} direction={orderBy === 'count' ? order : 'desc'} onClick={sort('count', order)}>Times Entered</TableSortLabel></TableCell>
+          <TableCell variant="head" align="center"><TableSortLabel active={orderBy === 'time'} direction={orderBy === 'time' ? order : 'desc'} onClick={sort('time', order)}>Time</TableSortLabel></TableCell>
+          <TableCell variant="head" align="right"><TableSortLabel active={orderBy === 'gained'} direction={orderBy === 'gained' ? order : 'desc'} onClick={sort('gained', order)}><img src={ChaosIcon} alt="Chaos Icon" className="Area-Stats__Profit-Icon" /></TableSortLabel></TableCell>
+          <TableCell variant="head" align="right"><TableSortLabel active={orderBy === 'profitPerHour'} direction={orderBy === 'profitPerHour' ? order : 'desc'} onClick={sort('profitPerHour', order)}><img src={ChaosIcon} alt="Chaos Icon" className="Area-Stats__Profit-Icon" />/hr</TableSortLabel></TableCell>
+          <TableCell variant="head" align="right"><TableSortLabel active={orderBy === 'kills'} direction={orderBy === 'kills' ? order : 'desc'} onClick={sort('kills', order)}>Kills</TableSortLabel></TableCell>
+          <TableCell variant="head" align="right"><TableSortLabel active={orderBy === 'deaths'} direction={orderBy === 'deaths' ? order : 'desc'} onClick={sort('deaths', order)}>Deaths</TableSortLabel></TableCell>
         </TableRow>
       </TableHead>
       <TableBody >
