@@ -12,9 +12,11 @@ import ChaosIcon from '../../../assets/img/c.png';
 import DivineIcon from '../../../assets/img/div.png';
 import { Order } from '../../../../helpers/types'
 import './LootStats.css';
+import { Link } from 'react-router-dom';
+import moment from 'moment';
 
 
-type LootStatOrderOptions = 'name' | 'value';
+type LootStatOrderOptions = 'name' | 'value' | 'map_id' | 'area';
 
 const LootStats = ({ stats, store }) => {
   const [minValue, setMinValue] = React.useState(stats.divinePrice ?? 0);
@@ -64,18 +66,23 @@ const LootStats = ({ stats, store }) => {
       <Table size="small">
         <TableHead>
           <TableRow>
-            <TableCell align="center"><TableSortLabel active={orderBy === 'name'} direction={orderBy === 'name' ? order : 'desc'} onClick={sort('name', order)}>Item</TableSortLabel></TableCell>
-            <TableCell align="right"><TableSortLabel active={orderBy === 'name'} direction={orderBy === 'name' ? order : 'desc'} onClick={sort('name', order)}><img src={ChaosIcon} alt="Chaos Icon" className="Loot-Stats__Profit-Icon" /></TableSortLabel></TableCell>
+            <TableCell align="center"><TableSortLabel hideSortIcon active={orderBy === 'name'} direction={orderBy === 'name' ? order : 'desc'} onClick={sort('name', order)}>Item</TableSortLabel></TableCell>
+            <TableCell align="right"><TableSortLabel hideSortIcon active={orderBy === 'value'} direction={orderBy === 'value' ? order : 'desc'} onClick={sort('value', order)}><img src={ChaosIcon} alt="Chaos Icon" className="Loot-Stats__Profit-Icon" /></TableSortLabel></TableCell>
+            <TableCell align="center"><TableSortLabel hideSortIcon active={orderBy === 'area'} direction={orderBy === 'area' ? order : 'desc'} onClick={sort('area', order)}>Looted in</TableSortLabel></TableCell>
+            <TableCell align="center"><TableSortLabel hideSortIcon active={orderBy === 'map_id'} direction={orderBy === 'map_id' ? order : 'desc'} onClick={sort('map_id', order)}>Looted on</TableSortLabel></TableCell>
           </TableRow>
         </TableHead>
         <TableBody>
           {items.map((item, index) => {
             const divineValue = (item.value / stats.divinePrice).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+            const date = moment(item.map_id, 'YYYYMMDDHHmmss').toString();
             return (
               <TableRow key={index}>
                 <TableCell align="center"><div className="Loot-Stats__Item-Container"><Item item={item} /></div></TableCell>
                 <TableCell align="right">
                   {item.value.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}&nbsp;({divineValue}<img src={DivineIcon} alt="Divine Icon" className="Loot-Stats__Profit-Icon" />)</TableCell>
+                <TableCell align="center"><Link to={`/run/${item.map_id}`} className='Loot-Stats__Link'>{item.area}</Link></TableCell>
+                <TableCell align="center">{date}</TableCell>
               </TableRow>
             );
           })}

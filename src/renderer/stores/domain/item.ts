@@ -261,6 +261,8 @@ type ItemData = {
   h: number;
   value: number;
   secretName?: string;
+  area?: string;
+  map_id?: string;
 };
 
 export class Item {
@@ -298,6 +300,8 @@ export class Item {
   outerElement: HTMLElement | null;
   domElement: HTMLElement | null;
   value: number;
+  area?: string;
+  map_id?: string;
 
   constructor(store, itemdata: ItemData) {
     makeAutoObservable(this, {
@@ -305,6 +309,8 @@ export class Item {
       store: false,
     });
     this.store = store;
+    this.area = itemdata.area;
+    this.map_id = itemdata.map_id;
 
     this.rawData = itemdata;
     this.styleModifiers = itemdata.styleModifiers || {};
