@@ -35,7 +35,7 @@ function a11yProps(index: number) {
   };
 }
 
-const MainSettings = ({ settings, characters, tabValue}) => {
+const MainSettings = ({ settings, characters, tabValue }) => {
   const navigate = useNavigate();
 
   // Character

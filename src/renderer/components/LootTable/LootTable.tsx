@@ -1,8 +1,10 @@
-import React from 'react';
-import { DataGrid, GridColDef, GridRenderCellParams } from '@mui/x-data-grid';
+import React, { useState } from 'react';
+import { DataGrid, GridColDef, GridRenderCellParams, GridSortModel } from '@mui/x-data-grid';
 import { observer } from 'mobx-react-lite';
 import ChaosIcon from '../../assets/img/c.png';
 import './LootTable.css';
+import { electronService } from '../../electron.service';
+const { logger } = electronService;
 
 const columns: GridColDef[] = [
   // { field: 'id', headerName: 'ID', width: 90 },
@@ -44,6 +46,20 @@ const columns: GridColDef[] = [
 ];
 
 const LootTable = ({ profit, store }) => {
+  const [sortModel, setSortModel] = useState<GridSortModel>([
+    {
+      field: columns[1].field,
+      sort: 'desc',
+    },
+  ]);
+  const handleSortChange = (model) => {
+    logger.info('handleSortChange', model);
+    /* if statement to prevent the infinite loop by confirming model is 
+    different than the current sortModel state */
+    if (JSON.stringify(model) !== JSON.stringify(sortModel)) {
+      setSortModel(model);
+    }
+  };
   return (
     <div>
       <h2 className="Loot-Table__Header">
@@ -57,10 +73,11 @@ const LootTable = ({ profit, store }) => {
         disableColumnSelector
         disableRowSelectionOnClick
         disableDensitySelector
-        initialState={{ sorting: { sortModel: [{ field: 'totalValue', sort: 'desc' }] } }}
+        initialState={{ sorting: { sortModel } }}
         rows={store.getItemsForLootTable()}
         columns={columns}
         paginationModel={{ page: 0, pageSize: 100 }}
+        onSortModelChange={handleSortChange}
       />
     </div>
   );

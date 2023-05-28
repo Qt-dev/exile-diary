@@ -84,7 +84,8 @@
   width: 100%;
 }
 
-.Stat__Header, .Stat__Section-Header {
+.Stat__Header,
+.Stat__Section-Header {
   height: 2em;
   vertical-align: middle;
   border-radius: 3em;
@@ -93,7 +94,7 @@
   color: white;
   display: flex;
   align-items: center;
-  gap: 5px
+  gap: 5px;
 }
 
 .Stat__Header__Icon {
@@ -137,7 +138,7 @@
 
 .Stat__Section .Stat__Header__Icon {
   height: 3em;
-  margin-left: -0.5em
+  margin-left: -0.5em;
 }
 
 .Stat__Section--Two-Columns .Stat__Section__Column {
@@ -169,5 +170,5 @@
   display: flex;
   align-items: center;
   align-content: center;
-  color: rgba(255,255,255,0.7);
+  color: rgba(255, 255, 255, 0.7);
 }

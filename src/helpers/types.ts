@@ -33,19 +33,19 @@ type RunInfo = {
     argusKilled: number;
     darkshrines: {
       [key: string]: number;
-    }
-  }
+    };
+  };
   masters?: {
     [key: string]: {
       completed: boolean;
-      tier3Rooms?: string[]
+      tier3Rooms?: string[];
       missionMap?: boolean;
       isTemple?: boolean;
     };
   };
   syndicate?: {
     [key: string]: {
-      defeated: boolean
+      defeated: boolean;
       killedPlayer: boolean;
       safehouseLeaderDefeated: boolean;
     };
@@ -92,13 +92,12 @@ type RunInfo = {
   elderGuardian?: string;
 };
 
-
 type Run = {
   id: string;
   name: string;
   runinfo: string;
   areaType: string;
-  parsedRunInfo?: RunInfo,
+  parsedRunInfo?: RunInfo;
   kills?: number;
   gained?: number;
   firstevent: number;
@@ -115,6 +114,5 @@ type Run = {
 };
 
 type Order = 'asc' | 'desc';
-
 
 export type { Run, Order, RunInfo };

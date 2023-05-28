@@ -4,11 +4,11 @@
 }
 
 .Area-Stats__Header {
-  background-color: rgba(155,155,155,0.2);
+  background-color: rgba(155, 155, 155, 0.2);
 }
 
 .Area-Stats__Sub-Table {
-  background-color: rgba(60,60,60,0.2)
+  background-color: rgba(60, 60, 60, 0.2);
 }
 
 .Area-Stats__Header th:nth-child(1) {
@@ -24,7 +24,7 @@
 }
 
 .Stats__Map-List__Table {
-  background-color: rgba(30,30,30,0.2);
+  background-color: rgba(30, 30, 30, 0.2);
 }
 
 .Stats__Map-List__Header {

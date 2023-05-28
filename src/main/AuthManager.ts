@@ -98,7 +98,10 @@ const AuthManager = {
     const expirationDate = SettingsManager.get('tokenExpirationDate');
     const username = SettingsManager.get('username');
     const isAuthenticated =
-      password !== null && expirationDate !== null && moment().isBefore(expirationDate) && !!username;
+      password !== null &&
+      expirationDate !== null &&
+      moment().isBefore(expirationDate) &&
+      !!username;
     logger.info(`User is ${isAuthenticated ? '' : 'not '}authenticated`, {
       password: !!password,
       expirationDate,

@@ -189,18 +189,27 @@ const createWindow = async () => {
     });
   });
 
-
-  autoUpdater.checkForUpdates().then((result) => {
-    const msg = `Update check done. ${!!result ? `Update ${result.updateInfo.releaseName} is available` : 'No Update available'}:`
-    logger.info(msg);
-    autoUpdaterInterval = setInterval(() => {
-      autoUpdater.checkForUpdates().then((result) => { logger.info(msg); }).catch((err) => {
-        logger.error('Error checking for updates', err);
-      });
-    }, autoUpdaterIntervalTime);
-  }).catch((err) => {
-    logger.error('Error checking for updates', err);
-  });
+  autoUpdater
+    .checkForUpdates()
+    .then((result) => {
+      const msg = `Update check done. ${
+        !!result ? `Update ${result.updateInfo.releaseName} is available` : 'No Update available'
+      }:`;
+      logger.info(msg);
+      autoUpdaterInterval = setInterval(() => {
+        autoUpdater
+          .checkForUpdates()
+          .then((result) => {
+            logger.info(msg);
+          })
+          .catch((err) => {
+            logger.error('Error checking for updates', err);
+          });
+      }, autoUpdaterIntervalTime);
+    })
+    .catch((err) => {
+      logger.error('Error checking for updates', err);
+    });
 
   OCRWatcher.emitter.removeAllListeners();
   OCRWatcher.emitter.on('OCRError', () => {

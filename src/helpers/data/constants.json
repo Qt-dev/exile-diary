@@ -37,7 +37,12 @@
     "The Cursed King"
   ],
 
-  "shaperGuardiansMaps": ["Maze of the Minotaur", "Forge of the Phoenix", "Lair of the Hydra", "Pit of the Chimera"],
+  "shaperGuardiansMaps": [
+    "Maze of the Minotaur",
+    "Forge of the Phoenix",
+    "Lair of the Hydra",
+    "Pit of the Chimera"
+  ],
 
   "elderGuardians": ["The Constrictor", "The Enslaver", "The Eradicator", "The Purifier"],
 
