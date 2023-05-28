@@ -3,6 +3,8 @@ import * as path from 'path';
 import * as fs from 'fs/promises';
 import { app } from 'electron';
 import DB from './db';
+import GGGAPI from './GGGAPI';
+import RateGetterV2 from './modules/RateGetterV2';
 
 const settingsPath = path.join(app.getPath('userData'), 'settings.json');
 
@@ -25,6 +27,14 @@ class SettingsManager {
     this.settings = require(path.join(app.getPath('userData'), 'settings.json'));
   }
 
+  async initializeDB(characterName: string) {
+    logger.info(`Initializing DB for ${characterName}`);
+    const character = (await GGGAPI.getAllCharacters()).find((character) => character.name === characterName);; 
+    await DB.initDB(character.name);
+    await DB.initLeagueDB(character.league, character.name);
+    await RateGetterV2.Getter.update();
+  }
+
   getAll() {
     return this.settings;
   }
@@ -40,10 +50,11 @@ class SettingsManager {
     if (
       key === 'activeProfile' &&
       value.characterName &&
-      this.settings.activeProfile &&
-      value.characterName !== this.settings.activeProfile.characterName
+      !!(this.settings.activeProfile || // First active Profile
+      (this.settings.activeProfile && // New active Profile
+      value.characterName !== this.settings.activeProfile.characterName))
     )
-      await DB.initDB(value.characterName);
+      await this.initializeDB(value.characterName);
     this.settings[key] = value;
     this.scheduleSave();
   }

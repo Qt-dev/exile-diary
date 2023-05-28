@@ -89,6 +89,7 @@ const init = async () => {
         league: character.league,
         valid: true,
       });
+      SettingsManager.initializeDB(character.name);
       logger.info(`Settings updated. Character: ${character.name}, League: ${character.league}`);
     } catch (e) {
       logger.error(
