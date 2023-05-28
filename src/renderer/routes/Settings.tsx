@@ -42,7 +42,8 @@ function a11yProps(index: number) {
 const Settings = () => {
   const navigate = useNavigate();
   const { settings, characters } = useLoaderData() as SettingsLoaderData;
-  const [tabValue, setTabValue] = React.useState(0);
+  const [ tabValue, setTabValue ] = React.useState(0);
+  const [ errors, setErrors ] = React.useState<any>({});
 
   // Character
   const [character, setCharacter] = React.useState(
@@ -94,8 +95,24 @@ const Settings = () => {
     setTabValue(newValue);
   };
 
+  const handleClientLocationPick = (e) => {
+    if(!e.target.value) {
+      setErrors({ ...errors, clientFileLocation: 'POE Client file location is required' });
+      return;
+    } else {
+      setErrors({ ...errors, clientFileLocation: null });
+      setClientFileLocation(e.target.value);
+    }
+  };
+
   const handleSubmit = (e) => {
     e.preventDefault();
+    if(!clientFileLocation) {
+      setErrors({ ...errors, clientFileLocation: 'POE Client file location is required' });
+      return;
+    } else {
+      setErrors({ ...errors, clientFileLocation: null });
+    }
     const data = {
       activeProfile: {
         characterName: character,
@@ -175,7 +192,9 @@ const Settings = () => {
                 variant="filled"
                 size="small"
                 value={clientFileLocation}
-                onChange={(e) => setClientFileLocation(e.target.value)}
+                helperText={errors.clientFileLocation ? errors.clientFileLocation : ''}
+                error={!!errors.clientFileLocation}
+                onChange={handleClientLocationPick}
               />
               <Button component="label">
                 Choose Folder
