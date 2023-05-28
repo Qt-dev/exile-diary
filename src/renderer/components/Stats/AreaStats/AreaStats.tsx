@@ -31,16 +31,22 @@ const AreaStatsRow = ({ stats }) => {
         </TableCell>
         <TableCell sx={{ width: 100 }}>{Case.capital(stats.name)}</TableCell>
         <TableCell sx={{ width: 100 }} align="center">
-          {stats.count}
+          {stats.count.toLocaleString()}
         </TableCell>
         <TableCell sx={{ width: 100 }} align="center">
           {moment.utc(stats.time * 1000).format('HH:mm:ss')}
         </TableCell>
         <TableCell sx={{ width: 100 }} align="right">
-          {stats.gained.toLocaleString()}
+          {stats.gained.toLocaleString('en-US', {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2,
+          })}
         </TableCell>
         <TableCell sx={{ width: 100 }} align="right">
-          {stats.profitPerHour.toLocaleString()}
+          {stats.profitPerHour.toLocaleString('en-US', {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2,
+          })}
         </TableCell>
         <TableCell sx={{ width: 100 }} align="right">
           {stats.kills.toLocaleString()}
