@@ -13,6 +13,9 @@ import IconButton from '@mui/material/IconButton';
 import AddIcon from '@mui/icons-material/Add';
 import RemoveIcon from '@mui/icons-material/Remove';
 import Collapse from '@mui/material/Collapse';
+import { Link } from 'react-router-dom';
+import { electronService } from '../../../electron.service';
+const { logger } = electronService;
 
 const MapRow = ({ maps }) => {
   return (
@@ -31,15 +34,15 @@ const MapRow = ({ maps }) => {
         </TableHead>
         <TableBody>
           {maps.map((map, index) => (
-            <TableRow key={index}>
-              <TableCell>{moment(map.date, 'YYYYMMDDHHmmss').toString()}</TableCell>
-              <TableCell>{moment.utc(map.time * 1000).format('HH:mm:ss')}</TableCell>
-              <TableCell align="right">{map.gained.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</TableCell>
-              <TableCell align="right">{map.profitPerHour.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</TableCell>
-              <TableCell align="right">{map.kills.toLocaleString()}</TableCell>
-              <TableCell align="right">{map.deaths.toLocaleString()}</TableCell>
-            </TableRow>
-          ))}
+              <TableRow key={index} component={Link} to={`/run/${map.id}`}>
+                <TableCell>{moment(map.date, 'YYYYMMDDHHmmss').toString()}</TableCell>
+                <TableCell>{moment.utc(map.time * 1000).format('HH:mm:ss')}</TableCell>
+                <TableCell align="right">{map.gained.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</TableCell>
+                <TableCell align="right">{map.profitPerHour.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</TableCell>
+                <TableCell align="right">{map.kills.toLocaleString()}</TableCell>
+                <TableCell align="right">{map.deaths.toLocaleString()}</TableCell>
+              </TableRow>
+            ))}
         </TableBody>
       </Table>
     </div>
@@ -110,13 +113,13 @@ const MapStats = ({ stats }) => {
       <TableHead>
         <TableRow className='Area-Stats__Header '>
           <TableCell variant="head" />
-          <TableCell variant="head"><TableSortLabel active={orderBy === 'name'} direction={orderBy === 'name' ? order : 'desc'} onClick={sort('name', order)}>Area</TableSortLabel></TableCell>
-          <TableCell variant="head" align="center"><TableSortLabel active={orderBy === 'count'} direction={orderBy === 'count' ? order : 'desc'} onClick={sort('count', order)}>Times Entered</TableSortLabel></TableCell>
-          <TableCell variant="head" align="center"><TableSortLabel active={orderBy === 'time'} direction={orderBy === 'time' ? order : 'desc'} onClick={sort('time', order)}>Time</TableSortLabel></TableCell>
-          <TableCell variant="head" align="right"><TableSortLabel active={orderBy === 'gained'} direction={orderBy === 'gained' ? order : 'desc'} onClick={sort('gained', order)}><img src={ChaosIcon} alt="Chaos Icon" className="Area-Stats__Profit-Icon" /></TableSortLabel></TableCell>
-          <TableCell variant="head" align="right"><TableSortLabel active={orderBy === 'profitPerHour'} direction={orderBy === 'profitPerHour' ? order : 'desc'} onClick={sort('profitPerHour', order)}><img src={ChaosIcon} alt="Chaos Icon" className="Area-Stats__Profit-Icon" />/hr</TableSortLabel></TableCell>
-          <TableCell variant="head" align="right"><TableSortLabel active={orderBy === 'kills'} direction={orderBy === 'kills' ? order : 'desc'} onClick={sort('kills', order)}>Kills</TableSortLabel></TableCell>
-          <TableCell variant="head" align="right"><TableSortLabel active={orderBy === 'deaths'} direction={orderBy === 'deaths' ? order : 'desc'} onClick={sort('deaths', order)}>Deaths</TableSortLabel></TableCell>
+          <TableCell variant="head"><TableSortLabel hideSortIcon active={orderBy === 'name'} direction={orderBy === 'name' ? order : 'desc'} onClick={sort('name', order)}>Area</TableSortLabel></TableCell>
+          <TableCell variant="head" align="center"><TableSortLabel hideSortIcon active={orderBy === 'count'} direction={orderBy === 'count' ? order : 'desc'} onClick={sort('count', order)}>Times Entered</TableSortLabel></TableCell>
+          <TableCell variant="head" align="center"><TableSortLabel hideSortIcon active={orderBy === 'time'} direction={orderBy === 'time' ? order : 'desc'} onClick={sort('time', order)}>Time</TableSortLabel></TableCell>
+          <TableCell variant="head" align="right"><TableSortLabel hideSortIcon active={orderBy === 'gained'} direction={orderBy === 'gained' ? order : 'desc'} onClick={sort('gained', order)}><img src={ChaosIcon} alt="Chaos Icon" className="Area-Stats__Profit-Icon" /></TableSortLabel></TableCell>
+          <TableCell variant="head" align="right"><TableSortLabel hideSortIcon active={orderBy === 'profitPerHour'} direction={orderBy === 'profitPerHour' ? order : 'desc'} onClick={sort('profitPerHour', order)}><img src={ChaosIcon} alt="Chaos Icon" className="Area-Stats__Profit-Icon" />/hr</TableSortLabel></TableCell>
+          <TableCell variant="head" align="right"><TableSortLabel hideSortIcon active={orderBy === 'kills'} direction={orderBy === 'kills' ? order : 'desc'} onClick={sort('kills', order)}>Kills</TableSortLabel></TableCell>
+          <TableCell variant="head" align="right"><TableSortLabel hideSortIcon active={orderBy === 'deaths'} direction={orderBy === 'deaths' ? order : 'desc'} onClick={sort('deaths', order)}>Deaths</TableSortLabel></TableCell>
         </TableRow>
       </TableHead>
       <TableBody >
