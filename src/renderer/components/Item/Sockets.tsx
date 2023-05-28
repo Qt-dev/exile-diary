@@ -11,7 +11,7 @@ const Sockets = ({ item }) => {
       };
       const link = index < chars.length - 1 ? <div className="Socket-Link" /> : null;
       sockets.push(
-        <div className={`Socket-Container Socket-${charPosition}`} style={style}>
+        <div key={`socket-${charPosition}`} className={`Socket-Container Socket-${charPosition}`} style={style}>
           <div className={`Socket Socket-${color}`}></div>
           {link}
         </div>
@@ -22,7 +22,7 @@ const Sockets = ({ item }) => {
   // We need to add a fake socket to re align stuff for the second line
   if (charPosition === 3) {
     sockets.push(
-      <div className={`Socket-Container Socket-3`}>
+      <div key={`socket-3`} className={`Socket-Container Socket-3`}>
         <div className={`Socket Socket-None`}></div>
       </div>
     );

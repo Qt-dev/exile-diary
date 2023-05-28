@@ -79,7 +79,7 @@ const Colors = {
     let color: any = false;
     color = Colors.getColorFromRarity(item.rarity);
     color = !color ? Colors.getColorFromItemClass(item.itemClass) : color;
-    if (!color && item.itemClass.includes('Gem')) {
+    if (!color && item.itemClass && item.itemClass.includes('Gem')) {
       color = Colors.CYAN;
     }
     color = !color ? Colors.WHITE : color;
@@ -97,7 +97,7 @@ const getInfluenceIcons = (item) => {
     influenceIcons.push('synthesised');
   } else if (item.fractured) {
     influenceIcons.push('fractured');
-  } else {
+  } else if (item.influence && item.influence.length > 0) {
     for (const influence of item.influence) {
       influenceIcons.push(influence);
     }

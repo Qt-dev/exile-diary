@@ -26,7 +26,7 @@ const getHeader = (item, influenceIcons: JSX.Element[]) => {
   }
 
   return (
-    <div className={headerClassNames}>
+    <div key={`header`} className={headerClassNames}>
       {influences.length > 0 ? influences[0] : null}
       <div className="Item-Tooltip__Header__Text">
         {name ? <div className={nameClassNames}>{name}</div> : null}
@@ -84,7 +84,7 @@ const PropertyLine = ({ value, prefix = '', children = [] }: PropertyLineProps) 
 
 const getPropertyString = (property: Property): JSX.Element[] | null => {
   if (!property.values || !property.values.length) {
-    return [<span>{property.name}</span>];
+    return [<span key={`prop-${property.name}`}>{property.name}</span>];
   } else {
     const stringMap = [
       (property: Property) => {
@@ -122,7 +122,7 @@ const getPropertyString = (property: Property): JSX.Element[] | null => {
 
         for (const line of propertyLines) {
           propertyElements.push(
-            <PropertyLine value={[]}>
+            <PropertyLine key={line} value={[]}>
               {reactStringReplace(line, new RegExp(pattern), (match) => {
                 const cleanValueText = isStoredExperience
                   ? formatExperience(property.values?.[match][0])
@@ -149,8 +149,8 @@ const getPropertiesAndUtilityMods = (item) => {
 
   const propertiesAndUtilityMods = properties.concat(utilityMods);
 
-  const propertyElements = propertiesAndUtilityMods.map((property) => {
-    return <div className="Item-Tooltip__Property">{getPropertyString(property)}</div>;
+  const propertyElements = propertiesAndUtilityMods.map((property, index) => {
+    return <div key={`prop-${item.id}-${index}`} className="Item-Tooltip__Property">{getPropertyString(property)}</div>;
   });
 
   return propertyElements;
@@ -211,8 +211,8 @@ const getEnchantMods = (item) => {
   if (!rawData.enchantMods || rawData.enchantMods.length === 0) return null;
   const enchantMods: JSX.Element[] = [];
   for (const mod of rawData.enchantMods) {
-    mod.split('\r\n').forEach((splitMod) => {
-      enchantMods.push(<div className="Item-Tooltip__Property Text--Enchantment">{splitMod}</div>);
+    mod.split('\r\n').forEach((splitMod, index) => {
+      enchantMods.push(<div key={`enchant-${item.id}-${index}`} className="Item-Tooltip__Property Text--Enchantment">{splitMod}</div>);
     });
   }
   return enchantMods;
@@ -223,8 +223,8 @@ const getImplicitMods = (item) => {
   if (!rawData.implicitMods || rawData.implicitMods.length === 0) return null;
   const implicitMods: JSX.Element[] = [];
   for (const mod of rawData.implicitMods) {
-    mod.split('\r\n').forEach((splitMod) => {
-      implicitMods.push(<div className="Item-Tooltip__Property Text--Implicit">{splitMod}</div>);
+    mod.split('\r\n').forEach((splitMod, index) => {
+      implicitMods.push(<div key={`impl-${item.id}-${index}`} className="Item-Tooltip__Property Text--Implicit">{splitMod}</div>);
     });
   }
   return implicitMods;
@@ -236,14 +236,14 @@ const getUnidentified = (item) => {
   if (rawData.baseTypeName) return null;
   return rawData.identified
     ? null
-    : [<div className="Item-Tooltip__Property Text--Unidentified">Unidentified</div>];
+    : [<div key={`unid-${item.id}`} className="Item-Tooltip__Property Text--Unidentified">Unidentified</div>];
 };
 
 const getSecDescrText = (item) => {
   const { rawData } = item;
   if (!rawData.secDescrText) return null;
   return [
-    <div className="Item-Tooltip__Property .Text--Secret-Description">{rawData.secDescrText}</div>,
+    <div key={`descr-text-${item.id}`} className="Item-Tooltip__Property .Text--Secret-Description">{rawData.secDescrText}</div>,
   ];
 };
 
@@ -252,8 +252,8 @@ const getExplicitMods = (item) => {
   const explicitMods: JSX.Element[] = [];
   if (rawData.fracturedMods) {
     for (const mod of rawData.fracturedMods) {
-      mod.split('\r\n').forEach((splitMod) => {
-        explicitMods.push(<div className="Item-Tooltip__Property Text--Fractured">{splitMod}</div>);
+      mod.split('\r\n').forEach((splitMod, index) => {
+        explicitMods.push(<div key={`explicit-${item.id}-${index}`} className="Item-Tooltip__Property Text--Fractured">{splitMod}</div>);
       });
     }
   }
@@ -356,7 +356,7 @@ const getAdditionalProperties = (item) => {
       const totalXp = new Intl.NumberFormat().format(xpString[1]);
       const progress = Math.floor(property.progress * 100);
       additionalProperties.push(
-        <div className="Item-Tooltip__Property">
+        <div key={`${item.id}-${property.name}`} className="Item-Tooltip__Property">
           <div className="Item-Tooltip__Experience-Bar__Container">
             <div className="Item-Tooltip__Experience-Bar__Background">
               <div
@@ -380,7 +380,7 @@ const getCosmeticMods = (item) => {
   if (!rawData.cosmeticMods || rawData.cosmeticMods.length === 0) return null;
   const cosmeticMods: JSX.Element[] = [];
   for (const mod of rawData.cosmeticMods) {
-    cosmeticMods.push(<div className="Item-Tooltip__Property Text--Cosmetic">{mod}</div>);
+    cosmeticMods.push(<div key={`cosmetic-mods-${item.id}-${mod}`} className="Item-Tooltip__Property Text--Cosmetic">{mod}</div>);
   }
   return cosmeticMods;
 };
@@ -389,11 +389,11 @@ const getFlavourText = (item) => {
   const { rawData } = item;
   if (!rawData.flavourText || rawData.flavourText.length === 0) return null;
   const flavourText: JSX.Element[] = [];
-  for (const mod of rawData.flavourText) {
-    mod.split('\r\n').forEach((splitMod) => {
-      flavourText.push(<div className="Item-Tooltip__Property Text--Flavour">{splitMod}</div>);
+  rawData.flavourText.forEach((mod, count) => {
+    mod.split('\r\n').forEach((splitMod, index) => {
+      flavourText.push(<div key={`flavour-${item.id}-${count}-${index}`} className="Item-Tooltip__Property Text--Flavour">{splitMod}</div>);
     });
-  }
+  });
   return flavourText;
 };
 
@@ -432,7 +432,7 @@ const getProphecyText = (item) => {
   const { rawData } = item;
   return rawData.prophecyText
     ? [
-        <div className={`Item-Tooltip__Property ${colorClassByCode[0]}`}>
+        <div key={`prophecy-${item.id}`} className={`Item-Tooltip__Property ${colorClassByCode[0]}`}>
           ${rawData.prophecyText}
         </div>,
       ]
@@ -442,7 +442,7 @@ const getProphecyText = (item) => {
 const getDescrText = (item) => {
   const { rawData } = item;
   return rawData.descrText
-    ? [<div className="Item-Tooltip__Property Text--Description">{rawData.descrText}</div>]
+    ? [<div key={`description-text-${item.id}`} className="Item-Tooltip__Property Text--Description">{rawData.descrText}</div>]
     : null;
 };
 
@@ -455,7 +455,7 @@ const getIncubatedItem = (item) => {
   const { format } = new Intl.NumberFormat();
 
   return [
-    <div className="Item-Tooltip__Property Text--Incubated">
+    <div key={`incubated${item.id}`} className="Item-Tooltip__Property Text--Incubated">
       <div className="Item-Tooltip__Experience-Bar__Container">
         <div className="Item-Tooltip__Experience-Bar__Background">
           <div
@@ -504,11 +504,11 @@ const getDescription = (item) => {
       previousValue === null ? (
         currentValue
       ) : (
-        <>
+        <React.Fragment key={`description`}>
           {previousValue}
-          <hr style={{ borderColor: 'none' }} className="separator" />
+          <hr key={`separator`} style={{ borderColor: 'none' }} className="separator" />
           {currentValue}
-        </>
+        </React.Fragment>
       ),
     null
   );
@@ -527,7 +527,7 @@ const getIcon = (item) => {
   }
 
   return (
-    <div className="Item-Tooltip__Icon">
+    <div key={`icon`} className="Item-Tooltip__Icon">
       <div className="Item-Tooltip__Icon__Stack">
         {rawData.maxStackSize ? rawData.pickupStackSize || rawData.stackSize : ''}
       </div>
