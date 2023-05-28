@@ -11,7 +11,7 @@ const sleep = (ms: number) => {
 };
 
 class DB {
-  static all(sql: string, params: any[] = [], league : string | undefined = undefined) {
+  static all(sql: string, params: any[] = [], league: string | undefined = undefined) {
     const db = !!league ? this.getLeagueDB(league) : this.getDB();
     if (!db) {
       return null;
@@ -20,7 +20,7 @@ class DB {
     return result;
   }
 
-  static get(sql: string, params: any[] = [], league : string | undefined = undefined) {
+  static get(sql: string, params: any[] = [], league: string | undefined = undefined) {
     const db = !!league ? this.getLeagueDB(league) : this.getDB();
     if (!db) {
       return null;
@@ -29,7 +29,7 @@ class DB {
     return result;
   }
 
-  static run(sql: string, params: any[] = [], league : string | undefined = undefined) {
+  static run(sql: string, params: any[] = [], league: string | undefined = undefined) {
     const db = !!league ? this.getLeagueDB(league) : this.getDB();
     if (!db) {
       return null;

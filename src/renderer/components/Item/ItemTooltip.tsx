@@ -150,7 +150,11 @@ const getPropertiesAndUtilityMods = (item) => {
   const propertiesAndUtilityMods = properties.concat(utilityMods);
 
   const propertyElements = propertiesAndUtilityMods.map((property, index) => {
-    return <div key={`prop-${item.id}-${index}`} className="Item-Tooltip__Property">{getPropertyString(property)}</div>;
+    return (
+      <div key={`prop-${item.id}-${index}`} className="Item-Tooltip__Property">
+        {getPropertyString(property)}
+      </div>
+    );
   });
 
   return propertyElements;
@@ -212,7 +216,14 @@ const getEnchantMods = (item) => {
   const enchantMods: JSX.Element[] = [];
   for (const mod of rawData.enchantMods) {
     mod.split('\r\n').forEach((splitMod, index) => {
-      enchantMods.push(<div key={`enchant-${item.id}-${index}`} className="Item-Tooltip__Property Text--Enchantment">{splitMod}</div>);
+      enchantMods.push(
+        <div
+          key={`enchant-${item.id}-${index}`}
+          className="Item-Tooltip__Property Text--Enchantment"
+        >
+          {splitMod}
+        </div>
+      );
     });
   }
   return enchantMods;
@@ -224,7 +235,11 @@ const getImplicitMods = (item) => {
   const implicitMods: JSX.Element[] = [];
   for (const mod of rawData.implicitMods) {
     mod.split('\r\n').forEach((splitMod, index) => {
-      implicitMods.push(<div key={`impl-${item.id}-${index}`} className="Item-Tooltip__Property Text--Implicit">{splitMod}</div>);
+      implicitMods.push(
+        <div key={`impl-${item.id}-${index}`} className="Item-Tooltip__Property Text--Implicit">
+          {splitMod}
+        </div>
+      );
     });
   }
   return implicitMods;
@@ -236,14 +251,20 @@ const getUnidentified = (item) => {
   if (rawData.baseTypeName) return null;
   return rawData.identified
     ? null
-    : [<div key={`unid-${item.id}`} className="Item-Tooltip__Property Text--Unidentified">Unidentified</div>];
+    : [
+        <div key={`unid-${item.id}`} className="Item-Tooltip__Property Text--Unidentified">
+          Unidentified
+        </div>,
+      ];
 };
 
 const getSecDescrText = (item) => {
   const { rawData } = item;
   if (!rawData.secDescrText) return null;
   return [
-    <div key={`descr-text-${item.id}`} className="Item-Tooltip__Property .Text--Secret-Description">{rawData.secDescrText}</div>,
+    <div key={`descr-text-${item.id}`} className="Item-Tooltip__Property .Text--Secret-Description">
+      {rawData.secDescrText}
+    </div>,
   ];
 };
 
@@ -253,7 +274,14 @@ const getExplicitMods = (item) => {
   if (rawData.fracturedMods) {
     for (const mod of rawData.fracturedMods) {
       mod.split('\r\n').forEach((splitMod, index) => {
-        explicitMods.push(<div key={`explicit-${item.id}-${index}`} className="Item-Tooltip__Property Text--Fractured">{splitMod}</div>);
+        explicitMods.push(
+          <div
+            key={`explicit-${item.id}-${index}`}
+            className="Item-Tooltip__Property Text--Fractured"
+          >
+            {splitMod}
+          </div>
+        );
       });
     }
   }
@@ -380,7 +408,14 @@ const getCosmeticMods = (item) => {
   if (!rawData.cosmeticMods || rawData.cosmeticMods.length === 0) return null;
   const cosmeticMods: JSX.Element[] = [];
   for (const mod of rawData.cosmeticMods) {
-    cosmeticMods.push(<div key={`cosmetic-mods-${item.id}-${mod}`} className="Item-Tooltip__Property Text--Cosmetic">{mod}</div>);
+    cosmeticMods.push(
+      <div
+        key={`cosmetic-mods-${item.id}-${mod}`}
+        className="Item-Tooltip__Property Text--Cosmetic"
+      >
+        {mod}
+      </div>
+    );
   }
   return cosmeticMods;
 };
@@ -391,7 +426,14 @@ const getFlavourText = (item) => {
   const flavourText: JSX.Element[] = [];
   rawData.flavourText.forEach((mod, count) => {
     mod.split('\r\n').forEach((splitMod, index) => {
-      flavourText.push(<div key={`flavour-${item.id}-${count}-${index}`} className="Item-Tooltip__Property Text--Flavour">{splitMod}</div>);
+      flavourText.push(
+        <div
+          key={`flavour-${item.id}-${count}-${index}`}
+          className="Item-Tooltip__Property Text--Flavour"
+        >
+          {splitMod}
+        </div>
+      );
     });
   });
   return flavourText;
@@ -432,7 +474,10 @@ const getProphecyText = (item) => {
   const { rawData } = item;
   return rawData.prophecyText
     ? [
-        <div key={`prophecy-${item.id}`} className={`Item-Tooltip__Property ${colorClassByCode[0]}`}>
+        <div
+          key={`prophecy-${item.id}`}
+          className={`Item-Tooltip__Property ${colorClassByCode[0]}`}
+        >
           ${rawData.prophecyText}
         </div>,
       ]
@@ -442,7 +487,14 @@ const getProphecyText = (item) => {
 const getDescrText = (item) => {
   const { rawData } = item;
   return rawData.descrText
-    ? [<div key={`description-text-${item.id}`} className="Item-Tooltip__Property Text--Description">{rawData.descrText}</div>]
+    ? [
+        <div
+          key={`description-text-${item.id}`}
+          className="Item-Tooltip__Property Text--Description"
+        >
+          {rawData.descrText}
+        </div>,
+      ]
     : null;
 };
 

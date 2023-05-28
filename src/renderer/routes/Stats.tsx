@@ -20,51 +20,56 @@ function a11yProps(index: number) {
 }
 
 const TabPanel = ({ children, index, value, ...other }) => {
-	return (
-		<div
-			className="Stats__TabPanel"
-			hidden={value !== index}
-			id={`simple-tabpanel-${index}`}
-			aria-labelledby={`simple-tab-${index}`}
-			{...other}
-		>
-			{children}
-		</div>
-	);
+  return (
+    <div
+      className="Stats__TabPanel"
+      hidden={value !== index}
+      id={`simple-tabpanel-${index}`}
+      aria-labelledby={`simple-tab-${index}`}
+      {...other}
+    >
+      {children}
+    </div>
+  );
 };
 
 const itemStore = new ItemStore([]);
 
 const Stats = () => {
   const [tabValue, setTabValue] = React.useState(0);
-	const { stats } =  useLoaderData() as any;
-	const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
+  const { stats } = useLoaderData() as any;
+  const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
     setTabValue(newValue);
   };
-	itemStore.createItems(stats.items.loot.map((item) => ({...item, ...JSON.parse(item.rawdata)})));
-	logger.info(stats);
-	return (
-		<div className="Stats__Page Box">
-        <Tabs value={tabValue} aria-label="Settings Tabs" className="Stats__Tabs" onChange={handleTabChange}>
-          <Tab label="Main Stats" {...a11yProps(0)} />
-          <Tab label="Area Stats" {...a11yProps(1)} />
-					<Tab label="Boss Stats" {...a11yProps(2)} />
-					<Tab label="Loot Stats" {...a11yProps(3)} />
-        </Tabs>
-				<TabPanel value={tabValue} index={0}>
-					<MainStats stats={stats} />
-				</TabPanel>
-				<TabPanel value={tabValue} index={1}>
-					<AreaStats stats={stats} />
-				</TabPanel>
-				<TabPanel value={tabValue} index={2}>
-					<BossStats stats={stats.bosses} />
-				</TabPanel>
-				<TabPanel value={tabValue} index={3}>
-					<LootStats stats={stats.items} store={itemStore}/>
-				</TabPanel>
-		</div>
-		);
-	};
-	
-	export default Stats;
+  itemStore.createItems(stats.items.loot.map((item) => ({ ...item, ...JSON.parse(item.rawdata) })));
+  logger.info(stats);
+  return (
+    <div className="Stats__Page Box">
+      <Tabs
+        value={tabValue}
+        aria-label="Settings Tabs"
+        className="Stats__Tabs"
+        onChange={handleTabChange}
+      >
+        <Tab label="Main Stats" {...a11yProps(0)} />
+        <Tab label="Area Stats" {...a11yProps(1)} />
+        <Tab label="Boss Stats" {...a11yProps(2)} />
+        <Tab label="Loot Stats" {...a11yProps(3)} />
+      </Tabs>
+      <TabPanel value={tabValue} index={0}>
+        <MainStats stats={stats} />
+      </TabPanel>
+      <TabPanel value={tabValue} index={1}>
+        <AreaStats stats={stats} />
+      </TabPanel>
+      <TabPanel value={tabValue} index={2}>
+        <BossStats stats={stats.bosses} />
+      </TabPanel>
+      <TabPanel value={tabValue} index={3}>
+        <LootStats stats={stats.items} store={itemStore} />
+      </TabPanel>
+    </div>
+  );
+};
+
+export default Stats;

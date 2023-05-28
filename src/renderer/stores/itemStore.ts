@@ -22,10 +22,9 @@ export default class ItemStore {
   getItemsForLootTable() {
     return this.items.map((item) => item.toLootTable());
   }
-  
+
   // Get the full name to display for an item
   @computed getItemsAbove(value: number): Item[] {
     return this.items.filter((item) => item.value >= value);
   }
-
 }

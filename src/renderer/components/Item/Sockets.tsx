@@ -11,7 +11,11 @@ const Sockets = ({ item }) => {
       };
       const link = index < chars.length - 1 ? <div className="Socket-Link" /> : null;
       sockets.push(
-        <div key={`socket-${charPosition}`} className={`Socket-Container Socket-${charPosition}`} style={style}>
+        <div
+          key={`socket-${charPosition}`}
+          className={`Socket-Container Socket-${charPosition}`}
+          style={style}
+        >
           <div className={`Socket Socket-${color}`}></div>
           {link}
         </div>

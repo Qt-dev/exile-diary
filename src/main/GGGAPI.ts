@@ -17,10 +17,10 @@ limiter.on('failed', async (error, jobInfo) => {
   logger.error(
     `Request ${jobInfo.options.id} failed with ${error.message}. Retried ${retryCount} times.`
   );
-  if(error.stats === 429) {
+  if (error.stats === 429) {
     logger.error('Too many requests. Waiting 10 seconds before retrying...');
-    logger.error(`Retry-After Header: ${error.getResponseHeader("Retry-After")}`);
-    return ((error.getResponseHeader("Retry-After") || 1) * 1000) + 1000
+    logger.error(`Retry-After Header: ${error.getResponseHeader('Retry-After')}`);
+    return (error.getResponseHeader('Retry-After') || 1) * 1000 + 1000;
   }
 
   if (retryCount > 2) {
@@ -78,13 +78,13 @@ const getRequestParams = (url, token) => {
 const request = (params, priority = 5) => {
   return limiter.schedule({ priority }, () => {
     logger.info('Running request');
-    if(!params.cache) {
+    if (!params.cache) {
       params.cache = {
-        ttl: 1000 * 15 // 15 seconds
+        ttl: 1000 * 15, // 15 seconds
       };
     }
     return axios(params).then((response) => {
-      if(response.cached) logger.info(`Response from cache for ${params.url}`);
+      if (response.cached) logger.info(`Response from cache for ${params.url}`);
       return response;
     });
   });
@@ -94,7 +94,8 @@ const getSettings = async (needProfile = true) => {
   const { settings } = SettingsManager;
   const { username, activeProfile } = settings;
   if (!username) throw new Error('Missing username');
-  if ((!activeProfile || !activeProfile.characterName) && needProfile) throw new Error('Missing Active Profile');
+  if ((!activeProfile || !activeProfile.characterName) && needProfile)
+    throw new Error('Missing Active Profile');
   const token = await AuthManager.getToken();
   return {
     username,
@@ -110,9 +111,7 @@ const getAllCharacters = async () => {
     const { username, token } = await getSettings(false);
     const response: any = await request(getRequestParams(Endpoints.characters(), token));
     const characters = await response.data.characters;
-    logger.info(
-      `Found ${characters.length} characters from the GGG API for account: ${username}`
-    );
+    logger.info(`Found ${characters.length} characters from the GGG API for account: ${username}`);
     return characters;
   } catch (e: any) {
     logger.error(`Error while getting characters from the GGG API: ${e.message}`);

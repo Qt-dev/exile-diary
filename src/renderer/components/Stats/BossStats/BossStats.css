@@ -1,5 +1,5 @@
 .Boss-Stats__Table-Header {
-  background-color: rgba(155,155,155,0.2);
+  background-color: rgba(155, 155, 155, 0.2);
 }
 
 .Boss-Stats__Table-Header th:nth-child(1) {
@@ -11,7 +11,7 @@
 }
 
 .Boss-Stats__Sub-Table .Boss-Stats__Table {
-  background-color: rgba(60,60,60,0.2);
+  background-color: rgba(60, 60, 60, 0.2);
 }
 
 .Boss-Stats__Header {
