@@ -1,0 +1,19 @@
+.Character-Select {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  align-items: center;
+}
+.Character-Select__Form {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  align-items: center;
+}
+
+.Character-Select__Title {
+  font-family: FontinSmallCaps;
+  font-size: 1.2em;
+  font-weight: bold;
+  margin-bottom: 20px;
+}

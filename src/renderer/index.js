@@ -12,6 +12,8 @@ import RunList from './routes/RunList';
 import Run from './routes/Run';
 import Login from './routes/Login';
 import Stats from './routes/Stats';
+import CharacterSelect from './routes/CharacterSelect';
+import LoginBox from './routes/LoginBox';
 import { electronService } from './electron.service';
 const { logger } = electronService;
 const runStore = new RunStore();
@@ -83,10 +85,24 @@ const router = createHashRouter([
   {
     path: '/login',
     element: <Login />,
-    loader: async () => {
-      const { code_challenge, state } = await ipcRenderer.invoke('oauth:get-info');
-      return { code_challenge, state };
-    },
+    children: [
+      {
+        index: true,
+        element: <LoginBox store={runStore} />,
+        loader: async () => {
+          const { code_challenge, state } = await ipcRenderer.invoke('oauth:get-info');
+          return { code_challenge, state };
+        },
+      },
+      {
+        path: 'character-select',
+        element: <CharacterSelect />,
+        loader: async () => {
+          const characters = await ipcRenderer.invoke('get-characters');
+          return { characters };
+        },
+      }
+    ]
   },
 ]);
 const darkTheme = createTheme({
