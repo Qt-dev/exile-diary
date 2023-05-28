@@ -46,9 +46,9 @@ export default class RunStore {
     });
   }
 
-  loadRun(runId: number) {
-    electronService.ipcRenderer.invoke('load-run', { runId }).then((json) => {
-      runInAction(() => {
+  async loadRun(runId: number) {
+    return electronService.ipcRenderer.invoke('load-run', { runId }).then((json) => {
+      return runInAction(() => {
         this.updateRunFromServer(json);
       });
     });

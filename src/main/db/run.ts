@@ -115,14 +115,15 @@ const Runs = {
 
   getRunInfo: async (mapId: number): Promise<any> => {
     const mapInfoQuery = `
-      select name, level, depth, iiq, iir, packsize, xp, kills, runinfo, firstevent, lastevent,
+      select mapruns.id, name, level, depth, iiq, iir, packsize, xp, kills, runinfo, firstevent, lastevent, gained,
+      (mapruns.xp - (select xp from mapruns m where m.id < mapruns.id and xp is not null order by m.id desc limit 1)) xpgained,
       (select xp from mapruns m where m.id < mapruns.id and xp is not null order by m.id desc limit 1) prevxp,
       (select league from leagues where timestamp < lastevent order by timestamp desc limit 1) league
       from areainfo, mapruns where mapruns.id = ?
         and areainfo.id = ?
     `;
 
-    const mapInfo = await DB.all(mapInfoQuery, [mapId, mapId]);
+    const mapInfo = await DB.get(mapInfoQuery, [mapId, mapId]);
 
     return mapInfo;
   },
@@ -172,7 +173,7 @@ const Runs = {
     const items = await Runs.getItems(mapId);
 
     const run = {
-      ...mapInfo[0],
+      ...mapInfo,
       events,
       items,
       mods,

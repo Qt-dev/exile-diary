@@ -9,3 +9,8 @@
   height: 1.2em;
   vertical-align: middle;
 }
+
+.Loot-Stats__Link {
+  font-family: FontInSmallCaps;
+  font-size: 1.2em;
+}
