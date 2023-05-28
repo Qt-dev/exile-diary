@@ -56,8 +56,9 @@ const router = createHashRouter([
         path: 'stats',
         element: <Stats />,
         loader: async () => {
+          const settings = await ipcRenderer.invoke('get-settings');
           const stats = await ipcRenderer.invoke('get-all-stats');
-          return { stats };
+          return { stats, activeProfile: settings.activeProfile };
         },
       },
       {

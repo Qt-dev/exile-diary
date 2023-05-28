@@ -2,6 +2,32 @@
   margin-bottom: 35px;
 }
 
-.Stats__Tabs {
+.Stats__Header {
+  font-size: 1.2em;
+  text-align: center;
+  font-family: FontinSmallCaps;
+}
+
+.Stats__Footer {
+  padding-bottom: 15px;
+  text-align: center;
+}
+
+.Stats__Tabs-Container {
+  display: flex;
+  justify-content: space-between;
+  align-content: center;
   margin-bottom: 25px;
+}
+
+.Stats__Screenshot {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  color: #fff;
+  cursor: pointer;
+}
+
+.Stats__Screenshot.Stats__Screenshot--Ongoing {
+  color: #888;
 }
