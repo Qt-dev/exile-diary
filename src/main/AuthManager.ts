@@ -97,11 +97,13 @@ const AuthManager = {
     const password = await keytar.getPassword(service, account);
     const expirationDate = SettingsManager.get('tokenExpirationDate');
     const username = SettingsManager.get('username');
+    const activeProfile = SettingsManager.get('activeProfile');
     const isAuthenticated =
       password !== null &&
       expirationDate !== null &&
       moment().isBefore(expirationDate) &&
-      !!username;
+      !!username &&
+      !!activeProfile && !!activeProfile.characterName && !!activeProfile.league && !!activeProfile.valid;
     logger.info(`User is ${isAuthenticated ? '' : 'not '}authenticated`, {
       password: !!password,
       expirationDate,
