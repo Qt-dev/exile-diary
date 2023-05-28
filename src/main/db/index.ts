@@ -1,9 +1,7 @@
 import DatabaseConstructor, { Database, SqliteError } from 'better-sqlite3';
-// import { Database } from 'sqlite3';
 import * as path from 'path';
-// import logger from './Log'.getLogger(__filename);
-// import Utils from './Utils';
 import { get as getSettings } from './settings';
+import logger from 'electron-log';
 import { app } from 'electron';
 
 const sleep = (ms: number) => {
@@ -83,12 +81,9 @@ class DB {
       }
       char = settings.activeProfile.characterName;
     }
-    var app = require('electron').app || require('@electron/remote').app;
-    var db = new DatabaseConstructor(path.join(app.getPath('userData'), `${char}.db`));
+    const app = require('electron').app;
+    const db = new DatabaseConstructor(path.join(app.getPath('userData'), `${char}.db`), {verbose: logger.info});
     await this.init(db, initSQL, maintSQL);
-    // logger.info(`Completed initializing db for ${char}`);
-    // allow time for DB file changes to be written
-    await sleep(500);
     return db;
   }
 
@@ -135,70 +130,28 @@ class DB {
   }
 
   static async init(db: Database, sqlList: string[][], maintSqlList: string[] = []) {
-    // logger.info('Initializing ' + path.basename(db.filename));
-    return new Promise((resolve, reject) => {
-      let version = 0;
-      try {
-        version = db.pragma('user_version') as number;
-      } catch (err) {
-        // logger.info('Error reading database version: ' + err);
-        reject(err);
+    let version = 0;
+    try {
+      version = db.pragma('user_version', { simple: true }) as number;
+    } catch (err) {
+      logger.error('Error reading database version: ' + err);
+      return;
+    }
+
+    sqlList.forEach((commands, index) => {
+      if (version === 0 || index > version) {
+        commands.forEach((command) => {
+          logger.info(`Running initialization SQL for ${db.name} - version ${index}`);
+          db.prepare(command).run();
+        });
       }
-
-      sqlList.forEach((commands, index) => {
-        if (version === 0 || index > version) {
-          commands.forEach((command) => {
-            db.prepare(command).run();
-          });
-        }
-      });
-      maintSqlList.forEach((command) => {
-        db.prepare(command).run();
-      });
-
-      resolve(null);
-
-      // db.get('pragma user_version', (err, row) => {
-      //   if (err) {
-      //     // logger.info('Error reading database version: ' + err);
-      //     reject(err);
-      //   } else {
-      //     let ver = row.user_version;
-      //     // logger.info(`Database version is ${ver}`);
-      //     db.serialize(() => {
-      //       // for (let i = 0; i < sqlList.length; i++) {
-      //       //   if (ver === 0 || i > ver) {
-      //       //     // logger.info(`Running initialization SQL for version ${i}`);
-      //       //     for (let j = 0; j < sqlList[i].length; j++) {
-      //       //       let sql = sqlList[i][j];
-      //       //       // logger.info(sql);
-      //       //       db.run(sql, (err) => {
-      //       //         if (err) {
-      //       //           if (!err.toString().includes('duplicate column name')) {
-      //       //             // logger.info(`Error initializing DB: ${err}`);
-      //       //             reject(err);
-      //       //           }
-      //       //         }
-      //       //       });
-      //       //     }
-      //       //   }
-      //       // }
-      //       if (maintSqlList) {
-      //         for (let i = 0; i < maintSqlList.length; i++) {
-      //           db.run(maintSqlList[i], (err) => {
-      //             if (err) {
-      //               // logger.info(`Error running DB maintenance: ${err}`);
-      //               reject(err);
-      //             }
-      //           });
-      //         }
-      //         // logger.info('DB maintenance complete');
-      //       }
-      //       resolve();
-      //     });
-      //   }
-      // });
     });
+
+    maintSqlList.forEach((command) => {
+      db.prepare(command).run();
+    });
+
+    return null;
   }
 }
 
@@ -338,7 +291,7 @@ const initSQL = [
   // version 7 - properly set ignored tag in runinfo, instead of relying on magic numbers
   [
     'pragma user_version = 7',
-    `update mapruns set runinfo = json_set(ifnull(runinfo, "{}"), '$.ignored', true) where kills = -1 and gained = -1`,
+    `update mapruns set runinfo = JSON_SET(IFNULL(runinfo, '{}'), '$.ignored', true) where kills = -1 and gained = -1`,
   ],
 
   // version 8 - passive tree history
@@ -354,23 +307,23 @@ const initSQL = [
       update mapruns set runinfo = (
         select json_insert(
           runinfo, 
-          '$.masters."Einhar, Beastmaster".redBeasts', redbeasts, 
-          '$.masters."Einhar, Beastmaster".yellowBeasts', yellowbeasts
+          '$.masters.\`Einhar, Beastmaster\`.redBeasts', redbeasts, 
+          '$.masters.\`Einhar, Beastmaster\`.yellowBeasts', yellowbeasts
         ) as newinfo
         from (
-          select id, sum(case beast when "red" then 1 else 0 end) as redbeasts, sum(case beast when "yellow" then 1 else 0 end) as yellowbeasts from (
+          select id, sum(case beast when 'red' then 1 else 0 end) as redbeasts, sum(case beast when 'yellow' then 1 else 0 end) as yellowbeasts from (
             select case event_text
-              when "Einhar, Beastmaster: Haha! You are captured, stupid beast." then "yellow"
-              when "Einhar, Beastmaster: You have been captured, beast. You will be a survivor, or you will be food." then "yellow"
-              when "Einhar, Beastmaster: This one is captured. Einhar will take it." then "yellow"
-              when "Einhar, Beastmaster: Ohhh... That was a juicy one, exile." then "yellow"
-              when "Einhar, Beastmaster: Do not worry little beast! We are friends now!" then "yellow"
-              when "Einhar, Beastmaster: Off you go, little beast! Away!" then "yellow"
-              when "Einhar, Beastmaster: We will be best friends beast! Until we slaughter you!" then "yellow"
-              when "Einhar, Beastmaster: Great job, Exile! Einhar will take the captured beast to the Menagerie." then "red"
-              when "Einhar, Beastmaster: The First Ones look upon this capture with pride, Exile. You hunt well." then "red"
-              when "Einhar, Beastmaster: Survivor! You are well prepared for the end. This is a fine capture." then "red"
-              when "Einhar, Beastmaster: What? Do you not have nets, exile?" then "red"
+              when 'Einhar, Beastmaster: Haha! You are captured, stupid beast.' then 'yellow'
+              when 'Einhar, Beastmaster: You have been captured, beast. You will be a survivor, or you will be food.' then 'yellow'
+              when 'Einhar, Beastmaster: This one is captured. Einhar will take it.' then 'yellow'
+              when 'Einhar, Beastmaster: Ohhh... That was a juicy one, exile.' then 'yellow'
+              when 'Einhar, Beastmaster: Do not worry little beast! We are friends now!' then 'yellow'
+              when 'Einhar, Beastmaster: Off you go, little beast! Away!' then 'yellow'
+              when 'Einhar, Beastmaster: We will be best friends beast! Until we slaughter you!' then 'yellow'
+              when 'Einhar, Beastmaster: Great job, Exile! Einhar will take the captured beast to the Menagerie.' then 'red'
+              when 'Einhar, Beastmaster: The First Ones look upon this capture with pride, Exile. You hunt well.' then 'red'
+              when 'Einhar, Beastmaster: Survivor! You are well prepared for the end. This is a fine capture.' then 'red'
+              when 'Einhar, Beastmaster: What? Do you not have nets, exile?' then 'red'
               end 
             as beast from events
             where events.event_text like 'Einhar%'
