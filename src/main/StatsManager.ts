@@ -533,6 +533,7 @@ class StatsManager {
 
     areaStats.maps = areaStats.maps ?? [];
     areaStats.maps.push({
+      id: run.id,
       date: run.firstevent,
       time: time,
       gained: run.gained,

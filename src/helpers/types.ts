@@ -94,6 +94,7 @@ type RunInfo = {
 
 
 type Run = {
+  id: string;
   name: string;
   runinfo: string;
   areaType: string;
