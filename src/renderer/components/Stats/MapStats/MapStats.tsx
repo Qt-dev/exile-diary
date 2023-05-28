@@ -30,8 +30,10 @@ const MapRow = ({ maps }) => {
               <img src={ChaosIcon} alt="Chaos Icon" className="Area-Stats__Profit-Icon" />
             </TableCell>
             <TableCell align="right">
-              <img src={ChaosIcon} alt="Chaos Icon" className="Area-Stats__Profit-Icon" />
-              /Hr
+              <span>
+                <img src={ChaosIcon} alt="Chaos Icon" className="Area-Stats__Profit-Icon" />
+                /Hr
+              </span>
             </TableCell>
             <TableCell align="right">Kills</TableCell>
             <TableCell align="right">Deaths</TableCell>
@@ -184,8 +186,10 @@ const MapStats = ({ stats }) => {
               direction={orderBy === 'profitPerHour' ? order : 'desc'}
               onClick={sort('profitPerHour', order)}
             >
-              <img src={ChaosIcon} alt="Chaos Icon" className="Area-Stats__Profit-Icon" />
-              /hr
+              <span>
+                <img src={ChaosIcon} alt="Chaos Icon" className="Area-Stats__Profit-Icon" />
+                /hr
+              </span>
             </TableSortLabel>
           </TableCell>
           <TableCell variant="head" align="right">

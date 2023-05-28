@@ -122,7 +122,6 @@ const AreaStats = ({ stats }) => {
                 direction={orderBy === 'time' ? order : 'desc'}
                 onClick={sort('time', order)}
               >
-                {' '}
                 Time
               </TableSortLabel>
             </TableCell>
@@ -143,8 +142,10 @@ const AreaStats = ({ stats }) => {
                 direction={orderBy === 'profitPerHour' ? order : 'desc'}
                 onClick={sort('profitPerHour', order)}
               >
-                <img src={ChaosIcon} alt="Chaos Icon" className="Area-Stats__Profit-Icon" />
-                /hr
+                <span>
+                  <img src={ChaosIcon} alt="Chaos Icon" className="Area-Stats__Profit-Icon" />
+                  /hr
+                </span>
               </TableSortLabel>
             </TableCell>
             <TableCell variant="head" align="right">
