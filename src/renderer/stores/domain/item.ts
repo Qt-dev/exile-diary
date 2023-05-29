@@ -1,5 +1,6 @@
-import Constants from '../../../helpers/constants';
 import { makeAutoObservable, computed } from 'mobx';
+import { v4 as uuidv4 } from 'uuid';
+import Constants from '../../../helpers/constants';
 import { electronService } from '../../electron.service';
 const { logger } = electronService;
 
@@ -277,6 +278,7 @@ export class Item {
   baseType: string;
   name: string;
   id: string;
+  itemId: string;
   identified: boolean;
   corrupted: boolean;
   mirrored: boolean;
@@ -308,6 +310,7 @@ export class Item {
       id: false,
       store: false,
     });
+    this.id = uuidv4();
     this.store = store;
     this.area = itemdata.area;
     this.map_id = itemdata.map_id;
@@ -316,7 +319,7 @@ export class Item {
     this.styleModifiers = itemdata.styleModifiers || {};
 
     this.name = itemdata.name.replace('<<set:MS>><<set:M>><<set:S>>', '').replace(/<>/g, '');
-    this.id = itemdata.id;
+    this.itemId = itemdata.id;
 
     this.itemLevel = Math.max(1, itemdata.ilvl);
     this.dropLevel = Math.max(1, getLevelRequirement(itemdata));
