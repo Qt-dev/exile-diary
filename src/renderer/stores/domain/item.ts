@@ -445,8 +445,8 @@ export class Item {
     return {
       id,
       name: fullName,
-      value,
-      totalValue,
+      value: value / quantity,
+      totalValue: value,
       icon,
       quantity,
     };
