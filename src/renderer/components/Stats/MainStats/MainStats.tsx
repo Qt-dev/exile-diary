@@ -208,7 +208,7 @@ const MainStats = ({ stats }) => {
             <div className="Main-Stat__Text">
               <img src={MetamorphIcon} alt="Metamorph Icon" className="Main-Stat__Icon" />
               Metamorphs Encountered:{' '}
-              <span className="Main-Stat__Value">{stats.misc.metamorph.encounters}</span>
+              <span className="Main-Stat__Value">{stats.misc.metamorph.encountered}</span>
             </div>
           </div>
           {Object.keys(stats.misc.metamorph.organs).map((organ: string) => {

@@ -190,7 +190,7 @@ class StatsManager {
         members: {},
       },
       metamorph: {
-        encounters: 0,
+        encountered: 0,
         organs: {},
       },
     },
