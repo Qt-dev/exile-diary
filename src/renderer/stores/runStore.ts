@@ -61,7 +61,10 @@ export default class RunStore {
   }
 
   @computed get sortedRuns() {
-    return this.runs.slice().sort((first, second) => (first.runId > second.runId ? -1 : 1));
+    return this.runs
+      .slice()
+      .sort((first, second) => (first.runId > second.runId ? -1 : 1))
+      .slice(0, this.size - 1);
   }
 
   updateRunFromServer(json) {

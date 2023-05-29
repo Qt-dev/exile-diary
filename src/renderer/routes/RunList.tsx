@@ -50,36 +50,35 @@ const RunList = ({ NumberOfMapsToShow = '10', store }) => {
   return (
     <div className="Run-List Box">
       <div className="Run-List__Header">
-        <div className="Run-List__Header__Title">Most Recent Maps</div>
+        <div className="Run-List__Header__Title">Most Recent Runs</div>
         <MenuIcon className="Run-List__Header__Burger" onClick={togglePopupMenu}>
           ≡
         </MenuIcon>
       </div>
-      <Divider />
       <Drawer anchor="right" open={isDrawerOpen} onClose={togglePopupMenu}>
         {FilterMenu()}
       </Drawer>
       <TableContainer className="Run-List__List">
         <Table size="small" align="center">
           <TableHead>
-            <TableRow>
-              <TableCell>Date</TableCell>
-              <TableCell>Map</TableCell>
-              <TableCell align="center">Level</TableCell>
-              <TableCell align="center">IIQ</TableCell>
-              <TableCell align="center">IIR</TableCell>
-              <TableCell align="center">Pack Size</TableCell>
-              <TableCell>Duration</TableCell>
-              <TableCell align="center">
+            <TableRow className='Run-List__List-Header'>
+              <TableCell variant="head">Date</TableCell>
+              <TableCell variant="head">Map</TableCell>
+              <TableCell variant="head" align="center">Level</TableCell>
+              <TableCell variant="head" align="center">IIQ</TableCell>
+              <TableCell variant="head" align="center">IIR</TableCell>
+              <TableCell variant="head" align="center">Pack Size</TableCell>
+              <TableCell variant="head">Duration</TableCell>
+              <TableCell variant="head" align="center">
                 <img className="Run-List__List__Header__Icon" src={ChaosIcon} alt="profit" />
               </TableCell>
-              <TableCell align="center">
+              <TableCell variant="head" align="center">
                 <img className="Run-List__List__Header__Icon" src={ChaosIcon} alt="profit" />
                 /Hr
               </TableCell>
-              <TableCell align="center">XP/Hr</TableCell>
-              <TableCell align="center">Deaths</TableCell>
-              <TableCell align="center">Kills</TableCell>
+              <TableCell variant="head" align="center">XP/Hr</TableCell>
+              <TableCell variant="head" align="center">Deaths</TableCell>
+              <TableCell variant="head" align="center">Kills</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -118,7 +117,6 @@ const RunList = ({ NumberOfMapsToShow = '10', store }) => {
           </TableBody>
         </Table>
       </TableContainer>
-      <Divider />
       <div className="Run-List__Footer">
         <div className="Run-List__Footer__Title">Maps per page</div>
         <Select

@@ -11,6 +11,22 @@
   margin-bottom: 16px;
 }
 
+.Run-List__List {
+   margin-bottom: 20px;
+}
+
+.Run-List__List-Header {
+  background-color: rgba(155, 155, 155, 0.2);
+}
+
+.Run-List__List-Header th:nth-child(1) {
+  border-radius: 4px 0px 0px 0px;
+}
+
+.Run-List__List-Header th:nth-last-child(1) {
+  border-radius: 0px 4px 0px 0px;
+}
+
 .Run-List__Header,
 .Run-List__Footer {
   display: flex;
