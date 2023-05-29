@@ -19,7 +19,12 @@ class RatesManager {
     if (!this.rates[date] || !this.rates[date][league]) {
       await this.fetchRatesForDay(league, date);
     }
-    if(!this.rates[date] || !this.rates[date][league] || !this.rates[date][league]['Currency'] || !this.rates[date][league]['Currency'][currency]) {
+    if (
+      !this.rates[date] ||
+      !this.rates[date][league] ||
+      !this.rates[date][league]['Currency'] ||
+      !this.rates[date][league]['Currency'][currency]
+    ) {
       return 0;
     }
     return this.rates[date][league]['Currency'][currency];

@@ -13,10 +13,12 @@ const { logger, ipcRenderer } = electronService;
 const CharacterSelect = () => {
   const navigate = useNavigate();
   const { characters } = useLoaderData() as any;
-  const [ character, setCharacter] = React.useState(characters.find((character) => character.current));
-  const [ isSaving, setIsSaving ] = React.useState(false);
+  const [character, setCharacter] = React.useState(
+    characters.find((character) => character.current)
+  );
+  const [isSaving, setIsSaving] = React.useState(false);
   const handleChange = (event: SelectChangeEvent<{ value: any }>) => {
-    setCharacter(characters.find((character) => character.name = event.target.value));
+    setCharacter(characters.find((character) => (character.name = event.target.value)));
   };
 
   const saveCharacter = async () => {
@@ -27,18 +29,18 @@ const CharacterSelect = () => {
         characterName: character.name,
         league: character.league,
         valid: true,
-      }
+      },
     };
-  
+
     await ipcRenderer.invoke('save-settings', { settings: data });
-    
+
     navigate('/settings', { replace: true });
   };
 
   return (
     <div className="Character-Select">
       <img src={Logo} alt="Exile Diary Logo" className="Login__Logo" />
-      <div className='Character-Select__Title'>
+      <div className="Character-Select__Title">
         Exile Diary <span className="Text--Legendary">Reborn</span>
       </div>
       <FormControl className="Character-Select__Form">
@@ -53,12 +55,7 @@ const CharacterSelect = () => {
           <FormHelperText>Pick a character to track</FormHelperText>
         </FormControl>
 
-        <Button
-          variant="contained"
-          color="primary"
-          onClick={saveCharacter}
-          disabled={isSaving}
-          >
+        <Button variant="contained" color="primary" onClick={saveCharacter} disabled={isSaving}>
           Validate
         </Button>
       </FormControl>

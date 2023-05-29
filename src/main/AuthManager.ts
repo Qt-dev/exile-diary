@@ -103,7 +103,10 @@ const AuthManager = {
       expirationDate !== null &&
       moment().isBefore(expirationDate) &&
       !!username &&
-      !!activeProfile && !!activeProfile.characterName && !!activeProfile.league && !!activeProfile.valid;
+      !!activeProfile &&
+      !!activeProfile.characterName &&
+      !!activeProfile.league &&
+      !!activeProfile.valid;
     logger.info(`User is ${isAuthenticated ? '' : 'not '}authenticated`, {
       password: !!password,
       expirationDate,

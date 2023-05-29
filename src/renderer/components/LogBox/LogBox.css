@@ -74,7 +74,7 @@
   transform: scaleY(1);
 }
 
-.Log-Box:not(.Log-Box--Open) .Log-Box__Line{
+.Log-Box:not(.Log-Box--Open) .Log-Box__Line {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;

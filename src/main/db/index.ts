@@ -82,7 +82,9 @@ class DB {
       char = settings.activeProfile.characterName;
     }
     const app = require('electron').app;
-    const db = new DatabaseConstructor(path.join(app.getPath('userData'), `${char}.db`), {verbose: logger.info});
+    const db = new DatabaseConstructor(path.join(app.getPath('userData'), `${char}.db`), {
+      verbose: logger.info,
+    });
     await this.init(db, initSQL, maintSQL);
     return db;
   }
