@@ -33,7 +33,7 @@ const LootTableSubRow = ({ item }) => {
   const sortedItems = item.items ? item.items.sort((a, b)  => {
     let first = a;
     let second = b;
-    if (order === 'desc') {
+    if (order === 'asc') {
       first = b;
       second = a;
     }
@@ -55,21 +55,21 @@ const LootTableSubRow = ({ item }) => {
               {open ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
             </IconButton> : null}
         </TableCell>
-        <TableCell><img src={item.icon} alt="Item Icon" className="Loot-Table__Item-Icon" /></TableCell>
-        <TableCell>{item.name}</TableCell>
-        <TableCell align="right">{item.quantity}</TableCell>
-        <TableCell align="right">
+        <TableCell sx={{borderBottom: hasSubRows ? 'none' : null}}><img src={item.icon} alt="Item Icon" className="Loot-Table__Item-Icon" /></TableCell>
+        <TableCell sx={{borderBottom: hasSubRows ? 'none' : null}} align="right">{item.quantity}</TableCell>
+        <TableCell sx={{borderBottom: hasSubRows ? 'none' : null}} align="right">
           {item.value.toLocaleString('en-US', {
             minimumFractionDigits: 2,
             maximumFractionDigits: 2,
           })}
         </TableCell>
-        <TableCell align="right">
+        <TableCell sx={{borderBottom: hasSubRows ? 'none' : null}} align="right">
           {item.totalValue.toLocaleString('en-US', {
             minimumFractionDigits: 2,
             maximumFractionDigits: 2,
           })}
         </TableCell>
+        <TableCell>{item.name}</TableCell>
       </TableRow>
       { hasSubRows &&
         <TableRow className='Loot-Table__Subtable'>
@@ -91,45 +91,49 @@ const LootTable = ({ items, sortCallback, order, orderBy, isSubTable = false }) 
         <TableRow>
           <TableCell />
           <TableCell  width="3em"/>
-          <TableCell>
-            <TableSortLabel
-              hideSortIcon
-              active={orderBy === 'name'}
-              direction={orderBy === 'name' ? order : 'desc'}
-              onClick={sortCallback('name', order)}
-            >
-              Item Name
-            </TableSortLabel>
-          </TableCell>
-          <TableCell align="right">
+          <TableCell align="right" sx={{width: '6em'}}>
             <TableSortLabel
               hideSortIcon
               active={orderBy === 'quantity'}
-              direction={orderBy === 'quantity' ? order : 'desc'}
+              direction={orderBy === 'quantity' ? order : 'asc'}
               onClick={sortCallback('quantity', order)}
             >
               Quantity
             </TableSortLabel>
           </TableCell>
-          <TableCell align="right">
-          <TableSortLabel
+          <TableCell align="right" sx={{width: '6em'}}>
+            <TableSortLabel
               hideSortIcon
               active={orderBy === 'value'}
-              direction={orderBy === 'value' ? order : 'desc'}
+              direction={orderBy === 'value' ? order : 'asc'}
               onClick={sortCallback('value', order)}
             >
-            Unit Value
+              <div>
+                Unit <img className="Loot-Table__Chaos-Icon" src={ChaosIcon} alt="profit" />
+              </div>
             </TableSortLabel>
           </TableCell>
-          <TableCell align="right">
+          <TableCell align="right" sx={{width: '6em'}}>
             <TableSortLabel
               hideSortIcon
               active={orderBy === 'totalValue'}
-              direction={orderBy === 'totalValue' ? order : 'desc'}
+              direction={orderBy === 'totalValue' ? order : 'asc'}
               onClick={sortCallback('totalValue', order)}
             >
-              Total Value
+              <div>
+                Total <img className="Loot-Table__Chaos-Icon" src={ChaosIcon} alt="profit" />
+              </div>
             </TableSortLabel>  
+          </TableCell>
+          <TableCell>
+            <TableSortLabel
+              hideSortIcon
+              active={orderBy === 'name'}
+              direction={orderBy === 'name' ? order : 'asc'}
+              onClick={sortCallback('name', order)}
+            >
+              Item Name
+            </TableSortLabel>
           </TableCell>
         </TableRow>
       </TableHead>
