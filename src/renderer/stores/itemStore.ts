@@ -25,7 +25,7 @@ export default class ItemStore {
     this.items
       .map((item) => item.toLootTable())
       .forEach((item) => {
-        const { id, name, quantity, value, totalValue  } = item;
+        const { name, quantity, value, totalValue  } = item;
         let group = grouped.find(item => name === item.name)
         if (!group) {
           group = {

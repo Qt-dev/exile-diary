@@ -440,7 +440,6 @@ export class Item {
     const name = rawData.name || rawData.secretName;
     const type = rawData.hybrid ? rawData.hybrid.baseTypeName : rawData.typeLine;
     const quantity = rawData.maxStackSize ? rawData.pickupStackSize || rawData.stackSize : 1;
-    const totalValue = value * quantity;
     const fullName = type + (name ? ` (${name})` : '');
     return {
       id,

@@ -12,10 +12,7 @@ import { observer } from 'mobx-react-lite';
 import ChaosIcon from '../../assets/img/c.png';
 import { Order } from '../../../helpers/types';
 import './LootTable.css';
-import { electronService } from '../../electron.service';
 import Collapse from '@mui/material/Collapse';
-const { logger } = electronService;
-
 
 type LootTableColumn = 'name' | 'quantity' | 'value' | 'totalValue';
 

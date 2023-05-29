@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Button } from '@mui/material';
-import { useLoaderData, useNavigate, Outlet } from 'react-router';
+import { useLoaderData, useNavigate } from 'react-router';
 import { electronService } from '../electron.service';
 import Logo from '../assets/img/icons/png/128x128.png';
 import './Login.css';
@@ -13,7 +13,7 @@ type AuthData = {
   code_challenge: string;
 };
 
-const LoginBox = ({}) => {
+const LoginBox = () => {
   const { code_challenge, state } = useLoaderData() as AuthData;
   const url =
     'https://www.pathofexile.com/oauth/authorize?' +
@@ -55,12 +55,7 @@ const LoginBox = ({}) => {
     setIsError(false);
     setIsOngoing(false);
     setIsFetchingOauthToken(false);
-  }, []);
-
-  const warning =
-    isOngoing && !isFetchingOauthToken ? (
-      <p>Please authenticate through the window that just opened</p>
-    ) : null;
+  }, []);  // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
     <div className="Login__Box">
