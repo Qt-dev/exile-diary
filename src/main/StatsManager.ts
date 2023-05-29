@@ -357,9 +357,9 @@ class StatsManager {
 
     // Shaper battles
     if (run.parsedRunInfo?.shaperBattle) {
-      this.stats.misc.shaperBattle.started++;
+      this.stats.misc.shaper.started++;
       if (run.parsedRunInfo.shaperBattle.completed) {
-        this.stats.misc.shaperBattle.completed++;
+        this.stats.misc.shaper.completed++;
       }
 
       shaperBattlePhases.forEach((phase, index) => {
