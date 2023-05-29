@@ -14,8 +14,6 @@ import AddIcon from '@mui/icons-material/Add';
 import RemoveIcon from '@mui/icons-material/Remove';
 import Collapse from '@mui/material/Collapse';
 import { Link } from 'react-router-dom';
-import { electronService } from '../../../electron.service';
-const { logger } = electronService;
 
 const MapRow = ({ maps }) => {
   return (

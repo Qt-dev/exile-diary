@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { observer } from 'mobx-react-lite';
-import { electronService } from '../../electron.service';
 import './LogBox.css';
 import { Link } from 'react-router-dom';
 import MuiLink from '@mui/material/Link';
@@ -8,7 +7,6 @@ import classNames from 'classnames';
 import OpenInFullIcon from '@mui/icons-material/OpenInFull';
 import CloseFullscreenIcon from '@mui/icons-material/CloseFullscreen';
 import { ipcRenderer } from 'electron';
-const { logger } = electronService;
 
 const classPerType = {
   error: 'Text--Error',

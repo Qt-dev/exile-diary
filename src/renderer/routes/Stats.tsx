@@ -66,7 +66,7 @@ const Stats = () => {
         setIsTakingScreenshot(false);
         logger.error(error);
       });
-  }, [screenShotRef]);
+  }, [screenShotRef]);  // eslint-disable-line react-hooks/exhaustive-deps
 
   const screenshotIcon = (
     <div className={`Stats__Screenshot ${isTakingScreenshot ? "Stats__Screenshot--Ongoing" : ""}`} onClick={screenshot} >
