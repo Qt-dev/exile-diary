@@ -49,7 +49,7 @@ export default class ItemStore {
       .sort((a, b)  => {
         let first = a;
         let second = b;
-        if (order === 'desc') {
+        if (order === 'asc') {
           first = b;
           second = a;
         }
