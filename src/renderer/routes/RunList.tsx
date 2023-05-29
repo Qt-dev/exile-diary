@@ -61,13 +61,21 @@ const RunList = ({ NumberOfMapsToShow = '10', store }) => {
       <TableContainer className="Run-List__List">
         <Table size="small" align="center">
           <TableHead>
-            <TableRow className='Run-List__List-Header'>
+            <TableRow className="Run-List__List-Header">
               <TableCell variant="head">Date</TableCell>
               <TableCell variant="head">Map</TableCell>
-              <TableCell variant="head" align="center">Level</TableCell>
-              <TableCell variant="head" align="center">IIQ</TableCell>
-              <TableCell variant="head" align="center">IIR</TableCell>
-              <TableCell variant="head" align="center">Pack Size</TableCell>
+              <TableCell variant="head" align="center">
+                Level
+              </TableCell>
+              <TableCell variant="head" align="center">
+                IIQ
+              </TableCell>
+              <TableCell variant="head" align="center">
+                IIR
+              </TableCell>
+              <TableCell variant="head" align="center">
+                Pack Size
+              </TableCell>
               <TableCell variant="head">Duration</TableCell>
               <TableCell variant="head" align="center">
                 <img className="Run-List__List__Header__Icon" src={ChaosIcon} alt="profit" />
@@ -76,9 +84,15 @@ const RunList = ({ NumberOfMapsToShow = '10', store }) => {
                 <img className="Run-List__List__Header__Icon" src={ChaosIcon} alt="profit" />
                 /Hr
               </TableCell>
-              <TableCell variant="head" align="center">XP/Hr</TableCell>
-              <TableCell variant="head" align="center">Deaths</TableCell>
-              <TableCell variant="head" align="center">Kills</TableCell>
+              <TableCell variant="head" align="center">
+                XP/Hr
+              </TableCell>
+              <TableCell variant="head" align="center">
+                Deaths
+              </TableCell>
+              <TableCell variant="head" align="center">
+                Kills
+              </TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
