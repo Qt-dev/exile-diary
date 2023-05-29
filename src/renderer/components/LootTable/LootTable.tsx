@@ -1,84 +1,103 @@
 import React, { useState } from 'react';
-import { DataGrid, GridColDef, GridRenderCellParams, GridSortModel } from '@mui/x-data-grid';
+import Table from '@mui/material/Table';
+import TableHead from '@mui/material/TableHead';
+import TableBody from '@mui/material/TableBody';
+import TableRow from '@mui/material/TableRow';
+import TableCell from '@mui/material/TableCell';
+import TableSortLabel from '@mui/material/TableSortLabel';
 import { observer } from 'mobx-react-lite';
 import ChaosIcon from '../../assets/img/c.png';
+import { Order } from '../../../helpers/types';
 import './LootTable.css';
 import { electronService } from '../../electron.service';
 const { logger } = electronService;
 
-const columns: GridColDef[] = [
-  // { field: 'id', headerName: 'ID', width: 90 },
-  {
-    field: 'icon',
-    headerName: '',
-    sortable: false,
-    filterable: false,
-    renderCell: (params: GridRenderCellParams) => (
-      <img src={params.row.icon} alt="Item Icon" className="Loot-Table__Item-Icon" />
-    ),
-  },
-  {
-    field: 'value',
-    headerName: 'Unit Value',
-    headerAlign: 'center',
-    align: 'center',
-    type: 'number',
-  },
-  {
-    field: 'quantity',
-    headerName: 'Quantity',
-    headerAlign: 'center',
-    align: 'center',
-    type: 'number',
-  },
-  {
-    field: 'totalValue',
-    headerName: 'Total Value',
-    headerAlign: 'center',
-    align: 'center',
-    type: 'number',
-  },
-  {
-    field: 'name',
-    flex: 1,
-    headerName: 'Item Name',
-  },
-];
+
+type LootTableColumn = 'name' | 'quantity' | 'value' | 'totalValue';
 
 const LootTable = ({ profit, store }) => {
-  const [sortModel, setSortModel] = useState<GridSortModel>([
-    {
-      field: columns[1].field,
-      sort: 'desc',
-    },
-  ]);
-  const handleSortChange = (model) => {
-    logger.info('handleSortChange', model);
-    /* if statement to prevent the infinite loop by confirming model is 
-    different than the current sortModel state */
-    if (JSON.stringify(model) !== JSON.stringify(sortModel)) {
-      setSortModel(model);
-    }
+  const [ orderBy, setOrderBy ] = useState<LootTableColumn>('totalValue');
+  const [ order, setOrder ] = useState<Order>('desc');
+  
+  const sort = (column: LootTableColumn, order: Order) => () => {
+    const realOrder = order === 'desc' && orderBy === column ? 'asc' : 'desc';
+    setOrder(realOrder);
+    setOrderBy(column);
   };
+  const sortedItems = store.getItemsForLootTable(orderBy, order);
+
   return (
     <div>
       <h2 className="Loot-Table__Header">
         Profit Breakdown (Total = {profit}
         <img className="Loot-Table__Chaos-Icon" src={ChaosIcon} alt="profit" />)
       </h2>
-      <DataGrid
-        density="compact"
-        disableColumnFilter
-        disableColumnMenu
-        disableColumnSelector
-        disableRowSelectionOnClick
-        disableDensitySelector
-        initialState={{ sorting: { sortModel } }}
-        rows={store.getItemsForLootTable()}
-        columns={columns}
-        paginationModel={{ page: 0, pageSize: 100 }}
-        onSortModelChange={handleSortChange}
-      />
+
+      <Table size="small">
+        <TableHead>
+          <TableRow>
+            <TableCell />
+            <TableCell>
+              <TableSortLabel
+                hideSortIcon
+                active={orderBy === 'name'}
+                direction={orderBy === 'name' ? order : 'desc'}
+                onClick={sort('name', order)}
+              >
+                Item Name
+              </TableSortLabel>
+            </TableCell>
+            <TableCell align="right">
+              <TableSortLabel
+                hideSortIcon
+                active={orderBy === 'quantity'}
+                direction={orderBy === 'quantity' ? order : 'desc'}
+                onClick={sort('quantity', order)}
+              >
+                Quantity
+              </TableSortLabel>
+            </TableCell>
+            <TableCell align="right">
+            <TableSortLabel
+                hideSortIcon
+                active={orderBy === 'value'}
+                direction={orderBy === 'value' ? order : 'desc'}
+                onClick={sort('value', order)}
+              >
+              Unit Value
+              </TableSortLabel>
+            </TableCell>
+            <TableCell align="right">
+              <TableSortLabel
+                hideSortIcon
+                active={orderBy === 'totalValue'}
+                direction={orderBy === 'totalValue' ? order : 'desc'}
+                onClick={sort('totalValue', order)}
+              >
+                Total Value
+              </TableSortLabel>  
+            </TableCell>
+          </TableRow>
+        </TableHead>
+        <TableBody>
+          {sortedItems.map((row) => (
+            <TableRow key={row.id}>
+              <TableCell width="3em"><img src={row.icon} alt="Item Icon" className="Loot-Table__Item-Icon" /></TableCell>
+              <TableCell>{row.name}</TableCell>
+              <TableCell align="right">{row.quantity}</TableCell>
+              <TableCell align="right">{row.value.toLocaleString('en-US', {
+                  minimumFractionDigits: 2,
+                  maximumFractionDigits: 2,
+                })}
+              </TableCell>
+              <TableCell align="right">{row.totalValue.toLocaleString('en-US', {
+                  minimumFractionDigits: 2,
+                  maximumFractionDigits: 2,
+                })}</TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
     </div>
   );
 };
