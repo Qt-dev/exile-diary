@@ -16,7 +16,7 @@ const SideNav = ({ version, isNewVersion, turnNewVersionOff }) => {
     turnNewVersionOff();
   };
   const openPatreon = () => {
-    electronService.shell.openExternal('https://patreon.com/briansd9');
+    electronService.shell.openExternal('https://patreon.com/MrTinED');
   };
 
   const menuData = [
