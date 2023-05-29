@@ -73,3 +73,10 @@
 .Log-Box--Open .Log-Box__Old_Lines {
   transform: scaleY(1);
 }
+
+.Log-Box:not(.Log-Box--Open) .Log-Box__Line{
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 93vw;
+}
