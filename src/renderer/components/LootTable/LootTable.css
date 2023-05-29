@@ -1,6 +1,7 @@
 .Loot-Table__Item-Icon {
-  height: 80%;
+  height: 2em;
   margin: 2px auto;
+  vertical-align: middle;
 }
 
 .Loot-Table__Chaos-Icon {

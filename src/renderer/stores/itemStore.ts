@@ -1,4 +1,5 @@
 import { computed, makeAutoObservable, runInAction } from 'mobx';
+import { Order } from '../../helpers/types';
 import { Item } from './domain/item';
 
 // Mobx store for Items
@@ -19,8 +20,22 @@ export default class ItemStore {
     });
   }
 
-  getItemsForLootTable() {
-    return this.items.map((item) => item.toLootTable());
+  @computed getItemsForLootTable(key: string, order: Order) {
+    return this.items.slice()
+      .map((item) => item.toLootTable())
+      .sort((a, b)  => {
+        let first = a;
+        let second = b;
+        if (order === 'desc') {
+          first = b;
+          second = a;
+        }
+        if (typeof second[key] === 'string') {
+          return second[key].localeCompare(first[key]);
+        } else {
+          return second[key] > first[key] ? 1 : -1;
+        }
+      });
   }
 
   // Get the full name to display for an item
