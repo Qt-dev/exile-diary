@@ -67,7 +67,7 @@ const AreaStatsRow = ({ stats }) => {
 };
 
 const AreaStats = ({ stats }) => {
-  const [order, setOrder]: [Order, Function] = React.useState('desc');
+  const [order, setOrder]: [Order, Function] = React.useState<Order>('desc');
   const [orderBy, setOrderBy] = React.useState('name');
   const sort = (key, order) => {
     return () => {
@@ -79,7 +79,7 @@ const AreaStats = ({ stats }) => {
   const sortedKeys = Object.keys(stats.areas).sort((a, b) => {
     let first = a;
     let second = b;
-    if (order === 'desc') {
+    if (order === 'asc') {
       first = b;
       second = a;
     }
