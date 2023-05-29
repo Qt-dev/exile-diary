@@ -42,8 +42,8 @@ function a11yProps(index: number) {
 const Settings = () => {
   const navigate = useNavigate();
   const { settings, characters } = useLoaderData() as SettingsLoaderData;
-  const [ tabValue, setTabValue ] = React.useState(0);
-  const [ errors, setErrors ] = React.useState<any>({});
+  const [tabValue, setTabValue] = React.useState(0);
+  const [errors, setErrors] = React.useState<any>({});
 
   // Character
   const [character, setCharacter] = React.useState(
@@ -96,7 +96,7 @@ const Settings = () => {
   };
 
   const handleClientLocationPick = (e) => {
-    if(!e.target.value) {
+    if (!e.target.value) {
       setErrors({ ...errors, clientFileLocation: 'POE Client file location is required' });
       return;
     } else {
@@ -107,7 +107,7 @@ const Settings = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if(!clientFileLocation) {
+    if (!clientFileLocation) {
       setErrors({ ...errors, clientFileLocation: 'POE Client file location is required' });
       return;
     } else {

@@ -29,7 +29,9 @@ class SettingsManager {
 
   async initializeDB(characterName: string) {
     logger.info(`Initializing DB for ${characterName}`);
-    const character = (await GGGAPI.getAllCharacters()).find((character) => character.name === characterName);; 
+    const character = (await GGGAPI.getAllCharacters()).find(
+      (character) => character.name === characterName
+    );
     await DB.initDB(character.name);
     await DB.initLeagueDB(character.league, character.name);
     await RateGetterV2.Getter.update();
@@ -50,9 +52,11 @@ class SettingsManager {
     if (
       key === 'activeProfile' &&
       value.characterName &&
-      !!(this.settings.activeProfile || // First active Profile
-      (this.settings.activeProfile && // New active Profile
-      value.characterName !== this.settings.activeProfile.characterName))
+      !!(
+        this.settings.activeProfile || // First active Profile
+        (this.settings.activeProfile && // New active Profile
+          value.characterName !== this.settings.activeProfile.characterName)
+      )
     )
       await this.initializeDB(value.characterName);
     this.settings[key] = value;

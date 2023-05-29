@@ -8,6 +8,6 @@ const Login = () => {
       <Outlet />
     </div>
   );
-}
+};
 
 export default Login;

@@ -48,7 +48,8 @@ const MainStats = ({ stats }) => {
           <div className="Main-Stat">
             <div className="Main-Stat__Text">
               <img src={DivineIcon} alt="Divine Icon" className="Main-Stat__Icon" />
-              Raw divine drops: <span className="Main-Stat__Value">{stats.misc.rawDivineDrops}</span>
+              Raw divine drops:{' '}
+              <span className="Main-Stat__Value">{stats.misc.rawDivineDrops}</span>
             </div>
           </div>
           <br />
@@ -80,7 +81,8 @@ const MainStats = ({ stats }) => {
               <img src={MavenIcon} alt="Maven Icon" className="Main-Stat__Icon" />
               Maven Crucibles:{' '}
               <span className="Main-Stat__Value">{stats.misc.maven.crucible.started}</span> (
-              <span className="Main-Stat__Value">{stats.misc.maven.crucible.completed}</span> completed)
+              <span className="Main-Stat__Value">{stats.misc.maven.crucible.completed}</span>{' '}
+              completed)
             </div>
           </div>
           <br />
@@ -102,7 +104,8 @@ const MainStats = ({ stats }) => {
           <div className="Main-Stat">
             <div className="Main-Stat__Text">
               <img src={ShrinesIcon} alt="Shrines Icon" className="Main-Stat__Icon" />
-              Shrines activated: <span className="Main-Stat__Value">{stats.misc.shrines.total}</span>
+              Shrines activated:{' '}
+              <span className="Main-Stat__Value">{stats.misc.shrines.total}</span>
             </div>
           </div>
           <div className="Main-Stat__Table-Container">
@@ -152,8 +155,13 @@ const MainStats = ({ stats }) => {
         <div className="Main-Stats__Column Main-Stats__Right-Column">
           <div className="Main-Stat">
             <div className="Main-Stat__Text">
-              <img src={EnvoyEncounterIcon} alt="Envoy Encounter Icon" className="Main-Stat__Icon" />
-              Envoy encountered: <span className="Main-Stat__Value">{stats.misc.envoy.encounters}</span>
+              <img
+                src={EnvoyEncounterIcon}
+                alt="Envoy Encounter Icon"
+                className="Main-Stat__Icon"
+              />
+              Envoy encountered:{' '}
+              <span className="Main-Stat__Value">{stats.misc.envoy.encounters}</span>
             </div>
           </div>
           <div className="Main-Stat">
@@ -166,7 +174,8 @@ const MainStats = ({ stats }) => {
           <div className="Main-Stat">
             <div className="Main-Stat__Text">
               <img src={BlightIcon} alt="Blight Icon" className="Main-Stat__Icon" />
-              Blight encounters: <span className="Main-Stat__Value">{stats.misc.blightEncounter}</span>
+              Blight encounters:{' '}
+              <span className="Main-Stat__Value">{stats.misc.blightEncounter}</span>
             </div>
           </div>
           <div className="Main-Stat">
@@ -185,7 +194,11 @@ const MainStats = ({ stats }) => {
           <br />
           <div className="Main-Stat">
             <div className="Main-Stat__Text">
-              <img src={DeliriumMirrorIcon} alt="Delirium Mirror Icon" className="Main-Stat__Icon" />
+              <img
+                src={DeliriumMirrorIcon}
+                alt="Delirium Mirror Icon"
+                className="Main-Stat__Icon"
+              />
               Delirium Mirrors:{' '}
               <span className="Main-Stat__Value">{stats.misc.simulacrum.encounters}</span>
             </div>
@@ -230,7 +243,11 @@ const MainStats = ({ stats }) => {
             return (
               <div className="Main-Stat" key={general}>
                 <div className="Main-Stat__Text">
-                  <img src={LegionGeneralIcon} alt={`${general} Icon`} className="Main-Stat__Icon" />
+                  <img
+                    src={LegionGeneralIcon}
+                    alt={`${general} Icon`}
+                    className="Main-Stat__Icon"
+                  />
                   {general}:{' '}
                   <span className="Main-Stat__Value">
                     {stats.misc.legionGenerals.generals[general].encounters}
@@ -259,8 +276,13 @@ const MainStats = ({ stats }) => {
               </div>
               <div className="Main-Stat__Text">
                 Citadel Battle:{' '}
-                <span className="Main-Stat__Value">{stats.misc.conquerors[conqueror].encounters}</span> (
-                <span className="Main-Stat__Value">{stats.misc.conquerors[conqueror].defeated}</span>{' '}
+                <span className="Main-Stat__Value">
+                  {stats.misc.conquerors[conqueror].encounters}
+                </span>{' '}
+                (
+                <span className="Main-Stat__Value">
+                  {stats.misc.conquerors[conqueror].defeated}
+                </span>{' '}
                 defeated)
               </div>
             </div>
@@ -276,7 +298,8 @@ const MainStats = ({ stats }) => {
           </div>
           <div className="Main-Stat">
             <div className="Main-Stat__Text">
-              Encounters: <span className="Main-Stat__Value">{stats.misc.masters.alva.started}</span>
+              Encounters:{' '}
+              <span className="Main-Stat__Value">{stats.misc.masters.alva.started}</span>
             </div>
           </div>
           <div className="Main-Stat">
@@ -309,7 +332,8 @@ const MainStats = ({ stats }) => {
           </div>
           <div className="Main-Stat">
             <div className="Main-Stat__Text">
-              Encounters: <span className="Main-Stat__Value">{stats.misc.masters.einhar.started}</span>
+              Encounters:{' '}
+              <span className="Main-Stat__Value">{stats.misc.masters.einhar.started}</span>
             </div>
           </div>
           <div className="Main-Stat">
@@ -324,18 +348,23 @@ const MainStats = ({ stats }) => {
               <span className="Main-Stat__Value">{stats.misc.masters.einhar.details.beasts}</span>
               <span className="Main-Stat__Value--Beasts">
                 (
-                <img className="Main-Stat__Beast-Icon" src={RedBeastIcon} alt="Red Beast Icon" />x{' '}
-                {stats.misc.masters.einhar.details.redBeasts} |
+                <img
+                  className="Main-Stat__Beast-Icon"
+                  src={RedBeastIcon}
+                  alt="Red Beast Icon"
+                />x {stats.misc.masters.einhar.details.redBeasts} |
                 <img
                   className="Main-Stat__Beast-Icon"
                   src={YellowBeastIcon}
                   alt="Yellow Beast Icon"
-                />x {stats.misc.masters.einhar.details.yellowBeasts} |
+                />
+                x {stats.misc.masters.einhar.details.yellowBeasts} |
                 <img
                   className="Main-Stat__Beast-Icon"
                   src={WhiteBeastIcon}
                   alt="White Beast Icon"
-                />x {whiteBeasts})
+                />
+                x {whiteBeasts})
               </span>
             </div>
           </div>
@@ -347,7 +376,8 @@ const MainStats = ({ stats }) => {
           </div>
           <div className="Main-Stat">
             <div className="Main-Stat__Text">
-              Encounters: <span className="Main-Stat__Value">{stats.misc.masters.niko.started}</span>
+              Encounters:{' '}
+              <span className="Main-Stat__Value">{stats.misc.masters.niko.started}</span>
             </div>
           </div>
           <div className="Main-Stat">
@@ -371,7 +401,8 @@ const MainStats = ({ stats }) => {
           <div className="Main-Stat__Section__Column">
             <div className="Main-Stat">
               <div className="Main-Stat__Text">
-                Encounters: <span className="Main-Stat__Value">{stats.misc.masters.jun.started}</span>
+                Encounters:{' '}
+                <span className="Main-Stat__Value">{stats.misc.masters.jun.started}</span>
               </div>
             </div>
             <div className="Main-Stat">
@@ -384,7 +415,8 @@ const MainStats = ({ stats }) => {
               <div className="Main-Stat__Text">
                 Mastermind Lairs:{' '}
                 <span className="Main-Stat__Value">{stats.misc.mastermind.started}</span>(
-                <span className="Main-Stat__Value">{stats.misc.mastermind.completed}</span> defeated)
+                <span className="Main-Stat__Value">{stats.misc.mastermind.completed}</span>{' '}
+                defeated)
               </div>
             </div>
             <div className="Main-Stat">

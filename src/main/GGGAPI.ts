@@ -198,7 +198,7 @@ const APIManager = {
     );
     return currentCharacter;
   },
-  getAllCharacters: async () : Promise<any[]> => {
+  getAllCharacters: async (): Promise<any[]> => {
     const characters = await getAllCharacters();
     return characters ?? [];
   },

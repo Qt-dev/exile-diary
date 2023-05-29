@@ -19,21 +19,22 @@ export default class ItemStore {
       this.isLoading = false;
     });
   }
-  
+
   groupItemsPerType() {
-    const grouped : any[] = [];
+    const grouped: any[] = [];
     this.items
       .map((item) => item.toLootTable())
       .forEach((item) => {
-        const { name, quantity, value, totalValue  } = item;
-        let group = grouped.find(item => name === item.name)
+        const { name, quantity, value, totalValue } = item;
+        let group = grouped.find((item) => name === item.name);
         if (!group) {
           group = {
             ...item,
             value: 0,
             totalValue: 0,
             quantity: 0,
-            items: [] };
+            items: [],
+          };
           grouped.push(group);
         }
         group.value += value;
@@ -45,20 +46,19 @@ export default class ItemStore {
   }
 
   @computed getItemsForLootTable(key: string, order: Order) {
-    return this.groupItemsPerType()
-      .sort((a, b)  => {
-        let first = a;
-        let second = b;
-        if (order === 'asc') {
-          first = b;
-          second = a;
-        }
-        if (typeof second[key] === 'string') {
-          return second[key].localeCompare(first[key]);
-        } else {
-          return second[key] > first[key] ? 1 : -1;
-        }
-      });
+    return this.groupItemsPerType().sort((a, b) => {
+      let first = a;
+      let second = b;
+      if (order === 'asc') {
+        first = b;
+        second = a;
+      }
+      if (typeof second[key] === 'string') {
+        return second[key].localeCompare(first[key]);
+      } else {
+        return second[key] > first[key] ? 1 : -1;
+      }
+    });
   }
 
   // Get the full name to display for an item

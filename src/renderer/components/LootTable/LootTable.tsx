@@ -16,51 +16,57 @@ import Collapse from '@mui/material/Collapse';
 
 type LootTableColumn = 'name' | 'quantity' | 'value' | 'totalValue';
 
-
 const LootTableSubRow = ({ item }) => {
-  const [ orderBy, setOrderBy ] = useState<LootTableColumn>('totalValue');
-  const [ order, setOrder ] = useState<Order>('desc');
-  const [ open, setOpen ] = React.useState(false);
-  
+  const [orderBy, setOrderBy] = useState<LootTableColumn>('totalValue');
+  const [order, setOrder] = useState<Order>('desc');
+  const [open, setOpen] = React.useState(false);
+
   const sort = (column: LootTableColumn, order: Order) => () => {
     const realOrder = order === 'desc' && orderBy === column ? 'asc' : 'desc';
     setOrder(realOrder);
     setOrderBy(column);
   };
-  const sortedItems = item.items ? item.items.sort((a, b)  => {
-    let first = a;
-    let second = b;
-    if (order === 'asc') {
-      first = b;
-      second = a;
-    }
-    if (typeof second[orderBy] === 'string') {
-      return second[orderBy].localeCompare(first[orderBy]);
-    } else {
-      return second[orderBy] > first[orderBy] ? 1 : -1;
-    }
-  }) : null;
+  const sortedItems = item.items
+    ? item.items.sort((a, b) => {
+        let first = a;
+        let second = b;
+        if (order === 'asc') {
+          first = b;
+          second = a;
+        }
+        if (typeof second[orderBy] === 'string') {
+          return second[orderBy].localeCompare(first[orderBy]);
+        } else {
+          return second[orderBy] > first[orderBy] ? 1 : -1;
+        }
+      })
+    : null;
 
   const hasSubRows = item.items && item.items.length > 1;
-  const mainStyle = { '& > *': { borderBottom: 'none' } }
+  const mainStyle = { '& > *': { borderBottom: 'none' } };
   return (
     <>
       <TableRow sx={hasSubRows ? mainStyle : null}>
         <TableCell sx={{ width: '10px', padding: '0', borderBottom: hasSubRows ? 'none' : null }}>
-          {hasSubRows ? 
+          {hasSubRows ? (
             <IconButton aria-label="expand row" size="small" onClick={() => setOpen(!open)}>
               {open ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
-            </IconButton> : null}
+            </IconButton>
+          ) : null}
         </TableCell>
-        <TableCell sx={{borderBottom: hasSubRows ? 'none' : null}}><img src={item.icon} alt="Item Icon" className="Loot-Table__Item-Icon" /></TableCell>
-        <TableCell sx={{borderBottom: hasSubRows ? 'none' : null}} align="right">{item.quantity}</TableCell>
-        <TableCell sx={{borderBottom: hasSubRows ? 'none' : null}} align="right">
+        <TableCell sx={{ borderBottom: hasSubRows ? 'none' : null }}>
+          <img src={item.icon} alt="Item Icon" className="Loot-Table__Item-Icon" />
+        </TableCell>
+        <TableCell sx={{ borderBottom: hasSubRows ? 'none' : null }} align="right">
+          {item.quantity}
+        </TableCell>
+        <TableCell sx={{ borderBottom: hasSubRows ? 'none' : null }} align="right">
           {item.value.toLocaleString('en-US', {
             minimumFractionDigits: 2,
             maximumFractionDigits: 2,
           })}
         </TableCell>
-        <TableCell sx={{borderBottom: hasSubRows ? 'none' : null}} align="right">
+        <TableCell sx={{ borderBottom: hasSubRows ? 'none' : null }} align="right">
           {item.totalValue.toLocaleString('en-US', {
             minimumFractionDigits: 2,
             maximumFractionDigits: 2,
@@ -68,27 +74,33 @@ const LootTableSubRow = ({ item }) => {
         </TableCell>
         <TableCell>{item.name}</TableCell>
       </TableRow>
-      { hasSubRows &&
-        <TableRow className='Loot-Table__Subtable'>
+      {hasSubRows && (
+        <TableRow className="Loot-Table__Subtable">
           <TableCell style={{ paddingBottom: 0, paddingTop: 0 }} colSpan={6}>
             <Collapse in={open} timeout="auto" unmountOnExit>
-              <LootTable isSubTable={true} items={sortedItems} order={order} orderBy={orderBy} sortCallback={sort} />
+              <LootTable
+                isSubTable={true}
+                items={sortedItems}
+                order={order}
+                orderBy={orderBy}
+                sortCallback={sort}
+              />
             </Collapse>
           </TableCell>
         </TableRow>
-      }
+      )}
     </>
-  )
+  );
 };
 
 const LootTable = ({ items, sortCallback, order, orderBy, isSubTable = false }) => {
   return (
-    <Table size="small" sx={isSubTable ? { margin: '20px 0'} : null} >
-      <TableHead className='Loot-Table__Header'>
+    <Table size="small" sx={isSubTable ? { margin: '20px 0' } : null}>
+      <TableHead className="Loot-Table__Header">
         <TableRow>
           <TableCell />
-          <TableCell  width="3em"/>
-          <TableCell align="right" sx={{width: '6em'}}>
+          <TableCell width="3em" />
+          <TableCell align="right" sx={{ width: '6em' }}>
             <TableSortLabel
               hideSortIcon
               active={orderBy === 'quantity'}
@@ -98,7 +110,7 @@ const LootTable = ({ items, sortCallback, order, orderBy, isSubTable = false }) 
               Quantity
             </TableSortLabel>
           </TableCell>
-          <TableCell align="right" sx={{width: '6em'}}>
+          <TableCell align="right" sx={{ width: '6em' }}>
             <TableSortLabel
               hideSortIcon
               active={orderBy === 'value'}
@@ -110,7 +122,7 @@ const LootTable = ({ items, sortCallback, order, orderBy, isSubTable = false }) 
               </div>
             </TableSortLabel>
           </TableCell>
-          <TableCell align="right" sx={{width: '6em'}}>
+          <TableCell align="right" sx={{ width: '6em' }}>
             <TableSortLabel
               hideSortIcon
               active={orderBy === 'totalValue'}
@@ -120,7 +132,7 @@ const LootTable = ({ items, sortCallback, order, orderBy, isSubTable = false }) 
               <div>
                 Total <img className="Loot-Table__Chaos-Icon" src={ChaosIcon} alt="profit" />
               </div>
-            </TableSortLabel>  
+            </TableSortLabel>
           </TableCell>
           <TableCell>
             <TableSortLabel
@@ -135,16 +147,18 @@ const LootTable = ({ items, sortCallback, order, orderBy, isSubTable = false }) 
         </TableRow>
       </TableHead>
       <TableBody>
-        {items.map((row) => (<LootTableSubRow key={row.id} item={row} />))}
+        {items.map((row) => (
+          <LootTableSubRow key={row.id} item={row} />
+        ))}
       </TableBody>
     </Table>
-  )
+  );
 };
 
 const LootTablePage = ({ profit, store }) => {
-  const [ orderBy, setOrderBy ] = useState<LootTableColumn>('totalValue');
-  const [ order, setOrder ] = useState<Order>('desc');
-  
+  const [orderBy, setOrderBy] = useState<LootTableColumn>('totalValue');
+  const [order, setOrder] = useState<Order>('desc');
+
   const sort = (column: LootTableColumn, order: Order) => () => {
     const realOrder = order === 'desc' && orderBy === column ? 'asc' : 'desc';
     setOrder(realOrder);

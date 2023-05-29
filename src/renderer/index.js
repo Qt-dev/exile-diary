@@ -101,8 +101,8 @@ const router = createHashRouter([
           const characters = await ipcRenderer.invoke('get-characters');
           return { characters };
         },
-      }
-    ]
+      },
+    ],
   },
 ]);
 const darkTheme = createTheme({

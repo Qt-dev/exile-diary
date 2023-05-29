@@ -55,14 +55,14 @@ const LoginBox = () => {
     setIsError(false);
     setIsOngoing(false);
     setIsFetchingOauthToken(false);
-  }, []);  // eslint-disable-line react-hooks/exhaustive-deps
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
     <div className="Login__Box">
       <img src={Logo} alt="Exile Diary Logo" className="Login__Logo" />
       <h3>
-        Exile Diary <span className="Text--Legendary">Reborn</span> requires you to log in with
-        the PoE API to function
+        Exile Diary <span className="Text--Legendary">Reborn</span> requires you to log in with the
+        PoE API to function
       </h3>
       {isError ? <p className="Test--Error">Something went wrong, please try again</p> : null}
       <Button variant={isOngoing ? 'outlined' : 'contained'} color="primary" onClick={openLink}>
@@ -74,6 +74,6 @@ const LoginBox = () => {
       ) : null}
     </div>
   );
-}
+};
 
 export default LoginBox;
