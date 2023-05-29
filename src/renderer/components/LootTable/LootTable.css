@@ -11,7 +11,21 @@
   margin: 0 auto;
 }
 
-.Loot-Table__Header {
+.Loot-Table-Page__Header {
   width: 100%;
   text-align: center;
+}
+
+
+
+.Loot-Table__Header {
+  background-color: rgba(155, 155, 155, 0.2);
+}
+
+.Loot-Table__Header th:nth-child(1) {
+  border-radius: 4px 0px 0px 0px;
+}
+
+.Loot-Table__Header th:nth-last-child(1) {
+  border-radius: 0px 4px 0px 0px;
 }

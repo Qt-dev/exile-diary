@@ -19,10 +19,33 @@ export default class ItemStore {
       this.isLoading = false;
     });
   }
+  
+  groupItemsPerType() {
+    const grouped : any[] = [];
+    this.items
+      .map((item) => item.toLootTable())
+      .forEach((item) => {
+        const { id, name, quantity, value, totalValue  } = item;
+        let group = grouped.find(item => name === item.name)
+        if (!group) {
+          group = {
+            ...item,
+            value: 0,
+            totalValue: 0,
+            quantity: 0,
+            items: [] };
+          grouped.push(group);
+        }
+        group.value += value;
+        group.totalValue += totalValue;
+        group.quantity += quantity;
+        group.items.push(item);
+      });
+    return grouped;
+  }
 
   @computed getItemsForLootTable(key: string, order: Order) {
-    return this.items.slice()
-      .map((item) => item.toLootTable())
+    return this.groupItemsPerType()
       .sort((a, b)  => {
         let first = a;
         let second = b;
