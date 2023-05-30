@@ -21,11 +21,11 @@ const SideNav = ({ version, isNewVersion, turnNewVersionOff }) => {
 
   const menuData = [
     { name: 'Main', link: '/' },
-    { name: 'Stash', link: 'stash' },
-    { name: 'Search', link: 'search' },
+    // { name: 'Gear', link: 'gear' },
+    // { name: 'Stash', link: 'stash' },
+    // { name: 'Search', link: 'search' },
     { name: 'Stats', link: 'stats' },
     { name: 'Settings', link: 'settings' },
-    { name: 'Gear', link: 'gear' },
   ];
 
   return (
@@ -56,7 +56,7 @@ const SideNav = ({ version, isNewVersion, turnNewVersionOff }) => {
 
         <Divider light className="Separator" />
 
-        <MenuItem className="Side-Nav__Link Side-Nav__Link--About" onClick={about}>
+        {/* <MenuItem className="Side-Nav__Link Side-Nav__Link--About" onClick={about}>
           About
           <img
             alt="New Version Icon"
@@ -66,7 +66,7 @@ const SideNav = ({ version, isNewVersion, turnNewVersionOff }) => {
             })}
             src={ExclamationMark}
           />
-        </MenuItem>
+        </MenuItem> */}
       </MenuList>
 
       <Divider className="Separator" />
