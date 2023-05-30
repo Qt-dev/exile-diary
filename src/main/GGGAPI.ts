@@ -80,7 +80,7 @@ const request = (params, priority = 5) => {
     logger.info('Running request');
     if (!params.cache) {
       params.cache = {
-        ttl: 1000 * 15, // 15 seconds
+        ttl: 1000 * 3, // 15 seconds
       };
     }
     return axios(params).then((response) => {
