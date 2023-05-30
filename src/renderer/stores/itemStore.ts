@@ -37,7 +37,6 @@ export default class ItemStore {
           };
           grouped.push(group);
         }
-        group.value += value;
         group.totalValue += totalValue;
         group.quantity += quantity;
         group.items.push(item);
