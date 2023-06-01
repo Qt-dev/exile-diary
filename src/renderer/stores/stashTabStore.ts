@@ -1,4 +1,4 @@
-import { makeAutoObservable, runInAction } from 'mobx';
+import { computed, makeAutoObservable, runInAction } from 'mobx';
 import { StashTab, StashTabData } from './domain/stashTab';
 import { electronService } from '../electron.service';
 const { logger, ipcRenderer } = electronService;
@@ -27,7 +27,6 @@ export default class StashTabStore {
       for(const stashTabData of stashTabsData) {
         this.createStashTab(stashTabData);
       }
-
       this.isLoading = false;
     });
   }
@@ -40,5 +39,13 @@ export default class StashTabStore {
       const stashTab = new StashTab(this, stashTabData);
       this.stashTabs.push(stashTab);
     }
+  }
+
+  getTrackedStashTabs() {
+    const output = {};
+    for(const stashTab of this.stashTabs) {
+      output[stashTab.id] = stashTab.tracked;
+    }
+    return output;
   }
 }

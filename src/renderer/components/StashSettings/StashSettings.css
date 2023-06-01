@@ -1,0 +1,50 @@
+.Stash-Settings__Header {
+  margin: 20px 0 0;
+  color: white;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.Stash-Settings__List {
+  width: 100%;
+}
+
+.Stash-Settings__List-Item {
+  color: white;
+  font-family: FontInSmallCaps;
+  /* font-weight: bold; */
+  text-shadow: 0px 0px 5px black;
+  border-radius: 3px;
+  margin: 5px 0px;
+  border: 1px solid #888;
+}
+
+.Stash-Settings__List-Item-Container {
+  display: flex;
+  gap: 10px;
+}
+
+.Stash-Settings__List-Item--Folder {
+  padding-left: 15px;
+}
+
+.Stash-Settings__List-Item--Folder .Stash-Settings__Item-Icon__Image {
+  filter: grayscale(40%) brightness(90%);
+}
+
+.Stash-Settings__Item-Icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+
+.Stash-Settings__Item-Icon__Image {
+  height: 1.5em;
+  width: 1.5em;
+}
+
+.Stash-Settings__Item-Icon__Checkbox {
+  background-color: #888;
+}
