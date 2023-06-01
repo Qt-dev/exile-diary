@@ -6,13 +6,16 @@ import SettingsManager from './SettingsManager';
 import AuthManager from './AuthManager';
 import Bottleneck from 'bottleneck';
 const axios = setupCache(Axios);
+const CACHE_TIME_IN_SECONDS = 5;
+import RendererLogger from './RendererLogger';
 
-const limiter = new Bottleneck({
+const limiters = new Bottleneck.Group({
   maxConcurrent: 1,
   minTime: 333,
 });
 
-limiter.on('failed', async (error, jobInfo) => {
+
+limiters.on('failed', async (error, jobInfo) => {
   const { retryCount } = jobInfo;
   logger.error(
     `Request ${jobInfo.options.id} failed with ${error.message}. Retried ${retryCount} times.`
@@ -23,36 +26,27 @@ limiter.on('failed', async (error, jobInfo) => {
     return (error.getResponseHeader('Retry-After') || 1) * 1000 + 1000;
   }
 
-  if (retryCount > 2) {
+  logger.error(error.response);
+  if (retryCount > 1) {
     logger.error(`Request ${jobInfo.options.id} failed ${retryCount} times. No more retries.`);
   } else {
-    logger.error(`Request ${jobInfo.options.id} failed. Retrying... in 5 second.`);
-    return 5000;
+    logger.error(`Request ${jobInfo.options.id} failed. Retrying... in 10 second.`);
+    return 10000;
   }
 });
 
-// const Endpoints = {
-//   // character: ({ username }) =>
-//   //   `https://www.pathofexile.com/character-window/get-characters?username=${encodeURIComponent(
-//   //     username
-//   //   )}`,
-//   skillTree: ({ username, league, characterName }) =>
-//     `https://www.pathofexile.com/character-window/get-passive-skills?league=${league}&username=${encodeURIComponent(
-//       username
-//     )}&character=${encodeURIComponent(characterName)}`,
-//   inventory: ({ username, league, characterName }) =>
-//     `https://www.pathofexile.com/character-window/get-items?league=${league}&username=${encodeURIComponent(
-//       username
-//     )}&character=${encodeURIComponent(characterName)}`,
-//   stash: ({ username, league, tabIndex }) =>
-//     `https://www.pathofexile.com/character-window/get-stash-items?league=${league}&username=${encodeURIComponent(
-//       username
-//     )}&tabs=0&tabIndex=${tabIndex}&username=${encodeURIComponent(username)}`,
-//   stashes: ({ username, league }) =>
-//     `https://www.pathofexile.com/character-window/get-stash-items?league=${league}&username=${encodeURIComponent(
-//       username
-//     )}&tabs=1&tabIndex=0&username=${encodeURIComponent(username)}`,
-// };
+
+limiters.on('done', (jobInfo) => {
+  // globalLimiter.once('running', () => {
+  logger.info(jobInfo)
+  // })
+})
+
+limiters.on('executing', async (jobInfo) => {
+  logger.info(`========Request ${jobInfo.options.id} started.`);
+  logger.info(jobInfo);
+  logger.info(`========Request ${jobInfo.options.id} execution callback finished.`);
+});
 
 const Endpoints = {
   characters: () => '/character',
@@ -75,16 +69,61 @@ const getRequestParams = (url, token) => {
   };
 };
 
-const request = (params, priority = 5) => {
-  return limiter.schedule({ priority }, () => {
-    logger.info('Running request');
+const request = ({ params, group, cacheTime = CACHE_TIME_IN_SECONDS }) => {
+  const limiter = limiters.key(group);
+  return limiter.schedule({}, () => {
     if (!params.cache) {
       params.cache = {
-        ttl: 1000 * 3, // 15 seconds
+        ttl: 1000 * cacheTime,
       };
     }
-    return axios(params).then((response) => {
-      if (response.cached) logger.info(`Response from cache for ${params.url}`);
+    return axios(params).then(async (response) => {
+      if (response.cached) {
+        logger.info(`Response from cache for ${params.url}`);
+      }
+      else {
+        let periods : any = [];
+        const rateLimitRules = response.headers['x-rate-limit-account'].split(',').map(encodedRules => {
+          const [maxHits, period] = encodedRules.split(':');
+          periods.push(period);
+          return {
+            maxHits,
+            period
+          };
+        });
+
+        const status = response.headers['x-rate-limit-account-state'].split(',').map(encodedStatus => {
+          const [hits, period] = encodedStatus.split(':');
+          return {
+            hits,
+            period
+          }
+        });
+
+        await Promise.all(periods.map(async (period) => {
+          const max = rateLimitRules.find(rule => rule.period === period).maxHits;
+          const hits = status.find(rule => rule.period === period).hits;
+          const remaining = max - hits;
+          if (remaining < 2) {
+            logger.info(`Hit GGG Rate Limit on ${group} request: ${remaining} hits remaining for period ${period}. Waiting for ${period} seconds.`);
+            RendererLogger.log({
+              messages: [
+                {
+                  text: `Hit GGG Rate Limit on ${group} request: Waiting for `,
+                },
+                {
+                  text: `${period} seconds`,
+                  type: 'important',
+                }, 
+                {
+                  text: ' before the next request.',
+                }
+              ]
+            })
+            await new Promise(res => setTimeout(res, (period * 1000)));
+          }
+        }));
+      }
       return response;
     });
   });
@@ -109,7 +148,7 @@ const getAllCharacters = async () => {
   logger.info('Getting characters from the GGG API');
   try {
     const { username, token } = await getSettings(false);
-    const response: any = await request(getRequestParams(Endpoints.characters(), token));
+    const response: any = await request({ params: getRequestParams(Endpoints.characters(), token), group: '/character', cacheTime: 60 * 5});
     const characters = await response.data.characters;
     logger.info(`Found ${characters.length} characters from the GGG API for account: ${username}`);
     return characters;
@@ -123,10 +162,10 @@ const getDataForInventory = async () => {
   logger.info('Getting inventory and XP data from the GGG API');
   try {
     const { characterName, token } = await getSettings();
-    const response: any = await request(
-      getRequestParams(Endpoints.character({ characterName }), token),
-      4
-    );
+    const response: any = await request({
+      params: getRequestParams(Endpoints.character({ characterName }), token),
+      group: '/character'
+    });
     const character = await response.data.character;
     const { inventory, equipment, experience } = character;
     logger.info(`Found inventory for character: ${characterName}`);
@@ -145,9 +184,10 @@ const getSkillTree = async () => {
   logger.info('Getting skill tree from the GGG API');
   try {
     const { characterName, token } = await getSettings();
-    const response: any = await request(
-      getRequestParams(Endpoints.character({ characterName }), token)
-    );
+    const response: any = await request({
+      params: getRequestParams(Endpoints.character({ characterName }), token),
+      group: '/character'
+    });
     const skillTree = await response.data.character.passives;
     logger.info(`Found skill tree for character: ${characterName}`);
     return skillTree;
@@ -157,13 +197,14 @@ const getSkillTree = async () => {
   }
 };
 
-const getStash = async (stashId) => {
+const getStashTab = async (stashId) => {
   logger.info('Getting stash from the GGG API');
   try {
     const { username, league, token } = await getSettings();
-    const response: any = await request(
-      getRequestParams(Endpoints.stash({ league, stashId }), token)
-    );
+    const response: any = await request({
+      params: getRequestParams(Endpoints.stash({ league, stashId }), token),
+      group: '/stash'
+    });
     const stash = await response.data.stash;
     logger.info(`Found stash ${stashId} for account: ${username}`);
     return stash;
@@ -173,13 +214,16 @@ const getStash = async (stashId) => {
   }
 };
 
-const getStashes = async () => {
+const getAllStashTabs = async () => {
   logger.info('Getting stashes from the GGG API');
   try {
     const { username, league, token } = await getSettings();
-    const response: any = await request(getRequestParams(Endpoints.stashes(league), token));
+    const response: any = await request({
+      params: getRequestParams(Endpoints.stashes({league}), token),
+      group: '/stash'
+    });
     const stashes = await response.data.stashes;
-    logger.info(`Found stashes for account: ${username}`);
+    logger.info(`Found ${response.data.stashes.length} stashes for account: ${username}`);
     return stashes;
   } catch (e: any) {
     logger.error(`Error while getting stashes from the GGG API: ${e.message}`);
@@ -210,13 +254,13 @@ const APIManager = {
     const skillTree = await getSkillTree();
     return skillTree;
   },
-  getStashes: async () => {
-    const stashes = await getStashes();
+  getAllStashTabs: async () => {
+    const stashes = await getAllStashTabs();
     return stashes;
   },
 
-  getStash: async (tabIndex) => {
-    const stash = await getStash(tabIndex);
+  getStashTab: async (tabIndex) => {
+    const stash = await getStashTab(tabIndex);
     return stash;
   },
 };

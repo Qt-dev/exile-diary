@@ -12,6 +12,7 @@ import { useNavigate } from 'react-router-dom';
 import MenuItem from '@mui/material/MenuItem';
 import FormHelperText from '@mui/material/FormHelperText';
 import * as path from 'path';
+import { observer } from 'mobx-react-lite';
 const { ipcRenderer } = electronService;
 
 // Fix to allow for directory selection in inputs
@@ -23,29 +24,23 @@ declare module 'react' {
   }
 }
 
-type SettingsLoaderData = {
-  settings: any;
-  characters: any;
-};
-
-function a11yProps(index: number) {
-  return {
-    id: `simple-tab-${index}`,
-    'aria-controls': `simple-tabpanel-${index}`,
-  };
-}
-
-const MainSettings = ({ settings, characters, tabValue }) => {
+const MainSettings = ({ settings, store }) => {
   const navigate = useNavigate();
 
   // Character
-  const [character, setCharacter] = React.useState(
+  const [ character, setCharacter ] = React.useState(
     settings.activeProfile.characterName ? settings.activeProfile.characterName : ''
   );
   const handleCharacterChange = (e) => {
     e.preventDefault();
     setCharacter(e.target.value);
   };
+  const charactersOptions = store.characters.map((character: any) => (
+    <MenuItem key={character.name} value={character.name}>
+      {character.name} (Level {character.level}) {character.class} - {character.league}{' '}
+      {character.current ? '(Last Active)' : ''}
+    </MenuItem>
+  ));
 
   // Client File Location
   const [clientFileLocation, setClientFileLocation] = React.useState(settings.clientTxt);
@@ -72,12 +67,6 @@ const MainSettings = ({ settings, characters, tabValue }) => {
 
   const username = settings.username ? settings.username : '';
   const league = settings.activeProfile.league ? settings.activeProfile.league : 'Unknown';
-  const charactersOptions = characters.map((character: any) => (
-    <MenuItem key={character.name} value={character.name}>
-      {character.name} (Level {character.level}) {character.class} - {character.league}{' '}
-      {character.current ? '(Last Active)' : ''}
-    </MenuItem>
-  ));
   const alternateSplinterPricing = !!settings.alternateSplinterPricing;
 
   const handleBack = () => {
@@ -89,7 +78,7 @@ const MainSettings = ({ settings, characters, tabValue }) => {
     const data = {
       activeProfile: {
         characterName: character,
-        league: characters.find((char: any) => char.name === character).league,
+        league: store.characters.find((char: any) => char.name === character).league,
         valid: true,
       },
       clientTxt: e.target.log_location.value,
@@ -99,154 +88,165 @@ const MainSettings = ({ settings, characters, tabValue }) => {
     ipcRenderer.invoke('save-settings', { settings: data });
   };
 
+  const handleRefreshCharacters = () => {
+    store.fetchCharacters();
+  };
+
   return (
-    <form onSubmit={handleSubmit} role="tabpanel" hidden={tabValue !== 0}>
-      {tabValue === 0 && (
-        <Box sx={{ p: 3 }}>
-          <div className="Settings__Row">
-            <TextField
-              fullWidth
-              label="Account Name"
-              id="account"
-              variant="standard"
-              disabled
-              size="small"
-              value={username}
-            />
-          </div>
-          <ButtonGroup
-            variant="outlined"
+    <form onSubmit={handleSubmit} role="tabpanel">
+      <Box sx={{ p: 3 }}>
+        <div className="Settings__Row">
+          <TextField
             fullWidth
-            color="primary"
-            aria-label="contained primary button group"
+            label="Account Name"
+            id="account"
+            variant="standard"
+            disabled
+            size="small"
+            value={username}
+          />
+        </div>
+        <ButtonGroup
+          variant="outlined"
+          fullWidth
+          color="primary"
+          aria-label="contained primary button group"
+        >
+          <Button onClick={handleLogout}>Logout</Button>
+          <Button onClick={handleRedirectToLogin}>Refresh Login</Button>
+        </ButtonGroup>
+        <Divider className="Settings__Separator" />
+        <div className="Settings__Row">
+          {store.isLoading ? (
+            <div className="Text--Normal">Loading Characters...</div>
+          ) : (
+            <>
+              <div className="Text--Normal">Currently Active Character: </div>
+              <div className="Text--Rare">
+                {character ? character : 'Unknown Character'} ({league} League)
+              </div>
+            </>
+          )}
+        </div>
+        <div className="Settings__Row">
+          <Select
+            fullWidth
+            label="Character"
+            id="character"
+            variant="filled"
+            size="small"
+            disabled={charactersOptions.length === 0}
+            value={store.isLoading ? null : character}
+            onChange={handleCharacterChange}
           >
-            <Button onClick={handleLogout}>Logout</Button>
-            <Button onClick={handleRedirectToLogin}>Refresh Login</Button>
-          </ButtonGroup>
-          <Divider className="Settings__Separator" />
-          <div className="Settings__Row">
-            <div className="Text--Normal">Currently Active Character: </div>
-            <div className="Text--Rare">
-              {character ? character : 'Unknown Character'} ({league} League)
-            </div>
-          </div>
-          <div className="Settings__Row">
-            <Select
-              fullWidth
-              label="Character"
-              id="character"
-              variant="filled"
-              size="small"
-              disabled={charactersOptions.length === 0}
-              value={character}
-              onChange={handleCharacterChange}
-            >
-              {charactersOptions}
-            </Select>
-            {charactersOptions.length === 0 ? (
-              <FormHelperText>Disabled - No character retrieved</FormHelperText>
-            ) : (
-              ''
-            )}
-          </div>
-          <Divider className="Settings__Separator" />
-          <div className="Settings__Row">
-            <TextField
-              fullWidth
-              label="Client.TXT Location"
-              id="log_location"
-              variant="filled"
-              size="small"
-              value={clientFileLocation}
-              onChange={(e) => setClientFileLocation(e.target.value)}
+            {charactersOptions}
+          </Select>
+          {charactersOptions.length === 0 ? (
+            <FormHelperText>Disabled - No character retrieved</FormHelperText>
+          ) : (
+            ''
+          )}
+          <Button component="label" disabled={store.isLoading} onClick={handleRefreshCharacters}>
+            Refresh List
+          </Button>
+        </div>
+        <Divider className="Settings__Separator" />
+        <div className="Settings__Row">
+          <TextField
+            fullWidth
+            label="Client.TXT Location"
+            id="log_location"
+            variant="filled"
+            size="small"
+            value={clientFileLocation}
+            onChange={(e) => setClientFileLocation(e.target.value)}
+          />
+          <Button component="label">
+            Choose Folder
+            <input
+              hidden
+              accept="Client.txt"
+              type="file"
+              ref={clientFileLocationRef}
+              onInput={handleOpenClientLocation}
             />
-            <Button component="label">
-              Choose Folder
-              <input
-                hidden
-                accept="Client.txt"
-                type="file"
-                ref={clientFileLocationRef}
-                onInput={handleOpenClientLocation}
+          </Button>
+        </div>
+        <div className="Settings__Row">
+          <TextField
+            fullWidth
+            label="Screenshot Directory"
+            id="screenshot_location"
+            variant="filled"
+            size="small"
+            value={screenshotLocation}
+            onChange={(e) => setScreenshotLocation(e.target.value)}
+          />
+          <Button component="label">
+            Choose Folder
+            <input
+              hidden
+              webkitdirectory=""
+              directory=""
+              type="file"
+              ref={screenshotLocationRef}
+              onInput={handleOpenScreenshotLocation}
+            />
+          </Button>
+        </div>
+        <Divider className="Settings__Separator" />
+        <div className="Settings__Checkbox__Row">
+          <FormControlLabel
+            control={
+              <Checkbox
+                id="alternate_splinter_pricing"
+                defaultChecked={alternateSplinterPricing}
               />
-            </Button>
-          </div>
-          <div className="Settings__Row">
-            <TextField
-              fullWidth
-              label="Screenshot Directory"
-              id="screenshot_location"
-              variant="filled"
-              size="small"
-              value={screenshotLocation}
-              onChange={(e) => setScreenshotLocation(e.target.value)}
-            />
-            <Button component="label">
-              Choose Folder
-              <input
-                hidden
-                webkitdirectory=""
-                directory=""
-                type="file"
-                ref={screenshotLocationRef}
-                onInput={handleOpenScreenshotLocation}
-              />
-            </Button>
-          </div>
-          <Divider className="Settings__Separator" />
-          <div className="Settings__Checkbox__Row">
-            <FormControlLabel
-              control={
-                <Checkbox
-                  id="alternate_splinter_pricing"
-                  defaultChecked={alternateSplinterPricing}
-                />
-              }
-              label="Enable Alternate Splinter Pricing"
-            />
-          </div>
-          {/* alternateSplinterPricing */}
-          <Divider className="Settings__Separator" />
-          <div>This section is not plugged in yet</div>
-          <div className="Settings__Checkbox__Row">
-            <FormControlLabel control={<Checkbox disabled />} label="Minimize to Tray" />
-          </div>
-          <div className="Settings__Checkbox__Row">
-            <FormControlLabel
-              control={<Checkbox disabled />}
-              label="Enable Overlay Popup Messages"
-            />
-          </div>
-          <div className="Settings__Checkbox__Row">
-            <FormControlLabel
-              control={<Checkbox disabled />}
-              label="Get Item Prices even in SSF Mode"
-            />
-          </div>
-          <div className="Settings__Checkbox__Row">
-            <FormControlLabel
-              control={<Checkbox disabled />}
-              label="Get Low-Confidence Pricing Data from poe.ninja"
-            />
-          </div>
-          <div className="Settings__Checkbox__Row">
-            <FormControlLabel
-              control={<Checkbox disabled />}
-              label="Enable Incubator Running Out Alert"
-            />
-          </div>
-          <div className="Settings__Checkbox__Row">
-            <FormControlLabel control={<Checkbox disabled />} label="Disable Gear Tracking" />
-          </div>
-          <Divider className="Settings__Separator" />
-          <ButtonGroup variant="outlined" fullWidth aria-label="Settings Control Buttons">
-            <Button type="submit">Save</Button>
-            <Button onClick={handleBack}>Cancel</Button>
-          </ButtonGroup>
-        </Box>
-      )}
+            }
+            label="Enable Alternate Splinter Pricing"
+          />
+        </div>
+        {/* alternateSplinterPricing */}
+        <Divider className="Settings__Separator" />
+        <div>This section is not plugged in yet</div>
+        <div className="Settings__Checkbox__Row">
+          <FormControlLabel control={<Checkbox disabled />} label="Minimize to Tray" />
+        </div>
+        <div className="Settings__Checkbox__Row">
+          <FormControlLabel
+            control={<Checkbox disabled />}
+            label="Enable Overlay Popup Messages"
+          />
+        </div>
+        <div className="Settings__Checkbox__Row">
+          <FormControlLabel
+            control={<Checkbox disabled />}
+            label="Get Item Prices even in SSF Mode"
+          />
+        </div>
+        <div className="Settings__Checkbox__Row">
+          <FormControlLabel
+            control={<Checkbox disabled />}
+            label="Get Low-Confidence Pricing Data from poe.ninja"
+          />
+        </div>
+        <div className="Settings__Checkbox__Row">
+          <FormControlLabel
+            control={<Checkbox disabled />}
+            label="Enable Incubator Running Out Alert"
+          />
+        </div>
+        <div className="Settings__Checkbox__Row">
+          <FormControlLabel control={<Checkbox disabled />} label="Disable Gear Tracking" />
+        </div>
+        <Divider className="Settings__Separator" />
+        <ButtonGroup variant="outlined" fullWidth aria-label="Settings Control Buttons">
+          <Button type="submit">Save</Button>
+          <Button onClick={handleBack}>Cancel</Button>
+        </ButtonGroup>
+      </Box>
     </form>
   );
 };
 
-export default MainSettings;
+export default observer(MainSettings);

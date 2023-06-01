@@ -87,6 +87,12 @@ const getAllStats = async (e, params) => {
   return stats;
 };
 
+const getStashTabs = async (e, params) => {
+  logger.info('Getting all stashes for the renderer process');
+  const stashes = await GGGAPI.getAllStashTabs();
+  return stashes;
+};
+
 const Responder = {
   'app-globals': getAppGlobals,
   'load-runs': loadRuns,
@@ -99,6 +105,7 @@ const Responder = {
   'oauth:is-authenticated': isAuthenticated,
   'oauth:logout': logout,
   'get-all-stats': getAllStats,
+  'get-stash-tabs': getStashTabs,
 };
 
 export default Responder;
