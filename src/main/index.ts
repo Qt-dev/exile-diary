@@ -80,20 +80,14 @@ const init = async () => {
   if (!SettingsManager.settings.username) {
     logger.error('No account name set. Please set your account name in the settings.');
   } else {
+    const character = await SettingsManager.getCharacter();
     try {
-      logger.info('Getting character and league info');
-      const character = await GGGAPI.getCurrentCharacter();
       League.addLeague(character.league);
-      SettingsManager.set('activeProfile', {
-        characterName: character.name,
-        league: character.league,
-        valid: true,
-      });
       SettingsManager.initializeDB(character.name);
-      logger.info(`Settings updated. Character: ${character.name}, League: ${character.league}`);
+      logger.info(`DB updated. Character: ${character.name}, League: ${character.league}`);
     } catch (e) {
       logger.error(
-        `Could not set active character and league. Please check your settings. (Current Account: ${SettingsManager.settings.username}})`
+        `Could not set DB up. (Current Account: ${SettingsManager.settings.username}})`
       );
       logger.error(e);
     }
@@ -142,6 +136,7 @@ const createWindow = async () => {
     'oauth:is-authenticated',
     'oauth:logout',
     'get-all-stats',
+    'get-stash-tabs',
   ];
   for (const event of events) {
     ipcMain.handle(event, Responder[event]);

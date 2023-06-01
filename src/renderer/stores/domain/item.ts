@@ -224,7 +224,7 @@ const getGemLevel = (data: ItemData) => {
   return null;
 };
 
-type ItemData = {
+export type ItemData = {
   pickupStackSize: number;
   maxStackSize: any;
   properties?: any[];

@@ -29,12 +29,36 @@ class SettingsManager {
 
   async initializeDB(characterName: string) {
     logger.info(`Initializing DB for ${characterName}`);
-    const character = (await GGGAPI.getAllCharacters()).find(
-      (character) => character.name === characterName
-    );
+    const character = await this.getCharacter(characterName);
     await DB.initDB(character.name);
     await DB.initLeagueDB(character.league, character.name);
     await RateGetterV2.Getter.update();
+  }
+
+  async getCharacter(name: string | null = null) {
+    let character;
+    if(this.needsActiveProfile()) {
+      logger.info('Getting character and league info');
+      if(!name) {
+        character = await GGGAPI.getCurrentCharacter();
+      } else {
+        character = (await GGGAPI.getAllCharacters()).find(
+          (character) => character.name === name
+        );
+      }
+      this.set('activeProfile', {
+        characterName: character.name,
+        league: character.league,
+        valid: true,
+      });
+    } else {
+      logger.info('Using active profile for character and league info');
+      character = {
+        league: this.settings.activeProfile.league,
+        name: this.settings.activeProfile.characterName,
+      };
+    }
+    return character;
   }
 
   getAll() {
@@ -84,6 +108,10 @@ class SettingsManager {
     logger.info(`Deleting ${key} from settings`);
     delete this.settings[key];
     await this.save();
+  }
+
+  needsActiveProfile() {
+    return !this.settings.activeProfile?.characterName;
   }
 }
 

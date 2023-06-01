@@ -11,7 +11,6 @@ import {
   Select,
   MenuItem,
   SelectChangeEvent,
-  Divider,
   Drawer,
 } from '@mui/material';
 import classNames from 'classnames';

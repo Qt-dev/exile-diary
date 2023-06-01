@@ -6,6 +6,8 @@ import { ipcRenderer } from 'electron';
 import './index.css';
 import reportWebVitals from './reportWebVitals';
 import RunStore from './stores/runStore';
+import CharacterStore from './stores/characterStore';
+import StashTabStore from './stores/stashTabStore';
 import Root from './routes/root';
 import Settings from './routes/Settings';
 import RunList from './routes/RunList';
@@ -17,6 +19,10 @@ import LoginBox from './routes/LoginBox';
 import { electronService } from './electron.service';
 const { logger } = electronService;
 const runStore = new RunStore();
+const characterStore = new CharacterStore();
+const stashTabStore = new StashTabStore();
+characterStore.fetchCharacters();
+stashTabStore.fetchStashTabs();
 
 const router = createHashRouter([
   {
@@ -65,11 +71,10 @@ const router = createHashRouter([
       },
       {
         path: 'settings',
-        element: <Settings />,
+        element: <Settings characterStore={characterStore} stashTabStore={stashTabStore} />,
         loader: async () => {
           const settings = await ipcRenderer.invoke('get-settings');
-          const characters = await ipcRenderer.invoke('get-characters');
-          return { settings, characters };
+          return { settings };
         },
       },
       {
