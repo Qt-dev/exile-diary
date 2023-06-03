@@ -1,12 +1,11 @@
-import SettingsManager from '../../main/SettingsManager';
+import SettingsManager from '../SettingsManager';
+import RatesManager from '../RatesManager';
 const logger = require('electron-log');
 const Constants = require('../../helpers/constants').default;
 const ItemData = require('./ItemData');
 const ItemCategoryParser = require('./ItemCategoryParser');
-const ItemParser = require('./ItemParser');
 const ItemFilter = require('./ItemFilter');
 const Utils = require('./Utils').default;
-const zlib = require('zlib');
 
 const baseTypeRarities = ['Normal', 'Magic', 'Rare'];
 const nonPricedCategories = [
@@ -25,56 +24,16 @@ const nonPricedCategories = [
 
 const log = false;
 
-var ratesCache = {};
+let ratesCache = {};
 
-function getRatesFor(timestamp, league) {
-  const { activeProfile } = SettingsManager.getAll();
-  if (!league) {
-    league = activeProfile.league;
-  }
-
-  if (league.includes('SSF') && !activeProfile.overrideSSF) {
-    return null;
-  }
-
-  if (!ratesCache[league]) {
-    ratesCache[league] = {};
-  }
-
-  var date = timestamp.substring(0, 8);
-  if (ratesCache[league][date]) {
-    return ratesCache[league][date];
-  }
-
-  var DB = require('./DB').getLeagueDB(league);
-  return new Promise((resolve, reject) => {
-    DB.get(
-      'select date, data from fullrates where date <= ? or date = (select min(date) from fullrates) order by date desc',
-      [date],
-      async (err, row) => {
-        if (err) {
-          logger.info(`Unable to get rates for ${date}: ${err}`);
-          resolve(null);
-        } else {
-          if (!row || !row.data) {
-            logger.info(`No rates found for ${date}`);
-            resolve(null);
-          } else {
-            zlib.inflate(row.data, (err, buffer) => {
-              if (err) {
-                // old data - compression not implemented yet, just parse directly
-                ratesCache[league][row.date] = JSON.parse(row.data);
-              } else {
-                ratesCache[league][row.date] = JSON.parse(buffer);
-              }
-              resolve(ratesCache[league][row.date]);
-            });
-          }
-        }
-      }
-    );
-  });
+async function getRatesFor(eventId : string, league = SettingsManager.get('activeProfile').league) {
+  const date = eventId.slice(0, 8);
+  if(!ratesCache[date] || !ratesCache[date][league]) {
+    ratesCache = await RatesManager.fetchRatesForDay(eventId, league) ?? ratesCache;
+  };
+  return ratesCache[date][league] ?? {};
 }
+
 
 async function price(item, league) {
   // Absolutely unreasonable amounts of pricing trouble. Enough of this!
@@ -90,15 +49,15 @@ async function price(item, league) {
     return 0;
   }
 
-  let rates = await getRatesFor(item.event_id, league);
+  const rates = getRatesFor(item.event_id, league)
   if (!rates) {
     return 0;
   }
 
   item.parsedItem = JSON.parse(item.rawdata);
 
-  var minItemValue = 0;
-  var filter = ItemFilter.filter(item.parsedItem);
+  let minItemValue = 0;
+  const filter = ItemFilter.filter(item.parsedItem);
   if (filter && filter.ignore) {
     if (filter.minValue) {
       if (filter.option && filter.option === 'fullStack' && item.parsedItem.maxStackSize) {
@@ -117,7 +76,7 @@ async function price(item, league) {
     return getWatchstoneValue();
   }
 
-  var helmetBaseValue;
+  let helmetBaseValue;
 
   if (item.rarity === 'Unique') {
     if (item.category === 'Maps') {
@@ -208,7 +167,7 @@ async function price(item, league) {
   }
 
   if (helmetBaseValue >= 0) {
-    var helmetEnchantValue = getHelmetEnchantValue();
+    const helmetEnchantValue = getHelmetEnchantValue();
     return Math.max(helmetBaseValue, helmetEnchantValue);
   }
 
@@ -218,7 +177,7 @@ async function price(item, league) {
 
   /* sub-functions for getting value per item type*/
 
-  function getValueFromTable(table, identifier = null) {
+  function getValueFromTable(table, inputIdentifier = '') {
     const { alternateSplinterPricing } = SettingsManager.getAll();
 
     // RIP harvest :-(
@@ -229,12 +188,10 @@ async function price(item, league) {
       return 0;
     }
 
-    if (!identifier) {
-      identifier = item.typeline;
-    }
+    const identifier = inputIdentifier.length > 0 ? inputIdentifier :  item.typeLine;
 
     // special handling for currency shards - always price at 1/20 of the whole orb
-    if (Constants.shardTypes[identifier]) {
+    if (identifier && Constants.shardTypes[identifier]) {
       let wholeOrb = Constants.shardTypes[identifier];
       let shardValue = rates[table][wholeOrb] / 20;
       let stackValue = shardValue * item.stacksize;
@@ -250,7 +207,7 @@ async function price(item, league) {
       return shardValue >= minItemValue ? stackValue : 0;
     }
 
-    if (!!alternateSplinterPricing && Constants.fragmentTypes[identifier]) {
+    if (identifier && !!alternateSplinterPricing && Constants.fragmentTypes[identifier]) {
       let fragmentType = Constants.fragmentTypes[identifier];
       let splinterValue =
         rates[fragmentType.itemType || 'Fragment'][fragmentType.item] / fragmentType.stackSize;
@@ -295,12 +252,12 @@ async function price(item, league) {
 
   function getHelmetEnchantValue() {
     if (!item.parsedItem.enchantMods) return 0;
-    var identifier = item.parsedItem.enchantMods;
+    const identifier = item.parsedItem.enchantMods;
     return getValueFromTable('HelmetEnchant', identifier);
   }
 
   function getWatchstoneValue() {
-    var identifier =
+    let identifier =
       item.rarity === 'Magic'
         ? Utils.getWatchstoneBaseType(item.typeline)
         : item.name || Utils.getItemName(item.icon);
@@ -309,8 +266,8 @@ async function price(item, league) {
         identifier += `, ${Constants.watchstoneMaxCharges[identifier]} uses remaining`;
       }
     } else {
-      for (var i = 0; i < item.parsedItem.explicitMods.length; i++) {
-        var mod = item.parsedItem.explicitMods[i];
+      for (let i = 0; i < item.parsedItem.explicitMods.length; i++) {
+        const mod = item.parsedItem.explicitMods[i];
         if (mod.endsWith('uses remaining')) {
           identifier += `, ${mod}`;
           break;
@@ -367,9 +324,9 @@ async function price(item, league) {
   }
 
   function getMapValue() {
-    var name = item.typeline.replace('Superior ', '');
-    var tier = ItemData.getMapTier(item.parsedItem);
-    var series = getSeries(item.parsedItem.icon);
+    let name = item.typeline.replace('Superior ', '');
+    const tier = ItemData.getMapTier(item.parsedItem);
+    const series = getSeries(item.parsedItem.icon);
 
     if (item.rarity === 'Magic' && item.identified) {
       // strip affixes from magic item name
@@ -379,9 +336,9 @@ async function price(item, league) {
         name = 'Temple Map';
       }
     }
-    var identifier = `${name} T${tier} ${series}`;
+    const identifier = `${name} T${tier} ${series}`;
     // workaround poe.ninja bug
-    var tempIdentifier = identifier.replace('Delirium', 'Delerium');
+    const tempIdentifier = identifier.replace('Delirium', 'Delerium');
     return getValueFromTable('Map', identifier) || getValueFromTable('Map', tempIdentifier);
 
     function getSeries(icon) {
@@ -412,7 +369,7 @@ async function price(item, league) {
   }
 
   function getSeriesBase64(icon) {
-    var data = Utils.getBase64EncodedData(icon);
+    const data = Utils.getBase64EncodedData(icon);
 
     if (data.mn) {
       switch (data.mn) {
@@ -450,7 +407,7 @@ async function price(item, league) {
   }
 
   function getSeedValue() {
-    var identifier = item.typeline + (getSeedLevel() >= 76 ? ' L76+' : '');
+    const identifier = item.typeline + (getSeedLevel() >= 76 ? ' L76+' : '');
     return getValueFromTable('Seed', identifier);
 
     function getSeedLevel() {
@@ -468,7 +425,7 @@ async function price(item, league) {
       return getVendorRecipeValue();
     }
 
-    var identifier = item.typeline.replace('Superior ', '');
+    let identifier = item.typeline.replace('Superior ', '');
     if (identifier.endsWith('Talisman')) return 0;
 
     if (item.rarity === 'Magic' && item.identified) {
@@ -499,9 +456,9 @@ async function price(item, league) {
   }
 
   function getVendorRecipeValue() {
-    var vendorValue;
+    let vendorValue;
 
-    var sockets = ItemData.getSockets(item.parsedItem);
+    const sockets = ItemData.getSockets(item.parsedItem);
     if (sockets.length) {
       if (ItemData.countSockets(sockets) === 6) {
         if (sockets.length === 1) {
@@ -512,7 +469,7 @@ async function price(item, league) {
           vendorValue = rates['Currency']["Jeweller's Orb"] * 7;
         }
       } else {
-        for (var i = 0; i < sockets.length; i++) {
+        for (let i = 0; i < sockets.length; i++) {
           if (sockets[i].includes('R') && sockets[i].includes('G') && sockets[i].includes('B')) {
             vendorValue = rates['Currency']['Chromatic Orb'];
           }
@@ -526,7 +483,7 @@ async function price(item, league) {
     }
 
     if (!vendorValue) {
-      return 0;
+      return { isVendor: false, val: 0};
     } else {
       let currFilter = ItemFilter.getForCategory('currency');
       if (currFilter.ignore) {
@@ -537,13 +494,13 @@ async function price(item, league) {
                 `Vendor value ${vendorValue} < currency min value ${currFilter.minValue}, returning`
               );
             }
-            return 0;
+            return { isVendor: false, val: 0};
           }
         } else {
           if (log) {
             logger.info(`Ignoring currency unconditionally?!? Returning 0`);
           }
-          return 0;
+          return { isVendor: false, val: 0};
         }
       }
 
@@ -578,42 +535,42 @@ async function price(item, league) {
   }
 
   function getUniqueMapValue() {
-    var name = item.name || Utils.getItemName(item.icon);
-    var tier = ItemData.getMapTier(item.parsedItem);
-    var typeline = item.typeline.replace('Superior ', '');
+    const name = item.name || Utils.getItemName(item.icon);
+    const tier = ItemData.getMapTier(item.parsedItem);
+    const typeline = item.typeline.replace('Superior ', '');
 
-    var identifier = `${name} T${tier} ${typeline}`;
+    const identifier = `${name} T${tier} ${typeline}`;
 
     return getValueFromTable('UniqueMap', identifier);
   }
 
   function getUniqueItemValue() {
-    var identifier = item.name || Utils.getItemName(item.icon) || item.typeline;
+    let identifier = item.name || Utils.getItemName(item.icon) || item.typeline;
 
     if (identifier === 'Grand Spectrum' || identifier === 'Combat Focus') {
       identifier += ` ${item.typeline}`;
     } else if (identifier === 'Impresence') {
-      var variant = item.icon
+      const constiant = item.icon
         .replace('https://web.poecdn.com/image/Art/2DItems/Amulets/Elder', '')
         .replace('.png', '');
-      identifier += ` (${variant})`;
+      identifier += ` (${constiant})`;
     }
 
-    var links = getLinks(item.parsedItem);
+    const links = getLinks(item.parsedItem);
     identifier += links;
     identifier += getAbyssSockets(identifier);
 
     if (item.identified === 0) {
-      var arr = null;
+      let possibleIdentifiers : string[] = [];
       if (identifier === 'Agnerod') {
-        arr = [
+        possibleIdentifiers = [
           `Agnerod East${links}`,
           `Agnerod North${links}`,
           `Agnerod South${links}`,
           `Agnerod West${links}`,
         ];
       } else if (identifier === "Atziri's Splendour") {
-        arr = [
+        possibleIdentifiers = [
           `Atziri's Splendour${links} (Armour)`,
           `Atziri's Splendour${links} (Armour/ES)`,
           `Atziri's Splendour${links} (Armour/ES/Life)`,
@@ -625,34 +582,34 @@ async function price(item, league) {
           `Atziri's Splendour${links} (Evasion/ES/Life)`,
         ];
       } else if (identifier === "Yriel's Fostering") {
-        arr = [
+        possibleIdentifiers = [
           `Yriel's Fostering${links} (Bleeding)`,
           `Yriel's Fostering${links} (Maim)`,
           `Yriel's Fostering${links} (Poison)`,
         ];
       } else if (identifier === "Doryani's Invitation") {
-        arr = [
+        possibleIdentifiers = [
           `Doryani's Invitation (Cold)`,
           `Doryani's Invitation (Fire)`,
           `Doryani's Invitation (Lightning)`,
           `Doryani's Invitation (Physical)`,
         ];
       } else if (identifier === "Volkuur's Guidance") {
-        arr = [
+        possibleIdentifiers = [
           `Volkuur's Guidance (Cold)`,
           `Volkuur's Guidance (Fire)`,
           `Volkuur's Guidance (Lightning)`,
         ];
       } else if (identifier === 'Vessel of Vinktar') {
-        arr = [
+        possibleIdentifiers = [
           'Vessel of Vinktar (Added Attacks)',
           'Vessel of Vinktar (Penetration)',
           'Vessel of Vinktar (Added Spells)',
           'Vessel of Vinktar (Conversion)',
         ];
       }
-      if (arr) {
-        return getValueUnidWithVariants(arr);
+      if (possibleIdentifiers.length > 0) {
+        return getValueUnidWithconstiants(possibleIdentifiers);
       }
     }
 
@@ -661,23 +618,23 @@ async function price(item, league) {
     return vendorValue ? Math.max(value, vendorValue.val) : value;
   }
 
-  function getValueUnidWithVariants(arr) {
-    var min = 9999999;
-    var max = -1;
+  function getValueUnidWithconstiants(possibleIdentifiers) {
+    let min = 9999999;
+    let max = -1;
 
-    arr.forEach((ident) => {
-      var val = rates['UniqueItem'][ident];
+    possibleIdentifiers.forEach((ident) => {
+      const val = rates['UniqueItem'][ident];
       if (val < min) min = val;
       if (val > max) max = val;
     });
 
-    var value = (min + max) / 2;
+    const value = (min + max) / 2;
     return value >= minItemValue ? value : 0;
   }
 
   function getLinks(item) {
-    var sockets = ItemData.getSockets(item);
-    for (var i = 0; i < sockets.length; i++) {
+    const sockets = ItemData.getSockets(item);
+    for (let i = 0; i < sockets.length; i++) {
       if (sockets[i].length >= 5) {
         return ` ${sockets[i].length}L`;
       }
@@ -697,7 +654,7 @@ async function price(item, league) {
     ];
     if (!abyssItems.includes(identifier)) return '';
 
-    var numAbyssSockets = item.sockets.match(/A/g).length;
+    const numAbyssSockets = item.sockets.match(/A/g).length;
     switch (numAbyssSockets) {
       case 1:
         return ` (1 Jewel)`;
@@ -713,11 +670,11 @@ async function price(item, league) {
 }
 
 async function getCurrencyByName(timestamp, type, league) {
-  var rates = await getRatesFor(timestamp, league);
+  const rates = await getRatesFor(timestamp, league);
   if (!rates) {
     return 0;
   }
-  var value = rates['Currency'][type];
+  const value = rates['Currency'][type];
   if (!value) {
     //logger.info(`Could not find value for ${item.typeline}`);
     return 0;

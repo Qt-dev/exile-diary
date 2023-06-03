@@ -1,5 +1,6 @@
 import { computed, makeAutoObservable, runInAction } from 'mobx';
-import { StashTab, StashTabData } from './domain/stashTab';
+import { StashTab } from './domain/stashTab';
+import { StashTabData } from '../../helpers/types';
 import { electronService } from '../electron.service';
 const { logger, ipcRenderer } = electronService;
 

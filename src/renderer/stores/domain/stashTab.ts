@@ -1,20 +1,5 @@
 import { makeAutoObservable } from 'mobx';
-import { ItemData } from './item';
-
-export type StashTabData = {
-  id: string;
-  name: string;
-  type: string;
-  index?: number;
-  metadata: {
-    public?: boolean;
-    folder?: boolean;
-    color?: string; // 6 digits hex color
-  }
-  items?: ItemData[];
-  children?: StashTabData[];
-  tracked: boolean;
-};
+import { StashTabData, ItemData } from '../../../helpers/types';
 
 const DisabledTypes = [
   'MapStash',
