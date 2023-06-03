@@ -9,10 +9,11 @@ class RatesManager {
 
   constructor() {}
 
-  async fetchRatesForDay(league: string, date: string): Promise<void> {
+  async fetchRatesForDay(league: string, date: string): Promise<any> {
     const rates = await DB.getFullRates(league, date);
     this.rates[date] = this.rates[date] || {};
     this.rates[date][league] = rates;
+    return rates;
   }
 
   async getCurrencyValue(league: string, date: string, currency: string): Promise<number> {

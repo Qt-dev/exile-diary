@@ -70,7 +70,7 @@ class DB {
 
   static async initDB(char: string) {
     if (!char) {
-      var settings = require('./settings').get();
+      const settings = require('./settings').get();
       if (!settings) {
         // logger.info("No settings file found, can't initialize DB");
         return null;

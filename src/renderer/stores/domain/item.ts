@@ -1,6 +1,7 @@
 import { makeAutoObservable, computed } from 'mobx';
 import { v4 as uuidv4 } from 'uuid';
 import Constants from '../../../helpers/constants';
+import { ItemData } from '../../../helpers/types';
 import { electronService } from '../../electron.service';
 const { logger } = electronService;
 
@@ -222,48 +223,6 @@ const getGemLevel = (data: ItemData) => {
     }
   }
   return null;
-};
-
-export type ItemData = {
-  pickupStackSize: number;
-  maxStackSize: any;
-  properties?: any[];
-  requirements?: any;
-  frameType: number;
-  influences?: string[];
-  shaper?: boolean;
-  elder?: boolean;
-  icon: string;
-  sockets?: {
-    group: number;
-    sColour: string;
-  }[];
-
-  name: string;
-  id: string;
-  ilvl: number;
-  styleModifiers: any;
-  typeLine: string;
-  hybrid?: {
-    baseTypeName: string;
-  };
-  identified?: boolean;
-  corrupted?: boolean;
-  duplicated?: boolean;
-  stackSize: number;
-  replica: boolean;
-  veiled: boolean;
-  synthesised?: boolean;
-  fractured?: boolean;
-  explicitMods: string[];
-  implicitMods: string[];
-  enchantMods: string[];
-  w: number;
-  h: number;
-  value: number;
-  secretName?: string;
-  area?: string;
-  map_id?: string;
 };
 
 export class Item {

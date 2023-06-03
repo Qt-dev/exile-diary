@@ -115,4 +115,70 @@ type Run = {
 
 type Order = 'asc' | 'desc';
 
-export type { Run, Order, RunInfo };
+type StashTab = {
+  id: string;
+  name: string;
+  type: string;
+  items: any[];
+  public?: boolean;
+}
+
+type StashTabData = {
+  id: string;
+  name: string;
+  type: string;
+  index?: number;
+  metadata: {
+    public?: boolean;
+    folder?: boolean;
+    color?: string; // 6 digits hex color
+  }
+  items?: ItemData[];
+  children?: StashTabData[];
+  tracked: boolean;
+};
+
+
+type ItemData = {
+  pickupStackSize: number;
+  maxStackSize: any;
+  properties?: any[];
+  requirements?: any;
+  frameType: number;
+  influences?: string[];
+  shaper?: boolean;
+  elder?: boolean;
+  icon: string;
+  sockets?: {
+    group: number;
+    sColour: string;
+  }[];
+
+  name: string;
+  id: string;
+  ilvl: number;
+  styleModifiers: any;
+  typeLine: string;
+  hybrid?: {
+    baseTypeName: string;
+  };
+  identified?: boolean;
+  corrupted?: boolean;
+  duplicated?: boolean;
+  stackSize: number;
+  replica: boolean;
+  veiled: boolean;
+  synthesised?: boolean;
+  fractured?: boolean;
+  explicitMods: string[];
+  implicitMods: string[];
+  enchantMods: string[];
+  w: number;
+  h: number;
+  value: number;
+  secretName?: string;
+  area?: string;
+  map_id?: string;
+};
+
+export type { Run, Order, RunInfo, StashTabData, ItemData };

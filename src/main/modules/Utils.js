@@ -426,7 +426,7 @@ const Utils = {
   },
 
   poeRunning: async () => {
-    let processList = await require('ps-list')();
+    const processList = await require('ps-list')();
     for (let i = 0; i < processList.length; i++) {
       if (processList[i].name.toLowerCase().startsWith('pathofexile')) {
         return true;
