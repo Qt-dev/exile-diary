@@ -1,4 +1,5 @@
 import DB from './db/rates';
+// TODO: Flesh this out later from RatesGetterV2
 
 class RatesManager {
   rates: {

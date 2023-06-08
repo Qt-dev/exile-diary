@@ -32,7 +32,7 @@ class SettingsManager {
     const character = await this.getCharacter(characterName);
     await DB.initDB(character.name);
     await DB.initLeagueDB(character.league, character.name);
-    await RateGetterV2.Getter.update();
+    await RateGetterV2.update();
   }
 
   async getCharacter(name: string | null = null) {
@@ -62,11 +62,11 @@ class SettingsManager {
   }
 
   getAll() {
-    return this.settings;
+    return JSON.parse(JSON.stringify(this.settings));
   }
 
   get(settingKey) {
-    return this.settings[settingKey];
+    return this.settings[settingKey] ? JSON.parse(JSON.stringify(this.settings[settingKey])) : null;
   }
 
   async set(key, value) {

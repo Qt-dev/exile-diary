@@ -1,5 +1,7 @@
 import { makeAutoObservable } from 'mobx';
 import { StashTabData, ItemData } from '../../../helpers/types';
+import { electronService } from '../../electron.service';
+const { ipcRenderer, logger } = electronService;
 
 const DisabledTypes = [
   'MapStash',
@@ -52,7 +54,11 @@ export class StashTab {
   setTracking(tracked: boolean) {
     if(!this.disabled) {
       this.tracked = tracked;
-      // SEND TO BACKEND AND WAIT FOR CONFIRMATION
+      const { id, name, type } = this;
+      const stashData = {
+        id, name, type, tracked
+      }
+      ipcRenderer.invoke('save-settings:stashtabs', { stashTabs: [stashData] });
     }
   }
 }

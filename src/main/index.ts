@@ -15,6 +15,7 @@ import Utils from './modules/Utils';
 import ScreenshotWatcher from './modules/ScreenshotWatcher';
 import * as ClientTxtWatcher from './modules/ClientTxtWatcher';
 import * as OCRWatcher from './modules/OCRWatcher';
+import StashGetter from './modules/StashGetter';
 import RunParser from './modules/RunParser';
 import moment from 'moment';
 import AuthManager from './AuthManager';
@@ -95,9 +96,9 @@ const init = async () => {
 
   if (SettingsManager.settings.activeProfile && SettingsManager.settings.activeProfile.valid) {
     logger.info('Starting components');
-    RateGetterV2.Getter.init();
+    RateGetterV2.initialize();
     setTimeout(() => {
-      RateGetterV2.Getter.update();
+      RateGetterV2.update();
     }, 1000);
     ClientTxtWatcher.start();
     ScreenshotWatcher.start();
@@ -137,6 +138,7 @@ const createWindow = async () => {
     'oauth:logout',
     'get-all-stats',
     'get-stash-tabs',
+    'save-settings:stashtabs',
   ];
   for (const event of events) {
     ipcMain.handle(event, Responder[event]);
@@ -289,14 +291,14 @@ const createWindow = async () => {
     win.webContents.send('refresh-runs');
   });
 
-  RateGetterV2.emitter.removeAllListeners();
-  RateGetterV2.emitter.on('gettingPrices', () => {
+  RateGetterV2.removeAllListeners();
+  RateGetterV2.on('gettingPrices', () => {
     logger.info("<span class='eventText'>Getting item prices from poe.ninja...</span>");
   });
-  RateGetterV2.emitter.on('doneGettingPrices', () => {
+  RateGetterV2.on('doneGettingPrices', () => {
     logger.info("<span class='eventText'>Finished getting item prices from poe.ninja</span>");
   });
-  RateGetterV2.emitter.on('gettingPricesFailed', () => {
+  RateGetterV2.on('gettingPricesFailed', () => {
     logger.info(
       "<span class='eventText removeRow' onclick='rateGetterRetry(this);'>Error getting item prices from poe.ninja, <span class='retry'>click on this message to try again</span></span>"
     );
@@ -321,6 +323,15 @@ const createWindow = async () => {
     logger.info(
       `<span class='eventText'>${path} has not been updated recently even though the game is running. Please check if PoE is using a different Client.txt file.</span>`
     );
+  });
+
+  StashGetter.removeAllListeners();
+  StashGetter.initialize();
+  StashGetter.on('stashTabs:updated:full', (data) => {
+    logger.info(
+      `Updated stash tabs (League: ${data.league} - Change: ${data.change})`
+    );
+    win.webContents.send('update-stash-tabs', data);
   });
 
   let saveBoundsCallback: any = null;

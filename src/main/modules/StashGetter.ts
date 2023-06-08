@@ -4,14 +4,15 @@ import GGGAPI from '../GGGAPI';
 import { StashTabData } from '../../helpers/types';
 import DB from '../db/stashtabs';
 import stashTabsManager from '../StashTabsManager';
+import RatesGetterV2 from './RateGetterV2';
 const EventEmitter = require('events');
-const logger = require('electron-log');
+const logger = require('electron-log').scope('ShashGetter');
 const moment = require('moment');
 const ItemParser = require('./ItemParser');
 const ItemPricer = require('./ItemPricer');
-const RateGetterV2 = require('./RateGetterV2').Getter;
 
-var emitter = new EventEmitter();
+
+const emitter = new EventEmitter();
 
 type ParsedTabData = {
   value: number;
@@ -21,7 +22,9 @@ type ParsedTabData = {
 class StashGetter {
   offlineStashChecked: boolean = false;
   nextStashGetTimer?: NodeJS.Timeout;
-  constructor() {}
+  nextTimestamp: number = 0;
+  constructor() {
+  }
 
   initialize() {
     const settings = SettingsManager.getAll();
@@ -44,12 +47,14 @@ class StashGetter {
           }, interval * 1000);
         }
       });
+      this.tryGet();
     }
   }
 
   async tryGet() {
+    logger.info('Starting the stash tabs refresh');
     const settings = SettingsManager.getAll();
-    if (!settings.league) {
+    if (!settings.activeProfile.league) {
       logger.info('No league set (first run?) - returning');
       return;
     }
@@ -98,7 +103,7 @@ class StashGetter {
 
   async get(interval = 10) {
     const settings = SettingsManager.getAll();
-    if (!RateGetterV2.ratesReady) {
+    if (!RatesGetterV2.ratesReady) {
       if (interval > 60) {
         logger.info('Maximum retries exceeded, deferring to next stash getting interval');
       } else {
@@ -111,8 +116,8 @@ class StashGetter {
     }
 
     let watchedTabs = [];
-    if (settings.trackedTabs && settings.trackedTabs[settings.activeProfile.league]) {
-      watchedTabs = settings.trackedTabs[settings.activeProfile.league];
+    if (settings.trackedStashTabs && settings.trackedStashTabs[settings.activeProfile.league]) {
+      watchedTabs = settings.trackedStashTabs[settings.activeProfile.league];
       if (watchedTabs.length === 0) {
         emitter.emit('noStashTabsSelected');
         return;
@@ -156,7 +161,7 @@ class StashGetter {
 
 
     if (tabs.items.length > 0) {
-      const { value: latestStashValue } = await DB.getLatestStashValue();
+      const { value: latestStashValue } = await DB.getLatestStashValue(settings.activeProfile.league);
       if (latestStashValue && Number(tabs.value).toFixed(2) === Number(latestStashValue.value).toFixed(2)) {
         logger.info(
           `No change in ${settings.activeProfile.league} stash value (${Number(tabs.value).toFixed(
@@ -185,7 +190,8 @@ class StashGetter {
           if (getFullStash) {
             let change =
               value ? Number(tabs.value - value).toFixed(2) : 'new';
-            emitter.emit('fullStashUpdated', {
+            emitter.emit('stashTabs:updated:full', {
+              tabs,
               value: Number(tabs.value).toFixed(2),
               change: change,
               league: settings.activeProfile.league,
@@ -213,7 +219,7 @@ class StashGetter {
 
   async getTabList(settings) : Promise<StashTabData[]> {
     try {
-      const { tabs } = await GGGAPI.getAllStashTabs();
+      const tabs = await GGGAPI.getAllStashTabs();
       return settings.tabs === null ? [] : tabs.filter((tab) => settings.tabs.includes(tab.id));
     } catch (error) {
       logger.error(`Failed to get tabs for ${settings.username} in ${settings.league}: ${error}`);
@@ -224,7 +230,7 @@ class StashGetter {
   async getTabData(tab, params) : Promise<ParsedTabData> {
     try {
       const stashTab = await GGGAPI.getStashTab(tab.id);
-      const tabData = await this.parseTab(stashTab.items, params.timestamp);
+      const tabData = await this.parseTab(stashTab.items, params.timestamp, tab.name);
       return tabData;
     } catch (e) {
       logger.error(`Failed to get tab ${tab.index} for ${params.username} in ${params.league}: ${e}`);
@@ -232,13 +238,13 @@ class StashGetter {
     }
   }
 
-  async parseTab(items, timestamp) : Promise<ParsedTabData> {
+  async parseTab(items, timestamp, tabName) : Promise<ParsedTabData> {
     let totalValue = 0;
     const settings = await SettingsManager.getAll();
     const tabItems : any[] = [];
 
     for(const item of items) {
-      const parsedItem = this.parseItem(item, timestamp);
+      const parsedItem = this.parseItem(item, timestamp, tabName);
       const value = await ItemPricer.price(parsedItem, settings.activeProfile.league);
 
       // vendor recipes handled manually
@@ -252,11 +258,12 @@ class StashGetter {
     };
   }
 
-  parseItem(rawdata, timestamp) {
+  parseItem(rawdata, timestamp, tabName) {
     const arr = ItemParser.parseItem(rawdata);
     return {
       id: arr[0],
       event_id: timestamp,
+      tabName,
       icon: arr[2],
       name: arr[3],
       rarity: arr[4],
@@ -268,9 +275,20 @@ class StashGetter {
       rawdata: arr[10],
     };
   }
+
+
+  async removeAllListeners() {
+    emitter.removeAllListeners();
+  }
+
+  on(event, listener) {
+    emitter.on(event, listener);
+  }
 }
 
 const stashGetter = new StashGetter();
 
-module.exports = stashGetter;
-module.exports.emitter = emitter;
+export default stashGetter;
+
+// module.exports = stashGetter;
+// module.exports.emitter = emitter;

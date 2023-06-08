@@ -1,12 +1,14 @@
 import RendererLogger from '../RendererLogger';
 import SettingsManager from '../SettingsManager';
+import Logger from 'electron-log';
+import Utils from './Utils';
+import DB from '../db/rates';
 
 const EventEmitter = require('events');
 const moment = require('moment');
-const logger = require('electron-log');
 const https = require('https');
-const Utils = require('./Utils').default;
 const zlib = require('zlib');
+const logger = Logger.scope('RateGetter');
 
 const rateTypes = {
   Currency: cleanCurrency,
@@ -44,30 +46,38 @@ var nextRateGetTimer;
 var emitter = new EventEmitter();
 
 class RateGetterV2 {
+  ratesReady: boolean = false;
   constructor() {
     clearTimeout(nextRateGetTimer);
-    this.ratesReady = false;
-    this.league = null;
   }
 
-  init() {
-    const activeProfile = SettingsManager.get('activeProfile');
-    if (activeProfile) {
-      this.league = activeProfile.league;
-    }
-    this.priceCheckLeague = null;
-    this.DB = require('./DB').getLeagueDB(this.league);
+  on(event, listener) {
+    emitter.on(event, listener);
+  }
 
-    if (this.league && this.league.includes('SSF') && activeProfile && activeProfile.overrideSSF) {
+  removeAllListeners() {
+    emitter.removeAllListeners();
+  }
+
+  initialize() {
+    this.update();
+  }
+
+  getLeagueName() {
+    const activeProfile = SettingsManager.get('activeProfile');
+    let league = activeProfile.league;
+
+    if (activeProfile.league && activeProfile.league.includes('SSF') && activeProfile && activeProfile.overrideSSF) {
       // override ssf and get item prices from corresponding trade league
       // TODO undocumented league naming convention change in 3.13... must check this every league from now on
       // as of 3.13 "SSF Ritual HC" <--> "Hardcore Ritual"
-      let league = this.league.replace('SSF', '').trim();
+      league = activeProfile.league.replace('SSF', '').trim();
       if (league.includes('HC')) {
         league = 'Hardcore ' + league.replace('HC', '').trim();
       }
-      this.priceCheckLeague = league;
     }
+
+    return league;
   }
 
   /*
@@ -76,31 +86,32 @@ class RateGetterV2 {
   async update(isForced = false) {
     const activeProfile = SettingsManager.get('activeProfile');
     const privateLeaguePriceMaps = SettingsManager.get('privateLeaguePriceMaps');
-    if (!this.league) {
-      logger.info('No league set, will not attempt to get prices');
-      return;
-    }
     if (!activeProfile) {
       logger.error('No settings found, will not attempt to get prices');
       return;
     }
-
-    // no need for exchange rates in SSF
-    if (this.league.includes('SSF') && !activeProfile.overrideSSF) {
+    if (!activeProfile.league) {
+      logger.info('No league set, will not attempt to get prices');
       return;
     }
 
-    if (Utils.isPrivateLeague(this.league)) {
-      if (privateLeaguePriceMaps && privateLeaguePriceMaps[this.league]) {
+    // no need for exchange rates in SSF
+    if (activeProfile.league.includes('SSF') && !activeProfile.overrideSSF) {
+      return;
+    }
+
+    if (Utils.isPrivateLeague(activeProfile.league)) {
+      // TODO: Fix this part with private leagues
+      if (privateLeaguePriceMaps && privateLeaguePriceMaps[activeProfile.league]) {
         logger.info(
-          `Private league ${this.league} will use prices from ${
-            privateLeaguePriceMaps[this.league]
+          `Private league ${activeProfile.league} will use prices from ${
+            privateLeaguePriceMaps[activeProfile.league]
           }`
         );
-        this.league = privateLeaguePriceMaps[this.league];
+        activeProfile.league = privateLeaguePriceMaps[activeProfile.league];
       } else {
         logger.info(
-          `No price map set for private league ${this.league}, will not attempt to get prices`
+          `No price map set for private league ${activeProfile.league}, will not attempt to get prices`
         );
         return;
       }
@@ -110,11 +121,11 @@ class RateGetterV2 {
     const hasExisting = await this.hasExistingRates(today);
 
     if (hasExisting) {
-      logger.info(`Found existing ${this.league} rates for ${today}`);
+      logger.info(`Found existing ${activeProfile.league} rates for ${today}`);
 
       if (!isForced) {
-        this.ratesReady = true;
         this.scheduleNextUpdate();
+        this.ratesReady = true;
         return;
       } else {
         await this.cleanRates(today);
@@ -122,29 +133,24 @@ class RateGetterV2 {
     }
 
     emitter.emit('gettingPrices');
-    logger.info(`Getting new ${this.league} rates for ${today}`);
+    logger.info(`Getting new ${activeProfile.league} rates for ${today}`);
     const message = {
-      text: `Getting new ${this.league} rates for today (${today})`,
+      text: `Getting new ${activeProfile.league} rates for today (${today})`,
     };
     RendererLogger.log({ messages: [message] });
     this.getRates(today);
   }
 
   async cleanRates(date) {
-    return this.DB.run('DELETE FROM fullrates WHERE date = ?', [date], (err) => {
-      if (err) {
-        logger.info('Error cleaning rates: ' + err);
-        return;
-      }
-    });
+    return DB.cleanRates(this.getLeagueName(), date);
   }
 
   scheduleNextUpdate() {
     // schedule next rate update at 10 seconds after midnight
-    let d = new Date();
-    d.setDate(d.getDate() + 1);
-    d.setHours(0, 0, 10);
-    let interval = d - Date.now();
+    const next = new Date();
+    next.setDate(next.getDate() + 1);
+    next.setHours(0, 0, 10);
+    const interval = next.valueOf() - Date.now();
     logger.info(`Set new timer for updating prices in ${Number(interval / 1000).toFixed(2)} sec`);
 
     clearTimeout(nextRateGetTimer);
@@ -155,24 +161,24 @@ class RateGetterV2 {
   }
 
   async getRates(date) {
-    var tempRates = {};
+    const tempRates = {};
     const { useGzip = true, getLowConfidence = false } = SettingsManager.getAll();
 
     try {
-      for (var key in rateTypes) {
-        var data;
+      for (const rateType in rateTypes) {
+        let data;
         for (let i = 1; i <= 10; i++) {
-          logger.info(`Getting prices for item type ${key}, attempt ${i} of 10`);
+          logger.info(`Getting prices for item type ${rateType}, attempt ${i} of 10`);
           try {
-            data = await getNinjaData(this.getNinjaURL(key), useGzip);
+            data = await getNinjaData(this.getNinjaURL(rateType), useGzip);
             break;
           } catch (err) {
             if (i === 10) throw err;
           }
         }
-        var process = rateTypes[key];
-        logger.info(key);
-        tempRates[key] = process(data, getLowConfidence);
+        const processRateType = rateTypes[rateType];
+        logger.info(rateType);
+        tempRates[rateType] = processRateType(data, getLowConfidence);
       }
       logger.info('Finished getting prices from poe.ninja, processing now');
     } catch (e) {
@@ -181,7 +187,7 @@ class RateGetterV2 {
       return;
     }
 
-    var rates = {};
+    const rates = {};
     rates['UniqueItem'] = Object.assign(
       tempRates['UniqueJewel'],
       tempRates['UniqueFlask'],
@@ -212,18 +218,15 @@ class RateGetterV2 {
     rates['Invitation'] = tempRates['Invitation'];
     rates['Seed'] = tempRates['Seed'];
 
-    var data = await Utils.compress(rates);
-    this.DB.run('insert into fullrates(date, data) values(?, ?)', [date, data], (err) => {
-      if (err && !err.message.includes('UNIQUE constraint failed')) {
-        emitter.emit('gettingPricesFailed');
-        logger.info(`Error inserting rates for ${date}: [${err}]`);
-      } else {
-        emitter.emit('doneGettingPrices');
-        this.ratesReady = true;
-        logger.info(`Successfully inserted rates for ${date}`);
-        this.scheduleNextUpdate();
-      }
-    });
+    const ratesWereUpdated = await DB.insertRates(this.getLeagueName(), date, rates);
+    if(!ratesWereUpdated) {
+      emitter.emit('gettingPricesFailed');
+      return;
+    } else {
+      emitter.emit('doneGettingPrices');
+      this.ratesReady = true;
+      this.scheduleNextUpdate();
+    }
   }
 
   getNinjaURL(category) {
@@ -261,35 +264,22 @@ class RateGetterV2 {
         break;
       default:
         throw new Error(`Invalid poe.ninja category [${category}]`);
-        break;
     }
 
-    return `${url}&league=${encodeURIComponent(this.priceCheckLeague || this.league)}`;
+    return `${url}&league=${encodeURIComponent(this.getLeagueName())}`;
   }
 
   hasExistingRates(date) {
-    return new Promise((resolve, reject) => {
-      this.DB.all('select 1 from fullrates where date = ? limit 1', [date], (err, row) => {
-        if (err) {
-          logger.info(`Error getting rates for ${date}: ${err}`);
-          resolve(false);
-        }
-        if (row && row.length > 0) {
-          resolve(true);
-        } else {
-          resolve(false);
-        }
-      });
-    });
+    return DB.hasExistingRates(this.getLeagueName(), date);
   }
 }
 
 function getNinjaData(path, useGzip) {
   return new Promise((resolve, reject) => {
-    let headerObject = useGzip ? { 'Accept-Encoding': 'gzip' } : {};
-    let timeout = useGzip ? 10000 : 30000;
+    const headerObject = useGzip ? { 'Accept-Encoding': 'gzip' } : {};
+    const timeout = useGzip ? 10000 : 30000;
 
-    var request = https.request(
+    const request = https.request(
       {
         hostname: 'poe.ninja',
         path: path,
@@ -297,7 +287,7 @@ function getNinjaData(path, useGzip) {
         headers: headerObject,
       },
       (response) => {
-        var buffers = [];
+        var buffers : any = [];
         response.on('data', (chunk) => {
           buffers.push(chunk);
         });
@@ -462,9 +452,6 @@ function cleanSeeds(arr, getLowConfidence = false) {
   return a;
 }
 
-const Getter = new RateGetterV2();
+const getter = new RateGetterV2();
 
-export default {
-  Getter,
-  emitter,
-};
+export default getter;
