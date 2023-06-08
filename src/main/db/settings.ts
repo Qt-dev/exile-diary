@@ -1,9 +1,10 @@
 import { access, constants, writeFile, rename } from 'fs/promises';
 import { app } from 'electron';
-import logger from 'electron-log';
+import Logger from 'electron-log';
 const path = require('path');
 const settingsPath = path.join(app.getPath('userData'), 'settings.json');
 const tempFilePath = path.join(app.getPath('userData'), 'settings.json.bak');
+const logger = Logger.scope('db/settings');
 
 type Settings = {
   [key: string]: any;

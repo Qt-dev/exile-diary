@@ -1,6 +1,7 @@
 import DB from './index';
 import moment from 'moment';
-import logger from 'electron-log';
+import Logger from 'electron-log';
+const logger = Logger.scope('db/league');
 
 const League = {
   addLeague: async (league: string) => {

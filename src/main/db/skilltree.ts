@@ -1,5 +1,6 @@
 import DB from './index';
-import logger from 'electron-log';
+import Logger from 'electron-log';
+const logger = Logger.scope('db/skilltree');
 
 const SkillTree = {
   getPreviousTree: async () => {
