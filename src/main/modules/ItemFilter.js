@@ -38,7 +38,7 @@ function load() {
     itemFilters = settings.itemFilter;
   }
 
-  logger.info(`Loaded: ${JSON.stringify(itemFilters)}`);
+  logger.info(`Loaded Item Filter: ${JSON.stringify(itemFilters)}`);
 }
 
 function filter(item) {

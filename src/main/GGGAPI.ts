@@ -20,8 +20,8 @@ limiters.on('failed', async (error, jobInfo) => {
   logger.error(
     `Request ${jobInfo.options.id} failed with ${error.message}. Retried ${retryCount} times.`
   );
-  if (error.stats === 429) {
-    logger.error('Too many requests. Waiting 10 seconds before retrying...');
+  if (error.status === 429) {
+    logger.error(`Too many requests. Waiting ${error.getResponseHeader('Retry-After')} seconds before retrying...`);
     logger.error(`Retry-After Header: ${error.getResponseHeader('Retry-After')}`);
     return (error.getResponseHeader('Retry-After') || 1) * 1000 + 1000;
   }

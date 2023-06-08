@@ -29,13 +29,15 @@ let ratesCache = {};
 async function getRatesFor(eventId : string, league = SettingsManager.get('activeProfile').league) {
   const date = eventId.slice(0, 8);
   if(!ratesCache[date] || !ratesCache[date][league]) {
-    ratesCache = await RatesManager.fetchRatesForDay(eventId, league) ?? ratesCache;
+    logger.info('No rates for this date, fetching...');
+    ratesCache[date] = ratesCache[date] || {};
+    ratesCache[date][league] = await RatesManager.fetchRatesForDay(league, eventId);
   };
   return ratesCache[date][league] ?? {};
 }
 
 
-async function price(item, league) {
+async function price(item, league =  SettingsManager.get('activeProfile').league) {
   // Absolutely unreasonable amounts of pricing trouble. Enough of this!
   if (item.typeline === "Rogue's Marker") {
     return 0;
@@ -49,7 +51,7 @@ async function price(item, league) {
     return 0;
   }
 
-  const rates = getRatesFor(item.event_id, league)
+  const rates = await getRatesFor(item.event_id, league);
   if (!rates) {
     return 0;
   }
@@ -68,25 +70,25 @@ async function price(item, league) {
       }
     } else {
       // unconditional ignore - stop here and get vendor recipe instead, if any
-      return getVendorRecipeValue();
+      return getVendorRecipeValue(item);
     }
   }
 
   if (item.typeline.includes('Watchstone')) {
-    return getWatchstoneValue();
+    return getWatchstoneValue(item);
   }
 
   let helmetBaseValue;
 
   if (item.rarity === 'Unique') {
     if (item.category === 'Maps') {
-      return getUniqueMapValue();
+      return getUniqueMapValue(item);
     } else {
       // handle helmet enchants - if item is a helmet, don't return value yet
       if (item.category === 'Helmets') {
-        helmetBaseValue = getUniqueItemValue();
+        helmetBaseValue = getUniqueItemValue(item);
       } else {
-        return getUniqueItemValue();
+        return getUniqueItemValue(item);
       }
     }
   } else {
@@ -100,29 +102,29 @@ async function price(item, league) {
   }
 
   if (item.typeline.includes("Maven's Invitation")) {
-    return getValueFromTable('Invitation', item.typeline);
+    return getValueFromTable(item, 'Invitation', item.typeline);
   }
 
   //Invitations
   if (item.typeline.includes('Polaric Invitation')) {
-    return getValueFromTable('Invitation', item.typeline);
+    return getValueFromTable(item, 'Invitation', item.typeline);
   }
 
   if (item.typeline.includes('Screaming Invitation')) {
-    return getValueFromTable('Invitation', item.typeline);
+    return getValueFromTable(item, 'Invitation', item.typeline);
   }
 
   if (item.typeline.includes('Incandescent Invitation')) {
-    return getValueFromTable('Invitation', item.typeline);
+    return getValueFromTable(item, 'Invitation', item.typeline);
   }
 
   if (item.typeline.includes('Writhing Invitation')) {
-    return getValueFromTable('Invitation', item.typeline);
+    return getValueFromTable(item, 'Invitation', item.typeline);
   }
 
   //Memories
   if (item.typeline.includes("'s Memory")) {
-    return getValueFromTable('Fragment', item.typeline);
+    return getValueFromTable(item, 'Fragment', item.typeline);
   }
 
   if (
@@ -133,25 +135,25 @@ async function price(item, league) {
     (item.typeline.includes('Timeless') && item.typeline.includes('Splinter')) ||
     item.typeline.startsWith('Splinter of')
   ) {
-    return getValueFromTable('Fragment');
+    return getValueFromTable(item, 'Fragment');
   }
   if (item.category === 'Harvest Seed') {
-    return getSeedValue();
+    return getSeedValue(item);
   }
   if (item.rarity === 'Currency' || item.typeline.includes('Incubator')) {
-    return getCurrencyValue();
+    return getCurrencyValue(item);
   }
   if (item.category === 'Maps') {
-    return getMapValue();
+    return getMapValue(item);
   }
   if (item.rarity === 'Divination Card') {
-    return getValueFromTable('DivinationCard');
+    return getValueFromTable(item, 'DivinationCard');
   }
   if (item.rarity === 'Prophecy') {
-    return getValueFromTable('Prophecy');
+    return getValueFromTable(item, 'Prophecy');
   }
   if (item.category && item.category.includes('Skill Gems')) {
-    return getGemValue();
+    return getGemValue(item);
   }
 
   if (
@@ -160,14 +162,14 @@ async function price(item, league) {
   ) {
     // handle helmet enchants - if item is a helmet, don't return value yet
     if (item.category === 'Helmets') {
-      helmetBaseValue = getBaseTypeValue();
+      helmetBaseValue = getBaseTypeValue(item);
     } else {
-      return getBaseTypeValue();
+      return getBaseTypeValue(item);
     }
   }
 
   if (helmetBaseValue >= 0) {
-    const helmetEnchantValue = getHelmetEnchantValue();
+    const helmetEnchantValue = getHelmetEnchantValue(item);
     return Math.max(helmetBaseValue, helmetEnchantValue);
   }
 
@@ -177,7 +179,7 @@ async function price(item, league) {
 
   /* sub-functions for getting value per item type*/
 
-  function getValueFromTable(table, inputIdentifier = '') {
+  function getValueFromTable(item, table, inputIdentifier = '') {
     const { alternateSplinterPricing } = SettingsManager.getAll();
 
     // RIP harvest :-(
@@ -250,13 +252,13 @@ async function price(item, league) {
     return value >= minItemValue ? value : 0;
   }
 
-  function getHelmetEnchantValue() {
+  function getHelmetEnchantValue(item) {
     if (!item.parsedItem.enchantMods) return 0;
     const identifier = item.parsedItem.enchantMods;
-    return getValueFromTable('HelmetEnchant', identifier);
+    return getValueFromTable(item, 'HelmetEnchant', identifier);
   }
 
-  function getWatchstoneValue() {
+  function getWatchstoneValue(item) {
     let identifier =
       item.rarity === 'Magic'
         ? Utils.getWatchstoneBaseType(item.typeline)
@@ -274,17 +276,17 @@ async function price(item, league) {
         }
       }
     }
-    return getValueFromTable('Watchstone', identifier);
+    return getValueFromTable(item, 'Watchstone', identifier);
   }
 
-  function getGemValue() {
+  function getGemValue(item) {
     let typeline = item.typeline.replace('Superior ', '');
     let level = ItemData.getGemLevel(item.parsedItem);
     let quality = ItemData.getQuality(item.parsedItem);
     let corrupted = item.parsedItem.corrupted;
     let identifier = getFullGemIdentifier(typeline, level, quality, corrupted);
 
-    let value = getValueFromTable('SkillGem', identifier);
+    let value = getValueFromTable(item, 'SkillGem', identifier);
     if (!value && item.parsedItem.hybrid && item.parsedItem.hybrid.baseTypeName) {
       let altIdentifier = getFullGemIdentifier(
         item.parsedItem.hybrid.baseTypeName,
@@ -292,10 +294,10 @@ async function price(item, league) {
         quality,
         corrupted
       );
-      value = value = getValueFromTable('SkillGem', altIdentifier);
+      value = value = getValueFromTable(item, 'SkillGem', altIdentifier);
     }
 
-    let vendorValue = getVendorRecipeValue();
+    let vendorValue = getVendorRecipeValue(item);
     return vendorValue ? Math.max(value, vendorValue.val) : value;
   }
 
@@ -323,7 +325,7 @@ async function price(item, league) {
     return str;
   }
 
-  function getMapValue() {
+  function getMapValue(item) {
     let name = item.typeline.replace('Superior ', '');
     const tier = ItemData.getMapTier(item.parsedItem);
     const series = getSeries(item.parsedItem.icon);
@@ -339,7 +341,7 @@ async function price(item, league) {
     const identifier = `${name} T${tier} ${series}`;
     // workaround poe.ninja bug
     const tempIdentifier = identifier.replace('Delirium', 'Delerium');
-    return getValueFromTable('Map', identifier) || getValueFromTable('Map', tempIdentifier);
+    return getValueFromTable(item, 'Map', identifier) || getValueFromTable(item, 'Map', tempIdentifier);
 
     function getSeries(icon) {
       if (icon.includes('https://web.poecdn.com/gen/image/')) {
@@ -406,11 +408,11 @@ async function price(item, league) {
     return '';
   }
 
-  function getSeedValue() {
-    const identifier = item.typeline + (getSeedLevel() >= 76 ? ' L76+' : '');
-    return getValueFromTable('Seed', identifier);
+  function getSeedValue(item) {
+    const identifier = item.typeline + (getSeedLevel(item) >= 76 ? ' L76+' : '');
+    return getValueFromTable(item, 'Seed', identifier);
 
-    function getSeedLevel() {
+    function getSeedLevel(item) {
       for (let i = 0; i < item.parsedItem.properties.length; i++) {
         let prop = item.parsedItem.properties[i];
         if (prop.name === 'Spawns a Level %0 Monster when Harvested') {
@@ -420,9 +422,9 @@ async function price(item, league) {
     }
   }
 
-  function getBaseTypeValue() {
+  function getBaseTypeValue(item) {
     if (item.parsedItem.ilvl < 82) {
-      return getVendorRecipeValue();
+      return getVendorRecipeValue(item);
     }
 
     let identifier = item.typeline.replace('Superior ', '');
@@ -450,12 +452,12 @@ async function price(item, league) {
       }
     }
 
-    let value = getValueFromTable('BaseType', identifier);
-    let vendorValue = getVendorRecipeValue();
+    let value = getValueFromTable(item, 'BaseType', identifier);
+    let vendorValue = getVendorRecipeValue(item);
     return vendorValue ? Math.max(value, vendorValue.val) : value;
   }
 
-  function getVendorRecipeValue() {
+  function getVendorRecipeValue(item) {
     let vendorValue;
 
     const sockets = ItemData.getSockets(item.parsedItem);
@@ -511,7 +513,7 @@ async function price(item, league) {
     }
   }
 
-  function getCurrencyValue() {
+  function getCurrencyValue(item) {
     // temporary workaround poe.ninja bug
     // if(item.typeline === "Stacked Deck") return 4 * item.stacksize;
 
@@ -530,21 +532,21 @@ async function price(item, league) {
           return item.stacksize / 20;
         }
       default:
-        return getValueFromTable('Currency');
+        return getValueFromTable(item, 'Currency');
     }
   }
 
-  function getUniqueMapValue() {
+  function getUniqueMapValue(item) {
     const name = item.name || Utils.getItemName(item.icon);
     const tier = ItemData.getMapTier(item.parsedItem);
     const typeline = item.typeline.replace('Superior ', '');
 
     const identifier = `${name} T${tier} ${typeline}`;
 
-    return getValueFromTable('UniqueMap', identifier);
+    return getValueFromTable(item, 'UniqueMap', identifier);
   }
 
-  function getUniqueItemValue() {
+  function getUniqueItemValue(item) {
     let identifier = item.name || Utils.getItemName(item.icon) || item.typeline;
 
     if (identifier === 'Grand Spectrum' || identifier === 'Combat Focus') {
@@ -613,8 +615,8 @@ async function price(item, league) {
       }
     }
 
-    let value = getValueFromTable('UniqueItem', identifier);
-    let vendorValue = getVendorRecipeValue();
+    let value = getValueFromTable(item, 'UniqueItem', identifier);
+    let vendorValue = getVendorRecipeValue(item);
     return vendorValue ? Math.max(value, vendorValue.val) : value;
   }
 
