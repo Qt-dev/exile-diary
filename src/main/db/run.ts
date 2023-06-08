@@ -1,5 +1,7 @@
 import DB from './index';
 import constants from '../../helpers/constants';
+import Logger = require('electron-log');
+const logger = Logger.scope('db/run');
 
 type ItemProperty = {
   name: string;
@@ -70,6 +72,7 @@ const getItemNameFromIcon = (iconUrl: string) => {
 
 const Runs = {
   getLastRuns: async (numberOfRunsToShow: number) => {
+    logger.info(`Getting last ${numberOfRunsToShow} runs from DB`);
     // var numberOfShownMaps = $("#numberOfShownMaps").val() || 10;
     const lastRunsQuery = `
       select mapruns.id, name, level, depth, iiq, iir, packsize, firstevent, lastevent,
@@ -89,6 +92,7 @@ const Runs = {
   },
 
   getRunMods: async (mapId: number): Promise<any> => {
+    logger.info(`Getting mods for run ${mapId}`);
     const mapModsQuery = `
       select mod
       from mapmods
@@ -101,6 +105,7 @@ const Runs = {
   },
 
   getEvents: async (mapId: number) => {
+    logger.info(`Getting events for run ${mapId}`);
     const eventsQuery = `
       select events.* from mapruns, events 
       where mapruns.id = ?
@@ -114,6 +119,7 @@ const Runs = {
   },
 
   getRunInfo: async (mapId: number): Promise<any> => {
+    logger.info(`Getting run info for run ${mapId}`);
     const mapInfoQuery = `
       select mapruns.id, name, level, depth, iiq, iir, packsize, xp, kills, runinfo, firstevent, lastevent, gained,
       (mapruns.xp - (select xp from mapruns m where m.id < mapruns.id and xp is not null order by m.id desc limit 1)) xpgained,
@@ -129,6 +135,7 @@ const Runs = {
   },
 
   getItems: async (mapId: number) => {
+    logger.info(`Getting items for run ${mapId}`);
     const itemsQuery = `
       select events.id, items.rarity, items.icon, items.value, items.stacksize, items.rawdata from mapruns, events, items
       where mapruns.id = ?
@@ -167,6 +174,7 @@ const Runs = {
   },
 
   getRun: async (mapId: number) => {
+    logger.info(`Getting run ${mapId}`);
     const mapInfo = await Runs.getRunInfo(mapId);
     const mods = await Runs.getRunMods(mapId);
     const events = await Runs.getEvents(mapId);

@@ -1,6 +1,7 @@
 import DB from './index';
-import logger from 'electron-log';
+import Logger from 'electron-log';
 import { Run } from '../../helpers/types';
+const logger = Logger.scope('db/stats');
 
 export default {
   getAllRuns: async (league: string): Promise<Run[]> => {

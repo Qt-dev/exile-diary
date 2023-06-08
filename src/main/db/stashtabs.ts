@@ -1,5 +1,6 @@
 import DB from './index';
-import logger from 'electron-log';
+import Logger from 'electron-log';
+const logger = Logger.scope('db/stashtabs');
 
 const StashTabs = {
   insertStashData: async (timestamp: number, rawData, value: number, league: string) : Promise<boolean> => {
@@ -14,7 +15,7 @@ const StashTabs = {
     }
   },
   getPreviousStashValue: async (timestamp: number, league: string): Promise<number> => {
-    logger.info(`Getting previous stash value for ${league}`);
+    logger.info(`Getting previous stash value for ${league} before ${timestamp}`);
     const query = 'select value from stashes where timestamp < ? order by timestamp desc limit 1';
     try {
       const { value } = (await DB.get(query, [timestamp], league)) as any;
@@ -26,9 +27,9 @@ const StashTabs = {
   },
   getLatestStashAge: async (league: string): Promise<number> => {
     logger.info(`Getting latest stash age from DB`);
-    const query = "select ifnull(max(timestamp), -1) as timestamp from stashes where items <> '{}' "
+    const query = "SELECT IFNULL(MAX(timestamp), -1) AS timestamp FROM stashes WHERE items <> '{}' "
     try {
-      const { timestamp } = (await DB.get(query), league) as any;
+      const { timestamp } = (await DB.get(query, [],  league)) as any;
       return timestamp; 
     } catch(err) {
       logger.error(`Error getting latest stash age: ${JSON.stringify(err)}`);
@@ -47,11 +48,11 @@ const StashTabs = {
       return 0;
     }
   },
-  getLatestStashValue: async (): Promise<any> => {
+  getLatestStashValue: async (league: string): Promise<any> => {
     logger.info(`Getting latest stash value from DB`);
     const query = 'select value, length(items) as len from stashes order by timestamp desc limit 1';
     try {
-      const [{ value, len }] = (await DB.all(query)) as any[];
+      const [{ value, len }] = (await DB.all(query, [], league)) as any[];
       return { value, len };
     } catch(err) {
       logger.error(`Error getting latest stash value: ${JSON.stringify(err)}`);
