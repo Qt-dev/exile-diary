@@ -135,7 +135,7 @@ const MapStats = ({ stats }) => {
   return (
     <Table size="small" sx={{ marginTop: '5px', marginBottom: '15px' }}>
       <TableHead>
-        <TableRow className="Area-Stats__Header ">
+        <TableRow className="Stats__Table-Header ">
           <TableCell variant="head" />
           <TableCell variant="head">
             <TableSortLabel

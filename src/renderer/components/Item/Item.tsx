@@ -127,7 +127,7 @@ const StyledTooltip = styled(({ className, ...props }: TooltipProps) => (
   },
 }));
 
-const Item = ({ item }) => {
+const Item = ({ item, showQuantityInTitle = true }) => {
   const color = item.styleModifiers?.textColor || Colors.getDefaultColor(item);
   const style = {
     color,
@@ -151,7 +151,7 @@ const Item = ({ item }) => {
       <div className="Item" style={style}>
         {influencesDiv}
         <div className="Item__Name">
-          {item.getDisplayName().map((line, index) => (
+          {item.getDisplayName(showQuantityInTitle).map((line, index) => (
             <div key={`Item__Name__Line-${index}`} className="Item__Name__Line">
               {line}
             </div>

@@ -1,15 +1,3 @@
-.Boss-Stats__Table-Header {
-  background-color: rgba(155, 155, 155, 0.2);
-}
-
-.Boss-Stats__Table-Header th:nth-child(1) {
-  border-radius: 4px 0px 0px 0px;
-}
-
-.Boss-Stats__Table-Header th:nth-last-child(1) {
-  border-radius: 0px 4px 0px 0px;
-}
-
 .Boss-Stats__Sub-Table .Boss-Stats__Table {
   background-color: rgba(60, 60, 60, 0.2);
 }

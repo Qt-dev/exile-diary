@@ -138,7 +138,6 @@ type StashTabData = {
   tracked: boolean;
 };
 
-
 type ItemData = {
   pickupStackSize: number;
   maxStackSize: any;
@@ -179,6 +178,7 @@ type ItemData = {
   secretName?: string;
   area?: string;
   map_id?: string;
+  stashTabId?: string;
 };
 
 export type { Run, Order, RunInfo, StashTabData, ItemData };

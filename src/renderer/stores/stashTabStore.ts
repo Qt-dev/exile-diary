@@ -1,13 +1,16 @@
 import { computed, makeAutoObservable, runInAction } from 'mobx';
-import { StashTab } from './domain/stashTab';
+import { StashTab, StashTabSettings } from './domain/stashTab';
 import { StashTabData } from '../../helpers/types';
 import { electronService } from '../electron.service';
+import ItemStore from './itemStore';
 const { logger, ipcRenderer } = electronService;
 
 // Mobx store for Items
 export default class StashTabStore {
   stashTabs: StashTab[] = [];
   isLoading = false;
+  itemStore: ItemStore = new ItemStore([]);
+  value: number = 0;
 
   constructor() {
     makeAutoObservable(this);
@@ -16,9 +19,36 @@ export default class StashTabStore {
   async fetchStashTabs() {
     logger.info('Fetching stash tabs for StashTabStore');
     this.isLoading = true;
-    const stashTabs = await ipcRenderer.invoke('get-stash-tabs');
-    logger.info(`Found ${stashTabs.length} stash tabs in the backend.`);
+    const { stashTabs, data } = await ipcRenderer.invoke('get-stash-tabs');
     this.createStashTabs(stashTabs);
+    this.itemStore.createItems(data.items);
+    this.value = data.value;
+
+    ipcRenderer.on('update-stash-content', (event, stashTabsData) => {
+      logger.info(`Received stash tabs update from backend for ${stashTabsData.length} stash tabs.`);
+      this.itemStore.createItems(stashTabsData.items);
+      this.value = stashTabsData.value;
+    });
+  }
+
+  @computed getStashTab(id: string) {
+    const stashTab = this.flattenedStashTabs.find(stashTab => stashTab.id === id);
+    return stashTab ?? null;
+  }
+
+  get flattenedStashTabs() {
+    const output : StashTab[] = [];
+    for(const stashTab of this.stashTabs) {
+      output.push(stashTab);
+      if(stashTab.children) {
+        output.push(...stashTab.children);
+      }
+    }
+    return output;
+  }
+
+  get trackedStashTabs() {
+    return this.flattenedStashTabs.filter(stashTab => stashTab.tracked);
   }
 
   createStashTabs(stashTabsData: StashTabData[]) {
@@ -48,5 +78,12 @@ export default class StashTabStore {
       output[stashTab.id] = stashTab.tracked;
     }
     return output;
+  }
+
+  saveTrackedStashTabs() {
+    const formattedStashTabsSettings : StashTabSettings[] = this.flattenedStashTabs
+      .filter(stashTab => stashTab.tracked)
+      .map((stashTab) => stashTab.formattedForSettings());
+    ipcRenderer.invoke('save-settings:stashtabs', { stashTabs: formattedStashTabsSettings });
   }
 }

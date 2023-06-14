@@ -30,7 +30,7 @@ export default class ItemStore {
         if (!group) {
           group = {
             ...item,
-            value: 0,
+            value: value,
             totalValue: 0,
             quantity: 0,
             items: [],

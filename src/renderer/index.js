@@ -14,6 +14,7 @@ import RunList from './routes/RunList';
 import Run from './routes/Run';
 import Login from './routes/Login';
 import Stats from './routes/Stats';
+import StashTabs from './routes/StashTabs';
 import CharacterSelect from './routes/CharacterSelect';
 import LoginBox from './routes/LoginBox';
 import { electronService } from './electron.service';
@@ -54,7 +55,7 @@ const router = createHashRouter([
       },
       {
         path: 'stash',
-        element: <div>Stash</div>,
+        element: <StashTabs store={stashTabStore} />,
       },
       {
         path: 'search',

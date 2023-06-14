@@ -63,32 +63,31 @@ async function price(item, league =  SettingsManager.get('activeProfile').league
   if (filter && filter.ignore) {
     if (filter.minValue) {
       if (filter.option && filter.option === 'fullStack' && item.parsedItem.maxStackSize) {
-        // logger.info(`Minvalue is ${filter.minValue}, stacksize of ${item.parsedItem.typeLine} is ${item.parsedItem.maxStackSize}, minvalue per card is ${filter.minValue/item.parsedItem.maxStackSize}`);
         minItemValue = filter.minValue / item.parsedItem.maxStackSize;
       } else {
         minItemValue = filter.minValue;
       }
     } else {
       // unconditional ignore - stop here and get vendor recipe instead, if any
-      return getVendorRecipeValue(item);
+      return getVendorRecipeValue(minItemValue, item);
     }
   }
 
   if (item.typeline.includes('Watchstone')) {
-    return getWatchstoneValue(item);
+    return getWatchstoneValue(minItemValue, item);
   }
 
   let helmetBaseValue;
 
   if (item.rarity === 'Unique') {
     if (item.category === 'Maps') {
-      return getUniqueMapValue(item);
+      return getUniqueMapValue(minItemValue, item);
     } else {
       // handle helmet enchants - if item is a helmet, don't return value yet
       if (item.category === 'Helmets') {
-        helmetBaseValue = getUniqueItemValue(item);
+        helmetBaseValue = getUniqueItemValue(minItemValue, item);
       } else {
-        return getUniqueItemValue(item);
+        return getUniqueItemValue(minItemValue, item);
       }
     }
   } else {
@@ -102,29 +101,29 @@ async function price(item, league =  SettingsManager.get('activeProfile').league
   }
 
   if (item.typeline.includes("Maven's Invitation")) {
-    return getValueFromTable(item, 'Invitation', item.typeline);
+    return getValueFromTable(minItemValue, item, 'Invitation', item.typeline);
   }
 
   //Invitations
   if (item.typeline.includes('Polaric Invitation')) {
-    return getValueFromTable(item, 'Invitation', item.typeline);
+    return getValueFromTable(minItemValue, item, 'Invitation', item.typeline);
   }
 
   if (item.typeline.includes('Screaming Invitation')) {
-    return getValueFromTable(item, 'Invitation', item.typeline);
+    return getValueFromTable(minItemValue, item, 'Invitation', item.typeline);
   }
 
   if (item.typeline.includes('Incandescent Invitation')) {
-    return getValueFromTable(item, 'Invitation', item.typeline);
+    return getValueFromTable(minItemValue, item, 'Invitation', item.typeline);
   }
 
   if (item.typeline.includes('Writhing Invitation')) {
-    return getValueFromTable(item, 'Invitation', item.typeline);
+    return getValueFromTable(minItemValue, item, 'Invitation', item.typeline);
   }
 
   //Memories
   if (item.typeline.includes("'s Memory")) {
-    return getValueFromTable(item, 'Fragment', item.typeline);
+    return getValueFromTable(minItemValue, item, 'Fragment', item.typeline);
   }
 
   if (
@@ -135,25 +134,25 @@ async function price(item, league =  SettingsManager.get('activeProfile').league
     (item.typeline.includes('Timeless') && item.typeline.includes('Splinter')) ||
     item.typeline.startsWith('Splinter of')
   ) {
-    return getValueFromTable(item, 'Fragment');
+    return getValueFromTable(minItemValue, item, 'Fragment');
   }
   if (item.category === 'Harvest Seed') {
-    return getSeedValue(item);
+    return getSeedValue(minItemValue, item);
   }
   if (item.rarity === 'Currency' || item.typeline.includes('Incubator')) {
-    return getCurrencyValue(item);
+    return getCurrencyValue(minItemValue, item);
   }
   if (item.category === 'Maps') {
-    return getMapValue(item);
+    return getMapValue(minItemValue, item);
   }
   if (item.rarity === 'Divination Card') {
-    return getValueFromTable(item, 'DivinationCard');
+    return getValueFromTable(minItemValue, item, 'DivinationCard');
   }
   if (item.rarity === 'Prophecy') {
-    return getValueFromTable(item, 'Prophecy');
+    return getValueFromTable(minItemValue, item, 'Prophecy');
   }
   if (item.category && item.category.includes('Skill Gems')) {
-    return getGemValue(item);
+    return getGemValue(minItemValue, item);
   }
 
   if (
@@ -162,14 +161,14 @@ async function price(item, league =  SettingsManager.get('activeProfile').league
   ) {
     // handle helmet enchants - if item is a helmet, don't return value yet
     if (item.category === 'Helmets') {
-      helmetBaseValue = getBaseTypeValue(item);
+      helmetBaseValue = getBaseTypeValue(minItemValue, item);
     } else {
-      return getBaseTypeValue(item);
+      return getBaseTypeValue(minItemValue, item);
     }
   }
 
   if (helmetBaseValue >= 0) {
-    const helmetEnchantValue = getHelmetEnchantValue(item);
+    const helmetEnchantValue = getHelmetEnchantValue(minItemValue, item);
     return Math.max(helmetBaseValue, helmetEnchantValue);
   }
 
@@ -179,7 +178,7 @@ async function price(item, league =  SettingsManager.get('activeProfile').league
 
   /* sub-functions for getting value per item type*/
 
-  function getValueFromTable(item, table, inputIdentifier = '') {
+  function getValueFromTable(minItemValue, item, table, inputIdentifier = '') {
     const { alternateSplinterPricing } = SettingsManager.getAll();
 
     // RIP harvest :-(
@@ -190,7 +189,7 @@ async function price(item, league =  SettingsManager.get('activeProfile').league
       return 0;
     }
 
-    const identifier = inputIdentifier.length > 0 ? inputIdentifier :  item.typeLine;
+    const identifier = inputIdentifier.length > 0 ? inputIdentifier :  item.typeline;
 
     // special handling for currency shards - always price at 1/20 of the whole orb
     if (identifier && Constants.shardTypes[identifier]) {
@@ -212,7 +211,7 @@ async function price(item, league =  SettingsManager.get('activeProfile').league
     if (identifier && !!alternateSplinterPricing && Constants.fragmentTypes[identifier]) {
       let fragmentType = Constants.fragmentTypes[identifier];
       let splinterValue =
-        rates[fragmentType.itemType || 'Fragment'][fragmentType.item] / fragmentType.stackSize;
+        rates[fragmentType.itemType ?? 'Fragment'][fragmentType.item] / fragmentType.stackSize;
       let stackValue = splinterValue * item.stacksize;
       if (splinterValue >= minItemValue) {
         logger.info(
@@ -252,13 +251,13 @@ async function price(item, league =  SettingsManager.get('activeProfile').league
     return value >= minItemValue ? value : 0;
   }
 
-  function getHelmetEnchantValue(item) {
+  function getHelmetEnchantValue(minItemValue, item) {
     if (!item.parsedItem.enchantMods) return 0;
     const identifier = item.parsedItem.enchantMods;
-    return getValueFromTable(item, 'HelmetEnchant', identifier);
+    return getValueFromTable(minItemValue, item, 'HelmetEnchant', identifier);
   }
 
-  function getWatchstoneValue(item) {
+  function getWatchstoneValue(minItemValue, item) {
     let identifier =
       item.rarity === 'Magic'
         ? Utils.getWatchstoneBaseType(item.typeline)
@@ -276,17 +275,17 @@ async function price(item, league =  SettingsManager.get('activeProfile').league
         }
       }
     }
-    return getValueFromTable(item, 'Watchstone', identifier);
+    return getValueFromTable(minItemValue, item, 'Watchstone', identifier);
   }
 
-  function getGemValue(item) {
+  function getGemValue(minItemValue, item) {
     let typeline = item.typeline.replace('Superior ', '');
     let level = ItemData.getGemLevel(item.parsedItem);
     let quality = ItemData.getQuality(item.parsedItem);
     let corrupted = item.parsedItem.corrupted;
     let identifier = getFullGemIdentifier(typeline, level, quality, corrupted);
 
-    let value = getValueFromTable(item, 'SkillGem', identifier);
+    let value = getValueFromTable(minItemValue, item, 'SkillGem', identifier);
     if (!value && item.parsedItem.hybrid && item.parsedItem.hybrid.baseTypeName) {
       let altIdentifier = getFullGemIdentifier(
         item.parsedItem.hybrid.baseTypeName,
@@ -294,10 +293,10 @@ async function price(item, league =  SettingsManager.get('activeProfile').league
         quality,
         corrupted
       );
-      value = value = getValueFromTable(item, 'SkillGem', altIdentifier);
+      value = value = getValueFromTable(minItemValue, item, 'SkillGem', altIdentifier);
     }
 
-    let vendorValue = getVendorRecipeValue(item);
+    let vendorValue = getVendorRecipeValue(minItemValue, item);
     return vendorValue ? Math.max(value, vendorValue.val) : value;
   }
 
@@ -325,7 +324,7 @@ async function price(item, league =  SettingsManager.get('activeProfile').league
     return str;
   }
 
-  function getMapValue(item) {
+  function getMapValue(minItemValue, item) {
     let name = item.typeline.replace('Superior ', '');
     const tier = ItemData.getMapTier(item.parsedItem);
     const series = getSeries(item.parsedItem.icon);
@@ -341,7 +340,7 @@ async function price(item, league =  SettingsManager.get('activeProfile').league
     const identifier = `${name} T${tier} ${series}`;
     // workaround poe.ninja bug
     const tempIdentifier = identifier.replace('Delirium', 'Delerium');
-    return getValueFromTable(item, 'Map', identifier) || getValueFromTable(item, 'Map', tempIdentifier);
+    return getValueFromTable(minItemValue, item, 'Map', identifier) || getValueFromTable(item, 'Map', tempIdentifier);
 
     function getSeries(icon) {
       if (icon.includes('https://web.poecdn.com/gen/image/')) {
@@ -408,11 +407,11 @@ async function price(item, league =  SettingsManager.get('activeProfile').league
     return '';
   }
 
-  function getSeedValue(item) {
-    const identifier = item.typeline + (getSeedLevel(item) >= 76 ? ' L76+' : '');
-    return getValueFromTable(item, 'Seed', identifier);
+  function getSeedValue(minItemValue, item) {
+    const identifier = item.typeline + (getSeedLevel(minItemValue, item) >= 76 ? ' L76+' : '');
+    return getValueFromTable(minItemValue, item, 'Seed', identifier);
 
-    function getSeedLevel(item) {
+    function getSeedLevel(minItemValue, item) {
       for (let i = 0; i < item.parsedItem.properties.length; i++) {
         let prop = item.parsedItem.properties[i];
         if (prop.name === 'Spawns a Level %0 Monster when Harvested') {
@@ -422,9 +421,9 @@ async function price(item, league =  SettingsManager.get('activeProfile').league
     }
   }
 
-  function getBaseTypeValue(item) {
+  function getBaseTypeValue(minItemValue, item) {
     if (item.parsedItem.ilvl < 82) {
-      return getVendorRecipeValue(item);
+      return getVendorRecipeValue(minItemValue, item);
     }
 
     let identifier = item.typeline.replace('Superior ', '');
@@ -452,12 +451,12 @@ async function price(item, league =  SettingsManager.get('activeProfile').league
       }
     }
 
-    let value = getValueFromTable(item, 'BaseType', identifier);
-    let vendorValue = getVendorRecipeValue(item);
+    let value = getValueFromTable(minItemValue, item, 'BaseType', identifier);
+    let vendorValue = getVendorRecipeValue(minItemValue, item);
     return vendorValue ? Math.max(value, vendorValue.val) : value;
   }
 
-  function getVendorRecipeValue(item) {
+  function getVendorRecipeValue(minItemValue, item) {
     let vendorValue;
 
     const sockets = ItemData.getSockets(item.parsedItem);
@@ -513,7 +512,7 @@ async function price(item, league =  SettingsManager.get('activeProfile').league
     }
   }
 
-  function getCurrencyValue(item) {
+  function getCurrencyValue(minItemValue, item) {
     // temporary workaround poe.ninja bug
     // if(item.typeline === "Stacked Deck") return 4 * item.stacksize;
 
@@ -532,21 +531,21 @@ async function price(item, league =  SettingsManager.get('activeProfile').league
           return item.stacksize / 20;
         }
       default:
-        return getValueFromTable(item, 'Currency');
+        return getValueFromTable(minItemValue, item, 'Currency');
     }
   }
 
-  function getUniqueMapValue(item) {
+  function getUniqueMapValue(minItemValue, item) {
     const name = item.name || Utils.getItemName(item.icon);
     const tier = ItemData.getMapTier(item.parsedItem);
     const typeline = item.typeline.replace('Superior ', '');
 
     const identifier = `${name} T${tier} ${typeline}`;
 
-    return getValueFromTable(item, 'UniqueMap', identifier);
+    return getValueFromTable(minItemValue, item, 'UniqueMap', identifier);
   }
 
-  function getUniqueItemValue(item) {
+  function getUniqueItemValue(minItemValue, item) {
     let identifier = item.name || Utils.getItemName(item.icon) || item.typeline;
 
     if (identifier === 'Grand Spectrum' || identifier === 'Combat Focus') {
@@ -615,8 +614,8 @@ async function price(item, league =  SettingsManager.get('activeProfile').league
       }
     }
 
-    let value = getValueFromTable(item, 'UniqueItem', identifier);
-    let vendorValue = getVendorRecipeValue(item);
+    let value = getValueFromTable(minItemValue, item, 'UniqueItem', identifier);
+    let vendorValue = getVendorRecipeValue(minItemValue, item);
     return vendorValue ? Math.max(value, vendorValue.val) : value;
   }
 
@@ -635,7 +634,7 @@ async function price(item, league =  SettingsManager.get('activeProfile').league
   }
 
   function getLinks(item) {
-    const sockets = ItemData.getSockets(item);
+    const sockets = ItemData.getSockets(minItemValue, item);
     for (let i = 0; i < sockets.length; i++) {
       if (sockets[i].length >= 5) {
         return ` ${sockets[i].length}L`;

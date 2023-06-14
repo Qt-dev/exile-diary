@@ -263,6 +263,7 @@ export class Item {
   value: number;
   area?: string;
   map_id?: string;
+  stashTabId?: string;
 
   constructor(store, itemdata: ItemData) {
     makeAutoObservable(this, {
@@ -330,17 +331,18 @@ export class Item {
     this.domElement = null;
 
     this.value = itemdata.value;
+    this.stashTabId = itemdata.stashTabId;
   }
 
   // Get the full name to display for an item
-  @computed getDisplayName(): string[] {
+  @computed getDisplayName(showQuantityInTitle = true): string[] {
     // Any normal Basetype with Quality
     if (!this.identified && this.quality > 0) {
       return [this.baseType];
     }
     // No identified property, no name -> This is a Gem
     if (!this.identified || !this.name) {
-      let name = (this.stackSize > 1 ? this.stackSize + ' x ' : '') + this.baseType;
+      let name = (showQuantityInTitle && this.stackSize > 1 ? this.stackSize + ' x ' : '') + this.baseType;
       if (this.gemLevel) {
         // Prepend Quality for Normal Gems
         // Alternate Qualities already have the right prefix in their name
@@ -394,11 +396,11 @@ export class Item {
   }
 
   toLootTable() {
-    const { id, value = 0, rawData } = this;
+    const { id, value = 0, stashTabId = '', rawData } = this;
     const { icon } = rawData;
     const name = rawData.name || rawData.secretName;
     const type = rawData.hybrid ? rawData.hybrid.baseTypeName : rawData.typeLine;
-    const quantity = rawData.maxStackSize ? rawData.pickupStackSize || rawData.stackSize : 1;
+    const quantity = rawData.maxStackSize ? rawData.pickupStackSize ?? rawData.stackSize : 1;
     const fullName = type + (name ? ` (${name})` : '');
     return {
       id,
@@ -407,6 +409,8 @@ export class Item {
       totalValue: value,
       icon,
       quantity,
+      stashTabId,
+      item: this,
     };
   }
 }

@@ -331,7 +331,7 @@ const createWindow = async () => {
     logger.info(
       `Updated stash tabs (League: ${data.league} - Change: ${data.change})`
     );
-    win.webContents.send('update-stash-tabs', data);
+    win.webContents.send('update-stash-content', data);
   });
 
   let saveBoundsCallback: any = null;
@@ -407,7 +407,7 @@ const createWindow = async () => {
 
   win.once('ready-to-show', () => {
     win.show();
-    logger.info('ready to show');
+    logger.info('App is ready to show');
 
     RendererLogger.log({
       messages: [

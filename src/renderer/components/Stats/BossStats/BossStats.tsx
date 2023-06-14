@@ -79,7 +79,7 @@ const BossTable = ({ stats }: { stats: { [key: string]: BossStat } }) => {
       className="Boss-Stats__Table"
     >
       <TableHead>
-        <TableRow className="Boss-Stats__Table-Header">
+        <TableRow className="Stats__Table-Header">
           <TableCell />
           {columns.map((column) => (
             <TableCell

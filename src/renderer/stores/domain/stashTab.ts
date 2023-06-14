@@ -1,4 +1,4 @@
-import { makeAutoObservable } from 'mobx';
+import { computed, makeAutoObservable } from 'mobx';
 import { StashTabData, ItemData } from '../../../helpers/types';
 import { electronService } from '../../electron.service';
 const { ipcRenderer, logger } = electronService;
@@ -7,6 +7,13 @@ const DisabledTypes = [
   'MapStash',
   'UniqueStash'
 ];
+
+export type StashTabSettings = {
+  id: string;
+  name: string;
+  type: string;
+  tracked: boolean;
+}
 
 export class StashTab {
   id: string;
@@ -22,7 +29,7 @@ export class StashTab {
   children?: StashTab[];
   disabled: boolean;
   tracked: boolean = false;
-  store = null;
+  store;
 
   constructor(store, stashTabData: StashTabData) {
     makeAutoObservable(this, {
@@ -54,11 +61,12 @@ export class StashTab {
   setTracking(tracked: boolean) {
     if(!this.disabled) {
       this.tracked = tracked;
-      const { id, name, type } = this;
-      const stashData = {
-        id, name, type, tracked
-      }
-      ipcRenderer.invoke('save-settings:stashtabs', { stashTabs: [stashData] });
+      this.store.saveTrackedStashTabs();
     }
+  }
+
+  @computed formattedForSettings() : StashTabSettings {
+    const { id, name, type, tracked } = this;
+    return { id, name, type, tracked };
   }
 }
