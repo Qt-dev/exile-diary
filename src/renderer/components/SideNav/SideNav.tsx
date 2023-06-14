@@ -22,7 +22,7 @@ const SideNav = ({ version, isNewVersion, turnNewVersionOff }) => {
   const menuData = [
     { name: 'Main', link: '/' },
     // { name: 'Gear', link: 'gear' },
-    // { name: 'Stash', link: 'stash' },
+    { name: 'Stash', link: 'stash' },
     // { name: 'Search', link: 'search' },
     { name: 'Stats', link: 'stats' },
     { name: 'Settings', link: 'settings' },

@@ -1,0 +1,52 @@
+.StashTabs {
+  margin-bottom: 30px;
+}
+
+.StashTab-Box {
+  padding: 0 5px;
+  min-width: 120px;
+  text-align: center;
+
+
+  color: white;
+  font-family: FontInSmallCaps;
+  text-shadow: 0px 0px 15px black;
+  border-radius: 3px;
+  border: 1px solid #888;
+  cursor: pointer;
+}
+
+.StashTab-Item-Container,
+.StashTab-Box-Container {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+
+.StashTabs__Filters {
+  display: flex;
+  align-items: stretch;
+  margin-bottom: 10px;
+  gap: 20px;
+  width: 100%;
+}
+
+.StashTabs__Filter {
+  flex-grow: 1;
+}
+
+.StashTabs__Header {
+  display: flex;
+  justify-content: space-between;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 10px;
+  width: 100%;
+}
+
+.StashTabs__Title {
+  margin-bottom: 20px;
+  font-family: FontInSmallCaps;
+  font-size: 1.5em;
+  color: white;
+}

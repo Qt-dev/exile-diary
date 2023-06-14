@@ -5,6 +5,7 @@ import SettingsManager from './SettingsManager';
 import GGGAPI from './GGGAPI';
 import AuthManager from './AuthManager';
 import StatsManager from './StatsManager';
+import StashTabsManager from './StashTabsManager';
 
 const getAppGlobals = async () => {
   logger.info('Loading global settings for the renderer process');
@@ -91,11 +92,17 @@ const getStashTabs = async (e, params) => {
   logger.info('Getting all stashes for the renderer process');
   const league = SettingsManager.get('activeProfile').league;
   const trackedTabsIds = SettingsManager.get('trackedStashTabs')[league] ?? [];
-  logger.info(trackedTabsIds);
-  const stashes = (await GGGAPI.getAllStashTabs()).map((stash) => {
-    stash.tracked = trackedTabsIds.includes(stash.id); return stash;
-  });
-  return stashes;
+  const stashTabs = (await GGGAPI.getAllStashTabs())
+    .map((stash) => {
+      if(stash.children) {
+        stash.children = stash.children.map((child) => {
+          return { ...child, tracked: trackedTabsIds.includes(child.id) };
+        });
+      }
+      return {...stash, tracked: trackedTabsIds.includes(stash.id)};
+    });
+  const stashData = await StashTabsManager.getStashData();
+  return { stashTabs, data: stashData };
 };
 
 const saveStashTabs = async (e, params) => {
@@ -103,15 +110,8 @@ const saveStashTabs = async (e, params) => {
   const { stashTabs } = params;
   const allTrackedTabs = SettingsManager.get('trackedStashTabs') ?? {};
   const league = SettingsManager.get('activeProfile').league;
-  const trackedTabs = allTrackedTabs && allTrackedTabs[league] ? allTrackedTabs[league] : [];
-  for (const stashTab of stashTabs) {
-    trackedTabs.splice(trackedTabs.indexOf(stashTab.id), 1);
-    if(stashTab.tracked) {
-      trackedTabs.push(stashTab.id);
-    }
-    allTrackedTabs[league] = trackedTabs.sort();
-    SettingsManager.set('trackedStashTabs', allTrackedTabs);
-  }
+  allTrackedTabs[league] = stashTabs.sort().filter((stashTab, index) => stashTabs.indexOf(stashTab) === index).map(stashTab => stashTab.id);
+  SettingsManager.set('trackedStashTabs', allTrackedTabs);
 };
 
 const Responder = {

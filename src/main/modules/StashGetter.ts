@@ -132,7 +132,7 @@ class StashGetter {
 
     const params = {
       league: settings.activeProfile.league,
-      tabs: watchedTabs,
+      trackedStashTabs: watchedTabs,
       accountName: settings.username,
       timestamp: timestamp,
     };
@@ -159,7 +159,6 @@ class StashGetter {
       }   
     }
 
-
     if (tabs.items.length > 0) {
       const { value: latestStashValue } = await DB.getLatestStashValue(settings.activeProfile.league);
       if (latestStashValue && Number(tabs.value).toFixed(2) === Number(latestStashValue.value).toFixed(2)) {
@@ -171,7 +170,7 @@ class StashGetter {
         emitter.emit('netWorthUpdated');
         emitter.emit('scheduleNewStashCheck');
       } else {
-        const rawData = getFullStash ? await Utils.compress(tabs.items) : '{}';
+        const rawData = await Utils.compress(tabs.items);
         try {
           await DB.insertStashData(timestamp, tabs.value, rawData, settings.activeProfile.league);
           logger.info(
@@ -220,7 +219,16 @@ class StashGetter {
   async getTabList(settings) : Promise<StashTabData[]> {
     try {
       const tabs = await GGGAPI.getAllStashTabs();
-      return settings.tabs === null ? [] : tabs.filter((tab) => settings.tabs.includes(tab.id));
+      const flattenedStashTabs : any[] = [];
+      for(const stashTab of tabs) {
+        flattenedStashTabs.push(stashTab);
+        if(stashTab.children) {
+          flattenedStashTabs.push(...stashTab.children);
+        }
+      }
+
+      logger.info(`trackedStashTabs: ${settings.trackedStashTabs} | ${flattenedStashTabs.filter((tab) => settings.trackedStashTabs.includes(tab.id))}`);
+      return settings.trackedStashTabs === null ? [] : flattenedStashTabs.filter((tab) => settings.trackedStashTabs.includes(tab.id));
     } catch (error) {
       logger.error(`Failed to get tabs for ${settings.username} in ${settings.league}: ${error}`);
       return [];
@@ -230,7 +238,7 @@ class StashGetter {
   async getTabData(tab, params) : Promise<ParsedTabData> {
     try {
       const stashTab = await GGGAPI.getStashTab(tab.id);
-      const tabData = await this.parseTab(stashTab.items, params.timestamp, tab.name);
+      const tabData = await this.parseTab(stashTab.items, params.timestamp, tab);
       return tabData;
     } catch (e) {
       logger.error(`Failed to get tab ${tab.index} for ${params.username} in ${params.league}: ${e}`);
@@ -238,18 +246,18 @@ class StashGetter {
     }
   }
 
-  async parseTab(items, timestamp, tabName) : Promise<ParsedTabData> {
+  async parseTab(items, timestamp, stashTab) : Promise<ParsedTabData> {
     let totalValue = 0;
     const settings = await SettingsManager.getAll();
     const tabItems : any[] = [];
 
     for(const item of items) {
-      const parsedItem = this.parseItem(item, timestamp, tabName);
+      const parsedItem = this.parseItem(item, timestamp);
       const value = await ItemPricer.price(parsedItem, settings.activeProfile.league);
 
       // vendor recipes handled manually
       totalValue += value.isVendor ? 0 : value;
-      tabItems.push(item);
+      tabItems.push({...item, stashTabId: stashTab.id, stashTabName: stashTab.name, value});
     };
 
     return {
@@ -258,12 +266,11 @@ class StashGetter {
     };
   }
 
-  parseItem(rawdata, timestamp, tabName) {
+  parseItem(rawdata, timestamp) {
     const arr = ItemParser.parseItem(rawdata);
     return {
       id: arr[0],
       event_id: timestamp,
-      tabName,
       icon: arr[2],
       name: arr[3],
       rarity: arr[4],
