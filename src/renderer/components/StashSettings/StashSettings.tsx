@@ -1,7 +1,8 @@
 import React from 'react';
-import { Observer, observer } from 'mobx-react-lite';
+import { observer } from 'mobx-react-lite';
 import List from '@mui/material/List';
 import ListItem from '@mui/material/ListItem';
+import TextField from '@mui/material/TextField';
 import classNames from 'classnames';
 import './StashSettings.css';
 
@@ -11,7 +12,7 @@ import Checkbox from '@mui/material/Checkbox';
 import ListItemText from '@mui/material/ListItemText';
 import ListItemIcon from '@mui/material/ListItemIcon';
 import Button from '@mui/material/Button';
-const { logger } = electronService;
+const { logger, ipcRenderer } = electronService;
 
 const ContainerComponent = ({ children, isFolder, disabled, callback }) => {
   if(isFolder) {
@@ -83,16 +84,28 @@ const StashTabRow = ({ stashTab, indentationLevel = 0 }) => {
 const ObservedStashTabRow = observer(StashTabRow);
 
 const StashSettings = ({ store, settings }) => {
+  const [ refreshInterval, setRefreshInterval ] = React.useState(settings?.netWorthCheck?.interval ?? 500);
+  let refreshIntervalUpdateTimeout : NodeJS.Timeout | undefined = undefined;
   const handleStoreRefreshCallback= () => {
     store.fetchStashTabs();
+  };
+  const handleUpdateInterval = async (e) => {
+    const newInterval = e.target.value;
+    setRefreshInterval(newInterval);
+    // We delay the settings save in case the user is still typingF
+    clearTimeout(refreshIntervalUpdateTimeout);
+    refreshIntervalUpdateTimeout = setTimeout(() => {
+      ipcRenderer.invoke('save-settings:stash-refresh-interval', { interval: newInterval });
+    }, 3000);
   };
   return (
     <div className='Stash-Settings'>
       <div className="Stash-Settings__Header">
-        <div>
-          <div>Select the stash tabs you want to track, The app will then start pulling stats from these periodically</div>
-          <div>Unique and Maps stash tabs are disabled because such tabs take so much time that Exile Diary would not be able to be able to read these in time for proper stats aggregation.</div>
-        </div>
+        <div>Select the stash tabs you want to track, The app will then start pulling stats from these periodically</div>
+        <div>Unique and Maps stash tabs are disabled because such tabs take so much time that Exile Diary would not be able to be able to read these in time for proper stats aggregation.</div>
+      </div>
+      <div className='Stash-Settings__Settings-Form'>
+        <TextField size="small" type="number" label='Refresh Frequency (seconds)' value={refreshInterval} onChange={handleUpdateInterval}/>
         <Button variant="outlined" disabled={store.isLoading} onClick={handleStoreRefreshCallback}>Refresh Tabs</Button>
       </div>
       <List className='Stash-Settings__List'>

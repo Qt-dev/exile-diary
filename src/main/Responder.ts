@@ -6,6 +6,7 @@ import GGGAPI from './GGGAPI';
 import AuthManager from './AuthManager';
 import StatsManager from './StatsManager';
 import StashTabsManager from './StashTabsManager';
+import stashGetter from './modules/StashGetter';
 
 const getAppGlobals = async () => {
   logger.info('Loading global settings for the renderer process');
@@ -114,6 +115,13 @@ const saveStashTabs = async (e, params) => {
   SettingsManager.set('trackedStashTabs', allTrackedTabs);
 };
 
+const saveStashRefreshInterval = async (e, params) => {
+  logger.info('Saving stash refresh interval from the renderer process');
+  const { interval } = params;
+  SettingsManager.set('netWorthCheck', { interval });
+  stashGetter.refreshInterval();
+};
+
 const Responder = {
   'app-globals': getAppGlobals,
   'load-runs': loadRuns,
@@ -123,6 +131,7 @@ const Responder = {
   'get-characters': getCharacters,
   'save-settings': saveSettings,
   'save-settings:stashtabs': saveStashTabs,
+  'save-settings:stash-refresh-interval': saveStashRefreshInterval,
   'oauth:get-info': getAuthInfo,
   'oauth:is-authenticated': isAuthenticated,
   'oauth:logout': logout,

@@ -139,6 +139,7 @@ const createWindow = async () => {
     'get-all-stats',
     'get-stash-tabs',
     'save-settings:stashtabs',
+    'save-settings:stash-refresh-interval',
   ];
   for (const event of events) {
     ipcMain.handle(event, Responder[event]);

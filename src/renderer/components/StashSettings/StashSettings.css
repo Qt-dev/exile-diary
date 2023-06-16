@@ -1,9 +1,11 @@
 .Stash-Settings__Header {
   margin: 20px 0 0;
   color: white;
-  display: flex;
+  /* display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: space-between; */
+  text-align: center;
+  width: 100%;
   gap: 20px;
 }
 
@@ -48,4 +50,16 @@
 
 .Stash-Settings__Item-Icon__Checkbox {
   background-color: #888;
+}
+
+.Stash-Settings__Settings-Form {
+  margin: 20px 0 10px;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-evenly;
+  gap: 50px;
+}
+
+.Stash-Settings__Settings-Form * {
+  flex-grow: 1;
 }

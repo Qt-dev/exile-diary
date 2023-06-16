@@ -13,6 +13,7 @@ const ItemPricer = require('./ItemPricer');
 
 
 const emitter = new EventEmitter();
+const DefaultInterval = 300;
 
 type ParsedTabData = {
   value: number;
@@ -22,7 +23,7 @@ type ParsedTabData = {
 class StashGetter {
   offlineStashChecked: boolean = false;
   nextStashGetTimer?: NodeJS.Timeout;
-  nextTimestamp: number = 0;
+  previousTimestamp: number = 0;
   constructor() {
   }
 
@@ -34,21 +35,22 @@ class StashGetter {
 
       emitter.removeAllListeners('scheduleNewStashCheck');
       emitter.on('scheduleNewStashCheck', () => {
-        clearTimeout(this.nextStashGetTimer);
-        // default 5 min between checks
-        let interval = 300;
-        if (settings.netWorthCheck && settings.netWorthCheck.interval) {
-          interval = settings.netWorthCheck.interval;
-        }
-        if (!this.offlineStashChecked) {
-          logger.info(`Next net worth check in ${interval} seconds`);
-          this.nextStashGetTimer = setTimeout(() => {
-            this.tryGet();
-          }, interval * 1000);
-        }
+        this.refreshInterval();
       });
       this.tryGet();
     }
+  }
+
+  async refreshInterval() {
+    const { interval = DefaultInterval } = SettingsManager.get('netWorthCheck');
+    clearTimeout(this.nextStashGetTimer);
+    // default 5 min between checks
+    const newInterval = this.previousTimestamp ? interval - ((moment().unix() - this.previousTimestamp) / 1000) : interval;
+
+    logger.info(`Next net worth check in ${newInterval} seconds`);
+    this.nextStashGetTimer = setTimeout(() => {
+      this.tryGet();
+    }, newInterval * 1000);
   }
 
   async tryGet() {
@@ -70,11 +72,8 @@ class StashGetter {
         emitter.emit('scheduleNewStashCheck');
         return;
       } else {
-        logger.info('PoE not running or in AFK mode - suspending net worth check temporarily');
-        this.offlineStashChecked = true;
+        logger.info('PoE not running or in AFK mode - not checking Stash Tabs right now');
       }
-    } else {
-      this.offlineStashChecked = false;
     }
 
     this.get();
