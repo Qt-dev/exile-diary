@@ -37,23 +37,23 @@ async function getRatesFor(eventId : string, league = SettingsManager.get('activ
 }
 
 
-async function price(item, league =  SettingsManager.get('activeProfile').league) {
+async function price(item, league =  SettingsManager.get('activeProfile').league) : Promise<{isVendor: boolean, value: number}> {
   // Absolutely unreasonable amounts of pricing trouble. Enough of this!
   if (item.typeline === "Rogue's Marker") {
-    return 0;
+    return {isVendor: false, value: 0 };
   }
 
   if (item.rarity === 'Quest Item') {
     // can't be traded
-    return 0;
+    return {isVendor: false, value: 0 };
   }
   if (nonPricedCategories.includes(item.category)) {
-    return 0;
+    return {isVendor: false, value: 0 };
   }
 
   const rates = await getRatesFor(item.event_id, league);
   if (!rates) {
-    return 0;
+    return {isVendor: false, value: 0 };
   }
 
   item.parsedItem = JSON.parse(item.rawdata);
@@ -74,20 +74,20 @@ async function price(item, league =  SettingsManager.get('activeProfile').league
   }
 
   if (item.typeline.includes('Watchstone')) {
-    return getWatchstoneValue(minItemValue, item);
+    return { isVendor: false, value: getWatchstoneValue(minItemValue, item) };
   }
 
   let helmetBaseValue;
 
   if (item.rarity === 'Unique') {
     if (item.category === 'Maps') {
-      return getUniqueMapValue(minItemValue, item);
+      return { isVendor: false, value: getUniqueMapValue(minItemValue, item) };
     } else {
       // handle helmet enchants - if item is a helmet, don't return value yet
       if (item.category === 'Helmets') {
         helmetBaseValue = getUniqueItemValue(minItemValue, item);
       } else {
-        return getUniqueItemValue(minItemValue, item);
+        return { isVendor: false, value: getUniqueItemValue(minItemValue, item)};
       }
     }
   } else {
@@ -96,34 +96,34 @@ async function price(item, league =  SettingsManager.get('activeProfile').league
       (item.typeline.includes('Flask') || item.typeline.includes('Jewel')) &&
       baseTypeRarities.includes(item.rarity)
     ) {
-      return 0;
+      return {isVendor: false, value: 0 };
     }
   }
 
   if (item.typeline.includes("Maven's Invitation")) {
-    return getValueFromTable(minItemValue, item, 'Invitation', item.typeline);
+    return { isVendor: false, value: getValueFromTable(minItemValue, item, 'Invitation', item.typeline)};
   }
 
   //Invitations
   if (item.typeline.includes('Polaric Invitation')) {
-    return getValueFromTable(minItemValue, item, 'Invitation', item.typeline);
+    return { isVendor: false, value: getValueFromTable(minItemValue, item, 'Invitation', item.typeline)};
   }
 
   if (item.typeline.includes('Screaming Invitation')) {
-    return getValueFromTable(minItemValue, item, 'Invitation', item.typeline);
+    return { isVendor: false, value: getValueFromTable(minItemValue, item, 'Invitation', item.typeline)};
   }
 
   if (item.typeline.includes('Incandescent Invitation')) {
-    return getValueFromTable(minItemValue, item, 'Invitation', item.typeline);
+    return { isVendor: false, value: getValueFromTable(minItemValue, item, 'Invitation', item.typeline)};
   }
 
   if (item.typeline.includes('Writhing Invitation')) {
-    return getValueFromTable(minItemValue, item, 'Invitation', item.typeline);
+    return { isVendor: false, value: getValueFromTable(minItemValue, item, 'Invitation', item.typeline)};
   }
 
   //Memories
   if (item.typeline.includes("'s Memory")) {
-    return getValueFromTable(minItemValue, item, 'Fragment', item.typeline);
+    return { isVendor: false, value: getValueFromTable(minItemValue, item, 'Fragment', item.typeline)};
   }
 
   if (
@@ -134,25 +134,25 @@ async function price(item, league =  SettingsManager.get('activeProfile').league
     (item.typeline.includes('Timeless') && item.typeline.includes('Splinter')) ||
     item.typeline.startsWith('Splinter of')
   ) {
-    return getValueFromTable(minItemValue, item, 'Fragment');
+    return { isVendor: false, value: getValueFromTable(minItemValue, item, 'Fragment') };
   }
   if (item.category === 'Harvest Seed') {
-    return getSeedValue(minItemValue, item);
+    return { isVendor: false, value: getSeedValue(minItemValue, item) };
   }
   if (item.rarity === 'Currency' || item.typeline.includes('Incubator')) {
-    return getCurrencyValue(minItemValue, item);
+    return { isVendor: false, value: getCurrencyValue(minItemValue, item) };
   }
   if (item.category === 'Maps') {
-    return getMapValue(minItemValue, item);
+    return { isVendor: false, value: getMapValue(minItemValue, item) };
   }
   if (item.rarity === 'Divination Card') {
-    return getValueFromTable(minItemValue, item, 'DivinationCard');
+    return { isVendor: false, value: getValueFromTable(minItemValue, item, 'DivinationCard') };
   }
   if (item.rarity === 'Prophecy') {
-    return getValueFromTable(minItemValue, item, 'Prophecy');
+    return { isVendor: false, value: getValueFromTable(minItemValue, item, 'Prophecy') };
   }
   if (item.category && item.category.includes('Skill Gems')) {
-    return getGemValue(minItemValue, item);
+    return { isVendor: false, value: getGemValue(minItemValue, item) };
   }
 
   if (
@@ -169,12 +169,12 @@ async function price(item, league =  SettingsManager.get('activeProfile').league
 
   if (helmetBaseValue >= 0) {
     const helmetEnchantValue = getHelmetEnchantValue(minItemValue, item);
-    return Math.max(helmetBaseValue, helmetEnchantValue);
+    return { isVendor: false, value: Math.max(helmetBaseValue, helmetEnchantValue) };
   }
 
   logger.info(`Unable to get value for item ${item.id || '(no id)'}:`);
   logger.info(JSON.stringify(item.parsedItem));
-  return 0;
+  return { isVendor: false, value: 0 };
 
   /* sub-functions for getting value per item type*/
 
@@ -297,7 +297,7 @@ async function price(item, league =  SettingsManager.get('activeProfile').league
     }
 
     let vendorValue = getVendorRecipeValue(minItemValue, item);
-    return vendorValue ? Math.max(value, vendorValue.val) : value;
+    return vendorValue ? Math.max(value, vendorValue.value) : value;
   }
 
   function getFullGemIdentifier(str, level, quality, corrupted) {
@@ -427,7 +427,7 @@ async function price(item, league =  SettingsManager.get('activeProfile').league
     }
 
     let identifier = item.typeline.replace('Superior ', '');
-    if (identifier.endsWith('Talisman')) return 0;
+    if (identifier.endsWith('Talisman')) return { isVendor: false, value: 0 };
 
     if (item.rarity === 'Magic' && item.identified) {
       // strip affixes from magic item name
@@ -453,7 +453,7 @@ async function price(item, league =  SettingsManager.get('activeProfile').league
 
     let value = getValueFromTable(minItemValue, item, 'BaseType', identifier);
     let vendorValue = getVendorRecipeValue(minItemValue, item);
-    return vendorValue ? Math.max(value, vendorValue.val) : value;
+    return { isVendor: false, value: vendorValue ? Math.max(value, vendorValue.value) : value };
   }
 
   function getVendorRecipeValue(minItemValue, item) {
@@ -484,7 +484,7 @@ async function price(item, league =  SettingsManager.get('activeProfile').league
     }
 
     if (!vendorValue) {
-      return { isVendor: false, val: 0};
+      return { isVendor: false, value: 0};
     } else {
       let currFilter = ItemFilter.getForCategory('currency');
       if (currFilter.ignore) {
@@ -495,20 +495,20 @@ async function price(item, league =  SettingsManager.get('activeProfile').league
                 `Vendor value ${vendorValue} < currency min value ${currFilter.minValue}, returning`
               );
             }
-            return { isVendor: false, val: 0};
+            return { isVendor: false, value: 0};
           }
         } else {
           if (log) {
             logger.info(`Ignoring currency unconditionally?!? Returning 0`);
           }
-          return { isVendor: false, val: 0};
+          return { isVendor: false, value: 0};
         }
       }
 
       if (log) {
         logger.info('Returning vendor value ' + vendorValue);
       }
-      return { isVendor: true, val: vendorValue };
+      return { isVendor: true, value: vendorValue };
     }
   }
 
@@ -545,7 +545,7 @@ async function price(item, league =  SettingsManager.get('activeProfile').league
     return getValueFromTable(minItemValue, item, 'UniqueMap', identifier);
   }
 
-  function getUniqueItemValue(minItemValue, item) {
+  function getUniqueItemValue(minItemValue, item) : number {
     let identifier = item.name || Utils.getItemName(item.icon) || item.typeline;
 
     if (identifier === 'Grand Spectrum' || identifier === 'Combat Focus') {
@@ -616,7 +616,7 @@ async function price(item, league =  SettingsManager.get('activeProfile').league
 
     let value = getValueFromTable(minItemValue, item, 'UniqueItem', identifier);
     let vendorValue = getVendorRecipeValue(minItemValue, item);
-    return vendorValue ? Math.max(value, vendorValue.val) : value;
+    return vendorValue ? Math.max(value, vendorValue.value) : value;
   }
 
   function getValueUnidWithconstiants(possibleIdentifiers) {
