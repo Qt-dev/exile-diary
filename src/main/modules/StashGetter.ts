@@ -73,6 +73,7 @@ class StashGetter {
         return;
       } else {
         logger.info('PoE not running or in AFK mode - not checking Stash Tabs right now');
+        return;
       }
     }
 
