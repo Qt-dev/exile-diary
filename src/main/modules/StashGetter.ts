@@ -160,13 +160,13 @@ class StashGetter {
 
     if (tabs.items.length > 0) {
       const { value: latestStashValue } = await DB.getLatestStashValue(settings.activeProfile.league);
-      if (latestStashValue && Number(tabs.value).toFixed(2) === Number(latestStashValue.value).toFixed(2)) {
+      if (latestStashValue && Number(tabs.value).toFixed(2) === Number(latestStashValue).toFixed(2)) {
         logger.info(
           `No change in ${settings.activeProfile.league} stash value (${Number(tabs.value).toFixed(
             2
           )}) since last update`
         );
-        emitter.emit('netWorthUpdated');
+        emitter.emit('netWorthUpdated', { value: Number(tabs.value).toFixed(2), change: 0 });
         emitter.emit('scheduleNewStashCheck');
       } else {
         const rawData = await Utils.compress(tabs.items);
@@ -185,17 +185,19 @@ class StashGetter {
 
         try {
           const value = await DB.getPreviousStashValue(timestamp, settings.activeProfile.league);
+          let change = 0;
+          if (value) {
+            change = Number(tabs.value - value);
+          }
           if (getFullStash) {
-            let change =
-              value ? Number(tabs.value - value).toFixed(2) : 'new';
             emitter.emit('stashTabs:updated:full', {
               tabs,
               value: Number(tabs.value).toFixed(2),
-              change: change,
+              change,
               league: settings.activeProfile.league,
             });
           } else {
-            emitter.emit('netWorthUpdated');
+            emitter.emit('netWorthUpdated', { value: Number(tabs.value).toFixed(2), change });
           }
           emitter.emit('scheduleNewStashCheck');
         } catch (err) {
@@ -208,6 +210,19 @@ class StashGetter {
     } else {
       logger.info(`No items found in ${settings.activeProfile.league} stash, returning`);
       emitter.emit('scheduleNewStashCheck');
+    }
+  }
+  
+  async getNetWorth() {
+    const settings = SettingsManager.getAll();
+    const { value: latestStashValue, timestamp } = await DB.getLatestStashValue(settings.activeProfile.league);
+    const previousStashValue = await DB.getPreviousStashValue(timestamp, settings.activeProfile.league);
+    let change = 0;
+    if (previousStashValue) {
+      change = Number(latestStashValue) - Number(previousStashValue);
+    }
+    if (latestStashValue) {
+      emitter.emit('netWorthUpdated', { value: Number(latestStashValue).toFixed(2), change });
     }
   }
 
