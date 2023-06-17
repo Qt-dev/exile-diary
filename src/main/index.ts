@@ -334,6 +334,12 @@ const createWindow = async () => {
     );
     win.webContents.send('update-stash-content', data);
   });
+  StashGetter.on('netWorthUpdated', (data) => {
+    win.webContents.send('update-net-worth', data);
+  });
+  ipcMain.on('get-net-worth', () => {
+    StashGetter.getNetWorth();
+  });
 
   let saveBoundsCallback: any = null;
   const saveWindowBounds = () => {

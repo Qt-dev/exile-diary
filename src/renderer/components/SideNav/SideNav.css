@@ -57,29 +57,30 @@
   margin: auto;
 }
 
-.Side-Nav .Net-Worth {
-  display: none;
-  position: fixed;
-  padding: 1px;
-  left: 10px;
-  width: 160px;
+.Net-Worth__Container {
   text-align: center;
   background-color: #111;
-  border: 1px solid #333;
-  border-radius: 16px;
 }
 
-.Side-Nav .Net-Worth__Graph {
-  height: 70px;
-  width: 140px;
-  margin-top: 8px;
-  margin-bottom: 8px;
-  margin-left: 8px;
-  font-size: 0;
+.Net-Worth {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  padding: 5px;
 }
 
 .Side-Nav .Net-Worth__Total {
   /* display: none; */
 }
 .Side-Nav .Net-Worth__Total__Text {
+  color: white;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+}
+
+.Net-Worth__Total__Icon {
+  height: 1.5em;
 }

@@ -58,15 +58,15 @@ const StashTabs = {
       return 0;
     }
   },
-  getLatestStashValue: async (league: string): Promise<any> => {
+  getLatestStashValue: async (league: string): Promise<{timestamp: number, value: number, len: number}> => {
     logger.info(`Getting latest stash value from DB`);
-    const query = 'SELECT value, length(items) as len FROM stashes order by timestamp desc limit 1';
+    const query = 'SELECT timestamp, value, length(items) as len FROM stashes order by timestamp desc limit 1';
     try {
-      const [{ value, len }] = (await DB.all(query, [], league)) as any[];
-      return { value, len };
+      const [{ timestamp, value, len }] = (await DB.all(query, [], league)) as any[];
+      return { timestamp, value, len };
     } catch(err) {
       logger.error(`Error getting latest stash value: ${JSON.stringify(err)}`);
-      return {};
+      return { timestamp: 0, value: 0, len: 0};
     }
   },
 };

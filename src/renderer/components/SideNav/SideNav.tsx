@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import Divider from '@mui/material/Divider';
@@ -10,8 +10,22 @@ import Logo from '../../assets/img/icons/png/128x128.png';
 import Chaos from '../../assets/img/c.png';
 import Patreon from '../../assets/img/patreon.png';
 import './SideNav.css';
+const { ipcRenderer, logger } = electronService;
+
+const NetWorth = ({ value, change }) => {
+  const changeClassNames = classNames({
+    'Text--Error': change < 0,
+    'Text--Legendary': change > 0,
+  })
+  const formattedChange = <span className={changeClassNames}>{change >= 0 ? '+' : ''}{change}</span>;
+  return (<div className="Net-Worth">
+    <div>Net Worth:</div>
+    <div className="Net-Worth__Total__Text">{value}<img alt="Chaos Icon" className="Net-Worth__Total__Icon" src={Chaos} /> ({formattedChange})</div>
+  </div>)
+}
 
 const SideNav = ({ version, isNewVersion, turnNewVersionOff }) => {
+  const [ netWorth, setNetWorth ] = React.useState(<>---</>);
   const about = () => {
     turnNewVersionOff();
   };
@@ -27,6 +41,13 @@ const SideNav = ({ version, isNewVersion, turnNewVersionOff }) => {
     { name: 'Stats', link: 'stats' },
     { name: 'Settings', link: 'settings' },
   ];
+
+  useEffect(() => {
+    ipcRenderer.on('update-net-worth', (event, { value, change }) => {
+      setNetWorth(<NetWorth value={value} change={change} />);
+    });
+    ipcRenderer.send('get-net-worth');
+  }, []);
 
   return (
     <div className="Side-Nav Box">
@@ -75,13 +96,8 @@ const SideNav = ({ version, isNewVersion, turnNewVersionOff }) => {
         <img alt="Patreon Button" onClick={openPatreon} className="Patreon-Button" src={Patreon} />
       </div>
 
-      <div id="sideNetWorth" className="Net-Worth">
-        <div>Net Worth</div>
-        <div id="Net-Worth__Total">
-          <span className="Net-Worth__Total__Text" id="sideNetWorthCValue"></span>
-          <img alt="Net Worth Total" className="Net-Worth__Total__Icon" src={Chaos} />
-        </div>
-        <div id="Net-Worth__Graph"></div>
+      <div className="Net-Worth__Container">
+        {netWorth}
       </div>
 
       <div id="myModal" className="modal">
