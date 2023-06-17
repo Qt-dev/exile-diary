@@ -549,17 +549,14 @@ function getItemsFor(evt) {
             if (item.value) {
               totalValue += item.value;
             } else {
-              var value = await ItemPricer.price(item);
-              if (!value) {
-                value = 0;
-              }
-              if (value.isVendor) {
-                totalValue += value.val;
-                value = 0;
+              const price = (await ItemPricer.price(item)) ?? { isVendor: false, value: 0 };
+              if (price.isVendor) {
+                totalValue += price.value;
+                price = 0;
               } else {
-                totalValue += value;
+                totalValue += price.value;
               }
-              itemArr.push([value, item.id, item.event_id]);
+              itemArr.push([price.value, item.id, item.event_id]);
             }
           }
         }

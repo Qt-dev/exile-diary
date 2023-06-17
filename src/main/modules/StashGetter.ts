@@ -267,11 +267,11 @@ class StashGetter {
 
     for(const item of items) {
       const parsedItem = this.parseItem(item, timestamp);
-      const value = await ItemPricer.price(parsedItem, settings.activeProfile.league);
+      const price = await ItemPricer.price(parsedItem, settings.activeProfile.league);
 
       // vendor recipes handled manually
-      totalValue += value.isVendor ? 0 : value;
-      tabItems.push({...item, stashTabId: stashTab.id, stashTabName: stashTab.name, value});
+      totalValue += price.isVendor ? 0 : price.value;
+      tabItems.push({...item, stashTabId: stashTab.id, stashTabName: stashTab.name, value: price.value});
     };
 
     return {
