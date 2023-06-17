@@ -1,4 +1,5 @@
 import React from 'react';
+import { Tooltip } from '@mui/material';
 import MavenIcon from '../../assets/img/encountericons/maven.png';
 import BlightIcon from '../../assets/img/encountericons/blight.png';
 import BlightedMapIcon from '../../assets/img/encountericons/blightedmap.png';
@@ -7,18 +8,33 @@ import BaranIcon from '../../assets/img/encountericons/baran.png';
 import AlHezminIcon from '../../assets/img/encountericons/al-hezmin.png';
 import VeritaniaIcon from '../../assets/img/encountericons/veritania.png';
 import DroxIcon from '../../assets/img/encountericons/drox.png';
+import EradicatorIcon from '../../assets/img/encountericons/eradicator.png';
+import ConstrictorIcon from '../../assets/img/encountericons/constrictor.png';
+import PurifierIcon from '../../assets/img/encountericons/purifier.png';
+import EnslaverIcon from '../../assets/img/encountericons/enslaver.png';
+import MetamorphIcon from '../../assets/img/encountericons/metamorph.png';
+import JunIcon from '../../assets/img/encountericons/jun.png';
+import ShrineIcon from '../../assets/img/encountericons/shrine.png';
+import { electronService } from '../../electron.service';
+const { logger } = electronService;
 // import BaranIcon from , the Crusader'
 // 'Al-Hezmin, the Hunter'
 // 'Veritania, the Redeemer'
 // 'Drox, the Warlord'
 
-import { Tooltip } from '@mui/material';
 
-const ElderGuardianMap = {
+const ConquerorsMap = {
   'Baran, the Crusader': BaranIcon,
   'Al-Hezmin, the Hunter': AlHezminIcon,
   'Veritania, the Redeemer': VeritaniaIcon,
   'Drox, the Warlord': DroxIcon,
+};
+
+const ElderGuardiansMap = {
+  'The Eradicator': EradicatorIcon,
+  'The Constrictor': ConstrictorIcon,
+  'The Purifier': PurifierIcon,
+  'The Enslaver': EnslaverIcon,
 };
 
 // React component that displays the icons for the run events
@@ -51,12 +67,28 @@ const iconMap = {
       alt: 'Contained an Envoy Encounter',
     };
   },
+  conquerors: (info) => {
+    const guardianKey = info.conquerors;
+    return {
+      condition: !!info.conquerors,
+      icon: ConquerorsMap[guardianKey],
+      alt: `Contained a ${guardianKey} Encounter`,
+    };
+  },
   elderGuardian: (info) => {
-    const guardianKey = info.elderGuardian?.replace('The ', '');
+    const guardianKey = info.elderGuardian;
     return {
       condition: !!info.elderGuardian,
-      icon: ElderGuardianMap[guardianKey],
-      alt: `Contained a ${guardianKey} Encounter`,
+      icon: ElderGuardiansMap[guardianKey],
+      alt: `Contained a ${guardianKey?.replace('The ', '')} Encounter`,
+    };
+  },
+  conqueror: (info) => { 
+    logger.info(info);
+    return {
+      condition: !!info.conqueror,
+      icon: MavenIcon,
+      alt: 'Contained a Conqueror Encounter',
     };
   },
   maven: (info) => {
@@ -69,86 +101,60 @@ const iconMap = {
       alt: 'Boss Battle witnessed by the Maven',
     };
   },
+  metamorph: (info) => {
+    return {
+      condition: !!info.metamorph,
+      icon: MetamorphIcon,
+      alt: 'Contained a Metamorph Encounter',
+      additionalIcons: Object.keys(info?.metamorph).map((organ) => {
+        const Icon = require(`../../assets/img/metamorphicons/${organ}.png`);
+        return <Tooltip title={`${organ} x ${info.metamorph[organ]}`}><img className="Run-Event__Mini-Icon" src={Icon} alt={organ} /></Tooltip>;
+      }),
+    };
+  },
+  syndicate: (info) => {
+    const tooltipText = info.syndicate ? <>
+      <div>Encountered {Object.keys(info?.syndicate).length} Syndicate Members</div>
+      <ul className='Tooltip-List'>{Object.keys(info?.syndicate).map((syndicateMember) => <li>{syndicateMember}</li> )}</ul>
+    </> : null;
+    return {
+      condition: !!info.syndicate,
+      icon: JunIcon,
+      alt: 'Contained a Syndicate Encounter',
+      tooltip: tooltipText,
+    };
+  },
+  shrines: (info) => {
+    return {
+      condition: !!info.shrines,
+      icon: ShrineIcon,
+      alt: `Contained ${info?.shrines?.length} Shrine${info?.shrines?.length > 1 ? 's' : ''}`,
+      additionalIcons: info?.shrines?.map((shrine) => {
+        const Icon = require(`../../assets/img/shrineicons/${shrine.replace(' Shrine', '')}.png`);
+        return <Tooltip title={shrine}><img className="Run-Event__Mini-Icon" src={Icon} alt={shrine} /></Tooltip>;
+      }),
+    };
+  },
 };
-
-/*
-        if(info.strangeVoiceEncountered) {
-          $("#masterDiv").show();
-          $("#DeliriumIcon").show();
-        }
-        if(info.blightEncounter) {
-          $("#masterDiv").show();
-          $("#BlightIcon").show();
-        } else if(info.blightedMap) {
-          $("#masterDiv").show();
-          $("#BlightedMapIcon").show();
-        }
-        if(info.metamorph) {
-          $("#masterDiv").show();
-          $("#MetamorphIcon").show();
-        }
-        if(info.maven && info.name !== "The Maven's Crucible" && info.name !== "Absence of Mercy and Empathy") {
-          $("#masterDiv").show();
-          $("#MavenIcon").show();
-        }
-        if(info.envoy) {
-          $("#masterDiv").show();
-          $("#EnvoyIcon").show();
-        }
-        if(info.oshabiBattle) {
-          $("#masterDiv").show();
-          $("#OshabiIcon").show();
-        }
-        if(info.elderGuardian) {
-          $("#masterDiv").show();
-          $(`#${info.elderGuardian.replace("The ", "")}Icon`).show();
-        }
-        if(info.ultimatum) {
-          $("#masterDiv").show();
-          $("#UltimatumIcon").show();
-        }
-
-        
-          <div class='encounterIcon' id='CrusaderIcon' title='Baran, the Crusader'>
-            <div style='position:relative;display:inline;'>
-              <img src='res/img/encountericons/crusader.png'/>
-            </div>
-          </div>
-          <div class='encounterIcon' id='HunterIcon' title='Al-Hezmin, the Hunter'>
-            <div style='position:relative;display:inline;'>
-              <img src='res/img/encountericons/hunter.png'/>
-            </div>
-          </div>
-          <div class='encounterIcon' id='RedeemerIcon' title='Veritania, the Redeemer'>
-            <div style='position:relative;display:inline;'>
-              <img src='res/img/encountericons/redeemer.png'/>
-            </div>
-          </div>
-          <div class='encounterIcon' id='WarlordIcon' title='Drox, the Warlord'>
-            <div style='position:relative;display:inline;'>
-              <img src='res/img/encountericons/warlord.png'/>
-            </div>
-          </div>
-
-*/
 
 const RunEventIcons = ({ info }) => {
   const icons: JSX.Element[] = [];
 
   for (const index in iconMap) {
-    const test = iconMap[index](info);
-    if (test.condition) {
+    const icon = iconMap[index](info);
+    if (icon.condition) {
       icons.push(
-        <div className="Run__Event-Icon" key={`event-icon-${index}`}>
-          <Tooltip title={test.alt}>
-            <img src={test.icon} alt={test.alt} />
+        <div className="Run-Event__Icon" key={`event-icon-${index}`}>
+          <Tooltip title={icon.tooltip ?? icon.alt}>
+            <img className="Run-Event__Main-Icon" src={icon.icon} alt={icon.alt} />
           </Tooltip>
+          {icon.additionalIcons ?? null}
         </div>
       );
     }
   }
 
-  return <div className="Run__Event-Icons">{icons}</div>;
+  return <div className="Run-Event__Icons">{icons}</div>;
 };
 
 export default RunEventIcons;

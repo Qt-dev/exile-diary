@@ -1,0 +1,21 @@
+.Tooltip-List {
+  padding-left: 1.5em;
+  margin: 0;
+}
+
+.Run-Event__Mini-Icon {
+  height: 2em;
+}
+
+.Run-Event__Main-Icon {
+  border: 1px solid #444;
+  padding: 3px;
+  border-radius: 50%;
+}
+
+
+.Run-Event__Icons {
+  display: flex;
+  flex-direction: row;
+  gap: 10px;
+}
