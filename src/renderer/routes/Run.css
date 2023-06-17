@@ -65,11 +65,6 @@
   font-size: 0.8em;
 }
 
-.Run__Event-Icons {
-  display: flex;
-  flex-direction: row;
-}
-
 .Run__Event__Time {
   font-family: FontinSmallCaps;
 }
