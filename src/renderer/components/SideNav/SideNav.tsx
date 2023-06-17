@@ -17,7 +17,7 @@ const NetWorth = ({ value, change }) => {
     'Text--Error': change < 0,
     'Text--Legendary': change > 0,
   })
-  const formattedChange = <span className={changeClassNames}>{change >= 0 ? '+' : ''}{change}</span>;
+  const formattedChange = <span className={changeClassNames}>{change >= 0 ? '+' : ''}{change.toFixed(2)}</span>;
   return (<div className="Net-Worth">
     <div>Net Worth:</div>
     <div className="Net-Worth__Total__Text">{value}<img alt="Chaos Icon" className="Net-Worth__Total__Icon" src={Chaos} /> ({formattedChange})</div>
