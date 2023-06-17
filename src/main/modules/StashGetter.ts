@@ -68,13 +68,9 @@ class StashGetter {
 
     let poeActive = (await Utils.poeRunning()) && !global.afk;
     if (!poeActive) {
-      if (this.offlineStashChecked) {
-        emitter.emit('scheduleNewStashCheck');
-        return;
-      } else {
-        logger.info('PoE not running or in AFK mode - not checking Stash Tabs right now');
-        return;
-      }
+      logger.info('PoE not running or in AFK mode - not checking Stash Tabs right now');
+      emitter.emit('scheduleNewStashCheck');
+      return;
     }
 
     this.get();
