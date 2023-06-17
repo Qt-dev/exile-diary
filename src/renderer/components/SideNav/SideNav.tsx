@@ -75,7 +75,7 @@ const SideNav = ({ version, isNewVersion, turnNewVersionOff }) => {
           </MenuItem>
         ))}
 
-        <Divider light className="Separator" />
+        {/* <Divider light className="Separator" /> */}
 
         {/* <MenuItem className="Side-Nav__Link Side-Nav__Link--About" onClick={about}>
           About
@@ -95,6 +95,8 @@ const SideNav = ({ version, isNewVersion, turnNewVersionOff }) => {
       <div className="Side-Nav__Link">
         <img alt="Patreon Button" onClick={openPatreon} className="Patreon-Button" src={Patreon} />
       </div>
+
+      <Divider className="Separator" />
 
       <div className="Net-Worth__Container">
         {netWorth}
