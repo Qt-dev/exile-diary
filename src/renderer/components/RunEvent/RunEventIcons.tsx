@@ -15,8 +15,6 @@ import EnslaverIcon from '../../assets/img/encountericons/enslaver.png';
 import MetamorphIcon from '../../assets/img/encountericons/metamorph.png';
 import JunIcon from '../../assets/img/encountericons/jun.png';
 import ShrineIcon from '../../assets/img/encountericons/shrine.png';
-import { electronService } from '../../electron.service';
-const { logger } = electronService;
 // import BaranIcon from , the Crusader'
 // 'Al-Hezmin, the Hunter'
 // 'Veritania, the Redeemer'
@@ -83,8 +81,7 @@ const iconMap = {
       alt: `Contained a ${guardianKey?.replace('The ', '')} Encounter`,
     };
   },
-  conqueror: (info) => { 
-    logger.info(info);
+  conqueror: (info) => {
     return {
       condition: !!info.conqueror,
       icon: MavenIcon,
@@ -139,7 +136,6 @@ const iconMap = {
 
 const RunEventIcons = ({ info }) => {
   const icons: JSX.Element[] = [];
-
   for (const index in iconMap) {
     const icon = iconMap[index](info);
     if (icon.condition) {
