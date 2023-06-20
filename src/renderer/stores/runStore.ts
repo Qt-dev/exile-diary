@@ -1,6 +1,7 @@
 import { computed, makeAutoObservable, runInAction } from 'mobx';
 import { electronService } from '../electron.service';
 import { Run } from './domain/run';
+import moment from 'moment';
 const { logger } = electronService;
 
 // Mobx store for maps
@@ -64,6 +65,10 @@ export default class RunStore {
 
   getPageCount(size) {
     return Math.ceil(this.runs.length / size);
+  }
+
+  @computed getFullDuration() : moment.Duration {
+    return this.runs.reduce((acc, run) => acc.add(run.duration ?? 0), moment.duration(0, 'seconds'));
   }
 
   updateRunFromServer(json) {

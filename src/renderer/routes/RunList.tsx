@@ -1,4 +1,6 @@
 import './RunList.css';
+import moment from 'moment';
+import DurationFormatSetup from 'moment-duration-format';
 import React from 'react';
 import MenuIcon from '@mui/icons-material/Menu';
 import {
@@ -18,8 +20,8 @@ import {
 import classNames from 'classnames';
 import ChaosIcon from '../assets/img/c.png';
 import { useNavigate } from 'react-router-dom';
-import moment from 'moment';
 import { observer } from 'mobx-react-lite';
+DurationFormatSetup(moment);
 
 const RunList = ({ NumbersOfMapsToShow = 10, store }) => {
   const navigate = useNavigate();
@@ -57,7 +59,8 @@ const RunList = ({ NumbersOfMapsToShow = 10, store }) => {
   return (
     <div className="Run-List Box">
       <div className="Run-List__Header">
-        <div className="Page__Title Run-List__Header__Title">Most Recent Runs</div>
+        <div className="Page__Title Run-List__Header__Title">Most Recent {store.runs.length} Runs</div>
+        <div className="">(Total Time: {store.getFullDuration().format('D [days] hh[h] mm[m] ss[s]')})</div>
         {/* <MenuIcon className="Run-List__Header__Burger" onClick={togglePopupMenu}>
           ≡
         </MenuIcon> */}
