@@ -31,18 +31,32 @@
 
 .Run-List__Header {
   margin-bottom: 10px;
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-content: center;
+}
+
+.Run-List__Header__Title {
+  text-align: center;
+  justify-self: center;
+}
+
+.Run-List__Header__Burger {
 }
 
 .Run-List__Footer {
   margin-top: 10px;
+  display: flex;
+  justify-content: center;
+  gap: 25px;
 }
 
-.Run-List__Header__Burger {
-  margin-left: auto;
-}
-
-.Run-Filter-Selector {
-  border: 1px white solid;
+.Run-List__Footer__Select {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  justify-self: flex-start;
 }
 
 .Run-list__Run {

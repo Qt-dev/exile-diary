@@ -63,7 +63,7 @@ const StashTabs = ({ store }) => {
   return (
     <div className="StashTabs Box">
       <div className="StashTabs__Header">
-        <div className="StashTabs__Title">Stash Tabs</div>
+        <div className="Page__Title">Stash Tabs</div>
         <div className="StashTabs__Filters">
           <FormControl className="StashTabs__Filter">
             <InputLabel shrink>StashTabs</InputLabel>

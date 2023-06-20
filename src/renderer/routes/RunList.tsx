@@ -10,8 +10,10 @@ import {
   TableBody,
   Select,
   MenuItem,
-  SelectChangeEvent,
   Drawer,
+  Pagination,
+  FormControl,
+  Divider,
 } from '@mui/material';
 import classNames from 'classnames';
 import ChaosIcon from '../assets/img/c.png';
@@ -19,19 +21,22 @@ import { useNavigate } from 'react-router-dom';
 import moment from 'moment';
 import { observer } from 'mobx-react-lite';
 
-const RunList = ({ NumberOfMapsToShow = '10', store }) => {
+const RunList = ({ NumbersOfMapsToShow = 10, store }) => {
   const navigate = useNavigate();
-  const [numberOfMapsToShow, setNumberOfMapsToShow] = React.useState(NumberOfMapsToShow);
+  const [runsPerPage, setrunsPerPage] = React.useState<number>(NumbersOfMapsToShow);
   const [isDrawerOpen, setIsDrawerOpen] = React.useState(false);
+  const [page, setPage] = React.useState(0);
 
   const togglePopupMenu = () => {
     setIsDrawerOpen(!isDrawerOpen);
   };
 
-  const handleMapFilterChange = (event: SelectChangeEvent) => {
-    setNumberOfMapsToShow(event.target.value as string);
-    store.setSize(event.target.value);
+  const handleMapFilterChange = (event) => {
+    setrunsPerPage(Number(event.target.value));
+    setPage(0);
   };
+
+
   const getXPClassName = (xp: number) => {
     return classNames({
       'Run-List__XP--Positive': xp > 0,
@@ -41,6 +46,9 @@ const RunList = ({ NumberOfMapsToShow = '10', store }) => {
   const handleRunClick = (mapId) => {
     navigate(`/run/${mapId}`);
   };
+  const handleChangePage = (event: unknown, newPage: number) => {
+    setPage(newPage - 1);
+  };
 
   const FilterMenu = () => {
     return <div> This feature was disabled - Coming Soon </div>; // TODO: Add filter menu
@@ -49,10 +57,10 @@ const RunList = ({ NumberOfMapsToShow = '10', store }) => {
   return (
     <div className="Run-List Box">
       <div className="Run-List__Header">
-        <div className="Run-List__Header__Title">Most Recent Runs</div>
-        <MenuIcon className="Run-List__Header__Burger" onClick={togglePopupMenu}>
+        <div className="Page__Title Run-List__Header__Title">Most Recent Runs</div>
+        {/* <MenuIcon className="Run-List__Header__Burger" onClick={togglePopupMenu}>
           ≡
-        </MenuIcon>
+        </MenuIcon> */}
       </div>
       <Drawer anchor="right" open={isDrawerOpen} onClose={togglePopupMenu}>
         {FilterMenu()}
@@ -95,8 +103,8 @@ const RunList = ({ NumberOfMapsToShow = '10', store }) => {
             </TableRow>
           </TableHead>
           <TableBody>
-            {store.sortedRuns.map((run, i) => {
-              if (i > numberOfMapsToShow) return null;
+            {store.getSortedRuns(runsPerPage, page).map((run, i) => {
+              if (i > runsPerPage) return null;
               const deaths = [...Array(run.deaths || 0)].map((death, i) => (
                 <div key={`death-${i}`} className="Run__Death-Icon" />
               ));
@@ -131,30 +139,44 @@ const RunList = ({ NumberOfMapsToShow = '10', store }) => {
         </Table>
       </TableContainer>
       <div className="Run-List__Footer">
-        <div className="Run-List__Footer__Title">Maps per page</div>
-        <Select
-          id="Run-Filter-Selector"
-          className="Run-Filter-Selector"
-          onChange={handleMapFilterChange}
-          value={numberOfMapsToShow}
-          size="small"
-        >
-          <MenuItem className="Map_Filter-Selector__Item" value={5}>
-            5
-          </MenuItem>
-          <MenuItem className="Map_Filter-Selector__Item" value={10}>
-            10
-          </MenuItem>
-          <MenuItem className="Map_Filter-Selector__Item" value={25}>
-            25
-          </MenuItem>
-          <MenuItem className="Map_Filter-Selector__Item" value={50}>
-            50
-          </MenuItem>
-          <MenuItem className="Map_Filter-Selector__Item" value={100}>
-            100
-          </MenuItem>
-        </Select>
+        <div className="Run-List__Footer__Select">
+          <div className="Run-List__Footer__Title">Maps per page</div>
+          <FormControl variant="outlined" size="small" >
+            <Select
+              id="Run-Filter-Selector"
+              className="Run-Filter-Selector"
+              onChange={handleMapFilterChange}
+              value={runsPerPage}
+            >
+              <MenuItem className="Map_Filter-Selector__Item" value={5}>
+                5
+              </MenuItem>
+              <MenuItem className="Map_Filter-Selector__Item" value={10}>
+                10
+              </MenuItem>
+              <MenuItem className="Map_Filter-Selector__Item" value={25}>
+                25
+              </MenuItem>
+              <MenuItem className="Map_Filter-Selector__Item" value={50}>
+                50
+              </MenuItem>
+              <MenuItem className="Map_Filter-Selector__Item" value={100}>
+                100
+              </MenuItem>
+            </Select>
+          </FormControl>
+        </div>
+        {/* <Divider orientation="vertical" flexItem /> */}
+        <Pagination
+          count={store.getPageCount(runsPerPage)}
+          page={page + 1}
+          onChange={handleChangePage}
+          color="secondary"
+          size="large"
+          variant="outlined"
+          shape="rounded"
+          showFirstButton
+        />
       </div>
     </div>
   );
