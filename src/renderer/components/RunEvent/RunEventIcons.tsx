@@ -103,10 +103,10 @@ const iconMap = {
       condition: !!info.metamorph,
       icon: MetamorphIcon,
       alt: 'Contained a Metamorph Encounter',
-      additionalIcons: Object.keys(info?.metamorph).map((organ) => {
+      additionalIcons: info.metamorph ? Object.keys(info?.metamorph).map((organ) => {
         const Icon = require(`../../assets/img/metamorphicons/${organ}.png`);
         return <Tooltip title={`${organ} x ${info.metamorph[organ]}`}><img className="Run-Event__Mini-Icon" src={Icon} alt={organ} /></Tooltip>;
-      }),
+      }) : null,
     };
   },
   syndicate: (info) => {
