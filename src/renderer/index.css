@@ -199,3 +199,11 @@ span.negative {
 .Stats__Sub-Table .Boss-Stats__Table {
   background-color: rgba(60, 60, 60, 0.2);
 }
+
+
+.Page__Title {
+  margin: 10px 0;
+  font-family: FontInSmallCaps;
+  font-size: 1.5em;
+  color: white;
+}

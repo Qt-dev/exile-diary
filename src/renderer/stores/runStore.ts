@@ -7,8 +7,8 @@ const { logger } = electronService;
 export default class RunStore {
   runs: Run[] = [];
   isLoading = true;
-  size = 10;
-  maxSize = 100; // This can be changed in the future
+  size = Number.MAX_SAFE_INTEGER;
+  maxSize = Number.MAX_SAFE_INTEGER; // This can be changed in the future
 
   constructor() {
     makeAutoObservable(this);
@@ -16,14 +16,7 @@ export default class RunStore {
     electronService.ipcRenderer.on('refresh-runs', () => this.loadRuns(this.size));
   }
 
-  setSize(size: number) {
-    this.size = size;
-    if (this.runs.length < size) {
-      this.loadRuns(size);
-    }
-  }
-
-  loadRuns(size = 10) {
+  loadRuns(size = this.maxSize) {
     logger.info(`Loading runs from the server with size: ${size}`);
     this.isLoading = true;
     electronService.ipcRenderer.invoke('load-runs', { size }).then((runs) => {
@@ -42,6 +35,7 @@ export default class RunStore {
           this.runs.splice(this.maxSize, this.runs.length - this.maxSize);
         }
         this.isLoading = false;
+        logger.info(`Got ${this.runs.length} runs from the server.`);
       });
     });
   }
@@ -60,11 +54,16 @@ export default class RunStore {
     });
   }
 
-  @computed get sortedRuns() {
+  getSortedRuns(size, page = 0) {
+    const startingIndex = page * size;
     return this.runs
       .slice()
       .sort((first, second) => (first.runId > second.runId ? -1 : 1))
-      .slice(0, this.size - 1);
+      .slice(startingIndex, startingIndex + size);
+  }
+
+  getPageCount(size) {
+    return Math.ceil(this.runs.length / size);
   }
 
   updateRunFromServer(json) {
