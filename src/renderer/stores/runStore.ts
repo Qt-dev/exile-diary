@@ -71,6 +71,16 @@ export default class RunStore {
     return this.runs.reduce((acc, run) => acc.add(run.duration ?? 0), moment.duration(0, 'seconds'));
   }
 
+  getNextRun(id: string) {
+    const index = this.getSortedRuns(this.runs.length).findIndex((run) => run.id === id);
+    return index < this.runs.length ? this.runs[index + 1] : null;
+  }
+
+  getPreviousRun(id: string) {
+    const index = this.getSortedRuns(this.runs.length).findIndex((run) => run.id === id);
+    return index > 0 ? this.runs[index - 1] : null;
+  }
+
   updateRunFromServer(json) {
     let run = this.runs.find((m) => m.runId === json.id);
     if (!run) {

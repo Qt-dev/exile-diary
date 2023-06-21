@@ -9,13 +9,15 @@
   padding: 0 0 10px;
 }
 
-.Run__Navigation__Previous {
+.Run__Navigation__Link {
   flex: 1;
+}
+
+.Run__Navigation__Link--Previous {
   text-align: left;
 }
 
-.Run__Navigation__Next {
-  flex: 1;
+.Run__Navigation__Link--Next {
   text-align: right;
 }
 
@@ -24,6 +26,7 @@
   flex-direction: row;
   align-items: center;
   justify-content: space-between;
+  font-size: 1.2em;
   padding: 10px 0;
 }
 

@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import { useParams, useLoaderData } from 'react-router';
 import { useNavigate } from 'react-router-dom';
-import { Divider } from '@mui/material';
+import { Divider, SelectChangeEvent } from '@mui/material';
 import { observer } from 'mobx-react-lite';
 import classNames from 'classnames';
 import moment from 'moment';
@@ -11,6 +11,7 @@ import RunEventIcons from '../components/RunEvent/RunEventIcons';
 import RunEvent from '../components/RunEvent/RunEvent';
 import LootTable from '../components/LootTable/LootTable';
 import ItemStore from '../stores/itemStore';
+import RunNavigation from '../components/RunNavigation/RunNavigation';
 
 type RunLoaderData = {
   run: RunType;
@@ -28,11 +29,11 @@ const Run = ({ store }) => {
     store.loadDetails(run);
   }, [runId, run, navigate, store]);
 
-  // const handleMapChange = (event: SelectChangeEvent) => {
-  //   navigate(`/run/${event.target.value}`);
-  // };
+  const handleMapChange = (event: SelectChangeEvent) => {
+    navigate(`/run/${event.target.value}`);
+  };
   const duration = run.duration ? moment.utc(run.duration.asMilliseconds()).format('mm:ss') : '-';
-  const xp = run.xp >= 0 ? `+${run.xp.toLocaleString('en')}` : run.xp.toLocaleString('en');
+  const xp = run.xp && run.xp >= 0 ? `+${run.xp.toLocaleString('en')}` : run.xp?.toLocaleString('en');
   const getXpClassname = (xp: number) => {
     return classNames({
       'Run__XP--Positive': xp > 0,
@@ -52,7 +53,7 @@ const Run = ({ store }) => {
 
   return (
     <div className="Run">
-      {/* <MapNavigation map={maps.find((map) => map.id === runId)} maps={maps}/> */}
+      <RunNavigation run={run} store={store}/>
       <Divider className="Separator" />
       <div className="Run__Header">
         <div className="Run__Header__Left">
