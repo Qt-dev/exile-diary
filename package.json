@@ -91,6 +91,7 @@
     "@mui/icons-material": "^5.11.16",
     "@mui/material": "^5.12.0",
     "@pmmmwh/react-refresh-webpack-plugin": "^0.5.3",
+    "@react-hook/resize-observer": "^1.2.6",
     "@svgr/webpack": "^5.5.0",
     "axios": "^1.4.0",
     "axios-cache-interceptor": "^1.0.1",

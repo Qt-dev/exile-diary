@@ -18,6 +18,7 @@ var emitter = new EventEmitter();
 
 var lastInstanceServer = null;
 var instanceServerFound = false;
+let currentInstance = null;
 const instanceServerRegex = /[0-9:\.]+$/;
 
 function start() {
@@ -90,6 +91,8 @@ function start() {
             instanceServerFound = false;
             if (!Utils.isTown(event.text)) {
               logger.info(`Entered map area ${event.text}, will try processing previous area`);
+              currentInstance = event.text;
+              emitter.emit('enteredMap', event.text);
               RunParser.tryProcess({
                 event: { timestamp: timestamp, area: event.text, server: event.instanceServer },
                 mode: 'automatic',
@@ -378,3 +381,4 @@ async function getOldNPCEvents() {
 module.exports.start = start;
 module.exports.getOldNPCEvents = getOldNPCEvents;
 module.exports.emitter = emitter;
+module.exports.currentInstance = currentInstance;

@@ -17,6 +17,7 @@ import Stats from './routes/Stats';
 import StashTabs from './routes/StashTabs';
 import CharacterSelect from './routes/CharacterSelect';
 import LoginBox from './routes/LoginBox';
+import Overlay from './routes/Overlay';
 import { electronService } from './electron.service';
 const { logger } = electronService;
 const runStore = new RunStore();
@@ -47,6 +48,7 @@ const router = createHashRouter([
         element: <Run store={runStore} />,
         loader: async ({ params }) => {
           const { runId } = params;
+          if(!runId) throw new Error(`No run found with this id (${runId})`);
           await runStore.loadRun(runId);
           const run = runStore.runs.find((run) => run.runId === runId);
           return { run };
@@ -94,7 +96,7 @@ const router = createHashRouter([
     children: [
       {
         index: true,
-        element: <LoginBox store={runStore} />,
+        element: <LoginBox />,
         loader: async () => {
           const { code_challenge, state } = await ipcRenderer.invoke('oauth:get-info');
           return { code_challenge, state };
@@ -110,6 +112,10 @@ const router = createHashRouter([
       },
     ],
   },
+  {
+    path: '/overlay',
+    element: <Overlay store={runStore} />,
+  }
 ]);
 const darkTheme = createTheme({
   palette: {
@@ -149,13 +155,6 @@ const darkTheme = createTheme({
         },
       },
     },
-    MuiSelect: {
-      styleOverrides: {
-        root: {
-          fontFamily: 'FontinSmallCaps',
-        },
-      },
-    },
     MuiMenuItem: {
       styleOverrides: {
         root: {
@@ -169,15 +168,18 @@ const darkTheme = createTheme({
   },
 });
 
-const root = ReactDOM.createRoot(document.getElementById('root'));
-root.render(
-  <React.StrictMode>
-    <ThemeProvider theme={darkTheme}>
-      <script>var global = global || window;</script>
-      <RouterProvider router={router} />
-    </ThemeProvider>
-  </React.StrictMode>
-);
+const documentRoot = document.getElementById('root');
+if(documentRoot !== null) {
+  const root = ReactDOM.createRoot(documentRoot);
+  root.render(
+    <React.StrictMode>
+      <ThemeProvider theme={darkTheme}>
+        <script>var global = global || window;</script>
+        <RouterProvider router={router} />
+      </ThemeProvider>
+    </React.StrictMode>
+  );
+}
 
 // If you want to start measuring performance in your app, pass a function
 // to log results (for example: reportWebVitals(console.log))

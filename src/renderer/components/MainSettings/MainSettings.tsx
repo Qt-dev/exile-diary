@@ -68,6 +68,7 @@ const MainSettings = ({ settings, store }) => {
   const username = settings.username ? settings.username : '';
   const league = settings.activeProfile.league ? settings.activeProfile.league : 'Unknown';
   const alternateSplinterPricing = !!settings.alternateSplinterPricing;
+  const overlayEnabled = !!settings.overlayEnabled;
 
   const handleBack = () => {
     navigate('/');
@@ -84,6 +85,7 @@ const MainSettings = ({ settings, store }) => {
       clientTxt: e.target.log_location.value,
       screenshotDir: e.target.screenshot_location.value,
       alternateSplinterPricing: e.target.alternate_splinter_pricing.checked,
+      overlayEnabled: e.target.overlay_enabled.checked,
     };
     ipcRenderer.invoke('save-settings', { settings: data });
   };
@@ -206,17 +208,18 @@ const MainSettings = ({ settings, store }) => {
             label="Enable Alternate Splinter Pricing"
           />
         </div>
-        {/* alternateSplinterPricing */}
+        <div className="Settings__Checkbox__Row">
+          <FormControlLabel
+            control={<Checkbox 
+              id="overlay_enabled"
+              defaultChecked={overlayEnabled} />}
+            label="Enable Overlay Popup Messages"
+          />
+        </div>
         <Divider className="Settings__Separator" />
         <div>This section is not plugged in yet</div>
         <div className="Settings__Checkbox__Row">
           <FormControlLabel control={<Checkbox disabled />} label="Minimize to Tray" />
-        </div>
-        <div className="Settings__Checkbox__Row">
-          <FormControlLabel
-            control={<Checkbox disabled />}
-            label="Enable Overlay Popup Messages"
-          />
         </div>
         <div className="Settings__Checkbox__Row">
           <FormControlLabel

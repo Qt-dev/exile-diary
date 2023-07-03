@@ -1,0 +1,68 @@
+.Overlay {
+  box-sizing: border-box;
+  overflow: hidden;
+  overscroll-behavior: contain;
+}
+
+.Overlay__Box.Box {
+  overflow: hidden;
+  /* transition: height 0.2s ease; */
+  padding: 2px;
+}
+
+.Overlay__Line {
+  display: flex;
+  flex-direction: line;
+  align-items: center;
+  gap: 10px;
+  height: 2.4em;
+  white-space: nowrap;
+}
+
+.Overlay__Line__Content {
+  display: flex;
+  flex-direction: line;
+  align-items: center;
+  gap: 10px;
+}
+
+.Overlay__Open-Button {
+  border: 1px solid #fff;
+}
+
+.Overlay__Icon {
+  transform: rotate(0deg);
+  height: 2em;
+}
+
+.Overlay__Icon--Open {
+  transform: rotate(180deg);
+}
+
+.Overlay__Line--Open .Overlay__Timer {
+  opacity: 0;
+}
+
+.Overlay__Line--Open {
+  min-width: 300px;;
+}
+
+
+.Overlay__Timer {
+  aspect-ratio: 1 / 1;
+  border-radius: 4px;
+  width: 1.8em;
+  height: 1.8em;
+  display: flex;
+  align-items: center;
+  align-content: center;
+  justify-content: center;
+}
+
+.Overlay__Timer--Active {
+  border: 1px solid #555;
+}
+
+.Overlay__Timer--InActive {
+  opacity: 0;
+}
