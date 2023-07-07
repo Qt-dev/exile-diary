@@ -292,7 +292,8 @@ const createWindow = async () => {
       ],
     });
     win.webContents.send('refresh-runs');
-    win.webContents.send('current-run:started');
+    win.webContents.send('current-run:started', { area: 'Unknown' });
+    overlayWindow.webContents.send('current-run:started', { area: 'Unknown' }); 
   });
 
   RateGetterV2.removeAllListeners();
@@ -374,9 +375,30 @@ const createWindow = async () => {
     },
     show: false,
   });
+  
+  const overlayWindow = new BrowserWindow({
+    x: 0,
+    y: 100,
+    frame: false,
+    // alwaysOnTop: true,s
+    closable: false,
+    minimizable: false,
+    maximizable: false,
+    fullscreenable: false,
+    resizable: false,
+    opacity: 0.75,
+    show: false,
+    skipTaskbar: true,
+    transparent: true,
+    webPreferences: {
+      nodeIntegration: true,
+      contextIsolation: false,
+    },
+    useContentSize: true,
+  });
 
   AuthManager.setMessenger(win.webContents);
-  RendererLogger.init(win.webContents);
+  RendererLogger.init(win.webContents, overlayWindow.webContents);
 
   win.on('resize', saveWindowBounds);
   win.on('move', saveWindowBounds);
@@ -498,32 +520,11 @@ const createWindow = async () => {
       }
     });
   }
-
-  
-  
-  const overlayWindow = new BrowserWindow({
-    x: 0,
-    y: 100,
-    frame: false,
-    // alwaysOnTop: true,s
-    closable: false,
-    minimizable: false,
-    maximizable: false,
-    fullscreenable: false,
-    resizable: false,
-    opacity: 0.75,
-    show: false,
-    skipTaskbar: true,
-    transparent: true,
-    webPreferences: {
-      nodeIntegration: true,
-      contextIsolation: false,
-    },
-    useContentSize: true,
-  });
   
   OW.on('attach', () => {
-    if(SettingsManager.get('overlayEnabled')) overlayWindow.show();
+    if(SettingsManager.get('overlayEnabled')) {
+      overlayWindow.show();
+    }
   });
 
   let isMainWindowBlurred = false;
@@ -540,8 +541,13 @@ const createWindow = async () => {
   });
   OW.on('focus', () => {
     isMainWindowBlurred = false;
-    if(SettingsManager.get('overlayEnabled')) overlayWindow.show();
+    if(SettingsManager.get('overlayEnabled')) {
+      overlayWindow.show();
+    }
   })
+  overlayWindow.on('show', () => {
+    overlayWindow.webContents.send('overlay:trigger-resize');
+  });
 
   ipcMain.on('overlay:resize', (event, { width, height }) => {
     overlayWindow.setBounds({

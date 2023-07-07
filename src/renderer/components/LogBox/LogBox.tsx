@@ -84,3 +84,4 @@ const LogBox = ({ store }) => {
 };
 
 export default observer(LogBox);
+export { classPerType }
