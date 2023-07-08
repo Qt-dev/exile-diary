@@ -8,6 +8,7 @@ import useResizeObserver from '@react-hook/resize-observer';
 import { observer } from 'mobx-react-lite';
 import moment, { Moment } from 'moment';
 import { classPerType } from '../components/LogBox/LogBox';
+import Logo from '../logo.png'
 const { ipcRenderer } = electronService;
 const defaultTimer = 3;
 
@@ -48,12 +49,12 @@ const OverlayLineContent = ({ message }) => {
 type OverlayLineProps = {
   children: ReactNode;
   alwaysVisibleChildren?: ReactNode;
-  latestLine: ReactNode;
+  latestMapTrackingMessage: ReactNode;
   time?: number;
   isOpen?: boolean;
 }
 
-const OverlayLine = ({ children, alwaysVisibleChildren, time = -1,  isOpen, latestLine } : OverlayLineProps) => {
+const OverlayLine = ({ children, alwaysVisibleChildren, time = -1,  isOpen, latestMapTrackingMessage } : OverlayLineProps) => {
   const [ open, setOpen ] = React.useState((isOpen || time > 0) ?? false);
 
   useEffect(() => {
@@ -75,7 +76,7 @@ const OverlayLine = ({ children, alwaysVisibleChildren, time = -1,  isOpen, late
       {open && 
         <>
           <div className="Overlay__Line__Content">
-            {time > 1 ? latestLine : children}
+            {time > 1 ? latestMapTrackingMessage : children}
           </div>
           <div className={`Overlay__Timer ${time > -1 ? 'Overlay__Timer--Active' : 'Overlay__Timer--InActive'}`}>{time}</div>
         </>
@@ -121,7 +122,7 @@ const Overlay = ({ store }) => {
   const [ open, setOpen ] = React.useState(false);
   const [ lastUpdate, setLastUpdate ] = React.useState<Moment>(store.currentRun.lastUpdate ?? moment());
   const [ latestMessage, setLatestMessage ] = React.useState<JSX.Element | null>(<div>---</div>);
-  const [ latestLine, setLatestLine ] = React.useState<JSX.Element | null>(<div>---</div>);
+  const [ latestMapTrackingMessage, setLatestMapTrackingMessage ] = React.useState<JSX.Element | null>(<div>---</div>);
   
   // Timer management
   const [ time, setTime ] = React.useState(defaultTimer);
@@ -201,12 +202,12 @@ const Overlay = ({ store }) => {
     if(store.currentRun.lastUpdate.isAfter(lastUpdate)) {
       setLastUpdate(store.currentRun.lastUpdate);
       setTime(defaultTimer);
-      setLatestLine(<OverlayMapInfoLine run={store.currentRun}/>);
+      setLatestMapTrackingMessage(<OverlayMapInfoLine run={store.currentRun}/>);
     }
   }, [ store.currentRun.lastUpdate ]);
 
   
-  // Change latestline to actually just open the OL
+  // Change latestMapTrackingMessage to actually just open the OL
   return (
     <div className='Overlay'
     ref={ref}
@@ -221,13 +222,16 @@ const Overlay = ({ store }) => {
                 handleButtonClick={handleButtonClick}
                 open={open} />
             }
-            latestLine={latestLine}>
+            latestMapTrackingMessage={latestMapTrackingMessage}>
             <OverlayMapInfoLine run={store.currentRun}/>
           </OverlayLine>
           <OverlayLine
             time={notificationTime}
             isOpen={open && notificationTime > -1}
-            latestLine={latestMessage}>
+            alwaysVisibleChildren={
+              <img className="Overlay__Logo" src={Logo} alt="Logo" />
+            }
+            latestMapTrackingMessage={latestMessage}>
             {latestMessage}
           </OverlayLine>
       </div>
