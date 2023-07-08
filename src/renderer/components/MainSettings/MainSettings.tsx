@@ -69,6 +69,7 @@ const MainSettings = ({ settings, store }) => {
   const league = settings.activeProfile.league ? settings.activeProfile.league : 'Unknown';
   const alternateSplinterPricing = !!settings.alternateSplinterPricing;
   const overlayEnabled = !!settings.overlayEnabled;
+  const enableIncubatorAlert = !!settings.enableIncubatorAlert;
 
   const handleBack = () => {
     navigate('/');
@@ -86,6 +87,7 @@ const MainSettings = ({ settings, store }) => {
       screenshotDir: e.target.screenshot_location.value,
       alternateSplinterPricing: e.target.alternate_splinter_pricing.checked,
       overlayEnabled: e.target.overlay_enabled.checked,
+      enableIncubatorAlert: e.target.enable_incubator_alert.checked,
     };
     ipcRenderer.invoke('save-settings', { settings: data });
   };
@@ -216,6 +218,14 @@ const MainSettings = ({ settings, store }) => {
             label="Enable Overlay Popup Messages"
           />
         </div>
+        <div className="Settings__Checkbox__Row">
+          <FormControlLabel
+            control={<Checkbox
+              id="enable_incubator_alert"
+              defaultChecked={enableIncubatorAlert} />}
+            label="Enable Incubator Running Out Alert"
+          />
+        </div>
         <Divider className="Settings__Separator" />
         <div>This section is not plugged in yet</div>
         <div className="Settings__Checkbox__Row">
@@ -231,12 +241,6 @@ const MainSettings = ({ settings, store }) => {
           <FormControlLabel
             control={<Checkbox disabled />}
             label="Get Low-Confidence Pricing Data from poe.ninja"
-          />
-        </div>
-        <div className="Settings__Checkbox__Row">
-          <FormControlLabel
-            control={<Checkbox disabled />}
-            label="Enable Incubator Running Out Alert"
           />
         </div>
         <div className="Settings__Checkbox__Row">
