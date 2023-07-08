@@ -564,6 +564,7 @@ const createWindow = async () => {
   })
   OverlayController.events.on('moveresize', (event) => {
     // OverlayController resizes the overlay window when the target changes. So we tell our app to reset the size to what it should be.
+    // https://github.com/SnosMe/electron-overlay-window/blob/28261ce92633292c9accd8e185174489311f0b1f/src/index.ts#L109
     overlayWindow.webContents.send('overlay:trigger-resize');
   });
 
