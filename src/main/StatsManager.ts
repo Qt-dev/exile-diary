@@ -293,7 +293,7 @@ class StatsManager {
     this.stats.items.divinePrice = divinePrice;
     this.stats.items.loot = items;
     this.stats.misc.rawDivineDrops = items.filter((item) => item.typeline === 'Divine Orb').length;
-    this.stats.misc.valueOfDrops = items.reduce((sum, item) => sum + (item.value ?? 0), 0);
+    this.stats.misc.valueOfDrops = items.reduce((sum, item) => sum + (Number(item.value) || 0), 0);
   }
 
   addStatsForRun(run: Run) {
