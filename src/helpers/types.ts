@@ -179,6 +179,13 @@ type ItemData = {
   area?: string;
   map_id?: string;
   stashTabId?: string;
+  inventoryId: string;
+  incubatedItem? : {
+    name: string,
+    level: number,
+    progress: number,
+    total: number,
+  }
 };
 
 export type { Run, Order, RunInfo, StashTabData, ItemData };

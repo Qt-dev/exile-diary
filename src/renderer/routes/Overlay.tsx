@@ -85,11 +85,11 @@ const OverlayLine = ({ children, alwaysVisibleChildren, time = -1,  isOpen, late
 };
 
 
-const useSize = (target) => {
+const useSize = (target: React.RefObject<HTMLDivElement>) => {
   const [ size, setSize ] = React.useState({ width: 0, height: 0 });
 
-  useEffect(() => {
-    setSize(target.current.getBoundingClientRect());
+  useLayoutEffect(() => {
+    if(target.current) setSize(target.current.getBoundingClientRect());
   }, [target.current]);
 
   useResizeObserver(target, (entry) => setSize(entry.contentRect));
@@ -168,8 +168,11 @@ const Overlay = ({ store }) => {
   };
 
   const size = useSize(ref);
-  updateSize(size);
-  
+  const sizeRef = useRef(size);
+  sizeRef.current = size;
+
+  updateSize(sizeRef.current);
+
   const handleButtonClick = () => {
     setOpen(!open);
   };
@@ -179,10 +182,16 @@ const Overlay = ({ store }) => {
     'Overlay__Box': true,
     'Box': true,
   });
-
+  
   // Reset the timer if the run has changed
   useLayoutEffect(() => {
-    ipcRenderer.on('overlay:trigger-resize', () => { updateSize(size); });
+    ipcRenderer.removeAllListeners('overlay:trigger-resize');
+    ipcRenderer.on('overlay:trigger-resize', () => { 
+      updateSize(sizeRef.current);
+    });
+  }, [sizeRef.current]);
+
+  useEffect(() => {
     ipcRenderer.on('overlay:message', (event, {messages}) => {
       setNotificationTime(defaultTimer);
       setLatestMessage(<OverlayNotificationLine messages={messages} />);

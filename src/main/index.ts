@@ -8,7 +8,7 @@ import GGGAPI from './GGGAPI';
 import League from './db/league';
 import RendererLogger from './RendererLogger';
 import * as url from 'url';
-import { overlayWindow as OW } from 'electron-overlay-window';
+import { OverlayController } from 'electron-overlay-window';
 
 // Old stuff
 import RateGetterV2 from './modules/RateGetterV2';
@@ -18,6 +18,7 @@ import * as ClientTxtWatcher from './modules/ClientTxtWatcher';
 import * as OCRWatcher from './modules/OCRWatcher';
 import StashGetter from './modules/StashGetter';
 import RunParser from './modules/RunParser';
+import KillTracker from './modules/KillTracker';
 import moment from 'moment';
 import AuthManager from './AuthManager';
 
@@ -296,6 +297,29 @@ const createWindow = async () => {
     overlayWindow.webContents.send('current-run:started', { area: 'Unknown' }); 
   });
 
+  KillTracker.emitter.removeAllListeners();
+  KillTracker.emitter.on('incubatorsUpdated', (incubators) => {
+    win.webContents.send('incubatorsUpdated', incubators);
+    overlayWindow.webContents.send('incubatorsUpdated', incubators);
+  });
+  KillTracker.emitter.on('incubatorsMissing', (equipments) => {
+    if (equipments.length) {
+      RendererLogger.log({
+        messages: [
+          {
+            text: `Following equipment has incubator missing: `,
+          },
+          ...equipments.map(([name, icon]) => ({
+            text: name,
+            type: 'important',
+            icon: icon,
+          })),
+        ],
+      });
+    }
+  });
+
+
   RateGetterV2.removeAllListeners();
   RateGetterV2.on('gettingPrices', () => {
     logger.info("<span class='eventText'>Getting item prices from poe.ninja...</span>");
@@ -380,13 +404,11 @@ const createWindow = async () => {
     x: 0,
     y: 100,
     frame: false,
-    // alwaysOnTop: true,s
     closable: false,
     minimizable: false,
     maximizable: false,
     fullscreenable: false,
     resizable: false,
-    opacity: 0.75,
     show: false,
     skipTaskbar: true,
     transparent: true,
@@ -394,7 +416,6 @@ const createWindow = async () => {
       nodeIntegration: true,
       contextIsolation: false,
     },
-    useContentSize: true,
   });
 
   AuthManager.setMessenger(win.webContents);
@@ -521,39 +542,41 @@ const createWindow = async () => {
     });
   }
   
-  OW.on('attach', () => {
-    if(SettingsManager.get('overlayEnabled')) {
-      overlayWindow.show();
-    }
+  OverlayController.events.on('attach', (event) => {
+    logger.info('Overlay attached to Path of Exile process');
   });
 
-  let isMainWindowBlurred = false;
-  OW.on('blur', () => {
-    isMainWindowBlurred = true;
+  OverlayController.events.on('blur', () => {
     if(!overlayWindow.isFocused()) {
       overlayWindow.hide();
     }
   });
   overlayWindow.on('blur', () => {
-    if(isMainWindowBlurred) {
+    if(!OverlayController.targetHasFocus) {
       overlayWindow.hide();
     }
   });
-  OW.on('focus', () => {
-    isMainWindowBlurred = false;
+  OverlayController.events.on('focus', () => {
     if(SettingsManager.get('overlayEnabled')) {
       overlayWindow.show();
+      overlayWindow.setIgnoreMouseEvents(false);
     }
   })
+  OverlayController.events.on('moveresize', (event) => {
+    // OverlayController resizes the overlay window when the target changes. So we tell our app to reset the size to what it should be.
+    overlayWindow.webContents.send('overlay:trigger-resize');
+  });
+
   overlayWindow.on('show', () => {
     overlayWindow.webContents.send('overlay:trigger-resize');
   });
 
   ipcMain.on('overlay:resize', (event, { width, height }) => {
-    overlayWindow.setBounds({
+    overlayWindow.setMinimumSize(width, height);
+    overlayWindow.setSize(
       width,
       height,
-    });
+    );
   });
   
   if (isDev) {
@@ -565,7 +588,7 @@ const createWindow = async () => {
     win.loadURL(URL);
     overlayWindow.loadURL(`${URL}#/overlay`);
   }
-  OW.attachTo(overlayWindow, 'Path of Exile');
+  OverlayController.attachByTitle(overlayWindow, 'Path of Exile');
 };
 
 app.on('ready', createWindow);

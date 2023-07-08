@@ -1,8 +1,8 @@
 import GGGAPI from '../GGGAPI';
+import KillTracker from './KillTracker';
 const logger = require('electron-log');
 const moment = require('moment');
 const XPTracker = require('./XPTracker');
-const KillTracker = require('./KillTracker');
 const GearChecker = require('./GearChecker');
 const EventEmitter = require('events');
 
