@@ -7,6 +7,7 @@ import AuthManager from './AuthManager';
 import StatsManager from './StatsManager';
 import StashTabsManager from './StashTabsManager';
 import stashGetter from './modules/StashGetter';
+import RendererLogger from './RendererLogger';
 
 const getAppGlobals = async () => {
   logger.info('Loading global settings for the renderer process');
@@ -59,6 +60,7 @@ const saveSettings = async (e, { settings }) => {
   for (const key in settings) {
     await SettingsManager.set(key, settings[key]);
   }
+  RendererLogger.log({ messages: [{ text: 'Settings saved' }] });
   return;
 };
 
