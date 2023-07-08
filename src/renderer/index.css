@@ -1,4 +1,4 @@
-body {
+body, html {
   margin: 0;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu',
     'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
@@ -6,18 +6,26 @@ body {
   -moz-osx-font-smoothing: grayscale;
   font-family: FontIn;
   color: #aaaaaa;
-  background-color: #000;
+  background: transparent;
+  padding: 0;
+  width: fit-content;
 }
+
+#root {
+  width: fit-content;
+}
+
 
 code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New', monospace;
 }
 
 .Root {
+  background-color: #000;
   display: grid;
   grid-template-columns: 160px auto;
-  /* grid-template-rows: calc(100vh - 20px); */
   min-height: calc(100vh - 20px);
+  width: calc(100vw - 20px);
   grid-column-gap: 10px;
   padding: 10px;
 }

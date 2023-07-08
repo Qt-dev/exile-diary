@@ -4,8 +4,9 @@ import moment, { Duration, Moment } from 'moment';
 
 export class Run {
   id = null;
+  lastUpdate: Moment;
   runId = '';
-  name = '';
+  name = 'Unknown';
   level = 0;
   depth = null;
   iiq = 0;
@@ -32,13 +33,16 @@ export class Run {
   store;
   saveHandler = null;
 
-  constructor(store, id = uuidv4()) {
+  constructor(store, options = {}) {
+    const id = uuidv4();
     makeAutoObservable(this, {
       id: false,
       store: false,
     });
     this.store = store;
     this.id = id;
+    this.updateFromJson(options);
+    this.lastUpdate = moment();
   }
 
   updateFromJson(json) {
@@ -60,7 +64,8 @@ export class Run {
     this.profit = json.gained;
     this.profitPerHour = this.profit / this.duration.asHours();
     this.kills = json.kills;
-    this.runInfo = JSON.parse(json.runinfo);
+    this.runInfo = json.runinfo ? JSON.parse(json.runinfo) : {};
+    this.lastUpdate = moment();
   }
 
   updateDetails(details) {
@@ -83,6 +88,7 @@ export class Run {
       return isDifference === 0 ? isBLoot : isDifference;
     });
     // Do something
+    this.lastUpdate = moment();
   }
 
   get asJson() {

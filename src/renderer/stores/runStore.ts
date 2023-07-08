@@ -10,11 +10,15 @@ export default class RunStore {
   isLoading = true;
   size = Number.MAX_SAFE_INTEGER;
   maxSize = Number.MAX_SAFE_INTEGER; // This can be changed in the future
+  currentRun: Run;
 
   constructor() {
     makeAutoObservable(this);
     this.loadRuns(this.size);
+    this.currentRun = new Run(this, {name: "Unknown"});
     electronService.ipcRenderer.on('refresh-runs', () => this.loadRuns(this.size));
+    electronService.ipcRenderer.on('current-run:started', (event, json) => this.registerCurrentRun(json));
+    electronService.ipcRenderer.on('current-run:info', (event, json) => this.updateCurrentRun(json));
   }
 
   loadRuns(size = this.maxSize) {
@@ -41,7 +45,7 @@ export default class RunStore {
     });
   }
 
-  async loadRun(runId: number) {
+  async loadRun(runId: string) {
     return electronService.ipcRenderer.invoke('load-run', { runId }).then((json) => {
       return runInAction(() => {
         this.updateRunFromServer(json);
@@ -55,7 +59,7 @@ export default class RunStore {
     });
   }
 
-  getSortedRuns(size, page = 0) {
+  getSortedRuns(size = this.runs.length, page = 0) {
     const startingIndex = page * size;
     return this.runs
       .slice()
@@ -88,5 +92,13 @@ export default class RunStore {
       this.runs.push(run);
     }
     run.updateFromJson(json);
+  }
+
+  registerCurrentRun(json) {
+    this.currentRun = new Run(this, {name: json.area});
+  }
+
+  updateCurrentRun(json) {
+    this.currentRun.updateFromJson(json);
   }
 }

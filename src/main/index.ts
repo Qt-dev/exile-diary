@@ -8,6 +8,7 @@ import GGGAPI from './GGGAPI';
 import League from './db/league';
 import RendererLogger from './RendererLogger';
 import * as url from 'url';
+import { OverlayController } from 'electron-overlay-window';
 
 // Old stuff
 import RateGetterV2 from './modules/RateGetterV2';
@@ -17,6 +18,7 @@ import * as ClientTxtWatcher from './modules/ClientTxtWatcher';
 import * as OCRWatcher from './modules/OCRWatcher';
 import StashGetter from './modules/StashGetter';
 import RunParser from './modules/RunParser';
+import KillTracker from './modules/KillTracker';
 import moment from 'moment';
 import AuthManager from './AuthManager';
 
@@ -236,6 +238,7 @@ const createWindow = async () => {
         },
       ],
     });
+    overlayWindow.webContents.send('current-run:info', { name: info.areaInfo.name, level: info.areaInfo.level, ...info.mapStats});
   });
 
   ScreenshotWatcher.emitter.removeAllListeners();
@@ -290,7 +293,32 @@ const createWindow = async () => {
       ],
     });
     win.webContents.send('refresh-runs');
+    win.webContents.send('current-run:started', { area: 'Unknown' });
+    overlayWindow.webContents.send('current-run:started', { area: 'Unknown' }); 
   });
+
+  KillTracker.emitter.removeAllListeners();
+  KillTracker.emitter.on('incubatorsUpdated', (incubators) => {
+    win.webContents.send('incubatorsUpdated', incubators);
+    overlayWindow.webContents.send('incubatorsUpdated', incubators);
+  });
+  KillTracker.emitter.on('incubatorsMissing', (equipments) => {
+    if (equipments.length) {
+      RendererLogger.log({
+        messages: [
+          {
+            text: `Following equipment has incubator missing: `,
+          },
+          ...equipments.map(([name, icon]) => ({
+            text: name,
+            type: 'important',
+            icon: icon,
+          })),
+        ],
+      });
+    }
+  });
+
 
   RateGetterV2.removeAllListeners();
   RateGetterV2.on('gettingPrices', () => {
@@ -324,6 +352,11 @@ const createWindow = async () => {
     logger.info(
       `<span class='eventText'>${path} has not been updated recently even though the game is running. Please check if PoE is using a different Client.txt file.</span>`
     );
+  });
+  ClientTxtWatcher.emitter.on('enteredMap', (area) => {
+    logger.info('Entered map ' + area);
+    win.webContents.send('current-run:started', { area });
+    overlayWindow.webContents.send('current-run:started', { area });
   });
 
   StashGetter.removeAllListeners();
@@ -366,9 +399,27 @@ const createWindow = async () => {
     },
     show: false,
   });
+  
+  const overlayWindow = new BrowserWindow({
+    x: 0,
+    y: 100,
+    frame: false,
+    closable: false,
+    minimizable: false,
+    maximizable: false,
+    fullscreenable: false,
+    resizable: false,
+    show: false,
+    skipTaskbar: true,
+    transparent: true,
+    webPreferences: {
+      nodeIntegration: true,
+      contextIsolation: false,
+    },
+  });
 
   AuthManager.setMessenger(win.webContents);
-  RendererLogger.init(win.webContents);
+  RendererLogger.init(win.webContents, overlayWindow.webContents);
 
   win.on('resize', saveWindowBounds);
   win.on('move', saveWindowBounds);
@@ -490,14 +541,55 @@ const createWindow = async () => {
       }
     });
   }
+  
+  OverlayController.events.on('attach', (event) => {
+    logger.info('Overlay attached to Path of Exile process');
+  });
 
+  OverlayController.events.on('blur', () => {
+    if(!overlayWindow.isFocused()) {
+      overlayWindow.hide();
+    }
+  });
+  overlayWindow.on('blur', () => {
+    if(!OverlayController.targetHasFocus) {
+      overlayWindow.hide();
+    }
+  });
+  OverlayController.events.on('focus', () => {
+    if(SettingsManager.get('overlayEnabled')) {
+      overlayWindow.show();
+      overlayWindow.setIgnoreMouseEvents(false);
+    }
+  })
+  OverlayController.events.on('moveresize', (event) => {
+    // OverlayController resizes the overlay window when the target changes. So we tell our app to reset the size to what it should be.
+    // https://github.com/SnosMe/electron-overlay-window/blob/28261ce92633292c9accd8e185174489311f0b1f/src/index.ts#L109
+    overlayWindow.webContents.send('overlay:trigger-resize');
+  });
+
+  overlayWindow.on('show', () => {
+    overlayWindow.webContents.send('overlay:trigger-resize');
+  });
+
+  ipcMain.on('overlay:resize', (event, { width, height }) => {
+    overlayWindow.setMinimumSize(width, height);
+    overlayWindow.setSize(
+      width,
+      height,
+    );
+  });
+  
   if (isDev) {
     win.loadURL(devUrl);
+    overlayWindow.loadURL(`${devUrl}#/overlay`);
   } else {
     Menu.setApplicationMenu(null);
     const URL = url.pathToFileURL(path.join(__dirname, '..', 'index.html')).toString();
     win.loadURL(URL);
+    overlayWindow.loadURL(`${URL}#/overlay`);
   }
+  OverlayController.attachByTitle(overlayWindow, 'Path of Exile');
 };
 
 app.on('ready', createWindow);
