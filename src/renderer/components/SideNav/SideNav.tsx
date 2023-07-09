@@ -26,6 +26,7 @@ const NetWorth = ({ value, change }) => {
 
 const SideNav = ({ version, isNewVersion, turnNewVersionOff }) => {
   const [ netWorth, setNetWorth ] = React.useState(<>---</>);
+  const [ currentPageName, setCurrentPageName ] = React.useState('Main');
   const about = () => {
     turnNewVersionOff();
   };
@@ -69,7 +70,9 @@ const SideNav = ({ version, isNewVersion, turnNewVersionOff }) => {
             className="Side-Nav__Link"
             key={`Side-Nav-${item.name}`}
             component={RouterLink}
+            onClick={() => setCurrentPageName(item.name)}
             to={item.link}
+            selected={currentPageName === item.name}
           >
             {item.name}
           </MenuItem>
