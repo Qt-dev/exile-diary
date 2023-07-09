@@ -139,7 +139,7 @@ const getYboundsFromImage = (rawImage, metadata) => {
  * @returns an X Boundary
  */
 const getXBoundsFromImage = (rawImage, metadata, yBounds) => {
-  const widthMargin = 10;
+  const widthMargin = 40;
   const blueArray = [];
   const imageWidth = metadata.width - 1;
   let xBoundary = 0;
