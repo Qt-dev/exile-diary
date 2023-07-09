@@ -104,8 +104,8 @@ const request = ({ params, group, cacheTime = CACHE_TIME_IN_SECONDS }) => {
           const max = rateLimitRules.find(rule => rule.period === period).maxHits;
           const hits = status.find(rule => rule.period === period).hits;
           const remaining = max - hits;
-          if (remaining < 2) {
-            logger.info(`Hit GGG Rate Limit on ${group} request: ${remaining} hits remaining for period ${period}. Waiting for ${period} seconds.`);
+          if (remaining < 1) {
+            logger.info(`Hit GGG Rate Limit on ${group} request: ${remaining} hits remaining for period ${period}. Waiting for ${period} seconds for next request.`);
             RendererLogger.log({
               messages: [
                 {
@@ -119,8 +119,10 @@ const request = ({ params, group, cacheTime = CACHE_TIME_IN_SECONDS }) => {
                   text: ' before the next request.',
                 }
               ]
-            })
-            await new Promise(res => setTimeout(res, (period * 1000)));
+            });
+            await new Promise(() => setTimeout(() => {
+              logger.info(`We are good to go for ${group} on period ${period}!`);
+            }, (period * 1000)));
           }
         }));
       }
