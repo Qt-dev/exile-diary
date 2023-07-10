@@ -93,7 +93,7 @@ const StashSettings = ({ store, settings }) => {
     const newInterval = e.target.value;
     setRefreshInterval(newInterval);
     // We delay the settings save in case the user is still typingF
-    clearTimeout(refreshIntervalUpdateTimeout);
+    if(refreshIntervalUpdateTimeout) clearTimeout(refreshIntervalUpdateTimeout);
     refreshIntervalUpdateTimeout = setTimeout(() => {
       ipcRenderer.invoke('save-settings:stash-refresh-interval', { interval: newInterval });
     }, 3000);

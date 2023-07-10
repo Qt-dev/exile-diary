@@ -31,7 +31,7 @@ class StashGetter {
     const settings = SettingsManager.getAll();
     if (settings) {
       // clear any existing scheduled stash check
-      clearTimeout(this.nextStashGetTimer);
+      if(this.nextStashGetTimer) clearTimeout(this.nextStashGetTimer);
 
       emitter.removeAllListeners('scheduleNewStashCheck');
       emitter.on('scheduleNewStashCheck', () => {
@@ -43,7 +43,7 @@ class StashGetter {
 
   async refreshInterval() {
     const { interval = DefaultInterval } = SettingsManager.get('netWorthCheck');
-    clearTimeout(this.nextStashGetTimer);
+    if(this.nextStashGetTimer) clearTimeout(this.nextStashGetTimer);
     // default 5 min between checks
     const newInterval = this.previousTimestamp ? interval - ((moment().unix() - this.previousTimestamp) / 1000) : interval;
 
