@@ -30,6 +30,7 @@ enum SYSTEMS {
 }
 let autoUpdaterInterval: NodeJS.Timeout;
 const autoUpdaterIntervalTime = 1000 * 60 * 60; // 1 hour
+let isShuttingDown = false;
 
 // Initialize logger settings
 logger.initialize({ preload: true });
@@ -99,9 +100,6 @@ const init = async () => {
   if (SettingsManager.settings.activeProfile && SettingsManager.settings.activeProfile.valid) {
     logger.info('Starting components');
     RateGetterV2.initialize();
-    setTimeout(() => {
-      RateGetterV2.update();
-    }, 1000);
     ClientTxtWatcher.start();
     ScreenshotWatcher.start();
     OCRWatcher.start();
@@ -374,21 +372,6 @@ const createWindow = async () => {
     StashGetter.getNetWorth();
   });
 
-  let saveBoundsCallback: any = null;
-  const saveWindowBounds = () => {
-    const bounds = win.getBounds();
-    const { width } = bounds;
-
-    // We do not want to save the settings on every single ping, so we work with a timeout
-    if (saveBoundsCallback) clearTimeout(saveBoundsCallback);
-    saveBoundsCallback = setTimeout(() => {
-      SettingsManager.set('mainWindowBounds', bounds);
-      logger.info('saving bounds', bounds);
-      // Set min width to 1100
-      win.webContents.send('rescale', Math.min(width, 1100) / 1100);
-    }, 1000);
-  };
-
   let win = new BrowserWindow({
     title: `Exile Diary v${app.getVersion()}`,
     webPreferences: {
@@ -417,6 +400,21 @@ const createWindow = async () => {
       contextIsolation: false,
     },
   });
+
+  let saveBoundsCallback: any = null;
+  const saveWindowBounds = () => {
+    const bounds = win.getBounds();
+    const { width } = bounds;
+
+    // We do not want to save the settings on every single ping, so we work with a timeout
+    if (saveBoundsCallback) clearTimeout(saveBoundsCallback);
+    saveBoundsCallback = setTimeout(() => {
+      SettingsManager.set('mainWindowBounds', bounds);
+      logger.info('saving bounds', bounds);
+      // Set min width to 1100
+      win.webContents.send('rescale', Math.min(width, 1100) / 1100);
+    }, 1000);
+  };
 
   AuthManager.setMessenger(win.webContents);
   RendererLogger.init(win.webContents, overlayWindow.webContents);
@@ -575,6 +573,16 @@ const createWindow = async () => {
       height,
     );
   });
+
+  win.on('close', (event) => {
+    logger.info('Main window is closing, closing all the windows');
+    overlayWindow.closable = true;
+    overlayWindow.close();
+  });
+
+  overlayWindow.on('close', (event) => {
+    logger.info('Closing the overlay');
+  });
   
   if (isDev) {
     win.loadURL(devUrl);
@@ -586,6 +594,12 @@ const createWindow = async () => {
     overlayWindow.loadURL(`${URL}#/overlay`);
   }
   OverlayController.attachByTitle(overlayWindow, 'Path of Exile');
+
+  app.on('will-quit', () => {
+    logger.info('Exile Diary Reborn is closing');
+    clearTimeout(saveBoundsCallback);
+    clearTimeout(autoUpdaterInterval);
+  })
 };
 
 app.on('ready', createWindow);
