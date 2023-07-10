@@ -152,7 +152,7 @@ const AuthManager = {
         ],
       });
 
-      clearTimeout(logoutTimer);
+      if(logoutTimer) clearTimeout(logoutTimer);
       const maxTimeout = 2147483647; // Max timeout for setTimeout
       if (millisecondsToExpiration > maxTimeout) {
         logger.info(

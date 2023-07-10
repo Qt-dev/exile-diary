@@ -455,12 +455,8 @@ const createWindow = async () => {
 
   win.on('close', (e: Event) => {
     clearInterval(autoUpdaterInterval);
+    clearTimeout(saveBoundsCallback);
     return;
-    // if (!isQuitting) {
-    //   e.preventDefault();
-    //   win.hide();
-    //   e.returnValue = false;
-    // }
   });
 
   win.once('ready-to-show', () => {

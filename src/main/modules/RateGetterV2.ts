@@ -48,7 +48,7 @@ var emitter = new EventEmitter();
 class RateGetterV2 {
   ratesReady: boolean = false;
   constructor() {
-    clearTimeout(nextRateGetTimer);
+    if(nextRateGetTimer) clearTimeout(nextRateGetTimer);
   }
 
   on(event, listener) {
@@ -153,7 +153,7 @@ class RateGetterV2 {
     const interval = next.valueOf() - Date.now();
     logger.info(`Set new timer for updating prices in ${Number(interval / 1000).toFixed(2)} sec`);
 
-    clearTimeout(nextRateGetTimer);
+    if(nextRateGetTimer) clearTimeout(nextRateGetTimer);
     nextRateGetTimer = setTimeout(() => {
       logger.info('Executing scheduled rate update');
       this.update();
