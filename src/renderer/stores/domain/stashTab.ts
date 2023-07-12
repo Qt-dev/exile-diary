@@ -1,7 +1,5 @@
 import { computed, makeAutoObservable } from 'mobx';
 import { StashTabData, ItemData } from '../../../helpers/types';
-import { electronService } from '../../electron.service';
-const { ipcRenderer, logger } = electronService;
 
 const DisabledTypes = ['MapStash', 'UniqueStash'];
 

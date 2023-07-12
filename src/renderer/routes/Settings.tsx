@@ -1,7 +1,5 @@
 import React from 'react';
 import { useLoaderData } from 'react-router';
-import { electronService } from '../electron.service';
-import { useNavigate } from 'react-router-dom';
 import Tabs from '@mui/material/Tabs';
 import Tab from '@mui/material/Tab';
 import Box from '@mui/material/Box';
@@ -9,7 +7,6 @@ import StashSettings from '../components/StashSettings/StashSettings';
 import './Settings.css';
 import MainSettings from '../components/MainSettings/MainSettings';
 import { observer } from 'mobx-react-lite';
-const { ipcRenderer, logger } = electronService;
 
 // Fix to allow for directory selection in inputs
 declare module 'react' {
@@ -33,13 +30,8 @@ function a11yProps(index: number) {
 }
 
 const Settings = ({ characterStore, stashTabStore }) => {
-  const navigate = useNavigate();
   const { settings } = useLoaderData() as SettingsLoaderData;
   const [tabValue, setTabValue] = React.useState(0);
-
-  const handleBack = () => {
-    navigate('/');
-  };
 
   const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
     setTabValue(newValue);

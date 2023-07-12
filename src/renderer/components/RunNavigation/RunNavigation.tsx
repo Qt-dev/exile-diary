@@ -1,6 +1,6 @@
 import React from 'react';
 import { useNavigate, Link as RouterLink } from 'react-router-dom';
-import { Select, MenuItem, SelectChangeEvent, Divider, Link } from '@mui/material';
+import { Select, MenuItem, SelectChangeEvent, Link } from '@mui/material';
 import { observer } from 'mobx-react-lite';
 
 const RunNavigation = ({ run, store }) => {

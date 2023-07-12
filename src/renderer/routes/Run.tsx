@@ -29,9 +29,6 @@ const Run = ({ store }) => {
     store.loadDetails(run);
   }, [runId, run, navigate, store]);
 
-  const handleMapChange = (event: SelectChangeEvent) => {
-    navigate(`/run/${event.target.value}`);
-  };
   const duration = run.duration ? moment.utc(run.duration.asMilliseconds()).format('mm:ss') : '-';
   const xp =
     run.xp && run.xp >= 0 ? `+${run.xp.toLocaleString('en')}` : run.xp?.toLocaleString('en');

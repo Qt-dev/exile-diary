@@ -118,7 +118,7 @@ const useSize = (target: React.RefObject<HTMLDivElement>) => {
 
   useLayoutEffect(() => {
     if (target.current) setSize(target.current.getBoundingClientRect());
-  }, [target.current]);
+  }, [target, target.current]);
 
   useResizeObserver(target, (entry) => setSize(entry.contentRect));
 
@@ -224,7 +224,7 @@ const Overlay = ({ store }) => {
     ipcRenderer.on('overlay:trigger-resize', () => {
       updateSize(sizeRef.current);
     });
-  }, [sizeRef.current]);
+  }, []);
 
   useEffect(() => {
     ipcRenderer.on('overlay:message', (event, { messages }) => {
@@ -238,7 +238,7 @@ const Overlay = ({ store }) => {
       setTime(defaultTimer);
       setLatestMapTrackingMessage(<OverlayMapInfoLine run={store.currentRun} />);
     }
-  }, [store.currentRun.lastUpdate]);
+  }, [store.currentRun, store.currentRun.lastUpdate]);
 
   // Change latestMapTrackingMessage to actually just open the OL
   return (

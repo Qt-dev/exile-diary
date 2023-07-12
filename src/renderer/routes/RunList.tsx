@@ -2,7 +2,6 @@ import './RunList.css';
 import moment from 'moment';
 import DurationFormatSetup from 'moment-duration-format';
 import React from 'react';
-import MenuIcon from '@mui/icons-material/Menu';
 import {
   TableContainer,
   Table,
@@ -15,7 +14,6 @@ import {
   Drawer,
   Pagination,
   FormControl,
-  Divider,
 } from '@mui/material';
 import classNames from 'classnames';
 import ChaosIcon from '../assets/img/c.png';

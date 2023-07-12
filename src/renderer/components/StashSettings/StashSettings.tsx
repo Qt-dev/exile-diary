@@ -12,7 +12,7 @@ import Checkbox from '@mui/material/Checkbox';
 import ListItemText from '@mui/material/ListItemText';
 import ListItemIcon from '@mui/material/ListItemIcon';
 import Button from '@mui/material/Button';
-const { logger, ipcRenderer } = electronService;
+const { ipcRenderer } = electronService;
 
 const ContainerComponent = ({ children, isFolder, disabled, callback }) => {
   if (isFolder) {
