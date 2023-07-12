@@ -20,17 +20,16 @@ const RunNavigation = ({ run, store }) => {
     <div className="Run__Navigation">
       <Link
         component={RouterLink}
-        to={previousRun ? `/run/${previousRun.runId}` : "#"}
+        to={previousRun ? `/run/${previousRun.runId}` : '#'}
         className="Run__Navigation__Link--Previous Run__Navigation__Link"
         underline="hover"
         sx={{ fontSize: '1.1em' }}
-        >
-        {
-          previousRun ?
-          (`<< ${previousRun.firstEvent.format('L HH:mm:ss')} (${previousRun.name})`) : null
-        }
+      >
+        {previousRun
+          ? `<< ${previousRun.firstEvent.format('L HH:mm:ss')} (${previousRun.name})`
+          : null}
       </Link>
-      
+
       <Select
         id="Run__Selector"
         className="Run__Selector"
@@ -40,22 +39,22 @@ const RunNavigation = ({ run, store }) => {
         variant="outlined"
       >
         {store.getSortedRuns().map((run) => {
-          return <MenuItem value={run.runId}>{run.firstEvent.format('L HH:mm:ss')} ({run.name})</MenuItem>;
+          return (
+            <MenuItem value={run.runId}>
+              {run.firstEvent.format('L HH:mm:ss')} ({run.name})
+            </MenuItem>
+          );
         })}
       </Select>
       <Link
         component={RouterLink}
-        to={nextRun ? `/run/${nextRun.runId}` : "#"}
+        to={nextRun ? `/run/${nextRun.runId}` : '#'}
         className="Run__Navigation__Link--Next Run__Navigation__Link"
         underline="hover"
         sx={{ fontSize: '1.1em' }}
-        >
-      { nextRun ? 
-        (`${nextRun.firstEvent.format('L HH:mm:ss')} (${nextRun.name}) >>`)
-        : null
-      }
+      >
+        {nextRun ? `${nextRun.firstEvent.format('L HH:mm:ss')} (${nextRun.name}) >>` : null}
       </Link>
-      
     </div>
   );
 };

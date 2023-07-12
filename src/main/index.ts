@@ -90,9 +90,7 @@ const init = async () => {
       SettingsManager.initializeDB(character.name);
       logger.info(`DB updated. Character: ${character.name}, League: ${character.league}`);
     } catch (e) {
-      logger.error(
-        `Could not set DB up. (Current Account: ${SettingsManager.settings.username}})`
-      );
+      logger.error(`Could not set DB up. (Current Account: ${SettingsManager.settings.username}})`);
       logger.error(e);
     }
   }
@@ -236,7 +234,11 @@ const createWindow = async () => {
         },
       ],
     });
-    overlayWindow.webContents.send('current-run:info', { name: info.areaInfo.name, level: info.areaInfo.level, ...info.mapStats});
+    overlayWindow.webContents.send('current-run:info', {
+      name: info.areaInfo.name,
+      level: info.areaInfo.level,
+      ...info.mapStats,
+    });
   });
 
   ScreenshotWatcher.emitter.removeAllListeners();
@@ -292,7 +294,7 @@ const createWindow = async () => {
     });
     win.webContents.send('refresh-runs');
     win.webContents.send('current-run:started', { area: 'Unknown' });
-    overlayWindow.webContents.send('current-run:started', { area: 'Unknown' }); 
+    overlayWindow.webContents.send('current-run:started', { area: 'Unknown' });
   });
 
   KillTracker.emitter.removeAllListeners();
@@ -316,7 +318,6 @@ const createWindow = async () => {
       });
     }
   });
-
 
   RateGetterV2.removeAllListeners();
   RateGetterV2.on('gettingPrices', () => {
@@ -360,9 +361,7 @@ const createWindow = async () => {
   StashGetter.removeAllListeners();
   StashGetter.initialize();
   StashGetter.on('stashTabs:updated:full', (data) => {
-    logger.info(
-      `Updated stash tabs (League: ${data.league} - Change: ${data.change})`
-    );
+    logger.info(`Updated stash tabs (League: ${data.league} - Change: ${data.change})`);
     win.webContents.send('update-stash-content', data);
   });
   StashGetter.on('netWorthUpdated', (data) => {
@@ -382,7 +381,7 @@ const createWindow = async () => {
     },
     show: false,
   });
-  
+
   const overlayWindow = new BrowserWindow({
     x: 0,
     y: 100,
@@ -535,27 +534,27 @@ const createWindow = async () => {
       }
     });
   }
-  
+
   OverlayController.events.on('attach', (event) => {
     logger.info('Overlay attached to Path of Exile process');
   });
 
   OverlayController.events.on('blur', () => {
-    if(!overlayWindow.isFocused()) {
+    if (!overlayWindow.isFocused()) {
       overlayWindow.hide();
     }
   });
   overlayWindow.on('blur', () => {
-    if(!OverlayController.targetHasFocus) {
+    if (!OverlayController.targetHasFocus) {
       overlayWindow.hide();
     }
   });
   OverlayController.events.on('focus', () => {
-    if(SettingsManager.get('overlayEnabled')) {
+    if (SettingsManager.get('overlayEnabled')) {
       overlayWindow.show();
       overlayWindow.setIgnoreMouseEvents(false);
     }
-  })
+  });
   OverlayController.events.on('moveresize', (event) => {
     // OverlayController resizes the overlay window when the target changes. So we tell our app to reset the size to what it should be.
     // https://github.com/SnosMe/electron-overlay-window/blob/28261ce92633292c9accd8e185174489311f0b1f/src/index.ts#L109
@@ -568,10 +567,7 @@ const createWindow = async () => {
 
   ipcMain.on('overlay:resize', (event, { width, height }) => {
     overlayWindow.setMinimumSize(width, height);
-    overlayWindow.setSize(
-      width,
-      height,
-    );
+    overlayWindow.setSize(width, height);
   });
 
   win.on('close', (event) => {
@@ -583,7 +579,7 @@ const createWindow = async () => {
   overlayWindow.on('close', (event) => {
     logger.info('Closing the overlay');
   });
-  
+
   if (isDev) {
     win.loadURL(devUrl);
     overlayWindow.loadURL(`${devUrl}#/overlay`);
@@ -599,7 +595,7 @@ const createWindow = async () => {
     logger.info('Exile Diary Reborn is closing');
     clearTimeout(saveBoundsCallback);
     clearTimeout(autoUpdaterInterval);
-  })
+  });
 };
 
 app.on('ready', createWindow);

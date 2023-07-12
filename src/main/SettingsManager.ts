@@ -37,14 +37,12 @@ class SettingsManager {
 
   async getCharacter(name: string | null = null) {
     let character;
-    if(this.needsActiveProfile()) {
+    if (this.needsActiveProfile()) {
       logger.info('Getting character and league info');
-      if(!name) {
+      if (!name) {
         character = await GGGAPI.getCurrentCharacter();
       } else {
-        character = (await GGGAPI.getAllCharacters()).find(
-          (character) => character.name === name
-        );
+        character = (await GGGAPI.getAllCharacters()).find((character) => character.name === name);
       }
       this.set('activeProfile', {
         characterName: character.name,

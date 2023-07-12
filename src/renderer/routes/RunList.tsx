@@ -38,7 +38,6 @@ const RunList = ({ NumbersOfMapsToShow = 10, store }) => {
     setPage(0);
   };
 
-
   const getXPClassName = (xp: number) => {
     return classNames({
       'Run-List__XP--Positive': xp > 0,
@@ -59,8 +58,12 @@ const RunList = ({ NumbersOfMapsToShow = 10, store }) => {
   return (
     <div className="Run-List Box">
       <div className="Run-List__Header">
-        <div className="Page__Title Run-List__Header__Title">Most Recent {store.runs.length} Runs</div>
-        <div className="">(Total Time: {store.getFullDuration().format('D [days] hh[h] mm[m] ss[s]')})</div>
+        <div className="Page__Title Run-List__Header__Title">
+          Most Recent {store.runs.length} Runs
+        </div>
+        <div className="">
+          (Total Time: {store.getFullDuration().format('D [days] hh[h] mm[m] ss[s]')})
+        </div>
         {/* <MenuIcon className="Run-List__Header__Burger" onClick={togglePopupMenu}>
           ≡
         </MenuIcon> */}
@@ -144,7 +147,7 @@ const RunList = ({ NumbersOfMapsToShow = 10, store }) => {
       <div className="Run-List__Footer">
         <div className="Run-List__Footer__Select">
           <div className="Run-List__Footer__Title">Maps per page</div>
-          <FormControl variant="outlined" size="small" >
+          <FormControl variant="outlined" size="small">
             <Select
               id="Run-Filter-Selector"
               className="Run-Filter-Selector"

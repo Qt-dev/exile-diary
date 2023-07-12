@@ -103,11 +103,12 @@ const AuthManager = {
       expirationDate !== null &&
       moment().isBefore(expirationDate) &&
       !!username &&
-      (!isFirstTime ? 
-        !!activeProfile &&
-        !!activeProfile.characterName &&
-        !!activeProfile.league &&
-        !!activeProfile.valid : true);
+      (!isFirstTime
+        ? !!activeProfile &&
+          !!activeProfile.characterName &&
+          !!activeProfile.league &&
+          !!activeProfile.valid
+        : true);
     logger.info(`User is ${isAuthenticated ? '' : 'not '}authenticated`, {
       password: !!password,
       expirationDate,
@@ -153,7 +154,7 @@ const AuthManager = {
         ],
       });
 
-      if(logoutTimer) clearTimeout(logoutTimer);
+      if (logoutTimer) clearTimeout(logoutTimer);
       const maxTimeout = 2147483647; // Max timeout for setTimeout
       if (millisecondsToExpiration > maxTimeout) {
         logger.info(

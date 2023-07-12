@@ -14,14 +14,17 @@ const limiters = new Bottleneck.Group({
   minTime: 333,
 });
 
-
 limiters.on('failed', async (error, jobInfo) => {
   const { retryCount } = jobInfo;
   logger.error(
     `Request ${jobInfo.options.id} failed with ${error.message}. Retried ${retryCount} times.`
   );
   if (error.status === 429) {
-    logger.error(`Too many requests. Waiting ${error.getResponseHeader('Retry-After')} seconds before retrying...`);
+    logger.error(
+      `Too many requests. Waiting ${error.getResponseHeader(
+        'Retry-After'
+      )} seconds before retrying...`
+    );
     logger.error(`Retry-After Header: ${error.getResponseHeader('Retry-After')}`);
     return (error.getResponseHeader('Retry-After') || 1) * 1000 + 1000;
   }
@@ -35,12 +38,11 @@ limiters.on('failed', async (error, jobInfo) => {
   }
 });
 
-
 limiters.on('done', (jobInfo) => {
   // globalLimiter.once('running', () => {
-  logger.info(jobInfo)
+  logger.info(jobInfo);
   // })
-})
+});
 
 limiters.on('executing', async (jobInfo) => {
   logger.info(`========Request ${jobInfo.options.id} started.`);
@@ -80,51 +82,60 @@ const request = ({ params, group, cacheTime = CACHE_TIME_IN_SECONDS }) => {
     return axios(params).then(async (response) => {
       if (response.cached) {
         logger.info(`Response from cache for ${params.url}`);
-      }
-      else {
-        let periods : any = [];
-        const rateLimitRules = response.headers['x-rate-limit-account'].split(',').map(encodedRules => {
-          const [maxHits, period] = encodedRules.split(':');
-          periods.push(period);
-          return {
-            maxHits,
-            period
-          };
-        });
+      } else {
+        let periods: any = [];
+        const rateLimitRules = response.headers['x-rate-limit-account']
+          .split(',')
+          .map((encodedRules) => {
+            const [maxHits, period] = encodedRules.split(':');
+            periods.push(period);
+            return {
+              maxHits,
+              period,
+            };
+          });
 
-        const status = response.headers['x-rate-limit-account-state'].split(',').map(encodedStatus => {
-          const [hits, period] = encodedStatus.split(':');
-          return {
-            hits,
-            period
-          }
-        });
+        const status = response.headers['x-rate-limit-account-state']
+          .split(',')
+          .map((encodedStatus) => {
+            const [hits, period] = encodedStatus.split(':');
+            return {
+              hits,
+              period,
+            };
+          });
 
-        await Promise.all(periods.map(async (period) => {
-          const max = rateLimitRules.find(rule => rule.period === period).maxHits;
-          const hits = status.find(rule => rule.period === period).hits;
-          const remaining = max - hits;
-          if (remaining < 1) {
-            logger.info(`Hit GGG Rate Limit on ${group} request: ${remaining} hits remaining for period ${period}. Waiting for ${period} seconds for next request.`);
-            RendererLogger.log({
-              messages: [
-                {
-                  text: `Hit GGG Rate Limit on ${group} request: Waiting for `,
-                },
-                {
-                  text: `${period} seconds`,
-                  type: 'important',
-                }, 
-                {
-                  text: ' before the next request.',
-                }
-              ]
-            });
-            await new Promise(() => setTimeout(() => {
-              logger.info(`We are good to go for ${group} on period ${period}!`);
-            }, (period * 1000)));
-          }
-        }));
+        await Promise.all(
+          periods.map(async (period) => {
+            const max = rateLimitRules.find((rule) => rule.period === period).maxHits;
+            const hits = status.find((rule) => rule.period === period).hits;
+            const remaining = max - hits;
+            if (remaining < 1) {
+              logger.info(
+                `Hit GGG Rate Limit on ${group} request: ${remaining} hits remaining for period ${period}. Waiting for ${period} seconds for next request.`
+              );
+              RendererLogger.log({
+                messages: [
+                  {
+                    text: `Hit GGG Rate Limit on ${group} request: Waiting for `,
+                  },
+                  {
+                    text: `${period} seconds`,
+                    type: 'important',
+                  },
+                  {
+                    text: ' before the next request.',
+                  },
+                ],
+              });
+              await new Promise(() =>
+                setTimeout(() => {
+                  logger.info(`We are good to go for ${group} on period ${period}!`);
+                }, period * 1000)
+              );
+            }
+          })
+        );
       }
       return response;
     });
@@ -150,7 +161,11 @@ const getAllCharacters = async () => {
   logger.info('Getting characters from the GGG API');
   try {
     const { username, token } = await getSettings(false);
-    const response: any = await request({ params: getRequestParams(Endpoints.characters(), token), group: '/character', cacheTime: 60 * 5});
+    const response: any = await request({
+      params: getRequestParams(Endpoints.characters(), token),
+      group: '/character',
+      cacheTime: 60 * 5,
+    });
     const characters = await response.data.characters;
     logger.info(`Found ${characters.length} characters from the GGG API for account: ${username}`);
     return characters;
@@ -166,7 +181,7 @@ const getDataForInventory = async () => {
     const { characterName, token } = await getSettings();
     const response: any = await request({
       params: getRequestParams(Endpoints.character({ characterName }), token),
-      group: '/character'
+      group: '/character',
     });
     const character = await response.data.character;
     const { inventory, equipment, experience } = character;
@@ -188,7 +203,7 @@ const getSkillTree = async () => {
     const { characterName, token } = await getSettings();
     const response: any = await request({
       params: getRequestParams(Endpoints.character({ characterName }), token),
-      group: '/character'
+      group: '/character',
     });
     const skillTree = await response.data.character.passives;
     logger.info(`Found skill tree for character: ${characterName}`);
@@ -205,7 +220,7 @@ const getStashTab = async (stashId) => {
     const { username, league, token } = await getSettings();
     const response: any = await request({
       params: getRequestParams(Endpoints.stash({ league, stashId }), token),
-      group: '/stash'
+      group: '/stash',
     });
     const stash = await response.data.stash;
     logger.info(`Found stash ${stashId} for account: ${username}`);
@@ -221,8 +236,8 @@ const getAllStashTabs = async () => {
   try {
     const { username, league, token } = await getSettings();
     const response: any = await request({
-      params: getRequestParams(Endpoints.stashes({league}), token),
-      group: '/stash'
+      params: getRequestParams(Endpoints.stashes({ league }), token),
+      group: '/stash',
     });
     const stashes = await response.data.stashes;
     logger.info(`Found ${response.data.stashes.length} stashes for account: ${username}`);

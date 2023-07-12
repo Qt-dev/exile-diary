@@ -20,7 +20,6 @@ import ShrineIcon from '../../assets/img/encountericons/shrine.png';
 // 'Veritania, the Redeemer'
 // 'Drox, the Warlord'
 
-
 const ConquerorsMap = {
   'Baran, the Crusader': BaranIcon,
   'Al-Hezmin, the Hunter': AlHezminIcon,
@@ -103,17 +102,29 @@ const iconMap = {
       condition: !!info.metamorph,
       icon: MetamorphIcon,
       alt: 'Contained a Metamorph Encounter',
-      additionalIcons: info.metamorph ? Object.keys(info?.metamorph).map((organ) => {
-        const Icon = require(`../../assets/img/metamorphicons/${organ}.png`);
-        return <Tooltip title={`${organ} x ${info.metamorph[organ]}`}><img className="Run-Event__Mini-Icon" src={Icon} alt={organ} /></Tooltip>;
-      }) : null,
+      additionalIcons: info.metamorph
+        ? Object.keys(info?.metamorph).map((organ) => {
+            const Icon = require(`../../assets/img/metamorphicons/${organ}.png`);
+            return (
+              <Tooltip title={`${organ} x ${info.metamorph[organ]}`}>
+                <img className="Run-Event__Mini-Icon" src={Icon} alt={organ} />
+              </Tooltip>
+            );
+          })
+        : null,
     };
   },
   syndicate: (info) => {
-    const tooltipText = info.syndicate ? <>
-      <div>Encountered {Object.keys(info?.syndicate).length} Syndicate Members</div>
-      <ul className='Tooltip-List'>{Object.keys(info?.syndicate).map((syndicateMember) => <li>{syndicateMember}</li> )}</ul>
-    </> : null;
+    const tooltipText = info.syndicate ? (
+      <>
+        <div>Encountered {Object.keys(info?.syndicate).length} Syndicate Members</div>
+        <ul className="Tooltip-List">
+          {Object.keys(info?.syndicate).map((syndicateMember) => (
+            <li>{syndicateMember}</li>
+          ))}
+        </ul>
+      </>
+    ) : null;
     return {
       condition: !!info.syndicate,
       icon: JunIcon,
@@ -128,7 +139,11 @@ const iconMap = {
       alt: `Contained ${info?.shrines?.length} Shrine${info?.shrines?.length > 1 ? 's' : ''}`,
       additionalIcons: info?.shrines?.map((shrine) => {
         const Icon = require(`../../assets/img/shrineicons/${shrine.replace(' Shrine', '')}.png`);
-        return <Tooltip title={shrine}><img className="Run-Event__Mini-Icon" src={Icon} alt={shrine} /></Tooltip>;
+        return (
+          <Tooltip title={shrine}>
+            <img className="Run-Event__Mini-Icon" src={Icon} alt={shrine} />
+          </Tooltip>
+        );
       }),
     };
   },

@@ -24,7 +24,7 @@ export default class CharacterStore {
     logger.info(`Setting up ${charactersData.length} characters in the frontend.`);
     this.isLoading = true;
     runInAction(() => {
-      for(const characterData of charactersData) {
+      for (const characterData of charactersData) {
         this.createCharacter(characterData);
       }
 
@@ -33,8 +33,10 @@ export default class CharacterStore {
   }
 
   createCharacter(characterData: CharacterData) {
-    const existingCharacter = this.characters.find(character => character.name === characterData.name);
-    if(existingCharacter) {
+    const existingCharacter = this.characters.find(
+      (character) => character.name === characterData.name
+    );
+    if (existingCharacter) {
       existingCharacter.update(characterData);
     } else {
       const character = new Character(this, characterData);

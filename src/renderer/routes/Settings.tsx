@@ -35,7 +35,7 @@ function a11yProps(index: number) {
 const Settings = ({ characterStore, stashTabStore }) => {
   const navigate = useNavigate();
   const { settings } = useLoaderData() as SettingsLoaderData;
-  const [ tabValue, setTabValue ] = React.useState(0);
+  const [tabValue, setTabValue] = React.useState(0);
 
   const handleBack = () => {
     navigate('/');
@@ -58,9 +58,9 @@ const Settings = ({ characterStore, stashTabStore }) => {
         </Tabs>
       </Box>
       <div hidden={tabValue !== 0}>
-        <MainSettings store={characterStore} settings={settings}/>
+        <MainSettings store={characterStore} settings={settings} />
       </div>
-      <div hidden={tabValue !== 1} >
+      <div hidden={tabValue !== 1}>
         <StashSettings store={stashTabStore} settings={settings} />
       </div>
     </div>

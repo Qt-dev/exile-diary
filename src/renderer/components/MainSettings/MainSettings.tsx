@@ -28,7 +28,7 @@ const MainSettings = ({ settings, store }) => {
   const navigate = useNavigate();
 
   // Character
-  const [ character, setCharacter ] = React.useState(
+  const [character, setCharacter] = React.useState(
     settings.activeProfile.characterName ? settings.activeProfile.characterName : ''
   );
   const handleCharacterChange = (e) => {
@@ -98,7 +98,7 @@ const MainSettings = ({ settings, store }) => {
 
   useEffect(() => {
     store.fetchCharacters();
-  }, [])
+  }, []);
 
   return (
     <form onSubmit={handleSubmit} role="tabpanel">
@@ -206,27 +206,20 @@ const MainSettings = ({ settings, store }) => {
         <div className="Settings__Checkbox__Row">
           <FormControlLabel
             control={
-              <Checkbox
-                id="alternate_splinter_pricing"
-                defaultChecked={alternateSplinterPricing}
-              />
+              <Checkbox id="alternate_splinter_pricing" defaultChecked={alternateSplinterPricing} />
             }
             label="Enable Alternate Splinter Pricing"
           />
         </div>
         <div className="Settings__Checkbox__Row">
           <FormControlLabel
-            control={<Checkbox 
-              id="overlay_enabled"
-              defaultChecked={overlayEnabled} />}
+            control={<Checkbox id="overlay_enabled" defaultChecked={overlayEnabled} />}
             label="Enable Overlay Popup Messages"
           />
         </div>
         <div className="Settings__Checkbox__Row">
           <FormControlLabel
-            control={<Checkbox
-              id="enable_incubator_alert"
-              defaultChecked={enableIncubatorAlert} />}
+            control={<Checkbox id="enable_incubator_alert" defaultChecked={enableIncubatorAlert} />}
             label="Enable Incubator Running Out Alert"
           />
         </div>

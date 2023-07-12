@@ -33,7 +33,8 @@ const Run = ({ store }) => {
     navigate(`/run/${event.target.value}`);
   };
   const duration = run.duration ? moment.utc(run.duration.asMilliseconds()).format('mm:ss') : '-';
-  const xp = run.xp && run.xp >= 0 ? `+${run.xp.toLocaleString('en')}` : run.xp?.toLocaleString('en');
+  const xp =
+    run.xp && run.xp >= 0 ? `+${run.xp.toLocaleString('en')}` : run.xp?.toLocaleString('en');
   const getXpClassname = (xp: number) => {
     return classNames({
       'Run__XP--Positive': xp > 0,
@@ -53,7 +54,7 @@ const Run = ({ store }) => {
 
   return (
     <div className="Run">
-      <RunNavigation run={run} store={store}/>
+      <RunNavigation run={run} store={store} />
       <Divider className="Separator" />
       <div className="Run__Header">
         <div className="Run__Header__Left">

@@ -121,7 +121,7 @@ type StashTab = {
   type: string;
   items: any[];
   public?: boolean;
-}
+};
 
 type StashTabData = {
   id: string;
@@ -132,7 +132,7 @@ type StashTabData = {
     public?: boolean;
     folder?: boolean;
     color?: string; // 6 digits hex color
-  }
+  };
   items?: ItemData[];
   children?: StashTabData[];
   tracked: boolean;
@@ -180,12 +180,12 @@ type ItemData = {
   map_id?: string;
   stashTabId?: string;
   inventoryId: string;
-  incubatedItem? : {
-    name: string,
-    level: number,
-    progress: number,
-    total: number,
-  }
+  incubatedItem?: {
+    name: string;
+    level: number;
+    progress: number;
+    total: number;
+  };
 };
 
 export type { Run, Order, RunInfo, StashTabData, ItemData };

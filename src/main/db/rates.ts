@@ -31,8 +31,7 @@ export default {
     const query = 'DELETE FROM fullrates WHERE date < ?';
     try {
       await DB.run(query, [date], league);
-    }
-    catch (err) {
+    } catch (err) {
       logger.error(`Error cleaning rates for ${date} (league: ${league}): ${JSON.stringify(err)}`);
     }
   },
@@ -64,7 +63,11 @@ export default {
       const [{ count }] = (await DB.all(query, [date], league)) as any[];
       return count > 0;
     } catch (err) {
-      logger.error(`Error checking if rates for ${date} (league: ${league}) exist in DB: ${JSON.stringify(err)}`);
+      logger.error(
+        `Error checking if rates for ${date} (league: ${league}) exist in DB: ${JSON.stringify(
+          err
+        )}`
+      );
       return false;
     }
   },

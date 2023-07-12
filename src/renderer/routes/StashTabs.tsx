@@ -20,45 +20,43 @@ import { observer } from 'mobx-react-lite';
 
 type StashTabsColumn = 'name' | 'quantity' | 'value' | 'totalValue' | 'stashTabName';
 
-
 const StashTabs = ({ store }) => {
   const allTrackedStashTabsIds = store.trackedStashTabs.map((stashTab) => stashTab.id);
-  const [ orderBy, setOrderBy ] = React.useState<StashTabsColumn>('name');
-  const [ order, setOrder ] = React.useState<Order>('desc');
-  const [ selectedStashTabs, setSelectedStashTabs ] = React.useState<string[]>(allTrackedStashTabsIds);
+  const [orderBy, setOrderBy] = React.useState<StashTabsColumn>('name');
+  const [order, setOrder] = React.useState<Order>('desc');
+  const [selectedStashTabs, setSelectedStashTabs] =
+    React.useState<string[]>(allTrackedStashTabsIds);
   const sortCallback = (column: StashTabsColumn, order: Order) => () => {
     const realOrder = order === 'desc' && orderBy === column ? 'asc' : 'desc';
     setOrder(realOrder);
     setOrderBy(column);
   };
-  const areAllTabsSelected = selectedStashTabs.length ===  store.trackedStashTabs.length;
+  const areAllTabsSelected = selectedStashTabs.length === store.trackedStashTabs.length;
 
   const toggleSelectedSoloStashTab = (stashTabId: string) => () => {
     if (areAllTabsSelected) {
-      setSelectedStashTabs([stashTabId ]);
+      setSelectedStashTabs([stashTabId]);
     } else {
       setSelectedStashTabs(allTrackedStashTabsIds);
     }
   };
 
-  
-  const [ searchString, setSearchString ] = React.useState<string>('');
-  const sortedItems = store.itemStore.getItemsForLootTable(orderBy, order)
+  const [searchString, setSearchString] = React.useState<string>('');
+  const sortedItems = store.itemStore
+    .getItemsForLootTable(orderBy, order)
     .filter((item) => selectedStashTabs.includes(item.stashTabId))
     .filter((item) => item.name.toLowerCase().includes(searchString));
-
 
   const changeSelectedTabs = (event: SelectChangeEvent<typeof selectedStashTabs>) => {
     const {
       target: { value },
     } = event;
-    if(value.includes('all')) {
+    if (value.includes('all')) {
       setSelectedStashTabs(areAllTabsSelected ? [] : allTrackedStashTabsIds);
     } else {
       setSelectedStashTabs([...value]);
     }
   };
-
 
   return (
     <div className="StashTabs Box">
@@ -77,18 +75,24 @@ const StashTabs = ({ store }) => {
               notched
               onChange={changeSelectedTabs}
               renderValue={(totalValue) => {
-                return areAllTabsSelected ? 'All' : totalValue.map(value => store.trackedStashTabs.find(tab => value === tab.id).name).join(',');
-              }}>
+                return areAllTabsSelected
+                  ? 'All'
+                  : totalValue
+                      .map((value) => store.trackedStashTabs.find((tab) => value === tab.id).name)
+                      .join(',');
+              }}
+            >
               <MenuItem value="all" sx={{ color: 'white' }}>
-                <Checkbox checked={areAllTabsSelected}/>
+                <Checkbox checked={areAllTabsSelected} />
                 <ListItemText>All</ListItemText>
               </MenuItem>
               {store.trackedStashTabs.map((stashTab) => (
                 <MenuItem
                   value={stashTab.id}
                   key={stashTab.id}
-                  sx={{ minWidth: 200, color: 'white' }}>
-                  <Checkbox checked={selectedStashTabs.includes(stashTab.id)}/>
+                  sx={{ minWidth: 200, color: 'white' }}
+                >
+                  <Checkbox checked={selectedStashTabs.includes(stashTab.id)} />
                   <ListItemText>{stashTab.name}</ListItemText>
                 </MenuItem>
               ))}
@@ -106,9 +110,7 @@ const StashTabs = ({ store }) => {
           </FormControl>
         </div>
       </div>
-      <Table
-        size="small"
-      >
+      <Table size="small">
         <TableHead>
           <TableRow className="Stats__Table-Header">
             <TableCell align="center">
@@ -159,31 +161,36 @@ const StashTabs = ({ store }) => {
           </TableRow>
         </TableHead>
         <TableBody>
-          {
-          sortedItems.map((item) => {
+          {sortedItems.map((item) => {
             const stashTab = store.getStashTab(item.stashTabId);
             return (
-            <TableRow key={item.id}>
-              <TableCell>
-                <div className='StashTab-Box-Container'>
-                  <div className='StashTab-Box'
-                    onClick={toggleSelectedSoloStashTab(item.stashTabId)}
-                    style={{
-                      backgroundColor: stashTab?.metadata?.colour ? `#${stashTab.metadata.colour}` : 'initial',
-                    }}>
-                    {stashTab.name}
+              <TableRow key={item.id}>
+                <TableCell>
+                  <div className="StashTab-Box-Container">
+                    <div
+                      className="StashTab-Box"
+                      onClick={toggleSelectedSoloStashTab(item.stashTabId)}
+                      style={{
+                        backgroundColor: stashTab?.metadata?.colour
+                          ? `#${stashTab.metadata.colour}`
+                          : 'initial',
+                      }}
+                    >
+                      {stashTab.name}
+                    </div>
                   </div>
-                </div>
-              </TableCell>
-              <TableCell><div className='StashTab-Item-Container'><Item item={item.item} showQuantityInTitle={false} /></div></TableCell>
-              <TableCell align="right">{item.quantity.toFixed(0)}</TableCell>
-              <TableCell align="right">{item.value.toFixed(2)}</TableCell>
-              <TableCell align="right">{item.totalValue.toFixed(2)}</TableCell>
-            </TableRow>
-            )
-          }
-          )
-          }
+                </TableCell>
+                <TableCell>
+                  <div className="StashTab-Item-Container">
+                    <Item item={item.item} showQuantityInTitle={false} />
+                  </div>
+                </TableCell>
+                <TableCell align="right">{item.quantity.toFixed(0)}</TableCell>
+                <TableCell align="right">{item.value.toFixed(2)}</TableCell>
+                <TableCell align="right">{item.totalValue.toFixed(2)}</TableCell>
+              </TableRow>
+            );
+          })}
         </TableBody>
       </Table>
     </div>

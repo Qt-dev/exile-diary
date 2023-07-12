@@ -26,34 +26,36 @@ const log = false;
 
 let ratesCache = {};
 
-async function getRatesFor(eventId : string, league = SettingsManager.get('activeProfile').league) {
+async function getRatesFor(eventId: string, league = SettingsManager.get('activeProfile').league) {
   const date = eventId.slice(0, 8);
-  if(!ratesCache[date] || !ratesCache[date][league]) {
+  if (!ratesCache[date] || !ratesCache[date][league]) {
     logger.info('No rates for this date, fetching...');
     ratesCache[date] = ratesCache[date] || {};
     ratesCache[date][league] = await RatesManager.fetchRatesForDay(league, eventId);
-  };
+  }
   return ratesCache[date][league] ?? {};
 }
 
-
-async function price(item, league =  SettingsManager.get('activeProfile').league) : Promise<{isVendor: boolean, value: number}> {
+async function price(
+  item,
+  league = SettingsManager.get('activeProfile').league
+): Promise<{ isVendor: boolean; value: number }> {
   // Absolutely unreasonable amounts of pricing trouble. Enough of this!
   if (item.typeline === "Rogue's Marker") {
-    return {isVendor: false, value: 0 };
+    return { isVendor: false, value: 0 };
   }
 
   if (item.rarity === 'Quest Item') {
     // can't be traded
-    return {isVendor: false, value: 0 };
+    return { isVendor: false, value: 0 };
   }
   if (nonPricedCategories.includes(item.category)) {
-    return {isVendor: false, value: 0 };
+    return { isVendor: false, value: 0 };
   }
 
   const rates = await getRatesFor(item.event_id, league);
   if (!rates) {
-    return {isVendor: false, value: 0 };
+    return { isVendor: false, value: 0 };
   }
 
   item.parsedItem = JSON.parse(item.rawdata);
@@ -87,7 +89,7 @@ async function price(item, league =  SettingsManager.get('activeProfile').league
       if (item.category === 'Helmets') {
         helmetBaseValue = getUniqueItemValue(minItemValue, item);
       } else {
-        return { isVendor: false, value: getUniqueItemValue(minItemValue, item)};
+        return { isVendor: false, value: getUniqueItemValue(minItemValue, item) };
       }
     }
   } else {
@@ -96,34 +98,52 @@ async function price(item, league =  SettingsManager.get('activeProfile').league
       (item.typeline.includes('Flask') || item.typeline.includes('Jewel')) &&
       baseTypeRarities.includes(item.rarity)
     ) {
-      return {isVendor: false, value: 0 };
+      return { isVendor: false, value: 0 };
     }
   }
 
   if (item.typeline.includes("Maven's Invitation")) {
-    return { isVendor: false, value: getValueFromTable(minItemValue, item, 'Invitation', item.typeline)};
+    return {
+      isVendor: false,
+      value: getValueFromTable(minItemValue, item, 'Invitation', item.typeline),
+    };
   }
 
   //Invitations
   if (item.typeline.includes('Polaric Invitation')) {
-    return { isVendor: false, value: getValueFromTable(minItemValue, item, 'Invitation', item.typeline)};
+    return {
+      isVendor: false,
+      value: getValueFromTable(minItemValue, item, 'Invitation', item.typeline),
+    };
   }
 
   if (item.typeline.includes('Screaming Invitation')) {
-    return { isVendor: false, value: getValueFromTable(minItemValue, item, 'Invitation', item.typeline)};
+    return {
+      isVendor: false,
+      value: getValueFromTable(minItemValue, item, 'Invitation', item.typeline),
+    };
   }
 
   if (item.typeline.includes('Incandescent Invitation')) {
-    return { isVendor: false, value: getValueFromTable(minItemValue, item, 'Invitation', item.typeline)};
+    return {
+      isVendor: false,
+      value: getValueFromTable(minItemValue, item, 'Invitation', item.typeline),
+    };
   }
 
   if (item.typeline.includes('Writhing Invitation')) {
-    return { isVendor: false, value: getValueFromTable(minItemValue, item, 'Invitation', item.typeline)};
+    return {
+      isVendor: false,
+      value: getValueFromTable(minItemValue, item, 'Invitation', item.typeline),
+    };
   }
 
   //Memories
   if (item.typeline.includes("'s Memory")) {
-    return { isVendor: false, value: getValueFromTable(minItemValue, item, 'Fragment', item.typeline)};
+    return {
+      isVendor: false,
+      value: getValueFromTable(minItemValue, item, 'Fragment', item.typeline),
+    };
   }
 
   if (
@@ -189,7 +209,7 @@ async function price(item, league =  SettingsManager.get('activeProfile').league
       return 0;
     }
 
-    const identifier = inputIdentifier.length > 0 ? inputIdentifier :  item.typeline;
+    const identifier = inputIdentifier.length > 0 ? inputIdentifier : item.typeline;
 
     // special handling for currency shards - always price at 1/20 of the whole orb
     if (identifier && Constants.shardTypes[identifier]) {
@@ -340,7 +360,10 @@ async function price(item, league =  SettingsManager.get('activeProfile').league
     const identifier = `${name} T${tier} ${series}`;
     // workaround poe.ninja bug
     const tempIdentifier = identifier.replace('Delirium', 'Delerium');
-    return getValueFromTable(minItemValue, item, 'Map', identifier) || getValueFromTable(item, 'Map', tempIdentifier);
+    return (
+      getValueFromTable(minItemValue, item, 'Map', identifier) ||
+      getValueFromTable(item, 'Map', tempIdentifier)
+    );
 
     function getSeries(icon) {
       if (icon.includes('https://web.poecdn.com/gen/image/')) {
@@ -484,7 +507,7 @@ async function price(item, league =  SettingsManager.get('activeProfile').league
     }
 
     if (!vendorValue) {
-      return { isVendor: false, value: 0};
+      return { isVendor: false, value: 0 };
     } else {
       let currFilter = ItemFilter.getForCategory('currency');
       if (currFilter.ignore) {
@@ -495,13 +518,13 @@ async function price(item, league =  SettingsManager.get('activeProfile').league
                 `Vendor value ${vendorValue} < currency min value ${currFilter.minValue}, returning`
               );
             }
-            return { isVendor: false, value: 0};
+            return { isVendor: false, value: 0 };
           }
         } else {
           if (log) {
             logger.info(`Ignoring currency unconditionally?!? Returning 0`);
           }
-          return { isVendor: false, value: 0};
+          return { isVendor: false, value: 0 };
         }
       }
 
@@ -545,7 +568,7 @@ async function price(item, league =  SettingsManager.get('activeProfile').league
     return getValueFromTable(minItemValue, item, 'UniqueMap', identifier);
   }
 
-  function getUniqueItemValue(minItemValue, item) : number {
+  function getUniqueItemValue(minItemValue, item): number {
     let identifier = item.name || Utils.getItemName(item.icon) || item.typeline;
 
     if (identifier === 'Grand Spectrum' || identifier === 'Combat Focus') {
@@ -562,7 +585,7 @@ async function price(item, league =  SettingsManager.get('activeProfile').league
     identifier += getAbyssSockets(identifier);
 
     if (item.identified === 0) {
-      let possibleIdentifiers : string[] = [];
+      let possibleIdentifiers: string[] = [];
       if (identifier === 'Agnerod') {
         possibleIdentifiers = [
           `Agnerod East${links}`,

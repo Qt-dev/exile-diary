@@ -21,10 +21,10 @@ const incubatorGearSlots = [
   // seems inconsistent with gem leveling??
 ];
 
-async function logKillCount(timestamp: number, eqp : {[key: string] : ItemData} ) {
+async function logKillCount(timestamp: number, eqp: { [key: string]: ItemData }) {
   const incubators = {};
   Object.keys(eqp).forEach((key) => {
-    const item : ItemData = eqp[key];
+    const item: ItemData = eqp[key];
     if (item.incubatedItem) {
       incubators[key] = {
         gearSlot: item.inventoryId,
@@ -41,7 +41,7 @@ async function logKillCount(timestamp: number, eqp : {[key: string] : ItemData} 
     // emit any missing incubators
     const emptySlotIcons = Object.values(eqp)
       .filter((item) => incubatorGearSlots.indexOf(item.inventoryId) >= 0 && !item.incubatedItem)
-      .map((item : any) => [item.inventoryId, item.icon]);
+      .map((item: any) => [item.inventoryId, item.icon]);
     emitter.emit('incubatorsMissing', emptySlotIcons);
   }
 

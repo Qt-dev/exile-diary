@@ -16,17 +16,27 @@ const NetWorth = ({ value, change }) => {
   const changeClassNames = classNames({
     'Text--Error': change < 0,
     'Text--Legendary': change > 0,
-  })
-  const formattedChange = <span className={changeClassNames}>{change >= 0 ? '+' : ''}{change.toFixed(2)}</span>;
-  return (<div className="Net-Worth">
-    <div>Net Worth:</div>
-    <div className="Net-Worth__Total__Text">{value}<img alt="Chaos Icon" className="Net-Worth__Total__Icon" src={Chaos} /> ({formattedChange})</div>
-  </div>)
-}
+  });
+  const formattedChange = (
+    <span className={changeClassNames}>
+      {change >= 0 ? '+' : ''}
+      {change.toFixed(2)}
+    </span>
+  );
+  return (
+    <div className="Net-Worth">
+      <div>Net Worth:</div>
+      <div className="Net-Worth__Total__Text">
+        {value}
+        <img alt="Chaos Icon" className="Net-Worth__Total__Icon" src={Chaos} /> ({formattedChange})
+      </div>
+    </div>
+  );
+};
 
 const SideNav = ({ version, isNewVersion, turnNewVersionOff }) => {
-  const [ netWorth, setNetWorth ] = React.useState(<>---</>);
-  const [ currentPageName, setCurrentPageName ] = React.useState('Main');
+  const [netWorth, setNetWorth] = React.useState(<>---</>);
+  const [currentPageName, setCurrentPageName] = React.useState('Main');
   const about = () => {
     turnNewVersionOff();
   };
@@ -101,9 +111,7 @@ const SideNav = ({ version, isNewVersion, turnNewVersionOff }) => {
 
       <Divider className="Separator" />
 
-      <div className="Net-Worth__Container">
-        {netWorth}
-      </div>
+      <div className="Net-Worth__Container">{netWorth}</div>
 
       <div id="myModal" className="modal">
         <div id="modalContent" className="modal-content"></div>

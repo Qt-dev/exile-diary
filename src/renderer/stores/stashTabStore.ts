@@ -25,22 +25,24 @@ export default class StashTabStore {
     this.value = data.value;
 
     ipcRenderer.on('update-stash-content', (event, stashTabsData) => {
-      logger.info(`Received stash tabs update from backend for ${stashTabsData.length} stash tabs.`);
+      logger.info(
+        `Received stash tabs update from backend for ${stashTabsData.length} stash tabs.`
+      );
       this.itemStore.createItems(stashTabsData.items);
       this.value = stashTabsData.value;
     });
   }
 
   @computed getStashTab(id: string) {
-    const stashTab = this.flattenedStashTabs.find(stashTab => stashTab.id === id);
+    const stashTab = this.flattenedStashTabs.find((stashTab) => stashTab.id === id);
     return stashTab ?? null;
   }
 
   get flattenedStashTabs() {
-    const output : StashTab[] = [];
-    for(const stashTab of this.stashTabs) {
+    const output: StashTab[] = [];
+    for (const stashTab of this.stashTabs) {
       output.push(stashTab);
-      if(stashTab.children) {
+      if (stashTab.children) {
         output.push(...stashTab.children);
       }
     }
@@ -48,14 +50,14 @@ export default class StashTabStore {
   }
 
   get trackedStashTabs() {
-    return this.flattenedStashTabs.filter(stashTab => stashTab.tracked);
+    return this.flattenedStashTabs.filter((stashTab) => stashTab.tracked);
   }
 
   createStashTabs(stashTabsData: StashTabData[]) {
     logger.info(`Setting up ${stashTabsData.length} stash tabs in the frontend.`);
     this.isLoading = true;
     runInAction(() => {
-      for(const stashTabData of stashTabsData) {
+      for (const stashTabData of stashTabsData) {
         this.createStashTab(stashTabData);
       }
       this.isLoading = false;
@@ -63,8 +65,8 @@ export default class StashTabStore {
   }
 
   createStashTab(stashTabData: StashTabData) {
-    const existingStashTab = this.stashTabs.find(stashTab => stashTab.id === stashTabData.id);
-    if(existingStashTab) {
+    const existingStashTab = this.stashTabs.find((stashTab) => stashTab.id === stashTabData.id);
+    if (existingStashTab) {
       existingStashTab.update(stashTabData);
     } else {
       const stashTab = new StashTab(this, stashTabData);
@@ -74,15 +76,15 @@ export default class StashTabStore {
 
   getTrackedStashTabs() {
     const output = {};
-    for(const stashTab of this.stashTabs) {
+    for (const stashTab of this.stashTabs) {
       output[stashTab.id] = stashTab.tracked;
     }
     return output;
   }
 
   saveTrackedStashTabs() {
-    const formattedStashTabsSettings : StashTabSettings[] = this.flattenedStashTabs
-      .filter(stashTab => stashTab.tracked)
+    const formattedStashTabsSettings: StashTabSettings[] = this.flattenedStashTabs
+      .filter((stashTab) => stashTab.tracked)
       .map((stashTab) => stashTab.formattedForSettings());
     ipcRenderer.invoke('save-settings:stashtabs', { stashTabs: formattedStashTabsSettings });
   }

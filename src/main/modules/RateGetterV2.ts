@@ -48,7 +48,7 @@ var emitter = new EventEmitter();
 class RateGetterV2 {
   ratesReady: boolean = false;
   constructor() {
-    if(nextRateGetTimer) clearTimeout(nextRateGetTimer);
+    if (nextRateGetTimer) clearTimeout(nextRateGetTimer);
   }
 
   on(event, listener) {
@@ -67,7 +67,12 @@ class RateGetterV2 {
     const activeProfile = SettingsManager.get('activeProfile');
     let league = activeProfile.league;
 
-    if (activeProfile.league && activeProfile.league.includes('SSF') && activeProfile && activeProfile.overrideSSF) {
+    if (
+      activeProfile.league &&
+      activeProfile.league.includes('SSF') &&
+      activeProfile &&
+      activeProfile.overrideSSF
+    ) {
       // override ssf and get item prices from corresponding trade league
       // TODO undocumented league naming convention change in 3.13... must check this every league from now on
       // as of 3.13 "SSF Ritual HC" <--> "Hardcore Ritual"
@@ -153,7 +158,7 @@ class RateGetterV2 {
     const interval = next.valueOf() - Date.now();
     logger.info(`Set new timer for updating prices in ${Number(interval / 1000).toFixed(2)} sec`);
 
-    if(nextRateGetTimer) clearTimeout(nextRateGetTimer);
+    if (nextRateGetTimer) clearTimeout(nextRateGetTimer);
     nextRateGetTimer = setTimeout(() => {
       logger.info('Executing scheduled rate update');
       this.update();
@@ -219,7 +224,7 @@ class RateGetterV2 {
     rates['Seed'] = tempRates['Seed'];
 
     const ratesWereUpdated = await DB.insertRates(this.getLeagueName(), date, rates);
-    if(!ratesWereUpdated) {
+    if (!ratesWereUpdated) {
       emitter.emit('gettingPricesFailed');
       return;
     } else {
@@ -287,7 +292,7 @@ function getNinjaData(path, useGzip) {
         headers: headerObject,
       },
       (response) => {
-        var buffers : any = [];
+        var buffers: any = [];
         response.on('data', (chunk) => {
           buffers.push(chunk);
         });

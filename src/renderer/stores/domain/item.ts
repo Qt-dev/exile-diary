@@ -342,7 +342,8 @@ export class Item {
     }
     // No identified property, no name -> This is a Gem
     if (!this.identified || !this.name) {
-      let name = (showQuantityInTitle && this.stackSize > 1 ? this.stackSize + ' x ' : '') + this.baseType;
+      let name =
+        (showQuantityInTitle && this.stackSize > 1 ? this.stackSize + ' x ' : '') + this.baseType;
       if (this.gemLevel) {
         // Prepend Quality for Normal Gems
         // Alternate Qualities already have the right prefix in their name

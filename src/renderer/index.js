@@ -48,7 +48,7 @@ const router = createHashRouter([
         element: <Run store={runStore} />,
         loader: async ({ params }) => {
           const { runId } = params;
-          if(!runId) throw new Error(`No run found with this id (${runId})`);
+          if (!runId) throw new Error(`No run found with this id (${runId})`);
           await runStore.loadRun(runId);
           const run = runStore.runs.find((run) => run.runId === runId);
           return { run };
@@ -115,7 +115,7 @@ const router = createHashRouter([
   {
     path: '/overlay',
     element: <Overlay store={runStore} />,
-  }
+  },
 ]);
 const darkTheme = createTheme({
   palette: {
@@ -169,7 +169,7 @@ const darkTheme = createTheme({
 });
 
 const documentRoot = document.getElementById('root');
-if(documentRoot !== null) {
+if (documentRoot !== null) {
   const root = ReactDOM.createRoot(documentRoot);
   root.render(
     <React.StrictMode>

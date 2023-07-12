@@ -14,14 +14,14 @@ export default {
     Renderer = renderer;
     OverlayRenderer = overlayRenderer;
   },
-  log: ({ messages, onOverlay = true}: { messages: Message[], onOverlay?: boolean }) => {
+  log: ({ messages, onOverlay = true }: { messages: Message[]; onOverlay?: boolean }) => {
     if (!Renderer) {
       logger.error('Renderer not initialized');
       return;
     }
     Renderer.send('add-log', { messages });
     if (onOverlay) {
-      OverlayRenderer.send('overlay:message', { messages })
+      OverlayRenderer.send('overlay:message', { messages });
     }
   },
 };

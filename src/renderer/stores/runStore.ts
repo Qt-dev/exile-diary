@@ -15,10 +15,14 @@ export default class RunStore {
   constructor() {
     makeAutoObservable(this);
     this.loadRuns(this.size);
-    this.currentRun = new Run(this, {name: "Unknown"});
+    this.currentRun = new Run(this, { name: 'Unknown' });
     electronService.ipcRenderer.on('refresh-runs', () => this.loadRuns(this.size));
-    electronService.ipcRenderer.on('current-run:started', (event, json) => this.registerCurrentRun(json));
-    electronService.ipcRenderer.on('current-run:info', (event, json) => this.updateCurrentRun(json));
+    electronService.ipcRenderer.on('current-run:started', (event, json) =>
+      this.registerCurrentRun(json)
+    );
+    electronService.ipcRenderer.on('current-run:info', (event, json) =>
+      this.updateCurrentRun(json)
+    );
   }
 
   loadRuns(size = this.maxSize) {
@@ -71,8 +75,11 @@ export default class RunStore {
     return Math.ceil(this.runs.length / size);
   }
 
-  @computed getFullDuration() : moment.Duration {
-    return this.runs.reduce((acc, run) => acc.add(run.duration ?? 0), moment.duration(0, 'seconds'));
+  @computed getFullDuration(): moment.Duration {
+    return this.runs.reduce(
+      (acc, run) => acc.add(run.duration ?? 0),
+      moment.duration(0, 'seconds')
+    );
   }
 
   getNextRun(id: string) {
@@ -95,7 +102,7 @@ export default class RunStore {
   }
 
   registerCurrentRun(json) {
-    this.currentRun = new Run(this, {name: json.area});
+    this.currentRun = new Run(this, { name: json.area });
   }
 
   updateCurrentRun(json) {
