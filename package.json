@@ -46,6 +46,7 @@
     "react:build": "node scripts/build.js",
     "react:test": "node scripts/test.js",
     "react:eject": "node scripts/eject.js",
+    "analyze": "source-map-explorer 'build/static/js/*.js'",
     "build": "npm run react:build && tsc -p src/main && electron-builder",
     "dev": "concurrently \"cross-env BROWSER=none npm run react:start\" \"wait-on http://localhost:3000 && tsc -p src/main -w\" \"wait-on http://localhost:3000 && tsc -p src/main && electron .\""
   },
@@ -163,6 +164,7 @@
     "sass-loader": "^12.3.0",
     "semver": "^7.3.5",
     "sharp": "^0.32.1",
+    "source-map-explorer": "^2.5.3",
     "source-map-loader": "^3.0.0",
     "sqlite3": "^5.0.11",
     "style-loader": "^3.3.1",
