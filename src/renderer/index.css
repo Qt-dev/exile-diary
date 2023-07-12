@@ -20,8 +20,11 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New', monospace;
 }
 
-.Root {
+.Login, .Root {
   background-color: #000;
+}
+
+.Root {
   display: grid;
   grid-template-columns: 160px auto;
   min-height: calc(100vh - 20px);
