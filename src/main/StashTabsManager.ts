@@ -15,7 +15,7 @@ class StashTabsManager {
   async getStashData(date: number = Number(moment().format('YYYYMMDDHHmmss'))): Promise<any> {
     const league = SettingsManager.get('activeProfile').league;
     const data = await DB.getStashData(date, league);
-    const items = await new Promise((resolve) => {
+    const items = data ? await new Promise((resolve) => {
       zlib.inflate(data.items, (err, buffer) => {
         if (err) {
           logger.error('Error inflating stash data', err);
@@ -25,7 +25,7 @@ class StashTabsManager {
           resolve(JSON.parse(buffer.toString()));
         }
       });
-    });
+    }) : [];
     return { ...data, items };
   }
 }

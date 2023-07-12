@@ -93,8 +93,11 @@ const getAllStats = async (e, params) => {
 
 const getStashTabs = async (e, params) => {
   logger.info('Getting all stashes for the renderer process');
-  const league = SettingsManager.get('activeProfile').league;
-  const trackedTabsIds = SettingsManager.get('trackedStashTabs')[league] ?? [];
+  const activeProfile = SettingsManager.get('activeProfile');
+  if(!activeProfile || !activeProfile.league ) return { stashTabs: [], data: {} };
+  const league = activeProfile.league;
+  const trackedStashTabs = SettingsManager.get('trackedStashTabs');
+  const trackedTabsIds = trackedStashTabs && trackedStashTabs[league] ? trackedStashTabs[league] : [];
   const stashTabs = (await GGGAPI.getAllStashTabs())
     .map((stash) => {
       if(stash.children) {
@@ -111,7 +114,7 @@ const getStashTabs = async (e, params) => {
 const saveStashTabs = async (e, params) => {
   logger.info('Saving stash info from the renderer process');
   const { stashTabs } = params;
-  const allTrackedTabs = SettingsManager.get('trackedStashTabs') ?? {};
+  let allTrackedTabs = SettingsManager.get('trackedStashTabs') ? SettingsManager.get('trackedStashTabs') : {};
   const league = SettingsManager.get('activeProfile').league;
   allTrackedTabs[league] = stashTabs.sort().filter((stashTab, index) => stashTabs.indexOf(stashTab) === index).map(stashTab => stashTab.id);
   SettingsManager.set('trackedStashTabs', allTrackedTabs);

@@ -42,7 +42,8 @@ class StashGetter {
   }
 
   async refreshInterval() {
-    const { interval = DefaultInterval } = SettingsManager.get('netWorthCheck');
+    const netWorthCheck = SettingsManager.get('netWorthCheck');
+    const interval = netWorthCheck && netWorthCheck.interval ? netWorthCheck.interval : DefaultInterval;
     if(this.nextStashGetTimer) clearTimeout(this.nextStashGetTimer);
     // default 5 min between checks
     const newInterval = this.previousTimestamp ? interval - ((moment().unix() - this.previousTimestamp) / 1000) : interval;
@@ -56,7 +57,7 @@ class StashGetter {
   async tryGet() {
     logger.info('Starting the stash tabs refresh');
     const settings = SettingsManager.getAll();
-    if (!settings.activeProfile.league) {
+    if (!settings.activeProfile || !settings.activeProfile.league) {
       logger.info('No league set (first run?) - returning');
       return;
     }
@@ -112,7 +113,7 @@ class StashGetter {
     }
 
     let watchedTabs = [];
-    if (settings.trackedStashTabs && settings.trackedStashTabs[settings.activeProfile.league]) {
+    if (settings.trackedStashTabs && settings.activeProfile && settings.trackedStashTabs[settings.activeProfile.league]) {
       watchedTabs = settings.trackedStashTabs[settings.activeProfile.league];
       if (watchedTabs.length === 0) {
         emitter.emit('noStashTabsSelected');
