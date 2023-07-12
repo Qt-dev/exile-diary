@@ -8,6 +8,7 @@ import Box from '@mui/material/Box';
 import StashSettings from '../components/StashSettings/StashSettings';
 import './Settings.css';
 import MainSettings from '../components/MainSettings/MainSettings';
+import { observer } from 'mobx-react-lite';
 const { ipcRenderer, logger } = electronService;
 
 // Fix to allow for directory selection in inputs
@@ -66,4 +67,4 @@ const Settings = ({ characterStore, stashTabStore }) => {
   );
 };
 
-export default Settings;
+export default observer(Settings);

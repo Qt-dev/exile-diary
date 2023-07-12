@@ -1,4 +1,4 @@
-import React, { useRef } from 'react';
+import React, { useEffect, useRef } from 'react';
 import Box from '@mui/material/Box';
 import TextField from '@mui/material/TextField';
 import Divider from '@mui/material/Divider';
@@ -95,6 +95,10 @@ const MainSettings = ({ settings, store }) => {
   const handleRefreshCharacters = () => {
     store.fetchCharacters();
   };
+
+  useEffect(() => {
+    store.fetchCharacters();
+  }, [])
 
   return (
     <form onSubmit={handleSubmit} role="tabpanel">
