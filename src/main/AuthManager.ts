@@ -89,10 +89,10 @@ const AuthManager = {
       );
       SettingsManager.set('username', username);
       await keytar.setPassword(service, account, access_token);
-      await AuthManager.setLogoutTimer();
+      await AuthManager.setLogoutTimer(true);
     }
   },
-  isAuthenticated: async () => {
+  isAuthenticated: async (isFirstTime = false) => {
     logger.info('Checking if the user is authenticated');
     const password = await keytar.getPassword(service, account);
     const expirationDate = SettingsManager.get('tokenExpirationDate');
@@ -103,10 +103,11 @@ const AuthManager = {
       expirationDate !== null &&
       moment().isBefore(expirationDate) &&
       !!username &&
-      !!activeProfile &&
-      !!activeProfile.characterName &&
-      !!activeProfile.league &&
-      !!activeProfile.valid;
+      (!isFirstTime ? 
+        !!activeProfile &&
+        !!activeProfile.characterName &&
+        !!activeProfile.league &&
+        !!activeProfile.valid : true);
     logger.info(`User is ${isAuthenticated ? '' : 'not '}authenticated`, {
       password: !!password,
       expirationDate,
@@ -119,8 +120,8 @@ const AuthManager = {
     SettingsManager.delete('tokenExpirationDate');
     messenger.send('oauth:logged-out');
   },
-  setLogoutTimer: async () => {
-    if (await AuthManager.isAuthenticated()) {
+  setLogoutTimer: async (isFirstTime = false) => {
+    if (await AuthManager.isAuthenticated(isFirstTime)) {
       const tokenExiprationDate = SettingsManager.get('tokenExpirationDate');
       const realExpirationDate = moment(tokenExiprationDate).subtract(15, 'minutes');
       const millisecondsToExpiration = realExpirationDate.diff(moment());

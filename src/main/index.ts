@@ -509,7 +509,7 @@ const createWindow = async () => {
         AuthManager.getOauthToken(code)
           .then(AuthManager.saveToken)
           .then(async () => {
-            const isAuthenticated = await AuthManager.isAuthenticated();
+            const isAuthenticated = await AuthManager.isAuthenticated(true);
             if (isAuthenticated) {
               win.webContents.send('oauth:auth-success');
               const character = await GGGAPI.getCurrentCharacter();
