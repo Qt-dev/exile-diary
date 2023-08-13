@@ -79,24 +79,15 @@ class StashGetter {
   }
 
   async checkFullStashInterval() {
-    const settings = SettingsManager.getAll();
-    if (settings.stashCheck.enabled === false) {
+    const settings = SettingsManager.get('netWorthCheck');
+    if (!settings || !settings.interval || settings.enabled === false) {
       return false;
     }
 
-    let interval = settings.stashCheck.interval;
-    let units = settings.stashCheck.units;
+    let interval = settings.interval;
     const latestStashAge = await DB.getLatestStashAge(settings.activeProfile.league);
 
-    switch (units) {
-      case 'hours':
-        return latestStashAge >= interval;
-      case 'maps':
-        return await stashTabsManager.hasReachedMapLimit(interval, latestStashAge);
-      default:
-        logger.info(`Invalid stash check interval: [${interval}] [${units}]`);
-        return false;
-    }
+    return latestStashAge >= interval;
   }
 
   async get(interval = 10) {
