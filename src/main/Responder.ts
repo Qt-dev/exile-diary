@@ -8,6 +8,7 @@ import StatsManager from './StatsManager';
 import StashTabsManager from './StashTabsManager';
 import stashGetter from './modules/StashGetter';
 import RendererLogger from './RendererLogger';
+import * as ClientTxtWatcher from './modules/ClientTxtWatcher';
 
 const getAppGlobals = async () => {
   logger.info('Loading global settings for the renderer process');
@@ -57,6 +58,9 @@ const getCharacters = async (e) => {
 
 const saveSettings = async (e, { settings }) => {
   logger.info('Saving settings from the renderer process', settings);
+  if(settings.clientTxt) {
+    ClientTxtWatcher.checkValidLogfile(settings.clientTxt);
+  }
   for (const key in settings) {
     await SettingsManager.set(key, settings[key]);
   }

@@ -382,3 +382,4 @@ module.exports.start = start;
 module.exports.getOldNPCEvents = getOldNPCEvents;
 module.exports.emitter = emitter;
 module.exports.currentInstance = currentInstance;
+module.exports.checkValidLogfile = checkValidLogfile;

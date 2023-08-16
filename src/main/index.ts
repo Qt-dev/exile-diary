@@ -344,8 +344,13 @@ const createWindow = async () => {
   });
   ClientTxtWatcher.emitter.on('clientTxtFileError', (path) => {
     logger.info(
-      `<span class='eventText'>Error reading ${path}. Please check if the file exists.</span>`
+      `Error reading ${path}. Please check if the file exists.`
     );
+    RendererLogger.log({
+      messages: [{
+        text: `Error reading ${path}. Please check if the file exists.`,
+      }]
+    })
   });
   ClientTxtWatcher.emitter.on('clientTxtNotUpdated', (path) => {
     logger.info(
