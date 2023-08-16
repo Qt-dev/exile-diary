@@ -162,18 +162,18 @@ const MainSettings = ({ settings, store }) => {
         <div className="Settings__Row">
           <TextField
             fullWidth
-            label="Client.TXT Location"
+            label="Path of Exile Client.TXT Location (usually in PoE's log folder)"
             id="log_location"
             variant="filled"
             size="small"
             value={clientFileLocation}
             onChange={(e) => setClientFileLocation(e.target.value)}
           />
-          <Button component="label">
-            Choose Folder
+          <Button component="label" variant="contained" sx={{marginTop: '7px', marginBottom: '10px', padding: '2px 15px'}}>
+            Find Path of Exile Log folder
             <input
               hidden
-              accept="Client.txt"
+              accept=".txt, text/plain"
               type="file"
               ref={clientFileLocationRef}
               onInput={handleOpenClientLocation}
@@ -190,8 +190,8 @@ const MainSettings = ({ settings, store }) => {
             value={screenshotLocation}
             onChange={(e) => setScreenshotLocation(e.target.value)}
           />
-          <Button component="label">
-            Choose Folder
+          <Button component="label" variant="contained" sx={{marginTop: '7px', marginBottom: '10px', padding: '2px 15px'}}>
+            Find PoE Screenshot Folder
             <input
               hidden
               webkitdirectory=""
