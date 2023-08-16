@@ -162,7 +162,7 @@ const MainSettings = ({ settings, store }) => {
         <div className="Settings__Row">
           <TextField
             fullWidth
-            label="Client.TXT Location"
+            label="Path of Exile Client.TXT Location (usually in PoE's log folder)"
             id="log_location"
             variant="filled"
             size="small"
