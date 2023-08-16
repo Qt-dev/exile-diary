@@ -58,7 +58,7 @@ const getCharacters = async (e) => {
 
 const saveSettings = async (e, { settings }) => {
   logger.info('Saving settings from the renderer process', settings);
-  if(settings.clientTxt) {
+  if (settings.clientTxt) {
     ClientTxtWatcher.checkValidLogfile(settings.clientTxt);
   }
   for (const key in settings) {

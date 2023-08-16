@@ -343,14 +343,14 @@ const createWindow = async () => {
     // win.webContents.send('refresh-settings');
   });
   ClientTxtWatcher.emitter.on('clientTxtFileError', (path) => {
-    logger.info(
-      `Error reading ${path}. Please check if the file exists.`
-    );
+    logger.info(`Error reading ${path}. Please check if the file exists.`);
     RendererLogger.log({
-      messages: [{
-        text: `Error reading ${path}. Please check if the file exists.`,
-      }]
-    })
+      messages: [
+        {
+          text: `Error reading ${path}. Please check if the file exists.`,
+        },
+      ],
+    });
   });
   ClientTxtWatcher.emitter.on('clientTxtNotUpdated', (path) => {
     logger.info(
