@@ -173,7 +173,7 @@ const MainSettings = ({ settings, store }) => {
             Find Path of Exile Log folder
             <input
               hidden
-              accept="Client.txt"
+              accept=".txt, text/plain"
               type="file"
               ref={clientFileLocationRef}
               onInput={handleOpenClientLocation}
