@@ -17,6 +17,7 @@ const incubatorGearSlots = [
   'Weapon',
   'Offhand',
   'Trinket',
+  'Belt',
   // weapon2 and offhand2 not included - alternate weapon set does not accumulate monster kills
   // seems inconsistent with gem leveling??
 ];
@@ -37,7 +38,7 @@ async function logKillCount(timestamp: number, eqp: { [key: string]: ItemData })
   });
 
   const settings = SettingsManager.getAll();
-  if (settings.activeProfile.enableIncubatorAlert) {
+  if (settings.enableIncubatorAlert) {
     // emit any missing incubators
     const emptySlotIcons = Object.values(eqp)
       .filter((item) => incubatorGearSlots.indexOf(item.inventoryId) >= 0 && !item.incubatedItem)

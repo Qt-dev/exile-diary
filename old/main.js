@@ -384,12 +384,12 @@ function initWindow(window) {
           equipments
             .map(
               ([name, icon]) =>
-                `<img src='${icon}' class='currencyText'/><span class='eventText'>${name}</span>`
+                `<span><img src='${icon}' class='currencyText'><span class='eventText'>${name}</span></span>`
             )
             .join('; '),
         true
       );
-    }
+    }``
   });
 
   RateGetterV2.emitter.removeAllListeners();

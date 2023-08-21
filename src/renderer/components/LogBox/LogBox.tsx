@@ -16,8 +16,11 @@ const classPerType = {
 
 const Line = ({ messages, timestamp }) => {
   if (!messages) return null;
-  const formattedMessages = messages.map(({ type, text, link, linkEvent }) => {
-    const Element = type ? <span className={classPerType[type]}>{text}</span> : <>{text}</>;
+  const formattedMessages = messages.map(({ type, text, link, linkEvent, icon }) => {
+    const Element = [
+      icon ? <img src={icon} className={"Text--Icon"}></img> : null, 
+      type ? <span className={classPerType[type]}>{text}</span> : <>{text}</>,
+    ];
     if (link) {
       return (
         <Link to={link} style={{ fontSize: 'inherit' }}>
