@@ -53,8 +53,8 @@ logger.errorHandler.startCatching({
       .then((result) => {
         if (result.response === 1) {
           createIssue('https://github.com/qt-dev/exile-diary/issues/new', {
-            title: `Error report for ${versions.app}`,
-            body: 'Error:\n```\n' + error.stack + '\n```\n' + `OS: ${versions.os}`,
+            title: `${error.message} - Error report for ${versions.app}`,
+            body: 'Error:\n```\n' + error.stack + '\n```\n' + `OS: ${versions.os}` + `\nApp: ${versions.app}`,
           });
           return;
         }
