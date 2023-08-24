@@ -80,12 +80,13 @@ class StashGetter {
 
   async checkFullStashInterval() {
     const settings = SettingsManager.get('netWorthCheck');
-    if (!settings || !settings.interval || settings.enabled === false) {
+    const league = SettingsManager.get('activeProfile').league;
+    if (!settings || !settings.interval || settings.enabled === false || !league) {
       return false;
     }
 
     let interval = settings.interval;
-    const latestStashAge = await DB.getLatestStashAge(settings.activeProfile.league);
+    const latestStashAge = await DB.getLatestStashAge(league);
 
     return latestStashAge >= interval;
   }
