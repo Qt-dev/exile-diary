@@ -1,0 +1,65 @@
+.ItemFilter-Settings__Header {
+  margin: 20px 0 0;
+  color: white;
+  /* display: flex;
+  align-items: center;
+  justify-content: space-between; */
+  text-align: center;
+  width: 100%;
+  gap: 20px;
+}
+
+.ItemFilter-Settings__List {
+  width: 100%;
+}
+
+.ItemFilter-Settings__List-Item {
+  color: white;
+  font-family: FontInSmallCaps;
+  /* font-weight: bold; */
+  text-shadow: 0px 0px 5px black;
+  border-radius: 3px;
+  margin: 5px 0px;
+  border: 1px solid #888;
+}
+
+.ItemFilter-Settings__List-Item-Container {
+  display: flex;
+  gap: 10px;
+}
+
+.ItemFilter-Settings__List-Item--Folder {
+  padding-left: 15px;
+}
+
+.ItemFilter-Settings__List-Item--Folder .ItemFilter-Settings__Item-Icon__Image {
+  filter: grayscale(40%) brightness(90%);
+}
+
+.ItemFilter-Settings__Item-Icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+
+.ItemFilter-Settings__Item-Icon__Image {
+  height: 1.5em;
+  width: 1.5em;
+}
+
+.ItemFilter-Settings__Item-Icon__Checkbox {
+  background-color: #888;
+}
+
+.ItemFilter-Settings__Settings-Form {
+  margin: 20px 0 10px;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-evenly;
+  gap: 50px;
+}
+
+.ItemFilter-Settings__Settings-Form * {
+  flex-grow: 1;
+}

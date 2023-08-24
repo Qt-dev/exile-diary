@@ -4,6 +4,7 @@ import Tabs from '@mui/material/Tabs';
 import Tab from '@mui/material/Tab';
 import Box from '@mui/material/Box';
 import StashSettings from '../components/StashSettings/StashSettings';
+import ItemFilterSettings from '../components/ItemFilterSettings/ItemFilterSettings';
 import './Settings.css';
 import MainSettings from '../components/MainSettings/MainSettings';
 import { observer } from 'mobx-react-lite';
@@ -46,6 +47,7 @@ const Settings = ({ characterStore, stashTabStore }) => {
         <Tabs value={tabValue} centered aria-label="Settings Tabs" onChange={handleTabChange}>
           <Tab label="Account" {...a11yProps(0)} />
           <Tab label="Stashes" {...a11yProps(1)} />
+          <Tab label="Item Filter" {...a11yProps(2)} />
           {/* Add new stuff here */}
         </Tabs>
       </Box>
@@ -54,6 +56,9 @@ const Settings = ({ characterStore, stashTabStore }) => {
       </div>
       <div hidden={tabValue !== 1}>
         <StashSettings store={stashTabStore} settings={settings} />
+      </div>
+      <div hidden={tabValue !== 2}>
+        <ItemFilterSettings settings={settings} />
       </div>
     </div>
   );
