@@ -48,8 +48,11 @@ const OverlayMapInfoLine = ({ run }) => {
 
 const OverlayNotificationLine = ({ messages }) => {
   if (!messages) return null;
-  const formattedMessages = messages.map(({ type, text }) => {
-    return type ? <span className={classPerType[type]}>{text}</span> : <>{text}</>;
+  const formattedMessages = messages.map(({ type, text, icon }) => {
+    return [
+      icon ? <img src={icon} className={"Text--Icon"}></img> : null, 
+      type ? <span className={classPerType[type]}>{text}</span> : <>{text}</>,
+    ];
   });
   return <OverlayLineContent message={formattedMessages} />;
 };
@@ -158,8 +161,8 @@ const Overlay = ({ store }) => {
   // Timer management
   const [time, setTime] = React.useState(defaultTimer);
   const [notificationTime, setNotificationTime] = React.useState(0);
-  const mapTrackingIntervalRef = useRef<NodeJS.Timer>();
-  const notificationIntervalRef = useRef<NodeJS.Timer>();
+  const mapTrackingIntervalRef = useRef<ReturnType<typeof setTimeout>>();
+  const notificationIntervalRef = useRef<ReturnType<typeof setTimeout>>();
   const generateDecreaseTimer = (timeType) => () => {
     const setter = timeType === 'map' ? setTime : setNotificationTime;
     const interval =

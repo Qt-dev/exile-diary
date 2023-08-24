@@ -100,6 +100,12 @@ span.negative {
   background-color: #111;
 }
 
+.Text--Icon {
+  height: 1em;
+  vertical-align: text-bottom;
+  min-width: 1em;
+}
+
 .Text--Legendary {
   color: #af6025;
 }
