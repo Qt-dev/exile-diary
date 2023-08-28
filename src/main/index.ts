@@ -555,9 +555,13 @@ const createWindow = async () => {
     }
   });
   OverlayController.events.on('focus', () => {
-    if (SettingsManager.get('overlayEnabled')) {
+    logger.info(`Overlay focused, ${SettingsManager.get("overlayEnabled")}`);
+    if (SettingsManager.get('overlayEnabled') === true) {
       overlayWindow.show();
       overlayWindow.setIgnoreMouseEvents(false);
+    } else {
+      overlayWindow.hide();
+      overlayWindow.setIgnoreMouseEvents(true);
     }
   });
   OverlayController.events.on('moveresize', (event) => {
