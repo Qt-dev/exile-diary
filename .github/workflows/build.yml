@@ -20,5 +20,12 @@ jobs:
       - name: Install dependencies
         run: npm install  
       - name: Build app
-        run: |
-          echo "Building version ${{ inputs.version }} by @${{ github.actor }}"
+        run: npm run build
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: app
+          path: |
+            dist/exile-diary-reborn-setup-${{ inputs.version }}.exe
+            dist/exile-diary-reborn-setup-${{ inputs.version }}.exe.blockmap
+            dist/latest.yml
