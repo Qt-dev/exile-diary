@@ -589,6 +589,17 @@ const createWindow = async () => {
     logger.info('Closing the overlay');
   });
 
+  let isOverlayInitialized = false;
+  overlayWindow.on('ready-to-show', () => {
+    if(!isOverlayInitialized) {
+      logger.info('Overlay is ready to show, attaching it to PoE');
+      OverlayController.attachByTitle(overlayWindow, 'Path of Exile');
+      isOverlayInitialized = true;
+    } else {
+      logger.info('Overlay is ready to show, but it is already initialized');
+    }
+  });
+
   if (isDev) {
     win.loadURL(devUrl);
     overlayWindow.loadURL(`${devUrl}#/overlay`);
@@ -598,7 +609,6 @@ const createWindow = async () => {
     win.loadURL(URL);
     overlayWindow.loadURL(`${URL}#/overlay`);
   }
-  OverlayController.attachByTitle(overlayWindow, 'Path of Exile');
 
   app.on('will-quit', () => {
     logger.info('Exile Diary Reborn is closing');
