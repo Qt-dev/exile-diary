@@ -47,7 +47,7 @@
     "react:test": "node scripts/test.js",
     "react:eject": "node scripts/eject.js",
     "analyze": "source-map-explorer 'build/static/js/*.js'",
-    "build": "npm run react:build && tsc -p src/main && electron-builder",
+    "build": "npm run react:build && tsc -p src/main && electron-builder -p never",
     "dev": "concurrently \"cross-env BROWSER=none npm run react:start\" \"wait-on http://localhost:3000 && tsc -p src/main -w\" \"wait-on http://localhost:3000 && tsc -p src/main && electron .\""
   },
   "eslintConfig": {
