@@ -1,0 +1,24 @@
+name: build-app
+run-name: Building version ${{ input.version }} by @${{ github.actor }}
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version to build'
+        required: true
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          ref: ${{ input.version }}
+      - uses: actions/setup-node@v3
+        with:
+          node-version: '16'
+      - name: Install dependencies
+        run: npm install  
+      - name: Build app
+        run: |
+          echo "Building version ${{ input.version }} by @${{ github.actor }}"
