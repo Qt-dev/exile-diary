@@ -1,5 +1,5 @@
 name: build-app
-run-name: Building version ${{ input.version }} by @${{ github.actor }}
+run-name: Building version ${{ inputs.version }} by @${{ github.actor }}
 on:
   workflow_dispatch:
     inputs:
@@ -13,7 +13,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
         with:
-          ref: ${{ input.version }}
+          ref: ${{ inputs.version }}
       - uses: actions/setup-node@v3
         with:
           node-version: '16'
