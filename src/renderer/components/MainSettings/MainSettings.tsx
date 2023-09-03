@@ -98,7 +98,7 @@ const MainSettings = ({ settings, store }) => {
 
   useEffect(() => {
     store.fetchCharacters();
-  }, []);
+  }, [store]);
 
   return (
     <form onSubmit={handleSubmit} role="tabpanel">

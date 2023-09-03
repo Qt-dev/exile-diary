@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import './StashTabs.css';
 import Table from '@mui/material/Table';
 import TableHead from '@mui/material/TableHead';

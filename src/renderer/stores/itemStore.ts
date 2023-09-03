@@ -15,7 +15,9 @@ export default class ItemStore {
   createItems(lootData) {
     this.isLoading = true;
     runInAction(() => {
-      this.items = lootData.map((item) => new Item(this, item));
+      if(lootData) {
+        this.items = lootData.map((item) => new Item(this, item));
+      }
       this.isLoading = false;
     });
   }

@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import { useParams, useLoaderData } from 'react-router';
 import { useNavigate } from 'react-router-dom';
-import { Divider, SelectChangeEvent } from '@mui/material';
+import { Divider } from '@mui/material';
 import { observer } from 'mobx-react-lite';
 import classNames from 'classnames';
 import moment from 'moment';

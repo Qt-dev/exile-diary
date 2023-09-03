@@ -5,12 +5,11 @@ import Divider from '@mui/material/Divider';
 import { MenuList, MenuItem } from '@mui/material';
 import { Link as RouterLink } from 'react-router-dom';
 import { electronService } from '../../electron.service';
-import ExclamationMark from '../../assets/img/ExclamationMark.png';
 import Logo from '../../assets/img/icons/png/128x128.png';
 import Chaos from '../../assets/img/c.png';
 import Patreon from '../../assets/img/patreon.png';
 import './SideNav.css';
-const { ipcRenderer, logger } = electronService;
+const { ipcRenderer } = electronService;
 
 const NetWorth = ({ value, change }) => {
   const changeClassNames = classNames({
@@ -37,9 +36,10 @@ const NetWorth = ({ value, change }) => {
 const SideNav = ({ version, isNewVersion, turnNewVersionOff }) => {
   const [netWorth, setNetWorth] = React.useState(<>---</>);
   const [currentPageName, setCurrentPageName] = React.useState('Main');
-  const about = () => {
-    turnNewVersionOff();
-  };
+  // This is to setup an about page if needed
+  // const about = () => {
+  //   turnNewVersionOff();
+  // };
   const openPatreon = () => {
     electronService.shell.openExternal('https://patreon.com/MrTinED');
   };

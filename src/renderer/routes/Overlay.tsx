@@ -50,7 +50,7 @@ const OverlayNotificationLine = ({ messages }) => {
   if (!messages) return null;
   const formattedMessages = messages.map(({ type, text, icon }) => {
     return [
-      icon ? <img src={icon} className={"Text--Icon"}></img> : null, 
+      icon ? <img src={icon} alt="icon" className={"Text--Icon"}></img> : null, 
       type ? <span className={classPerType[type]}>{text}</span> : <>{text}</>,
     ];
   });
@@ -121,7 +121,7 @@ const useSize = (target: React.RefObject<HTMLDivElement>) => {
 
   useLayoutEffect(() => {
     if (target.current) setSize(target.current.getBoundingClientRect());
-  }, [target, target.current]);
+  }, [target]);
 
   useResizeObserver(target, (entry) => setSize(entry.contentRect));
 
@@ -241,7 +241,7 @@ const Overlay = ({ store }) => {
       setTime(defaultTimer);
       setLatestMapTrackingMessage(<OverlayMapInfoLine run={store.currentRun} />);
     }
-  }, [store.currentRun, store.currentRun.lastUpdate]);
+  }, [store.currentRun, store.currentRun.lastUpdate, lastUpdate]);
 
   // Change latestMapTrackingMessage to actually just open the OL
   return (
