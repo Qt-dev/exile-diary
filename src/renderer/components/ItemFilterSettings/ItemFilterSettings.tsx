@@ -2,7 +2,6 @@ import React from 'react';
 import { observer } from 'mobx-react-lite';
 import List from '@mui/material/List';
 import ListItem from '@mui/material/ListItem';
-import TextField from '@mui/material/TextField';
 import classNames from 'classnames';
 import './ItemFilterSettings.css';
 
@@ -11,7 +10,6 @@ import ListItemButton from '@mui/material/ListItemButton';
 import Checkbox from '@mui/material/Checkbox';
 import ListItemText from '@mui/material/ListItemText';
 import ListItemIcon from '@mui/material/ListItemIcon';
-import Button from '@mui/material/Button';
 const { ipcRenderer } = electronService;
 
 const ContainerComponent = ({ children, isFolder, disabled, callback }) => {
