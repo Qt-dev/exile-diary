@@ -5,7 +5,7 @@ import logger from 'electron-log';
 import axios, { AxiosResponse } from 'axios';
 import RendererLogger from './RendererLogger';
 import moment from 'moment';
-import keytar from 'keytar';
+import keytar from '@postman/node-keytar';
 import SettingsManager from './SettingsManager';
 
 const account = 'ggg:token';
