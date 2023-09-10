@@ -443,7 +443,7 @@ class MainProcess {
     let isOverlayInitialized = false;
 
     // Main Window listeners
-    this.mainWindow.on('close', (e: Event) => {
+    this.mainWindow.on('close', () => {
       clearInterval(this.autoUpdaterInterval);
       clearTimeout(this.saveBoundsCallback);
       return;
