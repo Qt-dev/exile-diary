@@ -236,6 +236,167 @@ class MainProcess {
       app.exit();
     });
 
+class MainProcess {
+  mainWindow: BrowserWindow;
+  overlayWindow: BrowserWindow;
+  isDownloadingUpdate: boolean;
+  autoUpdaterInterval?: NodeJS.Timer;
+  saveBoundsCallback?: NodeJS.Timeout;
+
+  constructor() {
+    this.mainWindow = new BrowserWindow({
+      title: `Exile Diary v${app.getVersion()}`,
+      webPreferences: {
+        nodeIntegration: true,
+        nodeIntegrationInWorker: true,
+        contextIsolation: false,
+        // webSecurity: false,
+      },
+      show: false,
+    });
+  
+    this.overlayWindow = new BrowserWindow({
+      x: 0,
+      y: 100,
+      frame: false,
+      closable: false,
+      minimizable: false,
+      maximizable: false,
+      fullscreenable: false,
+      resizable: false,
+      show: false,
+      skipTaskbar: true,
+      transparent: true,
+      webPreferences: {
+        nodeIntegration: true,
+        contextIsolation: false,
+      },
+    });
+    this.isDownloadingUpdate = false;
+  }
+
+  async init () {
+    logger.info('Initializing components');
+  
+    // Settings
+    await SettingsManager.initialize();
+    if (!SettingsManager.settings.username) {
+      logger.error('No account name set. Please set your account name in the settings.');
+    } else {
+      const character = await SettingsManager.getCharacter();
+      try {
+        League.addLeague(character.league);
+        SettingsManager.initializeDB(character.name);
+        logger.info(`DB updated. Character: ${character.name}, League: ${character.league}`);
+      } catch (e) {
+        logger.error(`Could not set DB up. (Current Account: ${SettingsManager.settings.username}})`);
+        logger.error(e);
+      }
+    }
+  
+    if (SettingsManager.settings.activeProfile && SettingsManager.settings.activeProfile.valid) {
+      logger.info('Starting components');
+      RateGetterV2.initialize();
+      ClientTxtWatcher.start();
+      ScreenshotWatcher.start();
+      OCRWatcher.start();
+      // ItemFilter.load(); not working yet
+    }
+  }
+
+  sendToOverlay(event : string, data?: any) {
+    if(this.overlayWindow.isDestroyed()) {
+      logger.error('Overlay window is destroyed, cannot send message');
+    } else {
+      this.overlayWindow.webContents.send(event, data);
+    }
+  }
+
+  sendToMain(event: string, data?: any) {
+    if(this.mainWindow) {
+      this.mainWindow.webContents.send(event, data);
+    }
+  }
+
+  /**
+   * Handles the auto updater process (checking for updates, downloading and installing them)
+   */
+  handleAutoUpdater() {
+    ipcMain.on('download-update', (event) => {
+      if (!this.isDownloadingUpdate) {
+        this.isDownloadingUpdate = true;
+        RendererLogger.log({
+          messages: [{ text: 'Downloading update...' }],
+        });
+        logger.info('Now downloading update');
+        autoUpdater.downloadUpdate();
+      }
+    });
+    ipcMain.on('apply-update', (event) => {
+      logger.info('Restarting to apply update');
+      autoUpdater.quitAndInstall();
+    });
+  
+    autoUpdater.channel = 'alpha'; // TODO: change this when pushing to prod
+    autoUpdater.logger = logger;
+    autoUpdater.autoDownload = false;
+    autoUpdater.on('update-available', (info) => {
+      global.updateInfo = info;
+      logger.info('Fetched Update Info:', JSON.stringify(info));
+      RendererLogger.log({
+        messages: [
+          {
+            text: `An update to version ${info.version} is available, click here to download`,
+            linkEvent: 'download-update',
+          },
+        ],
+      });
+    });
+    autoUpdater.on('update-downloaded', (info) => {
+      RendererLogger.log({
+        messages: [
+          {
+            text: `Update to version ${info.version} has been downloaded, click here to install it now (requires restart)`,
+            linkEvent: 'apply-update',
+          },
+        ],
+      });
+    });
+  
+    autoUpdater
+      .checkForUpdates()
+      .then((result) => {
+        const msg = `Update check done. ${
+          !!result ? `Update ${result.updateInfo.releaseName} is available` : 'No Update available'
+        }:`;
+        logger.info(msg);
+        this.autoUpdaterInterval = setInterval(() => {
+          autoUpdater
+            .checkForUpdates()
+            .then((result) => {
+              logger.info(msg);
+            })
+            .catch((err) => {
+              logger.error('Error checking for updates', err);
+            });
+        }, autoUpdaterIntervalTime);
+      })
+      .catch((err) => {
+        logger.error('Error checking for updates', err);
+      });
+  }
+
+  /**
+   * Sets up the listeners for the all the old modules
+   */
+  setupListeners() {
+    const settings = SettingsManager.getAll();
+
+    ipcMain.on('reload-app', () => {
+      app.relaunch();
+      app.exit();
+    });
+
     OCRWatcher.emitter.removeAllListeners();
     OCRWatcher.emitter.on('OCRError', () => {
       logger.info('Error getting area info from screenshot. Please try again');
