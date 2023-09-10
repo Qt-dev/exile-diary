@@ -546,18 +546,14 @@ function getItemsFor(evt) {
               importantDrops[item.typeline] = (importantDrops[item.typeline] || 0) + 1;
             }
 
-            if (item.value) {
-              totalValue += item.value;
+            const price = (await ItemPricer.price(item)) ?? { isVendor: false, value: 0 };
+            if (price.isVendor) {
+              totalValue += price.value;
+              price = 0;
             } else {
-              const price = (await ItemPricer.price(item)) ?? { isVendor: false, value: 0 };
-              if (price.isVendor) {
-                totalValue += price.value;
-                price = 0;
-              } else {
-                totalValue += price.value;
-              }
-              itemArr.push([price.value, item.id, item.event_id]);
+              totalValue += price.value;
             }
+            itemArr.push([price.value, item.id, item.event_id]);
           }
         }
 

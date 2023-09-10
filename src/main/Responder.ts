@@ -9,6 +9,7 @@ import StashTabsManager from './StashTabsManager';
 import stashGetter from './modules/StashGetter';
 import RendererLogger from './RendererLogger';
 import * as ClientTxtWatcher from './modules/ClientTxtWatcher';
+import RunParser from './modules/RunParser';
 
 const getAppGlobals = async () => {
   logger.info('Loading global settings for the renderer process');
@@ -136,6 +137,11 @@ const saveStashRefreshInterval = async (e, params) => {
   stashGetter.refreshInterval();
 };
 
+const debugRecheckGain = async (e, startDate) => {
+  logger.info('Debugging recheck gain from the renderer process');
+  await RunParser.recheckGained(startDate);
+}
+
 const Responder = {
   'app-globals': getAppGlobals,
   'load-runs': loadRuns,
@@ -151,6 +157,7 @@ const Responder = {
   'oauth:logout': logout,
   'get-all-stats': getAllStats,
   'get-stash-tabs': getStashTabs,
+  'debug:recheck-gain': debugRecheckGain,
 };
 
 export default Responder;
