@@ -214,7 +214,11 @@ function start() {
 
   settings = require('./settings').get();
 
-  if (settings.screenshotDir !== 'disabled') {
+  if (
+    settings.screenshotDir &&
+    settings.screenshotDir !== 'disabled' &&
+    settings.screenshotDir.length > 0
+  ) {
     logger.info('Watching ' + settings.screenshotDir);
     watcher = chokidar.watch(`${settings.screenshotDir}`, {
       usePolling: true,
