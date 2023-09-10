@@ -75,10 +75,12 @@ const MainSettings = ({ settings, store }) => {
     navigate('/');
   };
 
-  const [debugStartDate, setDebugStartDate] = React.useState((new Date()).toISOString().replace(/-/g, '').split('T')[0]);
+  const [debugStartDate, setDebugStartDate] = React.useState(
+    new Date().toISOString().replace(/-/g, '').split('T')[0]
+  );
   const handleDebug = () => {
-    ipcRenderer.invoke('debug:recheck-gain', debugStartDate)
-  }
+    ipcRenderer.invoke('debug:recheck-gain', debugStartDate);
+  };
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -261,9 +263,8 @@ const MainSettings = ({ settings, store }) => {
           <Button type="submit">Save</Button>
           <Button onClick={handleBack}>Cancel</Button>
         </ButtonGroup>
-        {
-          process.env.NODE_ENV === 'development' && (
-            <>
+        {process.env.NODE_ENV === 'development' && (
+          <>
             <Divider className="Settings__Separator" />
             <TextField
               fullWidth
@@ -277,9 +278,8 @@ const MainSettings = ({ settings, store }) => {
             <ButtonGroup variant="outlined" fullWidth aria-label="Debug">
               <Button onClick={handleDebug}>Debug</Button>
             </ButtonGroup>
-            </>
-          )
-        }
+          </>
+        )}
       </Box>
     </form>
   );

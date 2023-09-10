@@ -50,7 +50,7 @@ const OverlayNotificationLine = ({ messages }) => {
   if (!messages) return null;
   const formattedMessages = messages.map(({ type, text, icon }) => {
     return [
-      icon ? <img src={icon} alt="icon" className={"Text--Icon"}></img> : null, 
+      icon ? <img src={icon} alt="icon" className={'Text--Icon'}></img> : null,
       type ? <span className={classPerType[type]}>{text}</span> : <>{text}</>,
     ];
   });

@@ -97,7 +97,7 @@ function getCategory(item, subcategory = false) {
         logger.info(`No base type found for gem [${t}]`);
         return '';
       }
-    case 5:  // currency items 
+    case 5: // currency items
       if (t.startsWith('Captured Soul')) {
         return 'Pantheon Soul';
       } else if (
@@ -109,7 +109,7 @@ function getCategory(item, subcategory = false) {
         return 'Harvest Seed';
       }
       break;
-      // return 'Labyrinth Items';
+    // return 'Labyrinth Items';
     case 6:
       return 'Divination Card';
     case 7:

@@ -52,7 +52,12 @@ logger.errorHandler.startCatching({
         if (result.response === 1) {
           createIssue('https://github.com/qt-dev/exile-diary/issues/new', {
             title: `${error.message} - Error report for ${versions.app}`,
-            body: 'Error:\n```\n' + error.stack + '\n```\n' + `OS: ${versions.os}` + `\nApp: ${versions.app}`,
+            body:
+              'Error:\n```\n' +
+              error.stack +
+              '\n```\n' +
+              `OS: ${versions.os}` +
+              `\nApp: ${versions.app}`,
           });
           return;
         }
@@ -74,7 +79,6 @@ const getMapTierString = (map) => {
   }
 };
 
-
 class MainProcess {
   mainWindow: BrowserWindow;
   overlayWindow: BrowserWindow;
@@ -93,7 +97,7 @@ class MainProcess {
       },
       show: false,
     });
-  
+
     this.overlayWindow = new BrowserWindow({
       x: 0,
       y: 100,
@@ -114,9 +118,9 @@ class MainProcess {
     this.isDownloadingUpdate = false;
   }
 
-  async init () {
+  async init() {
     logger.info('Initializing components');
-  
+
     // Settings
     await SettingsManager.initialize();
     if (!SettingsManager.settings.username) {
@@ -128,11 +132,13 @@ class MainProcess {
         SettingsManager.initializeDB(character.name);
         logger.info(`DB updated. Character: ${character.name}, League: ${character.league}`);
       } catch (e) {
-        logger.error(`Could not set DB up. (Current Account: ${SettingsManager.settings.username}})`);
+        logger.error(
+          `Could not set DB up. (Current Account: ${SettingsManager.settings.username}})`
+        );
         logger.error(e);
       }
     }
-  
+
     if (SettingsManager.settings.activeProfile && SettingsManager.settings.activeProfile.valid) {
       logger.info('Starting components');
       RateGetterV2.initialize();
@@ -143,8 +149,8 @@ class MainProcess {
     }
   }
 
-  sendToOverlay(event : string, data?: any) {
-    if(this.overlayWindow.isDestroyed()) {
+  sendToOverlay(event: string, data?: any) {
+    if (this.overlayWindow.isDestroyed()) {
       logger.error('Overlay window is destroyed, cannot send message');
     } else {
       this.overlayWindow.webContents.send(event, data);
@@ -152,7 +158,7 @@ class MainProcess {
   }
 
   sendToMain(event: string, data?: any) {
-    if(this.mainWindow) {
+    if (this.mainWindow) {
       this.mainWindow.webContents.send(event, data);
     }
   }
@@ -175,7 +181,7 @@ class MainProcess {
       logger.info('Restarting to apply update');
       autoUpdater.quitAndInstall();
     });
-  
+
     autoUpdater.channel = 'alpha'; // TODO: change this when pushing to prod
     autoUpdater.logger = logger;
     autoUpdater.autoDownload = false;
@@ -201,168 +207,7 @@ class MainProcess {
         ],
       });
     });
-  
-    autoUpdater
-      .checkForUpdates()
-      .then((result) => {
-        const msg = `Update check done. ${
-          !!result ? `Update ${result.updateInfo.releaseName} is available` : 'No Update available'
-        }:`;
-        logger.info(msg);
-        this.autoUpdaterInterval = setInterval(() => {
-          autoUpdater
-            .checkForUpdates()
-            .then((result) => {
-              logger.info(msg);
-            })
-            .catch((err) => {
-              logger.error('Error checking for updates', err);
-            });
-        }, autoUpdaterIntervalTime);
-      })
-      .catch((err) => {
-        logger.error('Error checking for updates', err);
-      });
-  }
 
-  /**
-   * Sets up the listeners for the all the old modules
-   */
-  setupListeners() {
-    const settings = SettingsManager.getAll();
-
-    ipcMain.on('reload-app', () => {
-      app.relaunch();
-      app.exit();
-    });
-
-class MainProcess {
-  mainWindow: BrowserWindow;
-  overlayWindow: BrowserWindow;
-  isDownloadingUpdate: boolean;
-  autoUpdaterInterval?: NodeJS.Timer;
-  saveBoundsCallback?: NodeJS.Timeout;
-
-  constructor() {
-    this.mainWindow = new BrowserWindow({
-      title: `Exile Diary v${app.getVersion()}`,
-      webPreferences: {
-        nodeIntegration: true,
-        nodeIntegrationInWorker: true,
-        contextIsolation: false,
-        // webSecurity: false,
-      },
-      show: false,
-    });
-  
-    this.overlayWindow = new BrowserWindow({
-      x: 0,
-      y: 100,
-      frame: false,
-      closable: false,
-      minimizable: false,
-      maximizable: false,
-      fullscreenable: false,
-      resizable: false,
-      show: false,
-      skipTaskbar: true,
-      transparent: true,
-      webPreferences: {
-        nodeIntegration: true,
-        contextIsolation: false,
-      },
-    });
-    this.isDownloadingUpdate = false;
-  }
-
-  async init () {
-    logger.info('Initializing components');
-  
-    // Settings
-    await SettingsManager.initialize();
-    if (!SettingsManager.settings.username) {
-      logger.error('No account name set. Please set your account name in the settings.');
-    } else {
-      const character = await SettingsManager.getCharacter();
-      try {
-        League.addLeague(character.league);
-        SettingsManager.initializeDB(character.name);
-        logger.info(`DB updated. Character: ${character.name}, League: ${character.league}`);
-      } catch (e) {
-        logger.error(`Could not set DB up. (Current Account: ${SettingsManager.settings.username}})`);
-        logger.error(e);
-      }
-    }
-  
-    if (SettingsManager.settings.activeProfile && SettingsManager.settings.activeProfile.valid) {
-      logger.info('Starting components');
-      RateGetterV2.initialize();
-      ClientTxtWatcher.start();
-      ScreenshotWatcher.start();
-      OCRWatcher.start();
-      // ItemFilter.load(); not working yet
-    }
-  }
-
-  sendToOverlay(event : string, data?: any) {
-    if(this.overlayWindow.isDestroyed()) {
-      logger.error('Overlay window is destroyed, cannot send message');
-    } else {
-      this.overlayWindow.webContents.send(event, data);
-    }
-  }
-
-  sendToMain(event: string, data?: any) {
-    if(this.mainWindow) {
-      this.mainWindow.webContents.send(event, data);
-    }
-  }
-
-  /**
-   * Handles the auto updater process (checking for updates, downloading and installing them)
-   */
-  handleAutoUpdater() {
-    ipcMain.on('download-update', (event) => {
-      if (!this.isDownloadingUpdate) {
-        this.isDownloadingUpdate = true;
-        RendererLogger.log({
-          messages: [{ text: 'Downloading update...' }],
-        });
-        logger.info('Now downloading update');
-        autoUpdater.downloadUpdate();
-      }
-    });
-    ipcMain.on('apply-update', (event) => {
-      logger.info('Restarting to apply update');
-      autoUpdater.quitAndInstall();
-    });
-  
-    autoUpdater.channel = 'alpha'; // TODO: change this when pushing to prod
-    autoUpdater.logger = logger;
-    autoUpdater.autoDownload = false;
-    autoUpdater.on('update-available', (info) => {
-      global.updateInfo = info;
-      logger.info('Fetched Update Info:', JSON.stringify(info));
-      RendererLogger.log({
-        messages: [
-          {
-            text: `An update to version ${info.version} is available, click here to download`,
-            linkEvent: 'download-update',
-          },
-        ],
-      });
-    });
-    autoUpdater.on('update-downloaded', (info) => {
-      RendererLogger.log({
-        messages: [
-          {
-            text: `Update to version ${info.version} has been downloaded, click here to install it now (requires restart)`,
-            linkEvent: 'apply-update',
-          },
-        ],
-      });
-    });
-  
     autoUpdater
       .checkForUpdates()
       .then((result) => {
@@ -429,7 +274,7 @@ class MainProcess {
         ...info.mapStats,
       });
     });
-  
+
     ScreenshotWatcher.emitter.removeAllListeners();
     ScreenshotWatcher.emitter.on('OCRError', () => {
       logger.info('Error getting area info from screenshot. Please try again');
@@ -440,7 +285,7 @@ class MainProcess {
         `Screenshot folder contains <span class='eventText'>${totalSize}</span> screenshots. Click <span class='eventText' style='cursor:pointer;' onclick='openShell("${dir}")'>here</span> to open it for cleanup`
       );
     });
-  
+
     RunParser.emitter.removeAllListeners();
     RunParser.emitter.on('runProcessed', (run) => {
       var f = new Intl.NumberFormat();
@@ -485,7 +330,7 @@ class MainProcess {
       this.sendToMain('current-run:started', { area: 'Unknown' });
       this.sendToOverlay('current-run:started', { area: 'Unknown' });
     });
-  
+
     KillTracker.emitter.removeAllListeners();
     KillTracker.emitter.on('incubatorsUpdated', (incubators) => {
       this.sendToMain('incubatorsUpdated', incubators);
@@ -507,7 +352,7 @@ class MainProcess {
         });
       }
     });
-  
+
     RateGetterV2.removeAllListeners();
     RateGetterV2.on('gettingPrices', () => {
       logger.info("<span class='eventText'>Getting item prices from poe.ninja...</span>");
@@ -520,7 +365,7 @@ class MainProcess {
         "<span class='eventText removeRow' onclick='rateGetterRetry(this);'>Error getting item prices from poe.ninja, <span class='retry'>click on this message to try again</span></span>"
       );
     });
-  
+
     ClientTxtWatcher.emitter.removeAllListeners();
     ClientTxtWatcher.emitter.on('localChatDisabled', () => {
       logger.info(
@@ -551,7 +396,7 @@ class MainProcess {
       this.sendToMain('current-run:started', { area });
       this.sendToOverlay('current-run:started', { area });
     });
-  
+
     StashGetter.removeAllListeners();
     StashGetter.initialize();
     StashGetter.on('stashTabs:updated:full', (data) => {
@@ -578,7 +423,7 @@ class MainProcess {
     const saveWindowBounds = () => {
       const bounds = this.mainWindow.getBounds();
       const { width } = bounds;
-  
+
       // We do not want to save the settings on every single ping, so we work with a timeout
       if (this.saveBoundsCallback) clearTimeout(this.saveBoundsCallback);
       this.saveBoundsCallback = setTimeout(() => {
@@ -588,10 +433,10 @@ class MainProcess {
         this.sendToMain('rescale', Math.min(width, 1100) / 1100);
       }, 1000);
     };
-  
+
     this.mainWindow.on('resize', saveWindowBounds);
     this.mainWindow.on('move', saveWindowBounds);
-  
+
     if (settings && settings.mainWindowBounds) {
       logger.info('loading with bounds', settings.mainWindowBounds);
       this.mainWindow.setBounds(settings.mainWindowBounds);
@@ -613,7 +458,7 @@ class MainProcess {
     this.mainWindow.once('ready-to-show', () => {
       this.mainWindow.show();
       logger.info('App is ready to show');
-  
+
       RendererLogger.log({
         messages: [
           {
@@ -635,12 +480,12 @@ class MainProcess {
       logger.info('Main window is closing, closing all the windows');
       this.overlayWindow.destroy();
     });
-    
+
     // OverlayController listeners
     OverlayController.events.on('attach', (event) => {
       logger.info('Overlay attached to Path of Exile process');
     });
-  
+
     OverlayController.events.on('blur', () => {
       if (!this.overlayWindow.isFocused()) {
         this.overlayWindow.hide();
@@ -648,7 +493,7 @@ class MainProcess {
     });
 
     OverlayController.events.on('focus', () => {
-      logger.info(`Overlay focused, ${SettingsManager.get("overlayEnabled")}`);
+      logger.info(`Overlay focused, ${SettingsManager.get('overlayEnabled')}`);
       if (SettingsManager.get('overlayEnabled') === true) {
         this.overlayWindow.show();
         this.overlayWindow.setIgnoreMouseEvents(false);
@@ -691,13 +536,13 @@ class MainProcess {
             text: 'Click here to restart.',
             type: 'error',
             linkEvent: 'reload-app',
-          }
+          },
         ],
       });
     });
 
     this.overlayWindow.on('ready-to-show', () => {
-      if(!isOverlayInitialized) {
+      if (!isOverlayInitialized) {
         logger.info('Overlay is ready to show, attaching it to PoE');
         OverlayController.attachByTitle(this.overlayWindow, 'Path of Exile');
         isOverlayInitialized = true;
@@ -705,7 +550,7 @@ class MainProcess {
         logger.info('Overlay is ready to show, but it is already initialized');
       }
     });
-  
+
     ipcMain.on('overlay:resize', (event, { width, height }) => {
       this.overlayWindow.setMinimumSize(width, height);
       this.overlayWindow.setSize(width, height);
@@ -718,12 +563,12 @@ class MainProcess {
     });
   }
 
-  async startWindows() {    
+  async startWindows() {
     logger.info(`Starting Exile Diary Reborn v${app.getVersion()}`);
     // Initialize messages for the main window
 
     await this.init();
-  
+
     if (process.defaultApp) {
       if (process.argv.length >= 2) {
         app.setAsDefaultProtocolClient('exile-diary', process.execPath, [
@@ -733,7 +578,7 @@ class MainProcess {
     } else {
       app.setAsDefaultProtocolClient('exile-diary');
     }
-  
+
     const events = [
       'app-globals',
       'load-runs',
@@ -754,12 +599,11 @@ class MainProcess {
     for (const event of events) {
       ipcMain.handle(event, Responder[event]);
     }
-    
+
     this.handleAutoUpdater();
     this.setupListeners();
     this.setupResizer();
-    
-  
+
     // Restarter for development
     const isDev = require('electron-is-dev');
     if (isDev) {
@@ -776,20 +620,20 @@ class MainProcess {
         hardResetMethod: 'exit',
       });
     }
-  
+
     this.setWindowListeners();
-  
+
     const poeAuthSession = session.fromPartition('persist:poeAuth');
-  
+
     await poeAuthSession.cookies.set({
       url: 'https://exilediary.com',
       name: 'code_challenge',
       value: 'test',
       expirationDate: moment().add(1, 'week').unix(),
     });
-  
+
     const gotTheLock = app.requestSingleInstanceLock();
-  
+
     if (!gotTheLock) {
       app.quit();
     } else {
@@ -799,12 +643,12 @@ class MainProcess {
           if (this.mainWindow.isMinimized()) this.mainWindow.restore();
           this.mainWindow.focus();
         }
-  
+
         const callCommand = commandLine.pop();
         const params = new URLSearchParams(callCommand?.split('?')[1]);
         const code = params.get('code');
         const state = params.get('state');
-  
+
         if (code && state && AuthManager.verifyState(state)) {
           logger.info('We got an access token from Lambda');
           AuthManager.getOauthToken(code)
@@ -837,7 +681,6 @@ class MainProcess {
       });
     }
 
-    
     if (isDev) {
       this.mainWindow.loadURL(devUrl);
       this.overlayWindow.loadURL(`${devUrl}#/overlay`);
@@ -847,8 +690,8 @@ class MainProcess {
       this.mainWindow.loadURL(URL);
       this.overlayWindow.loadURL(`${URL}#/overlay`);
     }
-  };
-};
+  }
+}
 
 app.on('ready', () => {
   const mainProcess = new MainProcess();

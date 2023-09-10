@@ -18,7 +18,7 @@ const Line = ({ messages, timestamp }) => {
   if (!messages) return null;
   const formattedMessages = messages.map(({ type, text, link, linkEvent, icon }) => {
     const Element = [
-      icon ? <img src={icon} alt={`icon-${icon}`} className={"Text--Icon"}></img> : null, 
+      icon ? <img src={icon} alt={`icon-${icon}`} className={'Text--Icon'}></img> : null,
       type ? <span className={classPerType[type]}>{text}</span> : <>{text}</>,
     ];
     if (link) {

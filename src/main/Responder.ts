@@ -140,7 +140,7 @@ const saveStashRefreshInterval = async (e, params) => {
 const debugRecheckGain = async (e, startDate) => {
   logger.info('Debugging recheck gain from the renderer process');
   await RunParser.recheckGained(startDate);
-}
+};
 
 const Responder = {
   'app-globals': getAppGlobals,

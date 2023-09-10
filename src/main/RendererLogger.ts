@@ -20,15 +20,21 @@ export default {
       return;
     }
     Renderer.send('add-log', { messages });
-    if(onOverlay && !OverlayRenderer) {
+    if (onOverlay && !OverlayRenderer) {
       logger.error('OverlayRenderer does not seem to be initialized');
       logger.error(OverlayRenderer);
-
     } else if (onOverlay) {
       try {
         OverlayRenderer.send('overlay:message', { messages });
-      } catch(e) {
-        Renderer.send('add-log', { messages: [{ text: 'OverlayRenderer errored while sending a message. Is it disconnected?', type: 'error' }] });
+      } catch (e) {
+        Renderer.send('add-log', {
+          messages: [
+            {
+              text: 'OverlayRenderer errored while sending a message. Is it disconnected?',
+              type: 'error',
+            },
+          ],
+        });
 
         logger.error('OverlayRenderer errored while sending a message. Is it disconnected?');
         logger.error(OverlayRenderer);
