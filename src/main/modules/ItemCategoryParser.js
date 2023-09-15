@@ -101,6 +101,10 @@ function getCategory(item, subcategory = false) {
       if (t.startsWith('Captured Soul')) {
         return 'Pantheon Soul';
       } else if (
+        t.toLowerCase().endsWith('seed') ||
+        t.toLowerCase().endsWith('grain') ||
+        t.toLowerCase().endsWith('bulb') ||
+        t.toLowerCase().endsWith('fruit') ||
         t.toLowerCase().endsWith('lifeForce')
       ) {
         return 'Harvest Seed';
@@ -114,7 +118,7 @@ function getCategory(item, subcategory = false) {
       return 'Prophecy';
   }
 
-  if (t.endsWith('Scarab')) {
+  if (t.toLowerCase().endsWith('scarab')) {
     return subcategory ? ['Map Fragments', 'Scarab'] : 'Map Fragments';
   }
 
@@ -127,11 +131,11 @@ function getCategory(item, subcategory = false) {
     return 'Maps';
   }
 
-  if (t.endsWith('Incubator')) {
+  if (t.toLowerCase().endsWith('incubator')) {
     return 'Incubator';
   }
 
-  if (t.endsWith('Piece')) {
+  if (t.toLowerCase().endsWith('piece')) {
     return 'Harbinger Item Piece';
   }
 
