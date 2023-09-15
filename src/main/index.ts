@@ -453,12 +453,6 @@ class MainProcess {
     let isOverlayInitialized = false;
 
     // Main Window listeners
-    this.mainWindow.on('close', () => {
-      clearInterval(this.autoUpdaterInterval);
-      clearTimeout(this.saveBoundsCallback);
-      return;
-    });
-
     this.mainWindow.once('ready-to-show', () => {
       this.mainWindow.show();
       logger.info('App is ready to show');
@@ -480,8 +474,10 @@ class MainProcess {
       AuthManager.setLogoutTimer();
     });
 
-    this.mainWindow.on('close', (event) => {
+    this.mainWindow.on('close', () => {
       logger.info('Main window is closing, closing all the windows');
+      clearInterval(this.autoUpdaterInterval);
+      clearTimeout(this.saveBoundsCallback);
       this.overlayWindow.destroy();
     });
 
