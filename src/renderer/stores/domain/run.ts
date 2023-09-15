@@ -60,7 +60,7 @@ export class Run {
     this.duration = moment.duration(this.lastEvent.diff(this.firstEvent));
     this.xp = json.xpgained;
     this.xpPerHour = this.xp / this.duration.asHours();
-    this.deaths = json.deaths;
+    this.deaths = this.deaths || json.deaths;
     this.profit = json.gained;
     this.profitPerHour = this.profit / this.duration.asHours();
     this.kills = json.kills;
