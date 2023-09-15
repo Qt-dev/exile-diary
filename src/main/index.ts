@@ -167,6 +167,10 @@ class MainProcess {
    * Handles the auto updater process (checking for updates, downloading and installing them)
    */
   handleAutoUpdater() {
+    ipcMain.on('before-quit-for-update', (event) => {
+      logger.info('Closing the overlay for the update restart');
+      this.overlayWindow.destroy();
+    });
     ipcMain.on('download-update', (event) => {
       if (!this.isDownloadingUpdate) {
         this.isDownloadingUpdate = true;
@@ -449,12 +453,6 @@ class MainProcess {
     let isOverlayInitialized = false;
 
     // Main Window listeners
-    this.mainWindow.on('close', () => {
-      clearInterval(this.autoUpdaterInterval);
-      clearTimeout(this.saveBoundsCallback);
-      return;
-    });
-
     this.mainWindow.once('ready-to-show', () => {
       this.mainWindow.show();
       logger.info('App is ready to show');
@@ -476,8 +474,10 @@ class MainProcess {
       AuthManager.setLogoutTimer();
     });
 
-    this.mainWindow.on('close', (event) => {
+    this.mainWindow.on('close', () => {
       logger.info('Main window is closing, closing all the windows');
+      clearInterval(this.autoUpdaterInterval);
+      clearTimeout(this.saveBoundsCallback);
       this.overlayWindow.destroy();
     });
 
