@@ -510,7 +510,7 @@ async function price(
       return { isVendor: false, value: 0 };
     } else {
       let currFilter = ItemFilter.getForCategory('currency');
-      if (currFilter.ignore) {
+      if (currFilter && currFilter.ignore) {
         if (currFilter.minValue) {
           if (vendorValue < currFilter.minValue) {
             if (log) {
