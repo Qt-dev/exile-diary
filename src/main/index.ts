@@ -167,6 +167,10 @@ class MainProcess {
    * Handles the auto updater process (checking for updates, downloading and installing them)
    */
   handleAutoUpdater() {
+    ipcMain.on('before-quit-for-update', (event) => {
+      logger.info('Closing the overlay for the update restart');
+      this.overlayWindow.destroy();
+    });
     ipcMain.on('download-update', (event) => {
       if (!this.isDownloadingUpdate) {
         this.isDownloadingUpdate = true;
