@@ -197,12 +197,12 @@ function getAreaInfo(lines) {
         continue;
       }
     }
-    const levelMatch = line.match(/Level\s*:\s*([1-9][0-9])?/);
+    const levelMatch = line.match(/[Ll]evel\s*:\s*([1-9][0-9])?/);
     if (levelMatch) {
       areaInfo.level = levelMatch.pop();
       continue;
     }
-    const depthMatch = line.match(/Depth\s*:\s*([1-9][0-9]+)?/);
+    const depthMatch = line.match(/[Dd]epth\s*:\s*([1-9][0-9]+)?/);
     if (depthMatch) {
       areaInfo.depth = depthMatch.pop();
       continue;
