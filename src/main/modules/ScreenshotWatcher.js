@@ -39,7 +39,7 @@ const getYboundsFromImage = (rawImage, metadata) => {
   const startDetectionHeight = 2; // Height of the top limit we detect (Answer to "After how many black pixels do we consider this box to start?")
   const minBluePixels = 5;
 
-  const errorMargin = 2;
+  const errorMargin = 1;
 
   let isDone = false;
   let columnsOffset = 0;
