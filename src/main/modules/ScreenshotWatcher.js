@@ -7,6 +7,7 @@ const moment = require('moment');
 const chokidar = require('chokidar');
 const logger = require('electron-log').scope('main-screenshot-watcher');
 const EventEmitter = require('events');
+const OCRWatcher = require('./OCRWatcher');
 
 // const SCREENSHOT_DIRECTORY_SIZE_LIMIT = 400;
 
@@ -264,7 +265,44 @@ async function process(file) {
     };
     const statsPath = path.join(filepath, `${filePrefix}_area.png`);
     logger.info(`Saving stats to ${statsPath} with dimenstions: `, statsDimensions);
-    await image
+async function processBuffer(buffer) {
+  const filePrefix = moment().format('YMMDDHHmmss');
+  const kernel = [-1 / 8, -1 / 8, -1 / 8, -1 / 8, 2, -1 / 8, -1 / 8, -1 / 8, -1 / 8];
+  const image = await sharp(buffer).jpeg().sharpen();
+
+  // We might need to deal with scaleFactor later
+  // await image.metadata().then(({ width }) => {
+  //   // 1920 x 1080 image scaled up 3x;
+  //   // scale differently sized images proportionately
+  //   const scaleFactor = 3 * (1920 / width);
+  //   return image.resize(Math.round(width * scaleFactor))
+  // });
+  const metadata = await image.metadata();
+  try {
+    const bounds = await getBounds(image);
+      
+    // take only rightmost 14% of screen for area info (no area name is longer than this)
+    const areaInfoWidth = Math.floor(metadata.width * 0.14);
+
+    // Stats
+    const statsDimensions = {
+      width: areaInfoWidth,
+      height: bounds.y[0] - 24,
+      top: 24,
+      left: metadata.width - areaInfoWidth,
+    };
+
+    // await image
+    //   .clone()
+    //   .extract(statsDimensions)
+    //   .normalise({ lower: 0, upper: 100 })
+    //   .negate()
+    //   .greyscale()
+    //   .convolve({ width: 3, height: 3, kernel })
+    //   .png()
+    //   .toFile(statsPath);
+
+    const statsImage = await image
       .clone()
       .extract(statsDimensions)
       .normalise({ lower: 0, upper: 100 })
@@ -272,7 +310,8 @@ async function process(file) {
       .greyscale()
       .convolve({ width: 3, height: 3, kernel })
       .png()
-      .toFile(statsPath);
+      .toBuffer();
+
 
     // MODS:
     const modsDimensions = {
@@ -281,9 +320,17 @@ async function process(file) {
       top: bounds.y[0],
       left: bounds.x[0],
     };
-    const modsPath = path.join(filepath, `${filePrefix}_mods.png`);
-    logger.info(`Saving mods to ${modsPath} with dimensions: `, modsDimensions);
-    await image
+    // await image
+    //   .clone()
+    //   .extract(modsDimensions)
+    //   .normalise({ lower: 0, upper: 100 })
+    //   .negate()
+    //   .greyscale()
+    //   .convolve({ width: 3, height: 3, kernel })
+    //   .png()
+    //   .toFile(modsPath);
+    
+    const modsImage = await image
       .clone()
       .extract(modsDimensions)
       .normalise({ lower: 0, upper: 100 })
@@ -291,8 +338,22 @@ async function process(file) {
       .greyscale()
       .convolve({ width: 3, height: 3, kernel })
       .png()
-      .toFile(modsPath);
+      .toBuffer();
+    
+
+    await Promise.all([
+      OCRWatcher.processImageBuffer(statsImage, filePrefix, 'area'),
+      OCRWatcher.processImageBuffer(modsImage, filePrefix, 'mods')
+    ]);
+  } catch (e) {
+    logger.error("Error in mods detection", e);
+    const fs = require('fs');
+    fs.writeFileSync('buffer.png', buffer);
+    image.png().toFile('image.png');
+    return;
   }
+
+    
 }
 
 // function enhanceImage(image, scaleFactor) {
@@ -386,4 +447,5 @@ export default {
   start,
   emitter,
   test,
+  processBuffer,
 };

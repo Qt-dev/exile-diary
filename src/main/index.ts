@@ -1,4 +1,4 @@
-import { app, BrowserWindow, ipcMain, dialog, Menu, session } from 'electron';
+import { app, BrowserWindow, ipcMain, dialog, Menu, session, globalShortcut, nativeImage } from 'electron';
 import { autoUpdater } from 'electron-updater';
 import * as path from 'path';
 import logger from 'electron-log';
@@ -680,6 +680,33 @@ class MainProcess {
         }
       });
     }
+
+    let screenshotLock = false;
+    globalShortcut.register('Alt+CommandOrControl+F8', async () => {
+      if(screenshotLock) {
+        logger.info('Not accepting new screenshot orders while this screenshot is being parsed');
+        return;
+      } else {
+        modReadingTimer = moment();
+        screenshotLock = true;
+        logger.info('Map Info : Reading from screenshot');
+        RendererLogger.log({
+          messages: [
+            {
+              text: 'Map Info : Reading from screenshot',
+            },
+          ],
+        });
+        const screenshot = OverlayController.screenshot();
+        const { width, height }  = OverlayController.targetBounds;
+        const nativeScreenshot = nativeImage
+                              .createFromBitmap(screenshot, { width: width, height: height })
+                              .toJPEG(100);
+        await ScreenshotWatcher.processBuffer(nativeScreenshot);
+        logger.info('Map info : Reading done');
+        screenshotLock = false;
+      }
+    })
 
     if (isDev) {
       this.mainWindow.loadURL(devUrl);
