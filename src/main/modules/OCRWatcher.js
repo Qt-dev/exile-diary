@@ -243,8 +243,80 @@ function getAreaNameFromDB(timestamp) {
   });
 }
 
+async function processImageBuffer(buffer, timestamp, type) {
+  logger.info(`Performing OCR on ${type} ...`);
+
+  try {
+    const {
+      data: { text },
+    } = await scheduler.addJob('recognize', buffer);
+
+    // const filename = path.basename(file);
+    // const timestamp = filename.substring(0, filename.indexOf('_'));
+    const lines = [];
+    text.split('\n').forEach((line) => {
+      lines.push(line.trim());
+      logger.info(line.trim());
+    });
+
+    if (type === 'area') {
+      const area = getAreaInfo(lines);
+      const areaName = await getAreaNameFromDB(timestamp);
+      if (areaName) {
+        logger.info(`Got last entered area from db: ${areaName}`);
+        area.name = areaName;
+      } else {
+        logger.info(`Got last entered area from ocr: ${area.name}`);
+      }
+
+      DB.run(
+        'insert into areainfo(id, name, level, depth) values(?, ?, ?, ?)',
+        [timestamp, area.name, area.level, area.depth],
+        (err) => {
+          if (err) {
+            cleanFailedOCR(err, timestamp);
+          } else {
+            mapInfoManager.setAreaInfo(area);
+            mapInfoManager.checkAreaInfoComplete({ area });
+          }
+        }
+      );
+    } else if (type === 'mods') {
+      try {
+        const mods = getModInfo(lines);
+        let mapModErr = null;
+        for (var i = 0; i < mods.length; i++) {
+          DB.run(
+            'insert into mapmods(area_id, id, mod) values(?, ?, ?)',
+            [timestamp, i, mods[i]],
+            (err) => {
+              if (err && !mapModErr) {
+                mapModErr = err;
+              }
+            }
+          );
+        }
+        if (mapModErr) {
+          cleanFailedOCR(mapModErr, timestamp);
+        } else {
+          mapInfoManager.setMapMods(mods);
+          mapInfoManager.checkAreaInfoComplete({ areaInfo, mapMods });
+        }
+      } catch (e) {
+        cleanFailedOCR(e, timestamp);
+      }
+    } 
+  } catch (e) {
+    logger.error('Error in fetching OCR text');
+    logger.error(e);
+  }
+
+  logger.info(`Completed OCR on ${type}.`);
+}
+
 module.exports = {
   start,
   test,
   emitter,
+  processImageBuffer,
 };
