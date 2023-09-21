@@ -250,7 +250,6 @@ async function process(file) {
     //   return image.resize(Math.round(width * scaleFactor))
     // });
     const metadata = await image.metadata();
-    logger.info('Image', metadata);
     const bounds = await getBounds(image);
 
     // take only rightmost 14% of screen for area info (no area name is longer than this)
@@ -287,6 +286,7 @@ async function process(file) {
     await image
       .clone()
       .extract(modsDimensions)
+      .normalise({ lower: 0, upper: 100 })
       .negate()
       .greyscale()
       .convolve({ width: 3, height: 3, kernel })
