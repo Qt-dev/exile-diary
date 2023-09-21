@@ -5,7 +5,7 @@ const logger = require('electron-log');
 const EventEmitter = require('events');
 const StringMatcher = require('./StringMatcher');
 const { getMapStats } = require('./RunParser').default;
-const { createWorker } = require('tesseract.js');
+const { createWorker, createScheduler } = require('tesseract.js');
 
 let DB;
 let watcher;
@@ -19,6 +19,7 @@ const watchPaths = [
   path.join(app.getPath('userData'), '.temp_capture', '*_area.png'),
   path.join(app.getPath('userData'), '.temp_capture', '*_mods.png'),
 ];
+const numOfWorkers = 2;
 
 class MapInfoManager {
   constructor() {}
@@ -42,12 +43,32 @@ class MapInfoManager {
   }
 }
 
+const scheduler = createScheduler();
+
 function test(filename) {
   DB = null;
   processImage(filename);
 }
 
-function start() {
+async function setupScheduler() {
+  for(let i = 0; i < numOfWorkers; i++) {
+    const worker = await createWorker({ 
+      langPath: process.resourcesPath, 
+      gzip: false,
+      // logger: m => logger.info(m),
+    });
+    await worker.load();
+    await worker.loadLanguage('eng');
+    await worker.initialize('eng');
+    await worker.setParameters({
+      tessedit_char_whitelist:
+        "1234567890abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ:-' ,%+",
+    });
+    scheduler.addWorker(worker);
+  }
+}
+
+async function start() {
   DB = require('./DB').getDB();
   mapInfoManager = new MapInfoManager();
 
@@ -63,28 +84,21 @@ function start() {
     awaitWriteFinish: true,
     ignoreInitial: true,
   });
-  watcher.on('add', (path) => {
-    processImage(path);
+  watcher.on('add', async (path) => {
+    await processImage(path);
   });
+
+  await setupScheduler();
 }
 
-function processImage(file) {
+async function processImage(file) {
   logger.info('Performing OCR on ' + file + '...');
-
-  const worker = createWorker({ langPath: process.resourcesPath, gzip: false });
 
   (async () => {
     try {
-      await worker.load();
-      await worker.loadLanguage('eng');
-      await worker.initialize('eng');
-      await worker.setParameters({
-        tessedit_char_whitelist:
-          "1234567890abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ:-',%+",
-      });
       const {
         data: { text },
-      } = await worker.recognize(file);
+      } = await scheduler.addJob('recognize', file);
 
       const filename = path.basename(file);
       const timestamp = filename.substring(0, filename.indexOf('_'));
@@ -140,14 +154,13 @@ function processImage(file) {
         } catch (e) {
           cleanFailedOCR(e, timestamp);
         }
-      }
+      } 
     } catch (e) {
       logger.error('Error in fetching OCR text');
       logger.error(e);
     }
 
     // fs.unlinkSync(file);
-    worker.terminate();
     logger.info('Completed OCR on ' + file + ', deleting');
   })();
 }
@@ -184,12 +197,12 @@ function getAreaInfo(lines) {
         continue;
       }
     }
-    const levelMatch = line.match(/Level: ([1-9][0-9])?/);
+    const levelMatch = line.match(/Level\s*:\s*([1-9][0-9])?/);
     if (levelMatch) {
       areaInfo.level = levelMatch.pop();
       continue;
     }
-    const depthMatch = line.match(/Depth: ([1-9][0-9]+)?/);
+    const depthMatch = line.match(/Depth\s*:\s*([1-9][0-9]+)?/);
     if (depthMatch) {
       areaInfo.depth = depthMatch.pop();
       continue;
