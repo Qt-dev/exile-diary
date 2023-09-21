@@ -185,9 +185,8 @@ const getPixelColor = (rawData, x, y, width) => {
 
 const getBounds = async (image) => {
   const { data, info } = await image.raw({ depth: 'char' }).toBuffer({ resolveWithObject: true });
-  logger.info(info);
   const yBounds = getYboundsFromImage(data, info);
-  const xBounds = getXBoundsFromImage(data, info, yBounds);
+  const xBounds = [Math.floor(info.width * 3/4), info.width]
   logger.info(`Bounds - x: ${xBounds} - y: ${yBounds}`);
 
   return {
