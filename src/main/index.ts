@@ -186,7 +186,7 @@ class MainProcess {
       autoUpdater.quitAndInstall();
     });
 
-    autoUpdater.channel = 'alpha'; // TODO: change this when pushing to prod
+    autoUpdater.channel = 'latest'; // TODO: change this when pushing to prod
     autoUpdater.logger = logger;
     autoUpdater.autoDownload = false;
     autoUpdater.on('update-available', (info) => {
