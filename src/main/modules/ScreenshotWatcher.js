@@ -266,15 +266,6 @@ async function process(file) {
     };
     const statsPath = path.join(filepath, `${filePrefix}_area.png`);
     logger.info(`Saving stats to ${statsPath} with dimenstions: `, statsDimensions);
-    // await image
-    //   .clone()
-    //   .extract(statsDimensions)
-    //   .normalise({ lower: 0, upper: 100 })
-    //   .negate()
-    //   .greyscale()
-    //   .convolve({ width: 3, height: 3, kernel })
-    //   .jpeg()
-    //   .toFile(statsPath);
 
     const statsImage = await image
       .clone()
@@ -296,15 +287,6 @@ async function process(file) {
     };
     const modsPath = path.join(filepath, `${filePrefix}_mods.png`);
     logger.info(`Saving mods to ${modsPath} with dimensions: `, modsDimensions);
-    // await image
-    //   .clone()
-    //   .extract(modsDimensions)
-    //   .normalise({ lower: 0, upper: 100 })
-    //   .negate()
-    //   .greyscale()
-    //   .convolve({ width: 3, height: 3, kernel })
-    //   .jpeg()
-    //   .toFile(modsPath);
     
     const modsImage = await image
       .clone()

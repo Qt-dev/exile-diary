@@ -34,7 +34,7 @@ class MapInfoManager {
     this.areaInfo = null;
   }
   checkAreaInfoComplete() {
-    let { areaInfo, mapMods } = this;
+    const { areaInfo, mapMods } = this;
     if (!!areaInfo && !!mapMods) {
       const mapStats = getMapStats(mapMods);
       emitter.emit('areaInfoComplete', { areaInfo, mapMods, mapStats });
