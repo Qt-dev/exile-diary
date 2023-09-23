@@ -29,6 +29,8 @@ enum SYSTEMS {
   MACOS = 'darwin',
 }
 const autoUpdaterIntervalTime = 1000 * 60 * 60; // 1 hour
+const isDev = require('electron-is-dev');
+let modReadingTimer : moment.Moment | null = null;
 
 // Initialize logger settings
 logger.initialize({ preload: true });
@@ -143,7 +145,7 @@ class MainProcess {
       logger.info('Starting components');
       RateGetterV2.initialize();
       ClientTxtWatcher.start();
-      ScreenshotWatcher.start();
+      await ScreenshotWatcher.start();
       OCRWatcher.start();
       // ItemFilter.load(); not working yet
     }
@@ -255,9 +257,8 @@ class MainProcess {
       let stats = `IIR: ${info.mapStats.iir} / IIQ: ${info.mapStats.iiq}`;
       if (info.mapStats.packsize && info.mapStats.packsize > 0)
         stats += ` / Pack Size: ${info.mapStats.packsize}`;
-      logger.info(
-        `Got area info for <span class='eventText'>${info.areaInfo.name}</span> (${tier} - ${stats})`
-      );
+      const modReadingDuration = moment().diff(modReadingTimer);
+      logger.info(`Got area info for ${info.areaInfo.name} (${tier} - ${stats}) in ${modReadingDuration}ms`);
       RendererLogger.log({
         messages: [
           {
@@ -280,6 +281,11 @@ class MainProcess {
     });
 
     ScreenshotWatcher.emitter.removeAllListeners();
+    ScreenshotWatcher.emitter.on('OCRStart', (stats) => {
+      logger.info('Reading mods from screenshot');
+      modReadingTimer = moment(stats.birthtime, moment.ISO_8601);
+      logger.info(moment().diff(modReadingTimer));
+    });
     ScreenshotWatcher.emitter.on('OCRError', () => {
       logger.info('Error getting area info from screenshot. Please try again');
     });
@@ -605,7 +611,6 @@ class MainProcess {
     this.setupResizer();
 
     // Restarter for development
-    const isDev = require('electron-is-dev');
     if (isDev) {
       require('electron-reload')(__dirname, {
         electron: path.join(
