@@ -1,4 +1,6 @@
 import sharp from 'sharp';
+import fs from 'fs/promises';
+
 // const Jimp = require('jimp');
 // const convert = require('color-convert');
 // const fs = require('fs');
@@ -34,17 +36,18 @@ var emitter = new EventEmitter();
  */
 const getYboundsFromImage = (rawImage, metadata) => {
   const batchSize = Math.floor(metadata.height / 5); // Size of the batch of rows to check together
-  const firstLineMargin = 5; // Margin to make the top line a bit more readable
+  const firstLineMargin = 3; // Margin to make the top line a bit more readable
   const endDetectionHeight = 15; // Height of the bottom limit we detect (Answer to "After how many pixels do we consider this box to be done?")
   const detectionWidth = 50; // Number of pixels to check for detection. We do not need the full line but we need enough pixels to start capturing blue pixels
-  const startDetectionHeight = 2; // Height of the top limit we detect (Answer to "After how many black pixels do we consider this box to start?")
-  const minBluePixels = 5;
+  const marginAfterOrange = 50;
+  const minOrangePixels = 20;
+  const initialFirstLine = 200
 
   const errorMargin = 1;
 
   let isDone = false;
-  let columnsOffset = 0;
-  let firstLine = 0;
+  let columnsOffset = initialFirstLine;
+  let firstLine = initialFirstLine;
   let lastLine = -1;
 
   while (!isDone && columnsOffset < metadata.height) {
@@ -54,6 +57,7 @@ const getYboundsFromImage = (rawImage, metadata) => {
     for (let y = columnsOffset; y < batchSize + columnsOffset; y++) {
       let bluePixels = 0;
       let blackPixels = 0;
+      let orangePixels = 0;
       const colors = [];
 
       // Check each pixel on each line for blueness or blackness
@@ -61,8 +65,11 @@ const getYboundsFromImage = (rawImage, metadata) => {
         const pixelColor = getPixelColor(rawImage, x, y, metadata.width);
         colors.push(pixelColor);
         if (isBlue(pixelColor)) {
-          // logger.info(`Found blue pixel at x=${x} y=${y} (${pixelColor}))`);
+          // logger.info(`Found blue pixel at x=${x} y=${y} (${JSON.stringify(pixelColor)}))`);
           bluePixels++;
+        } else if(isOrange(pixelColor)) {
+          // logger.info(`Found orange pixel at x=${x} y=${y} (${JSON.stringify(pixelColor)}))`);
+          orangePixels++;
         } else if (isBlack(pixelColor, 15)) {
           // logger.info(`Found black pixel at x=${x} y=${y} (${JSON.stringify(pixelColor)}))`);
           blackPixels++;
@@ -76,36 +83,28 @@ const getYboundsFromImage = (rawImage, metadata) => {
       });
 
       const lastLines = lines.slice(lines.length - endDetectionHeight - 2, lines.length - 2);
-      const lastLinesForStart = lastLines.slice(
-        lastLines.length - startDetectionHeight - 2,
-        lastLines.length - 2
-      );
 
-      const lastBlues = Math.max(...lastLinesForStart.map((line) => line.blue));
-      const lastBlacks = Math.min(...lastLinesForStart.map((line) => line.black));
-      const isFirstLine =
-        firstLine <= 0 &&
-        bluePixels > minBluePixels &&
-        // bluePixels + blackPixels >= detectionWidth - errorMargin &&
-        // lastLinesForStart.length >= startDetectionHeight &&
-        lastBlues === 0 &&
-        lastBlacks >= detectionWidth - errorMargin;
+      const isFirstLine = 
+        firstLine <= initialFirstLine &&
+        orangePixels > minOrangePixels;
 
       // If we do not have a first line, and we are getting a first line with blues, this is the one
       if (isFirstLine) {
-        logger.info(`Found first line of the mod box with ${bluePixels} blues at y=${y}`);
-        firstLine = y - firstLineMargin;
+        logger.info(`Found first line of the mod box with ${orangePixels} oranges at y=${y}`);
+        firstLine = (y + marginAfterOrange) - firstLineMargin;
       }
 
       const isEndOfBlackBackground =
-        y - endDetectionHeight > firstLine && // We are at least endDetectionHeight away from first line
+        firstLine > initialFirstLine &&
+        y - (endDetectionHeight + marginAfterOrange) > firstLine && // We are at least endDetectionHeight away from first line
         lastLines.length >= endDetectionHeight - 2 && // We have the right amount of lines to check (at least endDetectionHeight - 2)
         blackPixels < detectionWidth && // We do not have only black pixels
         bluePixels < 1 && // We have no blue pixels
         Math.min(...lastLines.map((line) => line.black)) === 0; // The minimum amount of black pixels in the batch is the same we're getting now
       const isTooFarAfterBlueText =
+        firstLine > initialFirstLine && // We detected a first line
         bluePixels < 1 && // No blue pixels on this line
-        y - endDetectionHeight > firstLine && // We are at least endDetectionHeight away from first line
+        y - endDetectionHeight > (firstLine + marginAfterOrange) && // We are at least endDetectionHeight away from first line
         lastLines.length >= endDetectionHeight - 2 && // We have the right amount of lines to check (at least endDetectionHeight - 2)
         Math.max(...lastLines.map((line) => line.blue)) === 0; // The maximum amount of blue pixels in the batch is the same we're getting now
 
@@ -187,7 +186,7 @@ const getPixelColor = (rawData, x, y, width) => {
 const getBounds = async (image) => {
   const { data, info } = await image.raw({ depth: 'char' }).toBuffer({ resolveWithObject: true });
   const yBounds = getYboundsFromImage(data, info);
-  const xBounds = [Math.floor(info.width * 3/4), info.width]
+  const xBounds = getXBoundsFromImage(data, info, yBounds);
   logger.info(`Bounds - x: ${xBounds} - y: ${yBounds}`);
 
   return {
@@ -226,8 +225,10 @@ function start() {
       ignoreInitial: true,
       disableGlobbing: true,
     });
-    watcher.on('add', (path) => {
+    watcher.on('add', async (path) => {
       logger.info('Cropping new screenshot: ' + path);
+      const stats = await fs.stat(path);
+      emitter.emit('OCRStart', stats); 
       process(path);
     });
     currentWatchDirectory = settings.screenshotDir;
@@ -265,10 +266,73 @@ async function process(file) {
     };
     const statsPath = path.join(filepath, `${filePrefix}_area.png`);
     logger.info(`Saving stats to ${statsPath} with dimenstions: `, statsDimensions);
+    // await image
+    //   .clone()
+    //   .extract(statsDimensions)
+    //   .normalise({ lower: 0, upper: 100 })
+    //   .negate()
+    //   .greyscale()
+    //   .convolve({ width: 3, height: 3, kernel })
+    //   .jpeg()
+    //   .toFile(statsPath);
+
+    const statsImage = await image
+      .clone()
+      .extract(statsDimensions)
+      .normalise({ lower: 0, upper: 100 })
+      .negate()
+      .greyscale()
+      .convolve({ width: 3, height: 3, kernel })
+      .jpeg()
+      .toBuffer();
+
+      
+    // MODS:
+    const modsDimensions = {
+      width: bounds.x[1] - bounds.x[0],
+      height: bounds.y[1] - bounds.y[0],
+      top: bounds.y[0],
+      left: bounds.x[0],
+    };
+    const modsPath = path.join(filepath, `${filePrefix}_mods.png`);
+    logger.info(`Saving mods to ${modsPath} with dimensions: `, modsDimensions);
+    // await image
+    //   .clone()
+    //   .extract(modsDimensions)
+    //   .normalise({ lower: 0, upper: 100 })
+    //   .negate()
+    //   .greyscale()
+    //   .convolve({ width: 3, height: 3, kernel })
+    //   .jpeg()
+    //   .toFile(modsPath);
+    
+    const modsImage = await image
+      .clone()
+      .extract(modsDimensions)
+      .normalise({ lower: 0, upper: 100 })
+      .negate()
+      .greyscale()
+      .convolve({ width: 3, height: 3, kernel })
+      .jpeg()
+      .toBuffer();
+    
+
+    await Promise.all([
+      OCRWatcher.processImageBuffer(statsImage, filePrefix, 'area'),
+      OCRWatcher.processImageBuffer(modsImage, filePrefix, 'mods')
+    ])
+    
+  }
+}
+
 async function processBuffer(buffer) {
   const filePrefix = moment().format('YMMDDHHmmss');
   const kernel = [-1 / 8, -1 / 8, -1 / 8, -1 / 8, 2, -1 / 8, -1 / 8, -1 / 8, -1 / 8];
-  const image = await sharp(buffer).jpeg().sharpen();
+  const image = await sharp(buffer)   
+                        .normalise({ lower: 1, upper: 99 })
+                        .sharpen();
+
+  image.clone().png().toFile('clean.png');
 
   // We might need to deal with scaleFactor later
   // await image.metadata().then(({ width }) => {
@@ -292,27 +356,17 @@ async function processBuffer(buffer) {
       left: metadata.width - areaInfoWidth,
     };
 
-    // await image
-    //   .clone()
-    //   .extract(statsDimensions)
-    //   .normalise({ lower: 0, upper: 100 })
-    //   .negate()
-    //   .greyscale()
-    //   .convolve({ width: 3, height: 3, kernel })
-    //   .png()
-    //   .toFile(statsPath);
-
     const statsImage = await image
       .clone()
       .extract(statsDimensions)
-      .normalise({ lower: 0, upper: 100 })
+      .normalise({ lower: 5, upper: 90 })
       .negate()
       .greyscale()
       .convolve({ width: 3, height: 3, kernel })
-      .png()
+      .jpeg()
       .toBuffer();
 
-
+    
     // MODS:
     const modsDimensions = {
       width: bounds.x[1] - bounds.x[0],
@@ -320,24 +374,15 @@ async function processBuffer(buffer) {
       top: bounds.y[0],
       left: bounds.x[0],
     };
-    // await image
-    //   .clone()
-    //   .extract(modsDimensions)
-    //   .normalise({ lower: 0, upper: 100 })
-    //   .negate()
-    //   .greyscale()
-    //   .convolve({ width: 3, height: 3, kernel })
-    //   .png()
-    //   .toFile(modsPath);
     
     const modsImage = await image
       .clone()
       .extract(modsDimensions)
-      .normalise({ lower: 0, upper: 100 })
+      .normalise({ lower: 5, upper: 90 })
       .negate()
       .greyscale()
       .convolve({ width: 3, height: 3, kernel })
-      .png()
+      .jpeg()
       .toBuffer();
     
 
@@ -347,14 +392,12 @@ async function processBuffer(buffer) {
     ]);
   } catch (e) {
     logger.error("Error in mods detection", e);
-    const fs = require('fs');
-    fs.writeFileSync('buffer.png', buffer);
-    image.png().toFile('image.png');
+    emitter.emit('OCRError');
     return;
   }
 
     
-}
+} 
 
 // function enhanceImage(image, scaleFactor) {
 //   image.scale(scaleFactor, Jimp.RESIZE_BEZIER);
@@ -401,6 +444,22 @@ function isBlue(rgba) {
   };
   const isBlue = r * r + g * g + b * b < 20000;
   return isBlue;
+}
+
+function isOrange(rgba) {
+  const blue = {
+    r: 150,
+    g: 120,
+    b: 100,
+  };
+
+  const { r, g, b } = {
+    r: Math.abs(rgba.r - blue.r),
+    g: Math.abs(rgba.g - blue.g),
+    b: Math.abs(rgba.b - blue.b),
+  };
+  const isOrange = r * r + g * g + b * b < 1000;
+  return isOrange;
 }
 
 function isBlack(rgba, tolerance) {
