@@ -102,7 +102,7 @@ export default class RunStore {
   }
 
   registerCurrentRun(json) {
-    this.currentRun = new Run(this, { name: json.area });
+    this.currentRun = new Run(this, { name: json.area, level: json.level });
   }
 
   updateCurrentRun(json) {

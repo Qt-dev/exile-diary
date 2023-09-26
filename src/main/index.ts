@@ -87,6 +87,9 @@ class MainProcess {
   isDownloadingUpdate: boolean;
   autoUpdaterInterval?: NodeJS.Timer;
   saveBoundsCallback?: NodeJS.Timeout;
+  latestGeneratedAreaLevel?: string;
+  latestGeneratedAreaSeed?: string;
+  awaitingMapEntering: boolean = false;
 
   constructor() {
     this.mainWindow = new BrowserWindow({
@@ -401,10 +404,19 @@ class MainProcess {
         `<span class='eventText'>${path} has not been updated recently even though the game is running. Please check if PoE is using a different Client.txt file.</span>`
       );
     });
+    ClientTxtWatcher.emitter.on('generatedMap', ({ level, seed }) => {
+      logger.info('Generated map ' + level + ' ' + seed, '-', this.latestGeneratedAreaSeed);
+      this.awaitingMapEntering = (seed !== this.latestGeneratedAreaSeed) && seed !== '1';
+      this.latestGeneratedAreaLevel = level;
+      if(seed !== '1') this.latestGeneratedAreaSeed = seed;
+    });
     ClientTxtWatcher.emitter.on('enteredMap', (area) => {
       logger.info('Entered map ' + area);
-      this.sendToMain('current-run:started', { area });
-      this.sendToOverlay('current-run:started', { area });
+      if(this.awaitingMapEntering) {
+        this.awaitingMapEntering = false;
+        this.sendToMain('current-run:started', { area, level: this.latestGeneratedAreaLevel });
+        this.sendToOverlay('current-run:started', { area, level: this.latestGeneratedAreaLevel });
+      }
     });
 
     StashGetter.removeAllListeners();
