@@ -71,6 +71,14 @@ function start() {
       ) {
         logger.info('Detected map end signal, processing last map run');
         RunParser.process();
+      } else if (line.includes('Generating')) {
+
+        // 2023/09/22 23:53:40 90163078 1186a0e2 [DEBUG Client 5808] Generating level 83 area "MapWorldsIvoryTemple" with seed 2066513710
+        const timestamp = line.substring(0, 19).replace(/[^0-9]/g, '');
+        const level = line.substring(line.indexOf('level') + 6, line.indexOf('area') - 1);
+        const seed = line.substring(line.indexOf('seed') + 5);
+        emitter.emit('generatedMap', { timestamp, level, seed });
+
       } else if (line.includes('Connecting to instance server at')) {
         lastInstanceServer = instanceServerRegex.exec(line)[0];
         logger.info('Instance server found: ' + lastInstanceServer);
