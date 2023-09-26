@@ -48,13 +48,13 @@ export class Run {
   updateFromJson(json) {
     this.runId = json.id;
     this.name = json.name;
-    this.level = json.level;
+    this.level = json.level ?? this.level;
     const tentativeTier = this.level - 67;
     this.tier = tentativeTier >= 0 ? tentativeTier : null;
     this.depth = json.depth;
-    this.iiq = json.iiq;
-    this.iir = json.iir;
-    this.packSize = json.packsize;
+    this.iiq = json.iiq ?? this.iiq;
+    this.iir = json.iir ?? this.iir;
+    this.packSize = json.packsize ?? this.packSize;
     this.firstEvent = moment(json.firstevent, 'YYYYMMDDHHmmss');
     this.lastEvent = moment(json.lastevent, 'YYYYMMDDHHmmss');
     this.duration = moment.duration(this.lastEvent.diff(this.firstEvent));
