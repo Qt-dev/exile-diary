@@ -34,14 +34,14 @@ var emitter = new EventEmitter();
  *
  * If we did not find the end of the box, we just return the total height as the bottom boundary.
  */
-const getYboundsFromImage = (rawImage, metadata) => {
+const getYboundsFromImage = (rawImage, metadata, scaleFactor) => {
   const batchSize = Math.floor(metadata.height / 5); // Size of the batch of rows to check together
   const firstLineMargin = 3; // Margin to make the top line a bit more readable
-  const endDetectionHeight = 15; // Height of the bottom limit we detect (Answer to "After how many pixels do we consider this box to be done?")
+  const endDetectionHeight = 15 * scaleFactor; // Height of the bottom limit we detect (Answer to "After how many pixels do we consider this box to be done?")
   const detectionWidth = 50; // Number of pixels to check for detection. We do not need the full line but we need enough pixels to start capturing blue pixels
   const marginAfterOrange = 50;
   const minOrangePixels = 20;
-  const initialFirstLine = 200
+  const initialFirstLine = 200;
 
   const errorMargin = 1;
 
@@ -138,7 +138,7 @@ const getYboundsFromImage = (rawImage, metadata) => {
  * @param {Array} yBounds The y bounds of our mods box
  * @returns an X Boundary
  */
-const getXBoundsFromImage = (rawImage, metadata, yBounds) => {
+const getXBoundsFromImage = (rawImage, metadata, yBounds, scaleFactor) => {
   const widthMargin = 40;
   const blueArray = [];
   const imageWidth = metadata.width - 1;
@@ -183,10 +183,10 @@ const getPixelColor = (rawData, x, y, width) => {
   };
 };
 
-const getBounds = async (image) => {
+const getBounds = async (image, scaleFactor) => {
   const { data, info } = await image.raw({ depth: 'char' }).toBuffer({ resolveWithObject: true });
-  const yBounds = getYboundsFromImage(data, info);
-  const xBounds = getXBoundsFromImage(data, info, yBounds);
+  const yBounds = getYboundsFromImage(data, info, scaleFactor);
+  const xBounds = getXBoundsFromImage(data, info, yBounds, scaleFactor);
   logger.info(`Bounds - x: ${xBounds} - y: ${yBounds}`);
 
   return {
@@ -308,13 +308,25 @@ async function process(file) {
 }
 
 async function processBuffer(buffer) {
+  const filepath = path.join(app.getPath('userData'), '.dev_captures');
+  require('fs').mkdirSync(filepath, { recursive: true });
+
   const filePrefix = moment().format('YMMDDHHmmss');
   const kernel = [-1 / 8, -1 / 8, -1 / 8, -1 / 8, 2, -1 / 8, -1 / 8, -1 / 8, -1 / 8];
   const image = await sharp(buffer)   
                         .normalise({ lower: 1, upper: 99 })
                         .sharpen();
+  
 
-  image.clone().png().toFile('clean.png');
+                        
+  const metadata = await image.metadata();
+  const { width } = metadata;
+
+  const scaleFactor = 3 * (1920 / width);
+  logger.info(`Scaling image by x${scaleFactor}`);
+  image = image.resize(Math.round(width * scaleFactor))
+
+  image.clone().png().toFile(path.join(filepath, 'screenshot.png')); // TODO: Remove for prod
 
   // We might need to deal with scaleFactor later
   // await image.metadata().then(({ width }) => {
@@ -323,19 +335,19 @@ async function processBuffer(buffer) {
   //   const scaleFactor = 3 * (1920 / width);
   //   return image.resize(Math.round(width * scaleFactor))
   // });
-  const metadata = await image.metadata();
+
   try {
-    const bounds = await getBounds(image);
+    const bounds = await getBounds(image, Math.floor(scaleFactor));
       
     // take only rightmost 14% of screen for area info (no area name is longer than this)
-    const areaInfoWidth = Math.floor(metadata.width * 0.14);
+    const areaInfoWidth = Math.floor(metadata.width * scaleFactor * 0.14);
 
     // Stats
     const statsDimensions = {
       width: areaInfoWidth,
       height: bounds.y[0] - 24,
       top: 24,
-      left: metadata.width - areaInfoWidth,
+      left: Math.floor((metadata.width * scaleFactor) - areaInfoWidth),
     };
 
     const statsImage = await image
@@ -348,6 +360,15 @@ async function processBuffer(buffer) {
       .jpeg()
       .toBuffer();
 
+    await image // TODO: Remove for prod
+      .clone()
+      .extract(statsDimensions)
+      .normalise({ lower: 5, upper: 90 })
+      .negate()
+      .greyscale()
+      .convolve({ width: 3, height: 3, kernel })
+      .jpeg()
+      .toFile(path.join(filepath, 'stats.jpg'));
     
     // MODS:
     const modsDimensions = {
@@ -366,6 +387,16 @@ async function processBuffer(buffer) {
       .convolve({ width: 3, height: 3, kernel })
       .jpeg()
       .toBuffer();
+    
+    await image
+      .clone()
+      .extract(modsDimensions)
+      .normalise({ lower: 5, upper: 90 })
+      .negate()
+      .greyscale()
+      .convolve({ width: 3, height: 3, kernel })
+      .jpeg()
+      .toFile(path.join(filepath, 'mods.jpg'));
     
 
     await Promise.all([
