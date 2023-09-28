@@ -449,30 +449,26 @@ function isBlue(rgba) {
     g: 88,
     b: 255,
   };
-
-  const { r, g, b } = {
-    r: Math.abs(rgba.r - blue.r),
-    g: Math.abs(rgba.g - blue.g),
-    b: Math.abs(rgba.b - blue.b),
-  };
-  const isBlue = r * r + g * g + b * b < 20000;
-  return isBlue;
+  return comparePixelColors(rgba, blue, 20000);
 }
 
 function isOrange(rgba) {
-  const blue = {
+  // rgb(111, 87, 73)
+  const orange = {
     r: 150,
     g: 120,
     b: 100,
   };
+  return comparePixelColors(rgba, orange, 1000);
+}
 
+function comparePixelColors(pixel1, pixel2, tolerance) {
   const { r, g, b } = {
-    r: Math.abs(rgba.r - blue.r),
-    g: Math.abs(rgba.g - blue.g),
-    b: Math.abs(rgba.b - blue.b),
+    r: Math.abs(pixel1.r - pixel2.r),
+    g: Math.abs(pixel1.g - pixel2.g),
+    b: Math.abs(pixel1.b - pixel2.b),
   };
-  const isOrange = r * r + g * g + b * b < 1000;
-  return isOrange;
+  return r * r + g * g + b * b < tolerance;
 }
 
 function isBlack(rgba, tolerance) {
