@@ -719,7 +719,19 @@ class MainProcess {
         const nativeScreenshot = nativeImage
                               .createFromBitmap(screenshot, { width: width, height: height })
                               .toJPEG(100);
-        await ScreenshotWatcher.processBuffer(nativeScreenshot);
+        try {
+          await ScreenshotWatcher.processBuffer(nativeScreenshot);
+        } catch (e) {
+          logger.error('Error in screenshot processing', e);
+          RendererLogger.log({
+            messages: [
+              {
+                text: 'Error in screenshot processing. Check logs for more info.',
+                type: 'error',
+              },
+            ],
+          });
+        }
         logger.info('Map info : Reading done');
         screenshotLock = false;
       }
