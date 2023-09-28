@@ -1,9 +1,5 @@
 import sharp from 'sharp';
 import fs from 'fs/promises';
-
-// const Jimp = require('jimp');
-// const convert = require('color-convert');
-// const fs = require('fs');
 const path = require('path');
 const moment = require('moment');
 const chokidar = require('chokidar');
@@ -12,7 +8,7 @@ const EventEmitter = require('events');
 const OCRWatcher = require('./OCRWatcher');
 
 // const SCREENSHOT_DIRECTORY_SIZE_LIMIT = 400;
-
+const sizeMultiplier = 3; // We read pixels from a screenshot that is in 1920x1080 * this multiplier
 var settings;
 var watcher;
 var currentWatchDirectory;
@@ -37,7 +33,7 @@ var emitter = new EventEmitter();
 const getYboundsFromImage = (rawImage, metadata, scaleFactor) => {
   const batchSize = Math.floor(metadata.height / 5); // Size of the batch of rows to check together
   const firstLineMargin = 3; // Margin to make the top line a bit more readable
-  const endDetectionHeight = 15 * scaleFactor; // Height of the bottom limit we detect (Answer to "After how many pixels do we consider this box to be done?")
+  const endDetectionHeight = 25; // Height of the bottom limit we detect (Answer to "After how many pixels do we consider this box to be done?")
   const detectionWidth = 50; // Number of pixels to check for detection. We do not need the full line but we need enough pixels to start capturing blue pixels
   const marginAfterOrange = 50;
   const minOrangePixels = 20;
@@ -139,7 +135,7 @@ const getYboundsFromImage = (rawImage, metadata, scaleFactor) => {
  * @returns an X Boundary
  */
 const getXBoundsFromImage = (rawImage, metadata, yBounds, scaleFactor) => {
-  const widthMargin = 40;
+  const widthMargin = 15;
   const blueArray = [];
   const imageWidth = metadata.width - 1;
   let xBoundary = 0;
@@ -184,7 +180,7 @@ const getPixelColor = (rawData, x, y, width) => {
 };
 
 const getBounds = async (image, scaleFactor) => {
-  const { data, info } = await image.raw({ depth: 'char' }).toBuffer({ resolveWithObject: true });
+  const { data, info } = await image.clone().raw({ depth: 'char' }).toBuffer({ resolveWithObject: true });
   const yBounds = getYboundsFromImage(data, info, scaleFactor);
   const xBounds = getXBoundsFromImage(data, info, yBounds, scaleFactor);
   logger.info(`Bounds - x: ${xBounds} - y: ${yBounds}`);
@@ -310,99 +306,81 @@ async function process(file) {
 async function processBuffer(buffer) {
   const filepath = path.join(app.getPath('userData'), '.dev_captures');
   require('fs').mkdirSync(filepath, { recursive: true });
-
   const filePrefix = moment().format('YMMDDHHmmss');
-  const kernel = [-1 / 8, -1 / 8, -1 / 8, -1 / 8, 2, -1 / 8, -1 / 8, -1 / 8, -1 / 8];
-  const image = await sharp(buffer)   
-                        .normalise({ lower: 1, upper: 99 })
-                        .sharpen();
-  
+  // Kernel to use in a convolve to make text look better to be read.
+  // const kernel = [-1 / 8, -1 / 8, -1 / 8, -1 / 8, 2, -1 / 8, -1 / 8, -1 / 8, -1 / 8];
 
-                        
-  const metadata = await image.metadata();
-  const { width } = metadata;
+  const image = await sharp(buffer)
+    .trim({background: "#000000", threshold: 50})
+    .toBuffer();
 
-  const scaleFactor = 3 * (1920 / width);
+  sharp(image).png().toFile(path.join(filepath, 'screenshot.png')); // TODO: Remove for prod
+
+  const metadata = await sharp(image).metadata();
+  const { width, height } = metadata;
+  const halfWidth = Math.floor(width / 2);
+  const halfDimensions = {
+    left: halfWidth,
+    top: 0,
+    width: halfWidth,
+    height: height,
+  };
+
+  const scaleFactor = sizeMultiplier * (1920 / width);
   logger.info(`Scaling image by x${scaleFactor}`);
-  image = image.resize(Math.round(width * scaleFactor))
 
-  image.clone().png().toFile(path.join(filepath, 'screenshot.png')); // TODO: Remove for prod
+  const resizedImage = sharp(image)
+    .extract(halfDimensions)
+    .resize(Math.floor(halfWidth * scaleFactor));
+  resizedImage.clone().png().toFile(path.join(filepath, 'cropped-screenshot.png')); // TODO: Remove for prod
+  const resizedImageBuffer = await resizedImage.clone().png().toBuffer();
 
-  // We might need to deal with scaleFactor later
-  // await image.metadata().then(({ width }) => {
-  //   // 1920 x 1080 image scaled up 3x;
-  //   // scale differently sized images proportionately
-  //   const scaleFactor = 3 * (1920 / width);
-  //   return image.resize(Math.round(width * scaleFactor))
-  // });
+
 
   try {
-    const bounds = await getBounds(image, Math.floor(scaleFactor));
+    const bounds = await getBounds(resizedImage, Math.floor(scaleFactor));
       
-    // take only rightmost 14% of screen for area info (no area name is longer than this)
-    const areaInfoWidth = Math.floor(metadata.width * scaleFactor * 0.14);
-
+    // We take only rightmost 14% of screen for area info (no area name is longer than this)
+    // 14% of 1920 is 269
+    const areaInfoWidth = 269 * sizeMultiplier
+    
     // Stats
     const statsDimensions = {
       width: areaInfoWidth,
       height: bounds.y[0] - 24,
       top: 24,
-      left: Math.floor((metadata.width * scaleFactor) - areaInfoWidth),
+      left: Math.floor((halfWidth * scaleFactor) - areaInfoWidth - 1),
     };
 
-    const statsImage = await image
-      .clone()
+    const statsImage = await sharp(resizedImageBuffer)
       .extract(statsDimensions)
-      .normalise({ lower: 5, upper: 90 })
       .negate()
-      .greyscale()
-      .convolve({ width: 3, height: 3, kernel })
-      .jpeg()
+      .normalise({ lower: 1, upper: 20 })
+      .resize(Math.floor(statsDimensions.width / 2))
+      .png()
       .toBuffer();
-
-    await image // TODO: Remove for prod
-      .clone()
-      .extract(statsDimensions)
-      .normalise({ lower: 5, upper: 90 })
-      .negate()
-      .greyscale()
-      .convolve({ width: 3, height: 3, kernel })
-      .jpeg()
-      .toFile(path.join(filepath, 'stats.jpg'));
     
     // MODS:
     const modsDimensions = {
       width: bounds.x[1] - bounds.x[0],
       height: bounds.y[1] - bounds.y[0],
-      top: bounds.y[0],
-      left: bounds.x[0],
+      top: bounds.y[0] + 1,
+      left: bounds.x[0] - 1,
     };
-    
-    const modsImage = await image
-      .clone()
+
+    const modsImage = await sharp(resizedImageBuffer)
       .extract(modsDimensions)
-      .normalise({ lower: 5, upper: 90 })
-      .negate()
-      .greyscale()
-      .convolve({ width: 3, height: 3, kernel })
-      .jpeg()
+      .resize(Math.floor(modsDimensions.width / 3))
+      .png()
       .toBuffer();
-    
-    await image
-      .clone()
-      .extract(modsDimensions)
-      .normalise({ lower: 5, upper: 90 })
-      .negate()
-      .greyscale()
-      .convolve({ width: 3, height: 3, kernel })
-      .jpeg()
-      .toFile(path.join(filepath, 'mods.jpg'));
     
 
     await Promise.all([
       OCRWatcher.processImageBuffer(statsImage, filePrefix, 'area'),
       OCRWatcher.processImageBuffer(modsImage, filePrefix, 'mods')
     ]);
+    sharp(modsImage).toFile(path.join(filepath, 'mods.jpg'));
+    sharp(statsImage).toFile(path.join(filepath, 'stats.jpg'));
   } catch (e) {
     logger.error("Error in mods detection", e);
     emitter.emit('OCRError');
