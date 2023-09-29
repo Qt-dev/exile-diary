@@ -1,20 +1,21 @@
 import sharp from 'sharp';
 import fs from 'fs/promises';
-const path = require('path');
-const moment = require('moment');
-const chokidar = require('chokidar');
-const logger = require('electron-log').scope('main-screenshot-watcher');
-const EventEmitter = require('events');
-const OCRWatcher = require('./OCRWatcher');
+import SettingsManager from '../SettingsManager';
+import path from 'path';
+import moment from 'moment';
+import chokidar from 'chokidar';
+import Logger from 'electron-log';
+import EventEmitter from 'events';
+import OCRWatcher from './OCRWatcher';
+import { app, globalShortcut, nativeImage } from 'electron';
+import RendererLogger from '../RendererLogger';
+const logger = Logger.scope('main-screenshot-watcher');
 
 // const SCREENSHOT_DIRECTORY_SIZE_LIMIT = 400;
 const sizeMultiplier = 3; // We read pixels from a screenshot that is in 1920x1080 * this multiplier
-var settings;
-var watcher;
-var currentWatchDirectory;
-
-var app = require('electron').app || require('@electron/remote').app;
-var emitter = new EventEmitter();
+const customShortcutTrigger = 'Alt+CommandOrControl+F8';
+let watcher: chokidar.FSWatcher | null;
+const emitter = new EventEmitter();
 
 /*
  * Detects the bottom edge of the list of map mods.
@@ -30,7 +31,8 @@ var emitter = new EventEmitter();
  *
  * If we did not find the end of the box, we just return the total height as the bottom boundary.
  */
-const getYboundsFromImage = (rawImage, metadata, scaleFactor) => {
+const getYboundsFromImage = (rawImage: any, metadata: { height: number; width: number; }) => {
+  type lineData = { blue: number, black: number, total: number };
   const batchSize = Math.floor(metadata.height / 5); // Size of the batch of rows to check together
   const firstLineMargin = 3; // Margin to make the top line a bit more readable
   const endDetectionHeight = 25; // Height of the bottom limit we detect (Answer to "After how many pixels do we consider this box to be done?")
@@ -39,22 +41,20 @@ const getYboundsFromImage = (rawImage, metadata, scaleFactor) => {
   const minOrangePixels = 20;
   const initialFirstLine = 200;
 
-  const errorMargin = 1;
-
   let isDone = false;
   let columnsOffset = initialFirstLine;
   let firstLine = initialFirstLine;
   let lastLine = -1;
 
   while (!isDone && columnsOffset < metadata.height) {
-    const lines = [];
+    const lines : lineData[] = [];
 
     // On each Line in a batch
     for (let y = columnsOffset; y < batchSize + columnsOffset; y++) {
       let bluePixels = 0;
       let blackPixels = 0;
       let orangePixels = 0;
-      const colors = [];
+      const colors : {r: number, g: number, b: number}[] = [];
 
       // Check each pixel on each line for blueness or blackness
       for (let x = metadata.width - detectionWidth; x < metadata.width; x++) {
@@ -134,9 +134,9 @@ const getYboundsFromImage = (rawImage, metadata, scaleFactor) => {
  * @param {Array} yBounds The y bounds of our mods box
  * @returns an X Boundary
  */
-const getXBoundsFromImage = (rawImage, metadata, yBounds, scaleFactor) => {
+const getXBoundsFromImage = (rawImage: any, metadata: { width: number; }, yBounds: number[]) => {
   const widthMargin = 15;
-  const blueArray = [];
+  const blueArray : number[] = [];
   const imageWidth = metadata.width - 1;
   let xBoundary = 0;
 
@@ -169,7 +169,7 @@ const getXBoundsFromImage = (rawImage, metadata, yBounds, scaleFactor) => {
   return [xBoundary, metadata.width];
 };
 
-const getPixelColor = (rawData, x, y, width) => {
+const getPixelColor = (rawData: any[], x: number, y: number, width: number) => {
   const offset = (y * width + x) * 3;
   return {
     r: rawData[offset],
@@ -179,10 +179,10 @@ const getPixelColor = (rawData, x, y, width) => {
   };
 };
 
-const getBounds = async (image, scaleFactor) => {
+const getBounds = async (image: sharp.Sharp) => {
   const { data, info } = await image.clone().raw({ depth: 'char' }).toBuffer({ resolveWithObject: true });
-  const yBounds = getYboundsFromImage(data, info, scaleFactor);
-  const xBounds = getXBoundsFromImage(data, info, yBounds, scaleFactor);
+  const yBounds = getYboundsFromImage(data, info);
+  const xBounds = getXBoundsFromImage(data, info, yBounds);
   logger.info(`Bounds - x: ${xBounds} - y: ${yBounds}`);
 
   return {
@@ -191,126 +191,19 @@ const getBounds = async (image, scaleFactor) => {
   };
 };
 
-function tryClose() {
-  if (watcher) {
-    try {
-      watcher.close();
-      watcher.unwatch(currentWatchDirectory);
-      watcher = null;
-      currentWatchDirectory = null;
-    } catch (err) {
-      logger.info('Error closing screenshot watcher: ' + err.message);
-    }
-  }
-}
-
-function start() {
-  tryClose();
-
-  settings = require('./settings').get();
-
-  if (
-    settings.screenshotDir &&
-    settings.screenshotDir !== 'disabled' &&
-    settings.screenshotDir.length > 0
-  ) {
-    logger.info('Watching ' + settings.screenshotDir);
-    watcher = chokidar.watch(`${settings.screenshotDir}`, {
-      usePolling: true,
-      awaitWriteFinish: true,
-      ignoreInitial: true,
-      disableGlobbing: true,
-    });
-    watcher.on('add', async (path) => {
-      logger.info('Cropping new screenshot: ' + path);
-      const stats = await fs.stat(path);
-      emitter.emit('OCRStart', stats); 
-      process(path);
-    });
-    currentWatchDirectory = settings.screenshotDir;
-  } else {
-    logger.info('Screenshot directory is disabled');
-  }
-}
-
-async function process(file) {
-  const filepath = path.join(app.getPath('userData'), '.temp_capture');
-  const filePrefix = moment().format('YMMDDHHmmss');
-  if (file.length > 0) {
-    const kernel = [-1 / 8, -1 / 8, -1 / 8, -1 / 8, 2, -1 / 8, -1 / 8, -1 / 8, -1 / 8];
-    const image = await sharp(file).jpeg().sharpen();
-
-    // We might need to deal with scaleFactor later
-    // await image.metadata().then(({ width }) => {
-    //   // 1920 x 1080 image scaled up 3x;
-    //   // scale differently sized images proportionately
-    //   const scaleFactor = 3 * (1920 / width);
-    //   return image.resize(Math.round(width * scaleFactor))
-    // });
-    const metadata = await image.metadata();
-    const bounds = await getBounds(image);
-
-    // take only rightmost 14% of screen for area info (no area name is longer than this)
-    const areaInfoWidth = Math.floor(metadata.width * 0.14);
-
-    // Stats
-    const statsDimensions = {
-      width: areaInfoWidth,
-      height: bounds.y[0] - 24,
-      top: 24,
-      left: metadata.width - areaInfoWidth,
-    };
-    const statsPath = path.join(filepath, `${filePrefix}_area.png`);
-    logger.info(`Saving stats to ${statsPath} with dimenstions: `, statsDimensions);
-
-    const statsImage = await image
-      .clone()
-      .extract(statsDimensions)
-      .normalise({ lower: 0, upper: 100 })
-      .negate()
-      .greyscale()
-      .convolve({ width: 3, height: 3, kernel })
-      .jpeg()
-      .toBuffer();
-
-      
-    // MODS:
-    const modsDimensions = {
-      width: bounds.x[1] - bounds.x[0],
-      height: bounds.y[1] - bounds.y[0],
-      top: bounds.y[0],
-      left: bounds.x[0],
-    };
-    const modsPath = path.join(filepath, `${filePrefix}_mods.png`);
-    logger.info(`Saving mods to ${modsPath} with dimensions: `, modsDimensions);
-    
-    const modsImage = await image
-      .clone()
-      .extract(modsDimensions)
-      .normalise({ lower: 0, upper: 100 })
-      .negate()
-      .greyscale()
-      .convolve({ width: 3, height: 3, kernel })
-      .jpeg()
-      .toBuffer();
-    
-
-    await Promise.all([
-      OCRWatcher.processImageBuffer(statsImage, filePrefix, 'area'),
-      OCRWatcher.processImageBuffer(modsImage, filePrefix, 'mods')
-    ])
-    
-  }
-}
-
-async function processBuffer(buffer) {
+/**
+ * Main Processing function. It takes a file and processes it to get the mods and stats
+ * @param file String of the file location or Buffer of the image
+ * @returns Promise<void> Promise that resolves once the processing is done
+ */
+async function process(file: string | Buffer) {
   const filepath = path.join(app.getPath('userData'), '.dev_captures');
   require('fs').mkdirSync(filepath, { recursive: true });
   const filePrefix = moment().format('YMMDDHHmmss');
   // Kernel to use in a convolve to make text look better to be read.
   // const kernel = [-1 / 8, -1 / 8, -1 / 8, -1 / 8, 2, -1 / 8, -1 / 8, -1 / 8, -1 / 8];
 
-  const image = await sharp(buffer)
+  const image = await sharp(file)
     .trim({background: "#000000", threshold: 50})
     .toBuffer();
 
@@ -318,6 +211,7 @@ async function processBuffer(buffer) {
 
   const metadata = await sharp(image).metadata();
   const { width, height } = metadata;
+  if(!width || !height) throw new Error("Error in getting screenshot size");
   const halfWidth = Math.floor(width / 2);
   const halfDimensions = {
     left: halfWidth,
@@ -335,92 +229,53 @@ async function processBuffer(buffer) {
   resizedImage.clone().png().toFile(path.join(filepath, 'cropped-screenshot.png')); // TODO: Remove for prod
   const resizedImageBuffer = await resizedImage.clone().png().toBuffer();
 
-
-
-  try {
-    const bounds = await getBounds(resizedImage, Math.floor(scaleFactor));
-      
-    // We take only rightmost 14% of screen for area info (no area name is longer than this)
-    // 14% of 1920 is 269
-    const areaInfoWidth = 269 * sizeMultiplier
+  const bounds = await getBounds(resizedImage);
     
-    // Stats
-    const statsDimensions = {
-      width: areaInfoWidth,
-      height: bounds.y[0] - 24,
-      top: 24,
-      left: Math.floor((halfWidth * scaleFactor) - areaInfoWidth - 1),
-    };
+  // We take only rightmost 14% of screen for area info (no area name is longer than this)
+  // 14% of 1920 is 269
+  const areaInfoWidth = 269 * sizeMultiplier
+  
+  // Stats
+  const statsDimensions = {
+    width: areaInfoWidth,
+    height: bounds.y[0] - 24,
+    top: 24,
+    left: Math.floor((halfWidth * scaleFactor) - areaInfoWidth - 1),
+  };
 
-    const statsImage = await sharp(resizedImageBuffer)
-      .extract(statsDimensions)
-      .negate()
-      .normalise({ lower: 1, upper: 20 })
-      .resize(Math.floor(statsDimensions.width / 2))
-      .png()
-      .toBuffer();
-    
-    // MODS:
-    const modsDimensions = {
-      width: bounds.x[1] - bounds.x[0],
-      height: bounds.y[1] - bounds.y[0],
-      top: bounds.y[0] + 1,
-      left: bounds.x[0] - 1,
-    };
+  const statsImage = await sharp(resizedImageBuffer)
+    .extract(statsDimensions)
+    .negate()
+    .normalise({ lower: 1, upper: 20 })
+    .resize(Math.floor(statsDimensions.width / 2))
+    .png()
+    .toBuffer();
+  
+  // MODS:
+  const modsDimensions = {
+    width: bounds.x[1] - bounds.x[0],
+    height: bounds.y[1] - bounds.y[0],
+    top: bounds.y[0] + 1,
+    left: bounds.x[0] - 1,
+  };
 
-    const modsImage = await sharp(resizedImageBuffer)
-      .extract(modsDimensions)
-      .resize(Math.floor(modsDimensions.width / 3))
-      .png()
-      .toBuffer();
-    
+  const modsImage = await sharp(resizedImageBuffer)
+    .extract(modsDimensions)
+    .resize(Math.floor(modsDimensions.width / 3))
+    .png()
+    .toBuffer();
+  
 
-    await Promise.all([
-      OCRWatcher.processImageBuffer(statsImage, filePrefix, 'area'),
-      OCRWatcher.processImageBuffer(modsImage, filePrefix, 'mods')
-    ]);
-    sharp(modsImage).toFile(path.join(filepath, 'mods.jpg'));
-    sharp(statsImage).toFile(path.join(filepath, 'stats.jpg'));
-  } catch (e) {
-    logger.error("Error in mods detection", e);
-    emitter.emit('OCRError');
-    return;
-  }
+  await Promise.all([
+    OCRWatcher.processImageBuffer(statsImage, filePrefix, 'area'),
+    OCRWatcher.processImageBuffer(modsImage, filePrefix, 'mods')
+  ]);
+  sharp(modsImage).toFile(path.join(filepath, 'mods.jpg'));
+  sharp(statsImage).toFile(path.join(filepath, 'stats.jpg'));
+}
 
-    
-} 
-
-// function enhanceImage(image, scaleFactor) {
-//   image.scale(scaleFactor, Jimp.RESIZE_BEZIER);
-//   image.invert();
-//   image.greyscale();
-//   /*
-//   image.convolute([
-//     [0, 0, 0, 0, 0],
-//     [0, 0, -1, 0, 0],
-//     [0, -1, 5, -1, 0],
-//     [0, 0, -1, 0, 0],
-//     [0, 0, 0, 0, 0]
-//   ]);
-//   */
-//   image.convolute([
-//     [-1 / 8, -1 / 8, -1 / 8],
-//     [-1 / 8, 2, -1 / 8],
-//     [-1 / 8, -1 / 8, -1 / 8],
-//   ]);
-//   image.brightness(-0.43);
-//   image.contrast(0.75);
-// }
-
-function isBlue(rgba) {
-  // Old code:
-  // var hsv = convert.rgb.hsl([rgba.r, rgba.g, rgba.b]);
-  // map mod blue:
-  // hue 240
-  // saturation + value > 40
-  // red and green components equal and both > 70
+function isBlue(rgba: { r: any; g: any; b: any; }) {
   // rgb: 8888ff
-  // const isBlue = hsv[0] = 240 && hsv[1] + hsv[2] > 80 && rgba.r === rgba.g && rgba.r > 70;
 
   const blue = {
     r: 88,
@@ -430,7 +285,7 @@ function isBlue(rgba) {
   return comparePixelColors(rgba, blue, 20000);
 }
 
-function isOrange(rgba) {
+function isOrange(rgba: { r: any; g: any; b: any; }) {
   // rgb(111, 87, 73)
   const orange = {
     r: 150,
@@ -440,7 +295,7 @@ function isOrange(rgba) {
   return comparePixelColors(rgba, orange, 1000);
 }
 
-function comparePixelColors(pixel1, pixel2, tolerance) {
+function comparePixelColors(pixel1: { r: number; g: number; b: number; }, pixel2: { r: any; g: any; b: any; }, tolerance: number) {
   const { r, g, b } = {
     r: Math.abs(pixel1.r - pixel2.r),
     g: Math.abs(pixel1.g - pixel2.g),
@@ -449,14 +304,14 @@ function comparePixelColors(pixel1, pixel2, tolerance) {
   return r * r + g * g + b * b < tolerance;
 }
 
-function isBlack(rgba, tolerance) {
+function isBlack(rgba: { r?: any; g?: any; b?: any; }, tolerance: number) {
   const linear = ({} = rgba);
   for (const key in linear) {
     linear[key] =
       linear[key] <= 0.04045 ? linear[key] / 12.92 : Math.pow((linear[key] + 0.055) / 1.055, 2.4);
   }
   const { r, g, b } = linear;
-  const luminance = 0.2126 * linear.r + 0.7152 * linear.g + 0.0722 * linear.b;
+  const luminance = 0.2126 * r + 0.7152 * g + 0.0722 * b;
   const lstar =
     (luminance < 216 / 24389 ? luminance * (24389 / 27) : Math.pow(luminance, 1 / 3) * 116 - 16) /
     100;
@@ -480,18 +335,112 @@ function isBlack(rgba, tolerance) {
   // const bY = 0.072187;
 }
 
-function logFailedCapture(e) {
-  logger.info(`Error processing screenshot: ${e}`);
-  emitter.emit('OCRError');
+function registerWatcher(screenshotDir) {
+  logger.info('Watching ' + screenshotDir);
+  watcher = chokidar.watch(screenshotDir, {
+    usePolling: true,
+    awaitWriteFinish: true,
+    ignoreInitial: true,
+    disableGlobbing: true,
+  });
+  watcher.on('add', async (path) => {
+    logger.info('Cropping new screenshot: ' + path);
+    const stats = await fs.stat(path);
+    emitter.emit('OCRStart', stats); 
+    process(path);
+  });
 }
 
-function test(file) {
-  process(file);
+function unregisterWatcher() {
+  if (watcher) {
+    try {
+      watcher.close();
+      watcher = null;
+    } catch (err : any) {
+      const message = 'Error closing screenshot watcher' + (err.message ? `: ${err.message}` : '');
+      logger.error(message);
+    }
+  }
 }
+
+function registerCustomShortcut() {
+  logger.info('Registering custom screenshot shortcut');
+
+  globalShortcut.register(customShortcutTrigger, async () => {
+    emitter.emit('screenshot:capture');
+  })
+}
+
+function unregisterCustomShortcut() {
+  logger.info('Unregistering custom screenshot shortcut');
+  globalShortcut.unregister(customShortcutTrigger);
+}
+
+function registerListener() {
+  SettingsManager.registerListener('screenshots', (value) => {
+    const {
+      allowCustomShortcut, 
+      allowFolderWatch,
+      screenshotDir,
+    } = value;
+
+    if(allowFolderWatch && screenshotDir) {
+      registerWatcher(screenshotDir);
+    } else {
+      unregisterWatcher();
+    }
+
+    if(allowCustomShortcut) {
+      registerCustomShortcut();
+    } else {
+      unregisterCustomShortcut();
+    }
+  });
+}
+
+function start() {
+  unregisterWatcher();
+  unregisterCustomShortcut();
+  registerListener();
+
+  const settings = SettingsManager.getAll();
+
+  if(!settings.screenshots) {
+    const oldDir = settings.screenshotDir;
+    SettingsManager.set('screenshots', {
+      allowCustomShortcut: true,
+      allowFolderWatch: false,
+      screenshotDir: oldDir ?? 'disabled',
+    });
+  }
+  
+  if (
+    settings.screenshotDir &&
+    settings.screenshotDir !== 'disabled' &&
+    settings.screenshotDir.length > 0
+  ) {
+    registerWatcher(settings.screenshotDir);
+  }  else if (
+      settings.screenshots.allowFolderWatch &&
+      settings.screenshots.screenshotDir &&
+      settings.screenshots.screenshotDir !== 'disabled' &&
+      settings.screenshots.screenshotDir.length > 0
+  ) {
+    registerWatcher(settings.screenshots.screenshotDir);
+  } else {
+    logger.info('Screenshot directory is disabled');
+  }
+
+  if(settings.allowCustomShortcut) {
+    registerCustomShortcut();
+    logger.info('Custom shortcut is enabled');
+  }
+}
+
+
 
 export default {
   start,
   emitter,
-  test,
-  processBuffer,
+  process,
 };

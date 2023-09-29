@@ -90,6 +90,7 @@ class MainProcess {
   latestGeneratedAreaLevel?: string;
   latestGeneratedAreaSeed?: string;
   awaitingMapEntering: boolean = false;
+  screenshotLock: boolean = false;
 
   constructor() {
     this.mainWindow = new BrowserWindow({
@@ -128,7 +129,7 @@ class MainProcess {
 
     // Settings
     await SettingsManager.initialize();
-    if (!SettingsManager.settings.username) {
+    if (!SettingsManager.get('username')) {
       logger.error('No account name set. Please set your account name in the settings.');
     } else {
       const character = await SettingsManager.getCharacter();
@@ -138,13 +139,13 @@ class MainProcess {
         logger.info(`DB updated. Character: ${character.name}, League: ${character.league}`);
       } catch (e) {
         logger.error(
-          `Could not set DB up. (Current Account: ${SettingsManager.settings.username}})`
+          `Could not set DB up. (Current Account: ${SettingsManager.get('username')}})`
         );
         logger.error(e);
       }
     }
 
-    if (SettingsManager.settings.activeProfile && SettingsManager.settings.activeProfile.valid) {
+    if (SettingsManager.get('activeProfile') && SettingsManager.get('activeProfile').valid) {
       logger.info('Starting components');
       RateGetterV2.initialize();
       ClientTxtWatcher.start();
@@ -297,6 +298,44 @@ class MainProcess {
       logger.info(
         `Screenshot folder contains <span class='eventText'>${totalSize}</span> screenshots. Click <span class='eventText' style='cursor:pointer;' onclick='openShell("${dir}")'>here</span> to open it for cleanup`
       );
+    });
+    ScreenshotWatcher.emitter.on('areaInfoComplete', async (info) => {
+      if(this.screenshotLock) {
+        logger.info('Not accepting new screenshot orders while this screenshot is being parsed');
+        return;
+      } else {
+        modReadingTimer = moment();
+        this.screenshotLock = true;
+        logger.info('Map Info : Reading from screenshot');
+        RendererLogger.log({
+          messages: [
+            {
+              text: 'Map Info : Reading from screenshot',
+            },
+          ],
+        });
+  
+        const screenshot = OverlayController.screenshot();
+        const { width, height }  = OverlayController.targetBounds;
+        const nativeScreenshot = nativeImage
+                              .createFromBitmap(screenshot, { width: width, height: height })
+                              .toJPEG(100);
+        try {
+          await ScreenshotWatcher.process(nativeScreenshot);
+        } catch (e) {
+          logger.error('Error in screenshot processing', e);
+          RendererLogger.log({
+            messages: [
+              {
+                text: 'Error in screenshot processing. Check logs for more info.',
+                type: 'error',
+              },
+            ],
+          });
+        }
+        logger.info('Map info : Reading done');
+        this.screenshotLock = false;
+      }
     });
 
     RunParser.emitter.removeAllListeners();
@@ -720,7 +759,7 @@ class MainProcess {
                               .createFromBitmap(screenshot, { width: width, height: height })
                               .toJPEG(100);
         try {
-          await ScreenshotWatcher.processBuffer(nativeScreenshot);
+          await ScreenshotWatcher.process(nativeScreenshot);
         } catch (e) {
           logger.error('Error in screenshot processing', e);
           RendererLogger.log({
