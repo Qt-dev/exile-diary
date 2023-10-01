@@ -299,7 +299,7 @@ class MainProcess {
         `Screenshot folder contains <span class='eventText'>${totalSize}</span> screenshots. Click <span class='eventText' style='cursor:pointer;' onclick='openShell("${dir}")'>here</span> to open it for cleanup`
       );
     });
-    ScreenshotWatcher.emitter.on('areaInfoComplete', async (info) => {
+    ScreenshotWatcher.emitter.on('screenshot:capture', async (info) => {
       if(this.screenshotLock) {
         logger.info('Not accepting new screenshot orders while this screenshot is being parsed');
         return;
@@ -314,8 +314,9 @@ class MainProcess {
             },
           ],
         });
-  
+        this.overlayWindow.hide();
         const screenshot = OverlayController.screenshot();
+        this.overlayWindow.show();
         const { width, height }  = OverlayController.targetBounds;
         const nativeScreenshot = nativeImage
                               .createFromBitmap(screenshot, { width: width, height: height })
@@ -447,7 +448,7 @@ class MainProcess {
       logger.info('Generated map ' + level + ' ' + seed, '-', this.latestGeneratedAreaSeed);
       this.awaitingMapEntering = (seed !== this.latestGeneratedAreaSeed) && seed !== '1';
       if(seed !== '1') {
-      this.latestGeneratedAreaLevel = level;
+        this.latestGeneratedAreaLevel = level;
         this.latestGeneratedAreaSeed = seed;
         RunParser.setLatestGeneratedArea({ level });
       }
@@ -739,45 +740,6 @@ class MainProcess {
         }
       });
     }
-
-    let screenshotLock = false;
-    globalShortcut.register('Alt+CommandOrControl+F8', async () => {
-      if(screenshotLock) {
-        logger.info('Not accepting new screenshot orders while this screenshot is being parsed');
-        return;
-      } else {
-        modReadingTimer = moment();
-        screenshotLock = true;
-        logger.info('Map Info : Reading from screenshot');
-        RendererLogger.log({
-          messages: [
-            {
-              text: 'Map Info : Reading from screenshot',
-            },
-          ],
-        });
-        const screenshot = OverlayController.screenshot();
-        const { width, height }  = OverlayController.targetBounds;
-        const nativeScreenshot = nativeImage
-                              .createFromBitmap(screenshot, { width: width, height: height })
-                              .toJPEG(100);
-        try {
-          await ScreenshotWatcher.process(nativeScreenshot);
-        } catch (e) {
-          logger.error('Error in screenshot processing', e);
-          RendererLogger.log({
-            messages: [
-              {
-                text: 'Error in screenshot processing. Check logs for more info.',
-                type: 'error',
-              },
-            ],
-          });
-        }
-        logger.info('Map info : Reading done');
-        screenshotLock = false;
-      }
-    })
 
     if (isDev) {
       this.mainWindow.loadURL(devUrl);
