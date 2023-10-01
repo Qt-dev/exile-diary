@@ -446,8 +446,11 @@ class MainProcess {
     ClientTxtWatcher.emitter.on('generatedMap', ({ level, seed }) => {
       logger.info('Generated map ' + level + ' ' + seed, '-', this.latestGeneratedAreaSeed);
       this.awaitingMapEntering = (seed !== this.latestGeneratedAreaSeed) && seed !== '1';
+      if(seed !== '1') {
       this.latestGeneratedAreaLevel = level;
-      if(seed !== '1') this.latestGeneratedAreaSeed = seed;
+        this.latestGeneratedAreaSeed = seed;
+        RunParser.setLatestGeneratedArea({ level });
+      }
     });
     ClientTxtWatcher.emitter.on('enteredMap', (area) => {
       logger.info('Entered map ' + area);

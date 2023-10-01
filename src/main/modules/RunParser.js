@@ -9,6 +9,11 @@ const https = require('https');
 
 var DB;
 var emitter = new EventEmitter();
+let latestGeneratedArea = null;
+
+function setLatestGeneratedArea(area) {
+  latestGeneratedArea = area;
+}
 
 async function tryProcess(obj) {
   var event = obj.event;
@@ -95,8 +100,8 @@ async function tryProcess(obj) {
   var ignoreMapRun = false;
 
   DB.run(
-    'insert into areainfo(id, name) values(?, ?)',
-    [firstEvent.timestamp, firstEvent.area],
+    'insert into areainfo(id, name, level, depth) values(?, ?, ?, ?)',
+    [firstEvent.timestamp, firstEvent.area, latestGeneratedArea?.level ?? 0, latestGeneratedArea?.depth ?? 0],
     (err) => {
       if (err) {
         logger.info(
@@ -1471,6 +1476,7 @@ async function recheckGained(startDate = null) {
 export default {
   process,
   tryProcess,
+  setLatestGeneratedArea,
   emitter,
   recheckGained,
   getEvents,
