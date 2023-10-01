@@ -110,7 +110,7 @@ function getAreaInfo(lines) {
         continue;
       }
     }
-    const levelMatch = line.match(/[Ll]evel\s*:\s*([1-9][0-9])?/);
+    const levelMatch = line.match(/[Ll]evel\s*:*\s*([1-9][0-9])?/);
     if (levelMatch) {
       areaInfo.level = levelMatch.pop();
       continue;
