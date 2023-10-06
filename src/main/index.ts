@@ -85,7 +85,7 @@ class MainProcess {
   mainWindow: BrowserWindow;
   overlayWindow: BrowserWindow;
   isDownloadingUpdate: boolean;
-  autoUpdaterInterval?: NodeJS.Timer;
+  autoUpdaterInterval?: NodeJS.Timeout;
   saveBoundsCallback?: NodeJS.Timeout;
   latestGeneratedAreaLevel?: string;
   latestGeneratedAreaSeed?: string;
