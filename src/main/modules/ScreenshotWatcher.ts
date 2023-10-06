@@ -417,18 +417,19 @@ function start() {
     });
   }
   
+  const screenshotsSettings = SettingsManager.get('screenshots');
   if (
-      settings.screenshots.allowFolderWatch &&
-      settings.screenshots.screenshotDir &&
-      settings.screenshots.screenshotDir !== 'disabled' &&
-      settings.screenshots.screenshotDir.length > 0
+      screenshotsSettings.allowFolderWatch &&
+      screenshotsSettings.screenshotDir &&
+      screenshotsSettings.screenshotDir !== 'disabled' &&
+      screenshotsSettings.screenshotDir.length > 0
   ) {
-    registerWatcher(settings.screenshots.screenshotDir);
+    registerWatcher(screenshotsSettings.screenshotDir);
   } else {
     logger.info('Screenshot directory is disabled');
   }
 
-  if(settings.screenshots.allowCustomShortcut) {
+  if(screenshotsSettings.allowCustomShortcut) {
     registerCustomShortcut();
     logger.info('Custom shortcut is enabled');
   }
