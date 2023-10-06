@@ -12,7 +12,7 @@ const logger = Logger.scope('main-screenshot-watcher');
 
 // const SCREENSHOT_DIRECTORY_SIZE_LIMIT = 400;
 const sizeMultiplier = 3; // We read pixels from a screenshot that is in 1920x1080 * this multiplier
-const customShortcutTrigger = 'Alt+CommandOrControl+F8';
+const customShortcutTrigger = 'CommandOrControl+F8';
 let watcher: chokidar.FSWatcher | null;
 const emitter = new EventEmitter();
 
