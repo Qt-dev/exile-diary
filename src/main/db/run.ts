@@ -42,6 +42,13 @@ type Item = {
   rawdata: string;
 };
 
+type AreaInfo = {
+  id: number;
+  name: string;
+  level: number;
+  depth: number;
+};
+
 const getItemNameFromIcon = (iconUrl: string) => {
   if (iconUrl.includes('?')) {
     iconUrl = iconUrl.substring(0, iconUrl.indexOf('?'));
@@ -189,6 +196,73 @@ const Runs = {
 
     return run;
   },
+
+  getAreaInfo: async (areaId: number) => {
+    const query = 'select * from areainfo where id = ?';
+    const areaInfo = await DB.get(query, [areaId]) as AreaInfo;
+    return areaInfo;
+  },
+
+  insertAreaInfo: async ({ id, name, level, depth } : { id: number, name?: string, level?: number, depth?: number }) => {
+    const currentInfo : any = Runs.getAreaInfo(id);
+    const query = 'INSERT INTO areainfo(id, name, level, depth) VALUES(?, ?, ?, ?) ON CONFLICT(id) DO UPDATE SET name = ?, level = ?, depth = ?';
+    try {
+      if (!name && !level && !depth) throw "No areaInfo provided";
+      const params =  [id,
+        name ?? currentInfo.name, level ?? currentInfo.level, depth ?? currentInfo.depth,
+        name ?? currentInfo.name, level ?? currentInfo.level, depth ?? currentInfo.depth
+      ];
+      DB.run(query, params);
+      return true;
+    } catch (err) {
+      logger.error(err);
+      logger.error(`Error inserting new areaInfo for ${name}(${id}): ${JSON.stringify(err)}`);
+      return false;
+    }
+  },
+
+  deleteAreaInfo: async (areaId: number) => {
+    const query = 'DELETE FROM areainfo WHERE id = ?';
+    try {
+      DB.run(query, [areaId]);
+      return true;
+    } catch (err) {
+      logger.error(`Error deleting areaInfo for ${areaId}: ${JSON.stringify(err)}`);
+      return false;
+    }
+  },
+
+  insertMapMods: async (mapId: number, mods: string[]) => {
+    const query = 'INSERT INTO mapmods(area_id, id, mod) VALUES(?, ?, ?)';
+    try {
+      mods.forEach((mod, i) => {
+        DB.run(query, [mapId, i, mod]);
+      });
+      return true;
+    } catch (err) {
+      logger.error(`Error inserting new mapMods for ${mapId}:`);
+      logger.error(err);
+      return false;
+    }
+  },
+
+  deleteMapMods: async (mapId: number) => {
+    const query = 'DELETE FROM mapmods WHERE id = ?';
+    try {
+      DB.run(query, [mapId]);
+      return true;
+    } catch (err) {
+      logger.error(`Error deleting mapMods for ${mapId}: ${JSON.stringify(err)}`);
+      return false;
+    }
+  },
+
+  getAreaName: async (timestamp: string) => {
+    const query = 'select event_text as area from events where event_type=\'entered\' and id < ? order by id desc limit 1';
+    const { area } = await DB.get(query, [timestamp]) as { area: string };
+    return area;
+  }
+
 };
 
 export default Runs;

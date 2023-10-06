@@ -1,4 +1,4 @@
-import { app, BrowserWindow, ipcMain, dialog, Menu, session } from 'electron';
+import { app, BrowserWindow, ipcMain, dialog, Menu, session, globalShortcut, nativeImage } from 'electron';
 import { autoUpdater } from 'electron-updater';
 import * as path from 'path';
 import logger from 'electron-log';
@@ -29,6 +29,8 @@ enum SYSTEMS {
   MACOS = 'darwin',
 }
 const autoUpdaterIntervalTime = 1000 * 60 * 60; // 1 hour
+const isDev = require('electron-is-dev');
+let modReadingTimer : moment.Moment | null = null;
 
 // Initialize logger settings
 logger.initialize({ preload: true });
@@ -83,8 +85,12 @@ class MainProcess {
   mainWindow: BrowserWindow;
   overlayWindow: BrowserWindow;
   isDownloadingUpdate: boolean;
-  autoUpdaterInterval?: NodeJS.Timer;
+  autoUpdaterInterval?: NodeJS.Timeout;
   saveBoundsCallback?: NodeJS.Timeout;
+  latestGeneratedAreaLevel?: string;
+  latestGeneratedAreaSeed?: string;
+  awaitingMapEntering: boolean = false;
+  screenshotLock: boolean = false;
 
   constructor() {
     this.mainWindow = new BrowserWindow({
@@ -123,7 +129,7 @@ class MainProcess {
 
     // Settings
     await SettingsManager.initialize();
-    if (!SettingsManager.settings.username) {
+    if (!SettingsManager.get('username')) {
       logger.error('No account name set. Please set your account name in the settings.');
     } else {
       const character = await SettingsManager.getCharacter();
@@ -133,17 +139,17 @@ class MainProcess {
         logger.info(`DB updated. Character: ${character.name}, League: ${character.league}`);
       } catch (e) {
         logger.error(
-          `Could not set DB up. (Current Account: ${SettingsManager.settings.username}})`
+          `Could not set DB up. (Current Account: ${SettingsManager.get('username')}})`
         );
         logger.error(e);
       }
     }
 
-    if (SettingsManager.settings.activeProfile && SettingsManager.settings.activeProfile.valid) {
+    if (SettingsManager.get('activeProfile') && SettingsManager.get('activeProfile').valid) {
       logger.info('Starting components');
       RateGetterV2.initialize();
       ClientTxtWatcher.start();
-      ScreenshotWatcher.start();
+      await ScreenshotWatcher.start();
       OCRWatcher.start();
       // ItemFilter.load(); not working yet
     }
@@ -255,9 +261,8 @@ class MainProcess {
       let stats = `IIR: ${info.mapStats.iir} / IIQ: ${info.mapStats.iiq}`;
       if (info.mapStats.packsize && info.mapStats.packsize > 0)
         stats += ` / Pack Size: ${info.mapStats.packsize}`;
-      logger.info(
-        `Got area info for <span class='eventText'>${info.areaInfo.name}</span> (${tier} - ${stats})`
-      );
+      const modReadingDuration = moment().diff(modReadingTimer);
+      logger.info(`Got area info for ${info.areaInfo.name} (${tier} - ${stats}) in ${modReadingDuration}ms`);
       RendererLogger.log({
         messages: [
           {
@@ -280,6 +285,11 @@ class MainProcess {
     });
 
     ScreenshotWatcher.emitter.removeAllListeners();
+    ScreenshotWatcher.emitter.on('OCRStart', (stats) => {
+      logger.info('Reading mods from screenshot');
+      modReadingTimer = moment(stats.birthtime, moment.ISO_8601);
+      logger.info(moment().diff(modReadingTimer));
+    });
     ScreenshotWatcher.emitter.on('OCRError', () => {
       logger.info('Error getting area info from screenshot. Please try again');
     });
@@ -288,6 +298,45 @@ class MainProcess {
       logger.info(
         `Screenshot folder contains <span class='eventText'>${totalSize}</span> screenshots. Click <span class='eventText' style='cursor:pointer;' onclick='openShell("${dir}")'>here</span> to open it for cleanup`
       );
+    });
+    ScreenshotWatcher.emitter.on('screenshot:capture', async (info) => {
+      if(this.screenshotLock) {
+        logger.info('Not accepting new screenshot orders while this screenshot is being parsed');
+        return;
+      } else {
+        modReadingTimer = moment();
+        this.screenshotLock = true;
+        logger.info('Map Info : Reading from screenshot');
+        RendererLogger.log({
+          messages: [
+            {
+              text: 'Map Info : Reading from screenshot',
+            },
+          ],
+        });
+        this.overlayWindow.hide();
+        const screenshot = OverlayController.screenshot();
+        this.overlayWindow.show();
+        const { width, height }  = OverlayController.targetBounds;
+        const nativeScreenshot = nativeImage
+                              .createFromBitmap(screenshot, { width: width, height: height })
+                              .toJPEG(100);
+        try {
+          await ScreenshotWatcher.process(nativeScreenshot);
+        } catch (e) {
+          logger.error('Error in screenshot processing', e);
+          RendererLogger.log({
+            messages: [
+              {
+                text: 'Error in screenshot processing. Check logs for more info.',
+                type: 'error',
+              },
+            ],
+          });
+        }
+        logger.info('Map info : Reading done');
+        this.screenshotLock = false;
+      }
     });
 
     RunParser.emitter.removeAllListeners();
@@ -395,10 +444,22 @@ class MainProcess {
         `<span class='eventText'>${path} has not been updated recently even though the game is running. Please check if PoE is using a different Client.txt file.</span>`
       );
     });
+    ClientTxtWatcher.emitter.on('generatedMap', ({ level, seed }) => {
+      logger.info('Generated map ' + level + ' ' + seed, '-', this.latestGeneratedAreaSeed);
+      this.awaitingMapEntering = (seed !== this.latestGeneratedAreaSeed) && seed !== '1';
+      if(seed !== '1') {
+        this.latestGeneratedAreaLevel = level;
+        this.latestGeneratedAreaSeed = seed;
+        RunParser.setLatestGeneratedArea({ level });
+      }
+    });
     ClientTxtWatcher.emitter.on('enteredMap', (area) => {
       logger.info('Entered map ' + area);
-      this.sendToMain('current-run:started', { area });
-      this.sendToOverlay('current-run:started', { area });
+      if(this.awaitingMapEntering) {
+        this.awaitingMapEntering = false;
+        this.sendToMain('current-run:started', { area, level: this.latestGeneratedAreaLevel });
+        this.sendToOverlay('current-run:started', { area, level: this.latestGeneratedAreaLevel });
+      }
     });
 
     StashGetter.removeAllListeners();
@@ -605,7 +666,6 @@ class MainProcess {
     this.setupResizer();
 
     // Restarter for development
-    const isDev = require('electron-is-dev');
     if (isDev) {
       require('electron-reload')(__dirname, {
         electron: path.join(

@@ -71,6 +71,8 @@ const MainSettings = ({ settings, store }) => {
   const alternateSplinterPricing = !!settings.alternateSplinterPricing;
   const overlayEnabled = !!settings.overlayEnabled;
   const enableIncubatorAlert = !!settings.enableIncubatorAlert;
+  const enableScreenshotCustomShortcut = settings.screenshots && !!settings.screenshots.allowCustomShortcut;
+  const enableScreenshotFolderWatch = settings.screenshots && !!settings.screenshots.allowFolderWatch;
 
   const handleBack = () => {
     navigate('/');
@@ -96,6 +98,11 @@ const MainSettings = ({ settings, store }) => {
       alternateSplinterPricing: e.target.alternate_splinter_pricing.checked,
       overlayEnabled: e.target.overlay_enabled.checked,
       enableIncubatorAlert: e.target.enable_incubator_alert.checked,
+      screenshots: {
+        allowCustomShortcut: e.target.enable_screenshot_custom_shortcut.checked,
+        allowFolderWatch: e.target.enable_screenshot_folder_watch.checked,
+        screenshotDir: e.target.screenshot_location.value,
+      }
     };
     ipcRenderer.invoke('save-settings', { settings: data });
   };
@@ -237,6 +244,18 @@ const MainSettings = ({ settings, store }) => {
           <FormControlLabel
             control={<Checkbox id="enable_incubator_alert" defaultChecked={enableIncubatorAlert} />}
             label="Enable Incubator Running Out Alert"
+          />
+        </div>
+        <div className="Settings__Checkbox__Row">
+          <FormControlLabel
+            control={<Checkbox id="enable_screenshot_custom_shortcut" defaultChecked={enableScreenshotCustomShortcut} />}
+            label="Enable Custom Screenshot Shortcut (CTRL+F8)"
+          />
+        </div>
+        <div className="Settings__Checkbox__Row">
+          <FormControlLabel
+            control={<Checkbox id="enable_screenshot_folder_watch" defaultChecked={enableScreenshotFolderWatch} />}
+            label="Enable Screenshot Folder Monitoring"
           />
         </div>
         <Divider className="Settings__Separator" />

@@ -5,12 +5,19 @@ import { app } from 'electron';
 import DB from './db';
 import GGGAPI from './GGGAPI';
 import RateGetterV2 from './modules/RateGetterV2';
+import EventEmitter from 'events';
 
 const settingsPath = path.join(app.getPath('userData'), 'settings.json');
 
 class SettingsManager {
   settings: any;
   saveScheduler: NodeJS.Timeout | null = null;
+  eventEmitter = new EventEmitter();
+  eventKeyMatcher : {
+    [key: string] : {
+      callback: Function,
+    }
+  } = {}
 
   constructor() {
     this.settings = {};
@@ -25,6 +32,11 @@ class SettingsManager {
       await fs.writeFile(settingsPath, JSON.stringify({}));
     }
     this.settings = require(path.join(app.getPath('userData'), 'settings.json'));
+    
+    this.eventEmitter.on('change', (changedKey, value) => {
+      const match = this.eventKeyMatcher[changedKey];
+      if (match) match.callback(value);
+    });
   }
 
   async initializeDB(characterName: string) {
@@ -67,7 +79,7 @@ class SettingsManager {
     return this.settings[settingKey] ? JSON.parse(JSON.stringify(this.settings[settingKey])) : null;
   }
 
-  async set(key, value) {
+  async set(key: string, value: any) {
     if (key !== 'mainWindowBounds' && key !== 'poesessid')
       logger.info(`Set "${key}" to ${JSON.stringify(value)}`);
     if (key === 'poesessid') logger.info(`Set ${key}`);
@@ -82,6 +94,7 @@ class SettingsManager {
     )
       await this.initializeDB(value.characterName);
     this.settings[key] = value;
+    this.eventEmitter.emit('change', key, value);
     this.scheduleSave();
   }
 
@@ -110,6 +123,10 @@ class SettingsManager {
 
   needsActiveProfile() {
     return !this.settings.activeProfile?.characterName;
+  }
+
+  registerListener(key: string, callback: Function) {
+    this.eventKeyMatcher[key] = { callback }
   }
 }
 
