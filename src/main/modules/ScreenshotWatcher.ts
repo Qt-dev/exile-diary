@@ -30,8 +30,8 @@ const emitter = new EventEmitter();
  *
  * If we did not find the end of the box, we just return the total height as the bottom boundary.
  */
-const getYboundsFromImage = (rawImage: any, metadata: { height: number; width: number; }) => {
-  type lineData = { blue: number, black: number, total: number };
+const getYboundsFromImage = (rawImage: any, metadata: { height: number; width: number }) => {
+  type lineData = { blue: number; black: number; total: number };
   const batchSize = Math.floor(metadata.height / 5); // Size of the batch of rows to check together
   const firstLineMargin = 3; // Margin to make the top line a bit more readable
   const endDetectionHeight = 40; // Height of the bottom limit we detect (Answer to "After how many pixels do we consider this box to be done?")
@@ -46,14 +46,14 @@ const getYboundsFromImage = (rawImage: any, metadata: { height: number; width: n
   let lastLine = -1;
 
   while (!isDone && columnsOffset < metadata.height) {
-    const lines : lineData[] = [];
+    const lines: lineData[] = [];
 
     // On each Line in a batch
     for (let y = columnsOffset; y < batchSize + columnsOffset; y++) {
       let bluePixels = 0;
       let blackPixels = 0;
       let orangePixels = 0;
-      const colors : {r: number, g: number, b: number}[] = [];
+      const colors: { r: number; g: number; b: number }[] = [];
 
       // Check each pixel on each line for blueness or blackness
       for (let x = metadata.width - detectionWidth; x < metadata.width; x++) {
@@ -62,7 +62,7 @@ const getYboundsFromImage = (rawImage: any, metadata: { height: number; width: n
         if (isBlue(pixelColor)) {
           // logger.info(`Found blue pixel at x=${x} y=${y} (${JSON.stringify(pixelColor)}))`);
           bluePixels++;
-        } else if(isOrange(pixelColor)) {
+        } else if (isOrange(pixelColor)) {
           // logger.info(`Found orange pixel at x=${x} y=${y} (${JSON.stringify(pixelColor)}))`);
           orangePixels++;
         } else if (isBlack(pixelColor, 50)) {
@@ -79,14 +79,12 @@ const getYboundsFromImage = (rawImage: any, metadata: { height: number; width: n
 
       const lastLines = lines.slice(lines.length - endDetectionHeight - 2, lines.length - 2);
 
-      const isFirstLine = 
-        firstLine <= initialFirstLine &&
-        orangePixels > minOrangePixels;
+      const isFirstLine = firstLine <= initialFirstLine && orangePixels > minOrangePixels;
 
       // If we do not have a first line, and we are getting a first line with blues, this is the one
       if (isFirstLine) {
         logger.info(`Found first line of the mod box with ${orangePixels} oranges at y=${y}`);
-        firstLine = (y + marginAfterOrange) - firstLineMargin;
+        firstLine = y + marginAfterOrange - firstLineMargin;
       }
 
       const isEndOfBlackBackground =
@@ -99,7 +97,7 @@ const getYboundsFromImage = (rawImage: any, metadata: { height: number; width: n
       const isTooFarAfterBlueText =
         firstLine > initialFirstLine && // We detected a first line
         bluePixels < 1 && // No blue pixels on this line
-        y - endDetectionHeight > (firstLine + marginAfterOrange) && // We are at least endDetectionHeight away from first line
+        y - endDetectionHeight > firstLine + marginAfterOrange && // We are at least endDetectionHeight away from first line
         lastLines.length >= endDetectionHeight - 2 && // We have the right amount of lines to check (at least endDetectionHeight - 2)
         Math.max(...lastLines.map((line) => line.blue)) === 0; // The maximum amount of blue pixels in the batch is the same we're getting now
 
@@ -133,9 +131,9 @@ const getYboundsFromImage = (rawImage: any, metadata: { height: number; width: n
  * @param {Array} yBounds The y bounds of our mods box
  * @returns an X Boundary
  */
-const getXBoundsFromImage = (rawImage: any, metadata: { width: number; }, yBounds: number[]) => {
+const getXBoundsFromImage = (rawImage: any, metadata: { width: number }, yBounds: number[]) => {
   const widthMargin = 30;
-  const blueArray : number[] = [];
+  const blueArray: number[] = [];
   const imageWidth = metadata.width - 1;
   let xBoundary = 0;
 
@@ -179,7 +177,10 @@ const getPixelColor = (rawData: any[], x: number, y: number, width: number) => {
 };
 
 const getBounds = async (image: sharp.Sharp) => {
-  const { data, info } = await image.clone().raw({ depth: 'char' }).toBuffer({ resolveWithObject: true });
+  const { data, info } = await image
+    .clone()
+    .raw({ depth: 'char' })
+    .toBuffer({ resolveWithObject: true });
   const yBounds = getYboundsFromImage(data, info);
   const xBounds = getXBoundsFromImage(data, info, yBounds);
   logger.info(`Bounds - x: ${xBounds} - y: ${yBounds}`);
@@ -201,24 +202,25 @@ async function process(file: string | Buffer) {
   const filePrefix = moment().format('YMMDDHHmmss');
   // Kernel to use in a convolve to make text look better to be read.
   // const kernel = [-1 / 8, -1 / 8, -1 / 8, -1 / 8, 2, -1 / 8, -1 / 8, -1 / 8, -1 / 8];
-  
+
   const metadata = await sharp(file).metadata();
-  const { width : originalWidth, height: originalHeight } = metadata;
-  if(!originalWidth || !originalHeight) throw new Error("Error in getting screenshot size");
+  const { width: originalWidth, height: originalHeight } = metadata;
+  if (!originalWidth || !originalHeight) throw new Error('Error in getting screenshot size');
 
   // We need to split this into 2 pipelines because of an issue on Sharp where extract prevents trim from happening
   // https://github.com/lovell/sharp/issues/2103
   const image = await sharp(
     await sharp(file)
-      .extract({top: 0, left: 0, width: originalWidth, height: originalHeight - 10}) // We need to remove the bottom because screenshots have rounded corners and so the bottom corners break the trim
-      .toBuffer())
-    .trim({background: "#000000", threshold: 100})
+      .extract({ top: 0, left: 0, width: originalWidth, height: originalHeight - 10 }) // We need to remove the bottom because screenshots have rounded corners and so the bottom corners break the trim
+      .toBuffer()
+  )
+    .trim({ background: '#000000', threshold: 100 })
     .toBuffer();
 
   sharp(image).png().toFile(path.join(filepath, 'screenshot.png')); // TODO: Remove for prod
 
   const { width, height } = await sharp(image).metadata();
-  if(!width || !height) throw new Error("Error in getting screenshot size");
+  if (!width || !height) throw new Error('Error in getting screenshot size');
 
   const halfWidth = Math.floor(width / 2);
   const halfDimensions = {
@@ -234,22 +236,22 @@ async function process(file: string | Buffer) {
   const resizedImage = await sharp(image)
     .png()
     .extract(halfDimensions)
-    .resize({ width: Math.floor(halfWidth * scaleFactor)})
+    .resize({ width: Math.floor(halfWidth * scaleFactor) })
     .toBuffer();
   sharp(resizedImage).clone().png().toFile(path.join(filepath, 'cropped-screenshot.png')); // TODO: Remove for prod
   logger.info('Saved cropped screenshot');
   const bounds = await getBounds(sharp(resizedImage));
-    
+
   // We take only rightmost 14% of screen for area info (no area name is longer than this)
   // 14% of 1920 is 269
-  const areaInfoWidth = 269 * sizeMultiplier
-  
+  const areaInfoWidth = 269 * sizeMultiplier;
+
   // Stats
   const statsDimensions = {
     width: areaInfoWidth - 3 * sizeMultiplier, // We strip the right, it will always be a border
-    height: bounds.y[0] - (28 * sizeMultiplier) - (50), // We strip the top margin above the area text as well as the bottom margin between boxes
+    height: bounds.y[0] - 28 * sizeMultiplier - 50, // We strip the top margin above the area text as well as the bottom margin between boxes
     top: 28 * sizeMultiplier,
-    left: Math.floor((halfWidth * scaleFactor) - areaInfoWidth - 1),
+    left: Math.floor(halfWidth * scaleFactor - areaInfoWidth - 1),
   };
   logger.info('before stats', statsDimensions);
 
@@ -268,7 +270,7 @@ async function process(file: string | Buffer) {
     // .normalise({ lower: 2, upper: 35 })
     .toBuffer();
   sharp(statsImage).toFile(path.join(filepath, 'stats.jpg'));
-  
+
   // MODS:
   const modsDimensions = {
     width: bounds.x[1] - bounds.x[0],
@@ -284,15 +286,14 @@ async function process(file: string | Buffer) {
     .png()
     .toBuffer();
   sharp(modsImage).toFile(path.join(filepath, 'mods.jpg'));
-  
 
   await Promise.all([
     OCRWatcher.processImageBuffer(statsImage, filePrefix, 'area'),
-    OCRWatcher.processImageBuffer(modsImage, filePrefix, 'mods')
+    OCRWatcher.processImageBuffer(modsImage, filePrefix, 'mods'),
   ]);
 }
 
-function isBlue(rgba: { r: any; g: any; b: any; }) {
+function isBlue(rgba: { r: any; g: any; b: any }) {
   // rgb: 8888ff
 
   const blue = {
@@ -303,7 +304,7 @@ function isBlue(rgba: { r: any; g: any; b: any; }) {
   return comparePixelColors(rgba, blue, 20000);
 }
 
-function isOrange(rgba: { r: any; g: any; b: any; }) {
+function isOrange(rgba: { r: any; g: any; b: any }) {
   // rgb(111, 87, 73)
   const orange = {
     r: 150,
@@ -313,7 +314,11 @@ function isOrange(rgba: { r: any; g: any; b: any; }) {
   return comparePixelColors(rgba, orange, 2000);
 }
 
-function comparePixelColors(pixel1: { r: number; g: number; b: number; }, pixel2: { r: any; g: any; b: any; }, tolerance: number) {
+function comparePixelColors(
+  pixel1: { r: number; g: number; b: number },
+  pixel2: { r: any; g: any; b: any },
+  tolerance: number
+) {
   const { r, g, b } = {
     r: Math.abs(pixel1.r - pixel2.r),
     g: Math.abs(pixel1.g - pixel2.g),
@@ -322,7 +327,7 @@ function comparePixelColors(pixel1: { r: number; g: number; b: number; }, pixel2
   return r * r + g * g + b * b < tolerance;
 }
 
-function isBlack(rgba: { r?: any; g?: any; b?: any; }, tolerance: number) {
+function isBlack(rgba: { r?: any; g?: any; b?: any }, tolerance: number) {
   const linear = ({} = rgba);
   for (const key in linear) {
     linear[key] =
@@ -348,7 +353,7 @@ function registerWatcher(screenshotDir) {
   watcher.on('add', async (path) => {
     logger.info('Cropping new screenshot: ' + path);
     const stats = await fs.stat(path);
-    emitter.emit('OCRStart', stats); 
+    emitter.emit('OCRStart', stats);
     process(path);
   });
 }
@@ -358,7 +363,7 @@ function unregisterWatcher() {
     try {
       watcher.close();
       watcher = null;
-    } catch (err : any) {
+    } catch (err: any) {
       const message = 'Error closing screenshot watcher' + (err.message ? `: ${err.message}` : '');
       logger.error(message);
     }
@@ -369,9 +374,9 @@ function registerCustomShortcut() {
   logger.info('Registering custom screenshot shortcut');
 
   globalShortcut.register(customShortcutTrigger, async () => {
-    logger.info("Capturing?");
+    logger.info('Capturing?');
     emitter.emit('screenshot:capture');
-  })
+  });
 }
 
 function unregisterCustomShortcut() {
@@ -381,19 +386,15 @@ function unregisterCustomShortcut() {
 
 function registerListener() {
   SettingsManager.registerListener('screenshots', (value) => {
-    const {
-      allowCustomShortcut, 
-      allowFolderWatch,
-      screenshotDir,
-    } = value;
+    const { allowCustomShortcut, allowFolderWatch, screenshotDir } = value;
 
-    if(allowFolderWatch && screenshotDir) {
+    if (allowFolderWatch && screenshotDir) {
       registerWatcher(screenshotDir);
     } else {
       unregisterWatcher();
     }
 
-    if(allowCustomShortcut) {
+    if (allowCustomShortcut) {
       registerCustomShortcut();
     } else {
       unregisterCustomShortcut();
@@ -408,7 +409,7 @@ function start() {
 
   const settings = SettingsManager.getAll();
 
-  if(!settings.screenshots) {
+  if (!settings.screenshots) {
     const oldDir = settings.screenshotDir;
     SettingsManager.set('screenshots', {
       allowCustomShortcut: true,
@@ -416,26 +417,24 @@ function start() {
       screenshotDir: oldDir ?? 'disabled',
     });
   }
-  
+
   const screenshotsSettings = SettingsManager.get('screenshots');
   if (
-      screenshotsSettings.allowFolderWatch &&
-      screenshotsSettings.screenshotDir &&
-      screenshotsSettings.screenshotDir !== 'disabled' &&
-      screenshotsSettings.screenshotDir.length > 0
+    screenshotsSettings.allowFolderWatch &&
+    screenshotsSettings.screenshotDir &&
+    screenshotsSettings.screenshotDir !== 'disabled' &&
+    screenshotsSettings.screenshotDir.length > 0
   ) {
     registerWatcher(screenshotsSettings.screenshotDir);
   } else {
     logger.info('Screenshot directory is disabled');
   }
 
-  if(screenshotsSettings.allowCustomShortcut) {
+  if (screenshotsSettings.allowCustomShortcut) {
     registerCustomShortcut();
     logger.info('Custom shortcut is enabled');
   }
 }
-
-
 
 export default {
   start,

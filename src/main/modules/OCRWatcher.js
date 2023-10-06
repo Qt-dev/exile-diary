@@ -49,9 +49,9 @@ function test(filename) {
 }
 
 async function setupScheduler() {
-  for(let i = 0; i < numOfWorkers; i++) {
-    const worker = await createWorker('eng', 1, { 
-      langPath: process.resourcesPath, 
+  for (let i = 0; i < numOfWorkers; i++) {
+    const worker = await createWorker('eng', 1, {
+      langPath: process.resourcesPath,
       gzip: false,
       // logger: m => logger.info(m),
     });
@@ -157,7 +157,7 @@ async function processImageBuffer(buffer, timestamp, type) {
       data: { text },
     } = await scheduler.addJob('recognize', buffer);
 
-    // const filename = path.basename(file); 
+    // const filename = path.basename(file);
     // const timestamp = filename.substring(0, filename.indexOf('_'));
     const lines = [];
     text.split('\n').forEach((line) => {
@@ -176,16 +176,16 @@ async function processImageBuffer(buffer, timestamp, type) {
       }
 
       try {
-        if(area.name) {
+        if (area.name) {
           await DB.insertAreaInfo({
             id: timestamp,
             name: area.name,
             level: area.level,
-            depth: area.depth
+            depth: area.depth,
           });
           mapInfoManager.setAreaInfo(area);
           mapInfoManager.checkAreaInfoComplete();
-        } else { 
+        } else {
           throw 'No area name found';
         }
       } catch (e) {
@@ -210,7 +210,7 @@ async function processImageBuffer(buffer, timestamp, type) {
       } catch (e) {
         cleanFailedOCR(e, timestamp);
       }
-    } 
+    }
   } catch (e) {
     logger.error('Error in fetching OCR text');
     logger.error(e);

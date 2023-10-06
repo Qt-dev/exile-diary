@@ -47,7 +47,7 @@ const MainSettings = ({ settings, store }) => {
   const clientFileLocationRef = useRef(clientFileLocation);
   const handleOpenClientLocation = (e) => {
     e.preventDefault();
-    const { path : filePath, name } = e.target.files[0];
+    const { path: filePath, name } = e.target.files[0];
     setClientFileLocation(filePath.endsWith(name) ? filePath : path.join(filePath, name));
   };
 
@@ -71,8 +71,10 @@ const MainSettings = ({ settings, store }) => {
   const alternateSplinterPricing = !!settings.alternateSplinterPricing;
   const overlayEnabled = !!settings.overlayEnabled;
   const enableIncubatorAlert = !!settings.enableIncubatorAlert;
-  const enableScreenshotCustomShortcut = settings.screenshots && !!settings.screenshots.allowCustomShortcut;
-  const enableScreenshotFolderWatch = settings.screenshots && !!settings.screenshots.allowFolderWatch;
+  const enableScreenshotCustomShortcut =
+    settings.screenshots && !!settings.screenshots.allowCustomShortcut;
+  const enableScreenshotFolderWatch =
+    settings.screenshots && !!settings.screenshots.allowFolderWatch;
 
   const handleBack = () => {
     navigate('/');
@@ -102,7 +104,7 @@ const MainSettings = ({ settings, store }) => {
         allowCustomShortcut: e.target.enable_screenshot_custom_shortcut.checked,
         allowFolderWatch: e.target.enable_screenshot_folder_watch.checked,
         screenshotDir: e.target.screenshot_location.value,
-      }
+      },
     };
     ipcRenderer.invoke('save-settings', { settings: data });
   };
@@ -248,13 +250,23 @@ const MainSettings = ({ settings, store }) => {
         </div>
         <div className="Settings__Checkbox__Row">
           <FormControlLabel
-            control={<Checkbox id="enable_screenshot_custom_shortcut" defaultChecked={enableScreenshotCustomShortcut} />}
+            control={
+              <Checkbox
+                id="enable_screenshot_custom_shortcut"
+                defaultChecked={enableScreenshotCustomShortcut}
+              />
+            }
             label="Enable Custom Screenshot Shortcut (CTRL+F8)"
           />
         </div>
         <div className="Settings__Checkbox__Row">
           <FormControlLabel
-            control={<Checkbox id="enable_screenshot_folder_watch" defaultChecked={enableScreenshotFolderWatch} />}
+            control={
+              <Checkbox
+                id="enable_screenshot_folder_watch"
+                defaultChecked={enableScreenshotFolderWatch}
+              />
+            }
             label="Enable Screenshot Folder Monitoring"
           />
         </div>

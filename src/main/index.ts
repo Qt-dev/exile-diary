@@ -1,4 +1,13 @@
-import { app, BrowserWindow, ipcMain, dialog, Menu, session, globalShortcut, nativeImage } from 'electron';
+import {
+  app,
+  BrowserWindow,
+  ipcMain,
+  dialog,
+  Menu,
+  session,
+  globalShortcut,
+  nativeImage,
+} from 'electron';
 import { autoUpdater } from 'electron-updater';
 import * as path from 'path';
 import logger from 'electron-log';
@@ -30,7 +39,7 @@ enum SYSTEMS {
 }
 const autoUpdaterIntervalTime = 1000 * 60 * 60; // 1 hour
 const isDev = require('electron-is-dev');
-let modReadingTimer : moment.Moment | null = null;
+let modReadingTimer: moment.Moment | null = null;
 
 // Initialize logger settings
 logger.initialize({ preload: true });
@@ -138,9 +147,7 @@ class MainProcess {
         SettingsManager.initializeDB(character.name);
         logger.info(`DB updated. Character: ${character.name}, League: ${character.league}`);
       } catch (e) {
-        logger.error(
-          `Could not set DB up. (Current Account: ${SettingsManager.get('username')}})`
-        );
+        logger.error(`Could not set DB up. (Current Account: ${SettingsManager.get('username')}})`);
         logger.error(e);
       }
     }
@@ -262,7 +269,9 @@ class MainProcess {
       if (info.mapStats.packsize && info.mapStats.packsize > 0)
         stats += ` / Pack Size: ${info.mapStats.packsize}`;
       const modReadingDuration = moment().diff(modReadingTimer);
-      logger.info(`Got area info for ${info.areaInfo.name} (${tier} - ${stats}) in ${modReadingDuration}ms`);
+      logger.info(
+        `Got area info for ${info.areaInfo.name} (${tier} - ${stats}) in ${modReadingDuration}ms`
+      );
       RendererLogger.log({
         messages: [
           {
@@ -300,7 +309,7 @@ class MainProcess {
       );
     });
     ScreenshotWatcher.emitter.on('screenshot:capture', async (info) => {
-      if(this.screenshotLock) {
+      if (this.screenshotLock) {
         logger.info('Not accepting new screenshot orders while this screenshot is being parsed');
         return;
       } else {
@@ -317,10 +326,10 @@ class MainProcess {
         this.overlayWindow.hide();
         const screenshot = OverlayController.screenshot();
         this.overlayWindow.show();
-        const { width, height }  = OverlayController.targetBounds;
+        const { width, height } = OverlayController.targetBounds;
         const nativeScreenshot = nativeImage
-                              .createFromBitmap(screenshot, { width: width, height: height })
-                              .toJPEG(100);
+          .createFromBitmap(screenshot, { width: width, height: height })
+          .toJPEG(100);
         try {
           await ScreenshotWatcher.process(nativeScreenshot);
         } catch (e) {
@@ -446,8 +455,8 @@ class MainProcess {
     });
     ClientTxtWatcher.emitter.on('generatedMap', ({ level, seed }) => {
       logger.info('Generated map ' + level + ' ' + seed, '-', this.latestGeneratedAreaSeed);
-      this.awaitingMapEntering = (seed !== this.latestGeneratedAreaSeed) && seed !== '1';
-      if(seed !== '1') {
+      this.awaitingMapEntering = seed !== this.latestGeneratedAreaSeed && seed !== '1';
+      if (seed !== '1') {
         this.latestGeneratedAreaLevel = level;
         this.latestGeneratedAreaSeed = seed;
         RunParser.setLatestGeneratedArea({ level });
@@ -455,7 +464,7 @@ class MainProcess {
     });
     ClientTxtWatcher.emitter.on('enteredMap', (area) => {
       logger.info('Entered map ' + area);
-      if(this.awaitingMapEntering) {
+      if (this.awaitingMapEntering) {
         this.awaitingMapEntering = false;
         this.sendToMain('current-run:started', { area, level: this.latestGeneratedAreaLevel });
         this.sendToOverlay('current-run:started', { area, level: this.latestGeneratedAreaLevel });
@@ -692,48 +701,48 @@ class MainProcess {
       expirationDate: moment().add(1, 'week').unix(),
     });
 
-      app.on('second-instance', (event, commandLine, workingDirectory) => {
-        // Someone tried to run a second instance, we should focus our window.
-        if (this.mainWindow) {
-          if (this.mainWindow.isMinimized()) this.mainWindow.restore();
-          this.mainWindow.focus();
-        }
+    app.on('second-instance', (event, commandLine, workingDirectory) => {
+      // Someone tried to run a second instance, we should focus our window.
+      if (this.mainWindow) {
+        if (this.mainWindow.isMinimized()) this.mainWindow.restore();
+        this.mainWindow.focus();
+      }
 
-        const callCommand = commandLine.pop();
-        const params = new URLSearchParams(callCommand?.split('?')[1]);
-        const code = params.get('code');
-        const state = params.get('state');
+      const callCommand = commandLine.pop();
+      const params = new URLSearchParams(callCommand?.split('?')[1]);
+      const code = params.get('code');
+      const state = params.get('state');
 
-        if (code && state && AuthManager.verifyState(state)) {
-          logger.info('We got an access token from Lambda');
-          AuthManager.getOauthToken(code)
-            .then(AuthManager.saveToken)
-            .then(async () => {
-              const isAuthenticated = await AuthManager.isAuthenticated(true);
-              if (isAuthenticated) {
-                this.sendToMain('oauth:auth-success');
-                const character = await GGGAPI.getCurrentCharacter();
-                const activeProfile = SettingsManager.get('activeProfile');
-                if (
-                  !activeProfile ||
-                  !activeProfile.valid ||
-                  !activeProfile.characterName ||
-                  !activeProfile.league
-                ) {
-                  SettingsManager.set('activeProfile', {
-                    characterName: character.name,
-                    league: character.league,
-                    valid: true,
-                  });
-                }
+      if (code && state && AuthManager.verifyState(state)) {
+        logger.info('We got an access token from Lambda');
+        AuthManager.getOauthToken(code)
+          .then(AuthManager.saveToken)
+          .then(async () => {
+            const isAuthenticated = await AuthManager.isAuthenticated(true);
+            if (isAuthenticated) {
+              this.sendToMain('oauth:auth-success');
+              const character = await GGGAPI.getCurrentCharacter();
+              const activeProfile = SettingsManager.get('activeProfile');
+              if (
+                !activeProfile ||
+                !activeProfile.valid ||
+                !activeProfile.characterName ||
+                !activeProfile.league
+              ) {
+                SettingsManager.set('activeProfile', {
+                  characterName: character.name,
+                  league: character.league,
+                  valid: true,
+                });
               }
-            });
-        } else {
-          logger.info('No access token from Lambda', code, state, AuthManager.getState());
-          logger.info(callCommand);
-          logger.info(commandLine);
-        }
-      });
+            }
+          });
+      } else {
+        logger.info('No access token from Lambda', code, state, AuthManager.getState());
+        logger.info(callCommand);
+        logger.info(commandLine);
+      }
+    });
 
     if (isDev) {
       this.mainWindow.loadURL(devUrl);
@@ -754,7 +763,7 @@ app.on('ready', () => {
     logger.error('Exile Diary is already started, closing the new instance.');
     app.quit();
   } else {
-  const mainProcess = new MainProcess();
-  mainProcess.startWindows();
+    const mainProcess = new MainProcess();
+    mainProcess.startWindows();
   }
 });

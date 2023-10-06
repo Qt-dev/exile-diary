@@ -101,7 +101,12 @@ async function tryProcess(obj) {
 
   DB.run(
     'insert into areainfo(id, name, level, depth) values(?, ?, ?, ?)',
-    [firstEvent.timestamp, firstEvent.area, latestGeneratedArea?.level ?? 0, latestGeneratedArea?.depth ?? 0],
+    [
+      firstEvent.timestamp,
+      firstEvent.area,
+      latestGeneratedArea?.level ?? 0,
+      latestGeneratedArea?.depth ?? 0,
+    ],
     (err) => {
       if (err) {
         logger.info(

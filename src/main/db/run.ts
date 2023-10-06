@@ -199,18 +199,34 @@ const Runs = {
 
   getAreaInfo: async (areaId: number) => {
     const query = 'select * from areainfo where id = ?';
-    const areaInfo = await DB.get(query, [areaId]) as AreaInfo;
+    const areaInfo = (await DB.get(query, [areaId])) as AreaInfo;
     return areaInfo;
   },
 
-  insertAreaInfo: async ({ id, name, level, depth } : { id: number, name?: string, level?: number, depth?: number }) => {
-    const currentInfo : any = Runs.getAreaInfo(id);
-    const query = 'INSERT INTO areainfo(id, name, level, depth) VALUES(?, ?, ?, ?) ON CONFLICT(id) DO UPDATE SET name = ?, level = ?, depth = ?';
+  insertAreaInfo: async ({
+    id,
+    name,
+    level,
+    depth,
+  }: {
+    id: number;
+    name?: string;
+    level?: number;
+    depth?: number;
+  }) => {
+    const currentInfo: any = Runs.getAreaInfo(id);
+    const query =
+      'INSERT INTO areainfo(id, name, level, depth) VALUES(?, ?, ?, ?) ON CONFLICT(id) DO UPDATE SET name = ?, level = ?, depth = ?';
     try {
-      if (!name && !level && !depth) throw "No areaInfo provided";
-      const params =  [id,
-        name ?? currentInfo.name, level ?? currentInfo.level, depth ?? currentInfo.depth,
-        name ?? currentInfo.name, level ?? currentInfo.level, depth ?? currentInfo.depth
+      if (!name && !level && !depth) throw 'No areaInfo provided';
+      const params = [
+        id,
+        name ?? currentInfo.name,
+        level ?? currentInfo.level,
+        depth ?? currentInfo.depth,
+        name ?? currentInfo.name,
+        level ?? currentInfo.level,
+        depth ?? currentInfo.depth,
       ];
       DB.run(query, params);
       return true;
@@ -258,11 +274,11 @@ const Runs = {
   },
 
   getAreaName: async (timestamp: string) => {
-    const query = 'select event_text as area from events where event_type=\'entered\' and id < ? order by id desc limit 1';
-    const { area } = await DB.get(query, [timestamp]) as { area: string };
+    const query =
+      "select event_text as area from events where event_type='entered' and id < ? order by id desc limit 1";
+    const { area } = (await DB.get(query, [timestamp])) as { area: string };
     return area;
-  }
-
+  },
 };
 
 export default Runs;

@@ -13,11 +13,11 @@ class SettingsManager {
   settings: any;
   saveScheduler: NodeJS.Timeout | null = null;
   eventEmitter = new EventEmitter();
-  eventKeyMatcher : {
-    [key: string] : {
-      callback: Function,
-    }
-  } = {}
+  eventKeyMatcher: {
+    [key: string]: {
+      callback: Function;
+    };
+  } = {};
 
   constructor() {
     this.settings = {};
@@ -32,7 +32,7 @@ class SettingsManager {
       await fs.writeFile(settingsPath, JSON.stringify({}));
     }
     this.settings = require(path.join(app.getPath('userData'), 'settings.json'));
-    
+
     this.eventEmitter.on('change', (changedKey, value) => {
       const match = this.eventKeyMatcher[changedKey];
       if (match) match.callback(value);
@@ -126,7 +126,7 @@ class SettingsManager {
   }
 
   registerListener(key: string, callback: Function) {
-    this.eventKeyMatcher[key] = { callback }
+    this.eventKeyMatcher[key] = { callback };
   }
 }
 
