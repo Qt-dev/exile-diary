@@ -47,7 +47,8 @@ const MainSettings = ({ settings, store }) => {
   const clientFileLocationRef = useRef(clientFileLocation);
   const handleOpenClientLocation = (e) => {
     e.preventDefault();
-    setClientFileLocation(path.join(e.target.files[0].path, e.target.files[0].name));
+    const { path : filePath, name } = e.target.files[0];
+    setClientFileLocation(filePath.endsWith(name) ? filePath : path.join(filePath, name));
   };
 
   // Screenshot Folder Location
