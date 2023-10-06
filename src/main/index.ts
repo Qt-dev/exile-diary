@@ -632,11 +632,6 @@ class MainProcess {
       expirationDate: moment().add(1, 'week').unix(),
     });
 
-    const gotTheLock = app.requestSingleInstanceLock();
-
-    if (!gotTheLock) {
-      app.quit();
-    } else {
       app.on('second-instance', (event, commandLine, workingDirectory) => {
         // Someone tried to run a second instance, we should focus our window.
         if (this.mainWindow) {
@@ -679,7 +674,6 @@ class MainProcess {
           logger.info(commandLine);
         }
       });
-    }
 
     if (isDev) {
       this.mainWindow.loadURL(devUrl);
@@ -694,6 +688,13 @@ class MainProcess {
 }
 
 app.on('ready', () => {
+  const gotTheLock = app.requestSingleInstanceLock();
+
+  if (!gotTheLock) {
+    logger.error('Exile Diary is already started, closing the new instance.');
+    app.quit();
+  } else {
   const mainProcess = new MainProcess();
   mainProcess.startWindows();
+  }
 });
