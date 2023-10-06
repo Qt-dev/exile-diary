@@ -144,7 +144,7 @@
     "nodejs-tail": "^1.1.1",
     "opn": "^6.0.0",
     "pastebin-js": "^1.0.6",
-    "postcss": "^8.4.4",
+    "postcss": "^8.4.31",
     "postcss-flexbugs-fixes": "^5.0.2",
     "postcss-loader": "^6.2.1",
     "postcss-normalize": "^10.0.1",
