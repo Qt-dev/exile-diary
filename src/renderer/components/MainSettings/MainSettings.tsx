@@ -248,7 +248,7 @@ const MainSettings = ({ settings, store }) => {
         <div className="Settings__Checkbox__Row">
           <FormControlLabel
             control={<Checkbox id="enable_screenshot_custom_shortcut" defaultChecked={enableScreenshotCustomShortcut} />}
-            label="Enable Custom Screenshot Shortcut (CTRL+ALT+F8)"
+            label="Enable Custom Screenshot Shortcut (CTRL+F8)"
           />
         </div>
         <div className="Settings__Checkbox__Row">
