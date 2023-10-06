@@ -34,9 +34,9 @@ const getYboundsFromImage = (rawImage: any, metadata: { height: number; width: n
   type lineData = { blue: number, black: number, total: number };
   const batchSize = Math.floor(metadata.height / 5); // Size of the batch of rows to check together
   const firstLineMargin = 3; // Margin to make the top line a bit more readable
-  const endDetectionHeight = 50; // Height of the bottom limit we detect (Answer to "After how many pixels do we consider this box to be done?")
-  const detectionWidth = 30; // Number of pixels to check for detection. We do not need the full line but we need enough pixels to start capturing blue pixels
-  const marginAfterOrange = 50;
+  const endDetectionHeight = 40; // Height of the bottom limit we detect (Answer to "After how many pixels do we consider this box to be done?")
+  const detectionWidth = 40; // Number of pixels to check for detection. We do not need the full line but we need enough pixels to start capturing blue pixels
+  const marginAfterOrange = 85; // Margin after the first orange line to start checking for the end of the box. Distance between bottom of stats and beginning of first mod (-5 px to give room)
   const minOrangePixels = 20;
   const initialFirstLine = 200;
 
@@ -107,7 +107,6 @@ const getYboundsFromImage = (rawImage: any, metadata: { height: number; width: n
         logger.info(
           `Found last line of the mod box on y=${y}. isEndOfBlackBackground=${isEndOfBlackBackground} & isTooFarAfterBlueText=${isTooFarAfterBlueText}`
         );
-        logger.info(`Last lines: ${JSON.stringify(lastLines)}`);
         lastLine = y;
         isDone = true;
         break;
@@ -135,7 +134,7 @@ const getYboundsFromImage = (rawImage: any, metadata: { height: number; width: n
  * @returns an X Boundary
  */
 const getXBoundsFromImage = (rawImage: any, metadata: { width: number; }, yBounds: number[]) => {
-  const widthMargin = 20;
+  const widthMargin = 30;
   const blueArray : number[] = [];
   const imageWidth = metadata.width - 1;
   let xBoundary = 0;
@@ -281,7 +280,7 @@ async function process(file: string | Buffer) {
 
   const modsImage = await sharp(resizedImage)
     .extract(modsDimensions)
-    .resize(Math.floor(modsDimensions.width / 3))
+    .resize(Math.floor(modsDimensions.width / 2))
     .png()
     .toBuffer();
   sharp(modsImage).toFile(path.join(filepath, 'mods.jpg'));
