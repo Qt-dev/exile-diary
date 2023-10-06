@@ -50,14 +50,12 @@ function test(filename) {
 
 async function setupScheduler() {
   for(let i = 0; i < numOfWorkers; i++) {
-    const worker = await createWorker({ 
+    const worker = await createWorker('eng', 1, { 
       langPath: process.resourcesPath, 
       gzip: false,
       // logger: m => logger.info(m),
     });
     await worker.load();
-    await worker.loadLanguage('eng');
-    await worker.initialize('eng');
     await worker.setParameters({
       tessedit_char_whitelist:
         "1234567890abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ:-' ,%+",
