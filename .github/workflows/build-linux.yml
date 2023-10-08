@@ -21,5 +21,10 @@ jobs:
         run: npm install  
       - name: Build app
         run: npm run build
-      - name: Dir
-        run: ls -la dist
+      - name: Upload artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: app
+          path: |
+            dist/exile-diary_${{ inputs.version }}_amd64.deb
+            dist/latest-linux.yml
