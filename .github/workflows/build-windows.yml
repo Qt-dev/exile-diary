@@ -1,4 +1,4 @@
-name: build-app
+name: build-windows
 run-name: Building version v${{ inputs.version }} by @${{ github.actor }} for Windows
 on:
   workflow_dispatch:
