@@ -8,7 +8,7 @@ on:
         required: true
 
 jobs:
-  build:
+  win-build:
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v3
@@ -29,3 +29,16 @@ jobs:
             dist/exile-diary-reborn-setup-${{ inputs.version }}.exe
             dist/exile-diary-reborn-setup-${{ inputs.version }}.exe.blockmap
             dist/latest.yml
+  linux-build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          ref: v${{ inputs.version }}
+      - uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+      - name: Install dependencies
+        run: npm install  
+      - name: Build app
+        run: npm run build
