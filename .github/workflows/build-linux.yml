@@ -1,0 +1,25 @@
+name: build-app
+run-name: Building version v${{ inputs.version }} by @${{ github.actor }} for Linux
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version to build'
+        required: true
+
+jobs:
+  linux-build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          ref: v${{ inputs.version }}
+      - uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+      - name: Install dependencies
+        run: npm install  
+      - name: Build app
+        run: npm run build
+      - name: Dir
+        run: ls -la dist
