@@ -28,11 +28,11 @@
       "installerHeaderIcon": "./src/renderer/assets/img/icons/win/ExileDiary.ico"
     },
     "linux": {
-      "target": "deb",
+      "target": "flatpak",
       "executableName": "Exile-Diary",
       "icon": "./src/renderer/assets/img/icons/png",
       "category": "Utility",
-      "maintainer": "briansd9"
+      "maintainer": "qt-dev"
     }
   },
   "scripts": {
