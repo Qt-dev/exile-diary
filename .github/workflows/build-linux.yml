@@ -14,6 +14,10 @@ jobs:
       - uses: actions/checkout@v3
         with:
           ref: v${{ inputs.version }}
+      - name: Install Dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y flatpak flatpak-builder
       - uses: actions/setup-node@v3
         with:
           node-version: '18'
