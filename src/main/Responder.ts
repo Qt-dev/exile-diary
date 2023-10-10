@@ -10,6 +10,7 @@ import stashGetter from './modules/StashGetter';
 import RendererLogger from './RendererLogger';
 import * as ClientTxtWatcher from './modules/ClientTxtWatcher';
 import RunParser from './modules/RunParser';
+import SearchManager from './SearchManager';
 
 const getAppGlobals = async () => {
   logger.info('Loading global settings for the renderer process');
@@ -142,6 +143,11 @@ const debugRecheckGain = async (e, startDate) => {
   await RunParser.recheckGained(startDate);
 };
 
+const triggerSearch = async (e, params) => {
+  logger.info('Triggering search from the renderer process');
+  SearchManager.search(params);
+};
+
 const Responder = {
   'app-globals': getAppGlobals,
   'load-runs': loadRuns,
@@ -158,6 +164,7 @@ const Responder = {
   'get-all-stats': getAllStats,
   'get-stash-tabs': getStashTabs,
   'debug:recheck-gain': debugRecheckGain,
+  'search:trigger': triggerSearch,
 };
 
 export default Responder;
