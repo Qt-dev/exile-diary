@@ -66,4 +66,20 @@ export default class ItemStore {
   @computed getItemsAbove(value: number): Item[] {
     return this.items.filter((item) => item.value >= value);
   }
+
+  @computed get totalValue(): number {
+    return parseInt(this.items.reduce((total, item) => total + item.value, 0).toFixed(2));
+  }
+
+  @computed get stats(): any {
+    return {
+      items: {
+        count: this.totalValue,
+      },
+      value: {
+        total: this.totalValue,
+        average: parseInt((this.totalValue / this.items.length).toFixed(2)),
+      }
+    };
+  }
 }

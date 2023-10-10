@@ -39,7 +39,7 @@ export default {
     `;
 
     try {
-      const maps = (await DB.all(query)) as Run[];
+      const maps = (DB.all(query)) as Run[];
       return maps;
     } catch (err) {
       logger.error(`Error getting all maps: ${JSON.stringify(err)}`);
@@ -58,11 +58,29 @@ export default {
     `;
 
     try {
-      const items = await DB.all(query);
+      const items = DB.all(query);
       return items ?? [];
     } catch (err) {
       logger.error(`Error getting all loot: ${JSON.stringify(err)}`);
       return [];
     }
   },
+  getAllItemsForDates: async (from: string, to: string): Promise<any[]> => {
+    const query = `
+      SELECT mapruns.id AS map_id, areainfo.name AS area, items.*
+      FROM items, mapruns, areainfo, leaguedates
+      WHERE items.value > 10 
+      AND items.event_id BETWEEN mapruns.firstevent AND mapruns.lastevent
+      AND map_id = areainfo.id
+      AND map_id BETWEEN ? AND ?
+    `;
+
+    try {
+      const items = DB.all(query, [ from, to ]);
+      return items ?? [];
+    } catch (err) {
+      logger.error(`Error getting all loot: ${JSON.stringify(err)}`);
+      return [];
+    }
+  }
 };

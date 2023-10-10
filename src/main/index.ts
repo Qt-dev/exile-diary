@@ -13,6 +13,7 @@ import * as path from 'path';
 import logger from 'electron-log';
 import Responder from './Responder';
 import SettingsManager from './SettingsManager';
+import SearchManager from './SearchManager';
 import GGGAPI from './GGGAPI';
 import League from './db/league';
 import RendererLogger from './RendererLogger';
@@ -257,6 +258,10 @@ class MainProcess {
     ipcMain.on('reload-app', () => {
       app.relaunch();
       app.exit();
+    });
+
+    SearchManager.registerMessageHandler((event, data) => {
+      this.sendToMain(event, data);
     });
 
     OCRWatcher.emitter.removeAllListeners();
@@ -665,6 +670,7 @@ class MainProcess {
       'save-settings:stashtabs',
       'save-settings:stash-refresh-interval',
       'debug:recheck-gain',
+      'search:trigger',
     ];
     for (const event of events) {
       ipcMain.handle(event, Responder[event]);

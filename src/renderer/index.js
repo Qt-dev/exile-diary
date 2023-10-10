@@ -8,11 +8,13 @@ import reportWebVitals from './reportWebVitals';
 import RunStore from './stores/runStore';
 import CharacterStore from './stores/characterStore';
 import StashTabStore from './stores/stashTabStore';
+import SearchDataStore from './stores/searchDataStore';
 import Root from './routes/root';
 import Settings from './routes/Settings';
 import RunList from './routes/RunList';
 import Run from './routes/Run';
 import Login from './routes/Login';
+import Search from './routes/Search';
 import Stats from './routes/Stats';
 import StashTabs from './routes/StashTabs';
 import CharacterSelect from './routes/CharacterSelect';
@@ -61,7 +63,7 @@ const router = createHashRouter([
       },
       {
         path: 'search',
-        element: <div>Search</div>,
+        element: <Search store={new SearchDataStore()} />,
       },
       {
         path: 'stats',
