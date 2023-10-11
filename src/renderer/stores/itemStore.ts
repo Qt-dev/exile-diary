@@ -67,18 +67,15 @@ export default class ItemStore {
     return this.items.filter((item) => item.value >= value);
   }
 
-  @computed get totalValue(): number {
-    return parseInt(this.items.reduce((total, item) => total + item.value, 0).toFixed(2));
-  }
-
   @computed get stats(): any {
+    const totalValue = parseInt(this.items.reduce((total, item) => total + item.value, 0).toFixed(2));
     return {
       items: {
-        count: this.totalValue,
+        count: this.items.length,
       },
       value: {
-        total: this.totalValue,
-        average: parseInt((this.totalValue / this.items.length).toFixed(2)),
+        total: totalValue,
+        average: parseInt((totalValue / this.items.length).toFixed(2)),
       }
     };
   }

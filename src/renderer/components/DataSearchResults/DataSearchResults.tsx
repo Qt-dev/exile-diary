@@ -2,6 +2,7 @@ import React from 'react';
 import './DataSearchResults.css';
 import LootTable from '../LootTable/LootTable';
 import ChaosIcon from '../../assets/img/c.png';
+import { observer } from 'mobx-react-lite';
 
 const DataSearchResults = ({ items }) => {
   return (
@@ -16,4 +17,4 @@ const DataSearchResults = ({ items }) => {
   );
 };
 
-export default DataSearchResults;
+export default observer(DataSearchResults);
