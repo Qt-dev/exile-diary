@@ -14,7 +14,7 @@ export default class SearchDataStore {
 
     ipcRenderer.on('search:register-results', (event, data: any) => {
       logger.info('Search results received', data);
-      this.itemStore = new ItemStore(data.items.map((item) => ({ ...item, ...JSON.parse(item.rawdata) })));
+      this.itemStore.createItems(data.items.map((item) => ({ ...item, ...JSON.parse(item.rawdata) })));
     });
   }
 
