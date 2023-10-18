@@ -1,0 +1,8 @@
+.DataSearchResults__Stat {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  margin: 0.2rem 0;
+}

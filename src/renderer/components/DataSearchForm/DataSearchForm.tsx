@@ -60,10 +60,12 @@ const DataSearchForm = ({ searchFunction }) => {
 
   return (
   <form className="DataSearchForm" onSubmit={handleSearch}>
+    <Stack direction="row" spacing={3} justifyContent="center">
       <FormControl variant="filled" fullWidth >
-          FROM
-        <Stack direction="row" spacing={3} justifyContent="center">
+        <Stack direction="row" spacing={3} justifyContent="center" alignItems="center">
+          <div>FROM</div>
           <TextField
+            sx={{width: '5em'}}
               label="Year"
               id="year"
               variant="filled"
@@ -73,9 +75,9 @@ const DataSearchForm = ({ searchFunction }) => {
               value={from.get('year')}
               type='number'
               onChange={(e) => handleDateChange('from', 'year', e.target.value)}
-
           />
           <TextField
+            sx={{width: '5em'}}
             label="Month"
             id="month"
             variant="filled"
@@ -87,6 +89,7 @@ const DataSearchForm = ({ searchFunction }) => {
             onChange={(e) => { if(parseInt(e.target.value) < 12) handleDateChange('from', 'month', parseInt(e.target.value) - 1); }}
           />
           <TextField
+            sx={{width: '5em'}}
             label="Day"
             id="date"
             variant="filled"
@@ -98,6 +101,7 @@ const DataSearchForm = ({ searchFunction }) => {
             onChange={(e) => handleDateChange('from', 'date', e.target.value)}
           />
           <TextField
+            sx={{width: '5em'}}
             label="Hour"
             id="hour"
             variant="filled"
@@ -109,6 +113,7 @@ const DataSearchForm = ({ searchFunction }) => {
             onChange={(e) => { if(parseInt(e.target.value) < 24) handleDateChange('from', 'hour', e.target.value); }}
           />
           <TextField
+            sx={{width: '5em'}}
             label="Minute"
             id="minute"
             variant="filled"
@@ -120,6 +125,7 @@ const DataSearchForm = ({ searchFunction }) => {
             onChange={(e) => { if(parseInt(e.target.value) < 60) handleDateChange('from', 'minute', e.target.value); }}
           />
           <TextField
+            sx={{width: '5em'}}
             label="Second"
             id="second"
             variant="filled"
@@ -134,9 +140,10 @@ const DataSearchForm = ({ searchFunction }) => {
       </FormControl>
       
       <FormControl variant="filled" fullWidth >
-          TO
-          <Stack direction="row" spacing={3} justifyContent="center">
+          <Stack direction="row" spacing={3} justifyContent="center" alignItems="center">
+          <div>TO</div>
             <TextField
+              sx={{width: '5em'}}
                 label="Year"
                 id="year"
                 variant="filled"
@@ -149,6 +156,7 @@ const DataSearchForm = ({ searchFunction }) => {
 
             />
             <TextField
+              sx={{width: '5em'}}
               label="Month"
               id="month"
               variant="filled"
@@ -160,6 +168,7 @@ const DataSearchForm = ({ searchFunction }) => {
               onChange={(e) => { if(parseInt(e.target.value) < 12) handleDateChange('to', 'month', parseInt(e.target.value) - 1) }}
             />
             <TextField
+              sx={{width: '5em'}}
               label="Day"
               id="date"
               variant="filled"
@@ -171,6 +180,7 @@ const DataSearchForm = ({ searchFunction }) => {
               onChange={(e) => handleDateChange('to', 'date', e.target.value)}
             />
             <TextField
+              sx={{width: '5em'}}
               label="Hour"
               id="hour"
               variant="filled"
@@ -182,6 +192,7 @@ const DataSearchForm = ({ searchFunction }) => {
               onChange={(e) => { if(parseInt(e.target.value) < 24) handleDateChange('to', 'hour', e.target.value); }}
             />
             <TextField
+              sx={{width: '5em'}}
               label="Minute"
               id="minute"
               variant="filled"
@@ -193,6 +204,7 @@ const DataSearchForm = ({ searchFunction }) => {
               onChange={(e) => { if(parseInt(e.target.value) < 60) handleDateChange('to', 'minute', e.target.value); }}
             />
             <TextField
+              sx={{width: '5em'}}
               label="Second"
               id="second"
               variant="filled"
@@ -205,7 +217,7 @@ const DataSearchForm = ({ searchFunction }) => {
             />
           </Stack>
       </FormControl>
-
+    </Stack>
       <ButtonGroup variant="contained" aria-label="outlined primary button group">
         <Button type="submit">Search</Button>
       </ButtonGroup>
