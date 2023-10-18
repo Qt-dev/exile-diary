@@ -142,7 +142,7 @@ const getCategory = (item, subcategory = false) => {
   }
 
   logger.error(`No category found for item ${item.id || '(no id)'}! JSON follows:`);
-  logger.error(JSON.stringify(item));
+  logger.info(item);
   return null;
 };
 

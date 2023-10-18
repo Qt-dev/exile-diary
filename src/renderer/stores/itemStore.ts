@@ -1,6 +1,8 @@
 import { computed, makeAutoObservable, runInAction } from 'mobx';
 import { Order } from '../../helpers/types';
 import { Item } from './domain/item';
+import { electronService } from '../electron.service';
+const { logger, ipcRenderer } = electronService;
 
 // Mobx store for Items
 export default class ItemStore {
@@ -68,15 +70,26 @@ export default class ItemStore {
   }
 
   @computed get stats(): any {
-    const totalValue = parseInt(this.items.reduce((total, item) => total + item.value, 0).toFixed(2));
+    const totalValue = parseFloat(
+      this.items.filter(item => item.value !== undefined)
+        .reduce((total, item) => total + item.value, 0)
+        .toLocaleString('en-US', {
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2,
+        }));
     return {
       items: {
         count: this.items.length,
       },
       value: {
         total: totalValue,
-        average: parseInt((totalValue / this.items.length).toFixed(2)),
+        average: this.items.length ? parseFloat((totalValue / this.items.length)
+            .toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })) : 0,
       }
     };
+  }
+
+  reset() {
+    this.items = [];
   }
 }

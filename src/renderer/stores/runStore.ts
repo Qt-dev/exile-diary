@@ -12,8 +12,27 @@ export default class RunStore {
   maxSize = Number.MAX_SAFE_INTEGER; // This can be changed in the future
   currentRun: Run;
 
-  constructor() {
+  constructor(shouldSetupFromBackend = true) {
     makeAutoObservable(this);
+    this.currentRun = new Run(this, { name: 'Unknown' });
+    if (shouldSetupFromBackend) {
+      this.setupFromBackend();
+    }
+  }
+
+  createRuns(runs) {
+    this.isLoading = true;
+    runInAction(() => {
+      this.runs = runs.map((run) => new Run(this, run));
+      this.isLoading = false;
+    });
+  }
+
+  reset() {
+    this.runs = [];
+  }
+
+  setupFromBackend() {
     this.loadRuns(this.size);
     this.currentRun = new Run(this, { name: 'Unknown' });
     electronService.ipcRenderer.on('refresh-runs', () => this.loadRuns(this.size));
@@ -107,5 +126,24 @@ export default class RunStore {
 
   updateCurrentRun(json) {
     this.currentRun.updateFromJson(json);
+  }
+
+  @computed get stats(): any {
+    const totalTime = this.getFullDuration();
+    const averageTime = moment.duration(totalTime.asMilliseconds() / this.runs.length);
+    const totalProfit = this.runs.reduce((acc, run) => acc + run.profit, 0);
+    const averageProfit = this.runs.length > 0 ? totalProfit / this.runs.length : 0;
+
+    return {
+      count: this.runs.length,
+      time: {
+        total: totalTime,
+        average: averageTime,
+      },
+      profit: {
+        total: totalProfit.toFixed(2),
+        average: averageProfit.toFixed(2),
+      }
+    };
   }
 }

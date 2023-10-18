@@ -13,6 +13,8 @@ import ChaosIcon from '../../assets/img/c.png';
 import { Order } from '../../../helpers/types';
 import './LootTable.css';
 import Collapse from '@mui/material/Collapse';
+import { electronService } from '../../electron.service';
+const { logger } = electronService;
 
 type LootTableColumn = 'name' | 'quantity' | 'value' | 'totalValue';
 
@@ -93,7 +95,17 @@ const LootTableSubRow = ({ item }) => {
   );
 };
 
-const LootTable = ({ items, sortCallback, order, orderBy, isSubTable = false }) => {
+type LootTableProps = {
+  items: any[];
+  sortCallback: (column: LootTableColumn, order: Order) => () => void;
+  order: Order;
+  orderBy: LootTableColumn;
+  isSubTable?: boolean;
+  stats?: any;
+};
+
+const LootTable = ({ items, sortCallback, order, orderBy, isSubTable = false, stats = {} } : LootTableProps) => {
+  logger.info('stats', stats);
   return (
     <Table size="small" sx={isSubTable ? { margin: '20px 0' } : null}>
       <TableHead className="Loot-Table__Header">
@@ -150,6 +162,27 @@ const LootTable = ({ items, sortCallback, order, orderBy, isSubTable = false }) 
         {items.map((row) => (
           <LootTableSubRow key={row.id} item={row} />
         ))}
+        {
+          stats &&
+            <TableRow >
+              <TableCell sx={{ width: '10px', padding: '0'}}>
+                
+              </TableCell>
+              <TableCell>
+                
+              </TableCell>
+              <TableCell align="right">
+                {stats.items.count}
+              </TableCell>
+              <TableCell align="right">
+                {stats.value.average}
+              </TableCell>
+              <TableCell align="right">
+                {stats.value.total}
+              </TableCell>
+              <TableCell>Total</TableCell>
+            </TableRow>
+        }
       </TableBody>
     </Table>
   );
@@ -173,7 +206,7 @@ const LootTablePage = ({ profit, store }) => {
         <img className="Loot-Table__Chaos-Icon" src={ChaosIcon} alt="profit" />)
       </h2>
 
-      <LootTable items={sortedItems} sortCallback={sort} order={order} orderBy={orderBy} />
+      <LootTable items={sortedItems} sortCallback={sort} order={order} orderBy={orderBy} stats={store.stats} />
     </div>
   );
 };

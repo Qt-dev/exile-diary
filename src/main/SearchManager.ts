@@ -12,7 +12,9 @@ class SearchManager {
   async search(params) {
     const { from, to } = params;
     const items = await DB.getAllItemsForDates(from, to);
-    this.sendMessage("search:register-results", { items });
+    const runs = await DB.getAllRunsForDates(from, to);
+    logger.info(`Found ${items.length} items and ${runs.length} runs.`);
+    this.sendMessage("search:register-results", { items, runs });
   }
 }
 
