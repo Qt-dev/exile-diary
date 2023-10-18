@@ -1,6 +1,6 @@
 import './RunList.css';
 import moment from 'moment';
-import DurationFormatSetup from 'moment-duration-format';
+import DurationFormatSetup from 'moment-duration-format-commonjs';
 import React from 'react';
 import {
   TableContainer,
