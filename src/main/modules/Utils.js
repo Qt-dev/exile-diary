@@ -7,6 +7,7 @@ const logger = require('electron-log');
 const moment = require('moment');
 const momentDurationFormatSetup = require('moment-duration-format-commonjs');
 const zlib = require('zlib');
+momentDurationFormatSetup(moment);
 
 const Utils = {
   getParams: (url) => {
