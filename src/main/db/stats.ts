@@ -65,17 +65,18 @@ export default {
       return [];
     }
   },
-  getAllItemsForDates: async (from: string, to: string): Promise<any[]> => {
+  getAllItemsForDates: async (from: string, to: string, minLootValue: number = 0): Promise<any[]> => {
     const query = `
       SELECT mapruns.id AS map_id, areainfo.name AS area, items.*
       FROM items, mapruns, areainfo, leaguedates
-      WHERE items.event_id BETWEEN mapruns.firstevent AND mapruns.lastevent
+      WHERE items.value > ?
+      AND items.event_id BETWEEN mapruns.firstevent AND mapruns.lastevent
       AND map_id = areainfo.id
       AND map_id BETWEEN ? AND ?
     `;
 
     try {
-      const items = DB.all(query, [ from, to ]);
+      const items = DB.all(query, [ minLootValue, from, to ]);
       return items ?? [];
     } catch (err) {
       logger.error(`Error getting loot: ${JSON.stringify(err)}`);

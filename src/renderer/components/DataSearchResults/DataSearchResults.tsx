@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import './DataSearchResults.css';
 import LootTable from '../LootTable/LootTable';
 import ChaosIcon from '../../assets/img/c.png';
@@ -14,7 +14,11 @@ import RunList from '../../routes/RunList';
 import ArrowForwardIosSharpIcon from '@mui/icons-material/ArrowForwardIosSharp';
 import moment from 'moment';
 import momentDurationFormatSetup from "moment-duration-format-commonjs";
+import { electronService } from '../../electron.service';
 momentDurationFormatSetup(moment);
+
+const { logger } = electronService;
+
 const Accordion = styled((props: AccordionProps) => (
   <MuiAccordion elevation={0} square {...props} />
 ))(({ theme }) => ({
@@ -55,8 +59,11 @@ const AccordionDetails = styled(MuiAccordionDetails)(({ theme }) => ({
   borderTop: '1px solid rgba(0, 0, 0, .125)',
 }));
 
-const DataSearchResults = ({ itemStore, runStore }) => {
+const DataSearchResults = ({ itemStore, runStore, activeProfile, isTakingScreenshot = false, runScreenshotCommand }) => {
+  const Panels = ['panel 1', 'panel 2', 'panel 3'];
   const [ expanded, setExpanded ] = React.useState<(string | false)[]>(['panel 1']);
+  const fallbackExpanded = React.useRef<(string | false)[]>(['panel 1']);
+  const expandedPanels = React.useRef<(string | false)[]>(['panel 1']);
   const handleTabChange = (panel: string) => {
     return (event: React.SyntheticEvent, isExpanded: boolean) => {
       const newExpanded = [...expanded];
@@ -69,6 +76,25 @@ const DataSearchResults = ({ itemStore, runStore }) => {
       setExpanded(newExpanded);
     };
   }
+  const handleOpenTabEnd = (panel: string) => {
+    logger.info('Opened ', panel, expandedPanels.current);
+    if(!expandedPanels.current.includes(panel)) expandedPanels.current.push(panel);
+    if(expandedPanels.current.length === Panels.length && isTakingScreenshot) {
+      runScreenshotCommand();
+    }
+  };
+
+  useEffect(() => {
+    if(isTakingScreenshot) {
+      fallbackExpanded.current = [...expanded];
+      setExpanded(Panels);
+    } else {
+      setExpanded(fallbackExpanded.current);
+      fallbackExpanded.current = ['panel 1'];
+      expandedPanels.current = ['panel 1'];
+    }
+  }, [isTakingScreenshot])
+
   return (
     <div className="DataSearchResults">
       <Accordion expanded={expanded.includes('panel 1')} onChange={handleTabChange('panel 1')}>
@@ -76,24 +102,33 @@ const DataSearchResults = ({ itemStore, runStore }) => {
           <Typography variant="button">Stats</Typography>
         </AccordionSummary>
         <AccordionDetails>
-          <Stack spacing={2} direction="row" justifyContent="space-evenly">
+          <h3 className="DataSearchResults__Stats__Title">Stats for {activeProfile.characterName} in {activeProfile.league} League</h3>
+          <Stack spacing={2} direction="row" justifyContent="space-evenly" alignItems="center">
             <div className="Main_Stat__Column">
               <div className="DataSearchResults__Stat">Number of items looted: {itemStore.stats.items.count}</div>
-              <div className="DataSearchResults__Stat">Total Value of items found: {itemStore.stats.value.total}<img className="Stat__Chaos-Icon" src={ChaosIcon} alt="profit" /></div>
-              <div className="DataSearchResults__Stat">Average Value of value items: {itemStore.stats.value.average}<img className="Stat__Chaos-Icon" src={ChaosIcon} alt="profit" /></div>
+              <div className="DataSearchResults__Stat">Total Value of items found: {itemStore.stats.value.total}<img className="DataSearchResults__Stat__Chaos-Icon" src={ChaosIcon} alt="profit" /></div>
+              <div className="DataSearchResults__Stat">Average Value of value items: {itemStore.stats.value.average}<img className="DataSearchResults__Stat__Chaos-Icon" src={ChaosIcon} alt="profit" /></div>
             </div>
+            
+            <Divider orientation="vertical" flexItem />
             <div className="Main_Stat__Column">
               <div className="DataSearchResults__Stat">Number of runs: {runStore.stats.count}</div>
               <div className="DataSearchResults__Stat">Total time spent: {runStore.stats.time.total.format()}</div>
               <div className="DataSearchResults__Stat">Average time spent per run: {runStore.stats.time.average.format()}</div>
-              <div className="DataSearchResults__Stat">Average profit per run: {runStore.stats.profit.average}<img className="Stat__Chaos-Icon" src={ChaosIcon} alt="profit" /></div>
+              <div className="DataSearchResults__Stat">Average profit per run: {runStore.stats.profit.average}<img className="DataSearchResults__Stat__Chaos-Icon" src={ChaosIcon} alt="profit" /></div>
             </div>
           </Stack>
         </AccordionDetails>
       </Accordion>
-      <Accordion expanded={expanded.includes('panel 2')} onChange={handleTabChange('panel 2')}>
+      <Accordion
+        expanded={expanded.includes('panel 2')} 
+        onChange={handleTabChange('panel 2')}
+        TransitionProps={{ onEntered: () => {
+          handleOpenTabEnd('panel 2');
+        }, }}
+        >
         <AccordionSummary>
-          <Typography className="Stat__Summary">Loot ({itemStore.stats.value.total}<img className="Stat__Chaos-Icon" src={ChaosIcon} alt="profit" />)</Typography>
+          <Typography className="DataSearchResults__Stat__Summary">Loot ({itemStore.stats.value.total}<img className="DataSearchResults__Stat__Chaos-Icon" src={ChaosIcon} alt="profit" />)</Typography>
         </AccordionSummary>
         <AccordionDetails>
           <Box sx={{ marginBottom: 5 }}>
@@ -105,9 +140,14 @@ const DataSearchResults = ({ itemStore, runStore }) => {
           </Box>
         </AccordionDetails>
       </Accordion>
-      <Accordion expanded={expanded.includes('panel 3')} onChange={handleTabChange('panel 3')}>
+      <Accordion
+        expanded={expanded.includes('panel 3')}
+        onChange={handleTabChange('panel 3')}
+        TransitionProps={{ onEntered: () => {
+          handleOpenTabEnd('panel 3');
+        },}}>
         <AccordionSummary>
-          <Typography className="Stat__Summary">Runs ({runStore.stats.count} runs in {runStore.stats.time.total.format()} - avg: {runStore.stats.time.average.format()})</Typography>
+          <Typography className="DataSearchResults__Stat__Summary">Runs ({runStore.stats.count} runs in {runStore.stats.time.total.format()} - avg: {runStore.stats.time.average.format()})</Typography>
         </AccordionSummary>
         <AccordionDetails>
           <RunList store={runStore} isBoxed={false} />

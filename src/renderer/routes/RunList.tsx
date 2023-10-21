@@ -18,10 +18,10 @@ import classNames from 'classnames';
 import ChaosIcon from '../assets/img/c.png';
 import { useNavigate } from 'react-router-dom';
 import { observer } from 'mobx-react-lite';
-import { electronService } from '../electron.service';
+// import { electronService } from '../electron.service';
 import momentDurationFormatSetup from "moment-duration-format-commonjs";
 momentDurationFormatSetup(moment);
-const { logger } = electronService;
+// const { logger } = electronService;
 
 
 const RunList = ({ NumbersOfMapsToShow = 10, store, isBoxed = true }) => {

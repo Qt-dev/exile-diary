@@ -73,10 +73,7 @@ export default class ItemStore {
     const totalValue = parseFloat(
       this.items.filter(item => item.value !== undefined)
         .reduce((total, item) => total + item.value, 0)
-        .toLocaleString('en-US', {
-          minimumFractionDigits: 2,
-          maximumFractionDigits: 2,
-        }));
+        .toFixed(2));
     return {
       items: {
         count: this.items.length,
@@ -84,7 +81,7 @@ export default class ItemStore {
       value: {
         total: totalValue,
         average: this.items.length ? parseFloat((totalValue / this.items.length)
-            .toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })) : 0,
+            .toFixed(2)) : 0,
       }
     };
   }
