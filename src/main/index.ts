@@ -109,7 +109,7 @@ class MainProcess {
         nodeIntegration: true,
         nodeIntegrationInWorker: true,
         contextIsolation: false,
-        // webSecurity: false,
+        webSecurity: false,
       },
       show: false,
     });

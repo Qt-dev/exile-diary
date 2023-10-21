@@ -1,10 +1,18 @@
-.Stat__Summary {
+.DataSearchResults {
+  margin-bottom: 2.5em;
+}
+
+.DataSearchResults__Stat__Summary {
   display: flex;
   flex-direction: row;
   align-items: center;
   justify-content: center;
   margin: 0.5em 0;
 }
-.Stat__Chaos-Icon {
+.DataSearchResults__Stat__Chaos-Icon {
   height: 1.2em;
+}
+
+.DataSearchResults__Stats__Title {
+  text-align: center;
 }

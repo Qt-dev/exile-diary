@@ -64,6 +64,10 @@ const router = createHashRouter([
       {
         path: 'search',
         element: <Search store={new SearchDataStore()} />,
+        loader: async () => {
+          const settings = await ipcRenderer.invoke('get-settings');
+          return { activeProfile: settings.activeProfile };
+        },
       },
       {
         path: 'stats',
