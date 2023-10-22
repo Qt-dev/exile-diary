@@ -671,6 +671,7 @@ class MainProcess {
       'save-settings:stash-refresh-interval',
       'debug:recheck-gain',
       'search:trigger',
+      'get-divine-price',
     ];
     for (const event of events) {
       ipcMain.handle(event, Responder[event]);

@@ -104,7 +104,7 @@ type LootTableProps = {
   stats?: any;
 };
 
-const LootTable = ({ items, sortCallback, order, orderBy, isSubTable = false, stats = {} } : LootTableProps) => {
+const LootTable = ({ items, sortCallback, order, orderBy, isSubTable = false, stats = undefined } : LootTableProps) => {
   logger.info('stats', stats);
   return (
     <Table size="small" sx={isSubTable ? { margin: '20px 0' } : null}>

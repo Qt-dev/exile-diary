@@ -711,3 +711,9 @@ async function getCurrencyByName(timestamp, type, league) {
 module.exports.price = price;
 module.exports.getRatesFor = getRatesFor;
 module.exports.getCurrencyByName = getCurrencyByName;
+
+export default {
+  price,
+  getRatesFor,
+  getCurrencyByName,
+}

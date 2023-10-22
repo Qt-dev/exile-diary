@@ -1,5 +1,6 @@
 import logger from 'electron-log';
 import { app } from 'electron';
+import dayjs from 'dayjs';
 import Runs from './db/run';
 import SettingsManager from './SettingsManager';
 import GGGAPI from './GGGAPI';
@@ -9,6 +10,7 @@ import StashTabsManager from './StashTabsManager';
 import stashGetter from './modules/StashGetter';
 import RendererLogger from './RendererLogger';
 import * as ClientTxtWatcher from './modules/ClientTxtWatcher';
+import ItemPricer from './modules/ItemPricer';
 import RunParser from './modules/RunParser';
 import SearchManager from './SearchManager';
 
@@ -148,6 +150,11 @@ const triggerSearch = async (e, params) => {
   SearchManager.search(params);
 };
 
+const getDivinePrice = async(e, params) => {
+  logger.info('Getting divine price from the renderer process');
+  return ItemPricer.getCurrencyByName(dayjs().format('YYYYMMDD'), 'Divine Orb', SettingsManager.get('activeProfile').league);
+}
+
 const Responder = {
   'app-globals': getAppGlobals,
   'load-runs': loadRuns,
@@ -165,6 +172,7 @@ const Responder = {
   'get-stash-tabs': getStashTabs,
   'debug:recheck-gain': debugRecheckGain,
   'search:trigger': triggerSearch,
+  'get-divine-price': getDivinePrice,
 };
 
 export default Responder;
