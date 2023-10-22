@@ -10,9 +10,9 @@ class SearchManager {
   }
 
   async search(params) {
-    const { from, to, minLootValue } = params;
-    const items = await DB.getAllItemsForDates(from, to, minLootValue);
-    const runs = await DB.getAllRunsForDates(from, to);
+    const { from, to, minLootValue, neededItemName } = params;
+    const runs = await DB.getAllRunsForDates(from, to, neededItemName);
+    const items = await DB.getAllItemsForRuns(runs, minLootValue);
     logger.info(`Found ${items.length} items and ${runs.length} runs.`);
     this.sendMessage("search:register-results", { items, runs });
   }

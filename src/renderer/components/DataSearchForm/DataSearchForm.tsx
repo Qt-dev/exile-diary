@@ -19,6 +19,7 @@ const DataSearchForm = ({ searchFunction }) => {
   const [from, setFrom] = React.useState<Dayjs | null>(dayjs().subtract(1, 'days'));
   const [to, setTo] = React.useState<Dayjs | null>(dayjs());
   const [minLootValue, setMinLootValue] = React.useState(0);
+  const [neededItemName, setNeededItemName] = React.useState('');
 
 
   const handleSearch = (e) => {
@@ -26,7 +27,8 @@ const DataSearchForm = ({ searchFunction }) => {
     searchFunction({
       from: from?.format('YYYYMMDDHHmmss'),
       to: to?.format('YYYYMMDDHHmmss'),
-      minLootValue
+      minLootValue,
+      neededItemName,
     });
   }
 
@@ -57,6 +59,16 @@ const DataSearchForm = ({ searchFunction }) => {
             value={minLootValue}
             type='number'
             onChange={(e) => { if(parseInt(e.target.value) > 0) setMinLootValue(parseInt(e.target.value)); }}
+          />
+        </FormControl>
+
+        <FormControl variant="outlined" size="medium">
+          <TextField
+            label="Maps that contain items named"
+            id="needed-item-name"
+            value={neededItemName}
+            InputLabelProps={{ shrink: true }}
+            onChange={(e) => setNeededItemName(e.target.value) }
           />
         </FormControl>
       </Stack>

@@ -25,4 +25,8 @@
 
 .DataSearchResults__Stats__SubTitle {
   text-align: center;
+  align-items: center;
+  display: flex;
+  justify-content: center;
+  gap: 5px;
 }
