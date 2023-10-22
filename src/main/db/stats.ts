@@ -83,48 +83,60 @@ export default {
       return [];
     }
   },
-  getAllRunsForDates: async (from: string, to: string): Promise<any[]> => {
+  getAllRunsForDates: async (from: string, to: string, neededItemName): Promise<any[]> => {
     const query = `
       SELECT
         areainfo.*, mapruns.*,
         (mapruns.xp - (select xp from mapruns m where m.id < mapruns.id and xp is not null order by m.id desc limit 1)) xpgained,
-        (select count(1) from events where event_type='slain' and events.id between firstevent and lastevent) deaths,
-        (SELECT count(1) FROM events WHERE conquerortimes.run_id = mapruns.id AND events.id BETWEEN conquerortimes.start AND conquerortimes.end AND events.event_type = 'slain' ) AS conqueror_deaths,
-        (SELECT count(1) FROM events WHERE json_extract(mapruns.runinfo, '$.mastermindBattle') IS NOT NULL AND events.id BETWEEN json_extract(mapruns.runinfo, '$.mastermindBattle.battle2start') AND min(json_extract(mapruns.runinfo, '$.mastermindBattle.completed'), mapruns.lastevent) AND events.event_type = 'slain' ) AS mastermind_deaths,
-        (SELECT count(1) FROM events WHERE json_extract(mapruns.runinfo, '$.sirusBattle') IS NOT NULL AND events.id BETWEEN json_extract(mapruns.runinfo, '$.sirusBattle.start') AND min(json_extract(mapruns.runinfo, '$.sirusBattle.completed'), mapruns.lastevent) AND events.event_type = 'slain' ) AS sirus_deaths,
-        (SELECT count(1) FROM events WHERE json_extract(mapruns.runinfo, '$.shaperBattle') IS NOT NULL AND events.id BETWEEN json_extract(mapruns.runinfo, '$.shaperBattle.phase1start') AND min(json_extract(mapruns.runinfo, '$.shaperBattle.completed'), mapruns.lastevent) AND events.event_type = 'slain' ) AS shaper_deaths,
-        (SELECT count(1) FROM events WHERE json_extract(mapruns.runinfo, '$.maven.mavenDefeated') IS NOT NULL AND events.id BETWEEN json_extract(mapruns.runinfo, '$.maven.firstline') AND min(json_extract(mapruns.runinfo, '$.maven.mavenDefeated'), mapruns.lastevent) AND events.event_type = 'slain' ) AS maven_deaths,
-        (SELECT count(1) FROM events WHERE json_extract(mapruns.runinfo, '$.oshabiBattle') IS NOT NULL AND events.id BETWEEN json_extract(mapruns.runinfo, '$.oshabiBattle.start') AND min(json_extract(mapruns.runinfo, '$.oshabiBattle.completed'), mapruns.lastevent) AND events.event_type = 'slain' ) AS oshabi_deaths,
-        (SELECT count(1) FROM events WHERE json_extract(mapruns.runinfo, '$.venariusBattle') IS NOT NULL AND events.id BETWEEN json_extract(mapruns.runinfo, '$.venariusBattle.start') AND min(json_extract(mapruns.runinfo, '$.venariusBattle.completed'), mapruns.lastevent) AND events.event_type = 'slain' ) AS venarius_deaths
+        (select count(1) from events where event_type='slain' and events.id between firstevent and lastevent) deaths
 
       FROM areainfo, mapruns
 
       LEFT JOIN
-          (
-            SELECT mapruns.id AS run_id,
-              min(events.id) AS start,
-              max(events.id) AS end
-            FROM events, mapruns
-            WHERE 
-              events.id between mapruns.firstevent
-              AND mapruns.lastevent
-              AND events.event_type = 'conqueror'
-              AND json_extract(mapruns.runinfo, '$.conqueror') IS NOT NULL
-            GROUP BY mapruns.id
-          ) as conquerortimes
-        ON conquerortimes.run_id = mapruns.id
+            (
+              SELECT count(items.id) AS items, mapruns.id AS run_id
+              FROM items, mapruns
+              WHERE items.event_id BETWEEN mapruns.firstevent AND mapruns.lastevent
+              ${neededItemName ? 'AND items.typeline = ?' : ''}
+              GROUP BY run_id
+            ) as itemcount
+            ON itemcount.run_id = mapruns.id
+
       WHERE mapruns.id = areainfo.id
+      AND itemcount.items > 0
       AND json_extract(runinfo, '$.ignored') is null
       AND mapruns.id BETWEEN ? AND ?
       ORDER BY mapruns.id desc
     `;
 
     try {
-      const runs = DB.all(query, [ from, to ]);
+      const queryArgs : any[] = [];
+      if(neededItemName) queryArgs.push(neededItemName);
+      queryArgs.push(from);
+      queryArgs.push(to);
+      const runs = DB.all(query, queryArgs);
       return runs ?? [];
     } catch (err) {
-      logger.error(`Error getting maps: ${JSON.stringify(err)}`);
+      logger.error(`Error getting maps for ${from}-${to}: ${JSON.stringify(err)}`);
       return [];
     }
   },
+  getAllItemsForRuns: async (runs: Run[], minLootValue: number = 0): Promise<any[]> => {
+    const query = `
+      SELECT mapruns.id AS map_id, areainfo.name AS area, items.*
+      FROM items, mapruns, areainfo
+      WHERE items.value > ?
+      AND items.event_id BETWEEN mapruns.firstevent AND mapruns.lastevent
+      AND map_id = areainfo.id
+      AND mapruns.id IN (${runs.map(r => r.id).join(',')})
+    `;
+
+    try {
+      const items = DB.all(query, [ minLootValue ]);
+      return items ?? [];
+    } catch (err) {
+      logger.error(`Error getting loot: ${JSON.stringify(err)}`);
+      return [];
+    }
+  }
 };

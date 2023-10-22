@@ -12,6 +12,7 @@ import { toBlob } from 'html-to-image';
 import moment from 'moment';
 import { useLoaderData } from 'react-router';
 import { saveAs } from 'file-saver';
+import ChaosIcon from '../components/DataSearchResults/ChaosIcon';
 
 const { logger, ipcRenderer } = electronService;
 
@@ -20,12 +21,17 @@ const SearchResultsHeader = ({ activeProfile, searchParams }) => {
   const dateFormat = 'YYYYMMDDHHmmss'
   const dateString = searchParams?.to && searchParams?.from ?
     <div className="DataSearchResults__Stats__SubTitle">
-      Between <b className="Text--Implicit">{moment(searchParams.from, dateFormat).format('YYYY-MM-DD HH:mm:ss')}</b> and <b className="Text--Implicit">{moment(searchParams.to, dateFormat).format('YYYY-MM-DD HH:mm:ss')}</b>
+      Between <b className="Text--Implicit Text">{moment(searchParams.from, dateFormat).format('YYYY-MM-DD HH:mm:ss')}</b> and <b className="Text--Implicit Text">{moment(searchParams.to, dateFormat).format('YYYY-MM-DD HH:mm:ss')}</b>
     </div> : null;
 
   const minLootString = searchParams?.minLootValue ?
     <div className="DataSearchResults__Stats__SubTitle">
-      With a minimum loot value of <b className="Text--Implicit">{searchParams.minLootValue}</b>
+      Only loot with a minimum value of <b className="Text--Implicit Text">{searchParams.minLootValue}<ChaosIcon /></b>
+    </div> : null;
+
+  const neededItemNameString = searchParams?.neededItemName ?
+    <div className="DataSearchResults__Stats__SubTitle">
+      Only contain runs where you found at least one <b className="Text--Implicit Text">{searchParams.neededItemName}</b>
     </div> : null;
 
   return (
@@ -35,6 +41,7 @@ const SearchResultsHeader = ({ activeProfile, searchParams }) => {
       </h3>
       {dateString}
       {minLootString}
+      {neededItemNameString}
     </>
   );
 };
