@@ -15,17 +15,41 @@ import { saveAs } from 'file-saver';
 
 const { logger, ipcRenderer } = electronService;
 
+const SearchResultsHeader = ({ activeProfile, searchParams }) => {
+  logger.info(searchParams);
+  const dateFormat = 'YYYYMMDDHHmmss'
+  const dateString = searchParams?.to && searchParams?.from ?
+    <div className="DataSearchResults__Stats__SubTitle">
+      Between <b className="Text--Implicit">{moment(searchParams.from, dateFormat).format('YYYY-MM-DD HH:mm:ss')}</b> and <b className="Text--Implicit">{moment(searchParams.to, dateFormat).format('YYYY-MM-DD HH:mm:ss')}</b>
+    </div> : null;
+
+  const minLootString = searchParams?.minLootValue ?
+    <div className="DataSearchResults__Stats__SubTitle">
+      With a minimum loot value of <b className="Text--Implicit">{searchParams.minLootValue}</b>
+    </div> : null;
+
+  return (
+    <>
+      <h3 className="DataSearchResults__Stats__Title">
+        Stats for <span className="Text--Legendary">{activeProfile.characterName}</span> in <span className="Text--Rare">{activeProfile.league}</span> League
+      </h3>
+      {dateString}
+      {minLootString}
+    </>
+  );
+};
 
 const Search = ({ store }) => {
   const screenShotRef = useRef<HTMLDivElement>(null);
   const [ isTakingScreenshot, setIsTakingScreenshot] = React.useState(false);
+  const [ searchParams, setSearchParams ] = React.useState({} as any);
 
-  const { activeProfile } = useLoaderData() as any;
-  const { characterName, league } = activeProfile;
+  const { activeProfile, divinePrice } = useLoaderData() as any;
+  const { characterName } = activeProfile;
 
   const handleSearch = async (searchParams) => {
-    logger.debug('Search.handleSearch:', searchParams);
-    ipcRenderer.invoke('search:trigger', searchParams);
+    await ipcRenderer.invoke('search:trigger', searchParams);
+    setSearchParams(searchParams);
   };
 
   useEffect(() => {
@@ -43,7 +67,7 @@ const Search = ({ store }) => {
           const now = moment().format('YYYY-MM-DD_HH-mm-ss');
           const fileName = `${characterName}_${now}.png`;
           if(blob) saveAs(blob, fileName);
-          setTimeout(() => setIsTakingScreenshot(false), 3000);
+          setIsTakingScreenshot(false);
         })
         .catch((error) => { 
           logger.error('Error in saving Screenshot', error);
@@ -69,6 +93,8 @@ const Search = ({ store }) => {
     </div>
   );
 
+
+
   return (
     <div className="Search">
       <Backdrop open={isTakingScreenshot} sx={{ background: 'rgba(0,0,0,0.9)', zIndex: (theme) => theme.zIndex.drawer + 1 }}>
@@ -91,6 +117,8 @@ const Search = ({ store }) => {
           runStore={store.runStore}
           isTakingScreenshot={isTakingScreenshot}
           runScreenshotCommand={runScreenshotCommand}
+          header={<SearchResultsHeader activeProfile={activeProfile} searchParams={searchParams}/>}
+          divinePrice={divinePrice}
         />
       </div>
     </div>

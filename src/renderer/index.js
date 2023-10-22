@@ -66,7 +66,8 @@ const router = createHashRouter([
         element: <Search store={new SearchDataStore()} />,
         loader: async () => {
           const settings = await ipcRenderer.invoke('get-settings');
-          return { activeProfile: settings.activeProfile };
+          const divinePrice = await ipcRenderer.invoke('get-divine-price');
+          return { activeProfile: settings.activeProfile, divinePrice };
         },
       },
       {

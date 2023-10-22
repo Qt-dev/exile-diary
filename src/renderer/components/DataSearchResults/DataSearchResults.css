@@ -9,10 +9,20 @@
   justify-content: center;
   margin: 0.5em 0;
 }
-.DataSearchResults__Stat__Chaos-Icon {
+
+.DataSearchResults__Currency-Icon  {
   height: 1.2em;
 }
 
+.DataSearchResults__Header-Container {
+  margin: 1em 0 2em;
+}
+
 .DataSearchResults__Stats__Title {
+  text-align: center;
+  margin: 0.5em 0;
+}
+
+.DataSearchResults__Stats__SubTitle {
   text-align: center;
 }
