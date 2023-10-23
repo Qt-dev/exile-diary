@@ -1,5 +1,5 @@
 import logger from 'electron-log';
-import moment from 'moment';
+import dayjs, { ManipulateType } from 'dayjs';
 import DB from './db/stats';
 import RatesManager from './RatesManager';
 import { Run } from '../helpers/types';
@@ -841,9 +841,10 @@ class StatsManager {
   }
 
   // Utility functions
-  getRunningTime(firstevent, lastevent, format: moment.unitOfTime.Base = 'seconds') {
-    const duration = moment.duration(
-      moment(lastevent, 'YYYYMMDDHHmmss').diff(moment(firstevent, 'YYYYMMDDHHmmss'))
+  getRunningTime(firstevent: string | number | dayjs.Dayjs, lastevent: string | number | dayjs.Dayjs, format: ManipulateType = 'seconds') {
+    logger.info('getRunningTime', firstevent, lastevent, format);
+    const duration = dayjs.duration(
+      dayjs(lastevent, 'YYYYMMDDHHmmss').diff(dayjs(firstevent, 'YYYYMMDDHHmmss'))
     );
     return duration.as(format);
   }
@@ -855,7 +856,7 @@ export default {
     const items = await DB.getAllItems(league);
     const divinePrice = await RatesManager.getCurrencyValue(
       league,
-      moment().format('YYYYMMDD'),
+      dayjs().format('YYYYMMDD'),
       'Divine Orb'
     );
     const manager = new StatsManager({ runs, items, divinePrice });
