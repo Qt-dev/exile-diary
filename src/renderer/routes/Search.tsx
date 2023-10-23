@@ -13,10 +13,11 @@ import dayjs from 'dayjs';
 import { useLoaderData } from 'react-router';
 import { saveAs } from 'file-saver';
 import Price from '../components/Pricing/Price';
+import ChaosIcon from '../components/Pricing/ChaosIcon';
 
 const { logger, ipcRenderer } = electronService;
 
-const SearchResultsHeader = ({ activeProfile, searchParams }) => {
+const SearchResultsHeader = ({ activeProfile, searchParams, divinePrice }) => {
   const dateFormat = 'YYYYMMDDHHmmss'
   const dateString = searchParams?.to && searchParams?.from ?
     <div className="DataSearchResults__Stats__SubTitle">
@@ -33,7 +34,7 @@ const SearchResultsHeader = ({ activeProfile, searchParams }) => {
       Only contain runs where you found at least one <b className="Text--Implicit Text">{searchParams.neededItemName}</b>
     </div> : null;
 
-  const selectedMapsString = searchParams?.selectedMaps ?
+  const selectedMapsString = searchParams?.selectedMaps && searchParams?.selectedMaps.length > 0 ?
     <>
       <div className="DataSearchResults__Stats__SubTitle">
           Only contain runs on the following maps:
@@ -42,6 +43,11 @@ const SearchResultsHeader = ({ activeProfile, searchParams }) => {
           <b className="Text--Implicit Text">{searchParams.selectedMaps.join(', ')}</b>
       </div>
     </> : null;
+
+  const minMapValueString = searchParams?.minMapValue ?
+    <div className="DataSearchResults__Stats__SubTitle">
+      Only contain runs with a minimum map profit of <b className="Text--Implicit Text"><Price value={searchParams.minMapValue} divinePrice={divinePrice} /></b>
+    </div> : null;
 
   return (
     <>
@@ -52,6 +58,7 @@ const SearchResultsHeader = ({ activeProfile, searchParams }) => {
       {minLootString}
       {selectedMapsString}
       {neededItemNameString}
+      {minMapValueString}
     </>
   );
 };
@@ -134,7 +141,7 @@ const Search = ({ store }) => {
           runStore={store.runStore}
           isTakingScreenshot={isTakingScreenshot}
           runScreenshotCommand={runScreenshotCommand}
-          header={<SearchResultsHeader activeProfile={activeProfile} searchParams={searchParams}/>}
+          header={<SearchResultsHeader activeProfile={activeProfile} searchParams={searchParams} divinePrice={divinePrice} />}
           divinePrice={divinePrice}
         />
       </div>

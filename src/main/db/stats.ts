@@ -83,7 +83,7 @@ export default {
       return [];
     }
   },
-  getAllRunsForDates: async (from: string, to: string, neededItemName, selectedMaps): Promise<any[]> => {
+  getAllRunsForDates: async ({from, to, neededItemName, selectedMaps, minMapValue}: {from: string, to: string, neededItemName: string, selectedMaps: string[], minMapValue: number}): Promise<any[]> => {
     const query = `
       SELECT
         areainfo.*, mapruns.*,
@@ -106,6 +106,7 @@ export default {
       ${selectedMaps.length > 0 ? ` AND areainfo.name IN (${selectedMaps.map(m => `'${m}'`).join(',')}) ` : ''}
       AND itemcount.items > 0
       AND json_extract(runinfo, '$.ignored') is null
+      AND mapruns.gained > ?
       AND mapruns.id BETWEEN ? AND ?
       ORDER BY mapruns.id desc
     `;
@@ -113,7 +114,7 @@ export default {
     try {
       const queryArgs : any[] = [];
       if(neededItemName) queryArgs.push(neededItemName);
-      // if(selectedMaps.length > 0) queryArgs.push(selectedMaps);
+      queryArgs.push(minMapValue);
       queryArgs.push(from);
       queryArgs.push(to);
       const runs = DB.all(query, queryArgs);
@@ -124,7 +125,7 @@ export default {
       return [];
     }
   },
-  getAllItemsForRuns: async (runs: Run[], minLootValue: number = 0): Promise<any[]> => {
+  getAllItemsForRuns: async ({ runs, minLootValue = 0 } : { runs: Run[], minLootValue: number }): Promise<any[]> => {
     const query = `
       SELECT mapruns.id AS map_id, areainfo.name AS area, items.*
       FROM items, mapruns, areainfo
