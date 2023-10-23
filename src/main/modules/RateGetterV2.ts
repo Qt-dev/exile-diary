@@ -122,7 +122,7 @@ class RateGetterV2 {
       }
     }
 
-    const today = dayjs().format('YMMDD');
+    const today = dayjs().format('YYYYMMDD');
     const hasExisting = await this.hasExistingRates(today);
 
     if (hasExisting) {
