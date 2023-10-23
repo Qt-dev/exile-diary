@@ -83,7 +83,7 @@ export default {
       return [];
     }
   },
-  getAllRunsForDates: async (from: string, to: string, neededItemName): Promise<any[]> => {
+  getAllRunsForDates: async (from: string, to: string, neededItemName, selectedMaps): Promise<any[]> => {
     const query = `
       SELECT
         areainfo.*, mapruns.*,
@@ -103,6 +103,7 @@ export default {
             ON itemcount.run_id = mapruns.id
 
       WHERE mapruns.id = areainfo.id
+      ${selectedMaps.length > 0 ? ` AND areainfo.name IN (${selectedMaps.map(m => `'${m}'`).join(',')}) ` : ''}
       AND itemcount.items > 0
       AND json_extract(runinfo, '$.ignored') is null
       AND mapruns.id BETWEEN ? AND ?
@@ -112,12 +113,14 @@ export default {
     try {
       const queryArgs : any[] = [];
       if(neededItemName) queryArgs.push(neededItemName);
+      // if(selectedMaps.length > 0) queryArgs.push(selectedMaps);
       queryArgs.push(from);
       queryArgs.push(to);
       const runs = DB.all(query, queryArgs);
       return runs ?? [];
     } catch (err) {
-      logger.error(`Error getting maps for ${from}-${to}: ${JSON.stringify(err)}`);
+      logger.error(`Error getting maps for ${from}-${to}:`);
+      logger.error(err);
       return [];
     }
   },
@@ -138,5 +141,24 @@ export default {
       logger.error(`Error getting loot: ${JSON.stringify(err)}`);
       return [];
     }
-  }
+  },
+
+  getAllMapNames: async (): Promise<string[]> => {
+    const query = `
+      SELECT DISTINCT areainfo.name
+      FROM areainfo, mapruns
+      WHERE mapruns.id = areainfo.id
+      AND json_extract(runinfo, '$.ignored') is null
+      ORDER BY areainfo.name asc
+    `;
+
+    try {
+      const maps = DB.all(query) as string[];
+      logger.info(`Got ${maps.length} map names`);
+      return maps ?? [];
+    } catch (err) {
+      logger.error(`Error getting all map names: ${JSON.stringify(err)}`);
+      return [];
+    }
+  },
 };

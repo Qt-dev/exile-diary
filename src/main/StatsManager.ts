@@ -863,4 +863,8 @@ export default {
 
     return manager.stats;
   },
+  getAllMapNames: async () => {
+    const mapNames = await DB.getAllMapNames();
+    return mapNames;
+  },
 };

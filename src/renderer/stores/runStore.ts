@@ -130,7 +130,6 @@ export default class RunStore {
 
   @computed get stats(): any {
     const totalTime = this.getFullDuration();
-    logger.info('yo', totalTime.asMilliseconds())
     const averageTime = dayjs.duration(totalTime.asMilliseconds() > 0 ? totalTime.asMilliseconds() / this.runs.length : 0);
     const totalProfit = this.runs.reduce((acc, run) => acc + run.profit, 0);
     const averageProfit = this.runs.length > 0 ? totalProfit / this.runs.length : 0;

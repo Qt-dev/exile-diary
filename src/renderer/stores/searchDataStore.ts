@@ -14,7 +14,6 @@ export default class SearchDataStore {
   constructor() {
     makeAutoObservable(this);
     ipcRenderer.on('search:register-results', (event, data: any) => {
-      // logger.info('Search results received', data);
       this.itemStore.createItems(data.items.map((item) => ({ ...item, ...JSON.parse(item.rawdata) })));
       this.runStore.createRuns(data.runs);
     });

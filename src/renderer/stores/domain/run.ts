@@ -59,7 +59,6 @@ export class Run {
     this.packSize = json.packsize ?? this.packSize;
     this.firstEvent = dayjs(json.firstevent, 'YYYYMMDDHHmmss');
     this.lastEvent = dayjs(json.lastevent, 'YYYYMMDDHHmmss');
-    logger.info('events', this.firstEvent, this.lastEvent, this.lastEvent.diff(this.firstEvent));
     this.duration = dayjs.duration(this.lastEvent.diff(this.firstEvent));
     this.xp = json.xpgained;
     this.xpPerHour = this.xp / this.duration.asHours();
