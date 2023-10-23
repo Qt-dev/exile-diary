@@ -1,0 +1,9 @@
+.Currency  {
+  height: 1.2em;
+}
+
+.Price {
+  display: flex;
+  align-items: center;
+  gap: 0.1em;
+}

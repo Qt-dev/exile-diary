@@ -9,11 +9,12 @@ import IconButton from '@mui/material/IconButton';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 import { observer } from 'mobx-react-lite';
-import ChaosIcon from '../../assets/img/c.png';
+import ChaosIcon from '../Pricing/ChaosIcon';
 import { Order } from '../../../helpers/types';
 import './LootTable.css';
 import Collapse from '@mui/material/Collapse';
 import { electronService } from '../../electron.service';
+import Price from '../Pricing/Price';
 const { logger } = electronService;
 
 type LootTableColumn = 'name' | 'quantity' | 'value' | 'totalValue';
@@ -129,9 +130,9 @@ const LootTable = ({ items, sortCallback, order, orderBy, isSubTable = false, st
               direction={orderBy === 'value' ? order : 'asc'}
               onClick={sortCallback('value', order)}
             >
-              <div>
-                Unit <img className="Loot-Table__Chaos-Icon" src={ChaosIcon} alt="profit" />
-              </div>
+              <span style={{display: 'flex', gap: '0.2em', flexDirection: 'row', alignItems: 'center'}}>
+                <ChaosIcon /> / Unit
+              </span>
             </TableSortLabel>
           </TableCell>
           <TableCell align="right" sx={{ width: '6em' }}>
@@ -141,9 +142,9 @@ const LootTable = ({ items, sortCallback, order, orderBy, isSubTable = false, st
               direction={orderBy === 'totalValue' ? order : 'asc'}
               onClick={sortCallback('totalValue', order)}
             >
-              <div>
-                Total <img className="Loot-Table__Chaos-Icon" src={ChaosIcon} alt="profit" />
-              </div>
+              <span style={{display: 'flex', gap: '0.2em', flexDirection: 'row', alignItems: 'center'}}>
+                Total <ChaosIcon />
+              </span>
             </TableSortLabel>
           </TableCell>
           <TableCell>
@@ -202,8 +203,7 @@ const LootTablePage = ({ profit, store }) => {
   return (
     <div>
       <h2 className="Loot-Table-Page__Header">
-        Profit Breakdown (Total = {profit}
-        <img className="Loot-Table__Chaos-Icon" src={ChaosIcon} alt="profit" />)
+        Profit Breakdown (Total = <Price value={profit} />)
       </h2>
 
       <LootTable items={sortedItems} sortCallback={sort} order={order} orderBy={orderBy} stats={store.stats} />

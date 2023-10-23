@@ -52,7 +52,7 @@ const Stats = () => {
       return;
     }
 
-    await setIsTakingScreenshot(true);
+    setIsTakingScreenshot(true);
     toCanvas(screenShotRef.current, { cacheBust: true })
       .then((canvas) => {
         const now = moment().format('YYYY-MM-DD_HH-mm-ss');
