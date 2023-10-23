@@ -14,10 +14,14 @@
 .Loot-Table-Page__Header {
   width: 100%;
   text-align: center;
+  display: flex;
+  justify-content: center;
+  gap: 0.3em;
 }
 
 .Loot-Table__Header {
   background-color: rgba(155, 155, 155, 0.2);
+
 }
 
 .Loot-Table__Header th:nth-child(1) {

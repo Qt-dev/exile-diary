@@ -22,10 +22,11 @@ import YellowBeastIcon from '../../../assets/img/yellowBeast.png';
 import WhiteBeastIcon from '../../../assets/img/whiteBeast.png';
 import NikoIcon from '../../../assets/img/encountericons/niko.png';
 import JunIcon from '../../../assets/img/encountericons/jun.png';
-import ChaosIcon from '../../../assets/img/c.png';
-import DivineIcon from '../../../assets/img/div.png';
+import ChaosIcon from '../../Pricing/ChaosIcon';
+import DivineIcon from '../../Pricing/DivineIcon';
 
 import { Table, TableBody, TableCell, TableHead, TableRow } from '@mui/material';
+import Price from '../../Pricing/Price';
 const MainStats = ({ stats }) => {
   const whiteBeasts =
     stats.misc.masters.einhar.details.beasts -
@@ -38,16 +39,16 @@ const MainStats = ({ stats }) => {
         <div className="Main-Stats__Column Main-Stats__Left-Column">
           <div className="Main-Stat">
             <div className="Main-Stat__Text">
-              <img src={ChaosIcon} alt="Chaos Icon" className="Main-Stat__Icon" />
+              <ChaosIcon />
               Value of drops:{' '}
               <span className="Main-Stat__Value">
-                {stats.misc.valueOfDrops.toLocaleString('en-US', { maximumFractionDigits: 2 })}
+                <Price value={stats.misc.valueOfDrops.toFixed(2)} divinePrice={stats.divinePrice} />
               </span>
             </div>
           </div>
           <div className="Main-Stat">
             <div className="Main-Stat__Text">
-              <img src={DivineIcon} alt="Divine Icon" className="Main-Stat__Icon" />
+              <DivineIcon />
               Raw divine drops:{' '}
               <span className="Main-Stat__Value">{stats.misc.rawDivineDrops}</span>
             </div>

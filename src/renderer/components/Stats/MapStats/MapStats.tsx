@@ -6,7 +6,7 @@ import TableBody from '@mui/material/TableBody';
 import TableCell from '@mui/material/TableCell';
 import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
-import ChaosIcon from '../../../assets/img/c.png';
+import ChaosIcon from '../../Pricing/ChaosIcon';
 import { Order } from '../../../../helpers/types';
 import TableSortLabel from '@mui/material/TableSortLabel';
 import IconButton from '@mui/material/IconButton';
@@ -25,11 +25,11 @@ const MapRow = ({ maps }) => {
             <TableCell>Date</TableCell>
             <TableCell>Time</TableCell>
             <TableCell align="right">
-              <img src={ChaosIcon} alt="Chaos Icon" className="Area-Stats__Profit-Icon" />
+              <ChaosIcon />
             </TableCell>
             <TableCell align="right">
               <span>
-                <img src={ChaosIcon} alt="Chaos Icon" className="Area-Stats__Profit-Icon" />
+                <ChaosIcon />
                 /Hr
               </span>
             </TableCell>
@@ -174,7 +174,7 @@ const MapStats = ({ stats }) => {
               direction={orderBy === 'gained' ? order : 'desc'}
               onClick={sort('gained', order)}
             >
-              <img src={ChaosIcon} alt="Chaos Icon" className="Area-Stats__Profit-Icon" />
+              <ChaosIcon />
             </TableSortLabel>
           </TableCell>
           <TableCell variant="head" align="right">
@@ -185,7 +185,7 @@ const MapStats = ({ stats }) => {
               onClick={sort('profitPerHour', order)}
             >
               <span>
-                <img src={ChaosIcon} alt="Chaos Icon" className="Area-Stats__Profit-Icon" />
+                <ChaosIcon />
                 /hr
               </span>
             </TableSortLabel>

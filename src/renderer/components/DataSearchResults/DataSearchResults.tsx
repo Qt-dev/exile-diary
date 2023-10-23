@@ -1,8 +1,6 @@
 import React, { useEffect } from 'react';
 import './DataSearchResults.css';
 import LootTable from '../LootTable/LootTable';
-import ChaosIcon from './ChaosIcon';
-import DivineIcon from './DivineIcon';
 import { observer } from 'mobx-react-lite';
 import { Box, Stack, Typography } from '@mui/material';
 import { styled } from '@mui/material/styles'
@@ -16,6 +14,7 @@ import ArrowForwardIosSharpIcon from '@mui/icons-material/ArrowForwardIosSharp';
 import moment from 'moment';
 import momentDurationFormatSetup from "moment-duration-format-commonjs";
 import { electronService } from '../../electron.service';
+import Price from '../Pricing/Price';
 momentDurationFormatSetup(moment);
 
 const { logger } = electronService;
@@ -59,13 +58,6 @@ const AccordionDetails = styled(MuiAccordionDetails)(({ theme }) => ({
   padding: theme.spacing(2),
   borderTop: '1px solid rgba(0, 0, 0, .125)',
 }));
-
-const OptionalDivineValue = ({ value, divinePrice }) => {
-  if(value > divinePrice / 2) {
-    return <>({(value / divinePrice).toFixed(2)}<DivineIcon />)</>;
-  }
-  return <></>;
-}
 
 const DataSearchResults = ({ itemStore, runStore, activeProfile, isTakingScreenshot = false, runScreenshotCommand, header, divinePrice }) => {
   const Panels = ['panel 1', 'panel 2', 'panel 3'];
@@ -118,8 +110,8 @@ const DataSearchResults = ({ itemStore, runStore, activeProfile, isTakingScreens
           <Stack spacing={2} direction="row" justifyContent="space-evenly" alignItems="center">
             <div className="Main_Stat__Column">
               <div className="DataSearchResults__Stat">Number of items looted: {itemStore.stats.items.count}</div>
-              <div className="DataSearchResults__Stat">Total Value of items found: {itemStore.stats.value.total}<ChaosIcon /><OptionalDivineValue value={itemStore.stats.value.total} divinePrice={divinePrice} /></div>
-              <div className="DataSearchResults__Stat">Average Value of value items: {itemStore.stats.value.average}<ChaosIcon /><OptionalDivineValue value={itemStore.stats.value.average} divinePrice={divinePrice} /></div>
+              <div className="DataSearchResults__Stat">Total Value of items found: <Price value={itemStore.stats.value.total} divinePrice={divinePrice} /></div>
+              <div className="DataSearchResults__Stat">Average Value of value items: <Price value={itemStore.stats.value.average} divinePrice={divinePrice} /></div>
             </div>
             
             {/* <Divider orientation="vertical" flexItem /> */}
@@ -127,7 +119,7 @@ const DataSearchResults = ({ itemStore, runStore, activeProfile, isTakingScreens
               <div className="DataSearchResults__Stat">Number of runs: {runStore.stats.count}</div>
               <div className="DataSearchResults__Stat">Total time spent: {runStore.stats.time.total.format()}</div>
               <div className="DataSearchResults__Stat">Average time spent per run: {runStore.stats.time.average.format()}</div>
-              <div className="DataSearchResults__Stat">Average profit per run: {runStore.stats.profit.average}<ChaosIcon /><OptionalDivineValue value={runStore.stats.profit.average} divinePrice={divinePrice} /></div>
+              <div className="DataSearchResults__Stat">Average profit per run: <Price value={runStore.stats.profit.average} divinePrice={divinePrice} /></div>
             </div>
           </Stack>
         </AccordionDetails>
@@ -138,7 +130,7 @@ const DataSearchResults = ({ itemStore, runStore, activeProfile, isTakingScreens
         TransitionProps={{ onEntered: handleOpenTabEnd('panel 2'), }}
         >
         <AccordionSummary>
-          <Typography className="DataSearchResults__Stat__Summary">Loot - {itemStore.stats.value.total}<ChaosIcon /><OptionalDivineValue value={itemStore.stats.value.total} divinePrice={divinePrice} /></Typography>
+          <Typography className="DataSearchResults__Stat__Summary">Loot - <Price value={itemStore.stats.value.total} divinePrice={divinePrice} /></Typography>
         </AccordionSummary>
         <AccordionDetails>
           <Box sx={{ marginBottom: 5 }}>

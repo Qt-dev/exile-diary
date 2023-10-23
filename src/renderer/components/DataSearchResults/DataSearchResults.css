@@ -8,10 +8,7 @@
   align-items: center;
   justify-content: center;
   margin: 0.5em 0;
-}
-
-.DataSearchResults__Currency-Icon  {
-  height: 1.2em;
+  gap: 0.3em;
 }
 
 .DataSearchResults__Header-Container {
@@ -28,5 +25,10 @@
   align-items: center;
   display: flex;
   justify-content: center;
-  gap: 5px;
+  gap: 0.3em;
+}
+
+.DataSearchResults__Stat {
+  display: flex;
+  gap: 0.3em;
 }

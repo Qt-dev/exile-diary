@@ -13,7 +13,7 @@ import IconButton from '@mui/material/IconButton';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 import MapStats from '../MapStats/MapStats';
-import ChaosIcon from '../../../assets/img/c.png';
+import ChaosIcon from '../../Pricing/ChaosIcon';
 import './AreaStats.css';
 
 const AreaStatsRow = ({ stats }) => {
@@ -132,7 +132,7 @@ const AreaStats = ({ stats }) => {
                 direction={orderBy === 'gained' ? order : 'desc'}
                 onClick={sort('gained', order)}
               >
-                <img src={ChaosIcon} alt="Chaos Icon" className="Area-Stats__Profit-Icon" />
+                <ChaosIcon />
               </TableSortLabel>
             </TableCell>
             <TableCell variant="head" align="right">
@@ -142,10 +142,10 @@ const AreaStats = ({ stats }) => {
                 direction={orderBy === 'profitPerHour' ? order : 'desc'}
                 onClick={sort('profitPerHour', order)}
               >
-                <span>
-                  <img src={ChaosIcon} alt="Chaos Icon" className="Area-Stats__Profit-Icon" />
-                  /hr
-                </span>
+              <span style={{display: 'flex', gap: '0.2em', flexDirection: 'row', alignItems: 'center'}}>
+                <ChaosIcon />
+                /hr
+              </span>
               </TableSortLabel>
             </TableCell>
             <TableCell variant="head" align="right">

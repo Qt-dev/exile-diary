@@ -15,7 +15,7 @@ import {
   FormControl,
 } from '@mui/material';
 import classNames from 'classnames';
-import ChaosIcon from '../assets/img/c.png';
+import ChaosIcon from '../components/Pricing/ChaosIcon';
 import { useNavigate } from 'react-router-dom';
 import { observer } from 'mobx-react-lite';
 // import { electronService } from '../electron.service';
@@ -97,11 +97,15 @@ const RunList = ({ NumbersOfMapsToShow = 10, store, isBoxed = true }) => {
               </TableCell>
               <TableCell variant="head">Duration</TableCell>
               <TableCell variant="head" align="center">
-                <img className="Run-List__List__Header__Icon" src={ChaosIcon} alt="profit" />
+                <span style={{ display: 'flex', gap: '0.2em', alignItems: 'center', justifyContent: 'center' }}>
+                  <ChaosIcon />
+                </span>
               </TableCell>
               <TableCell variant="head" align="center">
-                <img className="Run-List__List__Header__Icon" src={ChaosIcon} alt="profit" />
-                /Hr
+                <span style={{ display: 'flex', gap: '0.2em', alignItems: 'center', justifyContent: 'center' }}>
+                  <ChaosIcon />
+                  / Hr
+                </span>
               </TableCell>
               <TableCell variant="head" align="center">
                 XP/Hr

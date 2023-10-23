@@ -12,7 +12,7 @@ import { toBlob } from 'html-to-image';
 import moment from 'moment';
 import { useLoaderData } from 'react-router';
 import { saveAs } from 'file-saver';
-import ChaosIcon from '../components/DataSearchResults/ChaosIcon';
+import Price from '../components/Pricing/Price';
 
 const { logger, ipcRenderer } = electronService;
 
@@ -26,7 +26,7 @@ const SearchResultsHeader = ({ activeProfile, searchParams }) => {
 
   const minLootString = searchParams?.minLootValue ?
     <div className="DataSearchResults__Stats__SubTitle">
-      Only loot with a minimum value of <b className="Text--Implicit Text">{searchParams.minLootValue}<ChaosIcon /></b>
+      Only loot with a minimum value of <b className="Text--Implicit Text"><Price value={searchParams.minLootValue} /></b>
     </div> : null;
 
   const neededItemNameString = searchParams?.neededItemName ?

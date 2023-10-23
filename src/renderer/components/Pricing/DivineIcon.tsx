@@ -1,8 +1,9 @@
 import React from 'react';
 import Icon from '../../assets/img/div.png';
+import './Pricing.css';
 
 const DivineIconImg = () => {
-  return <img className="DataSearchResults__Currency-Icon DataSearchResults__Stat__Divine-Icon" src={Icon} alt="divine orbs" />;
+  return <img className="Currency Currency--Divine" src={Icon} alt="Divine orbs" />;
 }
 
 export default DivineIconImg;
