@@ -13,7 +13,7 @@ import DivineIcon from '../../Pricing/DivineIcon';
 import { Order } from '../../../../helpers/types';
 import './LootStats.css';
 import { Link } from 'react-router-dom';
-import moment from 'moment';
+import dayjs from 'dayjs';
 
 type LootStatOrderOptions = 'name' | 'value' | 'map_id' | 'area';
 
@@ -122,7 +122,7 @@ const LootStats = ({ stats, store }) => {
               minimumFractionDigits: 2,
               maximumFractionDigits: 2,
             });
-            const date = moment(item.map_id, 'YYYYMMDDHHmmss').toString();
+            const date = dayjs(item.map_id, 'YYYYMMDDHHmmss').toString();
             return (
               <TableRow key={index}>
                 <TableCell align="center">

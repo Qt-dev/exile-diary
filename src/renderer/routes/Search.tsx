@@ -9,7 +9,7 @@ import CircularProgress from '@mui/material/CircularProgress';
 import { observer } from 'mobx-react-lite';
 import { Chip, Divider, Stack } from '@mui/material';
 import { toBlob } from 'html-to-image';
-import moment from 'moment';
+import dayjs from 'dayjs';
 import { useLoaderData } from 'react-router';
 import { saveAs } from 'file-saver';
 import Price from '../components/Pricing/Price';
@@ -21,7 +21,7 @@ const SearchResultsHeader = ({ activeProfile, searchParams }) => {
   const dateFormat = 'YYYYMMDDHHmmss'
   const dateString = searchParams?.to && searchParams?.from ?
     <div className="DataSearchResults__Stats__SubTitle">
-      Between <b className="Text--Implicit Text">{moment(searchParams.from, dateFormat).format('YYYY-MM-DD HH:mm:ss')}</b> and <b className="Text--Implicit Text">{moment(searchParams.to, dateFormat).format('YYYY-MM-DD HH:mm:ss')}</b>
+      Between <b className="Text--Implicit Text">{dayjs(searchParams.from, dateFormat).format('YYYY-MM-DD HH:mm:ss')}</b> and <b className="Text--Implicit Text">{dayjs(searchParams.to, dateFormat).format('YYYY-MM-DD HH:mm:ss')}</b>
     </div> : null;
 
   const minLootString = searchParams?.minLootValue ?
@@ -71,7 +71,7 @@ const Search = ({ store }) => {
     if(isTakingScreenshot) {
       toBlob(screenShotRef.current, { cacheBust: true })
         .then((blob) => {
-          const now = moment().format('YYYY-MM-DD_HH-mm-ss');
+          const now = dayjs().format('YYYY-MM-DD_HH-mm-ss');
           const fileName = `${characterName}_${now}.png`;
           if(blob) saveAs(blob, fileName);
           setIsTakingScreenshot(false);

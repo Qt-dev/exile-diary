@@ -1,6 +1,6 @@
 import React from 'react';
 import Case from 'case';
-import moment from 'moment';
+import dayjs from 'dayjs';
 import { Order } from '../../../../helpers/types';
 import Table from '@mui/material/Table';
 import TableHead from '@mui/material/TableHead';
@@ -34,7 +34,7 @@ const AreaStatsRow = ({ stats }) => {
           {stats.count.toLocaleString()}
         </TableCell>
         <TableCell sx={{ width: 100 }} align="center">
-          {moment.utc(stats.time * 1000).format('HH:mm:ss')}
+          {dayjs.utc(stats.time * 1000).format('HH:mm:ss')}
         </TableCell>
         <TableCell sx={{ width: 100 }} align="right">
           {stats.gained.toLocaleString('en-US', {

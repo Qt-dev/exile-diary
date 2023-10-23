@@ -11,13 +11,12 @@ import MuiAccordion, { AccordionProps } from '@mui/material/Accordion';
 import MuiAccordionDetails from '@mui/material/AccordionDetails';
 import RunList from '../../routes/RunList';
 import ArrowForwardIosSharpIcon from '@mui/icons-material/ArrowForwardIosSharp';
-import moment from 'moment';
-import momentDurationFormatSetup from "moment-duration-format-commonjs";
 import { electronService } from '../../electron.service';
 import Price from '../Pricing/Price';
-momentDurationFormatSetup(moment);
 
 const { logger } = electronService;
+
+const DurationFormat = 'HH:mm:ss';
 
 const Accordion = styled((props: AccordionProps) => (
   <MuiAccordion elevation={0} square {...props} />
@@ -117,8 +116,8 @@ const DataSearchResults = ({ itemStore, runStore, activeProfile, isTakingScreens
             {/* <Divider orientation="vertical" flexItem /> */}
             <div className="Main_Stat__Column">
               <div className="DataSearchResults__Stat">Number of runs: {runStore.stats.count}</div>
-              <div className="DataSearchResults__Stat">Total time spent: {runStore.stats.time.total.format()}</div>
-              <div className="DataSearchResults__Stat">Average time spent per run: {runStore.stats.time.average.format()}</div>
+              <div className="DataSearchResults__Stat">Total time spent: {runStore.stats.time.total.format(DurationFormat)}</div>
+              <div className="DataSearchResults__Stat">Average time spent per run: {runStore.stats.time.average.format(DurationFormat)}</div>
               <div className="DataSearchResults__Stat">Average profit per run: <Price value={runStore.stats.profit.average} divinePrice={divinePrice} /></div>
             </div>
           </Stack>
@@ -147,7 +146,7 @@ const DataSearchResults = ({ itemStore, runStore, activeProfile, isTakingScreens
         onChange={handleTabChange('panel 3')}
         TransitionProps={{ onEntered: handleOpenTabEnd('panel 3'),}}>
         <AccordionSummary>
-          <Typography className="DataSearchResults__Stat__Summary">Runs ({runStore.stats.count} runs in {runStore.stats.time.total.format()} - avg: {runStore.stats.time.average.format()})</Typography>
+          <Typography className="DataSearchResults__Stat__Summary">Runs ({runStore.stats.count} runs in {runStore.stats.time.total.format(DurationFormat)} - avg: {runStore.stats.time.average.format(DurationFormat)})</Typography>
         </AccordionSummary>
         <AccordionDetails>
           <RunList store={runStore} isBoxed={false} />

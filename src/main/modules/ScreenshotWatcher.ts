@@ -2,7 +2,7 @@ import sharp, { kernel } from 'sharp';
 import fs from 'fs/promises';
 import SettingsManager from '../SettingsManager';
 import path from 'path';
-import moment from 'moment';
+import dayjs from 'dayjs';
 import chokidar from 'chokidar';
 import Logger from 'electron-log';
 import EventEmitter from 'events';
@@ -199,7 +199,7 @@ const getBounds = async (image: sharp.Sharp) => {
 async function process(file: string | Buffer) {
   const filepath = path.join(app.getPath('userData'), '.dev_captures');
   require('fs').mkdirSync(filepath, { recursive: true });
-  const filePrefix = moment().format('YMMDDHHmmss');
+  const filePrefix = dayjs().format('YMMDDHHmmss');
   // Kernel to use in a convolve to make text look better to be read.
   // const kernel = [-1 / 8, -1 / 8, -1 / 8, -1 / 8, 2, -1 / 8, -1 / 8, -1 / 8, -1 / 8];
 

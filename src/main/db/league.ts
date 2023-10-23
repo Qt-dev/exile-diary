@@ -1,5 +1,5 @@
 import DB from './index';
-import moment from 'moment';
+import dayjs from 'dayjs';
 import Logger from 'electron-log';
 const logger = Logger.scope('db/league');
 
@@ -9,7 +9,7 @@ const League = {
     const query = 'insert or ignore into leagues(timestamp, league) values(?, ?)';
 
     try {
-      await DB.run(query, [moment().format('YYYYMMDDHHmmss'), league]);
+      await DB.run(query, [dayjs().format('YYYYMMDDHHmmss'), league]);
     } catch (err) {
       logger.error(`Error inserting new league: ${JSON.stringify(err)}`);
     }

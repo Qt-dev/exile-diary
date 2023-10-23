@@ -5,7 +5,7 @@ import Utils from './Utils';
 import DB from '../db/rates';
 
 const EventEmitter = require('events');
-const moment = require('moment');
+const dayjs = require('dayjs');
 const https = require('https');
 const zlib = require('zlib');
 const logger = Logger.scope('RateGetter');
@@ -122,7 +122,7 @@ class RateGetterV2 {
       }
     }
 
-    const today = moment().format('YMMDD');
+    const today = dayjs().format('YMMDD');
     const hasExisting = await this.hasExistingRates(today);
 
     if (hasExisting) {

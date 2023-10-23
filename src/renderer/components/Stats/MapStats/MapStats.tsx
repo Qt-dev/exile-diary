@@ -1,6 +1,6 @@
 import React from 'react';
 import Case from 'case';
-import moment from 'moment';
+import dayjs from 'dayjs';
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
 import TableCell from '@mui/material/TableCell';
@@ -40,8 +40,8 @@ const MapRow = ({ maps }) => {
         <TableBody>
           {maps.map((map, index) => (
             <TableRow key={index} component={Link} to={`/run/${map.id}`}>
-              <TableCell>{moment(map.date, 'YYYYMMDDHHmmss').toString()}</TableCell>
-              <TableCell>{moment.utc(map.time * 1000).format('HH:mm:ss')}</TableCell>
+              <TableCell>{dayjs(map.date, 'YYYYMMDDHHmmss').toString()}</TableCell>
+              <TableCell>{dayjs.utc(map.time * 1000).format('HH:mm:ss')}</TableCell>
               <TableCell align="right">
                 {map.gained.toLocaleString('en-US', {
                   minimumFractionDigits: 2,
@@ -82,7 +82,7 @@ const MapStatsRow = ({ stats }) => {
         </TableCell>
         <TableCell>{Case.capital(stats.name)}</TableCell>
         <TableCell align="center">{stats.count}</TableCell>
-        <TableCell align="center">{moment.utc(stats.time * 1000).format('HH:mm:ss')}</TableCell>
+        <TableCell align="center">{dayjs.utc(stats.time * 1000).format('HH:mm:ss')}</TableCell>
         <TableCell align="right">
           {stats.gained.toLocaleString('en-US', {
             minimumFractionDigits: 2,

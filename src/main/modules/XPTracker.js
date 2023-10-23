@@ -1,6 +1,5 @@
 const logger = require('electron-log');
 const Constants = require('../../helpers/constants').default;
-const moment = require('moment');
 
 var maxXP = false;
 

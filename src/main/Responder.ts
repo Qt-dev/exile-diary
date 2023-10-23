@@ -95,7 +95,8 @@ const getAllStats = async (e, params) => {
   const profile = SettingsManager.get('activeProfile');
   const league = params?.league ?? profile.league;
   const characterName = params?.characterName ?? profile.characterName;
-  const stats = StatsManager.getAllStats({ league, characterName });
+  const stats = await StatsManager.getAllStats({ league, characterName });
+  stats.divinePrice = await ItemPricer.getCurrencyByName(dayjs().format('YYYYMMDD'), 'Divine Orb', league);
   return stats;
 };
 

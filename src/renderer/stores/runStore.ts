@@ -1,7 +1,7 @@
 import { computed, makeAutoObservable, runInAction } from 'mobx';
 import { electronService } from '../electron.service';
 import { Run } from './domain/run';
-import moment from 'moment';
+import dayjs from 'dayjs';
 const { logger } = electronService;
 
 // Mobx store for maps
@@ -94,10 +94,10 @@ export default class RunStore {
     return Math.ceil(this.runs.length / size);
   }
 
-  @computed getFullDuration(): moment.Duration {
+  @computed getFullDuration(): plugin.Duration {
     return this.runs.reduce(
-      (acc, run) => acc.add(run.duration ?? 0),
-      moment.duration(0, 'seconds')
+      (acc, run) => acc.add(run.duration?.asSeconds() ?? 0, 'seconds'),
+      dayjs.duration(0, 'seconds')
     );
   }
 
@@ -130,7 +130,8 @@ export default class RunStore {
 
   @computed get stats(): any {
     const totalTime = this.getFullDuration();
-    const averageTime = moment.duration(totalTime.asMilliseconds() / this.runs.length);
+    logger.info('yo', totalTime.asMilliseconds())
+    const averageTime = dayjs.duration(totalTime.asMilliseconds() > 0 ? totalTime.asMilliseconds() / this.runs.length : 0);
     const totalProfit = this.runs.reduce((acc, run) => acc + run.profit, 0);
     const averageProfit = this.runs.length > 0 ? totalProfit / this.runs.length : 0;
 

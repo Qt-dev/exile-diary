@@ -19,6 +19,9 @@ import League from './db/league';
 import RendererLogger from './RendererLogger';
 import * as url from 'url';
 import { OverlayController } from 'electron-overlay-window';
+import dayjs, { Dayjs } from 'dayjs';
+import duration from 'dayjs/plugin/duration'
+import AuthManager from './AuthManager';
 
 // Old stuff
 import RateGetterV2 from './modules/RateGetterV2';
@@ -29,9 +32,8 @@ import * as OCRWatcher from './modules/OCRWatcher';
 import StashGetter from './modules/StashGetter';
 import RunParser from './modules/RunParser';
 import KillTracker from './modules/KillTracker';
-import moment from 'moment';
-import AuthManager from './AuthManager';
 
+dayjs.extend(duration);
 const devUrl = 'http://localhost:3000';
 enum SYSTEMS {
   WINDOWS = 'win32',
@@ -40,7 +42,7 @@ enum SYSTEMS {
 }
 const autoUpdaterIntervalTime = 1000 * 60 * 60; // 1 hour
 const isDev = require('electron-is-dev');
-let modReadingTimer: moment.Moment | null = null;
+let modReadingTimer: Dayjs | null = null;
 
 // Initialize logger settings
 logger.initialize({ preload: true });
@@ -273,7 +275,7 @@ class MainProcess {
       let stats = `IIR: ${info.mapStats.iir} / IIQ: ${info.mapStats.iiq}`;
       if (info.mapStats.packsize && info.mapStats.packsize > 0)
         stats += ` / Pack Size: ${info.mapStats.packsize}`;
-      const modReadingDuration = moment().diff(modReadingTimer);
+      const modReadingDuration = dayjs().diff(modReadingTimer);
       logger.info(
         `Got area info for ${info.areaInfo.name} (${tier} - ${stats}) in ${modReadingDuration}ms`
       );
@@ -301,8 +303,8 @@ class MainProcess {
     ScreenshotWatcher.emitter.removeAllListeners();
     ScreenshotWatcher.emitter.on('OCRStart', (stats) => {
       logger.info('Reading mods from screenshot');
-      modReadingTimer = moment(stats.birthtime, moment.ISO_8601);
-      logger.info(moment().diff(modReadingTimer));
+      modReadingTimer = dayjs(stats.birthtime);
+      logger.info(dayjs().diff(modReadingTimer));
     });
     ScreenshotWatcher.emitter.on('OCRError', () => {
       logger.info('Error getting area info from screenshot. Please try again');
@@ -318,7 +320,7 @@ class MainProcess {
         logger.info('Not accepting new screenshot orders while this screenshot is being parsed');
         return;
       } else {
-        modReadingTimer = moment();
+        modReadingTimer = dayjs();
         this.screenshotLock = true;
         logger.info('Map Info : Reading from screenshot');
         RendererLogger.log({
@@ -705,7 +707,7 @@ class MainProcess {
       url: 'https://exilediary.com',
       name: 'code_challenge',
       value: 'test',
-      expirationDate: moment().add(1, 'week').unix(),
+      expirationDate: dayjs().add(1, 'week').unix(),
     });
 
     app.on('second-instance', (event, commandLine, workingDirectory) => {

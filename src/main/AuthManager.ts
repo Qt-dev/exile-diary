@@ -4,7 +4,7 @@ import base64url from 'base64url';
 import logger from 'electron-log';
 import axios, { AxiosResponse } from 'axios';
 import RendererLogger from './RendererLogger';
-import moment from 'moment';
+import dayjs from 'dayjs';
 import keytar from '@postman/node-keytar';
 import SettingsManager from './SettingsManager';
 
@@ -48,7 +48,7 @@ const AuthManager = {
     const response: AxiosResponse = await axios.post(url, urlencodedParams);
     const token = await response.data;
 
-    const expirationTime = moment().add(token.expires_in, 'seconds').format('YYYY-MM-DD HH:mm:ss');
+    const expirationTime = dayjs().add(token.expires_in, 'seconds').format('YYYY-MM-DD HH:mm:ss');
     logger.info(
       `Fetched token from the GGG API for ${token.username}. It expires on ${expirationTime} (${token.expires_in} seconds)`
     );
@@ -85,7 +85,7 @@ const AuthManager = {
       logger.info('Saving token to the local storage');
       SettingsManager.set(
         'tokenExpirationDate',
-        moment().add(expires_in, 'seconds').format('YYYY-MM-DD HH:mm:ss')
+        dayjs().add(expires_in, 'seconds').format('YYYY-MM-DD HH:mm:ss')
       );
       SettingsManager.set('username', username);
       await keytar.setPassword(service, account, access_token);
@@ -101,7 +101,7 @@ const AuthManager = {
     const isAuthenticated =
       password !== null &&
       expirationDate !== null &&
-      moment().isBefore(expirationDate) &&
+      dayjs().isBefore(expirationDate) &&
       !!username &&
       (!isFirstTime
         ? !!activeProfile &&
@@ -124,8 +124,8 @@ const AuthManager = {
   setLogoutTimer: async (isFirstTime = false) => {
     if (await AuthManager.isAuthenticated(isFirstTime)) {
       const tokenExiprationDate = SettingsManager.get('tokenExpirationDate');
-      const realExpirationDate = moment(tokenExiprationDate).subtract(15, 'minutes');
-      const millisecondsToExpiration = realExpirationDate.diff(moment());
+      const realExpirationDate = dayjs(tokenExiprationDate).subtract(15, 'minutes');
+      const millisecondsToExpiration = realExpirationDate.diff(dayjs());
       logger.info(
         `Setting logout timer to ${realExpirationDate.format(
           'YYYY-MM-DD HH:mm:ss'

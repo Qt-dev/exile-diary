@@ -11,7 +11,7 @@ import LootStats from '../components/Stats/LootStats/LootStats';
 import ItemStore from '../stores/itemStore';
 import { toCanvas } from 'html-to-image';
 import { electronService } from '../electron.service';
-import moment from 'moment';
+import dayjs from 'dayjs';
 const { logger } = electronService;
 
 function a11yProps(index: number) {
@@ -55,7 +55,7 @@ const Stats = () => {
     setIsTakingScreenshot(true);
     toCanvas(screenShotRef.current, { cacheBust: true })
       .then((canvas) => {
-        const now = moment().format('YYYY-MM-DD_HH-mm-ss');
+        const now = dayjs().format('YYYY-MM-DD_HH-mm-ss');
         const link = document.createElement('a');
         link.download = `${characterName}_${now}.jpg`;
         link.href = canvas.toDataURL('image/jpeg');
