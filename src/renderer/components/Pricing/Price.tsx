@@ -9,7 +9,7 @@ const { logger } = electronService;
 const OptionalDivineValue = ({ value, divinePrice }) => {
   const parsedDivinePrice = parseFloat(divinePrice);
   const parsedValue = parseFloat(value);
-  if(parsedDivinePrice > 0) {
+  if(parsedDivinePrice > 0 && parsedValue > (0.01 * parsedDivinePrice)) {
     return <>({(parsedValue / parsedDivinePrice).toFixed(2)}<DivineIcon />)</>;
   }
   return <></>;
