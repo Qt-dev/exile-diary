@@ -2,7 +2,7 @@ import { computed, makeAutoObservable, runInAction } from 'mobx';
 import { Order } from '../../helpers/types';
 import { Item } from './domain/item';
 import { electronService } from '../electron.service';
-const { logger, ipcRenderer } = electronService;
+// const { logger, ipcRenderer } = electronService;
 
 // Mobx store for Items
 export default class ItemStore {

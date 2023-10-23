@@ -1,6 +1,6 @@
 import React from 'react';
 import Case from 'case';
-import moment from 'moment';
+import dayjs from 'dayjs';
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
 import TableCell from '@mui/material/TableCell';
@@ -146,10 +146,10 @@ const BossStatsRow = ({ stat }: { stat: BossStat }) => {
           {stat.count.toLocaleString('en-US', { maximumFractionDigits: 0 })}
         </TableCell>
         <TableCell align="center">
-          {stat.count === 0 ? '--' : moment.utc(stat.totalTime * 1000).format('HH:mm:ss')}
+          {stat.count === 0 ? '--' : dayjs.utc(stat.totalTime * 1000).format('HH:mm:ss')}
         </TableCell>
         <TableCell align="center">
-          {stat.count === 0 ? '--' : moment.utc(stat.fastest * 1000).format('HH:mm:ss')}
+          {stat.count === 0 ? '--' : dayjs.utc(stat.fastest * 1000).format('HH:mm:ss')}
         </TableCell>
         <TableCell align="right">{stat.deaths}</TableCell>
       </TableRow>

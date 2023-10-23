@@ -5,9 +5,9 @@ import { StashTabData } from '../../helpers/types';
 import DB from '../db/stashtabs';
 import stashTabsManager from '../StashTabsManager';
 import RatesGetterV2 from './RateGetterV2';
+import dayjs from 'dayjs';
 const EventEmitter = require('events');
 const logger = require('electron-log').scope('ShashGetter');
-const moment = require('moment');
 const ItemParser = require('./ItemParser');
 const ItemPricer = require('./ItemPricer');
 
@@ -46,7 +46,7 @@ class StashGetter {
     if (this.nextStashGetTimer) clearTimeout(this.nextStashGetTimer);
     // default 5 min between checks
     const newInterval = this.previousTimestamp
-      ? interval - (moment().unix() - this.previousTimestamp) / 1000
+      ? interval - (dayjs().unix() - this.previousTimestamp) / 1000
       : interval;
 
     logger.info(`Next net worth check in ${newInterval} seconds`);
@@ -122,7 +122,7 @@ class StashGetter {
     }
 
     let getFullStash = await this.checkFullStashInterval();
-    const timestamp = moment().format('YYYYMMDDHHmmss');
+    const timestamp = dayjs().format('YYYYMMDDHHmmss');
 
     const params = {
       league: settings.activeProfile.league,

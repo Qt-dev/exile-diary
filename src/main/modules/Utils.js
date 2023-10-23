@@ -4,10 +4,8 @@ const Constants = require('../../helpers/constants').default;
 const ItemCategoryParser = require('./ItemCategoryParser');
 const ItemData = require('./ItemData');
 const logger = require('electron-log');
-const moment = require('moment');
-const momentDurationFormatSetup = require('moment-duration-format-commonjs');
+const dayjs = require('dayjs');
 const zlib = require('zlib');
-momentDurationFormatSetup(moment);
 
 const Utils = {
   getParams: (url) => {
@@ -256,14 +254,14 @@ const Utils = {
   },
 
   getRunningTime: (firstevent, lastevent, format = null, options = null) => {
-    return moment
-      .duration(moment(lastevent, 'YYYYMMDDHHmmss').diff(moment(firstevent, 'YYYYMMDDHHmmss')))
+    return dayjs
+      .duration(dayjs(lastevent, 'YYYYMMDDHHmmss').diff(dayjs(firstevent, 'YYYYMMDDHHmmss')))
       .format(format, options);
   },
 
   getXPRate: (xp, firstevent, lastevent) => {
-    var time = moment
-      .duration(moment(lastevent, 'YYYYMMDDHHmmss').diff(moment(firstevent, 'YYYYMMDDHHmmss')))
+    var time = dayjs
+      .duration(dayjs(lastevent, 'YYYYMMDDHHmmss').diff(dayjs(firstevent, 'YYYYMMDDHHmmss')))
       .format('s', { useGrouping: false });
     var f = new Intl.NumberFormat();
     return f.format(Math.round((xp * 3600) / time));
@@ -337,7 +335,9 @@ const Utils = {
   },
 
   getBase64EncodedData: (iconURL) => {
-    var str = iconURL.replace('https://web.poecdn.com/gen/image/', '');
+    var str = iconURL
+      .replace('https://web.poecdn.com/gen/image/', '')
+      .replace('https://www.pathofexile.com/gen/image/', '');
     str = str.substr(0, str.indexOf('/'));
     return JSON.parse(Buffer.from(str, 'base64').toString('utf8'))[2];
   },

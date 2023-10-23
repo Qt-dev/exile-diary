@@ -1,7 +1,7 @@
 import DB from './db/stashtabs';
 import SettingsManager from './SettingsManager';
 import zlib from 'zlib';
-import moment from 'moment';
+import dayjs from 'dayjs';
 import logger from 'electron-log';
 
 class StashTabsManager {
@@ -12,7 +12,7 @@ class StashTabsManager {
     return maps >= limit;
   }
 
-  async getStashData(date: number = Number(moment().format('YYYYMMDDHHmmss'))): Promise<any> {
+  async getStashData(date: number = Number(dayjs().format('YYYYMMDDHHmmss'))): Promise<any> {
     const league = SettingsManager.get('activeProfile').league;
     const data = await DB.getStashData(date, league);
     const items = data

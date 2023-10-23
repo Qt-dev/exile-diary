@@ -1,6 +1,6 @@
 import { makeAutoObservable } from 'mobx';
 import { v4 as uuidv4 } from 'uuid';
-import moment, { Moment } from 'moment';
+import dayjs, { Dayjs } from 'dayjs';
 
 type Message = {
   text: string;
@@ -18,7 +18,7 @@ export type LogData = {
 export class Log {
   id = null;
   messages: Message[] = [];
-  timestamp: Moment | null = null;
+  timestamp: Dayjs | null = null;
   link: string | null = null;
   store = null;
 
@@ -29,7 +29,7 @@ export class Log {
     });
     this.store = store;
     this.id = uuidv4();
-    this.timestamp = moment();
+    this.timestamp = dayjs();
     this.messages = logData.messages;
     this.link = logData.link;
   }

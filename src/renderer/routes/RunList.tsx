@@ -1,5 +1,5 @@
 import './RunList.css';
-import moment from 'moment';
+import dayjs from 'dayjs';
 import React from 'react';
 import {
   TableContainer,
@@ -18,10 +18,6 @@ import classNames from 'classnames';
 import ChaosIcon from '../components/Pricing/ChaosIcon';
 import { useNavigate } from 'react-router-dom';
 import { observer } from 'mobx-react-lite';
-// import { electronService } from '../electron.service';
-import momentDurationFormatSetup from "moment-duration-format-commonjs";
-momentDurationFormatSetup(moment);
-// const { logger } = electronService;
 
 
 const RunList = ({ NumbersOfMapsToShow = 10, store, isBoxed = true }) => {
@@ -140,7 +136,7 @@ const RunList = ({ NumbersOfMapsToShow = 10, store, isBoxed = true }) => {
                   <TableCell align="center">{run.iiq ? `${run.iiq}%` : '-'}</TableCell>
                   <TableCell align="center">{run.iir ? `${run.iir}%` : '-'}</TableCell>
                   <TableCell align="center">{run.packSize ? `${run.packSize}%` : '-'}</TableCell>
-                  <TableCell>{moment.utc(run.duration?.asMilliseconds()).format('mm:ss')}</TableCell>
+                  <TableCell>{dayjs.utc(run.duration?.asMilliseconds()).format('mm:ss')}</TableCell>
                   <TableCell align="center">{run.profit?.toFixed(2)}</TableCell>
                   <TableCell align="center">{run.profitPerHour?.toFixed(2)}</TableCell>
                   <TableCell align="center" className={getXPClassName(run.xpPerHour)}>

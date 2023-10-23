@@ -1,12 +1,12 @@
 import React from 'react';
-import moment from 'moment';
+import dayjs from 'dayjs';
 import constants from '../../../helpers/constants';
 import ItemStore from '../../stores/itemStore';
 import ItemList from '../ItemList/ItemList';
 import './RunEvent.css';
 
 const formatLine = (event, text) => {
-  const time = moment(event.id, 'YYYYMMDDHHmmss').format('HH:mm:ss');
+  const time = dayjs(event.id, 'YYYYMMDDHHmmss').format('HH:mm:ss');
 
   return (
     <div className="Run__Event">
@@ -36,8 +36,8 @@ const textPerEventType = {
       constants.mavenQuotes[event.event_text.replace('The Maven: ', '')] === 'bossKilled' &&
       runInfo.bossBattle
     ) {
-      const duration = moment
-        .utc(moment.duration(Number(runInfo.bossBattle.time), 'seconds').asMilliseconds())
+      const duration = dayjs
+        .utc(dayjs.duration(Number(runInfo.bossBattle.time), 'seconds').asMilliseconds())
         .format('mm:ss');
       return (
         <>
