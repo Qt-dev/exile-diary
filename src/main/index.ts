@@ -674,6 +674,7 @@ class MainProcess {
       'debug:recheck-gain',
       'search:trigger',
       'get-divine-price',
+      'get-all-map-names', 
     ];
     for (const event of events) {
       ipcMain.handle(event, Responder[event]);

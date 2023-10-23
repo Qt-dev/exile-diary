@@ -156,6 +156,11 @@ const getDivinePrice = async(e, params) => {
   return ItemPricer.getCurrencyByName(dayjs().format('YYYYMMDD'), 'Divine Orb', SettingsManager.get('activeProfile').league);
 }
 
+const getAllMapNames = async(e, params) => {
+  logger.info('Getting all map names from the renderer process');
+  return await StatsManager.getAllMapNames();
+}
+
 const Responder = {
   'app-globals': getAppGlobals,
   'load-runs': loadRuns,
@@ -174,6 +179,7 @@ const Responder = {
   'debug:recheck-gain': debugRecheckGain,
   'search:trigger': triggerSearch,
   'get-divine-price': getDivinePrice,
+  'get-all-map-names': getAllMapNames,
 };
 
 export default Responder;

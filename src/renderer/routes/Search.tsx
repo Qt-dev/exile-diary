@@ -17,7 +17,6 @@ import Price from '../components/Pricing/Price';
 const { logger, ipcRenderer } = electronService;
 
 const SearchResultsHeader = ({ activeProfile, searchParams }) => {
-  logger.info(searchParams);
   const dateFormat = 'YYYYMMDDHHmmss'
   const dateString = searchParams?.to && searchParams?.from ?
     <div className="DataSearchResults__Stats__SubTitle">
@@ -34,6 +33,16 @@ const SearchResultsHeader = ({ activeProfile, searchParams }) => {
       Only contain runs where you found at least one <b className="Text--Implicit Text">{searchParams.neededItemName}</b>
     </div> : null;
 
+  const selectedMapsString = searchParams?.selectedMaps ?
+    <>
+      <div className="DataSearchResults__Stats__SubTitle">
+          Only contain runs on the following maps:
+      </div>
+      <div className="DataSearchResults__Stats__SubTitle">
+          <b className="Text--Implicit Text">{searchParams.selectedMaps.join(', ')}</b>
+      </div>
+    </> : null;
+
   return (
     <>
       <h3 className="DataSearchResults__Stats__Title">
@@ -41,6 +50,7 @@ const SearchResultsHeader = ({ activeProfile, searchParams }) => {
       </h3>
       {dateString}
       {minLootString}
+      {selectedMapsString}
       {neededItemNameString}
     </>
   );
@@ -51,7 +61,7 @@ const Search = ({ store }) => {
   const [ isTakingScreenshot, setIsTakingScreenshot] = React.useState(false);
   const [ searchParams, setSearchParams ] = React.useState({} as any);
 
-  const { activeProfile, divinePrice } = useLoaderData() as any;
+  const { activeProfile, divinePrice, maps } = useLoaderData() as any;
   const { characterName } = activeProfile;
 
   const handleSearch = async (searchParams) => {
@@ -112,7 +122,7 @@ const Search = ({ store }) => {
           <CircularProgress />
         </Stack>
       </Backdrop>
-      <DataSearchForm searchFunction={handleSearch}/>
+      <DataSearchForm searchFunction={handleSearch} availableMaps={maps} />
       <Divider className="Search__Divider" sx={{margin: '1em 0'}}>
         <Chip label="Results" />
       </Divider>

@@ -72,17 +72,22 @@ const router = createHashRouter([
         path: 'search',
         element: <Search store={new SearchDataStore()} />,
         loader: async () => {
-          const settings = await ipcRenderer.invoke('get-settings');
-          const divinePrice = await ipcRenderer.invoke('get-divine-price');
-          return { activeProfile: settings.activeProfile, divinePrice };
+          const [ settings, divinePrice, maps ] = await Promise.all([
+            ipcRenderer.invoke('get-settings'),
+            ipcRenderer.invoke('get-divine-price'),
+            ipcRenderer.invoke('get-all-map-names'),
+          ]);
+          return { activeProfile: settings.activeProfile, divinePrice, maps };
         },
       },
       {
         path: 'stats',
         element: <Stats />,
         loader: async () => {
-          const settings = await ipcRenderer.invoke('get-settings');
-          const stats = await ipcRenderer.invoke('get-all-stats');
+          const [ settings, stats ] = await Promise.all([
+            ipcRenderer.invoke('get-settings'),
+            ipcRenderer.invoke('get-all-stats'),
+          ]);
           return { stats, activeProfile: settings.activeProfile };
         },
       },

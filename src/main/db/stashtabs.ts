@@ -4,7 +4,7 @@ const logger = Logger.scope('db/stashtabs');
 
 const StashTabs = {
   insertStashData: async (
-    timestamp: number,
+    timestamp: number | string,
     value: number,
     rawData,
     league: string
@@ -30,7 +30,7 @@ const StashTabs = {
       return '{}';
     }
   },
-  getPreviousStashValue: async (timestamp: number, league: string): Promise<number> => {
+  getPreviousStashValue: async (timestamp: number | string, league: string): Promise<number> => {
     logger.info(`Getting previous stash value for ${league} before ${timestamp}`);
     const query = 'SELECT value FROM stashes where timestamp < ? order by timestamp desc limit 1';
     try {

@@ -11,16 +11,31 @@ import dayjs, { Dayjs } from 'dayjs';
 import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import Select from '@mui/material/Select';
+import MenuItem from '@mui/material/MenuItem';
+import InputLabel from '@mui/material/InputLabel';
+import ListItemText from '@mui/material/ListItemText';
+import Checkbox from '@mui/material/Checkbox';
+import OutlinedInput from '@mui/material/OutlinedInput';
 const { logger } = electronService;
 
 
-const DataSearchForm = ({ searchFunction }) => {
+const DataSearchForm = ({ searchFunction, availableMaps }) => {
   const now = dayjs();
   const [from, setFrom] = React.useState<Dayjs | null>(dayjs().subtract(1, 'days'));
   const [to, setTo] = React.useState<Dayjs | null>(dayjs());
   const [minLootValue, setMinLootValue] = React.useState(0);
   const [neededItemName, setNeededItemName] = React.useState('');
+  const [selectedMaps, setSelectedMaps] = React.useState<string[]>([]);
 
+  const handleSelectMaps = (event) => {
+    const {
+      target: { value },
+    } = event;
+    setSelectedMaps(
+      typeof value === 'string' ? value.split(',') : value,
+    );
+  }
 
   const handleSearch = (e) => {
     e.preventDefault();
@@ -29,6 +44,7 @@ const DataSearchForm = ({ searchFunction }) => {
       to: to?.format('YYYYMMDDHHmmss'),
       minLootValue,
       neededItemName,
+      selectedMaps,
     });
   }
 
@@ -72,6 +88,28 @@ const DataSearchForm = ({ searchFunction }) => {
           />
         </FormControl>
       </Stack>
+      <FormControl variant="outlined" size="medium">
+        <InputLabel id="selected-maps-label">Selected Maps</InputLabel>
+        <Select
+          labelId="selected-maps-label"
+          label="Selected Maps"
+          id="selected-maps"
+          multiple
+          value={selectedMaps}
+          renderValue={(selectedMaps) => selectedMaps.join(', ')}
+          onChange={handleSelectMaps}
+        >
+          {availableMaps.map(({ name }) => (
+            <MenuItem
+              key={name}
+              value={name}
+            >
+              <Checkbox checked={selectedMaps.indexOf(name) > -1} />
+              <ListItemText  primary={name} />
+            </MenuItem>
+          ))}
+        </Select>
+      </FormControl>
 
       <ButtonGroup className="DataSearchForm__Buttons" variant="contained" aria-label="outlined primary button group" >
         <Button type="submit">Search</Button>
