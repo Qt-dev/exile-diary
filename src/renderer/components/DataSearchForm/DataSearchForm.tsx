@@ -16,7 +16,6 @@ import MenuItem from '@mui/material/MenuItem';
 import InputLabel from '@mui/material/InputLabel';
 import ListItemText from '@mui/material/ListItemText';
 import Checkbox from '@mui/material/Checkbox';
-import OutlinedInput from '@mui/material/OutlinedInput';
 const { logger } = electronService;
 
 
@@ -25,6 +24,7 @@ const DataSearchForm = ({ searchFunction, availableMaps }) => {
   const [from, setFrom] = React.useState<Dayjs | null>(dayjs().subtract(1, 'days'));
   const [to, setTo] = React.useState<Dayjs | null>(dayjs());
   const [minLootValue, setMinLootValue] = React.useState(0);
+  const [minMapValue, setMinMapValue] = React.useState(0);
   const [neededItemName, setNeededItemName] = React.useState('');
   const [selectedMaps, setSelectedMaps] = React.useState<string[]>([]);
 
@@ -43,6 +43,7 @@ const DataSearchForm = ({ searchFunction, availableMaps }) => {
       from: from?.format('YYYYMMDDHHmmss'),
       to: to?.format('YYYYMMDDHHmmss'),
       minLootValue,
+      minMapValue,
       neededItemName,
       selectedMaps,
     });
@@ -70,11 +71,21 @@ const DataSearchForm = ({ searchFunction, availableMaps }) => {
             
         <FormControl variant="outlined" size="medium">
           <TextField
-            label="Minimum Value of loot"
+            label="Only items worth more than"
             id="min-loot-value"
             value={minLootValue}
             type='number'
             onChange={(e) => { if(parseInt(e.target.value) > 0) setMinLootValue(parseInt(e.target.value)); }}
+          />
+        </FormControl>
+
+        <FormControl variant="outlined" size="medium">
+          <TextField
+            label="Only maps with profit above"
+            id="min-map-value"
+            value={minMapValue}
+            type='number'
+            onChange={(e) => { if(parseInt(e.target.value) > 0) setMinMapValue(parseInt(e.target.value)); }}
           />
         </FormControl>
 
