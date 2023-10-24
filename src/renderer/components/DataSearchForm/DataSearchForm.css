@@ -17,3 +17,13 @@
   color: white;
   margin: 0.5rem 0 1rem;
 }
+
+.DataSearchForm__Section-Title {
+  color: white;
+}
+
+.DataSearchForm__Field-Group {
+  border: 1px solid rgba(255,255,255, 0.1);
+  border-radius: 0.5rem;
+  padding: 10px;
+}

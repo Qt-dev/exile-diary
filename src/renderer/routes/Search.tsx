@@ -13,7 +13,6 @@ import dayjs from 'dayjs';
 import { useLoaderData } from 'react-router';
 import { saveAs } from 'file-saver';
 import Price from '../components/Pricing/Price';
-import ChaosIcon from '../components/Pricing/ChaosIcon';
 
 const { logger, ipcRenderer } = electronService;
 
@@ -49,6 +48,31 @@ const SearchResultsHeader = ({ activeProfile, searchParams, divinePrice }) => {
       Only contain runs with a minimum map profit of <b className="Text--Implicit Text"><Price value={searchParams.minMapValue} divinePrice={divinePrice} /></b>
     </div> : null;
 
+  const iiqString = searchParams?.iiq && (searchParams?.iiq?.min > 0  || searchParams?.iiq?.max < 99999) ?
+    <div className="DataSearchResults__Stats__SubTitle">
+      Only contain runs with an IIQ between <b className="Text--Implicit Text">{searchParams.iiq.min}%</b> and <b className="Text--Implicit Text">{searchParams.iiq.max}%</b>
+    </div> : null;
+
+  const iirString = searchParams?.iir && (searchParams?.iir?.min > 0  || searchParams?.iir?.max < 99999) ?
+    <div className="DataSearchResults__Stats__SubTitle">
+      Only contain runs with a IIR between <b className="Text--Implicit Text">{searchParams.iir.min}%</b> and <b className="Text--Implicit Text">{searchParams.iir.max}%</b>
+    </div> : null;
+
+  const packsizeString = searchParams?.packsize && (searchParams?.packsize?.min > 0  || searchParams?.packsize?.max < 99999) ?
+    <div className="DataSearchResults__Stats__SubTitle">
+      Only contain runs with a Pack Size between <b className="Text--Implicit Text">{searchParams.packsize.min}%</b> and a maximum Pack Size of <b className="Text--Implicit Text">{searchParams.packsize.max}%</b>
+    </div> : null;
+  
+  const deathsString = searchParams?.deaths && (searchParams?.deaths?.min > 0  || searchParams?.deaths?.max < 6) ?
+    <div className="DataSearchResults__Stats__SubTitle">
+      Only contain runs where <span className="Text--Legendary Text">{activeProfile.characterName}</span> died between <b className="Text--Error Text">{searchParams.deaths.min}</b> and <b className="Text--Error Text">{searchParams.deaths.max}</b> times
+    </div> : null;
+
+  const mapLevelString = searchParams?.mapLevel && (searchParams?.mapLevel?.min > 0  || searchParams?.mapLevel?.max < 89) ?
+    <div className="DataSearchResults__Stats__SubTitle">
+      Only contain runs with a Map Level between <b className="Text--Implicit Text">{searchParams.mapLevel.min}</b> and <b className="Text--Implicit Text">{searchParams.mapLevel.max}</b>
+    </div> : null;
+
   return (
     <>
       <h3 className="DataSearchResults__Stats__Title">
@@ -57,6 +81,11 @@ const SearchResultsHeader = ({ activeProfile, searchParams, divinePrice }) => {
       {dateString}
       {minLootString}
       {selectedMapsString}
+      {mapLevelString}
+      {iiqString}
+      {iirString}
+      {packsizeString}
+      {deathsString}
       {neededItemNameString}
       {minMapValueString}
     </>
