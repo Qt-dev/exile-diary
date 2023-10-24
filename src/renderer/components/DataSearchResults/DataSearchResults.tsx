@@ -3,6 +3,8 @@ import './DataSearchResults.css';
 import LootTable from '../LootTable/LootTable';
 import { observer } from 'mobx-react-lite';
 import { Box, Stack, Typography } from '@mui/material';
+import Backdrop from '@mui/material/Backdrop';
+import CircularProgress from '@mui/material/CircularProgress';
 import { styled } from '@mui/material/styles'
 import MuiAccordionSummary, {
   AccordionSummaryProps,
@@ -13,7 +15,6 @@ import RunList from '../../routes/RunList';
 import ArrowForwardIosSharpIcon from '@mui/icons-material/ArrowForwardIosSharp';
 import { electronService } from '../../electron.service';
 import Price from '../Pricing/Price';
-import ChaosIcon from '../Pricing/ChaosIcon';
 
 const { logger } = electronService;
 
@@ -59,7 +60,7 @@ const AccordionDetails = styled(MuiAccordionDetails)(({ theme }) => ({
   borderTop: '1px solid rgba(0, 0, 0, .125)',
 }));
 
-const DataSearchResults = ({ itemStore, runStore, activeProfile, isTakingScreenshot = false, runScreenshotCommand, header, divinePrice }) => {
+const DataSearchResults = ({ itemStore, runStore, isTakingScreenshot = false, runScreenshotCommand, header, divinePrice, isSearching }) => {
   const Panels = ['panel 1', 'panel 2', 'panel 3'];
   const [ expanded, setExpanded ] = React.useState<(string | false)[]>(['panel 1']);
   const fallbackExpanded = React.useRef<(string | false)[]>(['panel 1']);
@@ -101,7 +102,15 @@ const DataSearchResults = ({ itemStore, runStore, activeProfile, isTakingScreens
     : 0;
 
   return (
-    <div className="DataSearchResults">
+    <div className="DataSearchResults" style={{position: 'relative'}}>
+      <Backdrop open={isSearching} sx={{ position: 'absolute', background: 'rgba(0,0,0,0.9)', zIndex: (theme) => theme.zIndex.drawer + 1 }}>
+        <Stack direction="column" spacing={2} alignItems="center">
+          <h3>
+            Getting data from the DB
+          </h3>
+          <CircularProgress color="secondary" />
+        </Stack>
+      </Backdrop>
       <Accordion expanded={expanded.includes('panel 1')} onChange={handleTabChange('panel 1')}>
         <AccordionSummary>
           <Typography variant="button">Stats</Typography>
