@@ -95,14 +95,17 @@ const SearchResultsHeader = ({ activeProfile, searchParams, divinePrice }) => {
 const Search = ({ store }) => {
   const screenShotRef = useRef<HTMLDivElement>(null);
   const [ isTakingScreenshot, setIsTakingScreenshot] = React.useState(false);
+  const [ isSearching, setIsSearching ] = React.useState(false);
   const [ searchParams, setSearchParams ] = React.useState({} as any);
 
   const { activeProfile, divinePrice, maps } = useLoaderData() as any;
   const { characterName } = activeProfile;
 
   const handleSearch = async (searchParams) => {
+    setIsSearching(true);
     await ipcRenderer.invoke('search:trigger', searchParams);
     setSearchParams(searchParams);
+    setIsSearching(false);
   };
 
   useEffect(() => {
@@ -167,13 +170,13 @@ const Search = ({ store }) => {
       </div>
       <div ref={screenShotRef}>
         <DataSearchResults
-          activeProfile={activeProfile}
           itemStore={store.itemStore}
           runStore={store.runStore}
           isTakingScreenshot={isTakingScreenshot}
           runScreenshotCommand={runScreenshotCommand}
           header={<SearchResultsHeader activeProfile={activeProfile} searchParams={searchParams} divinePrice={divinePrice} />}
           divinePrice={divinePrice}
+          isSearching={isSearching}
         />
       </div>
     </div>
