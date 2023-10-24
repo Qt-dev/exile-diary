@@ -133,7 +133,9 @@ const Search = ({ store }) => {
       <Divider className="Search__Divider" sx={{margin: '1em 0'}}>
         <Chip label="Results" />
       </Divider>
-      {screenshotIcon}
+      <div className="Search__Screenshot__Container">
+        {screenshotIcon}
+      </div>
       <div ref={screenShotRef}>
         <DataSearchResults
           activeProfile={activeProfile}

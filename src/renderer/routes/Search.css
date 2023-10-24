@@ -11,3 +11,7 @@
 .Search__Screenshot.Search__Screenshot--Ongoing {
   color: #888;
 }
+
+.Search__Screenshot__Container {
+  display: flex;
+}
