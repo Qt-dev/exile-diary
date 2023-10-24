@@ -11,7 +11,7 @@ class SearchManager {
 
   async search(params) {
     const { from, to, minLootValue, neededItemName, selectedMaps, minMapValue } = params;
-    const runs = await DB.getAllRunsForDates({ from, to, neededItemName, selectedMaps, minMapValue });
+    const runs = await DB.getAllRunsForDates(params);
     const items = await DB.getAllItemsForRuns({ runs, minLootValue });
 
     logger.info(`Found ${items.length} items and ${runs.length} runs.`);

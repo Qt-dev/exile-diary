@@ -3,6 +3,34 @@ import Logger from 'electron-log';
 import { Run } from '../../helpers/types';
 const logger = Logger.scope('db/stats');
 
+type GetAllRunsForDatesParams = {
+  from: string,
+  to: string,
+  neededItemName: string,
+  selectedMaps: string[],
+  minMapValue: number,
+  iiq?: {
+    min: number,
+    max: number,
+  },
+  iir?: {
+    min: number,
+    max: number,
+  },
+  mapLevel?: {
+    min: number,
+    max: number,
+  },
+  packSize?: {
+    min: number,
+    max: number,
+  },
+  deaths?: {
+    min: number,
+    max: number,
+  },
+};
+
 export default {
   getAllRuns: async (league: string): Promise<Run[]> => {
     logger.info('Getting all maps');
@@ -83,7 +111,18 @@ export default {
       return [];
     }
   },
-  getAllRunsForDates: async ({from, to, neededItemName, selectedMaps, minMapValue}: {from: string, to: string, neededItemName: string, selectedMaps: string[], minMapValue: number}): Promise<any[]> => {
+  getAllRunsForDates: async (params: GetAllRunsForDatesParams): Promise<any[]> => {
+    const {
+      from, to,
+      neededItemName,
+      selectedMaps,
+      minMapValue,
+      iiq,
+      iir,
+      mapLevel,
+      packSize,
+      deaths,
+    } = params;
     const query = `
       SELECT
         areainfo.*, mapruns.*,
@@ -104,6 +143,11 @@ export default {
 
       WHERE mapruns.id = areainfo.id
       ${selectedMaps.length > 0 ? ` AND areainfo.name IN (${selectedMaps.map(m => `'${m}'`).join(',')}) ` : ''}
+      ${iiq ? ` AND mapruns.iiq BETWEEN ${iiq.min} AND ${iiq.max} ` : ''}
+      ${iir ? ` AND mapruns.iir BETWEEN ${iir.min} AND ${iir.max} ` : ''}
+      ${packSize ? ` AND mapruns.packsize BETWEEN ${packSize.min} AND ${packSize.max} ` : ''}
+      ${mapLevel ? ` AND areainfo.level BETWEEN ${mapLevel.min} AND ${mapLevel.max} ` : ''}
+      ${deaths ? ` AND deaths BETWEEN ${deaths.min} AND ${deaths.max} ` : ''}
       AND itemcount.items > 0
       AND json_extract(runinfo, '$.ignored') is null
       AND mapruns.gained > ?
