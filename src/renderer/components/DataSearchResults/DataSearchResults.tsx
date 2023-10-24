@@ -13,6 +13,7 @@ import RunList from '../../routes/RunList';
 import ArrowForwardIosSharpIcon from '@mui/icons-material/ArrowForwardIosSharp';
 import { electronService } from '../../electron.service';
 import Price from '../Pricing/Price';
+import ChaosIcon from '../Pricing/ChaosIcon';
 
 const { logger } = electronService;
 
@@ -95,6 +96,10 @@ const DataSearchResults = ({ itemStore, runStore, activeProfile, isTakingScreens
     }
   }, [isTakingScreenshot])
 
+  const profitPerHour = runStore.stats.time.total.asMilliseconds ? 
+    itemStore.stats.value.total / runStore.stats.time.total.asHours()
+    : 0;
+
   return (
     <div className="DataSearchResults">
       <Accordion expanded={expanded.includes('panel 1')} onChange={handleTabChange('panel 1')}>
@@ -111,6 +116,7 @@ const DataSearchResults = ({ itemStore, runStore, activeProfile, isTakingScreens
               <div className="DataSearchResults__Stat">Number of items looted: {itemStore.stats.items.count}</div>
               <div className="DataSearchResults__Stat">Total Value of items found: <Price value={itemStore.stats.value.total} divinePrice={divinePrice} /></div>
               <div className="DataSearchResults__Stat">Average Value of value items: <Price value={itemStore.stats.value.average} divinePrice={divinePrice} /></div>
+              <div className="DataSearchResults__Stat">Profit per hour: <Price value={profitPerHour.toFixed(2)} divinePrice={divinePrice} /></div>
             </div>
             
             {/* <Divider orientation="vertical" flexItem /> */}
