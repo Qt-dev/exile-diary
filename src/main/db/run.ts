@@ -1,6 +1,6 @@
 import DB from './index';
 import constants from '../../helpers/constants';
-import Logger = require('electron-log');
+import Logger from 'electron-log';
 const logger = Logger.scope('db/run');
 
 type ItemProperty = {

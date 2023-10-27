@@ -1,8 +1,9 @@
-import DatabaseConstructor, { Database, SqliteError } from 'better-sqlite3';
+import DatabaseConstructor, { Database } from 'better-sqlite3';
 import * as path from 'path';
 import { get as getSettings } from './settings';
 import logger from 'electron-log';
 import { app } from 'electron';
+import * as sqliteRegex from "./sqlite-regex--cjs-fix";
 
 const sleep = (ms: number) => {
   return new Promise((resolve) => setTimeout(resolve, ms));
@@ -15,6 +16,7 @@ class DB {
       return null;
     }
     const result = db.prepare(sql).all(params);
+
     return result;
   }
 
@@ -50,6 +52,8 @@ class DB {
       characterName = settings.activeProfile.characterName;
     }
     const db = new DatabaseConstructor(path.join(app.getPath('userData'), `${characterName}.db`));
+    db.loadExtension(sqliteRegex.getLoadablePath());
+
     return db;
   }
 
@@ -152,6 +156,9 @@ class DB {
     maintSqlList.forEach((command) => {
       db.prepare(command).run();
     });
+
+    db.loadExtension(sqliteRegex.getLoadablePath());
+    logger.info(`Installed regex extension for ${db.name}`);
 
     return null;
   }

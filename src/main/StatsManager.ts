@@ -867,4 +867,9 @@ export default {
     const mapNames = await DB.getAllMapNames();
     return mapNames;
   },
+
+  getAllPossibleMods: async () => {
+    const mods = await DB.getAllPossibleMods();
+    return mods;
+  }
 };

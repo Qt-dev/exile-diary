@@ -675,6 +675,7 @@ class MainProcess {
       'search:trigger',
       'get-divine-price',
       'get-all-map-names', 
+      'get-all-possible-mods',
     ];
     for (const event of events) {
       ipcMain.handle(event, Responder[event]);
