@@ -6,7 +6,7 @@ const EventEmitter = require('events');
 const StringMatcher = require('./StringMatcher');
 const { getMapStats } = require('./RunParser').default;
 const { createWorker, createScheduler } = require('tesseract.js');
-const DB = require('../db/run').default;
+let DB = require('../db/run').default;
 
 let watcher;
 const emitter = new EventEmitter();
