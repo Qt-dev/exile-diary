@@ -13,13 +13,11 @@ import ChaosIcon from '../Pricing/ChaosIcon';
 import { Order } from '../../../helpers/types';
 import './LootTable.css';
 import Collapse from '@mui/material/Collapse';
-import { electronService } from '../../electron.service';
 import Price from '../Pricing/Price';
-const { logger } = electronService;
 
 type LootTableColumn = 'name' | 'quantity' | 'value' | 'totalValue';
 
-const LootTableSubRow = ({ item }) => {
+const LootTableSubRow = ({ item, shouldHideExpandIcon = false }) => {
   const [orderBy, setOrderBy] = useState<LootTableColumn>('totalValue');
   const [order, setOrder] = useState<Order>('desc');
   const [open, setOpen] = React.useState(false);
@@ -51,7 +49,7 @@ const LootTableSubRow = ({ item }) => {
     <>
       <TableRow sx={hasSubRows ? mainStyle : null}>
         <TableCell sx={{ width: '10px', padding: '0', borderBottom: hasSubRows ? 'none' : null }}>
-          {hasSubRows ? (
+          {hasSubRows && !shouldHideExpandIcon ? (
             <IconButton aria-label="expand row" size="small" onClick={() => setOpen(!open)}>
               {open ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
             </IconButton>
@@ -103,10 +101,10 @@ type LootTableProps = {
   orderBy: LootTableColumn;
   isSubTable?: boolean;
   stats?: any;
+  shouldHideExpandIcon?: boolean;
 };
 
-const LootTable = ({ items, sortCallback, order, orderBy, isSubTable = false, stats = undefined } : LootTableProps) => {
-  logger.info('stats', stats);
+const LootTable = ({ items, sortCallback, order, orderBy, isSubTable = false, stats = undefined, shouldHideExpandIcon = false } : LootTableProps) => {
   return (
     <Table size="small" sx={isSubTable ? { margin: '20px 0' } : null}>
       <TableHead className="Loot-Table__Header">
@@ -161,7 +159,7 @@ const LootTable = ({ items, sortCallback, order, orderBy, isSubTable = false, st
       </TableHead>
       <TableBody>
         {items.map((row) => (
-          <LootTableSubRow key={row.id} item={row} />
+          <LootTableSubRow key={row.id} item={row} shouldHideExpandIcon={shouldHideExpandIcon} />
         ))}
         {
           stats &&
@@ -189,7 +187,7 @@ const LootTable = ({ items, sortCallback, order, orderBy, isSubTable = false, st
   );
 };
 
-const LootTablePage = ({ profit, store }) => {
+const LootTablePage = ({ profit, store, shouldHideExpandIcon = false }) => {
   const [orderBy, setOrderBy] = useState<LootTableColumn>('totalValue');
   const [order, setOrder] = useState<Order>('desc');
 
@@ -206,7 +204,7 @@ const LootTablePage = ({ profit, store }) => {
         Profit Breakdown (Total = <Price value={profit} />)
       </h2>
 
-      <LootTable items={sortedItems} sortCallback={sort} order={order} orderBy={orderBy} stats={store.stats} />
+      <LootTable items={sortedItems} sortCallback={sort} order={order} orderBy={orderBy} stats={store.stats} shouldHideExpandIcon={shouldHideExpandIcon} />
     </div>
   );
 };

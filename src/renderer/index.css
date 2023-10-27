@@ -219,3 +219,7 @@ span.negative {
   font-size: 1.5em;
   color: white;
 }
+
+.Icon--Hidden {
+  display: none;
+}
