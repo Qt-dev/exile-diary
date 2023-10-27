@@ -556,7 +556,7 @@ function getItemsFor(evt) {
               importantDrops[item.typeline] = (importantDrops[item.typeline] || 0) + 1;
             }
 
-            const price = (await ItemPricer.price(item)) ?? { isVendor: false, value: 0 };
+            let price = (await ItemPricer.price(item)) ?? { isVendor: false, value: 0 };
             if (price.isVendor) {
               totalValue += price.value;
               price = 0;
