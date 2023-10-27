@@ -11,16 +11,11 @@ import dayjs, { Dayjs } from 'dayjs';
 import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
-import Select from '@mui/material/Select';
-import MenuItem from '@mui/material/MenuItem';
-import InputLabel from '@mui/material/InputLabel';
-import ListItemText from '@mui/material/ListItemText';
-import Checkbox from '@mui/material/Checkbox';
-import { Divider } from '@mui/material';
+import Autocomplete from '@mui/material/Autocomplete';
 const { logger } = electronService;
 
 
-const DataSearchForm = ({ searchFunction, availableMaps }) => {
+const DataSearchForm = ({ searchFunction, availableMaps, possibleMods }) => {
   const now = dayjs();
   const [from, setFrom] = React.useState<Dayjs | null>(dayjs().subtract(1, 'days'));
   const [to, setTo] = React.useState<Dayjs | null>(dayjs());
@@ -37,14 +32,19 @@ const DataSearchForm = ({ searchFunction, availableMaps }) => {
   const [minDeaths, setMinDeaths] = React.useState(0);
   const [maxDeaths, setMaxDeaths] = React.useState(6);
   const [neededItemName, setNeededItemName] = React.useState('');
-  const [selectedMaps, setSelectedMaps] = React.useState<string[]>([]);
-
-  const handleSelectMaps = (event) => {
-    const {
-      target: { value },
-    } = event;
+  const [selectedMaps, setSelectedMaps] = React.useState<string[]>(availableMaps.map(({ name }) => name));
+  const [selectedMods, setSelectedMods] = React.useState<string[]>(possibleMods.map(({ mod }) => mod));
+  logger.info('yo');
+  
+  const handleSelectMaps = (event, newValue) => {
     setSelectedMaps(
-      typeof value === 'string' ? value.split(',') : value,
+      typeof newValue === 'string' ? newValue.split(',') : newValue,
+    );
+  }
+
+  const handleSelectMods = (event, newValue) => {
+    setSelectedMods(
+      typeof newValue === 'string' ? newValue.split(',') : newValue,
     );
   }
 
@@ -57,6 +57,7 @@ const DataSearchForm = ({ searchFunction, availableMaps }) => {
       minMapValue,
       neededItemName,
       selectedMaps,
+      selectedMods,
       iiq: { min: minIIQ, max: maxIIQ },
       iir: { min: minIIR, max: maxIIR },
       packSize: { min: minPackSize, max: maxPackSize },
@@ -65,8 +66,28 @@ const DataSearchForm = ({ searchFunction, availableMaps }) => {
     });
   }
 
+  const handleReset = (e) => {
+    setFrom(dayjs().subtract(1, 'days'));
+    setTo(dayjs());
+    setMinLootValue(0);
+    setMinMapValue(0);
+    setMinIIQ(0);
+    setMaxIIQ(99999);
+    setMinIIR(0);
+    setMaxIIR(99999);
+    setMinPackSize(0);
+    setMaxPackSize(99999);
+    setMinMapLevel(0);
+    setMaxMapLevel(90);
+    setMinDeaths(0);
+    setMaxDeaths(6);
+    setNeededItemName('');
+    setSelectedMaps(availableMaps.map(({ name }) => name));
+    setSelectedMods(possibleMods.map(({ mod }) => mod));
+  };
+
   return (
-  <form className="DataSearchForm Box" onSubmit={handleSearch}>
+  <form className="DataSearchForm Box" onSubmit={handleSearch} onReset={handleReset}>
     <h2 className="DataSearchForm__Header">Search Criteria</h2>
     <Stack direction="column" spacing={3} margin="1em">
     <Stack direction="row" spacing={3} justifyContent="center">
@@ -89,32 +110,36 @@ const DataSearchForm = ({ searchFunction, availableMaps }) => {
 
       </Stack>
 
-      <FormControl
-        variant="outlined"
-        size="small"
-        >
-        <InputLabel id="selected-maps-label">Selected Maps</InputLabel>
-        <Select
-          labelId="selected-maps-label"
-          label="Selected Maps"
-          id="selected-maps"
+      <Stack direction="row" spacing={3} sx={{ width: '100%' }} justifyContent="center">
+        <Autocomplete
           multiple
-          autoWidth
           value={selectedMaps}
-          renderValue={(selectedMaps) => selectedMaps.join(', ')}
           onChange={handleSelectMaps}
-        >
-          {availableMaps.map(({ name }) => (
-            <MenuItem
-              key={name}
-              value={name}
-            >
-              <Checkbox checked={selectedMaps.indexOf(name) > -1} />
-              <ListItemText  primary={name} />
-            </MenuItem>
-          ))}
-        </Select>
-      </FormControl>
+          options={availableMaps.map(({ name }) => name )}
+          renderInput={(params) => (
+            <TextField
+              {...params}
+              label="Selected Maps"
+              size="small"
+            />
+          )}
+          limitTags={2}
+          />
+        <Autocomplete
+          multiple
+          value={selectedMods}
+          onChange={handleSelectMods}
+          options={possibleMods.map(({ mod }) => mod )}
+          renderInput={(params) => (
+            <TextField
+              {...params}
+              label="Selected Mods"
+              size="small"
+            />
+          )}
+          limitTags={2}
+          />
+      </Stack>
       
       <Stack direction="row" spacing={3} justifyContent="center" alignItems="center" flexWrap="wrap" useFlexGap sx={{marginBottom: '2em'}}>
 
@@ -299,6 +324,7 @@ const DataSearchForm = ({ searchFunction, availableMaps }) => {
 
       <ButtonGroup className="DataSearchForm__Buttons" variant="contained" aria-label="outlined primary button group" >
         <Button type="submit">Search</Button>
+        <Button type="reset" variant="outlined">Reset</Button>
       </ButtonGroup>
     </Stack>
   </form>

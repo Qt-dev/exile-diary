@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useRef } from 'react';
+import React, { useCallback, useRef } from 'react';
 import { electronService } from '../electron.service';
 import './Search.css';
 import DataSearchForm from '../components/DataSearchForm/DataSearchForm';
@@ -16,7 +16,7 @@ import Price from '../components/Pricing/Price';
 
 const { logger, ipcRenderer } = electronService;
 
-const SearchResultsHeader = ({ activeProfile, searchParams, divinePrice }) => {
+const SearchResultsHeader = ({ activeProfile, searchParams, divinePrice, availableMaps }) => {
   const dateFormat = 'YYYYMMDDHHmmss'
   const dateString = searchParams?.to && searchParams?.from ?
     <div className="DataSearchResults__Stats__SubTitle">
@@ -33,7 +33,7 @@ const SearchResultsHeader = ({ activeProfile, searchParams, divinePrice }) => {
       Only contain runs where you found at least one <b className="Text--Implicit Text">{searchParams.neededItemName}</b>
     </div> : null;
 
-  const selectedMapsString = searchParams?.selectedMaps && searchParams?.selectedMaps.length > 0 ?
+  const selectedMapsString = searchParams?.selectedMaps && searchParams?.selectedMaps.length > 0  && availableMaps.length > searchParams?.selectedMaps.length ?
     <>
       <div className="DataSearchResults__Stats__SubTitle">
           Only contain runs on the following maps:
@@ -73,6 +73,11 @@ const SearchResultsHeader = ({ activeProfile, searchParams, divinePrice }) => {
       Only contain runs with a Map Level between <b className="Text--Implicit Text">{searchParams.mapLevel.min}</b> and <b className="Text--Implicit Text">{searchParams.mapLevel.max}</b>
     </div> : null;
 
+  const modsString = searchParams?.selectedMods && searchParams?.selectedMods.length > 0 ?
+    <div className="DataSearchResults__Stats__SubTitle">
+      Only contain runs with mods in a list of <b className="Text--Implicit Text">{searchParams.selectedMods.length}</b> selected mods.
+    </div> : null;
+
   return (
     <>
       <h3 className="DataSearchResults__Stats__Title">
@@ -82,6 +87,7 @@ const SearchResultsHeader = ({ activeProfile, searchParams, divinePrice }) => {
       {minLootString}
       {selectedMapsString}
       {mapLevelString}
+      {modsString}
       {iiqString}
       {iirString}
       {packsizeString}
@@ -98,7 +104,7 @@ const Search = ({ store }) => {
   const [ isSearching, setIsSearching ] = React.useState(false);
   const [ searchParams, setSearchParams ] = React.useState({} as any);
 
-  const { activeProfile, divinePrice, maps } = useLoaderData() as any;
+  const { activeProfile, divinePrice, maps, possibleMods } = useLoaderData() as any;
   const { characterName } = activeProfile;
 
   const handleSearch = async (searchParams) => {
@@ -108,9 +114,9 @@ const Search = ({ store }) => {
     setIsSearching(false);
   };
 
-  useEffect(() => {
-    store.reset();
-  }, []);
+  // useEffect(() => {
+  //   store.reset();
+  // }, []);
 
   const runScreenshotCommand = () => {
     if (screenShotRef.current === null) {
@@ -161,7 +167,7 @@ const Search = ({ store }) => {
           <CircularProgress />
         </Stack>
       </Backdrop>
-      <DataSearchForm searchFunction={handleSearch} availableMaps={maps} />
+      <DataSearchForm searchFunction={handleSearch} availableMaps={maps} possibleMods={possibleMods} />
       <Divider className="Search__Divider" sx={{margin: '1em 0'}}>
         <Chip label="Results" />
       </Divider>
@@ -174,7 +180,7 @@ const Search = ({ store }) => {
           runStore={store.runStore}
           isTakingScreenshot={isTakingScreenshot}
           runScreenshotCommand={runScreenshotCommand}
-          header={<SearchResultsHeader activeProfile={activeProfile} searchParams={searchParams} divinePrice={divinePrice} />}
+          header={<SearchResultsHeader activeProfile={activeProfile} searchParams={searchParams} divinePrice={divinePrice} availableMaps={maps} />}
           divinePrice={divinePrice}
           isSearching={isSearching}
         />

@@ -72,12 +72,13 @@ const router = createHashRouter([
         path: 'search',
         element: <Search store={new SearchDataStore()} />,
         loader: async () => {
-          const [ settings, divinePrice, maps ] = await Promise.all([
+          const [ settings, divinePrice, maps, possibleMods ] = await Promise.all([
             ipcRenderer.invoke('get-settings'),
             ipcRenderer.invoke('get-divine-price'),
             ipcRenderer.invoke('get-all-map-names'),
+            ipcRenderer.invoke('get-all-possible-mods'),
           ]);
-          return { activeProfile: settings.activeProfile, divinePrice, maps };
+          return { activeProfile: settings.activeProfile, divinePrice, maps, possibleMods };
         },
       },
       {

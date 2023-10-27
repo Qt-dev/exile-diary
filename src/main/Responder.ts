@@ -154,12 +154,17 @@ const triggerSearch = async (e, params) => {
 const getDivinePrice = async(e, params) => {
   logger.info('Getting divine price from the renderer process');
   return ItemPricer.getCurrencyByName(dayjs().format('YYYYMMDD'), 'Divine Orb', SettingsManager.get('activeProfile').league);
-}
+};
 
 const getAllMapNames = async(e, params) => {
   logger.info('Getting all map names from the renderer process');
   return await StatsManager.getAllMapNames();
-}
+};
+
+const getAllPossibleMods = async(e, params) => {
+  logger.info('Getting all possible mods from the renderer process');
+  return await StatsManager.getAllPossibleMods();
+};
 
 const Responder = {
   'app-globals': getAppGlobals,
@@ -180,6 +185,7 @@ const Responder = {
   'search:trigger': triggerSearch,
   'get-divine-price': getDivinePrice,
   'get-all-map-names': getAllMapNames,
+  'get-all-possible-mods': getAllPossibleMods,
 };
 
 export default Responder;

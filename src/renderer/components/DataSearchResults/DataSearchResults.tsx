@@ -97,7 +97,7 @@ const DataSearchResults = ({ itemStore, runStore, isTakingScreenshot = false, ru
     }
   }, [isTakingScreenshot])
 
-  const profitPerHour = runStore.stats.time.total.asMilliseconds ? 
+  const profitPerHour = runStore.stats.time.total.asMilliseconds() ? 
     itemStore.stats.value.total / runStore.stats.time.total.asHours()
     : 0;
 
@@ -150,7 +150,7 @@ const DataSearchResults = ({ itemStore, runStore, isTakingScreenshot = false, ru
           <Box sx={{ marginBottom: 5 }}>
             <Stack spacing={2} direction="row" justifyContent="space-evenly">
               <Box sx={{width: '100%'}}>
-                <LootTable profit={itemStore.stats.value.total} store={itemStore} />
+                <LootTable profit={itemStore.stats.value.total} store={itemStore} shouldHideExpandIcon={isTakingScreenshot} />
               </Box>
             </Stack>
           </Box>

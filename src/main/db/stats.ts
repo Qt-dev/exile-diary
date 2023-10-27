@@ -8,6 +8,7 @@ type GetAllRunsForDatesParams = {
   to: string,
   neededItemName: string,
   selectedMaps: string[],
+  selectedMods: string[],
   minMapValue: number,
   iiq?: {
     min: number,
@@ -116,6 +117,7 @@ export default {
       from, to,
       neededItemName,
       selectedMaps,
+      selectedMods,
       minMapValue,
       iiq,
       iir,
@@ -142,12 +144,19 @@ export default {
             ON itemcount.run_id = mapruns.id
 
       WHERE mapruns.id = areainfo.id
-      ${selectedMaps.length > 0 ? ` AND areainfo.name IN (${selectedMaps.map(m => `'${m}'`).join(',')}) ` : ''}
-      ${iiq ? ` AND mapruns.iiq BETWEEN ${iiq.min} AND ${iiq.max} ` : ''}
-      ${iir ? ` AND mapruns.iir BETWEEN ${iir.min} AND ${iir.max} ` : ''}
-      ${packSize ? ` AND mapruns.packsize BETWEEN ${packSize.min} AND ${packSize.max} ` : ''}
-      ${mapLevel ? ` AND areainfo.level BETWEEN ${mapLevel.min} AND ${mapLevel.max} ` : ''}
-      ${deaths ? ` AND deaths BETWEEN ${deaths.min} AND ${deaths.max} ` : ''}
+      ${selectedMods.length > 0 ? 
+        `AND (
+          SELECT count(*) as has_mod
+          FROM mapruns, mapmods
+          WHERE mapruns.id = mapmods.area_id
+          AND ( ${selectedMods.map(() => ` mapmods.mod LIKE ? `).join(' OR ')} )
+          ) > 0 `: ''}
+      ${selectedMaps.length > 0 ? `AND areainfo.name IN (${'?,'.repeat(selectedMaps.length).slice(0, -1)}) ` : ''}
+      ${iiq ? `AND mapruns.iiq BETWEEN ${iiq.min} AND ${iiq.max} ` : ''}
+      ${iir ? `AND mapruns.iir BETWEEN ${iir.min} AND ${iir.max} ` : ''}
+      ${packSize ? `AND mapruns.packsize BETWEEN ${packSize.min} AND ${packSize.max} ` : ''}
+      ${mapLevel ? `AND areainfo.level BETWEEN ${mapLevel.min} AND ${mapLevel.max} ` : ''}
+      ${deaths ? `AND deaths BETWEEN ${deaths.min} AND ${deaths.max} ` : ''}
       AND itemcount.items > 0
       AND json_extract(runinfo, '$.ignored') is null
       AND mapruns.gained > ?
@@ -158,6 +167,9 @@ export default {
     try {
       const queryArgs : any[] = [];
       if(neededItemName) queryArgs.push(neededItemName);
+      if(selectedMods.length > 0) queryArgs.push(...selectedMods);
+      if(selectedMaps.length > 0) queryArgs.push(...selectedMaps);
+      logger.info(query);
       queryArgs.push(minMapValue);
       queryArgs.push(from);
       queryArgs.push(to);
@@ -203,6 +215,22 @@ export default {
       return maps ?? [];
     } catch (err) {
       logger.error(`Error getting all map names: ${JSON.stringify(err)}`);
+      return [];
+    }
+  },
+
+  getAllPossibleMods: async (): Promise<string[]> => {
+    const query = `
+    SELECT DISTINCT(REGEXP_REPLACE(mod, '\\d+', '#')) AS mod
+    FROM mapmods
+    ORDER BY mod ASC`;
+
+    try {
+      const mods = DB.all(query) as string[];
+      logger.info(`Got ${mods.length} mods`);
+      return mods ?? [];
+    } catch (err) {
+      logger.error(`Error getting all mods: ${JSON.stringify(err)}`);
       return [];
     }
   },
