@@ -2,7 +2,12 @@ import React, { useEffect } from 'react';
 import './DataSearchResults.css';
 import LootTable from '../LootTable/LootTable';
 import { observer } from 'mobx-react-lite';
-import { Box, Stack, Typography } from '@mui/material';
+import { saveAs } from 'file-saver';
+import Box from '@mui/material/Box';
+import Stack from '@mui/material/Stack';
+import Typography from '@mui/material/Typography';
+import Button from '@mui/material/Button';
+import FileDownloadIcon from '@mui/icons-material/FileDownload';
 import Backdrop from '@mui/material/Backdrop';
 import CircularProgress from '@mui/material/CircularProgress';
 import { styled } from '@mui/material/styles'
@@ -15,6 +20,7 @@ import RunList from '../../routes/RunList';
 import ArrowForwardIosSharpIcon from '@mui/icons-material/ArrowForwardIosSharp';
 import { electronService } from '../../electron.service';
 import Price from '../Pricing/Price';
+import Grid from '@mui/material/Grid';
 
 const { logger } = electronService;
 
@@ -60,6 +66,27 @@ const AccordionDetails = styled(MuiAccordionDetails)(({ theme }) => ({
   borderTop: '1px solid rgba(0, 0, 0, .125)',
 }));
 
+const DownloadButton = ({ csv, name, classNames = "" }) => {
+  const [isDownloading, setIsDownloading] = React.useState(false);
+  const downloadCsv = (event: React.MouseEvent<HTMLButtonElement, MouseEvent>, csv: BlobPart, name: string) => {
+    event.preventDefault();
+    event.stopPropagation();
+    if(!isDownloading) {
+      setIsDownloading(true);
+      const file = new Blob([csv], {type: 'text/csv'});
+      saveAs(file, `${name}.csv`);
+      setIsDownloading(false);
+      // setTimeout(() => setIsDownloading(false) , 1000); // Welp... Apparently the save is so fast that the loading icon doesn't even show up. So we'll just fake it for now so that people do not double click
+    }
+  }
+
+  return (
+    <Button className={`${classNames} DataSearchResults__Save-Button`} onClick={(event) => downloadCsv(event, csv, name) }>
+      <FileDownloadIcon />
+    </Button>
+  )
+};
+
 const DataSearchResults = ({ itemStore, runStore, isTakingScreenshot = false, runScreenshotCommand, header, divinePrice, isSearching }) => {
   const Panels = ['panel 1', 'panel 2', 'panel 3'];
   const [ expanded, setExpanded ] = React.useState<(string | false)[]>(['panel 1']);
@@ -103,7 +130,7 @@ const DataSearchResults = ({ itemStore, runStore, isTakingScreenshot = false, ru
 
   return (
     <div className="DataSearchResults" style={{position: 'relative'}}>
-      <Backdrop open={isSearching} sx={{ position: 'absolute', background: 'rgba(0,0,0,0.9)', zIndex: (theme) => theme.zIndex.drawer + 1 }}>
+      <Backdrop open={isSearching || itemStore.isLoading || runStore.isLoading} sx={{ position: 'absolute', background: 'rgba(0,0,0,0.9)', zIndex: (theme) => theme.zIndex.drawer + 1 }}>
         <Stack direction="column" spacing={2} alignItems="center">
           <h3>
             Getting data from the DB
@@ -144,7 +171,10 @@ const DataSearchResults = ({ itemStore, runStore, isTakingScreenshot = false, ru
         TransitionProps={{ onEntered: handleOpenTabEnd('panel 2'), }}
         >
         <AccordionSummary>
-          <Typography className="DataSearchResults__Stat__Summary">Loot - <Price value={itemStore.stats.value.total} divinePrice={divinePrice} /></Typography>
+          <Stack direction="row" width="100%" justifyContent="space-between">
+            <Typography className="DataSearchResults__Stat__Summary">Loot - <Price value={itemStore.stats.value.total} divinePrice={divinePrice} /></Typography>
+            <DownloadButton csv={itemStore.csv} name={'items'} />
+          </Stack>
         </AccordionSummary>
         <AccordionDetails>
           <Box sx={{ marginBottom: 5 }}>
@@ -161,7 +191,10 @@ const DataSearchResults = ({ itemStore, runStore, isTakingScreenshot = false, ru
         onChange={handleTabChange('panel 3')}
         TransitionProps={{ onEntered: handleOpenTabEnd('panel 3'),}}>
         <AccordionSummary>
-          <Typography className="DataSearchResults__Stat__Summary">Runs ({runStore.stats.count} runs in {runStore.stats.time.total.format(DurationFormat)} - avg: {runStore.stats.time.average.format(DurationFormat)})</Typography>
+          <Stack direction="row" width="100%" justifyContent="space-between">
+            <Typography className="DataSearchResults__Stat__Summary">Runs ({runStore.stats.count} runs in {runStore.stats.time.total.format(DurationFormat)} - avg: {runStore.stats.time.average.format(DurationFormat)})</Typography>
+            <DownloadButton csv={runStore.csv} name={'runs'} />
+          </Stack>
         </AccordionSummary>
         <AccordionDetails>
           <RunList store={runStore} isBoxed={false} />

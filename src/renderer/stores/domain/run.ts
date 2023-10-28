@@ -4,6 +4,23 @@ import dayjs, { Dayjs } from 'dayjs';
 import { electronService } from '../../electron.service';
 const { logger } = electronService;
 
+type JSONRun = {
+  id: string;
+  name: string;
+  level: number;
+  depth: number | null;
+  iiq: number;
+  iir: number;
+  packsize: number;
+  firstevent: string | null;
+  lastevent: string | null;
+  xpgained: number;
+  deaths: number;
+  gained: number;
+  kills: number | null;
+  runinfo: string;
+};
+
 export class Run {
   id = null;
   lastUpdate: Dayjs;
@@ -93,7 +110,7 @@ export class Run {
     this.lastUpdate = dayjs();
   }
 
-  get asJson() {
+  get asJson() : JSONRun {
     return {
       id: this.runId,
       name: this.name,
@@ -102,13 +119,33 @@ export class Run {
       iiq: this.iiq,
       iir: this.iir,
       packsize: this.packSize,
-      firstevent: this.firstEvent,
-      lastevent: this.lastEvent,
+      firstevent: this.firstEvent?.toISOString() ?? null,
+      lastevent: this.lastEvent?.toISOString() ?? null,
       xpgained: this.xp,
       deaths: this.deaths,
       gained: this.profit,
       kills: this.kills,
       runinfo: JSON.stringify(this.runInfo),
     };
+  }
+
+  static getCsvHeaders() {
+    const fakeJSONRun : JSONRun = {
+      id: '',
+      name: '',
+      level: 0,
+      depth: 0,
+      iiq: 0,
+      iir: 0,
+      packsize: 0,
+      firstevent: '',
+      lastevent: '',
+      xpgained: 0,
+      deaths: 0,
+      gained: 0,
+      kills: 0,
+      runinfo: '',
+    };
+    return Object.keys(fakeJSONRun);
   }
 }

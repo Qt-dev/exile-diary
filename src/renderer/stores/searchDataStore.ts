@@ -8,12 +8,13 @@ const { logger, ipcRenderer } = electronService;
 export default class SearchDataStore {
   itemStore : ItemStore = new ItemStore([]);
   runStore : RunStore = new RunStore(false);
+  runStoreCsv : String = '';
   isLoading = true;
   maxSize = 100; // This can be changed in the future
 
   constructor() {
     makeAutoObservable(this);
-    ipcRenderer.on('search:register-results', (event, data: any) => {
+    ipcRenderer.on('search:register-results', async (event, data: any) => {
       this.itemStore.createItems(data.items.map((item) => ({ ...item, ...JSON.parse(item.rawdata) })));
       this.runStore.createRuns(data.runs);
     });
