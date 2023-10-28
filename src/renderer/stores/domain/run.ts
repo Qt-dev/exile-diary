@@ -1,8 +1,6 @@
 import { makeAutoObservable } from 'mobx';
 import { v4 as uuidv4 } from 'uuid';
 import dayjs, { Dayjs } from 'dayjs';
-import { electronService } from '../../electron.service';
-const { logger } = electronService;
 
 type JSONRun = {
   id: string;
@@ -110,7 +108,7 @@ export class Run {
     this.lastUpdate = dayjs();
   }
 
-  get asJson() : JSONRun {
+  get asJson(): JSONRun {
     return {
       id: this.runId,
       name: this.name,
@@ -130,7 +128,7 @@ export class Run {
   }
 
   static getCsvHeaders() {
-    const fakeJSONRun : JSONRun = {
+    const fakeJSONRun: JSONRun = {
       id: '',
       name: '',
       level: 0,

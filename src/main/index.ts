@@ -20,7 +20,7 @@ import RendererLogger from './RendererLogger';
 import * as url from 'url';
 import { OverlayController } from 'electron-overlay-window';
 import dayjs, { Dayjs } from 'dayjs';
-import duration from 'dayjs/plugin/duration'
+import duration from 'dayjs/plugin/duration';
 import AuthManager from './AuthManager';
 
 // Old stuff
@@ -202,7 +202,7 @@ class MainProcess {
       autoUpdater.quitAndInstall();
     });
 
-    autoUpdater.channel = 'latest';
+    autoUpdater.channel = 'beta';
     autoUpdater.logger = logger;
     autoUpdater.autoDownload = false;
     autoUpdater.on('update-available', (info) => {
@@ -674,7 +674,7 @@ class MainProcess {
       'debug:recheck-gain',
       'search:trigger',
       'get-divine-price',
-      'get-all-map-names', 
+      'get-all-map-names',
       'get-all-possible-mods',
     ];
     for (const event of events) {

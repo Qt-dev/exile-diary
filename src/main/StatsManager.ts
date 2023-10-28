@@ -841,7 +841,11 @@ class StatsManager {
   }
 
   // Utility functions
-  getRunningTime(firstevent: string | number | dayjs.Dayjs, lastevent: string | number | dayjs.Dayjs, format: ManipulateType = 'seconds') {
+  getRunningTime(
+    firstevent: string | number | dayjs.Dayjs,
+    lastevent: string | number | dayjs.Dayjs,
+    format: ManipulateType = 'seconds'
+  ) {
     logger.info('getRunningTime', firstevent, lastevent, format);
     const duration = dayjs.duration(
       dayjs(lastevent, 'YYYYMMDDHHmmss').diff(dayjs(firstevent, 'YYYYMMDDHHmmss'))
@@ -871,5 +875,5 @@ export default {
   getAllPossibleMods: async () => {
     const mods = await DB.getAllPossibleMods();
     return mods;
-  }
+  },
 };

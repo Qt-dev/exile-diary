@@ -19,7 +19,6 @@ import ChaosIcon from '../components/Pricing/ChaosIcon';
 import { useNavigate } from 'react-router-dom';
 import { observer } from 'mobx-react-lite';
 
-
 const RunList = ({ NumbersOfMapsToShow = 10, store, isBoxed = true }) => {
   const navigate = useNavigate();
   const [runsPerPage, setrunsPerPage] = React.useState<number>(NumbersOfMapsToShow);
@@ -55,7 +54,7 @@ const RunList = ({ NumbersOfMapsToShow = 10, store, isBoxed = true }) => {
   const mainClasses = classNames({
     Box: isBoxed,
     'Run-List': true,
-  })
+  });
 
   return (
     <div className={mainClasses}>
@@ -93,14 +92,27 @@ const RunList = ({ NumbersOfMapsToShow = 10, store, isBoxed = true }) => {
               </TableCell>
               <TableCell variant="head">Duration</TableCell>
               <TableCell variant="head" align="center">
-                <span style={{ display: 'flex', gap: '0.2em', alignItems: 'center', justifyContent: 'center' }}>
+                <span
+                  style={{
+                    display: 'flex',
+                    gap: '0.2em',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                  }}
+                >
                   <ChaosIcon />
                 </span>
               </TableCell>
               <TableCell variant="head" align="center">
-                <span style={{ display: 'flex', gap: '0.2em', alignItems: 'center', justifyContent: 'center' }}>
-                  <ChaosIcon />
-                  / Hr
+                <span
+                  style={{
+                    display: 'flex',
+                    gap: '0.2em',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                  }}
+                >
+                  <ChaosIcon />/ Hr
                 </span>
               </TableCell>
               <TableCell variant="head" align="center">

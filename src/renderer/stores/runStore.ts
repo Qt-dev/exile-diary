@@ -133,7 +133,9 @@ export default class RunStore {
 
   @computed get stats(): any {
     const totalTime = this.getFullDuration();
-    const averageTime = dayjs.duration(totalTime.asMilliseconds() > 0 ? totalTime.asMilliseconds() / this.runs.length : 0);
+    const averageTime = dayjs.duration(
+      totalTime.asMilliseconds() > 0 ? totalTime.asMilliseconds() / this.runs.length : 0
+    );
     const totalProfit = this.runs.reduce((acc, run) => acc + run.profit, 0);
     const averageProfit = this.runs.length > 0 ? totalProfit / this.runs.length : 0;
 
@@ -146,14 +148,14 @@ export default class RunStore {
       profit: {
         total: totalProfit.toFixed(2),
         average: averageProfit.toFixed(2),
-      }
+      },
     };
   }
 
   @computed async generateCsv(): Promise<void> {
     const baseData = this.runs.map((run) => run.asJson);
     const csv = await json2csv(baseData, {});
-   
+
     this.csv = csv;
   }
 }

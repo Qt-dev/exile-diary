@@ -104,7 +104,15 @@ type LootTableProps = {
   shouldHideExpandIcon?: boolean;
 };
 
-const LootTable = ({ items, sortCallback, order, orderBy, isSubTable = false, stats = undefined, shouldHideExpandIcon = false } : LootTableProps) => {
+const LootTable = ({
+  items,
+  sortCallback,
+  order,
+  orderBy,
+  isSubTable = false,
+  stats = undefined,
+  shouldHideExpandIcon = false,
+}: LootTableProps) => {
   return (
     <Table size="small" sx={isSubTable ? { margin: '20px 0' } : null}>
       <TableHead className="Loot-Table__Header">
@@ -128,7 +136,14 @@ const LootTable = ({ items, sortCallback, order, orderBy, isSubTable = false, st
               direction={orderBy === 'value' ? order : 'asc'}
               onClick={sortCallback('value', order)}
             >
-              <span style={{display: 'flex', gap: '0.2em', flexDirection: 'row', alignItems: 'center'}}>
+              <span
+                style={{
+                  display: 'flex',
+                  gap: '0.2em',
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                }}
+              >
                 <ChaosIcon /> / Unit
               </span>
             </TableSortLabel>
@@ -140,7 +155,14 @@ const LootTable = ({ items, sortCallback, order, orderBy, isSubTable = false, st
               direction={orderBy === 'totalValue' ? order : 'asc'}
               onClick={sortCallback('totalValue', order)}
             >
-              <span style={{display: 'flex', gap: '0.2em', flexDirection: 'row', alignItems: 'center'}}>
+              <span
+                style={{
+                  display: 'flex',
+                  gap: '0.2em',
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                }}
+              >
                 Total <ChaosIcon />
               </span>
             </TableSortLabel>
@@ -161,27 +183,16 @@ const LootTable = ({ items, sortCallback, order, orderBy, isSubTable = false, st
         {items.map((row) => (
           <LootTableSubRow key={row.id} item={row} shouldHideExpandIcon={shouldHideExpandIcon} />
         ))}
-        {
-          stats &&
-            <TableRow >
-              <TableCell sx={{ width: '10px', padding: '0'}}>
-                
-              </TableCell>
-              <TableCell>
-                
-              </TableCell>
-              <TableCell align="right">
-                {stats.items.count}
-              </TableCell>
-              <TableCell align="right">
-                {stats.value.average}
-              </TableCell>
-              <TableCell align="right">
-                {stats.value.total}
-              </TableCell>
-              <TableCell>Total</TableCell>
-            </TableRow>
-        }
+        {stats && (
+          <TableRow>
+            <TableCell sx={{ width: '10px', padding: '0' }}></TableCell>
+            <TableCell></TableCell>
+            <TableCell align="right">{stats.items.count}</TableCell>
+            <TableCell align="right">{stats.value.average}</TableCell>
+            <TableCell align="right">{stats.value.total}</TableCell>
+            <TableCell>Total</TableCell>
+          </TableRow>
+        )}
       </TableBody>
     </Table>
   );
@@ -204,7 +215,14 @@ const LootTablePage = ({ profit, store, shouldHideExpandIcon = false }) => {
         Profit Breakdown (Total = <Price value={profit} />)
       </h2>
 
-      <LootTable items={sortedItems} sortCallback={sort} order={order} orderBy={orderBy} stats={store.stats} shouldHideExpandIcon={shouldHideExpandIcon} />
+      <LootTable
+        items={sortedItems}
+        sortCallback={sort}
+        order={order}
+        orderBy={orderBy}
+        stats={store.stats}
+        shouldHideExpandIcon={shouldHideExpandIcon}
+      />
     </div>
   );
 };

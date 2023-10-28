@@ -3,7 +3,7 @@ import * as path from 'path';
 import { get as getSettings } from './settings';
 import logger from 'electron-log';
 import { app } from 'electron';
-import * as sqliteRegex from "./sqlite-regex--cjs-fix";
+import * as sqliteRegex from './sqlite-regex--cjs-fix';
 
 const sleep = (ms: number) => {
   return new Promise((resolve) => setTimeout(resolve, ms));
