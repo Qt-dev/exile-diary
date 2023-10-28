@@ -142,10 +142,17 @@ const AreaStats = ({ stats }) => {
                 direction={orderBy === 'profitPerHour' ? order : 'desc'}
                 onClick={sort('profitPerHour', order)}
               >
-              <span style={{display: 'flex', gap: '0.2em', flexDirection: 'row', alignItems: 'center'}}>
-                <ChaosIcon />
-                /hr
-              </span>
+                <span
+                  style={{
+                    display: 'flex',
+                    gap: '0.2em',
+                    flexDirection: 'row',
+                    alignItems: 'center',
+                  }}
+                >
+                  <ChaosIcon />
+                  /hr
+                </span>
               </TableSortLabel>
             </TableCell>
             <TableCell variant="head" align="right">

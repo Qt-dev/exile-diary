@@ -96,7 +96,11 @@ const getAllStats = async (e, params) => {
   const league = params?.league ?? profile.league;
   const characterName = params?.characterName ?? profile.characterName;
   const stats = await StatsManager.getAllStats({ league, characterName });
-  stats.divinePrice = await ItemPricer.getCurrencyByName(dayjs().format('YYYYMMDD'), 'Divine Orb', league);
+  stats.divinePrice = await ItemPricer.getCurrencyByName(
+    dayjs().format('YYYYMMDD'),
+    'Divine Orb',
+    league
+  );
   return stats;
 };
 
@@ -151,17 +155,21 @@ const triggerSearch = async (e, params) => {
   SearchManager.search(params);
 };
 
-const getDivinePrice = async(e, params) => {
+const getDivinePrice = async (e, params) => {
   logger.info('Getting divine price from the renderer process');
-  return ItemPricer.getCurrencyByName(dayjs().format('YYYYMMDD'), 'Divine Orb', SettingsManager.get('activeProfile').league);
+  return ItemPricer.getCurrencyByName(
+    dayjs().format('YYYYMMDD'),
+    'Divine Orb',
+    SettingsManager.get('activeProfile').league
+  );
 };
 
-const getAllMapNames = async(e, params) => {
+const getAllMapNames = async (e, params) => {
   logger.info('Getting all map names from the renderer process');
   return await StatsManager.getAllMapNames();
 };
 
-const getAllPossibleMods = async(e, params) => {
+const getAllPossibleMods = async (e, params) => {
   logger.info('Getting all possible mods from the renderer process');
   return await StatsManager.getAllPossibleMods();
 };

@@ -4,32 +4,32 @@ import { Run } from '../../helpers/types';
 const logger = Logger.scope('db/stats');
 
 type GetAllRunsForDatesParams = {
-  from: string,
-  to: string,
-  neededItemName: string,
-  selectedMaps: string[],
-  selectedMods: string[],
-  minMapValue: number,
+  from: string;
+  to: string;
+  neededItemName: string;
+  selectedMaps: string[];
+  selectedMods: string[];
+  minMapValue: number;
   iiq?: {
-    min: number,
-    max: number,
-  },
+    min: number;
+    max: number;
+  };
   iir?: {
-    min: number,
-    max: number,
-  },
+    min: number;
+    max: number;
+  };
   mapLevel?: {
-    min: number,
-    max: number,
-  },
+    min: number;
+    max: number;
+  };
   packSize?: {
-    min: number,
-    max: number,
-  },
+    min: number;
+    max: number;
+  };
   deaths?: {
-    min: number,
-    max: number,
-  },
+    min: number;
+    max: number;
+  };
 };
 
 export default {
@@ -68,7 +68,7 @@ export default {
     `;
 
     try {
-      const maps = (DB.all(query)) as Run[];
+      const maps = DB.all(query) as Run[];
       return maps;
     } catch (err) {
       logger.error(`Error getting all maps: ${JSON.stringify(err)}`);
@@ -94,7 +94,11 @@ export default {
       return [];
     }
   },
-  getAllItemsForDates: async (from: string, to: string, minLootValue: number = 0): Promise<any[]> => {
+  getAllItemsForDates: async (
+    from: string,
+    to: string,
+    minLootValue: number = 0
+  ): Promise<any[]> => {
     const query = `
       SELECT mapruns.id AS map_id, areainfo.name AS area, items.*
       FROM items, mapruns, areainfo, leaguedates
@@ -105,7 +109,7 @@ export default {
     `;
 
     try {
-      const items = DB.all(query, [ minLootValue, from, to ]);
+      const items = DB.all(query, [minLootValue, from, to]);
       return items ?? [];
     } catch (err) {
       logger.error(`Error getting loot: ${JSON.stringify(err)}`);
@@ -114,7 +118,8 @@ export default {
   },
   getAllRunsForDates: async (params: GetAllRunsForDatesParams): Promise<any[]> => {
     const {
-      from, to,
+      from,
+      to,
       neededItemName,
       selectedMaps,
       selectedMods,
@@ -144,14 +149,21 @@ export default {
             ON itemcount.run_id = mapruns.id
 
       WHERE mapruns.id = areainfo.id
-      ${selectedMods.length > 0 ? 
-        `AND (
+      ${
+        selectedMods.length > 0
+          ? `AND (
           SELECT count(*) as has_mod
           FROM mapruns, mapmods
           WHERE mapruns.id = mapmods.area_id
           AND ( ${selectedMods.map(() => ` mapmods.mod LIKE ? `).join(' OR ')} )
-          ) > 0 `: ''}
-      ${selectedMaps.length > 0 ? `AND areainfo.name IN (${'?,'.repeat(selectedMaps.length).slice(0, -1)}) ` : ''}
+          ) > 0 `
+          : ''
+      }
+      ${
+        selectedMaps.length > 0
+          ? `AND areainfo.name IN (${'?,'.repeat(selectedMaps.length).slice(0, -1)}) `
+          : ''
+      }
       ${iiq ? `AND mapruns.iiq BETWEEN ${iiq.min} AND ${iiq.max} ` : ''}
       ${iir ? `AND mapruns.iir BETWEEN ${iir.min} AND ${iir.max} ` : ''}
       ${packSize ? `AND mapruns.packsize BETWEEN ${packSize.min} AND ${packSize.max} ` : ''}
@@ -165,10 +177,10 @@ export default {
     `;
 
     try {
-      const queryArgs : any[] = [];
-      if(neededItemName) queryArgs.push(neededItemName);
-      if(selectedMods.length > 0) queryArgs.push(...selectedMods);
-      if(selectedMaps.length > 0) queryArgs.push(...selectedMaps);
+      const queryArgs: any[] = [];
+      if (neededItemName) queryArgs.push(neededItemName);
+      if (selectedMods.length > 0) queryArgs.push(...selectedMods);
+      if (selectedMaps.length > 0) queryArgs.push(...selectedMaps);
       logger.info(query);
       queryArgs.push(minMapValue);
       queryArgs.push(from);
@@ -181,18 +193,24 @@ export default {
       return [];
     }
   },
-  getAllItemsForRuns: async ({ runs, minLootValue = 0 } : { runs: Run[], minLootValue: number }): Promise<any[]> => {
+  getAllItemsForRuns: async ({
+    runs,
+    minLootValue = 0,
+  }: {
+    runs: Run[];
+    minLootValue: number;
+  }): Promise<any[]> => {
     const query = `
       SELECT mapruns.id AS map_id, areainfo.name AS area, items.*
       FROM items, mapruns, areainfo
       WHERE items.value > ?
       AND items.event_id BETWEEN mapruns.firstevent AND mapruns.lastevent
       AND map_id = areainfo.id
-      AND mapruns.id IN (${runs.map(r => r.id).join(',')})
+      AND mapruns.id IN (${runs.map((r) => r.id).join(',')})
     `;
 
     try {
-      const items = DB.all(query, [ minLootValue ]);
+      const items = DB.all(query, [minLootValue]);
       return items ?? [];
     } catch (err) {
       logger.error(`Error getting loot: ${JSON.stringify(err)}`);

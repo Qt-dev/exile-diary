@@ -151,9 +151,7 @@ const OverlayVisibilityToggleButton = ({ handleButtonClick, open }) => {
 
 const Overlay = ({ store }) => {
   const [open, setOpen] = React.useState(false);
-  const [lastUpdate, setLastUpdate] = React.useState<Dayjs>(
-    store.currentRun.lastUpdate ?? dayjs()
-  );
+  const [lastUpdate, setLastUpdate] = React.useState<Dayjs>(store.currentRun.lastUpdate ?? dayjs());
   const [latestMessage, setLatestMessage] = React.useState<JSX.Element | null>(<div>---</div>);
   const [latestMapTrackingMessage, setLatestMapTrackingMessage] =
     React.useState<JSX.Element | null>(<div>---</div>);

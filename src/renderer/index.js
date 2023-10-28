@@ -72,7 +72,7 @@ const router = createHashRouter([
         path: 'search',
         element: <Search store={new SearchDataStore()} />,
         loader: async () => {
-          const [ settings, divinePrice, maps, possibleMods ] = await Promise.all([
+          const [settings, divinePrice, maps, possibleMods] = await Promise.all([
             ipcRenderer.invoke('get-settings'),
             ipcRenderer.invoke('get-divine-price'),
             ipcRenderer.invoke('get-all-map-names'),
@@ -85,7 +85,7 @@ const router = createHashRouter([
         path: 'stats',
         element: <Stats />,
         loader: async () => {
-          const [ settings, stats ] = await Promise.all([
+          const [settings, stats] = await Promise.all([
             ipcRenderer.invoke('get-settings'),
             ipcRenderer.invoke('get-all-stats'),
           ]);

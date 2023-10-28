@@ -4,6 +4,6 @@ import './Pricing.css';
 
 const DivineIconImg = () => {
   return <img className="Currency Currency--Divine" src={Icon} alt="Divine orbs" />;
-}
+};
 
 export default DivineIconImg;

@@ -1,25 +1,23 @@
 // Taken from sqlite-regex package, which is not compatible with CJS
 // Todo: Switch that back to the package once EDR is updated to support ESM dependencies
-import { join } from "node:path";
-import { arch, platform } from "node:process";
-import { statSync } from "node:fs";
+import { join } from 'node:path';
+import { arch, platform } from 'node:process';
+import { statSync } from 'node:fs';
 
 const supportedPlatforms = [
-  ["darwin", "x64"],
-  ["darwin", "arm64"],
-  ["win32", "x64"],
-  ["linux", "x64"],
+  ['darwin', 'x64'],
+  ['darwin', 'arm64'],
+  ['win32', 'x64'],
+  ['linux', 'x64'],
 ];
 
 function validPlatform(platform, arch) {
-  return (
-    supportedPlatforms.find(([p, a]) => platform == p && arch === a) !== null
-  );
+  return supportedPlatforms.find(([p, a]) => platform == p && arch === a) !== null;
 }
 function extensionSuffix(platform) {
-  if (platform === "win32") return "dll";
-  if (platform === "darwin") return "dylib";
-  return "so";
+  if (platform === 'win32') return 'dll';
+  if (platform === 'darwin') return 'dylib';
+  return 'so';
 }
 
 export function getLoadablePath() {
@@ -27,14 +25,10 @@ export function getLoadablePath() {
     throw new Error(
       `Unsupported platform for sqlite-regex, on a ${platform}-${arch} machine, but not in supported platforms (${supportedPlatforms
         .map(([p, a]) => `${p}-${a}`)
-        .join(",")}). Consult the sqlite-regex NPM package README for details. `
+        .join(',')}). Consult the sqlite-regex NPM package README for details. `
     );
   }
-  const loadablePath = join(
-    __dirname,
-    "extensions",
-    `regexp.${extensionSuffix(platform)}`
-  );
+  const loadablePath = join(__dirname, 'extensions', `regexp.${extensionSuffix(platform)}`);
 
   if (!statSync(loadablePath, { throwIfNoEntry: false })) {
     throw new Error(

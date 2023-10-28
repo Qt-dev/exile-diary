@@ -43,11 +43,9 @@ const LootStats = ({ stats, store }) => {
     }
   });
   const filterLabel = (
-    <span style={{display: 'flex', gap: '0.2em', alignItems: 'center' }}>
+    <span style={{ display: 'flex', gap: '0.2em', alignItems: 'center' }}>
       Minimum Value (1
-      <DivineIcon /> ={' '}
-      {stats.divinePrice}{' '}
-      <ChaosIcon />)
+      <DivineIcon /> = {stats.divinePrice} <ChaosIcon />)
     </span>
   );
   return (

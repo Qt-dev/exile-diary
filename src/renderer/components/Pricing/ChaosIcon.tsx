@@ -4,6 +4,6 @@ import './Pricing.css';
 
 const ChaosIconImg = () => {
   return <img className="Currency Currency--Chaos" src={ChaosIcon} alt="Chaos orbs" />;
-}
+};
 
 export default ChaosIconImg;
