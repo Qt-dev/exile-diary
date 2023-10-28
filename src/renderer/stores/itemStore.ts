@@ -1,13 +1,16 @@
 import { computed, makeAutoObservable, runInAction } from 'mobx';
 import { Order } from '../../helpers/types';
 import { Item } from './domain/item';
+import { json2csv } from 'json-2-csv';
 import { electronService } from '../electron.service';
+
 // const { logger, ipcRenderer } = electronService;
 
 // Mobx store for Items
 export default class ItemStore {
   items: Item[] = [];
-  isLoading = true;
+  isLoading = false;
+  csv: string = '';
 
   constructor(lootData) {
     makeAutoObservable(this);
@@ -16,9 +19,10 @@ export default class ItemStore {
 
   createItems(lootData) {
     this.isLoading = true;
-    runInAction(() => {
+    runInAction(async () => {
       if (lootData) {
         this.items = lootData.map((item) => new Item(this, item));
+        await this.generateCsv();
       }
       this.isLoading = false;
     });
@@ -84,6 +88,12 @@ export default class ItemStore {
             .toFixed(2)) : 0,
       }
     };
+  }
+
+  @computed async generateCsv(): Promise<void> {
+    const baseData = this.items.map((item) => item.toLootTable(true));
+    const csv = await json2csv(baseData, {});
+    this.csv = csv;
   }
 
   reset() {

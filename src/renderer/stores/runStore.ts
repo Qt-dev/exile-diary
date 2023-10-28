@@ -2,15 +2,17 @@ import { computed, makeAutoObservable, runInAction } from 'mobx';
 import { electronService } from '../electron.service';
 import { Run } from './domain/run';
 import dayjs from 'dayjs';
+import { json2csv } from 'json-2-csv';
 const { logger } = electronService;
 
 // Mobx store for maps
 export default class RunStore {
   runs: Run[] = [];
-  isLoading = true;
+  isLoading = false;
   size = Number.MAX_SAFE_INTEGER;
   maxSize = Number.MAX_SAFE_INTEGER; // This can be changed in the future
   currentRun: Run;
+  csv: string = '';
 
   constructor(shouldSetupFromBackend = true) {
     makeAutoObservable(this);
@@ -22,8 +24,9 @@ export default class RunStore {
 
   createRuns(runs) {
     this.isLoading = true;
-    runInAction(() => {
+    runInAction(async () => {
       this.runs = runs.map((run) => new Run(this, run));
+      await this.generateCsv();
       this.isLoading = false;
     });
   }
@@ -145,5 +148,12 @@ export default class RunStore {
         average: averageProfit.toFixed(2),
       }
     };
+  }
+
+  @computed async generateCsv(): Promise<void> {
+    const baseData = this.runs.map((run) => run.asJson);
+    const csv = await json2csv(baseData, {});
+   
+    this.csv = csv;
   }
 }
