@@ -124,7 +124,7 @@ const Search = ({ store }) => {
       return;
     }
     if(isTakingScreenshot) {
-      toBlob(screenShotRef.current, { cacheBust: true })
+      toBlob(screenShotRef.current, { cacheBust: true, backgroundColor: '#000', style: {marginTop: '-16px'} })
         .then((blob) => {
           const now = dayjs().format('YYYY-MM-DD_HH-mm-ss');
           const fileName = `${characterName}_${now}.png`;
@@ -146,13 +146,14 @@ const Search = ({ store }) => {
 
 
   const screenshotIcon = (
-    <div
+    <Button
       className={`Search__Screenshot ${isTakingScreenshot ? 'Search__Screenshot--Ongoing' : ''}`}
       onClick={screenshot}
+      variant="outlined"
     >
       <ScreenshotMonitorIcon className="Stats__Screenshot-Icon" />
       {isTakingScreenshot ? 'Capturing...' : 'Capture Stats'}
-    </div>
+    </Button>
   );
 
 
