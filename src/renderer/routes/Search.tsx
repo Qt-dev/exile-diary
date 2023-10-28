@@ -7,7 +7,10 @@ import ScreenshotMonitorIcon from '@mui/icons-material/ScreenshotMonitor';
 import Backdrop from '@mui/material/Backdrop'
 import CircularProgress from '@mui/material/CircularProgress';
 import { observer } from 'mobx-react-lite';
-import { Chip, Divider, Stack } from '@mui/material';
+import Button from '@mui/material/Button';
+import Chip from '@mui/material/Chip';
+import Divider from '@mui/material/Divider';
+import Stack from '@mui/material/Stack';
 import { toBlob } from 'html-to-image';
 import dayjs from 'dayjs';
 import { useLoaderData } from 'react-router';
@@ -16,7 +19,7 @@ import Price from '../components/Pricing/Price';
 
 const { logger, ipcRenderer } = electronService;
 
-const SearchResultsHeader = ({ activeProfile, searchParams, divinePrice, availableMaps }) => {
+const SearchResultsHeader = ({ activeProfile, searchParams, divinePrice, availableMaps, shouldDisplayCharacterName }) => {
   const dateFormat = 'YYYYMMDDHHmmss'
   const dateString = searchParams?.to && searchParams?.from ?
     <div className="DataSearchResults__Stats__SubTitle">
@@ -81,7 +84,7 @@ const SearchResultsHeader = ({ activeProfile, searchParams, divinePrice, availab
   return (
     <>
       <h3 className="DataSearchResults__Stats__Title">
-        Stats for <span className="Text--Legendary">{activeProfile.characterName}</span> in <span className="Text--Rare">{activeProfile.league}</span> League
+        Stats for {shouldDisplayCharacterName && <><span className="Text--Legendary">{activeProfile.characterName}</span> in </>}<span className="Text--Rare">{activeProfile.league}</span> League
       </h3>
       {dateString}
       {minLootString}
@@ -103,6 +106,7 @@ const Search = ({ store }) => {
   const [ isTakingScreenshot, setIsTakingScreenshot] = React.useState(false);
   const [ isSearching, setIsSearching ] = React.useState(false);
   const [ searchParams, setSearchParams ] = React.useState({} as any);
+  const [ shouldDisplayCharacterName, setShouldDisplayCharacterName ] = React.useState(true);
 
   const { activeProfile, divinePrice, maps, possibleMods } = useLoaderData() as any;
   const { characterName } = activeProfile;
@@ -113,10 +117,6 @@ const Search = ({ store }) => {
     setSearchParams(searchParams);
     setIsSearching(false);
   };
-
-  // useEffect(() => {
-  //   store.reset();
-  // }, []);
 
   const runScreenshotCommand = () => {
     if (screenShotRef.current === null) {
@@ -156,7 +156,9 @@ const Search = ({ store }) => {
     </Button>
   );
 
-
+  const handleToggleDisplayCharacterName = () => {
+    setShouldDisplayCharacterName(!shouldDisplayCharacterName);
+  };
 
   return (
     <div className="Search">
@@ -168,7 +170,7 @@ const Search = ({ store }) => {
           <CircularProgress />
         </Stack>
       </Backdrop>
-      <DataSearchForm searchFunction={handleSearch} availableMaps={maps} possibleMods={possibleMods} />
+      <DataSearchForm searchFunction={handleSearch} availableMaps={maps} possibleMods={possibleMods} shouldDisplayCharacterName={shouldDisplayCharacterName} handleToggleDisplayCharacterName={handleToggleDisplayCharacterName}/>
       <Divider className="Search__Divider" sx={{margin: '1em 0'}}>
         <Chip label="Results" />
       </Divider>
@@ -181,7 +183,7 @@ const Search = ({ store }) => {
           runStore={store.runStore}
           isTakingScreenshot={isTakingScreenshot}
           runScreenshotCommand={runScreenshotCommand}
-          header={<SearchResultsHeader activeProfile={activeProfile} searchParams={searchParams} divinePrice={divinePrice} availableMaps={maps} />}
+          header={<SearchResultsHeader activeProfile={activeProfile} searchParams={searchParams} divinePrice={divinePrice} availableMaps={maps} shouldDisplayCharacterName={shouldDisplayCharacterName} />}
           divinePrice={divinePrice}
           isSearching={isSearching}
         />

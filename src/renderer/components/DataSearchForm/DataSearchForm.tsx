@@ -12,10 +12,12 @@ import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import Autocomplete from '@mui/material/Autocomplete';
+import Checkbox from '@mui/material/Checkbox';
+import FormControlLabel from '@mui/material/FormControlLabel';
 const { logger } = electronService;
 
 
-const DataSearchForm = ({ searchFunction, availableMaps, possibleMods }) => {
+const DataSearchForm = ({ searchFunction, availableMaps, possibleMods, shouldDisplayCharacterName, handleToggleDisplayCharacterName }) => {
   const now = dayjs();
   const [from, setFrom] = React.useState<Dayjs | null>(dayjs().subtract(1, 'days'));
   const [to, setTo] = React.useState<Dayjs | null>(dayjs());
@@ -320,6 +322,7 @@ const DataSearchForm = ({ searchFunction, availableMaps, possibleMods }) => {
             />
           </FormControl>
         </Stack>
+        <FormControlLabel control={<Checkbox checked={shouldDisplayCharacterName} onChange={handleToggleDisplayCharacterName} />} label="Display my character name" />
       </Stack>
 
       <ButtonGroup className="DataSearchForm__Buttons" variant="contained" aria-label="outlined primary button group" >
