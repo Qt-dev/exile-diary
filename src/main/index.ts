@@ -202,7 +202,7 @@ class MainProcess {
       autoUpdater.quitAndInstall();
     });
 
-    autoUpdater.channel = 'beta';
+    autoUpdater.channel = 'latest';
     autoUpdater.logger = logger;
     autoUpdater.autoDownload = false;
     autoUpdater.on('update-available', (info) => {
