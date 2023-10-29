@@ -1,6 +1,6 @@
 {
   "name": "exile-diary",
-  "version": "1.3.0-beta",
+  "version": "1.3.0",
   "main": "./build/main/index.js",
   "homepage": "./",
   "build": {
@@ -17,7 +17,10 @@
       "icon": "./src/renderer/assets/img/icons/win/ExileDiary.ico",
       "extraResources": [
         "eng.traineddata",
-        { "from": "./src/main/db/extensions", "to": "db/extensions" }
+        {
+          "from": "./src/main/db/extensions",
+          "to": "db/extensions"
+        }
       ]
     },
     "nsis": {
