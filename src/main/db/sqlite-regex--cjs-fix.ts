@@ -1,6 +1,7 @@
 // Taken from sqlite-regex package, which is not compatible with CJS
 // Todo: Switch that back to the package once EDR is updated to support ESM dependencies
-import { join } from 'node:path';
+import { join, resolve } from 'node:path';
+import { app } from 'electron';
 import { arch, platform } from 'node:process';
 import { statSync } from 'node:fs';
 
@@ -28,7 +29,8 @@ export function getLoadablePath() {
         .join(',')}). Consult the sqlite-regex NPM package README for details. `
     );
   }
-  const loadablePath = join(__dirname, 'extensions', `regexp.${extensionSuffix(platform)}`);
+  const prefix = app.isPackaged ? process.resourcesPath : resolve(__dirname, '..');
+  const loadablePath = join(prefix, 'db', 'extensions', `regexp.${extensionSuffix(platform)}`);
 
   if (!statSync(loadablePath, { throwIfNoEntry: false })) {
     throw new Error(

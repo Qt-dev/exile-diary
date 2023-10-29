@@ -566,7 +566,7 @@ module.exports = function (webpackEnv) {
     plugins: [
       new CopyPlugin({
         patterns: [
-          { from: "src/main/db/extensions/*.dll", to: 'main/db/extensions/[name][ext]' },
+          { from: "src/main/db/extensions/*", to: 'main/db/extensions/[name][ext]' },
         ],
       }),
       // Generates an `index.html` file with the <script> injected.

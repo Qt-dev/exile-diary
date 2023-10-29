@@ -16,7 +16,8 @@
       "artifactName": "exile-diary-reborn-setup-${version}.${ext}",
       "icon": "./src/renderer/assets/img/icons/win/ExileDiary.ico",
       "extraResources": [
-        "eng.traineddata"
+        "eng.traineddata",
+        { "from": "./src/main/db/extensions", "to": "db/extensions" }
       ]
     },
     "nsis": {
