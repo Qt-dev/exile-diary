@@ -14,7 +14,7 @@ import FormControl from '@mui/material/FormControl';
 import InputLabel from '@mui/material/InputLabel';
 import OutlinedInput from '@mui/material/OutlinedInput';
 import Item from '../components/Item/Item';
-import ChaosIcon from '../assets/img/c.png';
+import ChaosIcon from '../components/Pricing/ChaosIcon';
 import { Order } from '../../helpers/types';
 import { observer } from 'mobx-react-lite';
 
@@ -146,7 +146,9 @@ const StashTabs = ({ store }) => {
                 direction={orderBy === 'value' ? order : 'asc'}
                 onClick={sortCallback('value', order)}
               >
-                Unit <img className="Loot-Table__Chaos-Icon" src={ChaosIcon} alt="profit" />
+                <span style={{ display: 'flex', gap: '0.2em', alignItems: 'center' }}>
+                  <ChaosIcon /> / Unit
+                </span>
               </TableSortLabel>
             </TableCell>
             <TableCell align="right" width={4}>
@@ -155,7 +157,9 @@ const StashTabs = ({ store }) => {
                 direction={orderBy === 'totalValue' ? order : 'asc'}
                 onClick={sortCallback('totalValue', order)}
               >
-                Total <img className="Loot-Table__Chaos-Icon" src={ChaosIcon} alt="profit" />
+                <span style={{ display: 'flex', gap: '0.2em', alignItems: 'center' }}>
+                  Total <ChaosIcon />
+                </span>
               </TableSortLabel>
             </TableCell>
           </TableRow>

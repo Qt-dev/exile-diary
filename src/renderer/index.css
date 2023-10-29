@@ -91,6 +91,10 @@ span.negative {
   background-color: #111;
 }
 
+.Text {
+  display: flex;
+}
+
 .Text--Icon {
   height: 1em;
   vertical-align: text-bottom;
@@ -214,4 +218,8 @@ span.negative {
   font-family: FontInSmallCaps;
   font-size: 1.5em;
   color: white;
+}
+
+.Icon--Hidden {
+  display: none;
 }

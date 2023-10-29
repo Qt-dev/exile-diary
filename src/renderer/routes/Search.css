@@ -1,0 +1,16 @@
+.Search__Screenshot {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  color: #fff;
+  cursor: pointer;
+  margin: 0 0 10px 0;
+}
+
+.Search__Screenshot.Search__Screenshot--Ongoing {
+  color: #888;
+}
+
+.Search__Screenshot__Container {
+  display: flex;
+}

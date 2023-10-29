@@ -1,6 +1,5 @@
 import './RunList.css';
-import moment from 'moment';
-import DurationFormatSetup from 'moment-duration-format';
+import dayjs from 'dayjs';
 import React from 'react';
 import {
   TableContainer,
@@ -16,12 +15,11 @@ import {
   FormControl,
 } from '@mui/material';
 import classNames from 'classnames';
-import ChaosIcon from '../assets/img/c.png';
+import ChaosIcon from '../components/Pricing/ChaosIcon';
 import { useNavigate } from 'react-router-dom';
 import { observer } from 'mobx-react-lite';
-DurationFormatSetup(moment);
 
-const RunList = ({ NumbersOfMapsToShow = 10, store }) => {
+const RunList = ({ NumbersOfMapsToShow = 10, store, isBoxed = true }) => {
   const navigate = useNavigate();
   const [runsPerPage, setrunsPerPage] = React.useState<number>(NumbersOfMapsToShow);
   const [isDrawerOpen, setIsDrawerOpen] = React.useState(false);
@@ -53,8 +51,13 @@ const RunList = ({ NumbersOfMapsToShow = 10, store }) => {
     return <div> This feature was disabled - Coming Soon </div>; // TODO: Add filter menu
   };
 
+  const mainClasses = classNames({
+    Box: isBoxed,
+    'Run-List': true,
+  });
+
   return (
-    <div className="Run-List Box">
+    <div className={mainClasses}>
       <div className="Run-List__Header">
         <div className="Page__Title Run-List__Header__Title">
           Most Recent {store.runs.length} Runs
@@ -89,11 +92,28 @@ const RunList = ({ NumbersOfMapsToShow = 10, store }) => {
               </TableCell>
               <TableCell variant="head">Duration</TableCell>
               <TableCell variant="head" align="center">
-                <img className="Run-List__List__Header__Icon" src={ChaosIcon} alt="profit" />
+                <span
+                  style={{
+                    display: 'flex',
+                    gap: '0.2em',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                  }}
+                >
+                  <ChaosIcon />
+                </span>
               </TableCell>
               <TableCell variant="head" align="center">
-                <img className="Run-List__List__Header__Icon" src={ChaosIcon} alt="profit" />
-                /Hr
+                <span
+                  style={{
+                    display: 'flex',
+                    gap: '0.2em',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                  }}
+                >
+                  <ChaosIcon />/ Hr
+                </span>
               </TableCell>
               <TableCell variant="head" align="center">
                 XP/Hr
@@ -119,7 +139,7 @@ const RunList = ({ NumbersOfMapsToShow = 10, store }) => {
                   className="Run-list__Run"
                   hover
                 >
-                  <TableCell>{run.firstEvent.toString()}</TableCell>
+                  <TableCell>{run.firstEvent?.calendar()}</TableCell>
                   <TableCell>{run.name}</TableCell>
                   <TableCell align="center">
                     {run.level}
@@ -128,7 +148,7 @@ const RunList = ({ NumbersOfMapsToShow = 10, store }) => {
                   <TableCell align="center">{run.iiq ? `${run.iiq}%` : '-'}</TableCell>
                   <TableCell align="center">{run.iir ? `${run.iir}%` : '-'}</TableCell>
                   <TableCell align="center">{run.packSize ? `${run.packSize}%` : '-'}</TableCell>
-                  <TableCell>{moment.utc(run.duration.asMilliseconds()).format('mm:ss')}</TableCell>
+                  <TableCell>{dayjs.utc(run.duration?.asMilliseconds()).format('mm:ss')}</TableCell>
                   <TableCell align="center">{run.profit?.toFixed(2)}</TableCell>
                   <TableCell align="center">{run.profitPerHour?.toFixed(2)}</TableCell>
                   <TableCell align="center" className={getXPClassName(run.xpPerHour)}>

@@ -1,0 +1,34 @@
+.DataSearchResults {
+  margin-bottom: 2.5em;
+}
+
+.DataSearchResults__Stat__Summary {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  margin: 0.5em 0;
+  gap: 0.3em;
+}
+
+.DataSearchResults__Header-Container {
+  margin: 1em 0 2em;
+}
+
+.DataSearchResults__Stats__Title {
+  text-align: center;
+  margin: 0.5em 0;
+}
+
+.DataSearchResults__Stats__SubTitle {
+  text-align: center;
+  align-items: center;
+  display: flex;
+  justify-content: center;
+  gap: 0.3em;
+}
+
+.DataSearchResults__Stat {
+  display: flex;
+  gap: 0.3em;
+}

@@ -1,6 +1,6 @@
 {
   "name": "exile-diary",
-  "version": "1.2.0",
+  "version": "1.3.0-beta",
   "main": "./build/main/index.js",
   "homepage": "./",
   "build": {
@@ -16,7 +16,8 @@
       "artifactName": "exile-diary-reborn-setup-${version}.${ext}",
       "icon": "./src/renderer/assets/img/icons/win/ExileDiary.ico",
       "extraResources": [
-        "eng.traineddata"
+        "eng.traineddata",
+        { "from": "./src/main/db/extensions", "to": "db/extensions" }
       ]
     },
     "nsis": {
@@ -91,6 +92,7 @@
     "@emotion/styled": "^11.10.6",
     "@mui/icons-material": "^5.11.16",
     "@mui/material": "^5.12.0",
+    "@mui/x-date-pickers": "^6.16.3",
     "@postman/node-keytar": "^7.9.3",
     "@react-hook/resize-observer": "^1.2.6",
     "@svgr/webpack": "^8.1.0",
@@ -111,8 +113,10 @@
     "chokidar": "^3.5.3",
     "classnames": "^2.3.2",
     "color-convert": "^2.0.1",
+    "copy-webpack-plugin": "^11.0.0",
     "css-loader": "^6.5.1",
     "css-minimizer-webpack-plugin": "^3.2.0",
+    "dayjs": "^1.11.10",
     "dotenv": "^10.0.0",
     "dotenv-expand": "^5.1.0",
     "electron-is-dev": "^2.0.0",
@@ -124,6 +128,7 @@
     "eslint-webpack-plugin": "^3.1.1",
     "fast-equals": "^4.0.1",
     "file-loader": "^6.2.0",
+    "file-saver": "^2.0.5",
     "fs-extra": "^10.0.0",
     "html-to-image": "^1.11.11",
     "html-webpack-plugin": "^5.5.0",
@@ -133,13 +138,12 @@
     "jest-resolve": "^27.4.2",
     "jest-watch-typeahead": "^1.0.0",
     "js-levenshtein": "^1.1.6",
+    "json-2-csv": "^4.1.1",
     "merge-img": "^2.1.3",
     "mini-css-extract-plugin": "^2.4.5",
     "mobx": "^6.9.0",
     "mobx-persist": "^0.4.1",
     "mobx-react-lite": "^3.4.3",
-    "moment": "^2.29.4",
-    "moment-duration-format": "^2.3.2",
     "nodejs-tail": "^1.1.1",
     "opn": "^6.0.0",
     "pastebin-js": "^1.0.6",

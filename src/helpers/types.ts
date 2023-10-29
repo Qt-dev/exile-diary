@@ -1,25 +1,25 @@
 type RunInfo = {
   blightedMap?: string;
   maven?: {
-    crucibleCompleted?: boolean;
-    mavenDefeated?: boolean;
+    crucibleCompleted?: number;
+    mavenDefeated?: number;
     firstLine: number;
   };
   oshabiBattle?: {
     start: number;
-    completed: boolean;
+    completed: number;
   };
   venariusBattle?: {
     start: number;
-    completed: boolean;
+    completed: number;
   };
   shaperBattle?: {
     phase1start: number;
-    completed: boolean;
+    completed: number;
   };
   mastermindBattle?: {
     battle2start: number;
-    completed: boolean;
+    completed: number;
   };
   envoy?: {
     words: number;
@@ -29,7 +29,7 @@ type RunInfo = {
     splinters: number;
   };
   labyrinth?: {
-    completed: boolean;
+    completed: number;
     argusKilled: number;
     darkshrines: {
       [key: string]: number;
@@ -37,7 +37,7 @@ type RunInfo = {
   };
   masters?: {
     [key: string]: {
-      completed: boolean;
+      completed: number;
       tier3Rooms?: string[];
       missionMap?: boolean;
       isTemple?: boolean;
@@ -52,7 +52,7 @@ type RunInfo = {
   };
   sirusBattle?: {
     start: number;
-    completed: boolean;
+    completed: number;
     finalPhaseStart: number;
     dieBeamsFired: number;
     dieBeamKills: number;

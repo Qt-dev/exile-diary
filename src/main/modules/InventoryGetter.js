@@ -1,7 +1,7 @@
 import GGGAPI from '../GGGAPI';
 import KillTracker from './KillTracker';
 const logger = require('electron-log');
-const moment = require('moment');
+const dayjs = require('dayjs');
 const XPTracker = require('./XPTracker');
 const GearChecker = require('./GearChecker');
 const EventEmitter = require('events');
@@ -105,7 +105,7 @@ class InventoryGetter extends EventEmitter {
           logger.info(`Unable to delete last inventory: ${err}`);
         }
       });
-      var timestamp = moment().format('YYYYMMDDHHmmss');
+      var timestamp = dayjs().format('YYYYMMDDHHmmss');
       DB.run(
         'insert into lastinv(timestamp, inventory) values(?, ?)',
         [timestamp, dataString],

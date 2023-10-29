@@ -1,7 +1,6 @@
 const qs = require('querystring');
 const EventEmitter = require('events');
-const moment = require('moment');
-const momentDurationFormatSetup = require('moment-duration-format');
+const dayjs = require('dayjs');
 const logger = require('electron-log');
 const Utils = require('./Utils').default;
 const ItemData = require('./ItemData');
@@ -323,8 +322,8 @@ async function getTime(mapID) {
         logger.info(`Error getting running time: ${err}`);
         resolve(null);
       }
-      var startTime = moment(row.firstevent, 'YYYYMMDDHHmmss');
-      var endTime = moment(row.lastevent, 'YYYYMMDDHHmmss');
+      var startTime = dayjs(row.firstevent, 'YYYYMMDDHHmmss');
+      var endTime = dayjs(row.lastevent, 'YYYYMMDDHHmmss');
       var runningTime = endTime.diff(startTime, 'seconds');
       resolve(runningTime);
     });
@@ -350,7 +349,7 @@ function getSQL(q) {
       case 'days':
         let diff = {};
         diff[q.mapcounttype] = q.mapcount;
-        let minDate = moment().subtract(diff).format('YYYYMMDDHHmmss');
+        let minDate = dayjs().subtract(diff).format('YYYYMMDDHHmmss');
         str += ` (select * from mapruns where gained > -1 and id >= ${minDate} order by id desc) mapruns `;
         break;
       default:

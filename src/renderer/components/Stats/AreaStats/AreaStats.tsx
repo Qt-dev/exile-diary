@@ -1,6 +1,6 @@
 import React from 'react';
 import Case from 'case';
-import moment from 'moment';
+import dayjs from 'dayjs';
 import { Order } from '../../../../helpers/types';
 import Table from '@mui/material/Table';
 import TableHead from '@mui/material/TableHead';
@@ -13,7 +13,7 @@ import IconButton from '@mui/material/IconButton';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 import MapStats from '../MapStats/MapStats';
-import ChaosIcon from '../../../assets/img/c.png';
+import ChaosIcon from '../../Pricing/ChaosIcon';
 import './AreaStats.css';
 
 const AreaStatsRow = ({ stats }) => {
@@ -34,7 +34,7 @@ const AreaStatsRow = ({ stats }) => {
           {stats.count.toLocaleString()}
         </TableCell>
         <TableCell sx={{ width: 100 }} align="center">
-          {moment.utc(stats.time * 1000).format('HH:mm:ss')}
+          {dayjs.utc(stats.time * 1000).format('HH:mm:ss')}
         </TableCell>
         <TableCell sx={{ width: 100 }} align="right">
           {stats.gained.toLocaleString('en-US', {
@@ -132,7 +132,7 @@ const AreaStats = ({ stats }) => {
                 direction={orderBy === 'gained' ? order : 'desc'}
                 onClick={sort('gained', order)}
               >
-                <img src={ChaosIcon} alt="Chaos Icon" className="Area-Stats__Profit-Icon" />
+                <ChaosIcon />
               </TableSortLabel>
             </TableCell>
             <TableCell variant="head" align="right">
@@ -142,8 +142,15 @@ const AreaStats = ({ stats }) => {
                 direction={orderBy === 'profitPerHour' ? order : 'desc'}
                 onClick={sort('profitPerHour', order)}
               >
-                <span>
-                  <img src={ChaosIcon} alt="Chaos Icon" className="Area-Stats__Profit-Icon" />
+                <span
+                  style={{
+                    display: 'flex',
+                    gap: '0.2em',
+                    flexDirection: 'row',
+                    alignItems: 'center',
+                  }}
+                >
+                  <ChaosIcon />
                   /hr
                 </span>
               </TableSortLabel>

@@ -5,6 +5,18 @@ import { ItemData } from '../../../helpers/types';
 import { electronService } from '../../electron.service';
 const { logger } = electronService;
 
+type LootTableData = {
+  id: string;
+  name: string;
+  value: number;
+  totalValue: number;
+  icon: string;
+  quantity: number;
+  stashTabId: string;
+  item?: Item;
+  itemData?: string;
+};
+
 const countSockets = (sockets) => {
   if (!sockets || !sockets.length) return 0;
 
@@ -142,7 +154,7 @@ const getCategory = (item, subcategory = false) => {
   }
 
   logger.error(`No category found for item ${item.id || '(no id)'}! JSON follows:`);
-  logger.error(JSON.stringify(item));
+  logger.info(item);
   return null;
 };
 
@@ -396,22 +408,41 @@ export class Item {
     });
   }
 
-  toLootTable() {
-    const { id, value = 0, stashTabId = '', rawData } = this;
+  toLootTable(jsonMode: boolean = false): LootTableData {
+    const { itemId, value = 0, stashTabId = '', rawData } = this;
     const { icon } = rawData;
     const name = rawData.name || rawData.secretName;
     const type = rawData.hybrid ? rawData.hybrid.baseTypeName : rawData.typeLine;
     const quantity = rawData.maxStackSize ? rawData.pickupStackSize ?? rawData.stackSize : 1;
     const fullName = type + (name ? ` (${name})` : '');
-    return {
-      id,
+    const lootTableData: LootTableData = {
+      id: itemId,
       name: fullName,
       value: value / quantity,
       totalValue: value,
       icon,
       quantity,
       stashTabId,
-      item: this,
     };
+    if (jsonMode) {
+      lootTableData.itemData = JSON.stringify(this.rawData);
+    } else {
+      lootTableData.item = this;
+    }
+    return lootTableData;
+  }
+
+  static getCsvHeaders() {
+    const fakeFormattedItem: LootTableData = {
+      id: '',
+      name: '',
+      value: 0,
+      totalValue: 0,
+      icon: '',
+      quantity: 0,
+      stashTabId: '',
+      itemData: '',
+    };
+    return Object.keys(fakeFormattedItem);
   }
 }

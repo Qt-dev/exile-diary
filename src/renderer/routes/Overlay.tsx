@@ -6,7 +6,7 @@ import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import classNames from 'classnames';
 import useResizeObserver from '@react-hook/resize-observer';
 import { observer } from 'mobx-react-lite';
-import moment, { Moment } from 'moment';
+import dayjs, { Dayjs } from 'dayjs';
 import { classPerType } from '../components/LogBox/LogBox';
 import Logo from '../logo.png';
 const { ipcRenderer } = electronService;
@@ -151,9 +151,7 @@ const OverlayVisibilityToggleButton = ({ handleButtonClick, open }) => {
 
 const Overlay = ({ store }) => {
   const [open, setOpen] = React.useState(false);
-  const [lastUpdate, setLastUpdate] = React.useState<Moment>(
-    store.currentRun.lastUpdate ?? moment()
-  );
+  const [lastUpdate, setLastUpdate] = React.useState<Dayjs>(store.currentRun.lastUpdate ?? dayjs());
   const [latestMessage, setLatestMessage] = React.useState<JSX.Element | null>(<div>---</div>);
   const [latestMapTrackingMessage, setLatestMapTrackingMessage] =
     React.useState<JSX.Element | null>(<div>---</div>);

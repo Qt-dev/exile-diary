@@ -1,19 +1,41 @@
 import { computed, makeAutoObservable, runInAction } from 'mobx';
 import { electronService } from '../electron.service';
 import { Run } from './domain/run';
-import moment from 'moment';
+import dayjs from 'dayjs';
+import { json2csv } from 'json-2-csv';
 const { logger } = electronService;
 
 // Mobx store for maps
 export default class RunStore {
   runs: Run[] = [];
-  isLoading = true;
+  isLoading = false;
   size = Number.MAX_SAFE_INTEGER;
   maxSize = Number.MAX_SAFE_INTEGER; // This can be changed in the future
   currentRun: Run;
+  csv: string = '';
 
-  constructor() {
+  constructor(shouldSetupFromBackend = true) {
     makeAutoObservable(this);
+    this.currentRun = new Run(this, { name: 'Unknown' });
+    if (shouldSetupFromBackend) {
+      this.setupFromBackend();
+    }
+  }
+
+  createRuns(runs) {
+    this.isLoading = true;
+    runInAction(async () => {
+      this.runs = runs.map((run) => new Run(this, run));
+      await this.generateCsv();
+      this.isLoading = false;
+    });
+  }
+
+  reset() {
+    this.runs = [];
+  }
+
+  setupFromBackend() {
     this.loadRuns(this.size);
     this.currentRun = new Run(this, { name: 'Unknown' });
     electronService.ipcRenderer.on('refresh-runs', () => this.loadRuns(this.size));
@@ -75,10 +97,10 @@ export default class RunStore {
     return Math.ceil(this.runs.length / size);
   }
 
-  @computed getFullDuration(): moment.Duration {
+  @computed getFullDuration(): plugin.Duration {
     return this.runs.reduce(
-      (acc, run) => acc.add(run.duration ?? 0),
-      moment.duration(0, 'seconds')
+      (acc, run) => acc.add(run.duration?.asSeconds() ?? 0, 'seconds'),
+      dayjs.duration(0, 'seconds')
     );
   }
 
@@ -107,5 +129,33 @@ export default class RunStore {
 
   updateCurrentRun(json) {
     this.currentRun.updateFromJson(json);
+  }
+
+  @computed get stats(): any {
+    const totalTime = this.getFullDuration();
+    const averageTime = dayjs.duration(
+      totalTime.asMilliseconds() > 0 ? totalTime.asMilliseconds() / this.runs.length : 0
+    );
+    const totalProfit = this.runs.reduce((acc, run) => acc + run.profit, 0);
+    const averageProfit = this.runs.length > 0 ? totalProfit / this.runs.length : 0;
+
+    return {
+      count: this.runs.length,
+      time: {
+        total: totalTime,
+        average: averageTime,
+      },
+      profit: {
+        total: totalProfit.toFixed(2),
+        average: averageProfit.toFixed(2),
+      },
+    };
+  }
+
+  @computed async generateCsv(): Promise<void> {
+    const baseData = this.runs.map((run) => run.asJson);
+    const csv = await json2csv(baseData, {});
+
+    this.csv = csv;
   }
 }

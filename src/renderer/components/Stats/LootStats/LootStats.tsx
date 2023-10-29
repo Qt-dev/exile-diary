@@ -8,12 +8,12 @@ import TextField from '@mui/material/TextField';
 import TableSortLabel from '@mui/material/TableSortLabel';
 import InputAdornment from '@mui/material/InputAdornment';
 import Item from '../../Item/Item';
-import ChaosIcon from '../../../assets/img/c.png';
-import DivineIcon from '../../../assets/img/div.png';
+import ChaosIcon from '../../Pricing/ChaosIcon';
+import DivineIcon from '../../Pricing/DivineIcon';
 import { Order } from '../../../../helpers/types';
 import './LootStats.css';
 import { Link } from 'react-router-dom';
-import moment from 'moment';
+import dayjs from 'dayjs';
 
 type LootStatOrderOptions = 'name' | 'value' | 'map_id' | 'area';
 
@@ -43,12 +43,10 @@ const LootStats = ({ stats, store }) => {
     }
   });
   const filterLabel = (
-    <>
+    <span style={{ display: 'flex', gap: '0.2em', alignItems: 'center' }}>
       Minimum Value (1
-      <img src={DivineIcon} alt="Divine Icon" className="Loot-Stats__Profit-Icon" /> ={' '}
-      {stats.divinePrice}{' '}
-      <img src={ChaosIcon} alt="Chaos Icon" className="Loot-Stats__Profit-Icon" />)
-    </>
+      <DivineIcon /> = {stats.divinePrice} <ChaosIcon />)
+    </span>
   );
   return (
     <div>
@@ -65,7 +63,7 @@ const LootStats = ({ stats, store }) => {
           InputProps={{
             startAdornment: (
               <InputAdornment position="start">
-                <img src={ChaosIcon} alt="Chaos Icon" className="Loot-Stats__Profit-Icon" />
+                <ChaosIcon />
               </InputAdornment>
             ),
           }}
@@ -91,7 +89,7 @@ const LootStats = ({ stats, store }) => {
                 direction={orderBy === 'value' ? order : 'desc'}
                 onClick={sort('value', order)}
               >
-                <img src={ChaosIcon} alt="Chaos Icon" className="Loot-Stats__Profit-Icon" />
+                <ChaosIcon />
               </TableSortLabel>
             </TableCell>
             <TableCell align="center">
@@ -122,7 +120,7 @@ const LootStats = ({ stats, store }) => {
               minimumFractionDigits: 2,
               maximumFractionDigits: 2,
             });
-            const date = moment(item.map_id, 'YYYYMMDDHHmmss').toString();
+            const date = dayjs(item.map_id, 'YYYYMMDDHHmmss').toString();
             return (
               <TableRow key={index}>
                 <TableCell align="center">
@@ -136,7 +134,7 @@ const LootStats = ({ stats, store }) => {
                     maximumFractionDigits: 2,
                   })}
                   &nbsp;({divineValue}
-                  <img src={DivineIcon} alt="Divine Icon" className="Loot-Stats__Profit-Icon" />)
+                  <DivineIcon />)
                 </TableCell>
                 <TableCell align="center">
                   <Link to={`/run/${item.map_id}`} className="Loot-Stats__Link">

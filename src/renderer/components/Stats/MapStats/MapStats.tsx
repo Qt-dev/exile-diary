@@ -1,12 +1,12 @@
 import React from 'react';
 import Case from 'case';
-import moment from 'moment';
+import dayjs from 'dayjs';
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
 import TableCell from '@mui/material/TableCell';
 import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
-import ChaosIcon from '../../../assets/img/c.png';
+import ChaosIcon from '../../Pricing/ChaosIcon';
 import { Order } from '../../../../helpers/types';
 import TableSortLabel from '@mui/material/TableSortLabel';
 import IconButton from '@mui/material/IconButton';
@@ -25,11 +25,11 @@ const MapRow = ({ maps }) => {
             <TableCell>Date</TableCell>
             <TableCell>Time</TableCell>
             <TableCell align="right">
-              <img src={ChaosIcon} alt="Chaos Icon" className="Area-Stats__Profit-Icon" />
+              <ChaosIcon />
             </TableCell>
             <TableCell align="right">
               <span>
-                <img src={ChaosIcon} alt="Chaos Icon" className="Area-Stats__Profit-Icon" />
+                <ChaosIcon />
                 /Hr
               </span>
             </TableCell>
@@ -40,8 +40,8 @@ const MapRow = ({ maps }) => {
         <TableBody>
           {maps.map((map, index) => (
             <TableRow key={index} component={Link} to={`/run/${map.id}`}>
-              <TableCell>{moment(map.date, 'YYYYMMDDHHmmss').toString()}</TableCell>
-              <TableCell>{moment.utc(map.time * 1000).format('HH:mm:ss')}</TableCell>
+              <TableCell>{dayjs(map.date, 'YYYYMMDDHHmmss').toString()}</TableCell>
+              <TableCell>{dayjs.utc(map.time * 1000).format('HH:mm:ss')}</TableCell>
               <TableCell align="right">
                 {map.gained.toLocaleString('en-US', {
                   minimumFractionDigits: 2,
@@ -82,7 +82,7 @@ const MapStatsRow = ({ stats }) => {
         </TableCell>
         <TableCell>{Case.capital(stats.name)}</TableCell>
         <TableCell align="center">{stats.count}</TableCell>
-        <TableCell align="center">{moment.utc(stats.time * 1000).format('HH:mm:ss')}</TableCell>
+        <TableCell align="center">{dayjs.utc(stats.time * 1000).format('HH:mm:ss')}</TableCell>
         <TableCell align="right">
           {stats.gained.toLocaleString('en-US', {
             minimumFractionDigits: 2,
@@ -174,7 +174,7 @@ const MapStats = ({ stats }) => {
               direction={orderBy === 'gained' ? order : 'desc'}
               onClick={sort('gained', order)}
             >
-              <img src={ChaosIcon} alt="Chaos Icon" className="Area-Stats__Profit-Icon" />
+              <ChaosIcon />
             </TableSortLabel>
           </TableCell>
           <TableCell variant="head" align="right">
@@ -185,7 +185,7 @@ const MapStats = ({ stats }) => {
               onClick={sort('profitPerHour', order)}
             >
               <span>
-                <img src={ChaosIcon} alt="Chaos Icon" className="Area-Stats__Profit-Icon" />
+                <ChaosIcon />
                 /hr
               </span>
             </TableSortLabel>

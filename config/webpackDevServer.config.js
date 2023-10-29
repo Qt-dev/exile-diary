@@ -89,6 +89,12 @@ module.exports = function (proxy, allowedHost) {
       // from the root.
       // remove last slash so user can land on `/test` instead of `/test/`
       publicPath: paths.publicUrlOrPath.slice(0, -1),
+      // Special use case for db extension files and/or other files that are not
+      // part of the main app bundle.
+      writeToDisk: (filePath) => {
+        const regexp = /main\\db\\extensions\\.*/;
+        return regexp.test(filePath);
+      }
     },
 
     https: getHttpsConfig(),
@@ -122,6 +128,6 @@ module.exports = function (proxy, allowedHost) {
       // it used the same host and port.
       // https://github.com/facebook/create-react-app/issues/2272#issuecomment-302832432
       devServer.app.use(noopServiceWorkerMiddleware(paths.publicUrlOrPath));
-    },
+    }
   };
 };

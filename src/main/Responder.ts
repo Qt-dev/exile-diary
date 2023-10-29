@@ -1,5 +1,6 @@
 import logger from 'electron-log';
 import { app } from 'electron';
+import dayjs from 'dayjs';
 import Runs from './db/run';
 import SettingsManager from './SettingsManager';
 import GGGAPI from './GGGAPI';
@@ -9,7 +10,9 @@ import StashTabsManager from './StashTabsManager';
 import stashGetter from './modules/StashGetter';
 import RendererLogger from './RendererLogger';
 import * as ClientTxtWatcher from './modules/ClientTxtWatcher';
+import ItemPricer from './modules/ItemPricer';
 import RunParser from './modules/RunParser';
+import SearchManager from './SearchManager';
 
 const getAppGlobals = async () => {
   logger.info('Loading global settings for the renderer process');
@@ -92,7 +95,12 @@ const getAllStats = async (e, params) => {
   const profile = SettingsManager.get('activeProfile');
   const league = params?.league ?? profile.league;
   const characterName = params?.characterName ?? profile.characterName;
-  const stats = StatsManager.getAllStats({ league, characterName });
+  const stats = await StatsManager.getAllStats({ league, characterName });
+  stats.divinePrice = await ItemPricer.getCurrencyByName(
+    dayjs().format('YYYYMMDD'),
+    'Divine Orb',
+    league
+  );
   return stats;
 };
 
@@ -142,6 +150,30 @@ const debugRecheckGain = async (e, startDate) => {
   await RunParser.recheckGained(startDate);
 };
 
+const triggerSearch = async (e, params) => {
+  logger.info('Triggering search from the renderer process');
+  SearchManager.search(params);
+};
+
+const getDivinePrice = async (e, params) => {
+  logger.info('Getting divine price from the renderer process');
+  return ItemPricer.getCurrencyByName(
+    dayjs().format('YYYYMMDD'),
+    'Divine Orb',
+    SettingsManager.get('activeProfile').league
+  );
+};
+
+const getAllMapNames = async (e, params) => {
+  logger.info('Getting all map names from the renderer process');
+  return await StatsManager.getAllMapNames();
+};
+
+const getAllPossibleMods = async (e, params) => {
+  logger.info('Getting all possible mods from the renderer process');
+  return await StatsManager.getAllPossibleMods();
+};
+
 const Responder = {
   'app-globals': getAppGlobals,
   'load-runs': loadRuns,
@@ -158,6 +190,10 @@ const Responder = {
   'get-all-stats': getAllStats,
   'get-stash-tabs': getStashTabs,
   'debug:recheck-gain': debugRecheckGain,
+  'search:trigger': triggerSearch,
+  'get-divine-price': getDivinePrice,
+  'get-all-map-names': getAllMapNames,
+  'get-all-possible-mods': getAllPossibleMods,
 };
 
 export default Responder;

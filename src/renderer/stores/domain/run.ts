@@ -1,10 +1,27 @@
 import { makeAutoObservable } from 'mobx';
 import { v4 as uuidv4 } from 'uuid';
-import moment, { Duration, Moment } from 'moment';
+import dayjs, { Dayjs } from 'dayjs';
+
+type JSONRun = {
+  id: string;
+  name: string;
+  level: number;
+  depth: number | null;
+  iiq: number;
+  iir: number;
+  packsize: number;
+  firstevent: string | null;
+  lastevent: string | null;
+  xpgained: number;
+  deaths: number;
+  gained: number;
+  kills: number | null;
+  runinfo: string;
+};
 
 export class Run {
   id = null;
-  lastUpdate: Moment;
+  lastUpdate: Dayjs;
   runId = '';
   name = 'Unknown';
   level = 0;
@@ -12,9 +29,9 @@ export class Run {
   iiq = 0;
   iir = 0;
   packSize = 0;
-  firstEvent: Moment | null = null;
-  lastEvent: Moment | null = null;
-  duration: Duration | null = null;
+  firstEvent: Dayjs | null = null;
+  lastEvent: Dayjs | null = null;
+  duration: plugin.Duration | null = null;
   xp = 0;
   tier: number | null = null;
   xpPerHour = 0;
@@ -42,7 +59,7 @@ export class Run {
     this.store = store;
     this.id = id;
     this.updateFromJson(options);
-    this.lastUpdate = moment();
+    this.lastUpdate = dayjs();
   }
 
   updateFromJson(json) {
@@ -55,9 +72,9 @@ export class Run {
     this.iiq = json.iiq ?? this.iiq;
     this.iir = json.iir ?? this.iir;
     this.packSize = json.packsize ?? this.packSize;
-    this.firstEvent = moment(json.firstevent, 'YYYYMMDDHHmmss');
-    this.lastEvent = moment(json.lastevent, 'YYYYMMDDHHmmss');
-    this.duration = moment.duration(this.lastEvent.diff(this.firstEvent));
+    this.firstEvent = dayjs(json.firstevent, 'YYYYMMDDHHmmss');
+    this.lastEvent = dayjs(json.lastevent, 'YYYYMMDDHHmmss');
+    this.duration = dayjs.duration(this.lastEvent.diff(this.firstEvent));
     this.xp = json.xpgained;
     this.xpPerHour = this.xp / this.duration.asHours();
     this.deaths = this.deaths || json.deaths;
@@ -65,7 +82,7 @@ export class Run {
     this.profitPerHour = this.profit / this.duration.asHours();
     this.kills = json.kills;
     this.runInfo = json.runinfo ? JSON.parse(json.runinfo) : {};
-    this.lastUpdate = moment();
+    this.lastUpdate = dayjs();
   }
 
   updateDetails(details) {
@@ -88,10 +105,10 @@ export class Run {
       return isDifference === 0 ? isBLoot : isDifference;
     });
     // Do something
-    this.lastUpdate = moment();
+    this.lastUpdate = dayjs();
   }
 
-  get asJson() {
+  get asJson(): JSONRun {
     return {
       id: this.runId,
       name: this.name,
@@ -100,13 +117,33 @@ export class Run {
       iiq: this.iiq,
       iir: this.iir,
       packsize: this.packSize,
-      firstevent: this.firstEvent,
-      lastevent: this.lastEvent,
+      firstevent: this.firstEvent?.toISOString() ?? null,
+      lastevent: this.lastEvent?.toISOString() ?? null,
       xpgained: this.xp,
       deaths: this.deaths,
       gained: this.profit,
       kills: this.kills,
       runinfo: JSON.stringify(this.runInfo),
     };
+  }
+
+  static getCsvHeaders() {
+    const fakeJSONRun: JSONRun = {
+      id: '',
+      name: '',
+      level: 0,
+      depth: 0,
+      iiq: 0,
+      iir: 0,
+      packsize: 0,
+      firstevent: '',
+      lastevent: '',
+      xpgained: 0,
+      deaths: 0,
+      gained: 0,
+      kills: 0,
+      runinfo: '',
+    };
+    return Object.keys(fakeJSONRun);
   }
 }

@@ -1,5 +1,9 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
+import dayjs from 'dayjs';
+import duration from 'dayjs/plugin/duration';
+import utc from 'dayjs/plugin/utc';
+import calendar from 'dayjs/plugin/calendar';
 import { createHashRouter, RouterProvider, redirect } from 'react-router-dom';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import { ipcRenderer } from 'electron';
@@ -8,11 +12,13 @@ import reportWebVitals from './reportWebVitals';
 import RunStore from './stores/runStore';
 import CharacterStore from './stores/characterStore';
 import StashTabStore from './stores/stashTabStore';
+import SearchDataStore from './stores/searchDataStore';
 import Root from './routes/root';
 import Settings from './routes/Settings';
 import RunList from './routes/RunList';
 import Run from './routes/Run';
 import Login from './routes/Login';
+import Search from './routes/Search';
 import Stats from './routes/Stats';
 import StashTabs from './routes/StashTabs';
 import CharacterSelect from './routes/CharacterSelect';
@@ -20,6 +26,9 @@ import LoginBox from './routes/LoginBox';
 import Overlay from './routes/Overlay';
 import { electronService } from './electron.service';
 const { logger } = electronService;
+dayjs.extend(duration);
+dayjs.extend(utc);
+dayjs.extend(calendar);
 const runStore = new RunStore();
 const characterStore = new CharacterStore();
 const stashTabStore = new StashTabStore();
@@ -61,14 +70,25 @@ const router = createHashRouter([
       },
       {
         path: 'search',
-        element: <div>Search</div>,
+        element: <Search store={new SearchDataStore()} />,
+        loader: async () => {
+          const [settings, divinePrice, maps, possibleMods] = await Promise.all([
+            ipcRenderer.invoke('get-settings'),
+            ipcRenderer.invoke('get-divine-price'),
+            ipcRenderer.invoke('get-all-map-names'),
+            ipcRenderer.invoke('get-all-possible-mods'),
+          ]);
+          return { activeProfile: settings.activeProfile, divinePrice, maps, possibleMods };
+        },
       },
       {
         path: 'stats',
         element: <Stats />,
         loader: async () => {
-          const settings = await ipcRenderer.invoke('get-settings');
-          const stats = await ipcRenderer.invoke('get-all-stats');
+          const [settings, stats] = await Promise.all([
+            ipcRenderer.invoke('get-settings'),
+            ipcRenderer.invoke('get-all-stats'),
+          ]);
           return { stats, activeProfile: settings.activeProfile };
         },
       },

@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { Divider } from '@mui/material';
 import { observer } from 'mobx-react-lite';
 import classNames from 'classnames';
-import moment from 'moment';
+import dayjs from 'dayjs';
 import './Run.css';
 import { Run as RunType } from '../stores/domain/run';
 import RunEventIcons from '../components/RunEvent/RunEventIcons';
@@ -29,7 +29,7 @@ const Run = ({ store }) => {
     store.loadDetails(run);
   }, [runId, run, navigate, store]);
 
-  const duration = run.duration ? moment.utc(run.duration.asMilliseconds()).format('mm:ss') : '-';
+  const duration = run.duration ? dayjs.utc(run.duration.asMilliseconds()).format('mm:ss') : '-';
   const xp =
     run.xp && run.xp >= 0 ? `+${run.xp.toLocaleString('en')}` : run.xp?.toLocaleString('en');
   const getXpClassname = (xp: number) => {
