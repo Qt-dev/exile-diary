@@ -3,7 +3,6 @@ import './DataSearchForm.css';
 import TextField from '@mui/material/TextField';
 import FormControl from '@mui/material/FormControl';
 import Stack from '@mui/material/Stack';
-import { electronService } from '../../electron.service';
 import ButtonGroup from '@mui/material/ButtonGroup';
 import Button from '@mui/material/Button';
 
@@ -14,7 +13,6 @@ import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import Autocomplete from '@mui/material/Autocomplete';
 import Checkbox from '@mui/material/Checkbox';
 import FormControlLabel from '@mui/material/FormControlLabel';
-const { logger } = electronService;
 
 const DataSearchForm = ({
   searchFunction,
@@ -45,7 +43,6 @@ const DataSearchForm = ({
   const [selectedMods, setSelectedMods] = React.useState<string[]>(
     possibleMods.map(({ mod }) => mod)
   );
-  logger.info('yo');
 
   const handleSelectMaps = (event, newValue) => {
     setSelectedMaps(typeof newValue === 'string' ? newValue.split(',') : newValue);
