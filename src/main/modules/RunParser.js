@@ -825,7 +825,7 @@ async function getMapExtraInfo(areaName, firstevent, lastevent, items, areaMods)
           (run.masters[master].favourGained || 0) + Number(evt.event_text);
         continue;
       case 'shrine':
-        if (Constants.areas.labyrinth.includes(areaName)) {
+        if (Constants.darkshrineQuotes[evt.event_text]) {
           run.labyrinth = run.labyrinth || {};
           run.labyrinth.darkshrines = run.labyrinth.darkshrines || [];
           run.labyrinth.darkshrines.push(evt.event_text);
