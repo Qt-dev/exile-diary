@@ -110,7 +110,6 @@ const DataSearchForm = ({
               label="To"
               value={to}
               slotProps={{ textField: { size: 'small' } }}
-              maxDateTime={now}
               onChange={(newValue) => setTo(newValue)}
             />
           </LocalizationProvider>
