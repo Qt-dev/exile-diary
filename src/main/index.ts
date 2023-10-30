@@ -361,7 +361,7 @@ class MainProcess {
       logger.info(
         `<span style='cursor:pointer;' onclick='window.location.href="map.html?id=${run.id}";'>` +
           `Completed run in <span class='eventText'>${run.name}</span> ` +
-          `(${Utils.getRunningTime(run.firstevent, run.lastevent)}` +
+          `(${Utils.getRunningTime(run.firstevent, run.lastevent), 'mm:ss'}` +
           (run.gained ? `, ${run.gained} <img src='res/img/c.png' class='currencyText'>` : '') +
           (run.kills ? `, ${f.format(run.kills)} kills` : '') +
           (run.xp ? `, ${f.format(run.xp)} XP` : '') +
