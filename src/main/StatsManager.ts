@@ -343,7 +343,7 @@ class StatsManager {
     // Shrines info
     if (run.parsedRunInfo?.shrines) {
       for (const shrine of run.parsedRunInfo.shrines) {
-        if(shrine) {
+        if (shrine) {
           this.stats.misc.shrines.total++;
           this.stats.misc.shrines.types[shrine] ||= 0;
           this.stats.misc.shrines.types[shrine]++;

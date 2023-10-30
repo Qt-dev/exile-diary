@@ -166,7 +166,9 @@ const Search = ({ store }) => {
   const screenShotRef = useRef<HTMLDivElement>(null);
   const [isTakingScreenshot, setIsTakingScreenshot] = React.useState(false);
   const [isSearching, setIsSearching] = React.useState(false);
-  const [searchParams, setSearchParams] = React.useState(JSON.parse(window.localStorage.getItem('searchParams') ?? '{}') as any);
+  const [searchParams, setSearchParams] = React.useState(
+    JSON.parse(window.localStorage.getItem('searchParams') ?? '{}') as any
+  );
   const [shouldDisplayCharacterName, setShouldDisplayCharacterName] = React.useState(true);
 
   const { activeProfile, divinePrice, maps, possibleMods } = useLoaderData() as any;

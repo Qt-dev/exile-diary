@@ -23,7 +23,9 @@ const DataSearchForm = ({
   handleToggleDisplayCharacterName,
 }) => {
   const now = dayjs();
-  const [from, setFrom] = React.useState<Dayjs | null>(dayjs(defaultSearchParams?.from) ?? dayjs().subtract(1, 'days'));
+  const [from, setFrom] = React.useState<Dayjs | null>(
+    dayjs(defaultSearchParams?.from) ?? dayjs().subtract(1, 'days')
+  );
   const [to, setTo] = React.useState<Dayjs | null>(dayjs(defaultSearchParams?.to) ?? dayjs());
   const [minLootValue, setMinLootValue] = React.useState(defaultSearchParams?.minLootValue ?? 0);
   const [minMapValue, setMinMapValue] = React.useState(defaultSearchParams?.minMapValue ?? 0);
@@ -37,7 +39,9 @@ const DataSearchForm = ({
   const [maxMapLevel, setMaxMapLevel] = React.useState(defaultSearchParams?.mapLevel?.max ?? 90);
   const [minDeaths, setMinDeaths] = React.useState(defaultSearchParams?.deaths?.min ?? 0);
   const [maxDeaths, setMaxDeaths] = React.useState(defaultSearchParams?.deaths?.max ?? 6);
-  const [neededItemName, setNeededItemName] = React.useState(defaultSearchParams?.neededItemName ?? '');
+  const [neededItemName, setNeededItemName] = React.useState(
+    defaultSearchParams?.neededItemName ?? ''
+  );
   const [selectedMaps, setSelectedMaps] = React.useState<string[]>(
     defaultSearchParams?.selectedMaps ?? availableMaps.map(({ name }) => name)
   );

@@ -164,10 +164,34 @@ export default {
           ? `AND areainfo.name IN (${'?,'.repeat(selectedMaps.length).slice(0, -1)}) `
           : ''
       }
-      ${iiq ? `AND (mapruns.iiq BETWEEN ${iiq.min} AND ${iiq.max}${iiq.min < 1 ? ' OR mapruns.iiq IS NULL': ''})` : ''}
-      ${iir ? `AND (mapruns.iir BETWEEN ${iir.min} AND ${iir.max}${iir.min < 1 ? ' OR mapruns.iir IS NULL': ''}) ` : ''}
-      ${packSize ? `AND (mapruns.packsize BETWEEN ${packSize.min} AND ${packSize.max}${packSize.min < 1 ? ' OR mapruns.packsize IS NULL': ''}) ` : ''}
-      ${mapLevel ? `AND (areainfo.level BETWEEN ${mapLevel.min} AND ${mapLevel.max}${mapLevel.min < 1 ? ' OR areainfo.level IS NULL' : ''}) ` : ''}
+      ${
+        iiq
+          ? `AND (mapruns.iiq BETWEEN ${iiq.min} AND ${iiq.max}${
+              iiq.min < 1 ? ' OR mapruns.iiq IS NULL' : ''
+            })`
+          : ''
+      }
+      ${
+        iir
+          ? `AND (mapruns.iir BETWEEN ${iir.min} AND ${iir.max}${
+              iir.min < 1 ? ' OR mapruns.iir IS NULL' : ''
+            }) `
+          : ''
+      }
+      ${
+        packSize
+          ? `AND (mapruns.packsize BETWEEN ${packSize.min} AND ${packSize.max}${
+              packSize.min < 1 ? ' OR mapruns.packsize IS NULL' : ''
+            }) `
+          : ''
+      }
+      ${
+        mapLevel
+          ? `AND (areainfo.level BETWEEN ${mapLevel.min} AND ${mapLevel.max}${
+              mapLevel.min < 1 ? ' OR areainfo.level IS NULL' : ''
+            }) `
+          : ''
+      }
       ${deaths ? `AND deaths BETWEEN ${deaths.min} AND ${deaths.max} ` : ''}
       AND itemcount.items > 0
       AND json_extract(runinfo, '$.ignored') is null

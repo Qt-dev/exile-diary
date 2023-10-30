@@ -716,4 +716,4 @@ export default {
   price,
   getRatesFor,
   getCurrencyByName,
-}
+};
