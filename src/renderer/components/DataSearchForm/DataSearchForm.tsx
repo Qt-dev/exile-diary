@@ -15,6 +15,7 @@ import Checkbox from '@mui/material/Checkbox';
 import FormControlLabel from '@mui/material/FormControlLabel';
 
 const DataSearchForm = ({
+  defaultSearchParams,
   searchFunction,
   availableMaps,
   possibleMods,
@@ -22,26 +23,26 @@ const DataSearchForm = ({
   handleToggleDisplayCharacterName,
 }) => {
   const now = dayjs();
-  const [from, setFrom] = React.useState<Dayjs | null>(dayjs().subtract(1, 'days'));
-  const [to, setTo] = React.useState<Dayjs | null>(dayjs());
-  const [minLootValue, setMinLootValue] = React.useState(0);
-  const [minMapValue, setMinMapValue] = React.useState(0);
-  const [minIIQ, setMinIIQ] = React.useState(0);
-  const [maxIIQ, setMaxIIQ] = React.useState(99999);
-  const [minIIR, setMinIIR] = React.useState(0);
-  const [maxIIR, setMaxIIR] = React.useState(99999);
-  const [minPackSize, setMinPackSize] = React.useState(0);
-  const [maxPackSize, setMaxPackSize] = React.useState(99999);
-  const [minMapLevel, setMinMapLevel] = React.useState(0);
-  const [maxMapLevel, setMaxMapLevel] = React.useState(90);
-  const [minDeaths, setMinDeaths] = React.useState(0);
-  const [maxDeaths, setMaxDeaths] = React.useState(6);
-  const [neededItemName, setNeededItemName] = React.useState('');
+  const [from, setFrom] = React.useState<Dayjs | null>(dayjs(defaultSearchParams?.from) ?? dayjs().subtract(1, 'days'));
+  const [to, setTo] = React.useState<Dayjs | null>(dayjs(defaultSearchParams?.to) ?? dayjs());
+  const [minLootValue, setMinLootValue] = React.useState(defaultSearchParams?.minLootValue ?? 0);
+  const [minMapValue, setMinMapValue] = React.useState(defaultSearchParams?.minMapValue ?? 0);
+  const [minIIQ, setMinIIQ] = React.useState(defaultSearchParams?.iiq?.min ?? 0);
+  const [maxIIQ, setMaxIIQ] = React.useState(defaultSearchParams?.iiq?.max ?? 99999);
+  const [minIIR, setMinIIR] = React.useState(defaultSearchParams?.iir?.min ?? 0);
+  const [maxIIR, setMaxIIR] = React.useState(defaultSearchParams?.iir?.max ?? 99999);
+  const [minPackSize, setMinPackSize] = React.useState(defaultSearchParams?.packSize?.min ?? 0);
+  const [maxPackSize, setMaxPackSize] = React.useState(defaultSearchParams?.packSize?.max ?? 9999);
+  const [minMapLevel, setMinMapLevel] = React.useState(defaultSearchParams?.mapLevel?.min ?? 0);
+  const [maxMapLevel, setMaxMapLevel] = React.useState(defaultSearchParams?.mapLevel?.max ?? 90);
+  const [minDeaths, setMinDeaths] = React.useState(defaultSearchParams?.deaths?.min ?? 0);
+  const [maxDeaths, setMaxDeaths] = React.useState(defaultSearchParams?.deaths?.max ?? 6);
+  const [neededItemName, setNeededItemName] = React.useState(defaultSearchParams?.neededItemName ?? '');
   const [selectedMaps, setSelectedMaps] = React.useState<string[]>(
-    availableMaps.map(({ name }) => name)
+    defaultSearchParams?.selectedMaps ?? availableMaps.map(({ name }) => name)
   );
   const [selectedMods, setSelectedMods] = React.useState<string[]>(
-    possibleMods.map(({ mod }) => mod)
+    defaultSearchParams?.selectedMods ?? possibleMods.map(({ mod }) => mod)
   );
 
   const handleSelectMaps = (event, newValue) => {
