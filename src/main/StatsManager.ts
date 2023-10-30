@@ -343,9 +343,11 @@ class StatsManager {
     // Shrines info
     if (run.parsedRunInfo?.shrines) {
       for (const shrine of run.parsedRunInfo.shrines) {
-        this.stats.misc.shrines.total++;
-        this.stats.misc.shrines.types[shrine] ||= 0;
-        this.stats.misc.shrines.types[shrine]++;
+        if(shrine) {
+          this.stats.misc.shrines.total++;
+          this.stats.misc.shrines.types[shrine] ||= 0;
+          this.stats.misc.shrines.types[shrine]++;
+        }
       }
     }
 
@@ -846,7 +848,6 @@ class StatsManager {
     lastevent: string | number | dayjs.Dayjs,
     format: ManipulateType = 'seconds'
   ) {
-    logger.info('getRunningTime', firstevent, lastevent, format);
     const duration = dayjs.duration(
       dayjs(lastevent, 'YYYYMMDDHHmmss').diff(dayjs(firstevent, 'YYYYMMDDHHmmss'))
     );
