@@ -181,7 +181,6 @@ export default {
       if (neededItemName) queryArgs.push(neededItemName);
       if (selectedMods.length > 0) queryArgs.push(...selectedMods);
       if (selectedMaps.length > 0) queryArgs.push(...selectedMaps);
-      logger.info(query);
       queryArgs.push(minMapValue);
       queryArgs.push(from);
       queryArgs.push(to);
