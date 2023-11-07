@@ -33,7 +33,7 @@ type GetAllRunsForDatesParams = {
 };
 
 export default {
-  getAllRuns: async (league: string): Promise<Run[]> => {
+  getAllRuns: async (): Promise<Run[]> => {
     logger.info('Getting all maps');
     const query = `
       SELECT
@@ -45,7 +45,7 @@ export default {
         (SELECT count(1) FROM events WHERE json_extract(mapruns.runinfo, '$.oshabiBattle') IS NOT NULL AND events.id BETWEEN json_extract(mapruns.runinfo, '$.oshabiBattle.start') AND min(json_extract(mapruns.runinfo, '$.oshabiBattle.completed'), mapruns.lastevent) AND events.event_type = 'slain' ) AS oshabi_deaths,
         (SELECT count(1) FROM events WHERE json_extract(mapruns.runinfo, '$.venariusBattle') IS NOT NULL AND events.id BETWEEN json_extract(mapruns.runinfo, '$.venariusBattle.start') AND min(json_extract(mapruns.runinfo, '$.venariusBattle.completed'), mapruns.lastevent) AND events.event_type = 'slain' ) AS venarius_deaths
 
-      FROM areainfo, mapruns ${league ? ', leaguedates' : ''}
+      FROM areainfo, mapruns
       LEFT JOIN
           (
             SELECT mapruns.id AS run_id,
@@ -62,10 +62,8 @@ export default {
         ON conquerortimes.run_id = mapruns.id
       WHERE mapruns.id = areainfo.id
       AND json_extract(runinfo, '$.ignored') is null
-      ${league ? ` AND leaguedates.league = '${league}' ` : ''}
-      ${league ? ' AND mapruns.id BETWEEN leaguedates.start AND leaguedates.end ' : ''}
       ORDER BY mapruns.id desc
-    `;
+      `;
 
     try {
       const maps = DB.all(query) as Run[];
@@ -77,13 +75,11 @@ export default {
   },
   getAllItems: async (league: string): Promise<any[]> => {
     const query = `
-      SELECT leaguedates.league, mapruns.id AS map_id, areainfo.name AS area, items.*
-      FROM items, mapruns, areainfo, leaguedates
+      SELECT mapruns.id AS map_id, areainfo.name AS area, items.*
+      FROM items, mapruns, areainfo
       WHERE items.value > 10 
       AND items.event_id BETWEEN mapruns.firstevent AND mapruns.lastevent
       AND mapruns.id = areainfo.id
-      ${league ? ` AND leaguedates.league = '${league}' ` : ''}
-      AND map_id BETWEEN leaguedates.start AND leaguedates.end
     `;
 
     try {

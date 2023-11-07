@@ -857,7 +857,7 @@ class StatsManager {
 
 export default {
   getAllStats: async ({ league, characterName }: GetStatsParams) => {
-    const runs = (await DB.getAllRuns(league))?.map(formatRun);
+    const runs = (await DB.getAllRuns())?.map(formatRun);
     const items = await DB.getAllItems(league);
     const divinePrice = await RatesManager.getCurrencyValue(
       league,
