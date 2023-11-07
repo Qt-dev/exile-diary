@@ -11,7 +11,7 @@ import EnvoyEncounterIcon from '../../../assets/img/encountericons/envoy.png';
 import EnvoyWordsIcon from '../../../assets/img/encountericons/words.png';
 import BlightIcon from '../../../assets/img/encountericons/blight.png';
 import BlightedMapIcon from '../../../assets/img/encountericons/blightedmap.png';
-import UnrighteousIcon from '../../../assets/img/encountericons/cassia.png';
+// import UnrighteousIcon from '../../../assets/img/encountericons/cassia.png'; // This is not used anymore while we figure out why it was there
 import DeliriumMirrorIcon from '../../../assets/img/encountericons/delirium.png';
 import MetamorphIcon from '../../../assets/img/encountericons/metamorph.png';
 import LegionIcon from '../../../assets/img/encountericons/legion.png';
@@ -185,13 +185,13 @@ const MainStats = ({ stats }) => {
               Blighted Maps: <span className="Main-Stat__Value">{stats.misc.blightedMap}</span>
             </div>
           </div>
-          <div className="Main-Stat">
+          {/* <div className="Main-Stat">
             <div className="Main-Stat__Text">
               <img src={UnrighteousIcon} alt="Unrighteous Icon" className="Main-Stat__Icon" />
               Unrighteous turned to ash:{' '}
-              <span className="Main-Stat__Value">{stats.misc.unrighteous}</span>
+              <span className="Main-Stat__Value">{stats.misc.unrighteousTurnedToAsh}</span>
             </div>
-          </div>
+          </div> */}
           <br />
           <div className="Main-Stat">
             <div className="Main-Stat__Text">
