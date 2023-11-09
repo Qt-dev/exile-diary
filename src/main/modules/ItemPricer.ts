@@ -362,11 +362,14 @@ async function price(
     const tempIdentifier = identifier.replace('Delirium', 'Delerium');
     return (
       getValueFromTable(minItemValue, item, 'Map', identifier) ||
-      getValueFromTable(item, 'Map', tempIdentifier)
+      getValueFromTable(0, item, 'Map', tempIdentifier)
     );
 
     function getSeries(icon) {
-      if (icon.includes('https://web.poecdn.com/gen/image/')) {
+      if (
+        icon.includes('https://web.poecdn.com/gen/image/') ||
+        icon.includes('https://www.pathofexile.com/gen/image/')
+      ) {
         return getSeriesBase64(icon);
       }
 
@@ -384,6 +387,7 @@ async function price(
         if (icon.includes('mn=11')) return 'Expedition';
       } else {
         if (icon.includes('2DItems/Maps/AtlasMaps')) return 'Atlas';
+        if (icon.includes('2DItems/Maps/Atlas2Maps')) return 'Ancestor';
         if (icon.includes('2DItems/Maps/Map')) return 'Pre 2.4';
         if (icon.includes('2DItems/Maps/act4maps')) return 'Pre 2.0';
       }
@@ -419,9 +423,12 @@ async function price(
           return 'Ritual';
         case 11:
           return 'Expedition';
+        case 18:
+          return 'Ancestor';
       }
     } else {
       if (data.f.includes('2DItems/Maps/AtlasMaps')) return 'Atlas';
+      if (data.f.includes('2DItems/Maps/Atlas2Maps')) return 'Ancestor';
       if (data.f.includes('2DItems/Maps/Map')) return 'Pre 2.4';
       if (data.f.includes('2DItems/Maps/act4maps')) return 'Pre 2.0';
     }
@@ -445,7 +452,9 @@ async function price(
   }
 
   function getBaseTypeValue(minItemValue, item) {
-    if (item.parsedItem.ilvl < 82) {
+    const sockets = ItemData.getSockets(item.parsedItem);
+
+    if (item.parsedItem.ilvl < 82 || ItemData.countSockets(sockets) === 6) {
       return getVendorRecipeValue(minItemValue, item);
     }
 
