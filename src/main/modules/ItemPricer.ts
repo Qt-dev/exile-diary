@@ -59,7 +59,7 @@ async function getRatesFor(eventId: string, league = SettingsManager.get('active
     logger.info('No rates for this date, fetching...');
     ratesCache[date] = ratesCache[date] || {};
     ratesCache[date][league] = await RatesManager.fetchRatesForDay(league, eventId);
-    writeFile(`./${date}.json`, JSON.stringify(ratesCache[date][league]));
+    // writeFile(`./${date}.json`, JSON.stringify(ratesCache[date][league])); // In case you need to inspect the full rates for a day
   }
   return ratesCache[date][league] ?? {};
 }
