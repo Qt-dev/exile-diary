@@ -199,7 +199,7 @@ const getBounds = async (image: sharp.Sharp) => {
 async function process(file: string | Buffer) {
   const filepath = path.join(app.getPath('userData'), '.dev_captures');
   require('fs').mkdirSync(filepath, { recursive: true });
-  const filePrefix = dayjs().format('YMMDDHHmmss');
+  const filePrefix = dayjs().format('YYYYMMDDHHmmss');
   // Kernel to use in a convolve to make text look better to be read.
   // const kernel = [-1 / 8, -1 / 8, -1 / 8, -1 / 8, 2, -1 / 8, -1 / 8, -1 / 8, -1 / 8];
 
