@@ -36,7 +36,7 @@ const abyssItems = [
   //"Command of the Pit"
 ];
 
-const log = true;
+const log = false;
 
 let ratesCache = {};
 let matchers = {};
@@ -319,9 +319,9 @@ class PriceMatcher {
   price(item: any, minItemValue: number): number {
     const pricingRule = this.match(item);
     const calculatedValue = pricingRule.calculateValue(item, minItemValue);
-    // if(log) {
+    if(log) {
       logger.info(`Calculated Value: ${calculatedValue} for ${item.typeline} using Rule: ${pricingRule.name} (minItemValue: ${minItemValue})`);
-    // }
+    }
     return calculatedValue;
   }
 
