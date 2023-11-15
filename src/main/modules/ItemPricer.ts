@@ -171,6 +171,16 @@ class PriceMatcher {
       calculateValue: (item : any, minItemValue: number = 0) => this.getValue(item, 'Fragment', item.typeline, minItemValue),
     },
     {
+      name: "Tattoo",
+      test: (item: any) => item.typeline && item.typeline.includes('Tattoo'),
+      calculateValue: (item : any, minItemValue: number = 0) => this.getValue(item, 'Tattoo', item.typeline, minItemValue),
+    },
+    {
+      name: "Omen",
+      test: (item: any) => item.typeline && item.typeline.includes('Omen'),
+      calculateValue: (item : any, minItemValue: number = 0) => this.getValue(item, 'Omen', item.typeline, minItemValue),
+    },
+    {
       name: "Currency",
       test: (item: any) => item.rarity === 'Currency',
       calculateValue: (item : any, minItemValue: number = 0) => this.getValue(item, 'Currency', item.typeline, minItemValue),
@@ -234,16 +244,6 @@ class PriceMatcher {
       name: "Skill Gem",
       test: (item: any) => item.category === 'Skill Gems',
       calculateValue: (item : any, minItemValue: number = 0) => this.getGemValue(minItemValue, item),
-    },
-    {
-      name: "Tattoo",
-      test: (item: any) => item.typeline && item.typeline.includes('Tattoo'),
-      calculateValue: (item : any, minItemValue: number = 0) => this.getValue(item, 'Tattoo', item.typeline, minItemValue),
-    },
-    {
-      name: "Omen",
-      test: (item: any) => item.typeline && item.typeline.includes('Omen'),
-      calculateValue: (item : any, minItemValue: number = 0) => this.getValue(item, 'Omen', item.typeline, minItemValue),
     },
     // // Removed from Poe.Ninja
     // {
