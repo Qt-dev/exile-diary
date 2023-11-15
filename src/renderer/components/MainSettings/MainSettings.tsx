@@ -24,7 +24,7 @@ declare module 'react' {
   }
 }
 
-const MainSettings = ({ settings, store }) => {
+const MainSettings = ({ settings, store, runStore }) => {
   const navigate = useNavigate();
 
   // Character
@@ -83,8 +83,9 @@ const MainSettings = ({ settings, store }) => {
   const [debugStartDate, setDebugStartDate] = React.useState(
     new Date().toISOString().replace(/-/g, '').split('T')[0]
   );
-  const handleDebug = () => {
-    ipcRenderer.invoke('debug:recheck-gain', debugStartDate);
+  const handleDebug = async () => {
+    await ipcRenderer.invoke('debug:recheck-gain', debugStartDate);
+    runStore.loadRuns();
   };
 
   const handleSubmit = (e) => {

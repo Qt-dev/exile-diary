@@ -30,7 +30,7 @@ function a11yProps(index: number) {
   };
 }
 
-const Settings = ({ characterStore, stashTabStore }) => {
+const Settings = ({ characterStore, stashTabStore, runStore }) => {
   const { settings } = useLoaderData() as SettingsLoaderData;
   const [tabValue, setTabValue] = React.useState(0);
 
@@ -52,7 +52,7 @@ const Settings = ({ characterStore, stashTabStore }) => {
         </Tabs>
       </Box>
       <div hidden={tabValue !== 0}>
-        <MainSettings store={characterStore} settings={settings} />
+        <MainSettings store={characterStore} settings={settings} runStore={runStore} />
       </div>
       <div hidden={tabValue !== 1}>
         <StashSettings store={stashTabStore} settings={settings} />

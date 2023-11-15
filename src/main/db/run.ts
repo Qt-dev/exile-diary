@@ -79,8 +79,7 @@ const getItemNameFromIcon = (iconUrl: string) => {
 
 const Runs = {
   getLastRuns: async (numberOfRunsToShow: number) => {
-    logger.info(`Getting last ${numberOfRunsToShow} runs from DB`);
-    // var numberOfShownMaps = $("#numberOfShownMaps").val() || 10;
+    logger.info(`Getting last ${numberOfRunsToShow === Number.MAX_SAFE_INTEGER ? 'all' : numberOfRunsToShow} runs from DB`);
     const lastRunsQuery = `
       select mapruns.id, name, level, depth, iiq, iir, packsize, firstevent, lastevent,
         (mapruns.xp - (select xp from mapruns m where m.id < mapruns.id and xp is not null order by m.id desc limit 1)) xpgained,
@@ -150,7 +149,7 @@ const Runs = {
       and items.event_id = events.id;
     `;
 
-    const items = (await DB.all(itemsQuery, [mapId])) as Item[];
+    const items = DB.all(itemsQuery, [mapId]) as Item[];
     if (!items) return [];
     const formattedItems: any = {};
 
@@ -178,6 +177,31 @@ const Runs = {
       }
     }
     return formattedItems;
+  },
+
+  updateItemValues: async (items: any) => {
+    logger.info(`Updating item values for ${items.length} items`);
+    const query = 'UPDATE items SET value = ? WHERE id = ? AND event_id = ?';
+    const params = items.map((item: any) => [item.value, item.id, item.eventId]);
+    try {
+      DB.transaction(query, params);
+      return true;
+    } catch (err) {
+      logger.error(`Error updating item values: ${JSON.stringify(err)}`);
+      return false;
+    }
+  },
+
+  updateProfit: async (mapId: number, profit: number) => {
+    logger.info(`Updating profit for run ${mapId}`);
+    const query = 'UPDATE mapruns SET gained = ? WHERE id = ?';
+    try {
+      DB.run(query, [profit, mapId]);
+      return true;
+    } catch (err) {
+      logger.error(`Error updating profit for ${mapId}: ${JSON.stringify(err)}`);
+      return false;
+    }
   },
 
   getRun: async (mapId: number) => {
@@ -278,6 +302,36 @@ const Runs = {
       "select event_text as area from events where event_type='entered' and id < ? order by id desc limit 1";
     const { area } = (await DB.get(query, [timestamp])) as { area: string };
     return area;
+  },
+
+  getRunsFromDates: async (from: number, to: number) => {
+    logger.info(`Getting items from date ${from} to ${to}`);
+    const itemsQuery = `
+      SELECT areainfo.name, mapruns.id, firstevent, lastevent, gained
+      FROM mapruns, areainfo
+      WHERE mapruns.gained > -1
+      AND areainfo.id = mapruns.id
+      AND mapruns.id BETWEEN ? AND ?;
+    `;
+
+    const runs = DB.all(itemsQuery, [from, to]);
+    
+    return runs;
+  },
+
+  getItemsFromRun: (mapRunId: string) => {
+    logger.info(`Getting items from run: ${mapRunId}`);
+    const itemsQuery = `
+      SELECT items.*
+      FROM items, mapruns
+      WHERE mapruns.id = ? 
+      AND items.event_id BETWEEN mapruns.firstevent AND mapruns.lastevent
+      GROUP BY items.id, items.event_id;
+    `;
+
+    const items = DB.all(itemsQuery, [mapRunId]);
+
+    return items;
   },
 };
 

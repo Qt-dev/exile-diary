@@ -48,7 +48,11 @@ export default class RunStore {
   }
 
   loadRuns(size = this.maxSize) {
-    logger.info(`Loading runs from the server with size: ${size}`);
+    if(size === this.maxSize) {
+      logger.info(`Loading all runs from the server.`);
+    } else {
+      logger.info(`Loading runs from the server with size: ${size}`);
+    }
     this.isLoading = true;
     electronService.ipcRenderer.invoke('load-runs', { size }).then((runs) => {
       runInAction(() => {

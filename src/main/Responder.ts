@@ -28,7 +28,7 @@ const getAppGlobals = async () => {
 };
 
 const loadRuns = async (e, { size }) => {
-  logger.info(`Loading ${size} runs from the main process`);
+  logger.info(`Loading ${size === Number.MAX_SAFE_INTEGER ? 'all' : size} runs from the main process`);
   return await Runs.getLastRuns(size);
 };
 

@@ -1,13 +1,14 @@
 import GGGAPI from '../GGGAPI';
+import DB from '../db/run';
+import dayjs from 'dayjs';
 const logger = require('electron-log');
 const Utils = require('./Utils').default;
 const EventEmitter = require('events');
 const ItemPricer = require('./ItemPricer');
 const XPTracker = require('./XPTracker');
 const Constants = require('../../helpers/constants').default;
-const https = require('https');
 
-var DB;
+var OldDB;
 var emitter = new EventEmitter();
 let latestGeneratedArea = null;
 
@@ -19,7 +20,7 @@ async function tryProcess(obj) {
   var event = obj.event;
   var mode = obj.mode;
 
-  DB = require('./DB').getDB();
+  OldDB = require('./DB').getDB();
   var lastUsedEvent = await getLastUsedEvent();
   if (!lastUsedEvent) return;
 
@@ -99,7 +100,7 @@ async function tryProcess(obj) {
 
   var ignoreMapRun = false;
 
-  DB.run(
+  OldDB.run(
     'insert into areainfo(id, name, level, depth) values(?, ?, ?, ?)',
     [
       firstEvent.timestamp,
@@ -157,7 +158,7 @@ async function tryProcess(obj) {
   function getNextMapEvent(lastUsedEvent) {
     logger.info(`Last used event is ${lastUsedEvent}`);
     return new Promise((resolve, reject) => {
-      DB.all(
+      OldDB.all(
         `
           select id, event_text, server from events 
           where event_type='entered' 
@@ -214,7 +215,7 @@ async function tryProcess(obj) {
     }
 
     return new Promise((resolve, reject) => {
-      DB.all(sql, [mapEvent.timestamp, currEvent.timestamp], (err, rows) => {
+      OldDB.all(sql, [mapEvent.timestamp, currEvent.timestamp], (err, rows) => {
         if (err) {
           logger.error(`Unable to get last event: ${err}`);
           resolve();
@@ -245,7 +246,7 @@ async function tryProcess(obj) {
 
   function getAreaInfo(firstEvent, lastEvent) {
     return new Promise((resolve, reject) => {
-      DB.get(
+      OldDB.get(
         'select * from areainfo where id > ? and id < ? and name = ? order by id desc',
         [firstEvent.timestamp, lastEvent.timestamp, firstEvent.area],
         (err, row) => {
@@ -273,7 +274,7 @@ async function process() {
   if (!currArea) {
     logger.info('No unprocessed area info found');
     var lastEvent = await new Promise(async (resolve, reject) => {
-      DB.get(" select * from events where event_type='entered' order by id desc ", (err, row) => {
+      OldDB.get(" select * from events where event_type='entered' order by id desc ", (err, row) => {
         if (err) {
           logger.info(`Error getting last inserted event: ${err}`);
           resolve();
@@ -367,7 +368,7 @@ async function getKillCount(firstEvent, lastEvent) {
   logger.info(`Kill count between ${firstEvent} and ${lastEvent}`);
   return new Promise((resolve, reject) => {
     var totalKillCount = 0;
-    DB.all(
+    OldDB.all(
       `
       select * from incubators where incubators.timestamp = (select max(timestamp) from incubators where timestamp <= ?)
       union all
@@ -406,7 +407,7 @@ async function getKillCount(firstEvent, lastEvent) {
 
 async function getXP(firstEvent, lastEvent) {
   return new Promise((resolve, reject) => {
-    DB.get(
+    OldDB.get(
       ' select timestamp, xp from xp where timestamp between ? and ? order by timestamp desc limit 1 ',
       [firstEvent, lastEvent],
       async (err, row) => {
@@ -431,7 +432,7 @@ async function getXPManual() {
 
 async function getLastInventoryTimestamp() {
   return new Promise((resolve, reject) => {
-    DB.get('select timestamp from lastinv', (err, row) => {
+    OldDB.get('select timestamp from lastinv', (err, row) => {
       if (err) {
         logger.info(`Error getting timestamp for last inventory: ${err}`);
         resolve(-1);
@@ -472,7 +473,7 @@ async function checkItems(area, firstevent, lastevent) {
 
 function getXPDiff(currentXP) {
   return new Promise((resolve, reject) => {
-    DB.get(' select xp from mapruns order by id desc limit 1 ', (err, row) => {
+    OldDB.get(' select xp from mapruns order by id desc limit 1 ', (err, row) => {
       if (!err) {
         logger.info(`current xp: ${currentXP}, previous: ${row.xp}`);
         if (!row.xp) {
@@ -491,7 +492,7 @@ function getXPDiff(currentXP) {
 
 function getItems(areaID, firstEvent, lastEvent) {
   return new Promise((resolve, reject) => {
-    DB.all(
+    OldDB.all(
       " select id, event_text from events where id between ? and ? and event_type = 'entered' order by id ",
       [firstEvent, lastEvent],
       async (err, rows) => {
@@ -534,7 +535,7 @@ function getItemsFor(evt) {
   var importantDrops = {};
   var itemArr = [];
   return new Promise((resolve, reject) => {
-    DB.all(' select * from items where event_id = ? ', [evt], async (err, rows) => {
+    OldDB.all(' select * from items where event_id = ? ', [evt], async (err, rows) => {
       if (err) {
         logger.info(`Error getting item values for ${evt}: ${err}`);
         resolve(null);
@@ -578,13 +579,13 @@ function getItemsFor(evt) {
 }
 
 function updateItemValues(arr) {
-  DB.serialize(() => {
-    DB.run('begin transaction', (err) => {
+  OldDB.serialize(() => {
+    OldDB.run('begin transaction', (err) => {
       if (err) {
         logger.info(`Error beginning transaction to insert items: ${err}`);
       }
     });
-    var stmt = DB.prepare(`update items set value = ? where id = ? and event_id = ?`);
+    var stmt = OldDB.prepare(`update items set value = ? where id = ? and event_id = ?`);
     arr.forEach((item) => {
       stmt.run(item, (err) => {
         if (err) {
@@ -598,13 +599,13 @@ function updateItemValues(arr) {
     stmt.finalize((err) => {
       if (err) {
         logger.warn(`Error inserting items for ${event}: ${err}`);
-        DB.run('rollback', (err) => {
+        OldDB.run('rollback', (err) => {
           if (err) {
             logger.info(`Error rolling back failed item insert: ${err}`);
           }
         });
       } else {
-        DB.run('commit', (err) => {
+        OldDB.run('commit', (err) => {
           if (err) {
             logger.info(`Error committing item insert: ${err}`);
           }
@@ -616,7 +617,7 @@ function updateItemValues(arr) {
 
 async function insertMapRun(arr) {
   return new Promise((resolve, reject) => {
-    DB.run(
+    OldDB.run(
       `
       insert into mapruns(id, firstevent, lastevent, iiq, iir, packsize, gained, xp, kills, runinfo) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?) 
     `,
@@ -639,7 +640,7 @@ async function insertMapRun(arr) {
  */
 function getFirstEvent(area, lastUsedEvent) {
   return new Promise((resolve, reject) => {
-    DB.get(
+    OldDB.get(
       "select id from events where event_type='entered' and event_text = ? and id > ? order by id",
       [area.name, lastUsedEvent],
       (err, row) => {
@@ -664,7 +665,7 @@ function getFirstEvent(area, lastUsedEvent) {
  */
 function getLastEvent(area, firstEvent) {
   return new Promise((resolve, reject) => {
-    DB.all(
+    OldDB.all(
       "select * from events where event_type='entered' and id >= ? order by id desc",
       [firstEvent],
       (err, rows) => {
@@ -696,7 +697,7 @@ function getLastEvent(area, firstEvent) {
 
 function getCurrAreaInfo() {
   return new Promise((resolve, reject) => {
-    DB.get(
+    OldDB.get(
       'select * from areainfo where id > (select max(id) from mapruns) order by id desc',
       (err, row) => {
         if (err) {
@@ -711,7 +712,7 @@ function getCurrAreaInfo() {
 
 function getLastUsedEvent() {
   return new Promise((resolve, reject) => {
-    DB.get('select max(lastevent) as lastevent from mapruns', (err, row) => {
+    OldDB.get('select max(lastevent) as lastevent from mapruns', (err, row) => {
       if (err) {
         logger.error(`Unable to get last used event: ${err}`);
         resolve('');
@@ -727,7 +728,7 @@ function getLastUsedEvent() {
 
 function getPrevMapStartEvent() {
   return new Promise((resolve, reject) => {
-    DB.get(
+    OldDB.get(
       'select * from events where id = (select firstevent from mapruns order by id desc limit 1);',
       (err, row) => {
         if (err) {
@@ -749,7 +750,7 @@ function getPrevMapStartEvent() {
 
 function getMapMods(id) {
   return new Promise((resolve, reject) => {
-    DB.all(
+    OldDB.all(
       'select mod from mapmods where area_id = ? order by cast(id as integer)',
       [id],
       (err, rows) => {
@@ -1407,7 +1408,7 @@ async function getMapExtraInfo(areaName, firstevent, lastevent, items, areaMods)
 function getEvents(firstevent, lastevent) {
   DB = require('./DB').getDB();
   return new Promise((resolve, reject) => {
-    DB.all(
+    OldDB.all(
       ' select * from events where id between :first and :last order by id',
       [firstevent, lastevent],
       (err, rows) => {
@@ -1431,51 +1432,41 @@ function getNPCLine(str) {
   };
 }
 
-async function recheckGained(startDate = null) {
-  DB = require('./DB').getDB();
-  let sql =
-    ' select areainfo.name, mapruns.id, firstevent, lastevent, gained  from mapruns, areainfo where mapruns.gained > -1 and areainfo.id = mapruns.id ';
-  if (startDate) {
-    sql += ` and mapruns.id > ${startDate} `;
+async function recheckGained(startDate = 0) {
+  const startTime = dayjs();
+  const runs = await DB.getRunsFromDates(startDate, dayjs().format('YYYYMMDD'));
+  for(const run of runs) {
+    await ItemPricer.getRatesFor(run.id);
   }
-  logger.info('Executing recheck SQL: ' + sql);
-  logAndEmit('Checking profit of all maps' + (startDate ? ` starting from ${startDate}` : ''));
 
-  return new Promise((resolve, reject) => {
-    DB.all(sql, async (err, rows) => {
-      if (err) {
-        logAndEmit(err.message);
-      } else {
-        for (let i = 0; i < rows.length; i++) {
-          let row = rows[i];
-          logAndEmit(
-            `Processing ${i + 1}/${rows.length} ${row.name} ${row.id} with profit ${row.gained}`
-          );
-          var allItems = await getItems(row.id, row.firstevent, row.lastevent);
-          if (allItems.value - row.gained !== 0) {
-            logAndEmit(`Updating profit from ${row.gained} to ${allItems.value}`);
-            updateMapRun(row, allItems.value);
-          }
-        }
+  const checks = runs.map(async (run) => {
+    const items = DB.getItemsFromRun(run.id);
+    let totalProfit = 0;
+    let itemsToUpdate = [];
+    for(const item of items) {
+      const { value } = await ItemPricer.price(item);
+      totalProfit += value;
+      if(value !== item.value) {
+        itemsToUpdate.push({value, id: item.id, eventId: item.event_id});
       }
-      resolve(null);
-    });
+    }
+    if(itemsToUpdate.length > 0) {
+      DB.updateItemValues(itemsToUpdate);
+    }
+    const profitDifference = totalProfit - run.gained;
+    if (profitDifference !== 0) {
+      logger.info(`Updating profit from ${run.gained} to ${totalProfit}`);
+      DB.updateProfit(run.id, totalProfit);
+    } else {
+      logger.info(`No profit difference for ${run.id}`);
+    }
   });
-
-  function updateMapRun(row, gained) {
-    DB.run(`update mapruns set gained = ? where id = ?`, [gained, row.id], (err) => {
-      if (err) {
-        logAndEmit(`Error updating ${row.name} ${row.id}: ${err.message}`);
-      } else {
-        logAndEmit(`Updated ${row.name} ${row.id} profit to ${gained} (was: ${row.gained})`);
-      }
-    });
-  }
-
-  function logAndEmit(str) {
-    logger.info(str);
-    emitter.emit('logMessage', str);
-  }
+  
+  return Promise.all(checks).then(() => {
+    const endTime = dayjs();
+    const timeTaken = endTime.diff(startTime, 'millisecond');
+    logger.info(`Recheck from ${startDate} took ${timeTaken} ms`);
+  });
 }
 
 export default {
