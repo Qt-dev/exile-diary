@@ -13,27 +13,38 @@ const logger = Logger.scope('RateGetter');
 const rateTypes = {
   Currency: cleanCurrency,
   Fragment: cleanCurrency,
+
+  Tattoo: cleanNameValuePairs,
+  Omen: cleanNameValuePairs,
+  DivinationCard: cleanNameValuePairs,
+  Artifact: cleanNameValuePairs,
   Oil: cleanNameValuePairs,
   Incubator: cleanNameValuePairs,
-  Scarab: cleanNameValuePairs,
-  Fossil: cleanNameValuePairs,
-  Resonator: cleanNameValuePairs,
-  Essence: cleanNameValuePairs,
-  DivinationCard: cleanNameValuePairs,
-  SkillGem: cleanGems,
-  BaseType: cleanBaseTypes,
-  HelmetEnchant: cleanEnchants,
-  UniqueMap: cleanUniqueMaps,
-  Map: cleanMaps,
-  UniqueJewel: cleanUniqueItems,
-  UniqueFlask: cleanUniqueItems,
+
   UniqueWeapon: cleanUniqueItems,
   UniqueArmour: cleanUniqueItems,
   UniqueAccessory: cleanUniqueItems,
-  Vial: cleanNameValuePairs,
+  UniqueJewel: cleanUniqueItems,
+  UniqueFlask: cleanUniqueItems,
+  SkillGem: cleanGems,
+  
+  Map: cleanMaps,
+  BlightedMap: cleanMaps,
+  BlightRavagedMap: cleanMaps,
+  // ScourgedMap: cleanMaps, // No Scourged map around nowadays
+  UniqueMap: cleanUniqueMaps,
   DeliriumOrb: cleanNameValuePairs,
   Invitation: cleanNameValuePairs,
-  Artifact: cleanNameValuePairs,
+  Scarab: cleanNameValuePairs,
+  Memory: cleanNameValuePairs,
+
+  BaseType: cleanBaseTypes,
+  Fossil: cleanNameValuePairs,
+  Resonator: cleanNameValuePairs,
+  HelmetEnchant: cleanEnchants,
+  Beast: cleanNameValuePairs,
+  Essence: cleanNameValuePairs,
+  Vial: cleanNameValuePairs,
   // Old Categories
   // "Prophecy" : cleanNameValuePairs,
   // "Watchstone" : cleanWatchstones,
@@ -185,6 +196,11 @@ class RateGetterV2 {
         logger.info(rateType);
         tempRates[rateType] = processRateType(data, getLowConfidence);
       }
+      require('fs/promises').writeFile(
+        './rates.json',
+        JSON.stringify(tempRates, null, 2),
+        'utf8'
+      );
       logger.info('Finished getting prices from poe.ninja, processing now');
     } catch (e) {
       emitter.emit('gettingPricesFailed');
@@ -213,15 +229,26 @@ class RateGetterV2 {
     );
     rates['Fragment'] = Object.assign(tempRates['Fragment'], tempRates['Scarab']);
     rates['DivinationCard'] = tempRates['DivinationCard'];
-    rates['Prophecy'] = tempRates['Prophecy'];
     rates['SkillGem'] = tempRates['SkillGem'];
     rates['BaseType'] = tempRates['BaseType'];
     rates['HelmetEnchant'] = tempRates['HelmetEnchant'];
     rates['UniqueMap'] = tempRates['UniqueMap'];
-    rates['Map'] = tempRates['Map'];
-    rates['Watchstone'] = tempRates['Watchstone'];
+    rates['Map'] = Object.assign(
+      tempRates['Map'],
+      tempRates['BlightedMap'],
+      tempRates['BlightRavagedMap'],
+    );
+    rates['Memory'] = tempRates['Memory'];
     rates['Invitation'] = tempRates['Invitation'];
-    rates['Seed'] = tempRates['Seed'];
+    
+    // Ancestor Stuff
+    rates['Tattoo'] = tempRates['Tattoo'];
+    rates['Omen'] = tempRates['Omen'];
+
+    // Retired data
+    // rates['Watchstone'] = tempRates['Watchstone'];
+    // rates['Seed'] = tempRates['Seed'];
+    // rates['Prophecy'] = tempRates['Prophecy'];
 
     const ratesWereUpdated = await DB.insertRates(this.getLeagueName(), date, rates);
     if (!ratesWereUpdated) {
@@ -241,30 +268,44 @@ class RateGetterV2 {
       case 'Fragment':
         url = `/api/data/currencyoverview?type=${category}`;
         break;
+      case 'Tattoo':
+      case 'Omen':
+      case 'DivinationCard':
+      case 'Artifact':
       case 'Oil':
       case 'Incubator':
-      case 'Scarab':
-      case 'Fossil':
-      case 'Resonator':
-      case 'Essence':
-      case 'DivinationCard':
-      case 'Prophecy':
-      case 'SkillGem':
-      case 'BaseType':
-      case 'HelmetEnchant':
-      case 'UniqueMap':
-      case 'Map':
-      case 'UniqueJewel':
-      case 'UniqueFlask':
+
       case 'UniqueWeapon':
       case 'UniqueArmour':
       case 'UniqueAccessory':
-      case 'Watchstone':
-      case 'Vial':
+      case 'UniqueJewel':
+      case 'UniqueFlask':
+      case 'UniqueRelic':
+      case 'SkillGem':
+      case 'ClusterJewel':
+
+      case 'Map':
+      case 'BlightedMap': // TODO: Add pricing
+      case 'BlightRavagedMap': // TODO: Add pricing
+      case 'ScourgedMap': // TODO: Add pricing
+      case 'UniqueMap':
       case 'DeliriumOrb':
-      case 'Seed':
       case 'Invitation':
-      case 'Artifact':
+      case 'Scarab':
+      case 'Memory': // TODO: Fix pricing
+
+      case 'BaseType':
+      case 'Fossil':
+      case 'Resonator':
+      case 'HelmetEnchant':
+      case 'Beast':
+      case 'Essence':
+      case 'Vial':
+      
+      // RETIRED
+      // case 'Prophecy':
+      // case 'Watchstone':
+      // case 'Seed':
         url = `/api/data/itemoverview?type=${category}`;
         break;
       default:

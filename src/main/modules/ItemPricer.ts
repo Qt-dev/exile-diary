@@ -58,7 +58,7 @@ async function getRatesFor(eventId: string, league = SettingsManager.get('active
   if (!ratesCache[date] || !ratesCache[date][league]) {
     logger.info('No rates for this date, fetching...');
     ratesCache[date] = ratesCache[date] || {};
-    ratesCache[date][league] = await RatesManager.fetchRatesForDay(league, eventId);
+    ratesCache[date][league] = await RatesManager.fetchRatesForDay(league, date);
     // writeFile(`./${date}.json`, JSON.stringify(ratesCache[date][league])); // In case you need to inspect the full rates for a day
   }
   return ratesCache[date][league] ?? {};
@@ -218,7 +218,7 @@ class PriceMatcher {
     {
       name: "Memory",
       test: (item: any) => item.typeline && item.typeline.includes("'s Memory"),
-      calculateValue: (item : any, minItemValue: number = 0) => this.getValue(item, 'Fragment', item.typeline, minItemValue),
+      calculateValue: (item : any, minItemValue: number = 0) => this.getValue(item, 'Memory', item.typeline, minItemValue),
     },
     {
       name: "Map",
@@ -228,12 +228,22 @@ class PriceMatcher {
     {
       name: "Divination Card",
       test: (item: any) => item.category === 'Divination Card',
-      calculateValue: (item : any, minItemValue: number = 0) => this.getValue(item, 'DivinationCard', item.typeline, minItemValue),
+      calculateValue: (item : any, minItemValue: number = 0) => this.getDivinationCardValue(item, minItemValue),
     },
     {
       name: "Skill Gem",
       test: (item: any) => item.category === 'Skill Gems',
       calculateValue: (item : any, minItemValue: number = 0) => this.getGemValue(minItemValue, item),
+    },
+    {
+      name: "Tattoo",
+      test: (item: any) => item.typeline && item.typeline.includes('Tattoo'),
+      calculateValue: (item : any, minItemValue: number = 0) => this.getValue(item, 'Tattoo', item.typeline, minItemValue),
+    },
+    {
+      name: "Omen",
+      test: (item: any) => item.typeline && item.typeline.includes('Omen'),
+      calculateValue: (item : any, minItemValue: number = 0) => this.getValue(item, 'Omen', item.typeline, minItemValue),
     },
     // // Removed from Poe.Ninja
     // {
@@ -253,7 +263,6 @@ class PriceMatcher {
     //   test: (item: any) => item.category === 'Stackable Currency' && item.typeline.includes('Prophecy'),
     //   calculateValue: (item : any, minItemValue: number = 0) => this.getValue(item, 'Prophecy', item.typeline, minItemValue),
     // },
-    this.DefaultPriceMatch,
   ]
 
   constructor(date: string) {
@@ -307,7 +316,8 @@ class PriceMatcher {
    * @returns {PriceMatch}  The first pricing rule that matches the item
    */
   match(item: any) : PriceMatch {
-    return this.PriceMatches.find(match => match.test(item)) ?? this.PriceMatches[this.PriceMatches.length - 1];
+    return this.PriceMatches.find(match => match.test(item)) ?? this.DefaultPriceMatch;
+    // return this.DefaultPriceMatch;
   }
 
   /**
@@ -625,7 +635,6 @@ class PriceMatcher {
    * @returns {number} Value of a unique item
    */
   getUniqueItemValue(item: any, minItemValue: number): number {
-    logger.info(item);
     let identifier = item.name ?? Utils.getItemName(item.icon) ?? Utils.getItemName(item.parsedItem.icon) ?? item.typeline;
     // let identifier = item.name || Utils.getItemName(item.icon) || item.typeline;
 
@@ -800,13 +809,30 @@ class PriceMatcher {
     const vendorValue = this.getVendorRecipeValue(item, minItemValue);
     return Math.max(...values, vendorValue);
   }
+
+  /**
+   * Get the Value of a Divination Card
+   * TODO: Add alternate pricing in the future
+   * @param {any} item Item to get the value of
+   * @param {number} minItemValue Minimum value of an item. Anything below this will make the function return 0
+   * @returns {number} Value of the item in chaos
+   */
+  getDivinationCardValue(item: any, minItemValue: number): number {
+    const identifier = item.typeline;
+    return this.getValue(item, 'DivinationCard', identifier, minItemValue);
+  }
 }
 
+/**
+ * Price an item from the rates pulled from Poe.Ninja. Main point of entry for the module
+ * @param {any} item Item to get the value of
+ * @param {string} league [Optional] League to get the rates from. Defaults to the active league
+ * @returns {{isVendor: boolean, value: number}} { isVendor: Whether or not the item is part of a vendor recipe, value: Value of the item in chaos }
+ */
 async function price(
-  item,
-  league = SettingsManager.get('activeProfile').league
+  item: any,
+  league: string = SettingsManager.get('activeProfile').league
 ): Promise<{ isVendor: boolean; value: number }> {
- 
   const date = item.event_id.slice(0, 8);
   if(!matchers[date]) matchers[date] = new PriceMatcher(date);
   const matcher : PriceMatcher = matchers[date];
