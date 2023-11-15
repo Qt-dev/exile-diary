@@ -4,9 +4,10 @@ import Tabs from '@mui/material/Tabs';
 import Tab from '@mui/material/Tab';
 import Box from '@mui/material/Box';
 import StashSettings from '../components/StashSettings/StashSettings';
-import ItemFilterSettings from '../components/ItemFilterSettings/ItemFilterSettings';
-import './Settings.css';
 import MainSettings from '../components/MainSettings/MainSettings';
+import ItemFilterSettings from '../components/ItemFilterSettings/ItemFilterSettings';
+import DebugSettings from '../components/DebugSettings/DebugSettings';
+import './Settings.css';
 import { observer } from 'mobx-react-lite';
 
 // Fix to allow for directory selection in inputs
@@ -48,6 +49,7 @@ const Settings = ({ characterStore, stashTabStore, runStore }) => {
           <Tab label="Account" {...a11yProps(0)} />
           <Tab label="Stashes" {...a11yProps(1)} />
           <Tab label="Item Filter" {...a11yProps(2)} />
+          <Tab label="Debug" {...a11yProps(3)} />
           {/* Add new stuff here */}
         </Tabs>
       </Box>
@@ -59,6 +61,9 @@ const Settings = ({ characterStore, stashTabStore, runStore }) => {
       </div>
       <div hidden={tabValue !== 2}>
         <ItemFilterSettings settings={settings} />
+      </div>
+      <div hidden={tabValue !== 3}>
+        <DebugSettings runStore={runStore} />  
       </div>
     </div>
   );

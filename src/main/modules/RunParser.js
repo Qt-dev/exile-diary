@@ -1432,9 +1432,9 @@ function getNPCLine(str) {
   };
 }
 
-async function recheckGained(startDate = 0) {
+async function recheckGained(from = 0, to = dayjs().format('YYYYMMDD')) {
   const startTime = dayjs();
-  const runs = await DB.getRunsFromDates(startDate, dayjs().format('YYYYMMDD'));
+  const runs = await DB.getRunsFromDates(from, to);
   for(const run of runs) {
     await ItemPricer.getRatesFor(run.id);
   }
@@ -1465,7 +1465,7 @@ async function recheckGained(startDate = 0) {
   return Promise.all(checks).then(() => {
     const endTime = dayjs();
     const timeTaken = endTime.diff(startTime, 'millisecond');
-    logger.info(`Recheck from ${startDate} took ${timeTaken} ms`);
+    logger.info(`Recheck from ${from} to ${to} took ${timeTaken} ms`);
   });
 }
 

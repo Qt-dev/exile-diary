@@ -145,9 +145,10 @@ const saveStashRefreshInterval = async (e, params) => {
   stashGetter.refreshInterval();
 };
 
-const debugRecheckGain = async (e, startDate) => {
+const debugRecheckGain = async (e, params) => {
+  const { from, to } = params;
   logger.info('Debugging recheck gain from the renderer process');
-  await RunParser.recheckGained(startDate);
+  await RunParser.recheckGained(from, to);
 };
 
 const triggerSearch = async (e, params) => {
