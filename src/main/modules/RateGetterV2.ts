@@ -97,77 +97,99 @@ class RateGetterV2 {
     return league;
   }
 
+  async setIsUpdating(isUpdating) {
+    this.isUpdating = isUpdating;
+    if(!isUpdating) {
+      emitter.emit('UpdateDone');
+    }
+  }
+
+  async waitForUpdate() {
+    return new Promise<void>(resolve => {
+      if(!this.isUpdating) {
+        resolve();
+      } else {
+        emitter.once('UpdateDone', () => {
+          resolve();
+        });
+      }
+    });
+  }
+
   /*
    * get today's rates from POE.ninja
    */
   async update(isForced = false) {
     if(this.isUpdating) {
       logger.error('Already fetching rates for the day, aborting the new request');
-      return;
+      return this.waitForUpdate();
     }
-    this.isUpdating = true;
-    const activeProfile = SettingsManager.get('activeProfile');
-    const privateLeaguePriceMaps = SettingsManager.get('privateLeaguePriceMaps');
-    if (!activeProfile) {
-      logger.error('No settings found, will not attempt to get prices');
-      return;
-    }
-    if (!activeProfile.league) {
-      logger.info('No league set, will not attempt to get prices');
-      return;
-    }
-
-    // no need for exchange rates in SSF
-    if (activeProfile.league.includes('SSF') && !activeProfile.overrideSSF) {
-      return;
-    }
-
-    if (Utils.isPrivateLeague(activeProfile.league)) {
-      // TODO: Fix this part with private leagues
-      if (privateLeaguePriceMaps && privateLeaguePriceMaps[activeProfile.league]) {
-        logger.info(
-          `Private league ${activeProfile.league} will use prices from ${
-            privateLeaguePriceMaps[activeProfile.league]
-          }`
-        );
-        activeProfile.league = privateLeaguePriceMaps[activeProfile.league];
-      } else {
-        logger.info(
-          `No price map set for private league ${activeProfile.league}, will not attempt to get prices`
-        );
+    try {
+      this.setIsUpdating(true);
+      const activeProfile = SettingsManager.get('activeProfile');
+      const privateLeaguePriceMaps = SettingsManager.get('privateLeaguePriceMaps');
+      if (!activeProfile) {
+        logger.error('No settings found, will not attempt to get prices');
         return;
       }
-    }
-
-    const today = dayjs().format('YYYYMMDD');
-    const hasExisting = await this.hasExistingRates(today);
-
-    if (hasExisting) {
-      logger.info(`Found existing ${activeProfile.league} rates for ${today}`);
-
-      if (!isForced) {
-        this.scheduleNextUpdate();
-        this.ratesReady = true;
+      if (!activeProfile.league) {
+        logger.info('No league set, will not attempt to get prices');
         return;
-      } else {
-        await this.cleanRates(today);
       }
+  
+      // no need for exchange rates in SSF
+      if (activeProfile.league.includes('SSF') && !activeProfile.overrideSSF) {
+        return;
+      }
+  
+      if (Utils.isPrivateLeague(activeProfile.league)) {
+        // TODO: Fix this part with private leagues
+        if (privateLeaguePriceMaps && privateLeaguePriceMaps[activeProfile.league]) {
+          logger.info(
+            `Private league ${activeProfile.league} will use prices from ${
+              privateLeaguePriceMaps[activeProfile.league]
+            }`
+          );
+          activeProfile.league = privateLeaguePriceMaps[activeProfile.league];
+        } else {
+          logger.info(
+            `No price map set for private league ${activeProfile.league}, will not attempt to get prices`
+          );
+          return;
+        }
+      }
+  
+      const today = dayjs().format('YYYYMMDD');
+      const hasExisting = await this.hasExistingRates(today);
+  
+      if (hasExisting) {
+        logger.info(`Found existing ${activeProfile.league} rates for ${today}`);
+  
+        if (!isForced) {
+          this.scheduleNextUpdate();
+          this.ratesReady = true;
+          return;
+        } else {
+          await this.cleanRates(today);
+        }
+      }
+  
+      emitter.emit('gettingPrices');
+      logger.info(`Getting new ${activeProfile.league} rates for ${today}`);
+      const message = {
+        text: `Getting new ${activeProfile.league} rates for today (${today})`,
+      };
+      RendererLogger.log({ messages: [message] });
+      await this.getRates(today);
+      RendererLogger.log({ messages: [
+        { text: 'Finished getting rates for the' },
+        { text: ` ${activeProfile.league} league`, type: 'important' },
+        { text: ' for' },
+        { text: ` today (${today})`, type: 'important' }
+      ] });
+    } finally {
+      this.setIsUpdating(false);
     }
-
-    emitter.emit('gettingPrices');
-    logger.info(`Getting new ${activeProfile.league} rates for ${today}`);
-    const message = {
-      text: `Getting new ${activeProfile.league} rates for today (${today})`,
-    };
-    RendererLogger.log({ messages: [message] });
-    await this.getRates(today);
-    RendererLogger.log({ messages: [
-      { text: 'Finished getting rates for the' },
-      { text: ` ${activeProfile.league} league`, type: 'important' },
-      { text: ' for' },
-      { text: ` today (${today})`, type: 'important' }
-    ] });
-    this.isUpdating = false;
   }
 
   async cleanRates(date) {
