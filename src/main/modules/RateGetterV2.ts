@@ -58,6 +58,7 @@ var emitter = new EventEmitter();
 
 class RateGetterV2 {
   ratesReady: boolean = false;
+  isUpdating: boolean = false;
   constructor() {
     if (nextRateGetTimer) clearTimeout(nextRateGetTimer);
   }
@@ -100,6 +101,11 @@ class RateGetterV2 {
    * get today's rates from POE.ninja
    */
   async update(isForced = false) {
+    if(this.isUpdating) {
+      logger.error('Already fetching rates for the day, aborting the new request');
+      return;
+    }
+    this.isUpdating = true;
     const activeProfile = SettingsManager.get('activeProfile');
     const privateLeaguePriceMaps = SettingsManager.get('privateLeaguePriceMaps');
     if (!activeProfile) {
@@ -161,6 +167,7 @@ class RateGetterV2 {
       { text: ' for' },
       { text: ` today (${today})`, type: 'important' }
     ] });
+    this.isUpdating = false;
   }
 
   async cleanRates(date) {
