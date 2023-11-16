@@ -13,6 +13,7 @@ import * as ClientTxtWatcher from './modules/ClientTxtWatcher';
 import ItemPricer from './modules/ItemPricer';
 import RunParser from './modules/RunParser';
 import SearchManager from './SearchManager';
+import RateGetterV2 from './modules/RateGetterV2';
 
 const getAppGlobals = async () => {
   logger.info('Loading global settings for the renderer process');
@@ -175,6 +176,11 @@ const getAllPossibleMods = async (e, params) => {
   return await StatsManager.getAllPossibleMods();
 };
 
+const debugRefetchRates = async () => {
+  logger.info('Fetching rates from the renderer process');
+  await RateGetterV2.update(true);
+};
+
 const Responder = {
   'app-globals': getAppGlobals,
   'load-runs': loadRuns,
@@ -190,11 +196,12 @@ const Responder = {
   'oauth:logout': logout,
   'get-all-stats': getAllStats,
   'get-stash-tabs': getStashTabs,
-  'debug:recheck-gain': debugRecheckGain,
   'search:trigger': triggerSearch,
   'get-divine-price': getDivinePrice,
   'get-all-map-names': getAllMapNames,
   'get-all-possible-mods': getAllPossibleMods,
+  'debug:recheck-gain': debugRecheckGain,
+  'debug:refetch-rates': debugRefetchRates,
 };
 
 export default Responder;

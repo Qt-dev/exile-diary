@@ -154,7 +154,13 @@ class RateGetterV2 {
       text: `Getting new ${activeProfile.league} rates for today (${today})`,
     };
     RendererLogger.log({ messages: [message] });
-    this.getRates(today);
+    await this.getRates(today);
+    RendererLogger.log({ messages: [
+      { text: 'Finished getting rates for the' },
+      { text: ` ${activeProfile.league} league`, type: 'important' },
+      { text: ' for' },
+      { text: ` today (${today})`, type: 'important' }
+    ] });
   }
 
   async cleanRates(date) {
@@ -193,7 +199,6 @@ class RateGetterV2 {
           }
         }
         const processRateType = rateTypes[rateType];
-        logger.info(rateType);
         tempRates[rateType] = processRateType(data, getLowConfidence);
       }
       require('fs/promises').writeFile(
