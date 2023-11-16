@@ -18,9 +18,12 @@ const DebugSettings = ({ runStore }) => {
   const [reCalculateProfitStart, setReCalculateProfitStart] = React.useState<Dayjs | null>(now);
   const [reCalculateProfitEnd, setReCalculateProfitEnd] = React.useState<Dayjs | null>(now);
   const [isFetchingRates, setIsFetchingRates] = React.useState(false);
+  const [isRecalculatingProfit, setIsRecalculatingProfit] = React.useState(false);
   const handleReCalculateProfit = async () => {
+    setIsRecalculatingProfit(true);
     await ipcRenderer.invoke('debug:recheck-gain', { from: reCalculateProfitStart?.format('YYYYMMDD'), to: reCalculateProfitEnd?.format('YYYYMMDD') });
-    runStore.loadRuns();
+    await runStore.loadRuns();
+    setIsRecalculatingProfit(false);
   };
 
   const handleRefetchRates = async () => {
@@ -52,13 +55,13 @@ const DebugSettings = ({ runStore }) => {
           />
         </LocalizationProvider>
         <ButtonGroup variant="outlined">
-          <Button onClick={handleReCalculateProfit}>Recalculate Profit</Button>
+          <Button disabled={isRecalculatingProfit} endIcon={isRecalculatingProfit ? <CircularProgress size='0.8rem' /> : null} onClick={handleReCalculateProfit}>Recalculate Profit</Button>
         </ButtonGroup>
       </Stack>
       <Divider variant="middle" sx={{width: '50%', margin: '20px auto'}} />
       <Stack direction="row" gap={5} justifyContent="center">
         <ButtonGroup variant="outlined">
-          <Button disabled={isFetchingRates} endIcon={isFetchingRates ? <CircularProgress size='0.8rem' /> : null}onClick={handleRefetchRates}>Re-Fetch Today's poe.ninja rates</Button>
+          <Button disabled={isFetchingRates} endIcon={isFetchingRates ? <CircularProgress size='0.8rem' /> : null} onClick={handleRefetchRates}>Re-Fetch Today's poe.ninja rates</Button>
         </ButtonGroup>
       </Stack>
     </div>

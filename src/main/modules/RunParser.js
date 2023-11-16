@@ -1,6 +1,7 @@
 import GGGAPI from '../GGGAPI';
 import DB from '../db/run';
 import dayjs from 'dayjs';
+import RendererLogger from '../RendererLogger';
 const logger = require('electron-log');
 const Utils = require('./Utils').default;
 const EventEmitter = require('events');
@@ -1433,6 +1434,13 @@ function getNPCLine(str) {
 }
 
 async function recheckGained(from = 0, to = dayjs().format('YYYYMMDD')) {
+  RendererLogger.log({messages: [
+    { text: 'Rechecking map profits from ' },
+    { text: from, type: 'important'},
+    { text: ' to ' },
+    { text: to, type: 'important'},
+    { text: '...'}
+  ]})
   const startTime = dayjs();
   const runs = await DB.getRunsFromDates(from, to);
   for(const run of runs) {
@@ -1466,6 +1474,15 @@ async function recheckGained(from = 0, to = dayjs().format('YYYYMMDD')) {
     const endTime = dayjs();
     const timeTaken = endTime.diff(startTime, 'millisecond');
     logger.info(`Recheck from ${from} to ${to} took ${timeTaken} ms`);
+    RendererLogger.log({messages: [
+      { text: 'Recheck complete - Checked map profits from ' },
+      { text: from, type: 'important'},
+      { text: ' to ' },
+      { text: to, type: 'important'},
+      { text: ' in ' },
+      { text: `${timeTaken}`, type: 'important'},
+      { text: 'ms.'}
+    ]})
   });
 }
 
