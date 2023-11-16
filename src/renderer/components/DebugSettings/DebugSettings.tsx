@@ -9,6 +9,7 @@ import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import dayjs, { Dayjs } from 'dayjs';
 import Stack from '@mui/material/Stack';
+import './DebugSettings.css';
 const { logger } = electronService;
 
 const { ipcRenderer } = electronService;
@@ -33,8 +34,14 @@ const DebugSettings = ({ runStore }) => {
   };
 
   return (
-    <div>
-      <h1>Debug Settings</h1>
+    <div className='Debug-Settings'>
+      <h3 className='Debug-Settings__Header'>
+        Pricing and Debugging options.
+      </h3>
+      <Divider sx={{width: '50%', margin: '20px auto', }} />
+      <div className='Debug-Settings__Header'>
+        Recalculate Loot Price and Map Profit using rates for that day
+      </div>
       <Stack direction="row" gap={5} justifyContent="center">
         <LocalizationProvider dateAdapter={AdapterDayjs}>
           <DatePicker
@@ -55,13 +62,16 @@ const DebugSettings = ({ runStore }) => {
           />
         </LocalizationProvider>
         <ButtonGroup variant="outlined">
-          <Button disabled={isRecalculatingProfit} endIcon={isRecalculatingProfit ? <CircularProgress size='0.8rem' /> : null} onClick={handleReCalculateProfit}>Recalculate Profit</Button>
+          <Button disabled={isRecalculatingProfit} endIcon={isRecalculatingProfit ? <CircularProgress size='0.8rem' /> : null} onClick={handleReCalculateProfit}>Recalculate</Button>
         </ButtonGroup>
       </Stack>
       <Divider variant="middle" sx={{width: '50%', margin: '20px auto'}} />
+      <div className='Debug-Settings__Header'>
+        Fetch Today's poe.ninja rates again
+      </div>
       <Stack direction="row" gap={5} justifyContent="center">
         <ButtonGroup variant="outlined">
-          <Button disabled={isFetchingRates} endIcon={isFetchingRates ? <CircularProgress size='0.8rem' /> : null} onClick={handleRefetchRates}>Re-Fetch Today's poe.ninja rates</Button>
+          <Button disabled={isFetchingRates} endIcon={isFetchingRates ? <CircularProgress size='0.8rem' /> : null} onClick={handleRefetchRates}>Fetch</Button>
         </ButtonGroup>
       </Stack>
     </div>
