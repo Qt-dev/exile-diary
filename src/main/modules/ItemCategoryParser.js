@@ -2,7 +2,7 @@ const logger = require('electron-log');
 const data = require('../../helpers/constants').default.items;
 
 const equipmentBaseTypes = data.baseTypes.equipments;
-const gemBaseTypes = data.baseTypes.equipments;
+const gemBaseTypes = data.baseTypes.gems;
 const otherBaseTypes = data.baseTypes.others;
 const nonStackableBaseTypes = [].concat(Object.keys(equipmentBaseTypes), Object.keys(gemBaseTypes));
 
@@ -91,11 +91,10 @@ function getCategory(item, subcategory = false) {
   switch (item.frameType) {
     case 4:
       var n = t.replace(/(Superior|Anomalous|Divergent|Phantasmal) /g, '');
-      if (gemBaseTypes[n]) {
-        return gemBaseTypes[n];
+      if(t.endsWith('Support')) {
+        return "Support Skill Gems";
       } else {
-        logger.info(`No base type found for gem [${t}]`);
-        return '';
+        return "Active Skill Gems";
       }
     case 5: // currency items
       if (t.startsWith('Captured Soul')) {
