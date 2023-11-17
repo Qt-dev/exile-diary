@@ -34,7 +34,7 @@ class StashTabsManager {
   }
 
   async refresh(): Promise<void> {
-    const stashTabNumbers = SettingsManager.get('trackedStashTabs')[SettingsManager.get('activeProfile').league].length;
+    const stashTabNumbers = SettingsManager.get('trackedStashTabs')?.[SettingsManager.get('activeProfile').league]?.length ?? 0;
     const startTime = dayjs();
     RendererLogger.log({ messages: [
       { text: 'Refreshing stash data for ' },

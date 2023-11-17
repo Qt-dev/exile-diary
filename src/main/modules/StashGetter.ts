@@ -6,6 +6,7 @@ import DB from '../db/stashtabs';
 import stashTabsManager from '../StashTabsManager';
 import RatesGetterV2 from './RateGetterV2';
 import dayjs from 'dayjs';
+import RendererLogger from '../RendererLogger';
 const EventEmitter = require('events');
 const logger = require('electron-log').scope('ShashGetter');
 const ItemParser = require('./ItemParser');
@@ -75,6 +76,14 @@ class StashGetter {
       emitter.emit('scheduleNewStashCheck');
       return;
     }
+
+    RendererLogger.log({ messages: [
+      { text: 'Refreshing Stash tabs for ' },
+      { text: settings.trackedStashTabs[settings.activeProfile.league] ?? 0, type: 'important' },
+      { text: ' tabs in ' },
+      { text: settings.activeProfile.league, type: 'important' },
+      { text: ' league' }
+    ] });
 
     this.get();
   }
