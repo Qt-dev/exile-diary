@@ -181,13 +181,13 @@ class PriceMatcher {
       calculateValue: (item : any, minItemValue: number = 0) => this.getValue(item, 'Omen', item.typeline, minItemValue),
     },
     {
-      name: "Currency",
-      test: (item: any) => item.rarity === 'Currency',
+      name: "Incubator",
+      test: (item: any) => item.typeline && item.typeline.includes('Incubator'),
       calculateValue: (item : any, minItemValue: number = 0) => this.getValue(item, 'Currency', item.typeline, minItemValue),
     },
     {
-      name: "Incubator",
-      test: (item: any) => item.typeline && item.typeline.includes('Incubator'),
+      name: "Currency",
+      test: (item: any) => item.rarity === 'Currency',
       calculateValue: (item : any, minItemValue: number = 0) => this.getValue(item, 'Currency', item.typeline, minItemValue),
     },
     {
@@ -201,11 +201,6 @@ class PriceMatcher {
       calculateValue: (item : any, minItemValue: number = 0) => Math.max(this.getUniqueItemValue(item, minItemValue), this.getHelmetEnchantValue(item, minItemValue)),
     },
     {
-      name: "Unique Items",
-      test: (item: any) => item.rarity === 'Unique',
-      calculateValue: (item : any, minItemValue: number = 0) => this.getUniqueItemValue(item, minItemValue),
-    },
-    {
       name: "Non-Unique Flasks and Jewels",
       test: (item: any) => item.typeline && (item.typeline.includes('Flask') || item.typeline.includes('Jewel')) && baseTypeRarities.includes(item.rarity),
       calculateValue: (item : any, minItemValue: number = 0) => 0,
@@ -216,9 +211,9 @@ class PriceMatcher {
       calculateValue: (item : any, minItemValue: number = 0) => Math.max(this.getBaseTypeValue(item, minItemValue), this.getHelmetEnchantValue(item, minItemValue)),
     },
     {
-      name: "Non-Unique Bases",
-      test: (item: any) => baseTypeRarities.includes(item.rarity),
-      calculateValue: (item : any, minItemValue: number = 0) => this.getBaseTypeValue(item, minItemValue),
+      name: "Skill Gem",
+      test: (item: any) => item.category === 'Skill Gems',
+      calculateValue: (item : any, minItemValue: number = 0) => this.getGemValue(minItemValue, item),
     },
     {
       name: "Invitations",
@@ -241,9 +236,14 @@ class PriceMatcher {
       calculateValue: (item : any, minItemValue: number = 0) => this.getDivinationCardValue(item, minItemValue),
     },
     {
-      name: "Skill Gem",
-      test: (item: any) => item.category === 'Skill Gems',
-      calculateValue: (item : any, minItemValue: number = 0) => this.getGemValue(minItemValue, item),
+      name: "Unique Items",
+      test: (item: any) => item.rarity === 'Unique',
+      calculateValue: (item : any, minItemValue: number = 0) => this.getUniqueItemValue(item, minItemValue),
+    },
+    {
+      name: "Non-Unique Bases",
+      test: (item: any) => baseTypeRarities.includes(item.rarity),
+      calculateValue: (item : any, minItemValue: number = 0) => this.getBaseTypeValue(item, minItemValue),
     },
     // // Removed from Poe.Ninja
     // {
