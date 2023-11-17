@@ -1,5 +1,6 @@
 import DB from './db/stashtabs';
 import SettingsManager from './SettingsManager';
+import StashGetter from './modules/StashGetter';
 import zlib from 'zlib';
 import dayjs from 'dayjs';
 import logger from 'electron-log';
@@ -29,6 +30,10 @@ class StashTabsManager {
         })
       : [];
     return { ...data, items };
+  }
+
+  async refresh(): Promise<void> {
+    await StashGetter.get();
   }
 }
 

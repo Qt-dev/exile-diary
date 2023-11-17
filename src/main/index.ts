@@ -676,7 +676,8 @@ class MainProcess {
       'get-all-map-names',
       'get-all-possible-mods',
       'debug:recheck-gain',
-      'debug:refetch-rates',
+      'debug:fetch-rates',
+      'debug:fetch-stash-tabs',
     ];
     for (const event of events) {
       ipcMain.handle(event, Responder[event]);

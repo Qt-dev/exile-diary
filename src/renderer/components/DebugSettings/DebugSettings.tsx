@@ -20,6 +20,7 @@ const DebugSettings = ({ runStore }) => {
   const [reCalculateProfitEnd, setReCalculateProfitEnd] = React.useState<Dayjs | null>(now);
   const [isFetchingRates, setIsFetchingRates] = React.useState(false);
   const [isRecalculatingProfit, setIsRecalculatingProfit] = React.useState(false);
+  const [isFetchingStashTabs, setIsFetchingStashTabs] = React.useState(false);
   const handleReCalculateProfit = async () => {
     setIsRecalculatingProfit(true);
     await ipcRenderer.invoke('debug:recheck-gain', { from: reCalculateProfitStart?.format('YYYYMMDD'), to: reCalculateProfitEnd?.format('YYYYMMDD') });
@@ -27,11 +28,17 @@ const DebugSettings = ({ runStore }) => {
     setIsRecalculatingProfit(false);
   };
 
-  const handleRefetchRates = async () => {
+  const handleFetchRates = async () => {
     setIsFetchingRates(true);
-    await ipcRenderer.invoke('debug:refetch-rates');
+    await ipcRenderer.invoke('debug:fetch-rates');
     setIsFetchingRates(false);
   };
+
+  const handleFetchStashTabs = async () => {
+    setIsFetchingStashTabs(true);
+    await ipcRenderer.invoke('debug:fetch-stash-tabs');
+    setIsFetchingStashTabs(false);
+  }
 
   return (
     <div className='Debug-Settings'>
@@ -71,7 +78,16 @@ const DebugSettings = ({ runStore }) => {
       </div>
       <Stack direction="row" gap={5} justifyContent="center">
         <ButtonGroup variant="outlined">
-          <Button disabled={isFetchingRates} endIcon={isFetchingRates ? <CircularProgress size='0.8rem' /> : null} onClick={handleRefetchRates}>Fetch</Button>
+          <Button disabled={isFetchingRates} endIcon={isFetchingRates ? <CircularProgress size='0.8rem' /> : null} onClick={handleFetchRates}>Fetch Rates</Button>
+        </ButtonGroup>
+      </Stack>
+      <Divider variant="middle" sx={{width: '50%', margin: '20px auto'}} />
+      <div className='Debug-Settings__Header'>
+        Fetch all stash tabs from the GGG API. This takes a while, and is rate limited.<br />Do not trigger this too fast or you will get rate limited and will not be able to fetch stash tabs for a while (5 minutes minimum)
+      </div>
+      <Stack direction="row" gap={5} justifyContent="center">
+        <ButtonGroup variant="outlined">
+          <Button disabled={isFetchingStashTabs} endIcon={isFetchingStashTabs ? <CircularProgress size='0.8rem' /> : null} onClick={handleFetchStashTabs}>Fetch Stash Tabs</Button>
         </ButtonGroup>
       </Stack>
     </div>

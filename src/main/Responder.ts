@@ -176,10 +176,15 @@ const debugRecheckGain = async (e, params) => {
   await RunParser.recheckGained(from, to);
 };
 
-const debugRefetchRates = async () => {
+const debugFetchRates = async () => {
   logger.info('Fetching rates from the renderer process');
   await RateGetterV2.update(true);
 };
+
+const debugFetchStashTabs = async () => {
+  logger.info('Fetching stash tabs from the renderer process');
+  await StashTabsManager.refresh();
+}
 
 const Responder = {
   'app-globals': getAppGlobals,
@@ -201,7 +206,8 @@ const Responder = {
   'get-all-map-names': getAllMapNames,
   'get-all-possible-mods': getAllPossibleMods,
   'debug:recheck-gain': debugRecheckGain,
-  'debug:refetch-rates': debugRefetchRates,
+  'debug:fetch-rates': debugFetchRates,
+  'debug:fetch-stash-tabs': debugFetchStashTabs,
 };
 
 export default Responder;
