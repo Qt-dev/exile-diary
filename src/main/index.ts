@@ -558,6 +558,27 @@ class MainProcess {
           },
         ],
       });
+      RendererLogger.log({
+        messages: [
+          {
+            text: 'This app is ',
+          },
+          {
+            text: 'NOT',
+            type: 'error',
+          },
+          {
+            text: ' affiliated with or endorsed by '
+          },
+          {
+            text: 'Grinding Gear Games',
+            type: 'currency'
+          },
+          {
+            text: ' in any way.'
+          }
+        ],
+      });
       AuthManager.setLogoutTimer();
     });
 
