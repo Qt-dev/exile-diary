@@ -1,0 +1,14 @@
+.Debug-Settings {
+  margin-top: 20px;
+}
+
+.Debug-Settings__Header {
+  margin: 20px 0;
+  color: white;
+  /* display: flex;
+  align-items: center;
+  justify-content: space-between; */
+  text-align: center;
+  width: 100%;
+  gap: 20px;
+}

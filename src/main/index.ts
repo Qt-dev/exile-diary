@@ -671,11 +671,13 @@ class MainProcess {
       'get-stash-tabs',
       'save-settings:stashtabs',
       'save-settings:stash-refresh-interval',
-      'debug:recheck-gain',
       'search:trigger',
       'get-divine-price',
       'get-all-map-names',
       'get-all-possible-mods',
+      'debug:recheck-gain',
+      'debug:fetch-rates',
+      'debug:fetch-stash-tabs',
     ];
     for (const event of events) {
       ipcMain.handle(event, Responder[event]);

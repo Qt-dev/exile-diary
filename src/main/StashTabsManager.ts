@@ -1,5 +1,7 @@
 import DB from './db/stashtabs';
 import SettingsManager from './SettingsManager';
+import StashGetter from './modules/StashGetter';
+import RendererLogger from './RendererLogger';
 import zlib from 'zlib';
 import dayjs from 'dayjs';
 import logger from 'electron-log';
@@ -29,6 +31,24 @@ class StashTabsManager {
         })
       : [];
     return { ...data, items };
+  }
+
+  async refresh(): Promise<void> {
+    const stashTabNumbers = SettingsManager.get('trackedStashTabs')?.[SettingsManager.get('activeProfile').league]?.length ?? 0;
+    const startTime = dayjs();
+    RendererLogger.log({ messages: [
+      { text: 'Refreshing stash data for ' },
+      { text: stashTabNumbers, type: 'important' },
+      { text: ' stash tabs' }
+    ] });
+    await StashGetter.get();
+    RendererLogger.log({ messages: [
+      { text: 'Stash data refreshed for ' },
+      { text: stashTabNumbers, type: 'important' },
+      { text: ' stash tabs in ' },
+      { text: dayjs().diff(startTime, 'millisecond'), type: 'important' },
+      { text: ' milliseconds' }
+    ] });
   }
 }
 

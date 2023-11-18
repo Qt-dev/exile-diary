@@ -38,7 +38,7 @@ export default class RunStore {
   setupFromBackend() {
     this.loadRuns(this.size);
     this.currentRun = new Run(this, { name: 'Unknown' });
-    electronService.ipcRenderer.on('refresh-runs', () => this.loadRuns(this.size));
+    electronService.ipcRenderer.on('refresh-runs', async () => await this.loadRuns(this.size));
     electronService.ipcRenderer.on('current-run:started', (event, json) =>
       this.registerCurrentRun(json)
     );
@@ -47,10 +47,14 @@ export default class RunStore {
     );
   }
 
-  loadRuns(size = this.maxSize) {
-    logger.info(`Loading runs from the server with size: ${size}`);
+  async loadRuns(size = this.maxSize) {
+    if(size === this.maxSize) {
+      logger.info(`Loading all runs from the server.`);
+    } else {
+      logger.info(`Loading runs from the server with size: ${size}`);
+    }
     this.isLoading = true;
-    electronService.ipcRenderer.invoke('load-runs', { size }).then((runs) => {
+    await electronService.ipcRenderer.invoke('load-runs', { size }).then((runs) => {
       runInAction(() => {
         logger.info(`Runs fetched from the server. Found ${runs.length} runs.`);
         const ids = this.runs

@@ -38,6 +38,19 @@ class DB {
     return result;
   }
 
+  static transaction(query: string, params: any[], league: string | undefined = undefined) {
+    const db = !!league ? this.getLeagueDB(league) : this.getDB();
+    if (!db) {
+      return null;
+    }
+    const statement = db.prepare(query);
+    const runMany = db.transaction((params) => {
+      for (const param of params) statement.run(param);
+    })
+    const result = runMany(params);
+    return result;
+  }
+
   static getDB(characterName: string = '') {
     if (!characterName) {
       const settings = getSettings();

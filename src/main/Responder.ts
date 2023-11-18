@@ -13,6 +13,7 @@ import * as ClientTxtWatcher from './modules/ClientTxtWatcher';
 import ItemPricer from './modules/ItemPricer';
 import RunParser from './modules/RunParser';
 import SearchManager from './SearchManager';
+import RateGetterV2 from './modules/RateGetterV2';
 
 const getAppGlobals = async () => {
   logger.info('Loading global settings for the renderer process');
@@ -28,7 +29,7 @@ const getAppGlobals = async () => {
 };
 
 const loadRuns = async (e, { size }) => {
-  logger.info(`Loading ${size} runs from the main process`);
+  logger.info(`Loading ${size === Number.MAX_SAFE_INTEGER ? 'all' : size} runs from the main process`);
   return await Runs.getLastRuns(size);
 };
 
@@ -145,11 +146,6 @@ const saveStashRefreshInterval = async (e, params) => {
   stashGetter.refreshInterval();
 };
 
-const debugRecheckGain = async (e, startDate) => {
-  logger.info('Debugging recheck gain from the renderer process');
-  await RunParser.recheckGained(startDate);
-};
-
 const triggerSearch = async (e, params) => {
   logger.info('Triggering search from the renderer process');
   SearchManager.search(params);
@@ -174,6 +170,22 @@ const getAllPossibleMods = async (e, params) => {
   return await StatsManager.getAllPossibleMods();
 };
 
+const debugRecheckGain = async (e, params) => {
+  const { from, to } = params;
+  logger.info('Debugging recheck gain from the renderer process');
+  await RunParser.recheckGained(from, to);
+};
+
+const debugFetchRates = async () => {
+  logger.info('Fetching rates from the renderer process');
+  await RateGetterV2.update(true);
+};
+
+const debugFetchStashTabs = async () => {
+  logger.info('Fetching stash tabs from the renderer process');
+  await StashTabsManager.refresh();
+}
+
 const Responder = {
   'app-globals': getAppGlobals,
   'load-runs': loadRuns,
@@ -189,11 +201,13 @@ const Responder = {
   'oauth:logout': logout,
   'get-all-stats': getAllStats,
   'get-stash-tabs': getStashTabs,
-  'debug:recheck-gain': debugRecheckGain,
   'search:trigger': triggerSearch,
   'get-divine-price': getDivinePrice,
   'get-all-map-names': getAllMapNames,
   'get-all-possible-mods': getAllPossibleMods,
+  'debug:recheck-gain': debugRecheckGain,
+  'debug:fetch-rates': debugFetchRates,
+  'debug:fetch-stash-tabs': debugFetchStashTabs,
 };
 
 export default Responder;

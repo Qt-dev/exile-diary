@@ -24,7 +24,7 @@ declare module 'react' {
   }
 }
 
-const MainSettings = ({ settings, store }) => {
+const MainSettings = ({ settings, store, runStore }) => {
   const navigate = useNavigate();
 
   // Character
@@ -78,13 +78,6 @@ const MainSettings = ({ settings, store }) => {
 
   const handleBack = () => {
     navigate('/');
-  };
-
-  const [debugStartDate, setDebugStartDate] = React.useState(
-    new Date().toISOString().replace(/-/g, '').split('T')[0]
-  );
-  const handleDebug = () => {
-    ipcRenderer.invoke('debug:recheck-gain', debugStartDate);
   };
 
   const handleSubmit = (e) => {
@@ -295,23 +288,6 @@ const MainSettings = ({ settings, store }) => {
           <Button type="submit">Save</Button>
           <Button onClick={handleBack}>Cancel</Button>
         </ButtonGroup>
-        {process.env.NODE_ENV === 'development' && (
-          <>
-            <Divider className="Settings__Separator" />
-            <TextField
-              fullWidth
-              label="Start date for reparsing the runs"
-              id="debug-start"
-              variant="filled"
-              size="small"
-              value={debugStartDate}
-              onChange={(e) => setDebugStartDate(e.target.value)}
-            />
-            <ButtonGroup variant="outlined" fullWidth aria-label="Debug">
-              <Button onClick={handleDebug}>Debug</Button>
-            </ButtonGroup>
-          </>
-        )}
       </Box>
     </form>
   );
