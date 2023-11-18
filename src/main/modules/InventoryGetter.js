@@ -123,7 +123,7 @@ class InventoryGetter extends EventEmitter {
   getInventory(inventory) {
     var mainInventory = {};
     var equippedItems = {};
-    inventory.forEach((item) => {
+    inventory?.forEach((item) => {
       if (item.inventoryId === 'MainInventory') {
         mainInventory[item.id] = item;
       } else {
