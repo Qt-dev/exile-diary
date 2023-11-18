@@ -94,6 +94,12 @@ span.negative {
 .Text {
   display: flex;
 }
+.Text--Bottom {
+  text-align: center;
+  /* italic */
+  font-style: italic;
+  font-size: 0.8em;
+}
 
 .Text--Icon {
   height: 1em;
