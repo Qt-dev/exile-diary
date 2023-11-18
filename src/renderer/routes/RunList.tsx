@@ -63,7 +63,7 @@ const RunList = ({ NumbersOfMapsToShow = 10, store, isBoxed = true }) => {
           Most Recent {store.runs.length} Runs
         </div>
         <div className="">
-          (Total Time: {store.getFullDuration().format('D [days] hh[h] mm[m] ss[s]')})
+          (Total Time: {store.getFullDuration().format('D [days] HH[h] mm[m] ss[s]')})
         </div>
         {/* <MenuIcon className="Run-List__Header__Burger" onClick={togglePopupMenu}>
           ≡
