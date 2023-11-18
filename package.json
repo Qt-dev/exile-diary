@@ -99,7 +99,7 @@
     "@postman/node-keytar": "^7.9.3",
     "@react-hook/resize-observer": "^1.2.6",
     "@svgr/webpack": "^8.1.0",
-    "axios": "^1.4.0",
+    "axios": "^1.6.0",
     "axios-cache-interceptor": "^1.0.1",
     "babel-jest": "^27.4.2",
     "babel-loader": "^8.2.3",
