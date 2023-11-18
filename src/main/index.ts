@@ -357,7 +357,7 @@ class MainProcess {
     });
 
     StatsManager.registerProfitPerHourAnnouncer((profitPerHour, divinePrice) => {
-      this.sendToMain('update-profit-per-hour', {value: profitPerHour, divinePrice });
+      this.sendToMain('update-profit-per-hour', { value: profitPerHour, divinePrice });
     });
 
     RunParser.emitter.removeAllListeners();

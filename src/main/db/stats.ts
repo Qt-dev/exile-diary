@@ -272,7 +272,7 @@ export default {
       return [];
     }
   },
-  
+
   getProfitForLastHour: (): number => {
     const oneHourAgo = dayjs().subtract(1, 'hour').format('YYYYMMDDHHmmss');
     const query = `
@@ -288,5 +288,5 @@ export default {
       logger.error(`Error getting profit: ${JSON.stringify(err)}`);
       return 0;
     }
-  }
+  },
 };

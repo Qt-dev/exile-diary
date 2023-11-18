@@ -9,8 +9,10 @@ const OptionalDivineValue = ({ value, divinePrice, displayChaos }) => {
   if (parsedDivinePrice > 0 && parsedValue > 0.01 * parsedDivinePrice) {
     return (
       <>
-        {displayChaos && '('}{(parsedValue / parsedDivinePrice).toFixed(2)}
-        <DivineIcon />{displayChaos && ')'}
+        {displayChaos && '('}
+        {(parsedValue / parsedDivinePrice).toFixed(2)}
+        <DivineIcon />
+        {displayChaos && ')'}
       </>
     );
   }
@@ -21,14 +23,17 @@ const Price = ({ value, divinePrice = 0, displayChaos = true }) => {
   const shouldDisplayChaos = displayChaos || value < divinePrice;
   return (
     <span className="Price">
-      { shouldDisplayChaos && 
+      {shouldDisplayChaos && (
         <>
-        {value}
-        <ChaosIcon />
-        {' '}
+          {value}
+          <ChaosIcon />{' '}
         </>
-      }
-      <OptionalDivineValue value={value} divinePrice={divinePrice} displayChaos={shouldDisplayChaos} />
+      )}
+      <OptionalDivineValue
+        value={value}
+        divinePrice={divinePrice}
+        displayChaos={shouldDisplayChaos}
+      />
     </span>
   );
 };

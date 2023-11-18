@@ -271,7 +271,7 @@ class PriceMatcher {
       test: (item: any) => baseTypeRarities.includes(item.rarity),
       calculateValue: (item: any, minItemValue: number = 0) =>
         Math.max(
-        this.getBaseTypeValue(item, minItemValue),
+          this.getBaseTypeValue(item, minItemValue),
           this.getVendorRecipeValue(item, minItemValue)
         ),
     },
@@ -464,7 +464,7 @@ class PriceMatcher {
     if (log) {
       logger.info('Returning vendor value ' + vendorValue);
     }
-    return (minItemValue > 0  && minItemValue > vendorValue) ? 0 : vendorValue;
+    return minItemValue > 0 && minItemValue > vendorValue ? 0 : vendorValue;
   }
 
   /**
@@ -911,7 +911,11 @@ async function price(
   return { isVendor: matcher.isVendorRecipe(item), value: matcher.price(item, minItemValue) };
 }
 
-async function getCurrencyByName(type: string, timestamp = dayjs().format('YYYYMMDD'),  league = SettingsManager.get('activeProfile').league) {
+async function getCurrencyByName(
+  type: string,
+  timestamp = dayjs().format('YYYYMMDD'),
+  league = SettingsManager.get('activeProfile').league
+) {
   const rates = await getRatesFor(timestamp, league);
   if (!rates) {
     return 0;

@@ -41,16 +41,16 @@ const NetWorth = ({ value, change, divinePrice }) => {
       <div className="Net-Worth__Total__Text">
         <Price value={value} divinePrice={divinePrice} displayChaos={false} />
       </div>
-      <div>
-        {formattedChange}
-      </div>
+      <div>{formattedChange}</div>
     </div>
   );
 };
 
 const SideNav = ({ version, isNewVersion, turnNewVersionOff }) => {
   const [netWorth, setNetWorth] = React.useState(<>---</>);
-  const [profitPerHour, setProfitPerHour] = React.useState(<ProfitPerHour value={0} divinePrice={0} />);
+  const [profitPerHour, setProfitPerHour] = React.useState(
+    <ProfitPerHour value={0} divinePrice={0} />
+  );
   const [currentPageName, setCurrentPageName] = React.useState('Main');
   // This is to setup an about page if needed
   // const about = () => {
@@ -80,7 +80,7 @@ const SideNav = ({ version, isNewVersion, turnNewVersionOff }) => {
     ipcRenderer.send('get-net-worth');
     return () => {
       ipcRenderer.removeAllListeners('update-net-worth');
-    }
+    };
   }, []);
 
   return (

@@ -16,8 +16,12 @@ const { ipcRenderer } = electronService;
 
 const DebugSettings = ({ runStore }) => {
   const now = dayjs();
-  const [reCalculateProfitStart, setReCalculateProfitStart] = React.useState<Dayjs | null>(now.startOf('day'));
-  const [reCalculateProfitEnd, setReCalculateProfitEnd] = React.useState<Dayjs | null>(now.endOf('day'));
+  const [reCalculateProfitStart, setReCalculateProfitStart] = React.useState<Dayjs | null>(
+    now.startOf('day')
+  );
+  const [reCalculateProfitEnd, setReCalculateProfitEnd] = React.useState<Dayjs | null>(
+    now.endOf('day')
+  );
   const [isFetchingRates, setIsFetchingRates] = React.useState(false);
   const [isRecalculatingProfit, setIsRecalculatingProfit] = React.useState(false);
   const [isFetchingStashTabs, setIsFetchingStashTabs] = React.useState(false);

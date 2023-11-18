@@ -867,14 +867,14 @@ class ProfitTracker {
     }, this.announceTimerCooldown);
   }
   async refreshProfitPerHour() {
-    if(this.announcer) {
+    if (this.announcer) {
       const profit = this.getProfitPerHour();
-      logger.info(`Updating profit per hour to ${profit}`)
+      logger.info(`Updating profit per hour to ${profit}`);
       this.announcer.announce(profit, await ItemPricer.getCurrencyByName('Divine Orb'));
     }
   }
   getProfitPerHour() {
-    return DB.getProfitForLastHour()
+    return DB.getProfitForLastHour();
   }
   setProfitPerHourAnnouncer(callback) {
     this.announcer = { announce: callback };
@@ -917,5 +917,5 @@ export default {
 
   triggerProfitPerHourAnnouncer: () => {
     profitTracker.refreshProfitPerHour();
-  }
+  },
 };
