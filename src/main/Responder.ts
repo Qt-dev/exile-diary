@@ -100,8 +100,8 @@ const getAllStats = async (e, params) => {
   const characterName = params?.characterName ?? profile.characterName;
   const stats = await StatsManager.getAllStats({ league, characterName });
   stats.divinePrice = await ItemPricer.getCurrencyByName(
-    dayjs().format('YYYYMMDD'),
     'Divine Orb',
+    dayjs().format('YYYYMMDD'),
     league
   );
   return stats;
@@ -156,8 +156,8 @@ const triggerSearch = async (e, params) => {
 const getDivinePrice = async (e, params) => {
   logger.info('Getting divine price from the renderer process');
   return ItemPricer.getCurrencyByName(
-    dayjs().format('YYYYMMDD'),
     'Divine Orb',
+    dayjs().format('YYYYMMDD'),
     SettingsManager.get('activeProfile').league
   );
 };
@@ -213,6 +213,7 @@ const Responder = {
   'get-divine-price': getDivinePrice,
   'get-all-map-names': getAllMapNames,
   'get-all-possible-mods': getAllPossibleMods,
+  'refresh-profit-per-hour': StatsManager.triggerProfitPerHourAnnouncer,
   'debug:recheck-gain': debugRecheckGain,
   'debug:fetch-rates': debugFetchRates,
   'debug:fetch-stash-tabs': debugFetchStashTabs,

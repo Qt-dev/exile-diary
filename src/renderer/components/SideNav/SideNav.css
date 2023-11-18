@@ -57,24 +57,38 @@
   margin: auto;
 }
 
-.Net-Worth__Container {
+.Net-Worth__Container,
+.Profit-Per-Hour__Container {
   text-align: center;
   background-color: #111;
 }
 
-.Net-Worth {
+.Net-Worth,
+.Profit-Per-Hour {
   display: flex;
   flex-direction: column;
   gap: 5px;
   padding: 5px;
 }
 
-.Side-Nav .Net-Worth__Total {
-  /* display: none; */
-}
-.Side-Nav .Net-Worth__Total__Text {
+.Side-Nav .Net-Worth__Total__Text,
+.Side-Nav .Profit-Per-Hour__Total__Text {
   color: white;
 
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+}
+
+.Profit-Per-Hour__Header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+}
+
+.Net-Worth__Change {
   display: flex;
   align-items: center;
   justify-content: center;

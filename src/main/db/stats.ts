@@ -1,6 +1,7 @@
 import DB from './index';
 import Logger from 'electron-log';
 import { Run } from '../../helpers/types';
+import dayjs from 'dayjs';
 const logger = Logger.scope('db/stats');
 
 type GetAllRunsForDatesParams = {
@@ -271,4 +272,21 @@ export default {
       return [];
     }
   },
+  
+  getProfitForLastHour: (): number => {
+    const oneHourAgo = dayjs().subtract(1, 'hour').format('YYYYMMDDHHmmss');
+    const query = `
+      SELECT sum(value) as profit
+      FROM items
+      WHERE event_id > ?
+    `;
+
+    try {
+      const { profit } = DB.get(query, [oneHourAgo]) as { profit: number };
+      return profit ?? 0;
+    } catch (err) {
+      logger.error(`Error getting profit: ${JSON.stringify(err)}`);
+      return 0;
+    }
+  }
 };

@@ -32,6 +32,7 @@ import * as OCRWatcher from './modules/OCRWatcher';
 import StashGetter from './modules/StashGetter';
 import RunParser from './modules/RunParser';
 import KillTracker from './modules/KillTracker';
+import StatsManager from './StatsManager';
 
 dayjs.extend(duration);
 const devUrl = 'http://localhost:3000';
@@ -355,6 +356,10 @@ class MainProcess {
       }
     });
 
+    StatsManager.registerProfitPerHourAnnouncer((profitPerHour, divinePrice) => {
+      this.sendToMain('update-profit-per-hour', {value: profitPerHour, divinePrice });
+    });
+
     RunParser.emitter.removeAllListeners();
     RunParser.emitter.on('runProcessed', (run) => {
       var f = new Intl.NumberFormat();
@@ -398,6 +403,7 @@ class MainProcess {
       this.sendToMain('refresh-runs');
       this.sendToMain('current-run:started', { area: 'Unknown' });
       this.sendToOverlay('current-run:started', { area: 'Unknown' });
+      StatsManager.triggerProfitPerHourAnnouncer();
     });
 
     KillTracker.emitter.removeAllListeners();
@@ -683,6 +689,7 @@ class MainProcess {
       'get-divine-price',
       'get-all-map-names',
       'get-all-possible-mods',
+      'refresh-profit-per-hour',
       'debug:recheck-gain',
       'debug:fetch-rates',
       'debug:fetch-stash-tabs',

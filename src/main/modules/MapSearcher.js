@@ -171,10 +171,10 @@ async function getPseudoItemPriceFor(date) {
   // TODO: Centralize these
   if (!pseudoItemPriceCache[date]) {
     pseudoItemPriceCache[date] = {
-      sixSocketValue: 7 * (await ItemPricer.getCurrencyByName(date, "Jeweller's Orb")),
-      sixLinkValue: 20 * (await ItemPricer.getCurrencyByName(date, 'Orb of Fusing')),
-      rgbLinkedValue: await ItemPricer.getCurrencyByName(date, 'Chromatic Orb'),
-      gcpValue: await ItemPricer.getCurrencyByName(date, "Gemcutter's Prism"),
+      sixSocketValue: 7 * (await ItemPricer.getCurrencyByName("Jeweller's Orb", date)),
+      sixLinkValue: 20 * (await ItemPricer.getCurrencyByName('Orb of Fusing', date)),
+      rgbLinkedValue: await ItemPricer.getCurrencyByName('Chromatic Orb', date),
+      gcpValue: await ItemPricer.getCurrencyByName("Gemcutter's Prism", date),
     };
   }
   return pseudoItemPriceCache[date];
@@ -307,7 +307,7 @@ async function getCurrencyValue(timestamp, item) {
         if (row) {
           resolve(row.value * stackSize);
         } else {
-          var currValue = await ItemPricer.getCurrencyByName(timestamp, currency);
+          var currValue = await ItemPricer.getCurrencyByName(currency, timestamp);
           resolve(currValue * stackSize);
         }
       }

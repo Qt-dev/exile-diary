@@ -854,7 +854,7 @@ async function getBigDrops(char, league) {
     let item = drops[i];
     let date = item.event_id.substring(0, 8);
     if (!divinePrices[date]) {
-      divinePrices[date] = await ItemPricer.getCurrencyByName(date, 'Divine Orb', item.league);
+      divinePrices[date] = await ItemPricer.getCurrencyByName('Divine Orb', date, item.league);
     }
     if (item.value < divinePrices[date]) {
       drops.splice(i, 1);

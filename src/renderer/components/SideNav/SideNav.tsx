@@ -6,28 +6,43 @@ import { MenuList, MenuItem } from '@mui/material';
 import { Link as RouterLink } from 'react-router-dom';
 import { electronService } from '../../electron.service';
 import Logo from '../../assets/img/icons/png/128x128.png';
-import Chaos from '../../assets/img/c.png';
 import Patreon from '../../assets/img/patreon.png';
 import './SideNav.css';
+import ChaosIconImg from '../Pricing/ChaosIcon';
+import Price from '../Pricing/Price';
 const { ipcRenderer } = electronService;
 
-const NetWorth = ({ value, change }) => {
+const ProfitPerHour = ({ value, divinePrice }) => {
+  return (
+    <div className="Profit-Per-Hour">
+      <div className="Profit-Per-Hour__Header">Profit per hr</div>
+      <div className="Profit-Per-Hour__Total__Text">
+        <Price value={value} divinePrice={divinePrice} />
+      </div>
+    </div>
+  );
+};
+
+const NetWorth = ({ value, change, divinePrice }) => {
   const changeClassNames = classNames({
     'Text--Error': change < 0,
     'Text--Legendary': change > 0,
+    'Net-Worth__Change': true,
   });
   const formattedChange = (
     <span className={changeClassNames}>
       {change >= 0 ? '+' : ''}
-      {change.toFixed(2)}
+      <Price value={change.toFixed(2)} divinePrice={divinePrice} />
     </span>
   );
   return (
     <div className="Net-Worth">
       <div>Net Worth:</div>
       <div className="Net-Worth__Total__Text">
-        {value}
-        <img alt="Chaos Icon" className="Net-Worth__Total__Icon" src={Chaos} /> ({formattedChange})
+        <Price value={value} divinePrice={divinePrice} displayChaos={false} />
+      </div>
+      <div>
+        {formattedChange}
       </div>
     </div>
   );
@@ -35,6 +50,7 @@ const NetWorth = ({ value, change }) => {
 
 const SideNav = ({ version, isNewVersion, turnNewVersionOff }) => {
   const [netWorth, setNetWorth] = React.useState(<>---</>);
+  const [profitPerHour, setProfitPerHour] = React.useState(<ProfitPerHour value={0} divinePrice={0} />);
   const [currentPageName, setCurrentPageName] = React.useState('Main');
   // This is to setup an about page if needed
   // const about = () => {
@@ -54,10 +70,17 @@ const SideNav = ({ version, isNewVersion, turnNewVersionOff }) => {
   ];
 
   useEffect(() => {
-    ipcRenderer.on('update-net-worth', (event, { value, change }) => {
-      setNetWorth(<NetWorth value={value} change={change} />);
+    ipcRenderer.on('update-net-worth', (event, { value, change, divinePrice }) => {
+      setNetWorth(<NetWorth value={value} change={change} divinePrice={divinePrice} />);
     });
+    ipcRenderer.on('update-profit-per-hour', (event, { value, divinePrice }) => {
+      setProfitPerHour(<ProfitPerHour value={value} divinePrice={divinePrice} />);
+    });
+    ipcRenderer.invoke('refresh-profit-per-hour');
     ipcRenderer.send('get-net-worth');
+    return () => {
+      ipcRenderer.removeAllListeners('update-net-worth');
+    }
   }, []);
 
   return (
@@ -111,6 +134,7 @@ const SideNav = ({ version, isNewVersion, turnNewVersionOff }) => {
 
       <Divider className="Separator" />
 
+      <div className="Profit-Per-Hour__Container">{profitPerHour}</div>
       <div className="Net-Worth__Container">{netWorth}</div>
 
       <div id="myModal" className="modal">
