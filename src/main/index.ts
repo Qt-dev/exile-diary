@@ -357,7 +357,7 @@ class MainProcess {
     });
 
     StatsManager.registerProfitPerHourAnnouncer((profitPerHour, divinePrice) => {
-      this.sendToMain('update-profit-per-hour', { value: profitPerHour, divinePrice });
+      this.sendToMain('update-profit-per-hour', { profitPerHour, divinePrice });
     });
 
     RunParser.emitter.removeAllListeners();
@@ -558,6 +558,7 @@ class MainProcess {
           },
         ],
       });
+      logger.info('This app is NOT affiliated with or endorsed by Grinding Gear Games in any way.');
       RendererLogger.log({
         messages: [
           {

@@ -8,16 +8,22 @@ import { electronService } from '../../electron.service';
 import Logo from '../../assets/img/icons/png/128x128.png';
 import Patreon from '../../assets/img/patreon.png';
 import './SideNav.css';
-import ChaosIconImg from '../Pricing/ChaosIcon';
 import Price from '../Pricing/Price';
 const { ipcRenderer } = electronService;
 
-const ProfitPerHour = ({ value, divinePrice }) => {
+const ProfitPerHour = ({ hourly, daily, divinePrice }) => {
   return (
     <div className="Profit-Per-Hour">
       <div className="Profit-Per-Hour__Header">Profit per hr</div>
+
+      <div className="Text--small">On last 24h</div>
       <div className="Profit-Per-Hour__Total__Text">
-        <Price value={value} divinePrice={divinePrice} />
+        <Price value={daily} divinePrice={divinePrice} />
+      </div>
+      
+      <div className="Text--small">On last 1h</div>
+      <div className="Profit-Per-Hour__Total__Text">
+        <Price value={hourly} divinePrice={divinePrice} />
       </div>
     </div>
   );
@@ -49,7 +55,7 @@ const NetWorth = ({ value, change, divinePrice }) => {
 const SideNav = ({ version, isNewVersion, turnNewVersionOff }) => {
   const [netWorth, setNetWorth] = React.useState(<>---</>);
   const [profitPerHour, setProfitPerHour] = React.useState(
-    <ProfitPerHour value={0} divinePrice={0} />
+    <ProfitPerHour daily={0} hourly={0} divinePrice={0} />
   );
   const [currentPageName, setCurrentPageName] = React.useState('Main');
   // This is to setup an about page if needed
@@ -73,8 +79,8 @@ const SideNav = ({ version, isNewVersion, turnNewVersionOff }) => {
     ipcRenderer.on('update-net-worth', (event, { value, change, divinePrice }) => {
       setNetWorth(<NetWorth value={value} change={change} divinePrice={divinePrice} />);
     });
-    ipcRenderer.on('update-profit-per-hour', (event, { value, divinePrice }) => {
-      setProfitPerHour(<ProfitPerHour value={value} divinePrice={divinePrice} />);
+    ipcRenderer.on('update-profit-per-hour', (event, { profitPerHour, divinePrice }) => {
+      setProfitPerHour(<ProfitPerHour hourly={profitPerHour.hourly} daily={profitPerHour.daily} divinePrice={divinePrice} />);
     });
     ipcRenderer.invoke('refresh-profit-per-hour');
     ipcRenderer.send('get-net-worth');

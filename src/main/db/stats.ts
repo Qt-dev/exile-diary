@@ -273,17 +273,38 @@ export default {
     }
   },
 
-  getProfitForLastHour: (): number => {
-    const oneHourAgo = dayjs().subtract(1, 'hour').format('YYYYMMDDHHmmss');
+  getProfitPerHour: (beginningOfTracking = dayjs().subtract(1, 'day').format('YYYYMMDDHHmmss')): number => {
     const query = `
-      SELECT sum(value) as profit
-      FROM items
-      WHERE event_id > ?
+    SELECT 
+    SUM(items.value) as total_profit,
+    (
+      SELECT SUM(
+          STRFTIME(
+            '%s',
+            substr(mapruns.lastevent, 1, 4) || '-' || substr(mapruns.lastevent, 5, 2) || '-' || substr(mapruns.lastevent, 7, 2) || ' ' || substr(mapruns.lastevent, 9, 2) ||  ':' ||substr(mapruns.lastevent, 11, 2) || ':' || substr(mapruns.lastevent, 13, 2)
+          )
+        - 	STRFTIME(
+            '%s',
+            substr(mapruns.firstevent, 1, 4) || '-' || substr(mapruns.firstevent, 5, 2) || '-' || substr(mapruns.firstevent, 7, 2) || ' ' || substr(mapruns.firstevent, 9, 2) ||  ':' ||substr(mapruns.firstevent, 11, 2) || ':' || substr(mapruns.firstevent, 13, 2)
+          )
+      )
+      FROM mapruns
+      WHERE mapruns.id > ?
+    ) AS total_time_seconds,
+    COUNT(DISTINCT items.id) AS items,
+    COUNT(DISTINCT mapruns.id) AS runs
+    FROM  mapruns
+      JOIN items
+      ON items.event_id >= mapruns.firstevent
+      AND items.event_id <= mapruns.lastevent
+    WHERE mapruns.id > ?   
     `;
 
     try {
-      const { profit } = DB.get(query, [oneHourAgo]) as { profit: number };
-      return profit ?? 0;
+      logger.info(`Getting profit for last hour ${beginningOfTracking}`, DB.get(query, [beginningOfTracking, beginningOfTracking]));
+      const { total_time_seconds : totalTime, total_profit : profit } = DB.get(query, [beginningOfTracking, beginningOfTracking]) as { total_time_seconds: number, total_profit: number };
+      const profitPerHour = totalTime > 0 ? (profit / totalTime) * 3600 : 0;
+      return parseFloat(profitPerHour.toFixed(2)) ?? 0;
     } catch (err) {
       logger.error(`Error getting profit: ${JSON.stringify(err)}`);
       return 0;

@@ -197,6 +197,10 @@ span.negative {
   color: transparent;
 }
 
+.Text--small {
+  font-size: 0.8em;
+}
+
 .Stats__Table-Header {
   background-color: rgba(155, 155, 155, 0.2);
 }
