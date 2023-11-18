@@ -2,6 +2,7 @@ import SettingsManager from '../SettingsManager';
 import RatesManager from '../RatesManager';
 import { writeFile } from 'fs/promises';
 import Constants from '../../helpers/constants';
+import dayjs from 'dayjs';
 const logger = require('electron-log');
 const ItemData = require('./ItemData');
 const ItemCategoryParser = require('./ItemCategoryParser');
@@ -910,7 +911,7 @@ async function price(
   return { isVendor: matcher.isVendorRecipe(item), value: matcher.price(item, minItemValue) };
 }
 
-async function getCurrencyByName(timestamp, type, league) {
+async function getCurrencyByName(type: string, timestamp = dayjs().format('YYYYMMDD'),  league = SettingsManager.get('activeProfile').league) {
   const rates = await getRatesFor(timestamp, league);
   if (!rates) {
     return 0;

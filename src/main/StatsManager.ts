@@ -4,6 +4,7 @@ import DB from './db/stats';
 import RatesManager from './RatesManager';
 import { Run } from '../helpers/types';
 import Constants from '../helpers/constants';
+import ItemPricer from './modules/ItemPricer';
 const { areas } = Constants;
 
 type GetStatsParams = {
@@ -855,6 +856,33 @@ class StatsManager {
   }
 }
 
+class ProfitTracker {
+  announcer: { announce: Function } | null;
+  announceTimer: NodeJS.Timeout;
+  announceTimerCooldown: number = 30000; // 30 seconds
+  constructor() {
+    this.announcer = null;
+    this.announceTimer = setInterval(() => {
+      this.refreshProfitPerHour();
+    }, this.announceTimerCooldown);
+  }
+  async refreshProfitPerHour() {
+    if(this.announcer) {
+      const profit = this.getProfitPerHour();
+      logger.info(`Updating profit per hour to ${profit}`)
+      this.announcer.announce(profit, await ItemPricer.getCurrencyByName('Divine Orb'));
+    }
+  }
+  getProfitPerHour() {
+    return DB.getProfitForLastHour()
+  }
+  setProfitPerHourAnnouncer(callback) {
+    this.announcer = { announce: callback };
+  }
+}
+
+const profitTracker = new ProfitTracker();
+
 export default {
   getAllStats: async ({ league, characterName }: GetStatsParams) => {
     const runs = (await DB.getAllRuns())?.map(formatRun);
@@ -877,4 +905,17 @@ export default {
     const mods = await DB.getAllPossibleMods();
     return mods;
   },
+
+  getProfitForLastHour: async () => {
+    const profit = await DB.getProfitForLastHour();
+    return profit;
+  },
+
+  registerProfitPerHourAnnouncer: (callback) => {
+    profitTracker.setProfitPerHourAnnouncer(callback);
+  },
+
+  triggerProfitPerHourAnnouncer: () => {
+    profitTracker.refreshProfitPerHour();
+  }
 };
