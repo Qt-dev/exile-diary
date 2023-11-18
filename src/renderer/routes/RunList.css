@@ -4,6 +4,10 @@
   margin-bottom: 16px;
 }
 
+.Run-List {
+  margin-bottom: 30px;
+}
+
 .Run-List__List {
   margin-bottom: 20px;
 }
@@ -47,6 +51,7 @@
 
 .Run-List__Footer {
   margin-top: 10px;
+  margin-bottom: 10px;
   display: flex;
   justify-content: center;
   gap: 25px;
