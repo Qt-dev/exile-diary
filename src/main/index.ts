@@ -569,15 +569,15 @@ class MainProcess {
             type: 'error',
           },
           {
-            text: ' affiliated with or endorsed by '
+            text: ' affiliated with or endorsed by ',
           },
           {
             text: 'Grinding Gear Games',
-            type: 'currency'
+            type: 'currency',
           },
           {
-            text: ' in any way.'
-          }
+            text: ' in any way.',
+          },
         ],
       });
       AuthManager.setLogoutTimer();

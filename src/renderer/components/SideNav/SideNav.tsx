@@ -20,7 +20,7 @@ const ProfitPerHour = ({ hourly, daily, divinePrice }) => {
       <div className="Profit-Per-Hour__Total__Text">
         <Price value={daily} divinePrice={divinePrice} />
       </div>
-      
+
       <div className="Text--small">On last 1h</div>
       <div className="Profit-Per-Hour__Total__Text">
         <Price value={hourly} divinePrice={divinePrice} />
@@ -80,7 +80,13 @@ const SideNav = ({ version, isNewVersion, turnNewVersionOff }) => {
       setNetWorth(<NetWorth value={value} change={change} divinePrice={divinePrice} />);
     });
     ipcRenderer.on('update-profit-per-hour', (event, { profitPerHour, divinePrice }) => {
-      setProfitPerHour(<ProfitPerHour hourly={profitPerHour.hourly} daily={profitPerHour.daily} divinePrice={divinePrice} />);
+      setProfitPerHour(
+        <ProfitPerHour
+          hourly={profitPerHour.hourly}
+          daily={profitPerHour.daily}
+          divinePrice={divinePrice}
+        />
+      );
     });
     ipcRenderer.invoke('refresh-profit-per-hour');
     ipcRenderer.send('get-net-worth');

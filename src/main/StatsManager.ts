@@ -870,9 +870,9 @@ class ProfitTracker {
     if (this.announcer) {
       const profitPerHour = {
         daily: this.getProfitPerHourForLastDay(),
-        hourly: this.getProfitPerHourForLastHour()
+        hourly: this.getProfitPerHourForLastHour(),
       };
-      logger.info(`Updating profit per hour to `,profitPerHour);
+      logger.info(`Updating profit per hour to `, profitPerHour);
 
       this.announcer.announce(profitPerHour, await ItemPricer.getCurrencyByName('Divine Orb'));
     }

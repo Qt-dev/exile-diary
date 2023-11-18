@@ -273,7 +273,9 @@ export default {
     }
   },
 
-  getProfitPerHour: (beginningOfTracking = dayjs().subtract(1, 'day').format('YYYYMMDDHHmmss')): number => {
+  getProfitPerHour: (
+    beginningOfTracking = dayjs().subtract(1, 'day').format('YYYYMMDDHHmmss')
+  ): number => {
     const query = `
     SELECT 
     SUM(items.value) as total_profit,
@@ -301,8 +303,14 @@ export default {
     `;
 
     try {
-      logger.info(`Getting profit for last hour ${beginningOfTracking}`, DB.get(query, [beginningOfTracking, beginningOfTracking]));
-      const { total_time_seconds : totalTime, total_profit : profit } = DB.get(query, [beginningOfTracking, beginningOfTracking]) as { total_time_seconds: number, total_profit: number };
+      logger.info(
+        `Getting profit for last hour ${beginningOfTracking}`,
+        DB.get(query, [beginningOfTracking, beginningOfTracking])
+      );
+      const { total_time_seconds: totalTime, total_profit: profit } = DB.get(query, [
+        beginningOfTracking,
+        beginningOfTracking,
+      ]) as { total_time_seconds: number; total_profit: number };
       const profitPerHour = totalTime > 0 ? (profit / totalTime) * 3600 : 0;
       return parseFloat(profitPerHour.toFixed(2)) ?? 0;
     } catch (err) {
