@@ -10,6 +10,12 @@
   padding: 2px;
 }
 
+.Overlay__Box--Invisible.Overlay__Box.Box {
+  height: 0;
+  width: 0;
+  padding: 0;
+}
+
 .Overlay__Line {
   display: flex;
   flex-direction: line;
@@ -20,6 +26,11 @@
   white-space: nowrap;
   width: 100%;
 }
+/* 
+.Overlay__Line--Invisible {
+  height: 0;
+  width: 0;
+} */
 
 .Overlay__Line__Always-Visible {
   width: 2em;

@@ -9,7 +9,7 @@ import { observer } from 'mobx-react-lite';
 import dayjs, { Dayjs } from 'dayjs';
 import { classPerType } from '../components/LogBox/LogBox';
 import Logo from '../logo.png';
-const { ipcRenderer } = electronService;
+const { ipcRenderer, logger } = electronService;
 const defaultTimer = 3;
 
 const OverlayMapInfoLine = ({ run }) => {
@@ -73,6 +73,7 @@ type OverlayLineProps = {
   latestMapTrackingMessage: ReactNode;
   time?: number;
   isOpen?: boolean;
+  invisible?: boolean;
 };
 
 const OverlayLine = ({
@@ -81,6 +82,7 @@ const OverlayLine = ({
   time = -1,
   isOpen,
   latestMapTrackingMessage,
+  invisible,
 }: OverlayLineProps) => {
   const [open, setOpen] = React.useState((isOpen || time > 0) ?? false);
 
@@ -89,6 +91,7 @@ const OverlayLine = ({
   }, [isOpen, time]);
 
   const lineClassNames = classNames({
+    'Overlay__Line--Invisible': !open && invisible,
     'Overlay__Line--Open': isOpen && time > -1,
     'Overlay__Line--Closed': !isOpen || time < 0,
     'Overlay__Line--Timer-Visible': time > -1,
@@ -155,6 +158,7 @@ const Overlay = ({ store }) => {
   const [latestMessage, setLatestMessage] = React.useState<JSX.Element | null>(<div>---</div>);
   const [latestMapTrackingMessage, setLatestMapTrackingMessage] =
     React.useState<JSX.Element | null>(<div>---</div>);
+  const [persistenceDisabled, setPersistenceDisabled] = React.useState(true);
 
   // Timer management
   const [time, setTime] = React.useState(defaultTimer);
@@ -215,15 +219,20 @@ const Overlay = ({ store }) => {
 
   const boxClassNames = classNames({
     'Overlay__Box--Open': open,
+    'Overlay__Box--Invisible': !open && time <= 0 && notificationTime <= 0 && persistenceDisabled,
     Overlay__Box: true,
     Box: true,
   });
 
-  // Reset the timer if the run has changed
   useLayoutEffect(() => {
     ipcRenderer.removeAllListeners('overlay:trigger-resize');
     ipcRenderer.on('overlay:trigger-resize', () => {
       updateSize(sizeRef.current);
+    });
+    ipcRenderer.removeAllListeners('overlay:set-persistence');
+    ipcRenderer.on('overlay:set-persistence', (event, isDisabled) => {
+      logger.info('Setting persistence to', isDisabled);
+      setPersistenceDisabled(isDisabled);
     });
   }, []);
 
@@ -232,7 +241,11 @@ const Overlay = ({ store }) => {
       setNotificationTime(defaultTimer);
       setLatestMessage(<OverlayNotificationLine messages={messages} />);
     });
+    ipcRenderer.invoke('overlay:get-persistence').then((isDisabled) => {
+      setPersistenceDisabled(isDisabled);
+    });
   }, []);
+
   useEffect(() => {
     if (store.currentRun.lastUpdate.isAfter(lastUpdate)) {
       setLastUpdate(store.currentRun.lastUpdate);
@@ -241,11 +254,12 @@ const Overlay = ({ store }) => {
     }
   }, [store.currentRun, store.currentRun.lastUpdate, lastUpdate]);
 
-  // Change latestMapTrackingMessage to actually just open the OL
+  // TODO: Change latestMapTrackingMessage to actually just open the OL
   return (
     <div className="Overlay" ref={ref}>
       <div className={boxClassNames}>
         <OverlayLine
+          invisible={persistenceDisabled}
           time={time}
           isOpen={open && time > -1}
           alwaysVisibleChildren={
@@ -256,9 +270,12 @@ const Overlay = ({ store }) => {
           <OverlayMapInfoLine run={store.currentRun} />
         </OverlayLine>
         <OverlayLine
+          invisible={persistenceDisabled}
           time={notificationTime}
           isOpen={open && notificationTime > -1}
-          alwaysVisibleChildren={<img className="Overlay__Logo" src={Logo} alt="Logo" />}
+          alwaysVisibleChildren={
+            <img className="Overlay__Logo" src={Logo} alt="Logo" />
+          }
           latestMapTrackingMessage={latestMessage}
         >
           {latestMessage}
