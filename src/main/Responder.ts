@@ -186,6 +186,11 @@ const debugFetchStashTabs = async () => {
   await StashTabsManager.refresh();
 }
 
+const fetchOverlayPersistanceStatus = async () => {
+  logger.info('Fetching Overlay Persistence status for the overlay');
+  return await SettingsManager.get('overlayPersistenceDisabled');
+};
+
 const Responder = {
   'app-globals': getAppGlobals,
   'load-runs': loadRuns,
@@ -199,6 +204,7 @@ const Responder = {
   'oauth:get-info': getAuthInfo,
   'oauth:is-authenticated': isAuthenticated,
   'oauth:logout': logout,
+  'overlay:get-persistence': fetchOverlayPersistanceStatus, 
   'get-all-stats': getAllStats,
   'get-stash-tabs': getStashTabs,
   'search:trigger': triggerSearch,

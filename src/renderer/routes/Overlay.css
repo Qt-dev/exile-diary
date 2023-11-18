@@ -4,6 +4,10 @@
   overscroll-behavior: contain;
   width: fit-content;
 }
+.Overlay__Box--Invisible {
+  height: 0;
+  width: 0;
+}
 
 .Overlay__Box.Box {
   overflow: hidden;
@@ -20,6 +24,11 @@
   white-space: nowrap;
   width: 100%;
 }
+/* 
+.Overlay__Line--Invisible {
+  height: 0;
+  width: 0;
+} */
 
 .Overlay__Line__Always-Visible {
   width: 2em;
