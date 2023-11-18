@@ -15,3 +15,5 @@ Get the latest version in the [Releases Page](https://github.com/qt-dev/exile-di
 Read more info about how to set it up in the [Documentation](https://github.com/qt-dev/exile-diary/wiki/How-to-track-your-map-runs).
 
 For more information, join us on discord on https://discord.gg/CajttP5aR2
+
+This product isn't affiliated with or endorsed by Grinding Gear Games in any way.
