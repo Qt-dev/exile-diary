@@ -16,16 +16,16 @@ const { ipcRenderer } = electronService;
 
 const DebugSettings = ({ runStore }) => {
   const now = dayjs();
-  const [reCalculateProfitStart, setReCalculateProfitStart] = React.useState<Dayjs | null>(now);
-  const [reCalculateProfitEnd, setReCalculateProfitEnd] = React.useState<Dayjs | null>(now);
+  const [reCalculateProfitStart, setReCalculateProfitStart] = React.useState<Dayjs | null>(now.startOf('day'));
+  const [reCalculateProfitEnd, setReCalculateProfitEnd] = React.useState<Dayjs | null>(now.endOf('day'));
   const [isFetchingRates, setIsFetchingRates] = React.useState(false);
   const [isRecalculatingProfit, setIsRecalculatingProfit] = React.useState(false);
   const [isFetchingStashTabs, setIsFetchingStashTabs] = React.useState(false);
   const handleReCalculateProfit = async () => {
     setIsRecalculatingProfit(true);
     await ipcRenderer.invoke('debug:recheck-gain', {
-      from: reCalculateProfitStart?.format('YYYYMMDD'),
-      to: reCalculateProfitEnd?.format('YYYYMMDD'),
+      from: reCalculateProfitStart?.format('YYYYMMDDHHmmss'),
+      to: reCalculateProfitEnd?.format('YYYYMMDDHHmmss'),
     });
     await runStore.loadRuns();
     setIsRecalculatingProfit(false);

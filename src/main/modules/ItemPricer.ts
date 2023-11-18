@@ -270,7 +270,10 @@ class PriceMatcher {
       name: 'Non-Unique Bases',
       test: (item: any) => baseTypeRarities.includes(item.rarity),
       calculateValue: (item: any, minItemValue: number = 0) =>
+        Math.max(
         this.getBaseTypeValue(item, minItemValue),
+          this.getVendorRecipeValue(item, minItemValue)
+        ),
     },
     // // Removed from Poe.Ninja
     // {
@@ -461,7 +464,7 @@ class PriceMatcher {
     if (log) {
       logger.info('Returning vendor value ' + vendorValue);
     }
-    return minItemValue && minItemValue < vendorValue ? vendorValue : 0;
+    return (minItemValue > 0  && minItemValue > vendorValue) ? 0 : vendorValue;
   }
 
   /**
@@ -753,9 +756,7 @@ class PriceMatcher {
       }
     }
 
-    const value = this.getValue(item, 'UniqueItem', identifier, minItemValue);
-    const vendorValue = this.getVendorRecipeValue(item, minItemValue);
-    return Math.max(value, vendorValue);
+    return this.getValue(item, 'UniqueItem', identifier, minItemValue);
   }
 
   /**
@@ -852,8 +853,7 @@ class PriceMatcher {
     const values = possibleIdentifiers.map((Identifier) => {
       return this.getValue(item, 'BaseType', identifier, minItemValue);
     });
-    const vendorValue = this.getVendorRecipeValue(item, minItemValue);
-    return Math.max(...values, vendorValue);
+    return Math.max(...values);
   }
 
   /**

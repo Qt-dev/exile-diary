@@ -1436,7 +1436,7 @@ function getNPCLine(str) {
   };
 }
 
-async function recheckGained(from = 0, to = dayjs().format('YYYYMMDD')) {
+async function recheckGained(from = 0, to = dayjs().format('YYYYMMDDHHmmss')) {
   RendererLogger.log({
     messages: [
       { text: 'Rechecking map profits from ' },
