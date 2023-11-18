@@ -46,7 +46,7 @@ class DB {
     const statement = db.prepare(query);
     const runMany = db.transaction((params) => {
       for (const param of params) statement.run(param);
-    })
+    });
     const result = runMany(params);
     return result;
   }

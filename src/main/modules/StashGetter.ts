@@ -77,13 +77,18 @@ class StashGetter {
       return;
     }
 
-    RendererLogger.log({ messages: [
-      { text: 'Refreshing Stash tabs for ' },
-      { text: settings.trackedStashTabs[settings.activeProfile.league].length ?? 0, type: 'important' },
-      { text: ' tabs in ' },
-      { text: settings.activeProfile.league, type: 'important' },
-      { text: ' league' }
-    ] });
+    RendererLogger.log({
+      messages: [
+        { text: 'Refreshing Stash tabs for ' },
+        {
+          text: settings.trackedStashTabs[settings.activeProfile.league].length ?? 0,
+          type: 'important',
+        },
+        { text: ' tabs in ' },
+        { text: settings.activeProfile.league, type: 'important' },
+        { text: ' league' },
+      ],
+    });
 
     this.get();
   }
@@ -110,7 +115,7 @@ class StashGetter {
   }
 
   async get(interval = 10) {
-    if(this.isFetching) {
+    if (this.isFetching) {
       logger.error('Already fetching rates for the day, aborting the new request');
       return this.waitForUpdate();
     }
@@ -127,7 +132,7 @@ class StashGetter {
         }
         return;
       }
-  
+
       let watchedTabs = [];
       if (
         settings.trackedStashTabs &&
@@ -143,29 +148,29 @@ class StashGetter {
         logger.info('Tabs to monitor not yet set, will retrieve none');
         return;
       }
-  
+
       let getFullStash = await this.checkFullStashInterval();
       const timestamp = dayjs().format('YYYYMMDDHHmmss');
-  
+
       const params = {
         league: settings.activeProfile.league,
         trackedStashTabs: watchedTabs,
         accountName: settings.username,
         timestamp: timestamp,
       };
-  
+
       const tabList = await this.getTabList(params);
       if (!tabList || tabList.length === 0) {
         logger.info('Failed to get tab list, will try again later');
         emitter.emit('scheduleNewStashCheck');
         return;
       }
-  
+
       const tabs: ParsedTabData = {
         value: 0,
         items: [],
       };
-  
+
       for (const tab of tabList) {
         const tabData = await this.getTabData(tab, params);
         if (tabData && tabData.items && tabData.items.length > 0) {
@@ -174,7 +179,7 @@ class StashGetter {
           tabs.items = tabs.items.concat(tabData.items);
         }
       }
-  
+
       if (tabs.items.length > 0) {
         const { value: latestStashValue } = await DB.getLatestStashValue(
           settings.activeProfile.league
@@ -184,9 +189,9 @@ class StashGetter {
           Number(tabs.value).toFixed(2) === Number(latestStashValue).toFixed(2)
         ) {
           logger.info(
-            `No change in ${settings.activeProfile.league} stash value (${Number(tabs.value).toFixed(
-              2
-            )}) since last update`
+            `No change in ${settings.activeProfile.league} stash value (${Number(
+              tabs.value
+            ).toFixed(2)}) since last update`
           );
           emitter.emit('netWorthUpdated', { value: Number(tabs.value).toFixed(2), change: 0 });
           emitter.emit('scheduleNewStashCheck');
@@ -204,7 +209,7 @@ class StashGetter {
             emitter.emit('scheduleNewStashCheck');
             return;
           }
-  
+
           try {
             const value = await DB.getPreviousStashValue(timestamp, settings.activeProfile.league);
             let change = 0;

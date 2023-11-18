@@ -29,7 +29,9 @@ const getAppGlobals = async () => {
 };
 
 const loadRuns = async (e, { size }) => {
-  logger.info(`Loading ${size === Number.MAX_SAFE_INTEGER ? 'all' : size} runs from the main process`);
+  logger.info(
+    `Loading ${size === Number.MAX_SAFE_INTEGER ? 'all' : size} runs from the main process`
+  );
   return await Runs.getLastRuns(size);
 };
 
@@ -184,7 +186,7 @@ const debugFetchRates = async () => {
 const debugFetchStashTabs = async () => {
   logger.info('Fetching stash tabs from the renderer process');
   await StashTabsManager.refresh();
-}
+};
 
 const fetchOverlayPersistanceStatus = async () => {
   logger.info('Fetching Overlay Persistence status for the overlay');
@@ -204,7 +206,7 @@ const Responder = {
   'oauth:get-info': getAuthInfo,
   'oauth:is-authenticated': isAuthenticated,
   'oauth:logout': logout,
-  'overlay:get-persistence': fetchOverlayPersistanceStatus, 
+  'overlay:get-persistence': fetchOverlayPersistanceStatus,
   'get-all-stats': getAllStats,
   'get-stash-tabs': getStashTabs,
   'search:trigger': triggerSearch,

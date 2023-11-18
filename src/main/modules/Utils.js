@@ -293,7 +293,10 @@ const Utils = {
       icon = icon.substring(0, icon.indexOf('?'));
     }
     // unique flasks have encoded URLs, need to extract flask ID
-    if (icon.includes('https://web.poecdn.com/gen/image/') || icon.includes('https://www.pathofexile.com/gen/image/')) {
+    if (
+      icon.includes('https://web.poecdn.com/gen/image/') ||
+      icon.includes('https://www.pathofexile.com/gen/image/')
+    ) {
       var jsonData = Utils.getBase64EncodedData(icon);
       if (jsonData.f.includes('/Flasks/')) {
         return getFlaskName(jsonData.f);

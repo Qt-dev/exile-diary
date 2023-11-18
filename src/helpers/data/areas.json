@@ -504,8 +504,6 @@
     "Absence of Patience and Wisdom",
     "Absence of Symmetry and Harmony"
   ],
-  "sanctum": [ "The Forbidden Sanctum" ],
-  "tota": [
-    "The Halls of the Dead"
-  ]
+  "sanctum": ["The Forbidden Sanctum"],
+  "tota": ["The Halls of the Dead"]
 }

@@ -94,7 +94,13 @@ const router = createHashRouter([
       },
       {
         path: 'settings',
-        element: <Settings characterStore={characterStore} stashTabStore={stashTabStore} runStore={runStore} />,
+        element: (
+          <Settings
+            characterStore={characterStore}
+            stashTabStore={stashTabStore}
+            runStore={runStore}
+          />
+        ),
         loader: async () => {
           const settings = await ipcRenderer.invoke('get-settings');
           return { settings };

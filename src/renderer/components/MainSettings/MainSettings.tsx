@@ -239,7 +239,12 @@ const MainSettings = ({ settings, store, runStore }) => {
         </div>
         <div className="Settings__Checkbox__Row">
           <FormControlLabel
-            control={<Checkbox id="overlay_persistence_disabled" defaultChecked={overlayPersistenceDisabled} />}
+            control={
+              <Checkbox
+                id="overlay_persistence_disabled"
+                defaultChecked={overlayPersistenceDisabled}
+              />
+            }
             label="Disable Overlay Persistence (= Always visible overlay)"
           />
         </div>

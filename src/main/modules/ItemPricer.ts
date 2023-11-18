@@ -22,9 +22,7 @@ const nonPricedCategories = [
   'Heist Gear',
   'Heist Tool',
 ];
-const nonPricedTypelines = [
-  'Talisman',
-];
+const nonPricedTypelines = ['Talisman'];
 
 const abyssItems = [
   'Bubonic Trail',
@@ -42,10 +40,10 @@ let ratesCache = {};
 let matchers = {};
 
 type PriceMatch = {
-  name: string,
-  test: (item: any) => boolean,
-  calculateValue: (item: any, minItemValue?: number) => number,
-}
+  name: string;
+  test: (item: any) => boolean;
+  calculateValue: (item: any, minItemValue?: number) => number;
+};
 
 /**
  * Base function to get all of the rates for one league for one day
@@ -86,164 +84,192 @@ class PriceMatcher {
     test: (name) => true,
     generateString: (name, level, quality, corrupted) => {
       let formattedString = `${name}${level >= 4 ? ` L${level}` : ''}`;
-      if(quality === 23) {
-        formattedString +=` Q${quality}`;
+      if (quality === 23) {
+        formattedString += ` Q${quality}`;
       } else if (quality >= 20) {
-        formattedString +=' Q20';
+        formattedString += ' Q20';
       }
       return formattedString;
-    }
+    },
   };
 
   GemFormats = [
     {
       test: (name) => name.includes('Awakened'),
       generateString: (name, level, quality, corrupted) => {
-        let formattedString = `${name}${level >= 4 ? ` L${level}` : ''}`
-        if(quality === 23) {
-          formattedString +=` Q${quality}`;
+        let formattedString = `${name}${level >= 4 ? ` L${level}` : ''}`;
+        if (quality === 23) {
+          formattedString += ` Q${quality}`;
         } else if (quality >= 20) {
-          formattedString +=' Q20';
+          formattedString += ' Q20';
         }
         return formattedString;
-      }
+      },
     },
     {
-      test: (name) => name.includes('Empower') || name.includes('Enlighten') || name.includes('Enhance'),
+      test: (name) =>
+        name.includes('Empower') || name.includes('Enlighten') || name.includes('Enhance'),
       generateString: (name, level, quality, corrupted) => {
         return `${name}${level >= 2 ? ` L${level}` : ''}`;
-      }
+      },
     },
     {
       test: (name) => name.includes('Brand Recall'),
       generateString: (name, level, quality, corrupted) => {
         let formattedString = `${name}${level >= 6 ? ` L${level}` : ''}`;
-        if(quality === 23) {
-          formattedString +=` Q${quality}`;
+        if (quality === 23) {
+          formattedString += ` Q${quality}`;
         } else if (quality >= 20) {
-          formattedString +=' Q20';
+          formattedString += ' Q20';
         }
         return formattedString;
-      }
-    }
+      },
+    },
   ];
 
-  DefaultPriceMatch : PriceMatch = {
-    name: "Default",
+  DefaultPriceMatch: PriceMatch = {
+    name: 'Default',
     test: (item: any) => true,
-    calculateValue: (item : any, minItemValue: number = 0) => 0,
+    calculateValue: (item: any, minItemValue: number = 0) => 0,
   };
-  PriceMatches : PriceMatch[] = [
+  PriceMatches: PriceMatch[] = [
     {
       name: "Rogue's Marker",
       test: (item: any) => item.typeline === "Rogue's Marker",
-      calculateValue: (item : any, minItemValue: number = 0) => 0,
+      calculateValue: (item: any, minItemValue: number = 0) => 0,
     },
     {
-      name: "Quest Item",
+      name: 'Quest Item',
       test: (item: any) => item.rarity === 'Quest Item',
-      calculateValue: (item : any, minItemValue: number = 0) => 0,
+      calculateValue: (item: any, minItemValue: number = 0) => 0,
     },
     {
-      name: "Non-Priced Category",
+      name: 'Non-Priced Category',
       test: (item: any) => nonPricedCategories.includes(item.category),
-      calculateValue: (item : any, minItemValue: number = 0) => 0,
+      calculateValue: (item: any, minItemValue: number = 0) => 0,
     },
     {
-      name: "Other Items to Ignore",
-      test: (item: any) => !!nonPricedTypelines.find(type => item.typeline && item.typeline.includes(type)),
-      calculateValue: (item : any, minItemValue: number = 0) => 0,
+      name: 'Other Items to Ignore',
+      test: (item: any) =>
+        !!nonPricedTypelines.find((type) => item.typeline && item.typeline.includes(type)),
+      calculateValue: (item: any, minItemValue: number = 0) => 0,
     },
     {
-      name: "Currency Shards",
+      name: 'Currency Shards',
       test: (item: any) => Constants.shardTypes[item.typeline],
-      calculateValue: (item : any, minItemValue: number = 0) => this.getCurrencyShardStackValue(minItemValue, item, item.typeline),
+      calculateValue: (item: any, minItemValue: number = 0) =>
+        this.getCurrencyShardStackValue(minItemValue, item, item.typeline),
     },
     {
-      name: "Splinters",
-      test: (item: any) => !!SettingsManager.get('alternateSplinterPricing') && Constants.fragmentTypes[item.typeline],
-      calculateValue: (item : any, minItemValue: number = 0) => this.getSplinterStackValue(minItemValue, item, item.typeline),
+      name: 'Splinters',
+      test: (item: any) =>
+        !!SettingsManager.get('alternateSplinterPricing') && Constants.fragmentTypes[item.typeline],
+      calculateValue: (item: any, minItemValue: number = 0) =>
+        this.getSplinterStackValue(minItemValue, item, item.typeline),
     },
     {
-      name: "Other Fragments",
-      test: (item: any) => item.category === 'Map Fragments' ||
+      name: 'Other Fragments',
+      test: (item: any) =>
+        item.category === 'Map Fragments' ||
         (item.category === 'Labyrinth Items' && item.typeline.endsWith('to the Goddess')),
-      calculateValue: (item : any, minItemValue: number = 0) => this.getValue(item, 'Fragment', item.typeline, minItemValue),
+      calculateValue: (item: any, minItemValue: number = 0) =>
+        this.getValue(item, 'Fragment', item.typeline, minItemValue),
     },
     {
-      name: "Tattoo",
+      name: 'Tattoo',
       test: (item: any) => item.typeline && item.typeline.includes('Tattoo'),
-      calculateValue: (item : any, minItemValue: number = 0) => this.getValue(item, 'Tattoo', item.typeline, minItemValue),
+      calculateValue: (item: any, minItemValue: number = 0) =>
+        this.getValue(item, 'Tattoo', item.typeline, minItemValue),
     },
     {
-      name: "Omen",
+      name: 'Omen',
       test: (item: any) => item.typeline && item.typeline.includes('Omen'),
-      calculateValue: (item : any, minItemValue: number = 0) => this.getValue(item, 'Omen', item.typeline, minItemValue),
+      calculateValue: (item: any, minItemValue: number = 0) =>
+        this.getValue(item, 'Omen', item.typeline, minItemValue),
     },
     {
-      name: "Incubator",
+      name: 'Incubator',
       test: (item: any) => item.typeline && item.typeline.includes('Incubator'),
-      calculateValue: (item : any, minItemValue: number = 0) => this.getValue(item, 'Currency', item.typeline, minItemValue),
+      calculateValue: (item: any, minItemValue: number = 0) =>
+        this.getValue(item, 'Currency', item.typeline, minItemValue),
     },
     {
-      name: "Currency",
+      name: 'Currency',
       test: (item: any) => item.rarity === 'Currency',
-      calculateValue: (item : any, minItemValue: number = 0) => this.getValue(item, 'Currency', item.typeline, minItemValue),
+      calculateValue: (item: any, minItemValue: number = 0) =>
+        this.getValue(item, 'Currency', item.typeline, minItemValue),
     },
     {
-      name: "Unique Maps",
+      name: 'Unique Maps',
       test: (item: any) => item.category === 'Maps' && item.rarity === 'Unique',
-      calculateValue: (item : any, minItemValue: number = 0) => this.getUniqueMapValue(item, minItemValue),
+      calculateValue: (item: any, minItemValue: number = 0) =>
+        this.getUniqueMapValue(item, minItemValue),
     },
     {
-      name: "Unique Helmets",
+      name: 'Unique Helmets',
       test: (item: any) => item.category === 'Helmets' && item.rarity === 'Unique',
-      calculateValue: (item : any, minItemValue: number = 0) => Math.max(this.getUniqueItemValue(item, minItemValue), this.getHelmetEnchantValue(item, minItemValue)),
+      calculateValue: (item: any, minItemValue: number = 0) =>
+        Math.max(
+          this.getUniqueItemValue(item, minItemValue),
+          this.getHelmetEnchantValue(item, minItemValue)
+        ),
     },
     {
-      name: "Non-Unique Flasks and Jewels",
-      test: (item: any) => item.typeline && (item.typeline.includes('Flask') || item.typeline.includes('Jewel')) && baseTypeRarities.includes(item.rarity),
-      calculateValue: (item : any, minItemValue: number = 0) => 0,
+      name: 'Non-Unique Flasks and Jewels',
+      test: (item: any) =>
+        item.typeline &&
+        (item.typeline.includes('Flask') || item.typeline.includes('Jewel')) &&
+        baseTypeRarities.includes(item.rarity),
+      calculateValue: (item: any, minItemValue: number = 0) => 0,
     },
     {
-      name: "Non-Unique Helmets",
+      name: 'Non-Unique Helmets',
       test: (item: any) => item.category === 'Helmets' && baseTypeRarities.includes(item.rarity),
-      calculateValue: (item : any, minItemValue: number = 0) => Math.max(this.getBaseTypeValue(item, minItemValue), this.getHelmetEnchantValue(item, minItemValue)),
+      calculateValue: (item: any, minItemValue: number = 0) =>
+        Math.max(
+          this.getBaseTypeValue(item, minItemValue),
+          this.getHelmetEnchantValue(item, minItemValue)
+        ),
     },
     {
-      name: "Skill Gem",
+      name: 'Skill Gem',
       test: (item: any) => item.category === 'Skill Gems',
-      calculateValue: (item : any, minItemValue: number = 0) => this.getGemValue(minItemValue, item),
+      calculateValue: (item: any, minItemValue: number = 0) => this.getGemValue(minItemValue, item),
     },
     {
-      name: "Invitations",
-      test: (item: any) => item.typeline && item.typeline.includes("Invitation"),
-      calculateValue: (item : any, minItemValue: number = 0) => this.getValue(item, 'Invitation', item.typeline, minItemValue),
+      name: 'Invitations',
+      test: (item: any) => item.typeline && item.typeline.includes('Invitation'),
+      calculateValue: (item: any, minItemValue: number = 0) =>
+        this.getValue(item, 'Invitation', item.typeline, minItemValue),
     },
     {
-      name: "Memory",
+      name: 'Memory',
       test: (item: any) => item.typeline && item.typeline.includes("'s Memory"),
-      calculateValue: (item : any, minItemValue: number = 0) => this.getValue(item, 'Memory', item.typeline, minItemValue),
+      calculateValue: (item: any, minItemValue: number = 0) =>
+        this.getValue(item, 'Memory', item.typeline, minItemValue),
     },
     {
-      name: "Map",
+      name: 'Map',
       test: (item: any) => item.category === 'Maps',
-      calculateValue: (item : any, minItemValue: number = 0) => this.getMapValue(item, minItemValue),
+      calculateValue: (item: any, minItemValue: number = 0) => this.getMapValue(item, minItemValue),
     },
     {
-      name: "Divination Card",
+      name: 'Divination Card',
       test: (item: any) => item.category === 'Divination Card',
-      calculateValue: (item : any, minItemValue: number = 0) => this.getDivinationCardValue(item, minItemValue),
+      calculateValue: (item: any, minItemValue: number = 0) =>
+        this.getDivinationCardValue(item, minItemValue),
     },
     {
-      name: "Unique Items",
+      name: 'Unique Items',
       test: (item: any) => item.rarity === 'Unique',
-      calculateValue: (item : any, minItemValue: number = 0) => this.getUniqueItemValue(item, minItemValue),
+      calculateValue: (item: any, minItemValue: number = 0) =>
+        this.getUniqueItemValue(item, minItemValue),
     },
     {
-      name: "Non-Unique Bases",
+      name: 'Non-Unique Bases',
       test: (item: any) => baseTypeRarities.includes(item.rarity),
-      calculateValue: (item : any, minItemValue: number = 0) => this.getBaseTypeValue(item, minItemValue),
+      calculateValue: (item: any, minItemValue: number = 0) =>
+        this.getBaseTypeValue(item, minItemValue),
     },
     // // Removed from Poe.Ninja
     // {
@@ -263,7 +289,7 @@ class PriceMatcher {
     //   test: (item: any) => item.category === 'Stackable Currency' && item.typeline.includes('Prophecy'),
     //   calculateValue: (item : any, minItemValue: number = 0) => this.getValue(item, 'Prophecy', item.typeline, minItemValue),
     // },
-  ]
+  ];
 
   constructor(date: string) {
     this.date = date;
@@ -281,7 +307,7 @@ class PriceMatcher {
   /**
    * Base function to get value from the rates table
    * @param {any}     item                  Item to get the value of
-   * @param {string}  table                 Name of the table to get the value from 
+   * @param {string}  table                 Name of the table to get the value from
    * @param {string}  [inputIdentifier='']  Override of an item identifier if need be
    * @returns {number}  Value of the item in chaos
    */
@@ -296,8 +322,8 @@ class PriceMatcher {
     // handle items that stack - minItemValue is for exactly 1 of the item
     const unitValue = this.ratesCache[table][identifier];
 
-    if(!unitValue) {
-      if(log) {
+    if (!unitValue) {
+      if (log) {
         logger.info(`[${table}] : ${identifier} => No value found, returning 0`);
       }
       return 0;
@@ -307,7 +333,7 @@ class PriceMatcher {
     if (log) {
       logger.info(`[${table}] : ${identifier} => ${value}`);
     }
-    return (minItemValue < value) ? value : 0;
+    return minItemValue < value ? value : 0;
   }
 
   /**
@@ -315,8 +341,8 @@ class PriceMatcher {
    * @param {any} item Item to get the value of
    * @returns {PriceMatch}  The first pricing rule that matches the item
    */
-  match(item: any) : PriceMatch {
-    return this.PriceMatches.find(match => match.test(item)) ?? this.DefaultPriceMatch;
+  match(item: any): PriceMatch {
+    return this.PriceMatches.find((match) => match.test(item)) ?? this.DefaultPriceMatch;
     // return this.DefaultPriceMatch;
   }
 
@@ -329,8 +355,10 @@ class PriceMatcher {
   price(item: any, minItemValue: number): number {
     const pricingRule = this.match(item);
     const calculatedValue = pricingRule.calculateValue(item, minItemValue);
-    if(log) {
-      logger.info(`Calculated Value: ${calculatedValue} for ${item.typeline} using Rule: ${pricingRule.name} (minItemValue: ${minItemValue})`);
+    if (log) {
+      logger.info(
+        `Calculated Value: ${calculatedValue} for ${item.typeline} using Rule: ${pricingRule.name} (minItemValue: ${minItemValue})`
+      );
     }
     return calculatedValue;
   }
@@ -354,7 +382,7 @@ class PriceMatcher {
   /**
    * Get the string value of the number of abyss sockets used by Poe.ninja
    * @param {string} sockets Sockets array from the item representation in the API
-   * @param {string} identifier Identifier of the item 
+   * @param {string} identifier Identifier of the item
    * @returns {string} String representing the number of abyss sockets on the item in the format used by poe.ninja
    */
   getAbyssSockets(sockets: string, identifier: string): string {
@@ -378,7 +406,7 @@ class PriceMatcher {
    */
   getUnidMeanValue(possibleIdentifiers: string[], minItemValue: number): number {
     const possibleValues = possibleIdentifiers.map((identifier: string) => {
-      return this.getValue({typeline: identifier}, 'UniqueItem', identifier, minItemValue);
+      return this.getValue({ typeline: identifier }, 'UniqueItem', identifier, minItemValue);
     });
 
     const min = Math.min(...possibleValues);
@@ -404,29 +432,35 @@ class PriceMatcher {
         if (sockets.length === 1) {
           // 6L Recipe pricing
           // TODO: Centralize these
-          vendorValue = this.getValue({typeline: 'Orb of Fusing'}, 'Currency', 'Orb of Fusing') * 20;
+          vendorValue =
+            this.getValue({ typeline: 'Orb of Fusing' }, 'Currency', 'Orb of Fusing') * 20;
         } else {
           // 6S Recipe pricing
-          vendorValue = this.getValue({typeline: 'Jeweller\'s Orb'}, 'Currency', 'Jeweller\'s Orb') * 7;
+          vendorValue =
+            this.getValue({ typeline: "Jeweller's Orb" }, 'Currency', "Jeweller's Orb") * 7;
         }
       } else {
         for (let i = 0; i < sockets.length; i++) {
           if (sockets[i].includes('R') && sockets[i].includes('G') && sockets[i].includes('B')) {
-            vendorValue = this.getValue({typeline: 'Chromatic Orb'}, 'Currency', 'Chromatic Orb');
+            vendorValue = this.getValue({ typeline: 'Chromatic Orb' }, 'Currency', 'Chromatic Orb');
           }
         }
       }
     } else if (item.category && item.category.includes('Skill Gems')) {
       let quality = ItemData.getQuality(item.parsedItem);
       if (quality >= 20) {
-        vendorValue = this.getValue({typeline: 'Gemcutter\'s Prism'}, 'Currency', 'Gemcutter\'s Prism');
+        vendorValue = this.getValue(
+          { typeline: "Gemcutter's Prism" },
+          'Currency',
+          "Gemcutter's Prism"
+        );
       }
     }
 
     if (log) {
       logger.info('Returning vendor value ' + vendorValue);
     }
-    return (minItemValue && minItemValue < vendorValue) ? vendorValue : 0;
+    return minItemValue && minItemValue < vendorValue ? vendorValue : 0;
   }
 
   /**
@@ -436,9 +470,15 @@ class PriceMatcher {
    */
   isVendorRecipe(item: any): boolean {
     const sockets = ItemData.getSockets(item.parsedItem);
-    return ItemData.countSockets(sockets) === 6 || // 6L or 6S
-      sockets.some((socket) => socket.includes('R') && socket.includes('G') && socket.includes('B')) || // RGB
-      (item.category && item.category.includes('Skill Gems') && ItemData.getQuality(item.parsedItem) >= 20);  // 20% quality Gem
+    return (
+      ItemData.countSockets(sockets) === 6 || // 6L or 6S
+      sockets.some(
+        (socket) => socket.includes('R') && socket.includes('G') && socket.includes('B')
+      ) || // RGB
+      (item.category &&
+        item.category.includes('Skill Gems') &&
+        ItemData.getQuality(item.parsedItem) >= 20)
+    ); // 20% quality Gem
   }
 
   /**
@@ -463,7 +503,7 @@ class PriceMatcher {
    */
   getMapSeriesFromBase64Icon(icon: string): string {
     const data = Utils.getBase64EncodedData(icon);
-    const seriesFromMn = data.mn ? this.MapSeries.find(series => series.id === data.mn) : false;
+    const seriesFromMn = data.mn ? this.MapSeries.find((series) => series.id === data.mn) : false;
     if (seriesFromMn) {
       return seriesFromMn.name;
     } else {
@@ -490,7 +530,9 @@ class PriceMatcher {
       return this.getMapSeriesFromBase64Icon(icon);
     }
 
-    const seriesFromMn = icon.includes('mn=') ? this.MapSeries.find(series => icon.includes(`mn=${series.id}`)) : false;
+    const seriesFromMn = icon.includes('mn=')
+      ? this.MapSeries.find((series) => icon.includes(`mn=${series.id}`))
+      : false;
 
     if (seriesFromMn) {
       return seriesFromMn.name;
@@ -506,7 +548,7 @@ class PriceMatcher {
 
   /**
    * Get the Identifier of a gem in the right Poe.ninja format
-   * @param {string}  name    Name of the Gem 
+   * @param {string}  name    Name of the Gem
    * @param {number}  level   Level of the Gem
    * @param {number}  quality Quality of the Gem
    * @param {boolean} corrupted  Whether or not the Gem is corrupted
@@ -523,7 +565,6 @@ class PriceMatcher {
   }
 
   // Specific Pricing Calculations
-
 
   /**
    * Get the value of a currency shard stack. Takes minItemValue into account by itself, to output 0 if the value of one shard is below the value.
@@ -552,7 +593,7 @@ class PriceMatcher {
    * Get the value of Splinters based on the result item of a stack. Takes minItemValue into account by itself, to output 0 if the value of one splinter is below the value.
    * @param {number}  minItemValue  Minimum value of an item. Anything below this will make the function return 0
    * @param {any}     item          Item to get the value of
-   * @param {string}  identifier    Identifier of the item 
+   * @param {string}  identifier    Identifier of the item
    * @returns {number}  Value of the item in chaos
    */
   getSplinterStackValue(minItemValue: number, item: any, identifier: string): number {
@@ -560,7 +601,7 @@ class PriceMatcher {
     const type = fragmentType.itemType ?? 'Fragment';
     const splinterValue = this.getValue(item, type, fragmentType.item) / fragmentType.stackSize;
     const stackValue = splinterValue * item.stacksize;
-    if(log) {
+    if (log) {
       if (splinterValue >= minItemValue) {
         logger.info(
           `Using alternate splinter pricing : ${identifier} => ${splinterValue} x ${item.stacksize} = ${stackValue}`
@@ -594,7 +635,7 @@ class PriceMatcher {
   getWatchstoneValue(item: any): number {
     let identifier =
       item.rarity === 'Magic'
-        ? Constants.craftableWatchstoneBaseTypes.find(type => type.includes(item.typeline))
+        ? Constants.craftableWatchstoneBaseTypes.find((type) => type.includes(item.typeline))
         : item.name || Utils.getItemName(item.icon);
     if (!item.identified) {
       if (Constants.watchstoneMaxCharges[identifier]) {
@@ -635,7 +676,11 @@ class PriceMatcher {
    * @returns {number} Value of a unique item
    */
   getUniqueItemValue(item: any, minItemValue: number): number {
-    let identifier = item.name ?? Utils.getItemName(item.icon) ?? Utils.getItemName(item.parsedItem.icon) ?? item.typeline;
+    let identifier =
+      item.name ??
+      Utils.getItemName(item.icon) ??
+      Utils.getItemName(item.parsedItem.icon) ??
+      item.typeline;
     // let identifier = item.name || Utils.getItemName(item.icon) || item.typeline;
 
     if (identifier === 'Grand Spectrum' || identifier === 'Combat Focus') {
@@ -714,7 +759,7 @@ class PriceMatcher {
 
   /**
    * [REMOVED FROM POE.NINJA] Get the value of a seed. Used in Harvest League
-   * @param {any} item 
+   * @param {any} item
    * @returns {number} Value of the seed
    */
   getSeedValue(item: any): number {
@@ -797,9 +842,9 @@ class PriceMatcher {
     if (item.parsedItem.influences) {
       possibleIdentifiers = [
         Object.keys(item.parsedItem.influences).join('/'),
-        Object.keys(item.parsedItem.influences).reverse().join('/')
+        Object.keys(item.parsedItem.influences).reverse().join('/'),
       ].map((influences) => {
-        if(influences.length > 0) return `${identifier} ${influences}`;
+        if (influences.length > 0) return `${identifier} ${influences}`;
       });
     }
 
@@ -834,11 +879,11 @@ async function price(
   league: string = SettingsManager.get('activeProfile').league
 ): Promise<{ isVendor: boolean; value: number }> {
   const date = item.event_id.slice(0, 8);
-  if(!matchers[date]) matchers[date] = new PriceMatcher(date);
-  const matcher : PriceMatcher = matchers[date];
+  if (!matchers[date]) matchers[date] = new PriceMatcher(date);
+  const matcher: PriceMatcher = matchers[date];
   await matcher.fetchRates(league);
 
-  if(matcher.hasBrokenRates()) {
+  if (matcher.hasBrokenRates()) {
     return { isVendor: false, value: 0 };
   }
 
@@ -855,12 +900,14 @@ async function price(
       }
     } else {
       // Unconditional ignore - stop here and get vendor recipe instead, if any
-      return { isVendor: matcher.isVendorRecipe(item), value: matcher.getVendorRecipeValue(item, minItemValue) };
+      return {
+        isVendor: matcher.isVendorRecipe(item),
+        value: matcher.getVendorRecipeValue(item, minItemValue),
+      };
     }
   }
 
   return { isVendor: matcher.isVendorRecipe(item), value: matcher.price(item, minItemValue) };
-
 }
 
 async function getCurrencyByName(timestamp, type, league) {

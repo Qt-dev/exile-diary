@@ -574,7 +574,11 @@ class MainProcess {
     });
 
     OverlayController.events.on('focus', () => {
-      logger.info(`Overlay focused, enabled:${SettingsManager.get('overlayEnabled')}, persistenceDisabled:${SettingsManager.get('overlayPersistenceDisabled')}`);
+      logger.info(
+        `Overlay focused, enabled:${SettingsManager.get(
+          'overlayEnabled'
+        )}, persistenceDisabled:${SettingsManager.get('overlayPersistenceDisabled')}`
+      );
       if (SettingsManager.get('overlayEnabled') === true) {
         this.overlayWindow.show();
         this.overlayWindow.setIgnoreMouseEvents(false);

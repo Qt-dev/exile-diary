@@ -63,7 +63,7 @@ const Settings = ({ characterStore, stashTabStore, runStore }) => {
         <ItemFilterSettings settings={settings} />
       </div>
       <div hidden={tabValue !== 3}>
-        <DebugSettings runStore={runStore} />  
+        <DebugSettings runStore={runStore} />
       </div>
     </div>
   );

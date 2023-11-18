@@ -273,9 +273,7 @@ const Overlay = ({ store }) => {
           invisible={persistenceDisabled}
           time={notificationTime}
           isOpen={open && notificationTime > -1}
-          alwaysVisibleChildren={
-            <img className="Overlay__Logo" src={Logo} alt="Logo" />
-          }
+          alwaysVisibleChildren={<img className="Overlay__Logo" src={Logo} alt="Logo" />}
           latestMapTrackingMessage={latestMessage}
         >
           {latestMessage}

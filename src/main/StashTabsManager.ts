@@ -34,21 +34,27 @@ class StashTabsManager {
   }
 
   async refresh(): Promise<void> {
-    const stashTabNumbers = SettingsManager.get('trackedStashTabs')?.[SettingsManager.get('activeProfile').league]?.length ?? 0;
+    const stashTabNumbers =
+      SettingsManager.get('trackedStashTabs')?.[SettingsManager.get('activeProfile').league]
+        ?.length ?? 0;
     const startTime = dayjs();
-    RendererLogger.log({ messages: [
-      { text: 'Refreshing stash data for ' },
-      { text: stashTabNumbers, type: 'important' },
-      { text: ' stash tabs' }
-    ] });
+    RendererLogger.log({
+      messages: [
+        { text: 'Refreshing stash data for ' },
+        { text: stashTabNumbers, type: 'important' },
+        { text: ' stash tabs' },
+      ],
+    });
     await StashGetter.get();
-    RendererLogger.log({ messages: [
-      { text: 'Stash data refreshed for ' },
-      { text: stashTabNumbers, type: 'important' },
-      { text: ' stash tabs in ' },
-      { text: dayjs().diff(startTime, 'millisecond'), type: 'important' },
-      { text: ' milliseconds' }
-    ] });
+    RendererLogger.log({
+      messages: [
+        { text: 'Stash data refreshed for ' },
+        { text: stashTabNumbers, type: 'important' },
+        { text: ' stash tabs in ' },
+        { text: dayjs().diff(startTime, 'millisecond'), type: 'important' },
+        { text: ' milliseconds' },
+      ],
+    });
   }
 }
 

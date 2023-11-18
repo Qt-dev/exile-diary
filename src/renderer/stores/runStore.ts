@@ -48,7 +48,7 @@ export default class RunStore {
   }
 
   async loadRuns(size = this.maxSize) {
-    if(size === this.maxSize) {
+    if (size === this.maxSize) {
       logger.info(`Loading all runs from the server.`);
     } else {
       logger.info(`Loading runs from the server with size: ${size}`);

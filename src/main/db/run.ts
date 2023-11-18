@@ -79,7 +79,11 @@ const getItemNameFromIcon = (iconUrl: string) => {
 
 const Runs = {
   getLastRuns: async (numberOfRunsToShow: number) => {
-    logger.info(`Getting last ${numberOfRunsToShow === Number.MAX_SAFE_INTEGER ? 'all' : numberOfRunsToShow} runs from DB`);
+    logger.info(
+      `Getting last ${
+        numberOfRunsToShow === Number.MAX_SAFE_INTEGER ? 'all' : numberOfRunsToShow
+      } runs from DB`
+    );
     const lastRunsQuery = `
       select mapruns.id, name, level, depth, iiq, iir, packsize, firstevent, lastevent,
         (mapruns.xp - (select xp from mapruns m where m.id < mapruns.id and xp is not null order by m.id desc limit 1)) xpgained,
@@ -315,7 +319,7 @@ const Runs = {
     `;
 
     const runs = DB.all(itemsQuery, [from, to]);
-    
+
     return runs;
   },
 

@@ -10,7 +10,7 @@ export default {
       'SELECT date, data FROM fullrates WHERE date <= ? OR date = (SELECT min(date) FROM fullrates) ORDER BY date DESC';
 
     try {
-      const [{ data }] = (DB.all(query, [date], league)) as any[];
+      const [{ data }] = DB.all(query, [date], league) as any[];
       return await new Promise((resolve, reject) => {
         zlib.inflate(data, (err, buffer) => {
           if (err) {

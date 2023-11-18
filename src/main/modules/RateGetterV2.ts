@@ -27,7 +27,7 @@ const rateTypes = {
   UniqueJewel: cleanUniqueItems,
   UniqueFlask: cleanUniqueItems,
   SkillGem: cleanGems,
-  
+
   Map: cleanMaps,
   BlightedMap: cleanMaps,
   BlightRavagedMap: cleanMaps,
@@ -99,14 +99,14 @@ class RateGetterV2 {
 
   async setIsUpdating(isUpdating) {
     this.isUpdating = isUpdating;
-    if(!isUpdating) {
+    if (!isUpdating) {
       emitter.emit('UpdateDone');
     }
   }
 
   async waitForUpdate() {
-    return new Promise<void>(resolve => {
-      if(!this.isUpdating) {
+    return new Promise<void>((resolve) => {
+      if (!this.isUpdating) {
         resolve();
       } else {
         emitter.once('UpdateDone', () => {
@@ -120,7 +120,7 @@ class RateGetterV2 {
    * get today's rates from POE.ninja
    */
   async update(isForced = false) {
-    if(this.isUpdating) {
+    if (this.isUpdating) {
       logger.error('Already fetching rates for the day, aborting the new request');
       return this.waitForUpdate();
     }
@@ -136,12 +136,12 @@ class RateGetterV2 {
         logger.info('No league set, will not attempt to get prices');
         return;
       }
-  
+
       // no need for exchange rates in SSF
       if (activeProfile.league.includes('SSF') && !activeProfile.overrideSSF) {
         return;
       }
-  
+
       if (Utils.isPrivateLeague(activeProfile.league)) {
         // TODO: Fix this part with private leagues
         if (privateLeaguePriceMaps && privateLeaguePriceMaps[activeProfile.league]) {
@@ -158,13 +158,13 @@ class RateGetterV2 {
           return;
         }
       }
-  
+
       const today = dayjs().format('YYYYMMDD');
       const hasExisting = await this.hasExistingRates(today);
-  
+
       if (hasExisting) {
         logger.info(`Found existing ${activeProfile.league} rates for ${today}`);
-  
+
         if (!isForced) {
           this.scheduleNextUpdate();
           this.ratesReady = true;
@@ -173,7 +173,7 @@ class RateGetterV2 {
           await this.cleanRates(today);
         }
       }
-  
+
       emitter.emit('gettingPrices');
       logger.info(`Getting new ${activeProfile.league} rates for ${today}`);
       const message = {
@@ -181,12 +181,14 @@ class RateGetterV2 {
       };
       RendererLogger.log({ messages: [message] });
       await this.getRates(today);
-      RendererLogger.log({ messages: [
-        { text: 'Finished getting rates for the' },
-        { text: ` ${activeProfile.league} league`, type: 'important' },
-        { text: ' for' },
-        { text: ` today (${today})`, type: 'important' }
-      ] });
+      RendererLogger.log({
+        messages: [
+          { text: 'Finished getting rates for the' },
+          { text: ` ${activeProfile.league} league`, type: 'important' },
+          { text: ' for' },
+          { text: ` today (${today})`, type: 'important' },
+        ],
+      });
     } finally {
       this.setIsUpdating(false);
     }
@@ -230,11 +232,7 @@ class RateGetterV2 {
         const processRateType = rateTypes[rateType];
         tempRates[rateType] = processRateType(data, getLowConfidence);
       }
-      require('fs/promises').writeFile(
-        './rates.json',
-        JSON.stringify(tempRates, null, 2),
-        'utf8'
-      );
+      require('fs/promises').writeFile('./rates.json', JSON.stringify(tempRates, null, 2), 'utf8');
       logger.info('Finished getting prices from poe.ninja, processing now');
     } catch (e) {
       emitter.emit('gettingPricesFailed');
@@ -270,11 +268,11 @@ class RateGetterV2 {
     rates['Map'] = Object.assign(
       tempRates['Map'],
       tempRates['BlightedMap'],
-      tempRates['BlightRavagedMap'],
+      tempRates['BlightRavagedMap']
     );
     rates['Memory'] = tempRates['Memory'];
     rates['Invitation'] = tempRates['Invitation'];
-    
+
     // Ancestor Stuff
     rates['Tattoo'] = tempRates['Tattoo'];
     rates['Omen'] = tempRates['Omen'];
@@ -335,11 +333,10 @@ class RateGetterV2 {
       case 'Beast':
       case 'Essence':
       case 'Vial':
-      
-      // RETIRED
-      // case 'Prophecy':
-      // case 'Watchstone':
-      // case 'Seed':
+        // RETIRED
+        // case 'Prophecy':
+        // case 'Watchstone':
+        // case 'Seed':
         url = `/api/data/itemoverview?type=${category}`;
         break;
       default:

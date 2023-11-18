@@ -91,10 +91,10 @@ function getCategory(item, subcategory = false) {
   switch (item.frameType) {
     case 4:
       var n = t.replace(/(Superior|Anomalous|Divergent|Phantasmal) /g, '');
-      if(t.endsWith('Support')) {
-        return "Support Skill Gems";
+      if (t.endsWith('Support')) {
+        return 'Support Skill Gems';
       } else {
-        return "Active Skill Gems";
+        return 'Active Skill Gems';
       }
     case 5: // currency items
       if (t.startsWith('Captured Soul')) {

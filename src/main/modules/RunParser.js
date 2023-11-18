@@ -275,23 +275,26 @@ async function process() {
   if (!currArea) {
     logger.info('No unprocessed area info found');
     var lastEvent = await new Promise(async (resolve, reject) => {
-      OldDB.get(" select * from events where event_type='entered' order by id desc ", (err, row) => {
-        if (err) {
-          logger.info(`Error getting last inserted event: ${err}`);
-          resolve();
-        } else {
-          if (!row) {
-            logger.info('No last inserted event found!');
+      OldDB.get(
+        " select * from events where event_type='entered' order by id desc ",
+        (err, row) => {
+          if (err) {
+            logger.info(`Error getting last inserted event: ${err}`);
             resolve();
           } else {
-            resolve({
-              timestamp: row.id,
-              area: row.event_text,
-              server: row.server,
-            });
+            if (!row) {
+              logger.info('No last inserted event found!');
+              resolve();
+            } else {
+              resolve({
+                timestamp: row.id,
+                area: row.event_text,
+                server: row.server,
+              });
+            }
           }
         }
-      });
+      );
     });
     if (lastEvent) {
       logger.info('Will try processing from event: ' + JSON.stringify(lastEvent));
@@ -1434,16 +1437,18 @@ function getNPCLine(str) {
 }
 
 async function recheckGained(from = 0, to = dayjs().format('YYYYMMDD')) {
-  RendererLogger.log({messages: [
-    { text: 'Rechecking map profits from ' },
-    { text: from, type: 'important'},
-    { text: ' to ' },
-    { text: to, type: 'important'},
-    { text: '...'}
-  ]})
+  RendererLogger.log({
+    messages: [
+      { text: 'Rechecking map profits from ' },
+      { text: from, type: 'important' },
+      { text: ' to ' },
+      { text: to, type: 'important' },
+      { text: '...' },
+    ],
+  });
   const startTime = dayjs();
   const runs = await DB.getRunsFromDates(from, to);
-  for(const run of runs) {
+  for (const run of runs) {
     await ItemPricer.getRatesFor(run.id);
   }
 
@@ -1451,14 +1456,14 @@ async function recheckGained(from = 0, to = dayjs().format('YYYYMMDD')) {
     const items = DB.getItemsFromRun(run.id);
     let totalProfit = 0;
     let itemsToUpdate = [];
-    for(const item of items) {
+    for (const item of items) {
       const { value } = await ItemPricer.price(item);
       totalProfit += value;
-      if(value !== item.value) {
-        itemsToUpdate.push({value, id: item.id, eventId: item.event_id});
+      if (value !== item.value) {
+        itemsToUpdate.push({ value, id: item.id, eventId: item.event_id });
       }
     }
-    if(itemsToUpdate.length > 0) {
+    if (itemsToUpdate.length > 0) {
       DB.updateItemValues(itemsToUpdate);
     }
     const profitDifference = totalProfit - run.gained;
@@ -1469,20 +1474,22 @@ async function recheckGained(from = 0, to = dayjs().format('YYYYMMDD')) {
       logger.info(`No profit difference for ${run.id}`);
     }
   });
-  
+
   return Promise.all(checks).then(() => {
     const endTime = dayjs();
     const timeTaken = endTime.diff(startTime, 'millisecond');
     logger.info(`Recheck from ${from} to ${to} took ${timeTaken} ms`);
-    RendererLogger.log({messages: [
-      { text: 'Recheck complete - Checked map profits from ' },
-      { text: from, type: 'important'},
-      { text: ' to ' },
-      { text: to, type: 'important'},
-      { text: ' in ' },
-      { text: `${timeTaken}`, type: 'important'},
-      { text: 'ms.'}
-    ]})
+    RendererLogger.log({
+      messages: [
+        { text: 'Recheck complete - Checked map profits from ' },
+        { text: from, type: 'important' },
+        { text: ' to ' },
+        { text: to, type: 'important' },
+        { text: ' in ' },
+        { text: `${timeTaken}`, type: 'important' },
+        { text: 'ms.' },
+      ],
+    });
   });
 }
 

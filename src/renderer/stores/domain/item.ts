@@ -108,10 +108,10 @@ const getCategory = (item, subcategory = false) => {
     // 4 = Gems
     case 4:
       const gemName = type.replace(/(Superior|Anomalous|Divergent|Phantasmal) /g, '');
-      if(gemName.endsWith('Support')) {
-        return "Support Skill Gems";
+      if (gemName.endsWith('Support')) {
+        return 'Support Skill Gems';
       } else {
-        return "Active Skill Gems";
+        return 'Active Skill Gems';
       }
     case 5:
       if (type.startsWith('Captured Soul')) {

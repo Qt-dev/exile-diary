@@ -185,13 +185,13 @@ const MapStats = ({ stats }) => {
               onClick={sort('profitPerHour', order)}
             >
               <span
-                  style={{
-                    display: 'flex',
-                    gap: '0.2em',
-                    flexDirection: 'row',
-                    alignItems: 'center',
-                  }}
-                >
+                style={{
+                  display: 'flex',
+                  gap: '0.2em',
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                }}
+              >
                 <ChaosIcon />
                 /hr
               </span>
