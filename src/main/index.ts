@@ -490,6 +490,10 @@ class MainProcess {
     ipcMain.on('get-net-worth', () => {
       StashGetter.getNetWorth();
     });
+    SettingsManager.registerListener('overlayPersistenceDisabled', (isDisabled) => {
+      logger.info(`Setting Persistence to Disabled:${isDisabled}`);
+      this.sendToOverlay('overlay:set-persistence', isDisabled);
+    });
 
     AuthManager.setMessenger(this.mainWindow.webContents);
     RendererLogger.init(this.mainWindow.webContents, this.overlayWindow.webContents);
@@ -570,7 +574,7 @@ class MainProcess {
     });
 
     OverlayController.events.on('focus', () => {
-      logger.info(`Overlay focused, ${SettingsManager.get('overlayEnabled')}`);
+      logger.info(`Overlay focused, enabled:${SettingsManager.get('overlayEnabled')}, persistenceDisabled:${SettingsManager.get('overlayPersistenceDisabled')}`);
       if (SettingsManager.get('overlayEnabled') === true) {
         this.overlayWindow.show();
         this.overlayWindow.setIgnoreMouseEvents(false);
@@ -676,6 +680,7 @@ class MainProcess {
       'get-divine-price',
       'get-all-map-names',
       'get-all-possible-mods',
+      'overlay:get-persistence',
     ];
     for (const event of events) {
       ipcMain.handle(event, Responder[event]);

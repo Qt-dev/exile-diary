@@ -75,6 +75,7 @@ const MainSettings = ({ settings, store }) => {
     settings.screenshots && !!settings.screenshots.allowCustomShortcut;
   const enableScreenshotFolderWatch =
     settings.screenshots && !!settings.screenshots.allowFolderWatch;
+  const overlayPersistenceDisabled = !!settings.overlayPersistenceDisabled;
 
   const handleBack = () => {
     navigate('/');
@@ -99,6 +100,7 @@ const MainSettings = ({ settings, store }) => {
       screenshotDir: e.target.screenshot_location.value,
       alternateSplinterPricing: e.target.alternate_splinter_pricing.checked,
       overlayEnabled: e.target.overlay_enabled.checked,
+      overlayPersistenceDisabled: e.target.overlay_persistence_disabled.checked,
       enableIncubatorAlert: e.target.enable_incubator_alert.checked,
       screenshots: {
         allowCustomShortcut: e.target.enable_screenshot_custom_shortcut.checked,
@@ -240,6 +242,12 @@ const MainSettings = ({ settings, store }) => {
           <FormControlLabel
             control={<Checkbox id="overlay_enabled" defaultChecked={overlayEnabled} />}
             label="Enable Overlay Popup Messages"
+          />
+        </div>
+        <div className="Settings__Checkbox__Row">
+          <FormControlLabel
+            control={<Checkbox id="overlay_persistence_disabled" defaultChecked={overlayPersistenceDisabled} />}
+            label="Disable Overlay Persistence (= Always visible overlay)"
           />
         </div>
         <div className="Settings__Checkbox__Row">
