@@ -37,7 +37,7 @@ class StashGetter {
       emitter.on('scheduleNewStashCheck', () => {
         this.refreshInterval();
       });
-      this.tryGet();
+      this.refreshInterval();
     }
   }
 
@@ -79,7 +79,7 @@ class StashGetter {
 
     RendererLogger.log({ messages: [
       { text: 'Refreshing Stash tabs for ' },
-      { text: settings.trackedStashTabs[settings.activeProfile.league] ?? 0, type: 'important' },
+      { text: settings.trackedStashTabs[settings.activeProfile.league].length ?? 0, type: 'important' },
       { text: ' tabs in ' },
       { text: settings.activeProfile.league, type: 'important' },
       { text: ' league' }
