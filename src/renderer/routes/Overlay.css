@@ -4,14 +4,16 @@
   overscroll-behavior: contain;
   width: fit-content;
 }
-.Overlay__Box--Invisible {
-  height: 0;
-  width: 0;
-}
 
 .Overlay__Box.Box {
   overflow: hidden;
   padding: 2px;
+}
+
+.Overlay__Box--Invisible.Overlay__Box.Box {
+  height: 0;
+  width: 0;
+  padding: 0;
 }
 
 .Overlay__Line {
