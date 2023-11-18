@@ -868,13 +868,20 @@ class ProfitTracker {
   }
   async refreshProfitPerHour() {
     if (this.announcer) {
-      const profit = this.getProfitPerHour();
-      logger.info(`Updating profit per hour to ${profit}`);
-      this.announcer.announce(profit, await ItemPricer.getCurrencyByName('Divine Orb'));
+      const profitPerHour = {
+        daily: this.getProfitPerHourForLastDay(),
+        hourly: this.getProfitPerHourForLastHour()
+      };
+      logger.info(`Updating profit per hour to `,profitPerHour);
+
+      this.announcer.announce(profitPerHour, await ItemPricer.getCurrencyByName('Divine Orb'));
     }
   }
-  getProfitPerHour() {
-    return DB.getProfitForLastHour();
+  getProfitPerHourForLastHour() {
+    return DB.getProfitPerHour(dayjs().subtract(1, 'hour').format('YYYYMMDDHHmmss'));
+  }
+  getProfitPerHourForLastDay() {
+    return DB.getProfitPerHour();
   }
   setProfitPerHourAnnouncer(callback) {
     this.announcer = { announce: callback };
@@ -904,11 +911,6 @@ export default {
   getAllPossibleMods: async () => {
     const mods = await DB.getAllPossibleMods();
     return mods;
-  },
-
-  getProfitForLastHour: async () => {
-    const profit = await DB.getProfitForLastHour();
-    return profit;
   },
 
   registerProfitPerHourAnnouncer: (callback) => {
