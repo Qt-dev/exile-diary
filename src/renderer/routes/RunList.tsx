@@ -202,6 +202,8 @@ const RunList = ({ NumbersOfMapsToShow = 10, store, isBoxed = true }) => {
           showFirstButton
         />
       </div>
+      
+      <div className="Text--Bottom">This product is <span className="Text--Error">NOT</span> affiliated with or endorsed by <span className="Text--Legendary">Grinding Gear Games</span> in any way.</div>
     </div>
   );
 };

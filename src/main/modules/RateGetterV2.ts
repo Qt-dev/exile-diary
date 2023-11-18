@@ -232,7 +232,7 @@ class RateGetterV2 {
         const processRateType = rateTypes[rateType];
         tempRates[rateType] = processRateType(data, getLowConfidence);
       }
-      require('fs/promises').writeFile('./rates.json', JSON.stringify(tempRates, null, 2), 'utf8');
+      // require('fs/promises').writeFile('./rates.json', JSON.stringify(tempRates, null, 2), 'utf8');
       logger.info('Finished getting prices from poe.ninja, processing now');
     } catch (e) {
       emitter.emit('gettingPricesFailed');

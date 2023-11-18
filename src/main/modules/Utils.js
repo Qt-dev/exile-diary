@@ -253,7 +253,7 @@ const Utils = {
     return str;
   },
 
-  getRunningTime: (firstevent, lastevent, format = null, options = null) => {
+  getRunningTime: (firstevent, lastevent, format = 'HH:mm:ss', options = null) => {
     return dayjs
       .duration(dayjs(lastevent, 'YYYYMMDDHHmmss').diff(dayjs(firstevent, 'YYYYMMDDHHmmss')))
       .format(format, options);
