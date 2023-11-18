@@ -9,7 +9,7 @@ const ItemPricer = require('./ItemPricer');
 const XPTracker = require('./XPTracker');
 const Constants = require('../../helpers/constants').default;
 
-var OldDB;
+let OldDB;
 var emitter = new EventEmitter();
 let latestGeneratedArea = null;
 
@@ -269,7 +269,7 @@ async function tryProcess(obj) {
 }
 
 async function process() {
-  DB = require('./DB').getDB();
+  OldDB = require('./DB').getDB();
 
   var currArea = await getCurrAreaInfo();
   if (!currArea) {
@@ -1410,7 +1410,7 @@ async function getMapExtraInfo(areaName, firstevent, lastevent, items, areaMods)
 }
 
 function getEvents(firstevent, lastevent) {
-  DB = require('./DB').getDB();
+  OldDB = require('./DB').getDB();
   return new Promise((resolve, reject) => {
     OldDB.all(
       ' select * from events where id between :first and :last order by id',
