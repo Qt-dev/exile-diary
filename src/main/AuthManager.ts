@@ -1,20 +1,26 @@
 import randomstring from 'randomstring';
 import crypto from 'crypto';
 import base64url from 'base64url';
-import logger from 'electron-log';
+import Logger from 'electron-log';
 import axios, { AxiosResponse } from 'axios';
 import RendererLogger from './RendererLogger';
 import dayjs from 'dayjs';
-import keytar from '@postman/node-keytar';
+import Store from 'electron-store';
 import SettingsManager from './SettingsManager';
 
-const account = 'ggg:token';
-const service = 'exilediary';
+const storeKey = 'token';
+const logger = Logger.scope('Auth');
 const code_verifier = randomstring.generate(128);
 const base64Digest = crypto.createHash('sha256').update(code_verifier).digest('base64');
 const code_challenge = base64url.fromBase64(base64Digest);
 
 const state = randomstring.generate(32);
+
+const TokenStore = new Store({
+  name: 'creds',
+  encryptionKey: 'exilediary',
+  fileExtension: 'token',
+});
 
 let logoutTimer;
 let messenger;
@@ -88,18 +94,18 @@ const AuthManager = {
         dayjs().add(expires_in, 'seconds').format('YYYY-MM-DD HH:mm:ss')
       );
       SettingsManager.set('username', username);
-      await keytar.setPassword(service, account, access_token);
+      TokenStore.set(storeKey, access_token);
       await AuthManager.setLogoutTimer(true);
     }
   },
   isAuthenticated: async (isFirstTime = false) => {
     logger.info('Checking if the user is authenticated');
-    const password = await keytar.getPassword(service, account);
+    const password = TokenStore.get(storeKey);
     const expirationDate = SettingsManager.get('tokenExpirationDate');
     const username = SettingsManager.get('username');
     const activeProfile = SettingsManager.get('activeProfile');
     const isAuthenticated =
-      password !== null &&
+      !!password &&
       expirationDate !== null &&
       dayjs().isBefore(expirationDate) &&
       !!username &&
@@ -117,7 +123,7 @@ const AuthManager = {
   },
   logout: async () => {
     logger.info('Logging out');
-    await keytar.deletePassword(service, account);
+    TokenStore.reset(storeKey);
     SettingsManager.delete('tokenExpirationDate');
     messenger.send('oauth:logged-out');
   },
@@ -177,7 +183,7 @@ const AuthManager = {
   },
   getToken: async () => {
     logger.info('Getting token from the local storage');
-    const password = await keytar.getPassword(service, account);
+    const password = TokenStore.get(storeKey);
     return password;
   },
 };
