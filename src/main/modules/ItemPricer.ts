@@ -917,7 +917,7 @@ async function getCurrencyByName(
   league = SettingsManager.get('activeProfile').league
 ) {
   const rates = await getRatesFor(timestamp, league);
-  if (!rates) {
+  if (!rates || !rates['Currency']) {
     return 0;
   }
   const value = rates['Currency'][type];
