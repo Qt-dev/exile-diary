@@ -40,11 +40,23 @@
       "installerHeaderIcon": "./src/renderer/assets/img/icons/win/ExileDiary.ico"
     },
     "linux": {
-      "target": "deb",
-      "executableName": "Exile-Diary",
+      "target": "flatpak",
+      "executableName": "exile-diary",
       "icon": "./src/renderer/assets/img/icons/png",
       "category": "Utility",
-      "maintainer": "briansd9"
+      "maintainer": "qt-dev",
+      "asarUnpack": [
+        "node_modules/sharp/**"
+      ]
+    },
+    "flatpak": {
+      "useWaylandFlags": true,
+      "runtimeVersion": "22.08",
+      "baseVersion": "22.08",
+      "files": [
+        ["./eng.traineddata", "lib/com.exilediary.reborn/resources/eng.traineddata"],
+        ["./src/main/db/extensions/regexp.so", "lib/com.exilediary.reborn/resources/db/extensions/regexp.so"]
+      ]
     }
   },
   "scripts": {
