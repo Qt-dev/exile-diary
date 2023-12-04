@@ -6,6 +6,14 @@
   "build": {
     "appId": "com.exilediary.reborn",
     "productName": "Exile Diary Reborn",
+    "protocols": [
+      {
+        "name": "Exile Diary",
+        "schemes": [
+          "exile-diary"
+        ]
+      }
+    ],
     "files": [
       "build/**/*",
       "public/icon.*",
