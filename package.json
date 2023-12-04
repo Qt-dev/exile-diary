@@ -1,6 +1,6 @@
 {
   "name": "exile-diary",
-  "version": "1.4.2",
+  "version": "1.4.3",
   "main": "./build/main/index.js",
   "homepage": "./",
   "build": {
@@ -54,8 +54,14 @@
       "runtimeVersion": "22.08",
       "baseVersion": "22.08",
       "files": [
-        ["./eng.traineddata", "lib/com.exilediary.reborn/resources/eng.traineddata"],
-        ["./src/main/db/extensions/regexp.so", "lib/com.exilediary.reborn/resources/db/extensions/regexp.so"]
+        [
+          "./eng.traineddata",
+          "lib/com.exilediary.reborn/resources/eng.traineddata"
+        ],
+        [
+          "./src/main/db/extensions/regexp.so",
+          "lib/com.exilediary.reborn/resources/db/extensions/regexp.so"
+        ]
       ]
     }
   },
