@@ -76,7 +76,7 @@ const Run = ({ store }) => {
         <div className="Run__Header__Block">
           <div className="Run__Header__Block__Title">Monster Pack Size</div>
           <div className="Run__Header__Block__Value Text--Magic">
-            {run.iir ? `${run.iir}%` : '-'}
+            {run.packSize ? `${run.packSize}%` : '-'}
           </div>
         </div>
         <div className="Run__Header__Block">
