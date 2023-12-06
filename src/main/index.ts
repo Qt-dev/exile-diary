@@ -677,7 +677,8 @@ class MainProcess {
 
     globalShortcut.register('CommandOrControl+F7', () => {
       logger.info('Toggling overlay visibility');
-      this.sendToOverlay('overlay:toggle-visibility');
+      const overlayPersistenceDisabled = SettingsManager.get('overlayPersistenceDisabled');
+      SettingsManager.set('overlayPersistenceDisabled', !overlayPersistenceDisabled);
     });
   }
 

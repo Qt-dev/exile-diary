@@ -136,7 +136,6 @@ const Overlay = ({ store }) => {
   const [latestMessage, setLatestMessage] = React.useState<JSX.Element | null>(<div>---</div>);
   const [latestMapTrackingMessage, setLatestMapTrackingMessage] =
     React.useState<JSX.Element | null>(<div>---</div>);
-  const [persistenceDisabled, setPersistenceDisabled] = React.useState(true);
 
   // Timer management
   const [time, setTime] = React.useState(defaultTimer);
@@ -193,7 +192,7 @@ const Overlay = ({ store }) => {
 
   const boxClassNames = classNames({
     'Overlay__Box--Open': open,
-    'Overlay__Box--Invisible': !open && time <= 0 && notificationTime <= 0 && persistenceDisabled,
+    'Overlay__Box--Invisible': !open && time <= 0 && notificationTime <= 0,
     Overlay__Box: true,
     Box: true,
   });
@@ -206,7 +205,7 @@ const Overlay = ({ store }) => {
     ipcRenderer.removeAllListeners('overlay:set-persistence');
     ipcRenderer.on('overlay:set-persistence', (event, isDisabled) => {
       logger.info('Setting persistence to', isDisabled);
-      setPersistenceDisabled(isDisabled);
+      setOpen(!isDisabled);
     });
   }, []);
 
@@ -224,10 +223,7 @@ const Overlay = ({ store }) => {
       setLatestMessage(<OverlayNotificationLine messages={messages} />);
     });
     ipcRenderer.invoke('overlay:get-persistence').then((isDisabled) => {
-      setPersistenceDisabled(isDisabled);
-    });
-    ipcRenderer.on('overlay:toggle-visibility', () => {
-      setOpen(open => !open);
+      setOpen(!isDisabled);
     });
 
     return () => {
@@ -249,7 +245,6 @@ const Overlay = ({ store }) => {
     <div className="Overlay" ref={ref}>
       <div className={boxClassNames}>
         <OverlayLine
-          invisible={persistenceDisabled}
           time={time}
           isOpen={open || time > -1}
           latestMapTrackingMessage={latestMapTrackingMessage}
@@ -257,7 +252,6 @@ const Overlay = ({ store }) => {
           <OverlayMapInfoLine run={store.currentRun} />
         </OverlayLine>
         <OverlayLine
-          invisible={persistenceDisabled}
           time={notificationTime}
           isOpen={open || notificationTime > -1}
           alwaysVisibleChildren={<img className="Overlay__Logo" src={Logo} alt="Logo" />}
