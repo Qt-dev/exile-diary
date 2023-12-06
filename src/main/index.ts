@@ -674,6 +674,11 @@ class MainProcess {
       clearTimeout(this.saveBoundsCallback);
       clearTimeout(this.autoUpdaterInterval);
     });
+
+    globalShortcut.register('CommandOrControl+F7', () => {
+      logger.info('Toggling overlay visibility');
+      this.sendToOverlay('overlay:toggle-visibility');
+    });
   }
 
   async startWindows() {

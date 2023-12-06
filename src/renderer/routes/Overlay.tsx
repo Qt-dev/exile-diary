@@ -1,8 +1,6 @@
 import React, { ReactNode, useLayoutEffect, useEffect, useRef } from 'react';
 import { electronService } from '../electron.service';
 import './Overlay.css';
-import IconButton from '@mui/material/IconButton';
-import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import classNames from 'classnames';
 import useResizeObserver from '@react-hook/resize-observer';
 import { observer } from 'mobx-react-lite';
@@ -131,26 +129,6 @@ const useSize = (target: React.RefObject<HTMLDivElement>) => {
   return size;
 };
 
-const OverlayVisibilityToggleButton = ({ handleButtonClick, open }) => {
-  const iconClassNames = classNames({
-    'Overlay__Icon--Open': open,
-    Overlay__Icon: true,
-  });
-
-  return (
-    <IconButton
-      className="Overlay__Open-Button"
-      size="small"
-      sx={{ margin: '0', borderRadius: 1, border: '1px solid #555' }}
-      onClick={handleButtonClick}
-    >
-      <ChevronRightIcon
-        className={iconClassNames}
-        sx={{ transition: 'all 0.2s ease-in-out', height: '0.7em', width: '0.7em' }}
-      />
-    </IconButton>
-  );
-};
 
 const Overlay = ({ store }) => {
   const [open, setOpen] = React.useState(false);
@@ -213,10 +191,6 @@ const Overlay = ({ store }) => {
 
   updateSize(sizeRef.current);
 
-  const handleButtonClick = () => {
-    setOpen(!open);
-  };
-
   const boxClassNames = classNames({
     'Overlay__Box--Open': open,
     'Overlay__Box--Invisible': !open && time <= 0 && notificationTime <= 0 && persistenceDisabled,
@@ -236,7 +210,15 @@ const Overlay = ({ store }) => {
     });
   }, []);
 
+
   useEffect(() => {
+    logger.info('Open changed - ', open);
+  }, [open]);
+
+  useEffect(() => {
+    ipcRenderer.removeAllListeners('overlay:toggle-visibility');
+    ipcRenderer.removeAllListeners('overlay:message');
+
     ipcRenderer.on('overlay:message', (event, { messages }) => {
       setNotificationTime(defaultTimer);
       setLatestMessage(<OverlayNotificationLine messages={messages} />);
@@ -244,6 +226,14 @@ const Overlay = ({ store }) => {
     ipcRenderer.invoke('overlay:get-persistence').then((isDisabled) => {
       setPersistenceDisabled(isDisabled);
     });
+    ipcRenderer.on('overlay:toggle-visibility', () => {
+      setOpen(open => !open);
+    });
+
+    return () => {
+      ipcRenderer.removeAllListeners('overlay:message');
+      ipcRenderer.removeAllListeners('overlay:toggle-visibility');
+    }
   }, []);
 
   useEffect(() => {
@@ -261,10 +251,7 @@ const Overlay = ({ store }) => {
         <OverlayLine
           invisible={persistenceDisabled}
           time={time}
-          isOpen={open && time > -1}
-          alwaysVisibleChildren={
-            <OverlayVisibilityToggleButton handleButtonClick={handleButtonClick} open={open} />
-          }
+          isOpen={open || time > -1}
           latestMapTrackingMessage={latestMapTrackingMessage}
         >
           <OverlayMapInfoLine run={store.currentRun} />
@@ -272,7 +259,7 @@ const Overlay = ({ store }) => {
         <OverlayLine
           invisible={persistenceDisabled}
           time={notificationTime}
-          isOpen={open && notificationTime > -1}
+          isOpen={open || notificationTime > -1}
           alwaysVisibleChildren={<img className="Overlay__Logo" src={Logo} alt="Logo" />}
           latestMapTrackingMessage={latestMessage}
         >
