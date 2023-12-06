@@ -75,7 +75,7 @@ const MainSettings = ({ settings, store, runStore }) => {
     settings.screenshots && !!settings.screenshots.allowCustomShortcut;
   const enableScreenshotFolderWatch =
     settings.screenshots && !!settings.screenshots.allowFolderWatch;
-  const overlayPersistenceDisabled = !!settings.overlayPersistenceDisabled;
+  const overlayPersistenceEnabled = !!settings.overlayPersistenceEnabled;
 
   const handleBack = () => {
     navigate('/');
@@ -93,7 +93,6 @@ const MainSettings = ({ settings, store, runStore }) => {
       screenshotDir: e.target.screenshot_location.value,
       alternateSplinterPricing: e.target.alternate_splinter_pricing.checked,
       overlayEnabled: e.target.overlay_enabled.checked,
-      overlayPersistenceDisabled: e.target.overlay_persistence_disabled.checked,
       enableIncubatorAlert: e.target.enable_incubator_alert.checked,
       screenshots: {
         allowCustomShortcut: e.target.enable_screenshot_custom_shortcut.checked,
@@ -242,10 +241,11 @@ const MainSettings = ({ settings, store, runStore }) => {
             control={
               <Checkbox
                 id="overlay_persistence_disabled"
-                defaultChecked={overlayPersistenceDisabled}
+                disabled
+                defaultChecked={overlayPersistenceEnabled}
               />
             }
-            label="Disable Overlay Persistence (= Always visible overlay)"
+            label="Enable Overlay Persistence (Toggle this setting by pressing CTRL+F7)"
           />
         </div>
         <div className="Settings__Checkbox__Row">
@@ -276,7 +276,8 @@ const MainSettings = ({ settings, store, runStore }) => {
             label="Enable Screenshot Folder Monitoring"
           />
         </div>
-        <Divider className="Settings__Separator" />
+        {/* TODO: Add these settings if needed */}
+        {/* <Divider className="Settings__Separator" />
         <div>This section is not plugged in yet</div>
         <div className="Settings__Checkbox__Row">
           <FormControlLabel control={<Checkbox disabled />} label="Minimize to Tray" />
@@ -295,7 +296,7 @@ const MainSettings = ({ settings, store, runStore }) => {
         </div>
         <div className="Settings__Checkbox__Row">
           <FormControlLabel control={<Checkbox disabled />} label="Disable Gear Tracking" />
-        </div>
+        </div> */}
         <Divider className="Settings__Separator" />
         <ButtonGroup variant="outlined" fullWidth aria-label="Settings Control Buttons">
           <Button type="submit">Save</Button>

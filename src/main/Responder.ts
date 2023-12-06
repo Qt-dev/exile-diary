@@ -190,7 +190,7 @@ const debugFetchStashTabs = async () => {
 
 const fetchOverlayPersistanceStatus = async () => {
   logger.info('Fetching Overlay Persistence status for the overlay');
-  return await SettingsManager.get('overlayPersistenceDisabled');
+  return await SettingsManager.get('overlayPersistenceEnabled');
 };
 
 const Responder = {

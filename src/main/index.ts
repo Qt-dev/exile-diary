@@ -129,6 +129,8 @@ class MainProcess {
       show: false,
       skipTaskbar: true,
       transparent: true,
+      useContentSize:true,
+      focusable: true,
       webPreferences: {
         nodeIntegration: true,
         contextIsolation: false,
@@ -496,9 +498,9 @@ class MainProcess {
     ipcMain.on('get-net-worth', () => {
       StashGetter.getNetWorth();
     });
-    SettingsManager.registerListener('overlayPersistenceDisabled', (isDisabled) => {
-      logger.info(`Setting Persistence to Disabled:${isDisabled}`);
-      this.sendToOverlay('overlay:set-persistence', isDisabled);
+    SettingsManager.registerListener('overlayPersistenceEnabled', (isOverlayEnabled) => {
+      logger.info(`Setting Overlay Persistence to Enabled:${isOverlayEnabled}`);
+      this.sendToOverlay('overlay:set-persistence', isOverlayEnabled);
     });
 
     AuthManager.setMessenger(this.mainWindow.webContents);
@@ -596,22 +598,20 @@ class MainProcess {
     });
 
     OverlayController.events.on('blur', () => {
-      if (!this.overlayWindow.isFocused()) {
-        this.overlayWindow.hide();
-      }
+      this.overlayWindow.setEnabled(false);
     });
 
     OverlayController.events.on('focus', () => {
       logger.info(
-        `Overlay focused, enabled:${SettingsManager.get(
+        `Overlay controller focused, enabled:${SettingsManager.get(
           'overlayEnabled'
-        )}, persistenceDisabled:${SettingsManager.get('overlayPersistenceDisabled')}`
+        )}, persistenceEnabled:${SettingsManager.get('overlayPersistenceEnabled')}`
       );
       if (SettingsManager.get('overlayEnabled') === true) {
-        this.overlayWindow.show();
+        this.overlayWindow.setEnabled(true);
         this.overlayWindow.setIgnoreMouseEvents(false);
       } else {
-        this.overlayWindow.hide();
+        this.overlayWindow.setEnabled(false);
         this.overlayWindow.setIgnoreMouseEvents(true);
       }
     });
@@ -673,6 +673,12 @@ class MainProcess {
       logger.info('Exile Diary Reborn is closing');
       clearTimeout(this.saveBoundsCallback);
       clearTimeout(this.autoUpdaterInterval);
+    });
+
+    globalShortcut.register('CommandOrControl+F7', () => {
+      logger.info('Toggling overlay visibility');
+      const overlayPersistenceEnabled = SettingsManager.get('overlayPersistenceEnabled');
+      SettingsManager.set('overlayPersistenceEnabled', !overlayPersistenceEnabled);
     });
   }
 
