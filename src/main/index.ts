@@ -498,9 +498,9 @@ class MainProcess {
     ipcMain.on('get-net-worth', () => {
       StashGetter.getNetWorth();
     });
-    SettingsManager.registerListener('overlayPersistenceDisabled', (isDisabled) => {
-      logger.info(`Setting Persistence to Disabled:${isDisabled}`);
-      this.sendToOverlay('overlay:set-persistence', isDisabled);
+    SettingsManager.registerListener('overlayPersistenceEnabled', (isOverlayEnabled) => {
+      logger.info(`Setting Overlay Persistence to Enabled:${isOverlayEnabled}`);
+      this.sendToOverlay('overlay:set-persistence', isOverlayEnabled);
     });
 
     AuthManager.setMessenger(this.mainWindow.webContents);
@@ -605,7 +605,7 @@ class MainProcess {
       logger.info(
         `Overlay controller focused, enabled:${SettingsManager.get(
           'overlayEnabled'
-        )}, persistenceDisabled:${SettingsManager.get('overlayPersistenceDisabled')}`
+        )}, persistenceEnabled:${SettingsManager.get('overlayPersistenceEnabled')}`
       );
       if (SettingsManager.get('overlayEnabled') === true) {
         this.overlayWindow.setEnabled(true);
@@ -677,8 +677,8 @@ class MainProcess {
 
     globalShortcut.register('CommandOrControl+F7', () => {
       logger.info('Toggling overlay visibility');
-      const overlayPersistenceDisabled = SettingsManager.get('overlayPersistenceDisabled');
-      SettingsManager.set('overlayPersistenceDisabled', !overlayPersistenceDisabled);
+      const overlayPersistenceEnabled = SettingsManager.get('overlayPersistenceEnabled');
+      SettingsManager.set('overlayPersistenceEnabled', !overlayPersistenceEnabled);
     });
   }
 
