@@ -129,7 +129,7 @@ class MainProcess {
       show: false,
       skipTaskbar: true,
       transparent: true,
-      useContentSize:true,
+      useContentSize: true,
       focusable: true,
       webPreferences: {
         nodeIntegration: true,

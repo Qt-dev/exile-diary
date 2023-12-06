@@ -129,7 +129,6 @@ const useSize = (target: React.RefObject<HTMLDivElement>) => {
   return size;
 };
 
-
 const Overlay = ({ store }) => {
   const [open, setOpen] = React.useState(false);
   const [lastUpdate, setLastUpdate] = React.useState<Dayjs>(store.currentRun.lastUpdate ?? dayjs());
@@ -209,7 +208,6 @@ const Overlay = ({ store }) => {
     });
   }, []);
 
-
   useEffect(() => {
     logger.info('Open changed - ', open);
   }, [open]);
@@ -229,7 +227,7 @@ const Overlay = ({ store }) => {
     return () => {
       ipcRenderer.removeAllListeners('overlay:message');
       ipcRenderer.removeAllListeners('overlay:toggle-visibility');
-    }
+    };
   }, []);
 
   useEffect(() => {
