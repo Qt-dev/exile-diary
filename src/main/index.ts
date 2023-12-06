@@ -129,6 +129,8 @@ class MainProcess {
       show: false,
       skipTaskbar: true,
       transparent: true,
+      useContentSize:true,
+      focusable: true,
       webPreferences: {
         nodeIntegration: true,
         contextIsolation: false,
@@ -596,22 +598,20 @@ class MainProcess {
     });
 
     OverlayController.events.on('blur', () => {
-      if (!this.overlayWindow.isFocused()) {
-        this.overlayWindow.hide();
-      }
+      this.overlayWindow.setEnabled(false);
     });
 
     OverlayController.events.on('focus', () => {
       logger.info(
-        `Overlay focused, enabled:${SettingsManager.get(
+        `Overlay controller focused, enabled:${SettingsManager.get(
           'overlayEnabled'
         )}, persistenceDisabled:${SettingsManager.get('overlayPersistenceDisabled')}`
       );
       if (SettingsManager.get('overlayEnabled') === true) {
-        this.overlayWindow.show();
+        this.overlayWindow.setEnabled(true);
         this.overlayWindow.setIgnoreMouseEvents(false);
       } else {
-        this.overlayWindow.hide();
+        this.overlayWindow.setEnabled(false);
         this.overlayWindow.setIgnoreMouseEvents(true);
       }
     });
