@@ -33,7 +33,7 @@ type GetAllRunsForDatesParams = {
   };
 };
 
-export default {
+const stats = {
   getAllRuns: async (): Promise<Run[]> => {
     logger.info('Getting all maps');
     const query = `
@@ -319,3 +319,5 @@ export default {
     }
   },
 };
+
+export default stats;

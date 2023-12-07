@@ -8,8 +8,6 @@ class RatesManager {
     };
   } = {};
 
-  constructor() {}
-
   async fetchRatesForDay(league: string, date: string): Promise<any> {
     const rates = await DB.getFullRates(league, date);
     this.rates[date] = this.rates[date] || {};

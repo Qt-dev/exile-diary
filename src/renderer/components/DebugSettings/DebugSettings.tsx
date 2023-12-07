@@ -3,14 +3,13 @@ import Divider from '@mui/material/Divider';
 import Button from '@mui/material/Button';
 import ButtonGroup from '@mui/material/ButtonGroup';
 import CircularProgress from '@mui/material/CircularProgress';
-import { electronService } from '../../electron.service';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import dayjs, { Dayjs } from 'dayjs';
 import Stack from '@mui/material/Stack';
+import { electronService } from '../../electron.service';
 import './DebugSettings.css';
-const { logger } = electronService;
 
 const { ipcRenderer } = electronService;
 

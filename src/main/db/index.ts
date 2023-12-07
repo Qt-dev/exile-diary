@@ -6,9 +6,6 @@ import { app } from 'electron';
 import * as sqliteRegex from './sqlite-regex--cjs-fix';
 import SettingsManager from '../SettingsManager';
 
-const sleep = (ms: number) => {
-  return new Promise((resolve) => setTimeout(resolve, ms));
-};
 
 class DB {
   static all(sql: string, params: any[] = [], league: string | undefined = undefined) {

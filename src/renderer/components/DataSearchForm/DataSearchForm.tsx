@@ -22,7 +22,6 @@ const DataSearchForm = ({
   shouldDisplayCharacterName,
   handleToggleDisplayCharacterName,
 }) => {
-  const now = dayjs();
   const [from, setFrom] = React.useState<Dayjs | null>(
     dayjs(defaultSearchParams?.from) ?? dayjs().subtract(1, 'days')
   );

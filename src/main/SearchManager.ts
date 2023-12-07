@@ -3,14 +3,13 @@ import DB from './db/stats';
 
 class SearchManager {
   sendMessage: Function = () => {};
-  constructor() {}
 
   registerMessageHandler(handler: Function) {
     this.sendMessage = handler;
   }
 
   async search(params) {
-    const { from, to, minLootValue, neededItemName, selectedMaps, minMapValue } = params;
+    const { minLootValue } = params;
     const runs = await DB.getAllRunsForDates(params);
     const items = await DB.getAllItemsForRuns({ runs, minLootValue });
 

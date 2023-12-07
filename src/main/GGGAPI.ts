@@ -5,9 +5,9 @@ import { setupCache } from 'axios-cache-interceptor';
 import SettingsManager from './SettingsManager';
 import AuthManager from './AuthManager';
 import Bottleneck from 'bottleneck';
+import RendererLogger from './RendererLogger';
 const axios = setupCache(Axios);
 const CACHE_TIME_IN_SECONDS = 5;
-import RendererLogger from './RendererLogger';
 
 const limiters = new Bottleneck.Group({
   maxConcurrent: 1,

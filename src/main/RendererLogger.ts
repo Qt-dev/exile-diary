@@ -9,7 +9,7 @@ type Message = {
   linkEvent?: string;
 };
 
-export default {
+const RendererLogger = {
   init: (renderer, overlayRenderer) => {
     Renderer = renderer;
     OverlayRenderer = overlayRenderer;
@@ -35,7 +35,7 @@ export default {
             },
           ],
         });
-
+  
         logger.error('OverlayRenderer errored while sending a message. Is it disconnected?');
         logger.error(OverlayRenderer);
         logger.error(e);
@@ -43,3 +43,5 @@ export default {
     }
   },
 };
+
+export default RendererLogger;

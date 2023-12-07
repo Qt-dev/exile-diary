@@ -188,4 +188,4 @@ type ItemData = {
   };
 };
 
-export type { Run, Order, RunInfo, StashTabData, ItemData };
+export type { Run, Order, RunInfo, StashTabData, ItemData, StashTab };

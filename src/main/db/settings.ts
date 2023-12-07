@@ -45,7 +45,9 @@ export async function set(key: string, value: any) {
   }
 }
 
-export default {
+const dbSettings = {
   get,
   set,
 };
+
+export default dbSettings;

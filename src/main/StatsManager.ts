@@ -890,7 +890,7 @@ class ProfitTracker {
 
 const profitTracker = new ProfitTracker();
 
-export default {
+const statsManager = {
   getAllStats: async ({ league, characterName }: GetStatsParams) => {
     const runs = (await DB.getAllRuns())?.map(formatRun);
     const items = await DB.getAllItems(league);
@@ -921,3 +921,5 @@ export default {
     profitTracker.refreshProfitPerHour();
   },
 };
+
+export default statsManager;

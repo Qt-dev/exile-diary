@@ -7,7 +7,6 @@ import dayjs from 'dayjs';
 import logger from 'electron-log';
 
 class StashTabsManager {
-  constructor() {}
 
   async hasReachedMapLimit(limit: number, date: number): Promise<boolean> {
     const maps = await DB.getRunsSinceLastCheck(date);

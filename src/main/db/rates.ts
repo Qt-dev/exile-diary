@@ -3,7 +3,7 @@ import Logger from 'electron-log';
 import zlib from 'zlib';
 const logger = Logger.scope('db/rates');
 
-export default {
+const rates = {
   getFullRates: async (league: string, date: string): Promise<any> => {
     logger.info(`Getting rates for ${date} (league: ${league}) from DB`);
     const query =
@@ -72,3 +72,5 @@ export default {
     }
   },
 };
+
+export default rates;

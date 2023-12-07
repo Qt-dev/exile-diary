@@ -13,7 +13,6 @@ var settings;
 var tail;
 var inv;
 var tree;
-var login;
 var emitter = new EventEmitter();
 
 var lastInstanceServer = null;

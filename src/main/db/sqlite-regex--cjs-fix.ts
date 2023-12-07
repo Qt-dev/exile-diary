@@ -13,7 +13,7 @@ const supportedPlatforms = [
 ];
 
 function validPlatform(platform, arch) {
-  return supportedPlatforms.find(([p, a]) => platform == p && arch === a) !== null;
+  return supportedPlatforms.find(([p, a]) => platform === p && arch === a) !== null;
 }
 function extensionSuffix(platform) {
   if (platform === 'win32') return 'dll';

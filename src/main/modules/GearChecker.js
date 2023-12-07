@@ -1,5 +1,5 @@
-const logger = require('electron-log');
 import GGGAPI from '../GGGAPI';
+const logger = require('electron-log');
 const Utils = require('./Utils').default;
 const zlib = require('zlib');
 const { deepEqual } = require('fast-equals');
