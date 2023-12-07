@@ -81,7 +81,7 @@ class StashGetter {
       messages: [
         { text: 'Refreshing Stash tabs for ' },
         {
-          text: settings.trackedStashTabs[settings.activeProfile.league].length ?? 0,
+          text: settings.trackedStashTabs[settings.activeProfile.league]?.length ?? 0,
           type: 'important',
         },
         { text: ' tabs in ' },

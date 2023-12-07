@@ -30,7 +30,7 @@ export default {
     logger.info(`Cleaning rates for ${date} (league: ${league}) from DB`);
     const query = 'DELETE FROM fullrates WHERE date < ?';
     try {
-      await DB.run(query, [date], league);
+      DB.run(query, [date], league);
     } catch (err) {
       logger.error(`Error cleaning rates for ${date} (league: ${league}): ${JSON.stringify(err)}`);
     }
@@ -49,7 +49,7 @@ export default {
       });
     });
     try {
-      await DB.run(query, [date, buffer], league);
+      DB.run(query, [date, buffer], league);
       return true;
     } catch (err) {
       logger.error(`Error inserting rates for ${date} (league: ${league}): ${JSON.stringify(err)}`);
@@ -60,7 +60,7 @@ export default {
     logger.info(`Checking if rates for ${date} (league: ${league}) exist in DB`);
     const query = 'SELECT COUNT(*) as count FROM fullrates WHERE date = ?';
     try {
-      const [{ count }] = (await DB.all(query, [date], league)) as any[];
+      const [{ count }] = (DB.all(query, [date], league)) as any[];
       return count > 0;
     } catch (err) {
       logger.error(

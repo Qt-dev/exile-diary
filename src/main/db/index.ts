@@ -4,6 +4,7 @@ import { get as getSettings } from './settings';
 import logger from 'electron-log';
 import { app } from 'electron';
 import * as sqliteRegex from './sqlite-regex--cjs-fix';
+import SettingsManager from '../SettingsManager';
 
 const sleep = (ms: number) => {
   return new Promise((resolve) => setTimeout(resolve, ms));
@@ -72,16 +73,17 @@ class DB {
 
   static getLeagueDB(league: string) {
     if (!league) {
-      var settings = require('./settings').get();
-      if (!settings || !settings.activeProfile || !settings.activeProfile.league) {
-        // logger.info('Unable to get league DB');
-        return null;
+      const settings = SettingsManager.get('activeProfile');;
+      if (!settings || !settings.league) {
+        logger.error(`Unable to get current active league, Activeprofile=${JSON.stringify(settings)}`);
+        logger.info(`Falling back to Standard league`);
+        league = 'Standard';
       } else {
-        league = settings.activeProfile.league;
+        league = settings.league;
       }
     }
-    var app = require('electron').app || require('@electron/remote').app;
-    var db = new DatabaseConstructor(path.join(app.getPath('userData'), `${league}.leaguedb`));
+    const app = require('electron').app || require('@electron/remote').app;
+    const db = new DatabaseConstructor(path.join(app.getPath('userData'), `${league}.leaguedb`));
     return db;
   }
 
