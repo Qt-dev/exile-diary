@@ -12,7 +12,7 @@ import Checkbox from '@mui/material/Checkbox';
 import ListItemText from '@mui/material/ListItemText';
 import ListItemIcon from '@mui/material/ListItemIcon';
 import Button from '@mui/material/Button';
-const { ipcRenderer } = electronService;
+const { ipcRenderer, logger } = electronService;
 
 const ContainerComponent = ({ children, isFolder, disabled, callback }) => {
   if (isFolder) {
@@ -39,7 +39,12 @@ const StashTabRow = ({ stashTab, indentationLevel = 0 }) => {
     [`Stash-Settings__List-Item--${stashTab.type}`]: true,
     [`Stash-Settings__List-Item--level-${indentationLevel}`]: true,
   });
-  const Icon = require(`../../assets/img/tabicons/${stashTab.type}.png`);
+  let Icon = require('../../assets/img/tabicons/NormalStash.png'); 
+  try {
+    Icon = require(`../../assets/img/tabicons/${stashTab.type}.png`);
+  } catch (e) {
+    logger.error('Could not find icon for stash tab type', stashTab.type);
+  }
   const toggleEnabled = async (e) => {
     const newCheckedValue = !stashTab.tracked;
     await stashTab.setTracking(newCheckedValue);
