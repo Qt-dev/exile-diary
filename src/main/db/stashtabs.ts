@@ -12,7 +12,7 @@ const StashTabs = {
     logger.info('Inserting new stash data');
     const query = 'insert into stashes(timestamp, value, items) values(?, ?, ?)';
     try {
-      await DB.run(query, [timestamp, value, rawData], league);
+      DB.run(query, [timestamp, value, rawData], league);
       return true;
     } catch (err) {
       logger.error(`Error inserting new stash data: ${JSON.stringify(err)}`);
@@ -24,7 +24,7 @@ const StashTabs = {
     const query =
       'SELECT items, value FROM stashes where timestamp <= ? ORDER BY timestamp DESC LIMIT 1';
     try {
-      return (await DB.get(query, [timestamp], league)) as any;
+      return (DB.all(query, [timestamp], league)) as any ?? [];
     } catch (err) {
       logger.error(`Error getting stash data: ${JSON.stringify(err)}`);
       return '{}';
@@ -34,7 +34,7 @@ const StashTabs = {
     logger.info(`Getting previous stash value for ${league} before ${timestamp}`);
     const query = 'SELECT value FROM stashes where timestamp < ? order by timestamp desc limit 1';
     try {
-      const { value } = (await DB.get(query, [timestamp], league)) as any;
+      const { value } = (DB.get(query, [timestamp], league)) as any;
       return value;
     } catch (err) {
       logger.error(`Error getting previous stash value: ${JSON.stringify(err)}`);
