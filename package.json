@@ -1,6 +1,6 @@
 {
   "name": "exile-diary",
-  "version": "1.4.5",
+  "version": "1.4.6",
   "main": "./build/main/index.js",
   "homepage": "./",
   "build": {
