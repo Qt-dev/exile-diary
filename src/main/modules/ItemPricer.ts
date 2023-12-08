@@ -914,7 +914,7 @@ async function price(
 async function getCurrencyByName(
   type: string,
   timestamp = dayjs().format('YYYYMMDD'),
-  league = SettingsManager.get('activeProfile').league
+  league = SettingsManager.get('activeProfile')?.league || 'Standard'
 ) {
   const rates = await getRatesFor(timestamp, league);
   if (!rates || !rates['Currency']) {
