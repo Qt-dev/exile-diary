@@ -24,7 +24,8 @@ const StashTabs = {
     const query =
       'SELECT items, value FROM stashes where timestamp <= ? ORDER BY timestamp DESC LIMIT 1';
     try {
-      return (DB.all(query, [timestamp], league)) as any ?? [];
+      const stash = (DB.get(query, [timestamp], league));
+      return stash ?? [];
     } catch (err) {
       logger.error(`Error getting stash data: ${JSON.stringify(err)}`);
       return '{}';
