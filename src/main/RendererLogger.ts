@@ -35,7 +35,7 @@ const RendererLogger = {
             },
           ],
         });
-  
+
         logger.error('OverlayRenderer errored while sending a message. Is it disconnected?');
         logger.error(OverlayRenderer);
         logger.error(e);

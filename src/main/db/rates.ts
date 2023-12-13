@@ -60,7 +60,7 @@ const rates = {
     logger.info(`Checking if rates for ${date} (league: ${league}) exist in DB`);
     const query = 'SELECT COUNT(*) as count FROM fullrates WHERE date = ?';
     try {
-      const [{ count }] = (DB.all(query, [date], league)) as any[];
+      const [{ count }] = DB.all(query, [date], league) as any[];
       return count > 0;
     } catch (err) {
       logger.error(

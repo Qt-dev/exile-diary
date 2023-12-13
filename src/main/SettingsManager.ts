@@ -9,7 +9,6 @@ import EventEmitter from 'events';
 
 const settingsPath = path.join(app.getPath('userData'), 'settings.json');
 
-
 const DefaultSettings = {
   activeProfile: {
     characterName: null,
@@ -31,8 +30,7 @@ const DefaultSettings = {
   },
   trackedStashTabs: {},
   itemFilter: {},
-}
-
+};
 
 class SettingsManager {
   settings: any;
@@ -59,7 +57,7 @@ class SettingsManager {
     this.settings = require(settingsPath);
 
     this.scheduleSave();
-    
+
     this.eventEmitter.on('change', (changedKey, value) => {
       const match = this.eventKeyMatcher[changedKey];
       if (match) match.callback(value);

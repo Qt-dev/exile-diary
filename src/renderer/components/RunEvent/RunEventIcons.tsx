@@ -138,7 +138,7 @@ const iconMap = {
       icon: ShrineIcon,
       alt: `Contained ${info?.shrines?.length} Shrine${info?.shrines?.length > 1 ? 's' : ''}`,
       additionalIcons: info?.shrines?.map((shrine) => {
-        if(shrine) {
+        if (shrine) {
           const Icon = require(`../../assets/img/shrineicons/${shrine.replace(' Shrine', '')}.png`);
           return (
             <Tooltip title={shrine}>

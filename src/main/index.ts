@@ -487,8 +487,8 @@ class MainProcess {
       this.sendToMain('update-stash-content', data);
     });
     StashGetter.on('netWorthUpdated', async (data) => {
-      const divinePrice = await ItemPricer.getCurrencyByName('Divine Orb')
-      this.sendToMain('update-net-worth', {divinePrice, ...data });
+      const divinePrice = await ItemPricer.getCurrencyByName('Divine Orb');
+      this.sendToMain('update-net-worth', { divinePrice, ...data });
     });
     ipcMain.on('get-net-worth', () => {
       StashGetter.getNetWorth();
@@ -599,7 +599,7 @@ class MainProcess {
       this.overlayWindow.setBounds(OverlayController.targetBounds);
       this.sendToOverlay('overlay:trigger-reposition');
     });
- 
+
     OverlayController.events.on('blur', () => {
       this.overlayWindow.hide();
       this.overlayWindow.setIgnoreMouseEvents(true);
@@ -668,11 +668,11 @@ class MainProcess {
     ipcMain.on('overlay:make-clickable', (event, { clickable }) => {
       this.overlayWindow.setIgnoreMouseEvents(!clickable);
     });
- 
+
     ipcMain.handle('overlay:get-position', (event) => {
       logger.info('We got: ', SettingsManager.get('overlayPosition'));
       return SettingsManager.get('overlayPosition');
-    }); 
+    });
 
     ipcMain.on('overlay:set-position', (event, { x, y }) => {
       SettingsManager.set('overlayPosition', { x, y });
@@ -693,7 +693,7 @@ class MainProcess {
     globalShortcut.register('CommandOrControl+F9', () => {
       logger.info(`Toggling overlay movement - ${this.isOverlayMoveable}`);
       this.isOverlayMoveable = !this.isOverlayMoveable;
-      this.sendToOverlay('overlay:toggle-movement', { isOverlayMoveable: this.isOverlayMoveable }); 
+      this.sendToOverlay('overlay:toggle-movement', { isOverlayMoveable: this.isOverlayMoveable });
     });
   }
 

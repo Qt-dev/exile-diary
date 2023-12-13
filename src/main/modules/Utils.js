@@ -430,10 +430,13 @@ const Utils = {
 
   poeRunning: async () => {
     const processList = await require('ps-list')();
-    return processList.some(proc => { // cannot use Process for var name
+    return processList.some((proc) => {
+      // cannot use Process for var name
       const formattedProcess = proc.name.toLowerCase();
-      return formattedProcess.startsWith('pathofexile') || formattedProcess.includes('pathofexile.exe')
-    })
+      return (
+        formattedProcess.startsWith('pathofexile') || formattedProcess.includes('pathofexile.exe')
+      );
+    });
   },
 };
 

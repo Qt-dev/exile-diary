@@ -6,7 +6,6 @@ import { app } from 'electron';
 import * as sqliteRegex from './sqlite-regex--cjs-fix';
 import SettingsManager from '../SettingsManager';
 
-
 class DB {
   static all(sql: string, params: any[] = [], league: string | undefined = undefined) {
     const db = !!league ? this.getLeagueDB(league) : this.getDB();
@@ -70,9 +69,11 @@ class DB {
 
   static getLeagueDB(league: string) {
     if (!league) {
-      const settings = SettingsManager.get('activeProfile');;
+      const settings = SettingsManager.get('activeProfile');
       if (!settings || !settings.league) {
-        logger.error(`Unable to get current active league, Activeprofile=${JSON.stringify(settings)}`);
+        logger.error(
+          `Unable to get current active league, Activeprofile=${JSON.stringify(settings)}`
+        );
         logger.info(`Falling back to Standard league`);
         league = 'Standard';
       } else {

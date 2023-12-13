@@ -39,7 +39,7 @@ const StashTabRow = ({ stashTab, indentationLevel = 0 }) => {
     [`Stash-Settings__List-Item--${stashTab.type}`]: true,
     [`Stash-Settings__List-Item--level-${indentationLevel}`]: true,
   });
-  let Icon = require('../../assets/img/tabicons/NormalStash.png'); 
+  let Icon = require('../../assets/img/tabicons/NormalStash.png');
   try {
     Icon = require(`../../assets/img/tabicons/${stashTab.type}.png`);
   } catch (e) {

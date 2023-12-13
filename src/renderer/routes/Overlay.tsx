@@ -166,7 +166,7 @@ const Overlay = ({ store }) => {
   }, [notificationTime]);
 
   useLayoutEffect(() => {
-    if(isSetup.current) {
+    if (isSetup.current) {
       ipcRenderer.send('overlay:set-position', { x: position.x, y: position.y });
     }
   }, [position.x, position.y]);
@@ -178,14 +178,13 @@ const Overlay = ({ store }) => {
     Box: true,
   });
 
-
   const updatePosition = () => {
     ipcRenderer.invoke('overlay:get-position').then((position) => {
       logger.info('Setting position to', position);
       setPosition(position);
       isSetup.current = true;
     });
-  }
+  };
 
   useLayoutEffect(() => {
     ipcRenderer.removeAllListeners('overlay:trigger-reposition');
@@ -252,7 +251,7 @@ const Overlay = ({ store }) => {
         className="Overlay"
         style={{
           left: `${position.x}px`,
-          top: `${position.y}px`
+          top: `${position.y}px`,
         }}
         draggable={moveable}
         onDragStart={(e) => {
@@ -264,8 +263,7 @@ const Overlay = ({ store }) => {
           setPosition({ x: e.clientX - offset.current.x, y: e.clientY - offset.current.y });
           offset.current = { x: 0, y: 0 };
         }}
-
-        >
+      >
         <div className={boxClassNames}>
           <OverlayLine
             time={time}
@@ -285,10 +283,14 @@ const Overlay = ({ store }) => {
         </div>
       </div>
       <div className="Overlay-Label">
-        <div>
-          Move the Overlay where you want it to be, then press CTRL+F9 to lock it in place.
-        </div>
-        <Button variant="contained" color="secondary" onClick={() => { setPosition({x: 0, y: 0})} }>
+        <div>Move the Overlay where you want it to be, then press CTRL+F9 to lock it in place.</div>
+        <Button
+          variant="contained"
+          color="secondary"
+          onClick={() => {
+            setPosition({ x: 0, y: 0 });
+          }}
+        >
           Reset Overlay Position
         </Button>
       </div>

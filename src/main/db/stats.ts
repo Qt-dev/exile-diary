@@ -303,14 +303,19 @@ const stats = {
     `;
 
     try {
-      logger.debug(
-        `Getting profit for period starting at: ${beginningOfTracking}`
-        );
-      const { total_time_seconds: totalTime, total_profit: profit, runs, items } = DB.get(query, [
-        beginningOfTracking,
-        beginningOfTracking,
-      ]) as { total_time_seconds: number; total_profit: number, runs: number, items: number };
-      logger.debug('Result', { totalTime, profit, runs, items } );
+      logger.debug(`Getting profit for period starting at: ${beginningOfTracking}`);
+      const {
+        total_time_seconds: totalTime,
+        total_profit: profit,
+        runs,
+        items,
+      } = DB.get(query, [beginningOfTracking, beginningOfTracking]) as {
+        total_time_seconds: number;
+        total_profit: number;
+        runs: number;
+        items: number;
+      };
+      logger.debug('Result', { totalTime, profit, runs, items });
       const profitPerHour = totalTime > 0 ? (profit / totalTime) * 3600 : 0;
       return parseFloat(profitPerHour.toFixed(2)) ?? 0;
     } catch (err) {
