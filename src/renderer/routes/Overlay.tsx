@@ -135,6 +135,10 @@ const Overlay = ({ store }) => {
   const [latestMessage, setLatestMessage] = React.useState<JSX.Element | null>(<div>---</div>);
   const [latestMapTrackingMessage, setLatestMapTrackingMessage] =
     React.useState<JSX.Element | null>(<div>---</div>);
+  const [moveable, setMoveable] = React.useState(false);
+  const [position, setPosition] = React.useState({ x: 0, y: 0 });
+  const offset = useRef({ x: 0, y: 0 });
+  const isSetup = useRef(false);
 
   // Timer management
   const [time, setTime] = React.useState(defaultTimer);
@@ -173,21 +177,30 @@ const Overlay = ({ store }) => {
     };
   }, [notificationTime]);
 
+  useLayoutEffect(() => {
+    if(isSetup.current) {
+      ipcRenderer.send('overlay:set-position', { x: position.x, y: position.y });
+    }
+  }, [position.x, position.y]);
+
   // Sizing Management
   const ref = useRef<HTMLDivElement>(null);
   const updateSize = ({ width, height }) => {
     if (!width || !height) return;
-    ipcRenderer.send('overlay:resize', {
-      width: parseInt(width.toFixed(0)) + 1,
-      height: parseInt(height.toFixed(0)) + 1,
-    });
+    // if(window.innerWidth > 0 && width > 0 && position.x + width > window.innerWidth) {
+    //   logger.info('SIZE IS BAD', position.x, width, window.innerWidth);
+    //   setPosition({ ...position, x: window.innerWidth - width > 0 ? window.innerWidth - width : 0 });
+    // } 
+
+    // if(window.innerHeight > 0 && height > 0 &&position.y + height > window.innerHeight) {
+    //   logger.info('SIZE IS BAD', position.y, height, window.innerHeight);
+    //   setPosition({ ...position, y: window.innerHeight - height > 0 ?  window.innerHeight - height : 0 });
+    // }
   };
 
   const size = useSize(ref);
   const sizeRef = useRef(size);
   sizeRef.current = size;
-
-  updateSize(sizeRef.current);
 
   const boxClassNames = classNames({
     'Overlay__Box--Open': open,
@@ -196,16 +209,38 @@ const Overlay = ({ store }) => {
     Box: true,
   });
 
+
+  const updatePosition = () => {
+    ipcRenderer.invoke('overlay:get-position').then((position) => {
+      logger.info('Setting position to', position);
+      setPosition(position);
+      isSetup.current = true;
+    });
+  }
+
   useLayoutEffect(() => {
     ipcRenderer.removeAllListeners('overlay:trigger-resize');
     ipcRenderer.on('overlay:trigger-resize', () => {
       updateSize(sizeRef.current);
+      updatePosition();
     });
     ipcRenderer.removeAllListeners('overlay:set-persistence');
     ipcRenderer.on('overlay:set-persistence', (event, isDisabled) => {
       logger.info('Setting persistence to', isDisabled);
       setOpen(!isDisabled);
     });
+
+    ipcRenderer.removeAllListeners('overlay:toggle-movement');
+    ipcRenderer.on('overlay:toggle-movement', (event, { isOverlayMoveable }) => {
+      setMoveable(isOverlayMoveable);
+      ipcRenderer.send('overlay:make-clickable', { clickable: isOverlayMoveable });
+    });
+
+    return () => {
+      ipcRenderer.removeAllListeners('overlay:trigger-resize');
+      ipcRenderer.removeAllListeners('overlay:set-persistence');
+      ipcRenderer.removeAllListeners('overlay:toggle-movement');
+    };
   }, []);
 
   useEffect(() => {
@@ -239,24 +274,51 @@ const Overlay = ({ store }) => {
   }, [store.currentRun, store.currentRun.lastUpdate, lastUpdate]);
 
   // TODO: Change latestMapTrackingMessage to actually just open the OL
+  const containerClassNames = classNames({
+    'Overlay-Container--Moveable': moveable,
+    'Overlay-Container': true,
+  });
   return (
-    <div className="Overlay" ref={ref}>
-      <div className={boxClassNames}>
-        <OverlayLine
-          time={time}
-          isOpen={open || time > -1}
-          latestMapTrackingMessage={latestMapTrackingMessage}
+    <div className={containerClassNames}>
+      <div
+        ref={ref}
+        className="Overlay"
+        style={{
+          left: `${position.x}px`,
+          top: `${position.y}px`
+        }}
+        draggable={moveable}
+        onDragStart={(e) => {
+          logger.info('Drag started', e);
+          offset.current = { x: e.nativeEvent.offsetX, y: e.nativeEvent.offsetY };
+        }}
+        onDragEnd={(e) => {
+          logger.info('Drag ended', e);
+          setPosition({ x: e.clientX - offset.current.x, y: e.clientY - offset.current.y });
+          offset.current = { x: 0, y: 0 };
+        }}
+
         >
-          <OverlayMapInfoLine run={store.currentRun} />
-        </OverlayLine>
-        <OverlayLine
-          time={notificationTime}
-          isOpen={open || notificationTime > -1}
-          alwaysVisibleChildren={<img className="Overlay__Logo" src={Logo} alt="Logo" />}
-          latestMapTrackingMessage={latestMessage}
-        >
-          {latestMessage}
-        </OverlayLine>
+        <div className={boxClassNames}>
+          <OverlayLine
+            time={time}
+            isOpen={open || time > -1}
+            latestMapTrackingMessage={latestMapTrackingMessage}
+          >
+            <OverlayMapInfoLine run={store.currentRun} />
+          </OverlayLine>
+          <OverlayLine
+            time={notificationTime}
+            isOpen={open || notificationTime > -1}
+            alwaysVisibleChildren={<img className="Overlay__Logo" src={Logo} alt="Logo" />}
+            latestMapTrackingMessage={latestMessage}
+          >
+            {latestMessage}
+          </OverlayLine>
+        </div>
+      </div>
+      <div className="Overlay-Label">
+        Move the Overlay where you want it to be, then press CTRL+F9 to lock it in place.
       </div>
     </div>
   );

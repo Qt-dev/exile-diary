@@ -1,8 +1,32 @@
+.Overlay-Container {
+  width: 100vw;
+  height: 100vh;
+  position: relative;
+}
+.Overlay-Container--Moveable {
+  background: rgba(0, 0, 0, 0.7);
+  overflow: auto;
+}
+
 .Overlay {
-  box-sizing: border-box;
-  overflow: hidden;
-  overscroll-behavior: contain;
-  width: fit-content;
+  position: absolute;
+}
+.Overlay-Container--Moveable .Overlay {
+  cursor: move;
+}
+.Overlay-Label {
+  position: absolute;
+  bottom: 100px;
+  text-align: center;
+  width: 100%;
+  color: white;
+  font-size: 2em;
+  text-transform: uppercase;
+  display: none;
+}
+
+.Overlay-Container--Moveable .Overlay-Label {
+  display: block;
 }
 
 .Overlay__Box.Box {

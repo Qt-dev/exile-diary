@@ -18,7 +18,7 @@ import GGGAPI from './GGGAPI';
 import League from './db/league';
 import RendererLogger from './RendererLogger';
 import * as url from 'url';
-import { OverlayController } from 'electron-overlay-window';
+import { OverlayController, OVERLAY_WINDOW_OPTS } from 'electron-overlay-window';
 import dayjs, { Dayjs } from 'dayjs';
 import duration from 'dayjs/plugin/duration';
 import AuthManager from './AuthManager';
@@ -104,6 +104,7 @@ class MainProcess {
   latestGeneratedAreaSeed?: string;
   awaitingMapEntering: boolean = false;
   screenshotLock: boolean = false;
+  isOverlayMoveable: boolean;
 
   constructor() {
     this.mainWindow = new BrowserWindow({
@@ -120,23 +121,15 @@ class MainProcess {
     this.overlayWindow = new BrowserWindow({
       x: 0,
       y: 100,
-      frame: false,
-      closable: false,
-      minimizable: false,
-      maximizable: false,
-      fullscreenable: false,
-      resizable: false,
-      show: false,
-      skipTaskbar: true,
-      transparent: true,
-      useContentSize: true,
-      focusable: true,
       webPreferences: {
         nodeIntegration: true,
         contextIsolation: false,
       },
+      focusable: false,
+      ...OVERLAY_WINDOW_OPTS,
     });
     this.isDownloadingUpdate = false;
+    this.isOverlayMoveable = false;
   }
 
   async init() {
@@ -595,10 +588,19 @@ class MainProcess {
     // OverlayController listeners
     OverlayController.events.on('attach', (event) => {
       logger.info('Overlay attached to Path of Exile process');
+      this.overlayWindow.setBounds(OverlayController.targetBounds);
+      this.sendToOverlay('overlay:trigger-resize');
+    });
+
+    OverlayController.events.on('moveresize', (event) => {
+      // OverlayController resizes the overlay window when the target changes. So we tell our app to reset the size to what it should be.
+      this.overlayWindow.setBounds(OverlayController.targetBounds);
+      this.sendToOverlay('overlay:trigger-resize');
     });
 
     OverlayController.events.on('blur', () => {
-      this.overlayWindow.setEnabled(false);
+      this.overlayWindow.hide();
+      this.overlayWindow.setIgnoreMouseEvents(true);
     });
 
     OverlayController.events.on('focus', () => {
@@ -608,12 +610,9 @@ class MainProcess {
         )}, persistenceEnabled:${SettingsManager.get('overlayPersistenceEnabled')}`
       );
       if (SettingsManager.get('overlayEnabled') === true) {
-        this.overlayWindow.setEnabled(true);
-        this.overlayWindow.setIgnoreMouseEvents(false);
-      } else {
-        this.overlayWindow.setEnabled(false);
-        this.overlayWindow.setIgnoreMouseEvents(true);
+        this.overlayWindow.show();
       }
+      this.overlayWindow.setIgnoreMouseEvents(!this.isOverlayMoveable);
     });
 
     OverlayController.events.on('moveresize', (event) => {
@@ -664,9 +663,17 @@ class MainProcess {
       }
     });
 
-    ipcMain.on('overlay:resize', (event, { width, height }) => {
-      this.overlayWindow.setMinimumSize(width, height);
-      this.overlayWindow.setSize(width, height);
+    ipcMain.on('overlay:make-clickable', (event, { clickable }) => {
+      this.overlayWindow.setIgnoreMouseEvents(!clickable);
+    });
+ 
+    ipcMain.handle('overlay:get-position', (event) => {
+      logger.info('We got: ', SettingsManager.get('overlayPosition'));
+      return SettingsManager.get('overlayPosition');
+    }); 
+
+    ipcMain.on('overlay:set-position', (event, { x, y }) => {
+      SettingsManager.set('overlayPosition', { x, y });
     });
 
     app.on('will-quit', () => {
@@ -679,6 +686,12 @@ class MainProcess {
       logger.info('Toggling overlay visibility');
       const overlayPersistenceEnabled = SettingsManager.get('overlayPersistenceEnabled');
       SettingsManager.set('overlayPersistenceEnabled', !overlayPersistenceEnabled);
+    });
+
+    globalShortcut.register('CommandOrControl+F9', () => {
+      logger.info(`Toggling overlay movement - ${this.isOverlayMoveable}`);
+      this.isOverlayMoveable = !this.isOverlayMoveable;
+      this.sendToOverlay('overlay:toggle-movement', { isOverlayMoveable: this.isOverlayMoveable }); 
     });
   }
 
