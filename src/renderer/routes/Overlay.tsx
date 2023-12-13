@@ -2,7 +2,6 @@ import React, { ReactNode, useLayoutEffect, useEffect, useRef } from 'react';
 import { electronService } from '../electron.service';
 import './Overlay.css';
 import classNames from 'classnames';
-import useResizeObserver from '@react-hook/resize-observer';
 import { observer } from 'mobx-react-lite';
 import dayjs, { Dayjs } from 'dayjs';
 import { classPerType } from '../components/LogBox/LogBox';
@@ -117,18 +116,6 @@ const OverlayLine = ({
   );
 };
 
-const useSize = (target: React.RefObject<HTMLDivElement>) => {
-  const [size, setSize] = React.useState({ width: 0, height: 0 });
-
-  useLayoutEffect(() => {
-    if (target.current) setSize(target.current.getBoundingClientRect());
-  }, [target]);
-
-  useResizeObserver(target, (entry) => setSize(entry.contentRect));
-
-  return size;
-};
-
 const Overlay = ({ store }) => {
   const [open, setOpen] = React.useState(false);
   const [lastUpdate, setLastUpdate] = React.useState<Dayjs>(store.currentRun.lastUpdate ?? dayjs());
@@ -183,25 +170,6 @@ const Overlay = ({ store }) => {
     }
   }, [position.x, position.y]);
 
-  // Sizing Management
-  const ref = useRef<HTMLDivElement>(null);
-  const updateSize = ({ width, height }) => {
-    if (!width || !height) return;
-    // if(window.innerWidth > 0 && width > 0 && position.x + width > window.innerWidth) {
-    //   logger.info('SIZE IS BAD', position.x, width, window.innerWidth);
-    //   setPosition({ ...position, x: window.innerWidth - width > 0 ? window.innerWidth - width : 0 });
-    // } 
-
-    // if(window.innerHeight > 0 && height > 0 &&position.y + height > window.innerHeight) {
-    //   logger.info('SIZE IS BAD', position.y, height, window.innerHeight);
-    //   setPosition({ ...position, y: window.innerHeight - height > 0 ?  window.innerHeight - height : 0 });
-    // }
-  };
-
-  const size = useSize(ref);
-  const sizeRef = useRef(size);
-  sizeRef.current = size;
-
   const boxClassNames = classNames({
     'Overlay__Box--Open': open,
     'Overlay__Box--Invisible': !open && time <= 0 && notificationTime <= 0,
@@ -221,7 +189,6 @@ const Overlay = ({ store }) => {
   useLayoutEffect(() => {
     ipcRenderer.removeAllListeners('overlay:trigger-resize');
     ipcRenderer.on('overlay:trigger-resize', () => {
-      updateSize(sizeRef.current);
       updatePosition();
     });
     ipcRenderer.removeAllListeners('overlay:set-persistence');
@@ -281,7 +248,6 @@ const Overlay = ({ store }) => {
   return (
     <div className={containerClassNames}>
       <div
-        ref={ref}
         className="Overlay"
         style={{
           left: `${position.x}px`,
