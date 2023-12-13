@@ -259,7 +259,6 @@ class StashGetter {
       emitter.emit('netWorthUpdated', {
         value: Number(latestStashValue).toFixed(2),
         change,
-        divinePrice: await ItemPricer.getCurrencyByName('Divine Orb'),
       });
     }
   }
