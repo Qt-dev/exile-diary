@@ -6,6 +6,7 @@ import { observer } from 'mobx-react-lite';
 import dayjs, { Dayjs } from 'dayjs';
 import { classPerType } from '../components/LogBox/LogBox';
 import Logo from '../logo.png';
+import { Button } from '@mui/material';
 const { ipcRenderer, logger } = electronService;
 const defaultTimer = 3;
 
@@ -284,7 +285,12 @@ const Overlay = ({ store }) => {
         </div>
       </div>
       <div className="Overlay-Label">
-        Move the Overlay where you want it to be, then press CTRL+F9 to lock it in place.
+        <div>
+          Move the Overlay where you want it to be, then press CTRL+F9 to lock it in place.
+        </div>
+        <Button variant="contained" color="secondary" onClick={() => { setPosition({x: 0, y: 0})} }>
+          Reset Overlay Position
+        </Button>
       </div>
     </div>
   );
