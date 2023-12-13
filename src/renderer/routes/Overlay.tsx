@@ -187,8 +187,8 @@ const Overlay = ({ store }) => {
   }
 
   useLayoutEffect(() => {
-    ipcRenderer.removeAllListeners('overlay:trigger-resize');
-    ipcRenderer.on('overlay:trigger-resize', () => {
+    ipcRenderer.removeAllListeners('overlay:trigger-reposition');
+    ipcRenderer.on('overlay:trigger-reposition', () => {
       updatePosition();
     });
     ipcRenderer.removeAllListeners('overlay:set-persistence');
@@ -204,7 +204,7 @@ const Overlay = ({ store }) => {
     });
 
     return () => {
-      ipcRenderer.removeAllListeners('overlay:trigger-resize');
+      ipcRenderer.removeAllListeners('overlay:trigger-reposition');
       ipcRenderer.removeAllListeners('overlay:set-persistence');
       ipcRenderer.removeAllListeners('overlay:toggle-movement');
     };

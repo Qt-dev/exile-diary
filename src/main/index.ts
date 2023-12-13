@@ -589,15 +589,15 @@ class MainProcess {
     OverlayController.events.on('attach', (event) => {
       logger.info('Overlay attached to Path of Exile process');
       this.overlayWindow.setBounds(OverlayController.targetBounds);
-      this.sendToOverlay('overlay:trigger-resize');
+      this.sendToOverlay('overlay:trigger-reposition');
     });
 
     OverlayController.events.on('moveresize', (event) => {
       // OverlayController resizes the overlay window when the target changes. So we tell our app to reset the size to what it should be.
       this.overlayWindow.setBounds(OverlayController.targetBounds);
-      this.sendToOverlay('overlay:trigger-resize');
+      this.sendToOverlay('overlay:trigger-reposition');
     });
-
+ 
     OverlayController.events.on('blur', () => {
       this.overlayWindow.hide();
       this.overlayWindow.setIgnoreMouseEvents(true);
@@ -618,7 +618,7 @@ class MainProcess {
     OverlayController.events.on('moveresize', (event) => {
       // OverlayController resizes the overlay window when the target changes. So we tell our app to reset the size to what it should be.
       // https://github.com/SnosMe/electron-overlay-window/blob/28261ce92633292c9accd8e185174489311f0b1f/src/index.ts#L109
-      this.sendToOverlay('overlay:trigger-resize');
+      this.sendToOverlay('overlay:trigger-reposition');
     });
 
     // OverlayWindow listeners
@@ -629,7 +629,7 @@ class MainProcess {
     });
 
     this.overlayWindow.on('show', () => {
-      this.sendToOverlay('overlay:trigger-resize');
+      this.sendToOverlay('overlay:trigger-reposition');
     });
 
     this.overlayWindow.on('close', (event) => {
