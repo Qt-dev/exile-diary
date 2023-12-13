@@ -20,7 +20,8 @@ const OptionalDivineValue = ({ value, divinePrice, displayChaos }) => {
 };
 
 const Price = ({ value, divinePrice = 0, displayChaos = true }) => {
-  const shouldDisplayChaos = displayChaos || value < divinePrice;
+  const realDivinePrice = divinePrice ?? 0;
+  const shouldDisplayChaos = displayChaos || value < realDivinePrice;
   return (
     <span className="Price">
       {shouldDisplayChaos && (
@@ -31,7 +32,7 @@ const Price = ({ value, divinePrice = 0, displayChaos = true }) => {
       )}
       <OptionalDivineValue
         value={value}
-        divinePrice={divinePrice}
+        divinePrice={realDivinePrice}
         displayChaos={shouldDisplayChaos}
       />
     </span>

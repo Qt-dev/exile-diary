@@ -9,6 +9,31 @@ import EventEmitter from 'events';
 
 const settingsPath = path.join(app.getPath('userData'), 'settings.json');
 
+
+const DefaultSettings = {
+  activeProfile: {
+    characterName: null,
+    league: null,
+    valid: false,
+  },
+  alternateSplinterPricing: true,
+  enableIncubatorAlert: false,
+  clientTxt: null,
+  screenshotDir: null,
+  overlayEnabled: true,
+  screenshots: {
+    allowCustomShortcut: true,
+    allowFolderWatch: false,
+    screenshotDir: null,
+  },
+  netWorthCheck: {
+    interval: 500,
+  },
+  trackedStashTabs: {},
+  itemFilter: {},
+}
+
+
 class SettingsManager {
   settings: any;
   saveScheduler: NodeJS.Timeout | null = null;
@@ -29,10 +54,12 @@ class SettingsManager {
       await fs.stat(settingsPath);
     } catch (e) {
       logger.info('Initializing settings.json');
-      await fs.writeFile(settingsPath, JSON.stringify({}));
+      await fs.writeFile(settingsPath, JSON.stringify(DefaultSettings));
     }
-    this.settings = require(path.join(app.getPath('userData'), 'settings.json'));
+    this.settings = require(settingsPath);
 
+    this.scheduleSave();
+    
     this.eventEmitter.on('change', (changedKey, value) => {
       const match = this.eventKeyMatcher[changedKey];
       if (match) match.callback(value);

@@ -33,6 +33,7 @@ import StashGetter from './modules/StashGetter';
 import RunParser from './modules/RunParser';
 import KillTracker from './modules/KillTracker';
 import StatsManager from './StatsManager';
+import ItemPricer from './modules/ItemPricer';
 
 dayjs.extend(duration);
 const devUrl = 'http://localhost:3000';
@@ -485,8 +486,9 @@ class MainProcess {
       logger.info(`Updated stash tabs (League: ${data.league} - Change: ${data.change})`);
       this.sendToMain('update-stash-content', data);
     });
-    StashGetter.on('netWorthUpdated', (data) => {
-      this.sendToMain('update-net-worth', data);
+    StashGetter.on('netWorthUpdated', async (data) => {
+      const divinePrice = await ItemPricer.getCurrencyByName('Divine Orb')
+      this.sendToMain('update-net-worth', {divinePrice, ...data });
     });
     ipcMain.on('get-net-worth', () => {
       StashGetter.getNetWorth();
