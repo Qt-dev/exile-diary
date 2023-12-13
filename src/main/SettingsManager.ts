@@ -28,6 +28,10 @@ const DefaultSettings = {
   netWorthCheck: {
     interval: 500,
   },
+  overlayPosition: {
+    x: 0,
+    y: 0,
+  },
   trackedStashTabs: {},
   itemFilter: {},
 };
@@ -54,7 +58,11 @@ class SettingsManager {
       logger.info('Initializing settings.json');
       await fs.writeFile(settingsPath, JSON.stringify(DefaultSettings));
     }
-    this.settings = require(settingsPath);
+
+    this.settings = {
+      ...DefaultSettings,
+      ...require(settingsPath),
+    };
 
     this.scheduleSave();
 
