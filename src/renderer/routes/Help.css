@@ -1,0 +1,24 @@
+.Help__FAQ__Title {
+  margin: 0 auto;
+  width: 100%;
+  text-align: left;
+}
+
+.Help__About__Text {
+  text-align: center;
+}
+
+.Help section {
+  margin: 26px auto 35px;
+}
+
+.Help .Page__Title {
+  margin: 15px;
+}
+
+.Help__Social-Media-Buttons {
+  margin: 15px auto;
+  justify-content: center;
+  align-items: center;
+  display: flex;
+}

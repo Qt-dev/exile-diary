@@ -119,6 +119,8 @@
     "@electron/remote": "^2.0.8",
     "@emotion/react": "^11.10.6",
     "@emotion/styled": "^11.10.6",
+    "@fortawesome/free-brands-svg-icons": "^6.5.1",
+    "@fortawesome/react-fontawesome": "^0.2.0",
     "@mui/icons-material": "^5.14.18",
     "@mui/material": "^5.14.18",
     "@mui/x-date-pickers": "^6.18.1",

@@ -228,6 +228,8 @@ span.negative {
   font-family: FontInSmallCaps;
   font-size: 1.5em;
   color: white;
+  text-align: center;
+  font-weight: bold;
 }
 
 .Icon--Hidden {
