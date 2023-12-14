@@ -233,7 +233,7 @@ function getTempItem(item) {
     logger.info(JSON.stringify(item));
   }
 
-  if (tempItem.inventoryId === 'Flask') {
+  if (tempItem.inventoryId === 'Flask' && tempItem.properties) {
     // ignore flask charges and enchantment mods
     delete tempItem.enchantMods;
     for (let i = tempItem.properties.length - 1; i >= 0; i--) {
