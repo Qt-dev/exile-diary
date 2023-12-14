@@ -3,3 +3,22 @@
   width: 100%;
   text-align: left;
 }
+
+.Help__About__Text {
+  text-align: center;
+}
+
+.Help section {
+  margin: 25px auto;
+}
+
+.Help .Page__Title {
+  margin: 15px;
+}
+
+.Help__Social-Media-Buttons {
+  margin: 15px auto;
+  justify-content: center;
+  align-items: center;
+  display: flex;
+}
