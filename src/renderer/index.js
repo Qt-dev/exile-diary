@@ -24,6 +24,7 @@ import StashTabs from './routes/StashTabs';
 import CharacterSelect from './routes/CharacterSelect';
 import LoginBox from './routes/LoginBox';
 import Overlay from './routes/Overlay';
+import Help from './routes/Help';
 import { electronService } from './electron.service';
 const { logger } = electronService;
 dayjs.extend(duration);
@@ -111,8 +112,8 @@ const router = createHashRouter([
         element: <div>Gear</div>,
       },
       {
-        path: 'about',
-        element: <div>About</div>,
+        path: 'help',
+        element: <Help />,
       },
     ],
   },
