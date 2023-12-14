@@ -10,8 +10,12 @@ import styled from '@mui/material/styles/styled';
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faDiscord, faGithub } from '@fortawesome/free-brands-svg-icons';
+import { electronService } from '../electron.service';
 import './Help.css';
+const { shell } = electronService;
 
+const DiscordUrl = 'https://discord.gg/fpdsmENfvw';
+const gitHubUrl = 'https://github.com/Qt-dev/exile-diary/releases'
 
 const GithubButton = styled(Button)(({ theme }) => ({ 
   color: '#ffffff',
@@ -26,7 +30,7 @@ const Help = () => {
   return (
     <div className="Help Box">
       <section>
-        <div className="Page__Title">About</div>
+        <div className="Page__Title">About <span className="Text--Legendary">Exile Diary Reborn</span></div>
         <Typography className="Help__About__Text">
           This app is a tool to help you keep track of your progress in Path of Exile.
           <br />
@@ -35,9 +39,9 @@ const Help = () => {
         <Typography className="Help__About__Text">
           Join the Discord server to get help, report bugs, or suggest new features.
         </Typography>
-        <ButtonGroup className="Help__Social-Media-Buttons" variant="contained" aria-label="outlined primary button group">
-          <Button startIcon={<FontAwesomeIcon icon={faDiscord} ></FontAwesomeIcon>} variant="contained">Discord Server</Button>
-          <GithubButton startIcon={<FontAwesomeIcon icon={faGithub} ></FontAwesomeIcon>} variant="contained">Github Repository</GithubButton>
+        <ButtonGroup className="Help__Social-Media-Buttons" sx={{display: 'flex'}} variant="contained" aria-label="outlined primary button group">
+          <Button onClick={() => shell.openExternal(DiscordUrl)} startIcon={<FontAwesomeIcon icon={faDiscord} ></FontAwesomeIcon>} variant="contained">Discord Server</Button>
+          <GithubButton onClick={() => shell.openExternal(gitHubUrl)} startIcon={<FontAwesomeIcon icon={faGithub} ></FontAwesomeIcon>} variant="contained">Changelog on Github</GithubButton>
         </ButtonGroup>
       </section>
       <section>
