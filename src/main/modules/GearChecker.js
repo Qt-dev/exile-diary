@@ -64,6 +64,10 @@ const flaskIgnoreProperties = [
 ];
 
 async function check(timestamp, eqp) {
+  if(!eqp) {
+    logger.error('No equipment found in inventory. Skipping Gear change Check.');
+    return;
+  }
   DB = require('./DB').getDB();
   settings = require('./settings').get();
   if (settings.activeProfile.noGearCheck) {
