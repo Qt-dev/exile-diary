@@ -192,7 +192,7 @@ const Overlay = ({ store }) => {
     });
     ipcRenderer.removeAllListeners('overlay:set-persistence');
     ipcRenderer.on('overlay:set-persistence', (event, isDisabled) => {
-      logger.info('Setting persistence to', isDisabled);
+      logger.debug('Setting persistence to', isDisabled);
       setOpen(!isDisabled);
     });
 
@@ -208,10 +208,6 @@ const Overlay = ({ store }) => {
       ipcRenderer.removeAllListeners('overlay:toggle-movement');
     };
   }, []);
-
-  useEffect(() => {
-    logger.info('Open changed - ', open);
-  }, [open]);
 
   useEffect(() => {
     ipcRenderer.removeAllListeners('overlay:toggle-visibility');
@@ -254,11 +250,9 @@ const Overlay = ({ store }) => {
         }}
         draggable={moveable}
         onDragStart={(e) => {
-          logger.info('Drag started', e);
           offset.current = { x: e.nativeEvent.offsetX, y: e.nativeEvent.offsetY };
         }}
         onDragEnd={(e) => {
-          logger.info('Drag ended', e);
           setPosition({ x: e.clientX - offset.current.x, y: e.clientY - offset.current.y });
           offset.current = { x: 0, y: 0 };
         }}
