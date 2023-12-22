@@ -312,7 +312,15 @@ class StashGetter {
 
     for (const item of items) {
       const parsedItem = this.parseItem(item, timestamp);
-      const price = await ItemPricer.price(parsedItem, settings.activeProfile.league);
+      let price = {
+        isVendor: false,
+        value: 0
+      };
+      try {
+        price = await ItemPricer.price(parsedItem, settings.activeProfile.league);
+      } catch (err) {
+        logger.error(`Error pricing item ${parsedItem.name}. Reverting to 0 value.`);
+      }
 
       // vendor recipes handled manually
       totalValue += price.isVendor ? 0 : price.value;
