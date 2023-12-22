@@ -14,10 +14,10 @@ const limiters = new Bottleneck.Group({
   minTime: 333,
 });
 
-limiters.on('failed', async (error, jobInfo) => {
+const handleFailure = (type: string) =>  async (error, jobInfo) => {
   const { retryCount } = jobInfo;
   logger.error(
-    `Request ${jobInfo.options.id} failed with ${error.message}. Retried ${retryCount} times.`
+    `Request ${jobInfo.options.id} failed (type: ${type}) with ${error.message}. Retried ${retryCount} times.`
   );
   if (error.status === 429) {
     logger.error(
@@ -36,7 +36,10 @@ limiters.on('failed', async (error, jobInfo) => {
     logger.error(`Request ${jobInfo.options.id} failed. Retrying... in 10 second.`);
     return 10000;
   }
-});
+};
+
+limiters.on('failed', handleFailure('failed'));
+limiters.on('error', handleFailure('error'));
 
 limiters.on('done', (jobInfo) => {
   // globalLimiter.once('running', () => {
