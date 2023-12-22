@@ -41,7 +41,7 @@ const getAreaType = (area: string) => {
     // logger.debug(`Found area type ${keys[0]} for "${area}"`);
     return keys[0];
   }
-  logger.info(`No area type found for "${area}"`);
+  logger.warn(`No area type found for "${area}"`);
   return 'Other';
 };
 
@@ -872,7 +872,7 @@ class ProfitTracker {
         daily: this.getProfitPerHourForLastDay(),
         hourly: this.getProfitPerHourForLastHour(),
       };
-      logger.info(`Updating profit per hour to `, profitPerHour);
+      logger.debug(`Updating profit per hour to `, profitPerHour);
 
       this.announcer.announce(profitPerHour, await ItemPricer.getCurrencyByName('Divine Orb'));
     }

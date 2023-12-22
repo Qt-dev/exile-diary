@@ -494,7 +494,7 @@ class MainProcess {
       StashGetter.getNetWorth();
     });
     SettingsManager.registerListener('overlayPersistenceEnabled', (isOverlayEnabled) => {
-      logger.info(`Setting Overlay Persistence to Enabled:${isOverlayEnabled}`);
+      logger.debug(`Setting Overlay Persistence to Enabled:${isOverlayEnabled}`);
       this.sendToOverlay('overlay:set-persistence', isOverlayEnabled);
     });
 
@@ -670,7 +670,6 @@ class MainProcess {
     });
 
     ipcMain.handle('overlay:get-position', (event) => {
-      logger.info('We got: ', SettingsManager.get('overlayPosition'));
       return SettingsManager.get('overlayPosition');
     });
 

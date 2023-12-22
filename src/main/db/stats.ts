@@ -35,7 +35,7 @@ type GetAllRunsForDatesParams = {
 
 const stats = {
   getAllRuns: async (): Promise<Run[]> => {
-    logger.info('Getting all maps');
+    logger.debug('Getting all maps');
     const query = `
       SELECT
         areainfo.name, mapruns.*,	(SELECT count(1) FROM events WHERE conquerortimes.run_id = mapruns.id AND events.id BETWEEN conquerortimes.start AND conquerortimes.end AND events.event_type = 'slain' ) AS conqueror_deaths,
@@ -249,7 +249,7 @@ const stats = {
 
     try {
       const maps = DB.all(query) as string[];
-      logger.info(`Got ${maps.length} map names`);
+      logger.debug(`Got ${maps.length} map names`);
       return maps ?? [];
     } catch (err) {
       logger.error(`Error getting all map names: ${JSON.stringify(err)}`);
@@ -265,7 +265,7 @@ const stats = {
 
     try {
       const mods = DB.all(query) as string[];
-      logger.info(`Got ${mods.length} mods`);
+      logger.debug(`Got ${mods.length} mods`);
       return mods ?? [];
     } catch (err) {
       logger.error(`Error getting all mods: ${JSON.stringify(err)}`);
@@ -303,19 +303,15 @@ const stats = {
     `;
 
     try {
-      logger.debug(`Getting profit for period starting at: ${beginningOfTracking}`);
       const {
         total_time_seconds: totalTime,
         total_profit: profit,
-        runs,
-        items,
       } = DB.get(query, [beginningOfTracking, beginningOfTracking]) as {
         total_time_seconds: number;
         total_profit: number;
         runs: number;
         items: number;
       };
-      logger.debug('Result', { totalTime, profit, runs, items });
       const profitPerHour = totalTime > 0 ? (profit / totalTime) * 3600 : 0;
       return parseFloat(profitPerHour.toFixed(2)) ?? 0;
     } catch (err) {
