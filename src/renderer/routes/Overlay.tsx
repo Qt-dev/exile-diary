@@ -180,7 +180,6 @@ const Overlay = ({ store }) => {
 
   const updatePosition = () => {
     ipcRenderer.invoke('overlay:get-position').then((position) => {
-      logger.info('Setting position to', position);
       setPosition(position);
       isSetup.current = true;
     });
