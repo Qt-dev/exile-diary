@@ -184,7 +184,9 @@ const getDataForInventory = async () => {
       group: '/character',
     });
     const character = await response.data.character;
-    const { inventory, equipment, experience } = character;
+    const { inventory: mainInventory, equipment, experience } = character;
+    const rucksack = character.rucksack ?? [];
+    const inventory = [...mainInventory, ...rucksack];
     logger.info(`Found inventory for character: ${characterName}`);
     return {
       inventory,
