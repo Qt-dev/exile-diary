@@ -2,6 +2,9 @@ import EventEmitter from 'events';
 import { ItemData } from '../../helpers/types';
 import DB from '../db/incubators';
 import SettingsManager from '../SettingsManager';
+import Logger from 'electron-log';
+
+const logger = Logger.scope('KillTracker');
 
 const emitter = new EventEmitter();
 
@@ -24,18 +27,22 @@ const incubatorGearSlots = [
 
 async function logKillCount(timestamp: number, eqp: { [key: string]: ItemData }) {
   const incubators = {};
-  Object.keys(eqp).forEach((key) => {
-    const item: ItemData = eqp[key];
-    if (item.incubatedItem) {
-      incubators[key] = {
-        gearSlot: item.inventoryId,
-        itemType: item.incubatedItem.name,
-        level: item.incubatedItem.level,
-        progress: item.incubatedItem.progress,
-        total: item.incubatedItem.total,
-      };
-    }
-  });
+  if(eqp) {
+    Object.keys(eqp).forEach((key) => {
+      const item: ItemData = eqp[key];
+      if (item.incubatedItem) {
+        incubators[key] = {
+          gearSlot: item.inventoryId,
+          itemType: item.incubatedItem.name,
+          level: item.incubatedItem.level,
+          progress: item.incubatedItem.progress,
+          total: item.incubatedItem.total,
+        };
+      }
+    });
+  } else {
+    logger.error('Found no eqp in logKillCount');
+  }
 
   const settings = SettingsManager.getAll();
   if (settings.enableIncubatorAlert) {
