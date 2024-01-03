@@ -7,6 +7,7 @@ import {
   session,
   globalShortcut,
   nativeImage,
+  screen,
 } from 'electron';
 import { autoUpdater } from 'electron-updater';
 import * as path from 'path';
@@ -528,6 +529,16 @@ class MainProcess {
     if (settings && settings.mainWindowBounds) {
       logger.info('loading with bounds', settings.mainWindowBounds);
       this.mainWindow.setBounds(settings.mainWindowBounds);
+
+      // Electron has a long standing bug where it does not properly restore the window size on
+      // multi monitor setups with different scaling factors
+      // https://github.com/electron/electron/issues/10862
+      // We work around this by checking if the scaling factors are different and if so, we set the bounds again
+      const displays = screen.getAllDisplays();
+      if ((displays.length > 1) &&
+         (displays[0].scaleFactor != displays[1].scaleFactor)) {
+        this.mainWindow.setBounds(settings.mainWindowBounds);
+      }
     } else {
       this.mainWindow.maximize();
     }
