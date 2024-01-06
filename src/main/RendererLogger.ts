@@ -7,6 +7,8 @@ type Message = {
   type?: string;
   link?: string;
   linkEvent?: string;
+  price?: number;
+  divinePrice?: number;
 };
 
 const RendererLogger = {

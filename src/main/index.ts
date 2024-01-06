@@ -357,16 +357,16 @@ class MainProcess {
     });
 
     RunParser.emitter.removeAllListeners();
-    RunParser.emitter.on('runProcessed', (run) => {
-      var f = new Intl.NumberFormat();
+    RunParser.emitter.on('runProcessed', async (run) => {
+      const f = new Intl.NumberFormat();
+      const divinePrice = await ItemPricer.getCurrencyByName('Divine Orb');
       logger.info(
-        `<span style='cursor:pointer;' onclick='window.location.href="map.html?id=${run.id}";'>` +
           `Completed run in <span class='eventText'>${run.name}</span> ` +
           `(${(Utils.getRunningTime(run.firstevent, run.lastevent), 'mm:ss')}` +
-          (run.gained ? `, ${run.gained} <img src='res/img/c.png' class='currencyText'>` : '') +
+          (run.gained ? `, ${run.gained} chaos orbs` : '') +
           (run.kills ? `, ${f.format(run.kills)} kills` : '') +
           (run.xp ? `, ${f.format(run.xp)} XP` : '') +
-          `)</span>`
+          `)`
       );
       RendererLogger.log({
         messages: [
@@ -379,10 +379,12 @@ class MainProcess {
             link: `run/${run.id}`,
           },
           {
-            text: ` (${Utils.getRunningTime(run.firstevent, run.lastevent)}`,
+            text: ` (${Utils.getRunningTime(run.firstevent, run.lastevent)}, `,
           },
           {
-            text: run.gained ? `, ${run.gained}c ` : '',
+            text: '',
+            price: run.gained,
+            divinePrice,
             type: 'currency',
           },
           {
