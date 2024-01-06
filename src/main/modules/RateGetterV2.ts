@@ -14,7 +14,7 @@ const rateTypes = {
   Currency: cleanCurrency,
   Fragment: cleanCurrency,
 
-  Tattoo: cleanNameValuePairs,
+  // Tattoo: cleanNameValuePairs,
   Omen: cleanNameValuePairs,
   DivinationCard: cleanNameValuePairs,
   Artifact: cleanNameValuePairs,
@@ -41,7 +41,7 @@ const rateTypes = {
   BaseType: cleanBaseTypes,
   Fossil: cleanNameValuePairs,
   Resonator: cleanNameValuePairs,
-  HelmetEnchant: cleanEnchants,
+  // HelmetEnchant: cleanEnchants,
   Beast: cleanNameValuePairs,
   Essence: cleanNameValuePairs,
   Vial: cleanNameValuePairs,
@@ -303,7 +303,6 @@ class RateGetterV2 {
       case 'Fragment':
         url = `/api/data/currencyoverview?type=${category}`;
         break;
-      case 'Tattoo':
       case 'Omen':
       case 'DivinationCard':
       case 'Artifact':
@@ -332,7 +331,6 @@ class RateGetterV2 {
       case 'BaseType':
       case 'Fossil':
       case 'Resonator':
-      case 'HelmetEnchant':
       case 'Beast':
       case 'Essence':
       case 'Vial':
@@ -340,7 +338,9 @@ class RateGetterV2 {
         // case 'Prophecy':
         // case 'Watchstone':
         // case 'Seed':
-        url = `/api/data/itemoverview?type=${category}`;
+        // case 'Tattoo':
+        // case 'HelmetEnchant':
+          url = `/api/data/itemoverview?type=${category}`;
         break;
       default:
         throw new Error(`Invalid poe.ninja category [${category}]`);
