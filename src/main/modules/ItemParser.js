@@ -1,6 +1,9 @@
+import ItemPricer from './ItemPricer';
+import Item from '../models/Item';
 const logger = require('electron-log');
 const Utils = require('./Utils').default;
 const ItemCategoryParser = require('./ItemCategoryParser');
+const DB = require('../db/items').default;
 const rarities = [
   'Normal',
   'Magic',
@@ -15,57 +18,24 @@ const rarities = [
 ];
 
 async function insertItems(items, timestamp) {
-  return new Promise(async (resolve, reject) => {
-    var DB = require('./DB').getDB();
+  const duplicateInventory = await isDuplicateInventory(items);
+  if (duplicateInventory) {
+    logger.info(`Duplicate items found for ${timestamp}, returning`);
+    return;
+  } else {
+    logger.info(`Inserting items for ${timestamp}`);
+    const itemsToInsert = [];
+    for(const itemKey in items) {
+      const item = new Item(items[itemKey]);
+      item.setTimestamp(timestamp);
 
-    var duplicateInventory = await isDuplicateInventory(items);
-    if (duplicateInventory) {
-      logger.info(`Duplicate items found for ${timestamp}, returning`);
-      resolve();
-    } else {
-      logger.info(`Inserting items for ${timestamp}`);
-      DB.serialize(function () {
-        DB.run('begin transaction', (err) => {
-          if (err) {
-            logger.info(`Error beginning transaction to insert items: ${err}`);
-          }
-        });
-        var stmt = DB.prepare(
-          `
-            insert into items (id, event_id, icon, name, rarity, category, identified, typeline, sockets, stacksize, rawdata)
-            values(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-          `
-        );
-        Object.keys(items).forEach((key) => {
-          var itemToInsert = parseItem(items[key], timestamp);
-          stmt.run(itemToInsert, (err) => {
-            if (err) {
-              logger.info(`Error inserting item: ${err}`);
-              logger.info(JSON.stringify(itemToInsert));
-            }
-          });
-        });
-        stmt.finalize((err) => {
-          if (err) {
-            logger.warn(`Error inserting items for ${timestamp}: ${err}`);
-            DB.run('rollback', (err) => {
-              if (err) {
-                logger.info(`Error rolling back failed item insert: ${err}`);
-              }
-            });
-          } else {
-            DB.run('commit', (err) => {
-              if (err) {
-                logger.info(`Error committing item insert: ${err}`);
-              }
-            });
-          }
-        });
-        logger.info(`Done inserting items for ${timestamp}`);
-        resolve();
-      });
+      const { value } = await ItemPricer.price(item);
+      item.setValue(value);
+      itemsToInsert.push(item.toDbInsertFormat(timestamp));
     }
-  });
+
+    DB.insertItems(itemsToInsert);
+  }
 }
 
 async function isDuplicateInventory(items) {
@@ -97,8 +67,8 @@ async function isDuplicateInventory(items) {
       resolve(false);
     } else {
       logger.info(query);
-      var DB = require('./DB').getDB();
-      DB.get(query, (err, row) => {
+      var OldDB = require('./DB').getDB();
+      OldDB.get(query, (err, row) => {
         if (err) {
           logger.warn(`Error checking inventory keys: ${err}`);
           resolve(false);
@@ -136,7 +106,7 @@ function parseItem(item, timestamp) {
     name,
     rarity,
     category,
-    identified,
+    identified ? 1 : 0,
     typeline,
     sockets,
     stacksize,
