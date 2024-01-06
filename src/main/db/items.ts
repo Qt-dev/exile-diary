@@ -12,6 +12,13 @@ const Items = {
       `;
     return DB.transaction(query, items);
   },
+  getMatchingItemsCount: async (itemIds: string[]): Promise<number> => {
+    const itemQueries : string[] = itemIds.map((id) => `(id = '${id}')`);
+
+    const query = `select count(1) as count from items where (${itemQueries.join(' or ')})`;
+
+    return DB.get(query);
+  },
 };
 
 export default Items;

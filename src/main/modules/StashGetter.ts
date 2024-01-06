@@ -3,13 +3,12 @@ import Utils from './Utils';
 import GGGAPI from '../GGGAPI';
 import { StashTabData } from '../../helpers/types';
 import DB from '../db/stashtabs';
-import stashTabsManager from '../StashTabsManager';
+import Item from '../models/Item'
 import RatesGetterV2 from './RateGetterV2';
 import dayjs from 'dayjs';
 import RendererLogger from '../RendererLogger';
 const EventEmitter = require('events');
 const logger = require('electron-log').scope('ShashGetter');
-const ItemParser = require('./ItemParser');
 const ItemPricer = require('./ItemPricer');
 
 const emitter = new EventEmitter();
@@ -116,7 +115,7 @@ class StashGetter {
 
   async get(interval = 10) {
     if (this.isFetching) {
-      logger.error('Already fetching rates for the day, aborting the new request');
+      logger.error('Already fetching stashes for the day, aborting the new request');
       return this.waitForUpdate();
     }
     try {
@@ -339,20 +338,9 @@ class StashGetter {
   }
 
   parseItem(rawdata, timestamp) {
-    const arr = ItemParser.parseItem(rawdata);
-    return {
-      id: arr[0],
-      event_id: timestamp,
-      icon: arr[2],
-      name: arr[3],
-      rarity: arr[4],
-      category: arr[5],
-      identified: arr[6],
-      typeline: arr[7],
-      sockets: arr[8],
-      stacksize: arr[9],
-      rawdata: arr[10],
-    };
+    const item = new Item(rawdata);
+    item.setTimestamp(timestamp);
+    return item;
   }
 
   async removeAllListeners() {
