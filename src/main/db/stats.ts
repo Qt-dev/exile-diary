@@ -67,7 +67,7 @@ const stats = {
       `;
 
     try {
-      const maps = DB.all(query) as Run[];
+      const maps = await DB.all(query) as Run[];
       return maps;
     } catch (err) {
       logger.error(`Error getting all maps: ${JSON.stringify(err)}`);
@@ -84,7 +84,7 @@ const stats = {
     `;
 
     try {
-      const items = DB.all(query);
+      const items = await DB.all(query);
       return items ?? [];
     } catch (err) {
       logger.error(`Error getting all loot: ${JSON.stringify(err)}`);
@@ -106,7 +106,7 @@ const stats = {
     `;
 
     try {
-      const items = DB.all(query, [minLootValue, from, to]);
+      const items = await DB.all(query, [minLootValue, from, to]);
       return items ?? [];
     } catch (err) {
       logger.error(`Error getting loot: ${JSON.stringify(err)}`);
@@ -205,7 +205,7 @@ const stats = {
       queryArgs.push(minMapValue);
       queryArgs.push(from);
       queryArgs.push(to);
-      const runs = DB.all(query, queryArgs);
+      const runs = await DB.all(query, queryArgs);
       return runs ?? [];
     } catch (err) {
       logger.error(`Error getting maps for ${from}-${to}:`);
@@ -230,7 +230,7 @@ const stats = {
     `;
 
     try {
-      const items = DB.all(query, [minLootValue]);
+      const items = await DB.all(query, [minLootValue]);
       return items ?? [];
     } catch (err) {
       logger.error(`Error getting loot: ${JSON.stringify(err)}`);
@@ -248,7 +248,7 @@ const stats = {
     `;
 
     try {
-      const maps = DB.all(query) as string[];
+      const maps = await DB.all(query) as string[];
       logger.debug(`Got ${maps.length} map names`);
       return maps ?? [];
     } catch (err) {
@@ -264,7 +264,7 @@ const stats = {
     ORDER BY mod ASC`;
 
     try {
-      const mods = DB.all(query) as string[];
+      const mods = await DB.all(query) as string[];
       logger.debug(`Got ${mods.length} mods`);
       return mods ?? [];
     } catch (err) {
@@ -273,9 +273,9 @@ const stats = {
     }
   },
 
-  getProfitPerHour: (
+  getProfitPerHour: async (
     beginningOfTracking = dayjs().subtract(1, 'day').format('YYYYMMDDHHmmss')
-  ): number => {
+  ): Promise<number> => {
     const query = `
     SELECT 
     SUM(items.value) as total_profit,
@@ -306,7 +306,7 @@ const stats = {
       const {
         total_time_seconds: totalTime,
         total_profit: profit,
-      } = DB.get(query, [beginningOfTracking, beginningOfTracking]) as {
+      } = await DB.get(query, [beginningOfTracking, beginningOfTracking]) as {
         total_time_seconds: number;
         total_profit: number;
         runs: number;

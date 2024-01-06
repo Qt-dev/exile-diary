@@ -153,7 +153,7 @@ const Runs = {
       and items.event_id = events.id;
     `;
 
-    const items = DB.all(itemsQuery, [mapId]) as Item[];
+    const items = await DB.all(itemsQuery, [mapId]) as Item[];
     if (!items) return [];
     const formattedItems: any = {};
 
@@ -318,12 +318,12 @@ const Runs = {
       AND mapruns.id BETWEEN ? AND ?;
     `;
 
-    const runs = DB.all(itemsQuery, [from, to]);
+    const runs = await DB.all(itemsQuery, [from, to]);
 
     return runs;
   },
 
-  getItemsFromRun: (mapRunId: string) => {
+  getItemsFromRun: async (mapRunId: string) => {
     logger.info(`Getting items from run: ${mapRunId}`);
     const itemsQuery = `
       SELECT items.*
@@ -333,7 +333,7 @@ const Runs = {
       GROUP BY items.id, items.event_id;
     `;
 
-    const items = DB.all(itemsQuery, [mapRunId]);
+    const items = await DB.all(itemsQuery, [mapRunId]);
 
     return items;
   },

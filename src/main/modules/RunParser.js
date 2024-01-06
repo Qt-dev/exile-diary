@@ -1453,7 +1453,7 @@ async function recheckGained(from = 0, to = dayjs().format('YYYYMMDDHHmmss')) {
   }
 
   const checks = runs.map(async (run) => {
-    const items = DB.getItemsFromRun(run.id);
+    const items = await DB.getItemsFromRun(run.id);
     let totalProfit = 0;
     let itemsToUpdate = [];
     for (const item of items) {
