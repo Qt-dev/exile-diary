@@ -24,12 +24,13 @@ export default class StashTabStore {
     this.itemStore.createItems(data.items);
     this.value = data.value;
 
-    ipcRenderer.on('update-stash-content', (event, stashTabsData) => {
+    ipcRenderer.on('stashTabs:frontend:update', (event, stashTabsData) => {
+      const tabs = stashTabsData.tabs;
       logger.info(
-        `Received stash tabs update from backend for ${stashTabsData.length} stash tabs.`
+        `Received stash tabs update from backend for ${tabs.length} stash tabs.`
       );
-      this.itemStore.createItems(stashTabsData.items);
-      this.value = stashTabsData.value;
+      this.itemStore.createItems(tabs.items);
+      this.value = tabs.value;
     });
   }
 

@@ -484,7 +484,7 @@ class MainProcess {
     StashGetter.initialize();
     StashGetter.on('stashTabs:updated:full', (data) => {
       logger.info(`Updated stash tabs (League: ${data.league} - Change: ${data.change})`);
-      this.sendToMain('update-stash-content', data);
+      this.sendToMain('stashTabs:frontend:update', data);
     });
     StashGetter.on('netWorthUpdated', async (data) => {
       const divinePrice = await ItemPricer.getCurrencyByName('Divine Orb');
