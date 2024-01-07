@@ -9,6 +9,7 @@ type LootTableData = {
   id: string;
   name: string;
   value: number;
+  originalValue: number;
   totalValue: number;
   icon: string;
   quantity: number;
@@ -275,6 +276,7 @@ export class Item {
   area?: string;
   map_id?: string;
   stashTabId?: string;
+  originalValue: number;
 
   constructor(store, itemdata: ItemData) {
     makeAutoObservable(this, {
@@ -342,6 +344,8 @@ export class Item {
     this.domElement = null;
 
     this.value = itemdata.value;
+    this.originalValue = itemdata.originalValue;
+  
     this.stashTabId = itemdata.stashTabId;
   }
 
@@ -408,7 +412,7 @@ export class Item {
   }
 
   toLootTable(jsonMode: boolean = false): LootTableData {
-    const { itemId, value = 0, stashTabId = '', rawData } = this;
+    const { itemId, value = 0, originalValue = 0, stashTabId = '', rawData } = this;
     const { icon } = rawData;
     const name = rawData.name || rawData.secretName;
     const type = rawData.hybrid ? rawData.hybrid.baseTypeName : rawData.typeLine;
@@ -418,6 +422,7 @@ export class Item {
       id: itemId,
       name: fullName,
       value: value / quantity,
+      originalValue: originalValue / quantity,
       totalValue: value,
       icon,
       quantity,
@@ -437,6 +442,7 @@ export class Item {
       name: '',
       value: 0,
       totalValue: 0,
+      originalValue: 0,
       icon: '',
       quantity: 0,
       stashTabId: '',

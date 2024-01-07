@@ -29,6 +29,7 @@ type ItemRawData = {
   elder?: boolean;
   secretName?: string;
   value?: number;
+  originalValue: number;
   pickupStackSize?: number;
   rarity?: string;
 };
@@ -38,6 +39,7 @@ type Item = {
   rarity: string;
   icon: string;
   value: number;
+  original_value: number;
   stacksize: number;
   rawdata: string;
 };
@@ -147,7 +149,7 @@ const Runs = {
   getItems: async (mapId: number) => {
     logger.info(`Getting items for run ${mapId}`);
     const itemsQuery = `
-      select events.id, items.rarity, items.icon, items.value, items.stacksize, items.rawdata from mapruns, events, items
+      select events.id, items.rarity, items.icon, items.value, items.original_value, items.stacksize, items.rawdata from mapruns, events, items
       where mapruns.id = ?
       and events.id between mapruns.firstevent and mapruns.lastevent
       and items.event_id = events.id;
@@ -174,6 +176,7 @@ const Runs = {
       if (secretName || item.value || item.stacksize) {
         if (secretName) rawData.secretName = secretName;
         if (item.value) rawData.value = item.value;
+        if (item.original_value) rawData.originalValue = item.original_value;
         if (item.stacksize) rawData.pickupStackSize = item.stacksize;
         formattedItems[item.id].push(JSON.stringify(rawData));
       } else {

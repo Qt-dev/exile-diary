@@ -175,6 +175,7 @@ type ItemData = {
   w: number;
   h: number;
   value: number;
+  originalValue: number;
   secretName?: string;
   area?: string;
   map_id?: string;
@@ -186,6 +187,7 @@ type ItemData = {
     progress: number;
     total: number;
   };
+
 };
 
 export type { Run, Order, RunInfo, StashTabData, ItemData, StashTab };
