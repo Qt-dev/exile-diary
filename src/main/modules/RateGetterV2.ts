@@ -340,7 +340,7 @@ class RateGetterV2 {
         // case 'Seed':
         // case 'Tattoo':
         // case 'HelmetEnchant':
-          url = `/api/data/itemoverview?type=${category}`;
+        url = `/api/data/itemoverview?type=${category}`;
         break;
       default:
         throw new Error(`Invalid poe.ninja category [${category}]`);

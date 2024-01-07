@@ -67,7 +67,7 @@ const stats = {
       `;
 
     try {
-      const maps = await DB.all(query) as Run[];
+      const maps = (await DB.all(query)) as Run[];
       return maps;
     } catch (err) {
       logger.error(`Error getting all maps: ${JSON.stringify(err)}`);
@@ -248,7 +248,7 @@ const stats = {
     `;
 
     try {
-      const maps = await DB.all(query) as string[];
+      const maps = (await DB.all(query)) as string[];
       logger.debug(`Got ${maps.length} map names`);
       return maps ?? [];
     } catch (err) {
@@ -264,7 +264,7 @@ const stats = {
     ORDER BY mod ASC`;
 
     try {
-      const mods = await DB.all(query) as string[];
+      const mods = (await DB.all(query)) as string[];
       logger.debug(`Got ${mods.length} mods`);
       return mods ?? [];
     } catch (err) {
@@ -303,10 +303,10 @@ const stats = {
     `;
 
     try {
-      const {
-        total_time_seconds: totalTime,
-        total_profit: profit,
-      } = await DB.get(query, [beginningOfTracking, beginningOfTracking]) as {
+      const { total_time_seconds: totalTime, total_profit: profit } = (await DB.get(query, [
+        beginningOfTracking,
+        beginningOfTracking,
+      ])) as {
         total_time_seconds: number;
         total_profit: number;
         runs: number;

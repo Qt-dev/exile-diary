@@ -26,9 +26,7 @@ export default class StashTabStore {
 
     ipcRenderer.on('stashTabs:frontend:update', (event, stashTabsData) => {
       const tabs = stashTabsData.tabs;
-      logger.info(
-        `Received stash tabs update from backend for ${tabs.length} stash tabs.`
-      );
+      logger.info(`Received stash tabs update from backend for ${tabs.length} stash tabs.`);
       this.itemStore.createItems(tabs.items);
       this.value = tabs.value;
     });

@@ -49,7 +49,11 @@ const OverlayNotificationLine = ({ messages }) => {
   if (!messages) return null;
   const formattedMessages = messages.map(({ type, text, icon, price, divinePrice }) => {
     if (price || price === 0) {
-      return [<span className={classPerType['currency']}><Price value={price} divinePrice={divinePrice} /></span>];
+      return [
+        <span className={classPerType['currency']}>
+          <Price value={price} divinePrice={divinePrice} />
+        </span>,
+      ];
     } else if (icon) {
       return [<img src={icon} alt="icon" className={'Text--Icon'} />];
     } else if (type) {

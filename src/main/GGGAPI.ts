@@ -14,7 +14,7 @@ const limiters = new Bottleneck.Group({
   minTime: 333,
 });
 
-const handleFailure = (type: string) =>  async (error, jobInfo) => {
+const handleFailure = (type: string) => async (error, jobInfo) => {
   const { retryCount } = jobInfo;
   logger.error(
     `Request ${jobInfo.options.id} failed (type: ${type}) with ${error.message}. Retried ${retryCount} times.`

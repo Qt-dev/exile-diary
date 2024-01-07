@@ -10,7 +10,7 @@ const rates = {
       'SELECT date, data FROM fullrates WHERE date <= ? OR date = (SELECT min(date) FROM fullrates) ORDER BY date DESC';
 
     try {
-      const [{ data }] = await DB.all(query, [date], league) as any[];
+      const [{ data }] = (await DB.all(query, [date], league)) as any[];
       return await new Promise((resolve, reject) => {
         zlib.inflate(data, (err, buffer) => {
           if (err) {
@@ -60,7 +60,7 @@ const rates = {
     logger.info(`Checking if rates for ${date} (league: ${league}) exist in DB`);
     const query = 'SELECT COUNT(*) as count FROM fullrates WHERE date = ?';
     try {
-      const [{ count }] = await DB.all(query, [date], league) as any[];
+      const [{ count }] = (await DB.all(query, [date], league)) as any[];
       return count > 0;
     } catch (err) {
       logger.error(

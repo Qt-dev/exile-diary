@@ -27,7 +27,7 @@ const incubatorGearSlots = [
 
 async function logKillCount(timestamp: number, eqp: { [key: string]: ItemData }) {
   const incubators = {};
-  if(eqp) {
+  if (eqp) {
     Object.keys(eqp).forEach((key) => {
       const item: ItemData = eqp[key];
       if (item.incubatedItem) {

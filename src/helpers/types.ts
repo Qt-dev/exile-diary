@@ -187,7 +187,6 @@ type ItemData = {
     progress: number;
     total: number;
   };
-
 };
 
 export type { Run, Order, RunInfo, StashTabData, ItemData, StashTab };

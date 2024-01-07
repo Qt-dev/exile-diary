@@ -143,10 +143,10 @@ function getCategory(item, subcategory = false) {
   }
 
   if (t.toLowerCase().includes('charm')) {
-    return 'Charm'
+    return 'Charm';
   }
   if (t.toLowerCase().includes('tincture')) {
-    return 'Tincture'
+    return 'Tincture';
   }
 
   // 3.9 metamorph inventory organs

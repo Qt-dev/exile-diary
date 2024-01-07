@@ -203,7 +203,6 @@ const Migrations = {
         `UPDATE items SET original_value = old_value, value = old_value WHERE old_value IS NOT NULL`,
         `ALTER TABLE items DROP COLUMN old_value`,
       ],
-
     ],
     maintenance: [
       `delete from incubators where timestamp < (select min(timestamp) from (select timestamp from incubators order by timestamp desc limit 25))`,
@@ -234,37 +233,41 @@ const Migrations = {
       ],
     ],
     maintenance: [],
-  }
+  },
 };
 
 /**
  * DBManager
- * 
+ *
  * Node and Electron's main process are single threaded. DB Connections were competing and locking parts of the DB, and so we are now using a single DBManager to handle all DB connections to a single DB.
  * This does not slow anything down, as the DBManager is still single threaded, but it does prevent DB locking.
  */
 class DBManager {
-  db:Database;
+  db: Database;
   tasks: string[] = [];
   isBusy: boolean = true;
   eventEmitter: EventEmitter = new EventEmitter();
 
-  constructor({ dbPath } : { dbPath: string }) {
+  constructor({ dbPath }: { dbPath: string }) {
     logger.info('Starting DB:', dbPath);
     this.db = new DatabaseConstructor(dbPath);
     this.db.loadExtension(sqliteRegex.getLoadablePath());
-    this.eventEmitter.on('task:added', () => { this.runTasks(); });
-    this.eventEmitter.on('task:ended', () => { this.runTasks(); });
+    this.eventEmitter.on('task:added', () => {
+      this.runTasks();
+    });
+    this.eventEmitter.on('task:ended', () => {
+      this.runTasks();
+    });
     this.isBusy = false;
     this.runTasks();
   }
 
   runTasks() {
-    if(this.isBusy) {
+    if (this.isBusy) {
       return;
     } else {
       const nextId = this.tasks.shift();
-      if(nextId) {
+      if (nextId) {
         this.isBusy = true;
         this.eventEmitter.once(`task:end:${nextId}`, () => {
           this.isBusy = false;
@@ -275,7 +278,7 @@ class DBManager {
     }
   }
 
-  runTask(task: Function) : Promise<any> {
+  runTask(task: Function): Promise<any> {
     const id = uuidv4();
     return new Promise((resolve) => {
       this.eventEmitter.once(`task:start:${id}`, () => {
@@ -311,7 +314,7 @@ class DBManager {
     });
 
     return null;
-  }
+  };
 }
 
 // Map of all the DB Managers that have been instantiated, by path
@@ -335,12 +338,12 @@ const DB = {
     return path.join(userDataPath, `${characterName}.db`);
   },
 
-  getManager: (league: string | undefined = undefined) =>{
+  getManager: (league: string | undefined = undefined) => {
     const dbPath = !!league ? DB.getLeagueDbPath(league) : DB.getCharacterDbPath();
-    if(!dbPath) {
+    if (!dbPath) {
       return null;
     }
-    const manager : DBManager = DBConnections.get(dbPath) || new DBManager({ dbPath });
+    const manager: DBManager = DBConnections.get(dbPath) || new DBManager({ dbPath });
     DBConnections.set(dbPath, manager);
 
     return manager;
@@ -348,34 +351,37 @@ const DB = {
 
   all: async (sql: string, params: any[] = [], league: string | undefined = undefined) => {
     const manager = DB.getManager(league);
-    if(!manager) return null;
+    if (!manager) return null;
 
     return await manager.runTask(() => manager.db.prepare(sql).all(params));
   },
 
   get: async (sql: string, params: any[] = [], league: string | undefined = undefined) => {
     const manager = DB.getManager(league);
-    if(!manager) return null;
+    if (!manager) return null;
 
     return await manager.runTask(() => manager.db.prepare(sql).get(params));
   },
 
   run: async (sql: string, params: any[] = [], league: string | undefined = undefined) => {
     const manager = DB.getManager(league);
-    if(!manager) return null;
+    if (!manager) return null;
 
     return await manager.runTask(() => manager.db.prepare(sql).run(params));
   },
 
   transaction: async (query: string, params: any[], league: string | undefined = undefined) => {
     const manager = DB.getManager(league);
-    if(!manager) return null;
+    if (!manager) return null;
 
     return await manager.runTask(() => {
       const { db } = manager;
       const statement = db.prepare(query);
       const runMany = db.transaction((params) => {
-        for (const param of params) { logger.info(param); statement.run(param); }
+        for (const param of params) {
+          logger.info(param);
+          statement.run(param);
+        }
       });
       return runMany(params);
     });
@@ -383,25 +389,27 @@ const DB = {
 
   initDB: async (char: string) => {
     const manager = DB.getManager(char);
-    if(!manager) return null;
-    
+    if (!manager) return null;
+
     const { init, maintenance } = Migrations.character;
     await manager.init(init, maintenance);
   },
 
   initLeagueDB: async (league: string, characterName: string) => {
     const manager = DB.getManager(league);
-    if(!manager) return null;
-    
+    if (!manager) return null;
+
     const { init, maintenance } = Migrations.league;
     await manager.init(init, maintenance);
-    
+
     const activeProfile = SettingsManager.get('activeProfile');
-    
+
     if (!characterName && activeProfile.characterName) {
-      await manager.runTask(() => manager.db.prepare('insert into characters values (?)').run(activeProfile.characterName));
+      await manager.runTask(() =>
+        manager.db.prepare('insert into characters values (?)').run(activeProfile.characterName)
+      );
     }
-  }
-}
+  },
+};
 
 export default DB;

@@ -1,5 +1,3 @@
-
-
 import ItemCategoryParser from '../modules/ItemCategoryParser';
 import Utils from '../modules/Utils';
 
@@ -58,7 +56,7 @@ type RawData = {
   typeLine: string;
   verified: boolean;
   properties: any[];
-}
+};
 
 // Frame Type strings for rarity
 // 0 	Normal frame
@@ -139,7 +137,6 @@ class Item {
     return this.maxStackSize;
   }
 
-
   constructor(rawData: Partial<RawData>) {
     Object.assign(this, rawData);
 
@@ -147,7 +144,6 @@ class Item {
       this.properties = JSON.parse(JSON.stringify(rawData.properties));
     }
 
-    
     this.icon = Item.getImageUrl(this.icon);
     this.name = this.name?.replace('<<set:MS>><<set:M>><<set:S>>', '') ?? '';
     this.rarity = RarityByFrameType[this.frameType];
@@ -183,12 +179,10 @@ class Item {
       rarity,
       category,
       typeline,
-      sockets, 
+      sockets,
       value = 0,
-      originalValue = 0
+      originalValue = 0,
     } = this;
-
-
 
     const stacksize = this.stackSize || null;
 
@@ -216,7 +210,7 @@ class Item {
   setValue(value: number) {
     const parsedValue = value ?? 0;
     this.value = parsedValue;
-    if(!this.originalValue && this.originalValue !== 0) {
+    if (!this.originalValue && this.originalValue !== 0) {
       this.originalValue = parsedValue;
     }
   }

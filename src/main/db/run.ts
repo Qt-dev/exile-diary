@@ -155,7 +155,7 @@ const Runs = {
       and items.event_id = events.id;
     `;
 
-    const items = await DB.all(itemsQuery, [mapId]) as Item[];
+    const items = (await DB.all(itemsQuery, [mapId])) as Item[];
     if (!items) return [];
     const formattedItems: any = {};
 

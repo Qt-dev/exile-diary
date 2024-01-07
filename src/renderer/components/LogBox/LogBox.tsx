@@ -17,32 +17,38 @@ const classPerType = {
 
 const Line = ({ messages, timestamp }) => {
   if (!messages) return null;
-  const formattedMessages = messages.map(({ type, text, link, linkEvent, icon, price, divinePrice }) => {
-    const Element = [
-      icon ? <img src={icon} alt={`icon-${icon}`} className={'Text--Icon'}></img> : null,
-      type ? <span className={classPerType[type]}>{text}</span> : <>{text}</>,
-    ];
-    if (link) {
-      return (
-        <Link to={link} style={{ fontSize: 'inherit' }}>
-          {Element}
-        </Link>
-      );
-    } else if (linkEvent) {
-      const triggerEvent = () => {
-        ipcRenderer.send(linkEvent);
-      };
-      return (
-        <MuiLink href="#" onClick={triggerEvent} style={{ fontSize: 'inherit' }}>
-          {Element}
-        </MuiLink>
-      );
-    } else if (price || price === 0) {
-      return <span className={classPerType['currency']}><Price value={price} divinePrice={divinePrice} /></span>;
-    } else {
-      return <>{Element}</>;
+  const formattedMessages = messages.map(
+    ({ type, text, link, linkEvent, icon, price, divinePrice }) => {
+      const Element = [
+        icon ? <img src={icon} alt={`icon-${icon}`} className={'Text--Icon'}></img> : null,
+        type ? <span className={classPerType[type]}>{text}</span> : <>{text}</>,
+      ];
+      if (link) {
+        return (
+          <Link to={link} style={{ fontSize: 'inherit' }}>
+            {Element}
+          </Link>
+        );
+      } else if (linkEvent) {
+        const triggerEvent = () => {
+          ipcRenderer.send(linkEvent);
+        };
+        return (
+          <MuiLink href="#" onClick={triggerEvent} style={{ fontSize: 'inherit' }}>
+            {Element}
+          </MuiLink>
+        );
+      } else if (price || price === 0) {
+        return (
+          <span className={classPerType['currency']}>
+            <Price value={price} divinePrice={divinePrice} />
+          </span>
+        );
+      } else {
+        return <>{Element}</>;
+      }
     }
-  });
+  );
   const time = timestamp.format('YYYY-MM-DD HH:mm:ss');
   return (
     <div className="Log-Box__Line">

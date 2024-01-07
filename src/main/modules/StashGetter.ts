@@ -3,7 +3,7 @@ import Utils from './Utils';
 import GGGAPI from '../GGGAPI';
 import { StashTabData } from '../../helpers/types';
 import DB from '../db/stashtabs';
-import Item from '../models/Item'
+import Item from '../models/Item';
 import RatesGetterV2 from './RateGetterV2';
 import dayjs from 'dayjs';
 import RendererLogger from '../RendererLogger';
@@ -313,7 +313,7 @@ class StashGetter {
       const parsedItem = this.parseItem(item, timestamp);
       let price = {
         isVendor: false,
-        value: 0
+        value: 0,
       };
       try {
         price = await ItemPricer.price(parsedItem, settings.activeProfile.league);

@@ -1458,7 +1458,11 @@ async function recheckGained(from = 0, to = dayjs().format('YYYYMMDDHHmmss')) {
     let totalProfit = 0;
     let itemsToUpdate = [];
     for (const item of items) {
-      const { value } = await ItemPricer.price({ event_id: dayjs().format('YYYYMMDD'), ...item }, SettingsManager.get('activeProfile').league, true);
+      const { value } = await ItemPricer.price(
+        { event_id: dayjs().format('YYYYMMDD'), ...item },
+        SettingsManager.get('activeProfile').league,
+        true
+      );
       totalProfit += value;
       if (value !== item.value) {
         itemsToUpdate.push({ value, id: item.id, eventId: item.event_id });

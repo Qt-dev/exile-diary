@@ -345,7 +345,7 @@ export class Item {
 
     this.value = itemdata.value;
     this.originalValue = itemdata.originalValue;
-  
+
     this.stashTabId = itemdata.stashTabId;
   }
 

@@ -362,7 +362,7 @@ class MainProcess {
       const f = new Intl.NumberFormat();
       const divinePrice = await ItemPricer.getCurrencyByName('Divine Orb');
       logger.info(
-          `Completed run in <span class='eventText'>${run.name}</span> ` +
+        `Completed run in <span class='eventText'>${run.name}</span> ` +
           `(${(Utils.getRunningTime(run.firstevent, run.lastevent), 'mm:ss')}` +
           (run.gained ? `, ${run.gained} chaos orbs` : '') +
           (run.kills ? `, ${f.format(run.kills)} kills` : '') +
@@ -537,8 +537,7 @@ class MainProcess {
       // https://github.com/electron/electron/issues/10862
       // We work around this by checking if the scaling factors are different and if so, we set the bounds again
       const displays = screen.getAllDisplays();
-      if ((displays.length > 1) &&
-         (displays[0].scaleFactor != displays[1].scaleFactor)) {
+      if (displays.length > 1 && displays[0].scaleFactor != displays[1].scaleFactor) {
         this.mainWindow.setBounds(settings.mainWindowBounds);
       }
     } else {
