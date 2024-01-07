@@ -175,31 +175,31 @@ class PriceMatcher {
         item.category === 'Map Fragments' ||
         (item.category === 'Labyrinth Items' && item.typeline.endsWith('to the Goddess')),
       calculateValue: (item: any, minItemValue: number = 0) =>
-        this.getValue(item, 'Fragment', item.typeline, minItemValue) * item.stacksize,
+        this.getValue(item, 'Fragment', item.typeline, minItemValue) * (item.stacksize || 1),
     },
     {
       name: 'Tattoo',
       test: (item: any) => item.typeline && item.typeline.includes('Tattoo'),
       calculateValue: (item: any, minItemValue: number = 0) =>
-        this.getValue(item, 'Tattoo', item.typeline, minItemValue) * item.stacksize,
+        this.getValue(item, 'Tattoo', item.typeline, minItemValue) * (item.stacksize || 1),
     },
     {
       name: 'Omen',
       test: (item: any) => item.typeline && item.typeline.includes('Omen'),
       calculateValue: (item: any, minItemValue: number = 0) =>
-        this.getValue(item, 'Omen', item.typeline, minItemValue) * item.stacksize,
+        this.getValue(item, 'Omen', item.typeline, minItemValue) * (item.stacksize || 1),
     },
     {
       name: 'Incubator',
       test: (item: any) => item.typeline && item.typeline.includes('Incubator'),
       calculateValue: (item: any, minItemValue: number = 0) =>
-        this.getValue(item, 'Currency', item.typeline, minItemValue) * item.stacksize,
+        this.getValue(item, 'Currency', item.typeline, minItemValue) * (item.stacksize || 1),
     },
     {
       name: 'Currency',
       test: (item: any) => item.rarity === 'Currency',
       calculateValue: (item: any, minItemValue: number = 0) =>
-        this.getValue(item, 'Currency', item.typeline, minItemValue) * item.stacksize,
+        this.getValue(item, 'Currency', item.typeline, minItemValue) * (item.stacksize || 1),
     },
     {
       name: 'Unique Maps',
@@ -336,7 +336,7 @@ class PriceMatcher {
     if (log) {
       logger.info(`[${table}] : ${identifier} => ${value}`);
     }
-    return minItemValue < value ? value : 0;
+    return minItemValue < value * (item.stacksize || 1) ? value : 0;
   }
 
   /**
