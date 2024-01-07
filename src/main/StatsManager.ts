@@ -869,8 +869,8 @@ class ProfitTracker {
   async refreshProfitPerHour() {
     if (this.announcer) {
       const profitPerHour = {
-        daily: this.getProfitPerHourForLastDay(),
-        hourly: this.getProfitPerHourForLastHour(),
+        daily: await this.getProfitPerHourForLastDay(),
+        hourly: await this.getProfitPerHourForLastHour(),
       };
       logger.debug(`Updating profit per hour to `, profitPerHour);
 

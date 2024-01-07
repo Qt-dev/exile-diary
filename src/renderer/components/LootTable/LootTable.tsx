@@ -15,7 +15,7 @@ import './LootTable.css';
 import Collapse from '@mui/material/Collapse';
 import Price from '../Pricing/Price';
 
-type LootTableColumn = 'name' | 'quantity' | 'value' | 'totalValue';
+type LootTableColumn = 'name' | 'quantity' | 'value' | 'totalValue' | 'originalValue';
 
 const LootTableSubRow = ({ item, shouldHideExpandIcon = false }) => {
   const [orderBy, setOrderBy] = useState<LootTableColumn>('totalValue');
@@ -62,6 +62,12 @@ const LootTableSubRow = ({ item, shouldHideExpandIcon = false }) => {
           {item.quantity}
         </TableCell>
         <TableCell sx={{ borderBottom: hasSubRows ? 'none' : null }} align="right">
+          {item.originalValue.toLocaleString('en-US', {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2,
+          })}
+        </TableCell>
+        <TableCell sx={{ borderBottom: hasSubRows ? 'none' : null }} align="right">
           {item.value.toLocaleString('en-US', {
             minimumFractionDigits: 2,
             maximumFractionDigits: 2,
@@ -77,7 +83,7 @@ const LootTableSubRow = ({ item, shouldHideExpandIcon = false }) => {
       </TableRow>
       {hasSubRows && (
         <TableRow className="Loot-Table__Subtable">
-          <TableCell style={{ paddingBottom: 0, paddingTop: 0 }} colSpan={6}>
+          <TableCell style={{ paddingBottom: 0, paddingTop: 0 }} colSpan={7}>
             <Collapse in={open} timeout="auto" unmountOnExit>
               <LootTable
                 isSubTable={true}
@@ -127,6 +133,25 @@ const LootTable = ({
               onClick={sortCallback('quantity', order)}
             >
               Quantity
+            </TableSortLabel>
+          </TableCell>
+          <TableCell align="right" sx={{ width: '6em' }}>
+            <TableSortLabel
+              hideSortIcon
+              active={orderBy === 'originalValue'}
+              direction={orderBy === 'originalValue' ? order : 'asc'}
+              onClick={sortCallback('originalValue', order)}
+            >
+              <span
+                style={{
+                  display: 'flex',
+                  gap: '0.2em',
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                }}
+              >
+                Original <ChaosIcon />
+              </span>
             </TableSortLabel>
           </TableCell>
           <TableCell align="right" sx={{ width: '6em' }}>
@@ -189,6 +214,7 @@ const LootTable = ({
             <TableCell></TableCell>
             <TableCell align="right">{stats.items.count}</TableCell>
             <TableCell align="right">{stats.value.average}</TableCell>
+            <TableCell align="right">{stats.value.original}</TableCell>
             <TableCell align="right">{stats.value.total}</TableCell>
             <TableCell>Total</TableCell>
           </TableRow>

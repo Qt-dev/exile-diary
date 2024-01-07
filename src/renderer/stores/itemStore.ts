@@ -30,12 +30,13 @@ export default class ItemStore {
     this.items
       .map((item) => item.toLootTable())
       .forEach((item) => {
-        const { name, quantity, value, totalValue } = item;
+        const { name, quantity, value, totalValue, originalValue } = item;
         let group = grouped.find((item) => name === item.name);
         if (!group) {
           group = {
             ...item,
             value: value,
+            originalValue: originalValue,
             totalValue: 0,
             quantity: 0,
             items: [],
@@ -77,6 +78,12 @@ export default class ItemStore {
         .reduce((total, item) => total + item.value, 0)
         .toFixed(2)
     );
+    const originalValue = parseFloat(
+      this.items
+        .filter((item) => item.originalValue !== undefined)
+        .reduce((total, item) => total + item.originalValue, 0)
+        .toFixed(2)
+    );
     return {
       items: {
         count: this.items.length,
@@ -84,6 +91,7 @@ export default class ItemStore {
       value: {
         total: totalValue,
         average: this.items.length ? parseFloat((totalValue / this.items.length).toFixed(2)) : 0,
+        original: originalValue,
       },
     };
   }

@@ -7,6 +7,7 @@ import classNames from 'classnames';
 import OpenInFullIcon from '@mui/icons-material/OpenInFull';
 import CloseFullscreenIcon from '@mui/icons-material/CloseFullscreen';
 import { ipcRenderer } from 'electron';
+import Price from '../Pricing/Price';
 
 const classPerType = {
   error: 'Text--Error',
@@ -16,7 +17,7 @@ const classPerType = {
 
 const Line = ({ messages, timestamp }) => {
   if (!messages) return null;
-  const formattedMessages = messages.map(({ type, text, link, linkEvent, icon }) => {
+  const formattedMessages = messages.map(({ type, text, link, linkEvent, icon, price, divinePrice }) => {
     const Element = [
       icon ? <img src={icon} alt={`icon-${icon}`} className={'Text--Icon'}></img> : null,
       type ? <span className={classPerType[type]}>{text}</span> : <>{text}</>,
@@ -36,6 +37,8 @@ const Line = ({ messages, timestamp }) => {
           {Element}
         </MuiLink>
       );
+    } else if (price || price === 0) {
+      return <span className={classPerType['currency']}><Price value={price} divinePrice={divinePrice} /></span>;
     } else {
       return <>{Element}</>;
     }

@@ -7,6 +7,7 @@ import dayjs, { Dayjs } from 'dayjs';
 import { classPerType } from '../components/LogBox/LogBox';
 import Logo from '../logo.png';
 import { Button } from '@mui/material';
+import Price from '../components/Pricing/Price';
 const { ipcRenderer, logger } = electronService;
 const defaultTimer = 3;
 
@@ -46,11 +47,16 @@ const OverlayMapInfoLine = ({ run }) => {
 
 const OverlayNotificationLine = ({ messages }) => {
   if (!messages) return null;
-  const formattedMessages = messages.map(({ type, text, icon }) => {
-    return [
-      icon ? <img src={icon} alt="icon" className={'Text--Icon'}></img> : null,
-      type ? <span className={classPerType[type]}>{text}</span> : <>{text}</>,
-    ];
+  const formattedMessages = messages.map(({ type, text, icon, price, divinePrice }) => {
+    if (price || price === 0) {
+      return [<span className={classPerType['currency']}><Price value={price} divinePrice={divinePrice} /></span>];
+    } else if (icon) {
+      return [<img src={icon} alt="icon" className={'Text--Icon'} />];
+    } else if (type) {
+      return [<span className={classPerType[type]}>{text}</span>];
+    } else {
+      return [<>{text}</>];
+    }
   });
   return <OverlayLineContent message={formattedMessages} />;
 };
