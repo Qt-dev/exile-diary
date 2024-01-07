@@ -873,13 +873,15 @@ class PriceMatcher {
  * Price an item from the rates pulled from Poe.Ninja. Main point of entry for the module
  * @param {any} item Item to get the value of
  * @param {string} league [Optional] League to get the rates from. Defaults to the active league
+ * @param {boolean} forceToday [Optional] Whether or not to force the use of today's rates. Defaults to false
  * @returns {{isVendor: boolean, value: number}} { isVendor: Whether or not the item is part of a vendor recipe, value: Value of the item in chaos }
  */
 async function price(
   item: any,
-  league: string = SettingsManager.get('activeProfile').league
+  league: string = SettingsManager.get('activeProfile').league,
+  forceToday: boolean = false
 ): Promise<{ isVendor: boolean; value: number }> {
-  const date = item.event_id.slice(0, 8);
+  const date = forceToday ? dayjs().format('YYYYMMDD') : item.event_id.slice(0, 8);
   if (!matchers[date]) matchers[date] = new PriceMatcher(date);
   const matcher: PriceMatcher = matchers[date];
   await matcher.fetchRates(league);
