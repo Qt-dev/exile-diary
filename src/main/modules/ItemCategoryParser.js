@@ -142,6 +142,13 @@ function getCategory(item, subcategory = false) {
     return 'Captured Beast';
   }
 
+  if (t.toLowerCase().includes('charm')) {
+    return 'Charm'
+  }
+  if (t.toLowerCase().includes('tincture')) {
+    return 'Tincture'
+  }
+
   // 3.9 metamorph inventory organs
   for (var i = 0; i < metamorphSamples.length; i++) {
     if (item.icon.includes(metamorphSamples[i])) return 'Metamorph Sample';

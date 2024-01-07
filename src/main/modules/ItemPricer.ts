@@ -175,31 +175,31 @@ class PriceMatcher {
         item.category === 'Map Fragments' ||
         (item.category === 'Labyrinth Items' && item.typeline.endsWith('to the Goddess')),
       calculateValue: (item: any, minItemValue: number = 0) =>
-        this.getValue(item, 'Fragment', item.typeline, minItemValue),
+        this.getValue(item, 'Fragment', item.typeline, minItemValue) * (item.stacksize || 1),
     },
     {
       name: 'Tattoo',
       test: (item: any) => item.typeline && item.typeline.includes('Tattoo'),
       calculateValue: (item: any, minItemValue: number = 0) =>
-        this.getValue(item, 'Tattoo', item.typeline, minItemValue),
+        this.getValue(item, 'Tattoo', item.typeline, minItemValue) * (item.stacksize || 1),
     },
     {
       name: 'Omen',
       test: (item: any) => item.typeline && item.typeline.includes('Omen'),
       calculateValue: (item: any, minItemValue: number = 0) =>
-        this.getValue(item, 'Omen', item.typeline, minItemValue),
+        this.getValue(item, 'Omen', item.typeline, minItemValue) * (item.stacksize || 1),
     },
     {
       name: 'Incubator',
       test: (item: any) => item.typeline && item.typeline.includes('Incubator'),
       calculateValue: (item: any, minItemValue: number = 0) =>
-        this.getValue(item, 'Currency', item.typeline, minItemValue),
+        this.getValue(item, 'Currency', item.typeline, minItemValue) * (item.stacksize || 1),
     },
     {
       name: 'Currency',
       test: (item: any) => item.rarity === 'Currency',
       calculateValue: (item: any, minItemValue: number = 0) =>
-        this.getValue(item, 'Currency', item.typeline, minItemValue),
+        this.getValue(item, 'Currency', item.typeline, minItemValue) * (item.stacksize || 1),
     },
     {
       name: 'Unique Maps',
@@ -325,20 +325,18 @@ class PriceMatcher {
     const identifier = inputIdentifier.length > 0 ? inputIdentifier : item.typeline;
 
     // handle items that stack - minItemValue is for exactly 1 of the item
-    const unitValue = this.ratesCache[table][identifier];
+    const value = this.ratesCache[table][identifier];
 
-    if (!unitValue) {
+    if (!value) {
       if (log) {
         logger.info(`[${table}] : ${identifier} => No value found, returning 0`);
       }
       return 0;
     }
-
-    const value = unitValue * (item.stacksize || 1);
     if (log) {
       logger.info(`[${table}] : ${identifier} => ${value}`);
     }
-    return minItemValue < value ? value : 0;
+    return minItemValue < value * (item.stacksize || 1) ? value : 0;
   }
 
   /**
@@ -606,6 +604,7 @@ class PriceMatcher {
     const type = fragmentType.itemType ?? 'Fragment';
     const splinterValue = this.getValue(item, type, fragmentType.item) / fragmentType.stackSize;
     const stackValue = splinterValue * item.stacksize;
+    logger.info('Splinter value: ', fragmentType, splinterValue, stackValue);
     if (log) {
       if (splinterValue >= minItemValue) {
         logger.info(
@@ -767,7 +766,7 @@ class PriceMatcher {
    */
   getSeedValue(item: any): number {
     const identifier = item.typeline + (this.getSeedLevel(item) >= 76 ? ' L76+' : '');
-    return this.getValue(item, 'Seed', identifier);
+    return this.getValue(item, 'Seed', identifier) * item.stacksize;
   }
 
   /**
@@ -866,7 +865,7 @@ class PriceMatcher {
    */
   getDivinationCardValue(item: any, minItemValue: number): number {
     const identifier = item.typeline;
-    return this.getValue(item, 'DivinationCard', identifier, minItemValue);
+    return this.getValue(item, 'DivinationCard', identifier, minItemValue) * item.stacksize;
   }
 }
 

@@ -2,6 +2,7 @@ import GGGAPI from '../GGGAPI';
 import DB from '../db/run';
 import dayjs from 'dayjs';
 import RendererLogger from '../RendererLogger';
+import SettingsManager from '../SettingsManager';
 const logger = require('electron-log');
 const Utils = require('./Utils').default;
 const EventEmitter = require('events');
@@ -1457,7 +1458,7 @@ async function recheckGained(from = 0, to = dayjs().format('YYYYMMDDHHmmss')) {
     let totalProfit = 0;
     let itemsToUpdate = [];
     for (const item of items) {
-      const { value } = await ItemPricer.price(item);
+      const { value } = await ItemPricer.price({ event_id: dayjs().format('YYYYMMDD'), ...item }, SettingsManager.get('activeProfile').league, true);
       totalProfit += value;
       if (value !== item.value) {
         itemsToUpdate.push({ value, id: item.id, eventId: item.event_id });

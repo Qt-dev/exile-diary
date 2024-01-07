@@ -106,6 +106,9 @@ class Item {
   eventId?: string;
   value?: number;
   originalValue?: number;
+  rarity: string;
+  category: any;
+  sockets: string | null;
 
   /* Getters for properties calling in the db format */
   get event_id() {
@@ -144,6 +147,19 @@ class Item {
       this.properties = JSON.parse(JSON.stringify(rawData.properties));
     }
 
+    
+    this.icon = Item.getImageUrl(this.icon);
+    this.name = this.name?.replace('<<set:MS>><<set:M>><<set:S>>', '') ?? '';
+    this.rarity = RarityByFrameType[this.frameType];
+    this.category = ItemCategoryParser.getCategory(this);
+
+    this.typeLine = this.typeLine?.replace('<<set:MS>><<set:M>><<set:S>>', '') ?? '';
+    if (this.rarity === 'Gem' && this.typeLine !== this.baseType) {
+      // to handle hybrid gems (general's cry, predator support)
+      this.typeLine = this.baseType?.replace('<<set:MS>><<set:M>><<set:S>>', '') ?? '';
+    }
+    this.sockets = Utils.getSockets(this);
+
     this.rawData = JSON.stringify(rawData);
   }
 
@@ -158,20 +174,23 @@ class Item {
   }
 
   toDbInsertFormat(timestamp: string): string[] {
-    const { id, identified, rawData, value = 0, originalValue = 0 } = this;
-    const icon = Item.getImageUrl(this.icon);
-    const name = this.name?.replace('<<set:MS>><<set:M>><<set:S>>', '') ?? '';
-    const rarity = RarityByFrameType[this.frameType];
-    const category = ItemCategoryParser.getCategory(this);
+    const {
+      id,
+      identified,
+      rawData,
+      icon,
+      name,
+      rarity,
+      category,
+      typeline,
+      sockets, 
+      value = 0,
+      originalValue = 0
+    } = this;
 
-    var typeline = this.typeLine?.replace('<<set:MS>><<set:M>><<set:S>>', '') ?? '';
-    if (rarity === 'Gem' && this.typeLine !== this.baseType) {
-      // to handle hybrid gems (general's cry, predator support)
-      typeline = this.baseType?.replace('<<set:MS>><<set:M>><<set:S>>', '') ?? '';
-    }
+
 
     const stacksize = this.stackSize || null;
-    const sockets = Utils.getSockets(this);
 
     return [
       id,
