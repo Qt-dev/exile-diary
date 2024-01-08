@@ -1,13 +1,14 @@
 import DatabaseConstructor, { Database } from 'better-sqlite3';
 import * as path from 'path';
 import { get as getSettings } from './settings';
-import logger from 'electron-log';
+import Logger from 'electron-log';
 import { app } from 'electron';
 import * as sqliteRegex from './sqlite-regex--cjs-fix';
 import SettingsManager from '../SettingsManager';
 import { v4 as uuidv4 } from 'uuid';
 import EventEmitter from 'events';
 
+const logger = Logger.scope('db/index');
 const userDataPath = app.getPath('userData');
 
 // Migrations to run on setup and on maintenance for each type of DB
@@ -345,8 +346,8 @@ const DB = {
     return path.join(userDataPath, `${characterName}.db`);
   },
 
-  getManager: (league: string | undefined = undefined) => {
-    const dbPath = !!league ? DB.getLeagueDbPath(league) : DB.getCharacterDbPath();
+  getManager: (league: string | undefined = undefined, characterName: string | undefined = undefined) => {
+    const dbPath = !!league ? DB.getLeagueDbPath(league) : DB.getCharacterDbPath(characterName);
     if (!dbPath) {
       return null;
     }
@@ -395,7 +396,7 @@ const DB = {
   },
 
   initDB: async (char: string) => {
-    const manager = DB.getManager(char);
+    const manager = DB.getManager(undefined, char);
     if (!manager) return null;
 
     const { init, maintenance } = Migrations.character;
