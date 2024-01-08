@@ -304,23 +304,25 @@ class DBManager {
 
     let migrationCounter = 0;
 
-    for(const sqlPatch of sqlList) {
+    for (const sqlPatch of sqlList) {
       const index = sqlList.indexOf(sqlPatch);
-      if(version === 0 || index > version) {
+      if (version === 0 || index > version) {
         logger.debug(`Running initialization SQL for ${this.db.name} - version ${index}`);
-        for(const command of sqlList[index]) {
+        for (const command of sqlList[index]) {
           await this.runTask(() => this.db.prepare(command).run());
           migrationCounter++;
         }
       }
     }
 
-    for(const command of maintSqlList) {
+    for (const command of maintSqlList) {
       await this.runTask(() => this.db.prepare(command).run());
       migrationCounter++;
     }
 
-    logger.info(`Initialization complete for ${this.db.name} - ${migrationCounter} migrations applied`);
+    logger.info(
+      `Initialization complete for ${this.db.name} - ${migrationCounter} migrations applied`
+    );
     return null;
   };
 }
@@ -346,7 +348,10 @@ const DB = {
     return path.join(userDataPath, `${characterName}.db`);
   },
 
-  getManager: (league: string | undefined = undefined, characterName: string | undefined = undefined) => {
+  getManager: (
+    league: string | undefined = undefined,
+    characterName: string | undefined = undefined
+  ) => {
     const dbPath = !!league ? DB.getLeagueDbPath(league) : DB.getCharacterDbPath(characterName);
     if (!dbPath) {
       return null;
