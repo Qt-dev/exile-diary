@@ -291,7 +291,8 @@ class DBManager {
     });
   }
 
-  init: Function = (sqlList: string[][], maintSqlList: string[] = []) => {
+  init: Function = async (sqlList: string[][], maintSqlList: string[] = []) => {
+    logger.info(`Initializing DB: ${this.db.name}`);
     let version = 0;
     try {
       version = this.db.pragma('user_version', { simple: true }) as number;
@@ -300,19 +301,25 @@ class DBManager {
       return;
     }
 
-    sqlList.forEach((commands, index) => {
-      if (version === 0 || index > version) {
+    let migrationCounter = 0;
+
+    for(const sqlPatch of sqlList) {
+      const index = sqlList.indexOf(sqlPatch);
+      if(version === 0 || index > version) {
         logger.debug(`Running initialization SQL for ${this.db.name} - version ${index}`);
-        commands.forEach((command) => {
-          this.runTask(() => this.db.prepare(command).run());
-        });
+        for(const command of sqlList[index]) {
+          await this.runTask(() => this.db.prepare(command).run());
+          migrationCounter++;
+        }
       }
-    });
+    }
 
-    maintSqlList.forEach((command) => {
-      this.runTask(() => this.db.prepare(command).run());
-    });
+    for(const command of maintSqlList) {
+      await this.runTask(() => this.db.prepare(command).run());
+      migrationCounter++;
+    }
 
+    logger.info(`Initialization complete for ${this.db.name} - ${migrationCounter} migrations applied`);
     return null;
   };
 }
