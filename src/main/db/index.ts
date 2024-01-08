@@ -1,13 +1,14 @@
 import DatabaseConstructor, { Database } from 'better-sqlite3';
 import * as path from 'path';
 import { get as getSettings } from './settings';
-import logger from 'electron-log';
+import Logger from 'electron-log';
 import { app } from 'electron';
 import * as sqliteRegex from './sqlite-regex--cjs-fix';
 import SettingsManager from '../SettingsManager';
 import { v4 as uuidv4 } from 'uuid';
 import EventEmitter from 'events';
 
+const logger = Logger.scope('db/index');
 const userDataPath = app.getPath('userData');
 
 // Migrations to run on setup and on maintenance for each type of DB
@@ -291,7 +292,8 @@ class DBManager {
     });
   }
 
-  init: Function = (sqlList: string[][], maintSqlList: string[] = []) => {
+  init: Function = async (sqlList: string[][], maintSqlList: string[] = []) => {
+    logger.info(`Initializing DB: ${this.db.name}`);
     let version = 0;
     try {
       version = this.db.pragma('user_version', { simple: true }) as number;
@@ -300,19 +302,25 @@ class DBManager {
       return;
     }
 
-    sqlList.forEach((commands, index) => {
-      if (version === 0 || index > version) {
+    let migrationCounter = 0;
+
+    for(const sqlPatch of sqlList) {
+      const index = sqlList.indexOf(sqlPatch);
+      if(version === 0 || index > version) {
         logger.debug(`Running initialization SQL for ${this.db.name} - version ${index}`);
-        commands.forEach((command) => {
-          this.runTask(() => this.db.prepare(command).run());
-        });
+        for(const command of sqlList[index]) {
+          await this.runTask(() => this.db.prepare(command).run());
+          migrationCounter++;
+        }
       }
-    });
+    }
 
-    maintSqlList.forEach((command) => {
-      this.runTask(() => this.db.prepare(command).run());
-    });
+    for(const command of maintSqlList) {
+      await this.runTask(() => this.db.prepare(command).run());
+      migrationCounter++;
+    }
 
+    logger.info(`Initialization complete for ${this.db.name} - ${migrationCounter} migrations applied`);
     return null;
   };
 }
@@ -338,8 +346,8 @@ const DB = {
     return path.join(userDataPath, `${characterName}.db`);
   },
 
-  getManager: (league: string | undefined = undefined) => {
-    const dbPath = !!league ? DB.getLeagueDbPath(league) : DB.getCharacterDbPath();
+  getManager: (league: string | undefined = undefined, characterName: string | undefined = undefined) => {
+    const dbPath = !!league ? DB.getLeagueDbPath(league) : DB.getCharacterDbPath(characterName);
     if (!dbPath) {
       return null;
     }
@@ -388,7 +396,7 @@ const DB = {
   },
 
   initDB: async (char: string) => {
-    const manager = DB.getManager(char);
+    const manager = DB.getManager(undefined, char);
     if (!manager) return null;
 
     const { init, maintenance } = Migrations.character;

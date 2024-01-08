@@ -144,9 +144,9 @@ class MainProcess {
     } else {
       const character = await SettingsManager.getCharacter();
       try {
-        SettingsManager.initializeDB(character.name);
-        League.addLeague(character.league);
-        logger.info(`DB updated. Character: ${character.name}, League: ${character.league}`);
+        await SettingsManager.initializeDB(character.name);
+        await League.addLeague(character.league);
+        logger.info(`DB initialized. Character: ${character.name}, League: ${character.league}`);
       } catch (e) {
         logger.error(`Could not set DB up. (Current Account: ${SettingsManager.get('username')}})`);
         logger.error(e);
