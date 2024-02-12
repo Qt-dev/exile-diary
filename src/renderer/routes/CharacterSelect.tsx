@@ -39,26 +39,28 @@ const CharacterSelect = () => {
 
   return (
     <div className="Character-Select">
-      <img src={Logo} alt="Exile Diary Logo" className="Login__Logo" />
-      <div className="Character-Select__Title">
-        Exile Diary <span className="Text--Legendary">Reborn</span>
-      </div>
-      <FormControl className="Character-Select__Form">
-        <FormControl size="small">
-          <Select id="character" value={character.name} onChange={handleChange}>
-            {characters.map((character: any) => (
-              <MenuItem key={character.name} value={character.name}>
-                {character.name}
-              </MenuItem>
-            ))}
-          </Select>
-          <FormHelperText>Pick a character to track</FormHelperText>
-        </FormControl>
+      <div className='Character-Select__Box Box'>
+        <img src={Logo} alt="Exile Diary Logo" className="Login__Logo" />
+        <div className="Character-Select__Title">
+          Exile Diary <span className="Text--Legendary">Reborn</span>
+        </div>
+        <FormControl className="Character-Select__Form">
+          <FormControl size="small">
+            <Select id="character" value={character.name} onChange={handleChange}>
+              {characters.map((character: any) => (
+                <MenuItem key={character.name} value={character.name}>
+                  {character.name}
+                </MenuItem>
+              ))}
+            </Select>
+            <FormHelperText>Pick a character to track</FormHelperText>
+          </FormControl>
 
-        <Button variant="contained" color="primary" onClick={saveCharacter} disabled={isSaving}>
-          Validate
-        </Button>
-      </FormControl>
+          <Button variant="contained" color="primary" onClick={saveCharacter} disabled={isSaving}>
+            Validate
+          </Button>
+        </FormControl>
+      </div>
     </div>
   );
 };
