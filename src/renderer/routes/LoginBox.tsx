@@ -58,7 +58,7 @@ const LoginBox = () => {
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
-    <div className="Login__Box">
+    <div className="Login__Box Box">
       <img src={Logo} alt="Exile Diary Logo" className="Login__Logo" />
       <h3>
         Exile Diary <span className="Text--Legendary">Reborn</span> requires you to log in with the

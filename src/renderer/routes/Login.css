@@ -4,9 +4,16 @@
   justify-content: center;
   height: 100vh;
   width: 100vw;
+  background-color: #000;
 }
 
 .Login__Box {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
   text-align: center;
-  align-content: center;
+  /* 10px on each side for the padding + some room */
+  width: calc(100% - 30px); 
+  height: calc(100% - 30px);
 }
