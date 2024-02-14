@@ -501,7 +501,10 @@ class MainProcess {
       this.sendToOverlay('overlay:set-persistence', isOverlayEnabled);
     });
     SettingsManager.registerListener('activeProfile', (newProfile, oldProfile) => {
-      if(newProfile.characterName !== oldProfile.characterName || newProfile.league !== oldProfile.league) {
+      if (
+        newProfile.characterName !== oldProfile.characterName ||
+        newProfile.league !== oldProfile.league
+      ) {
         logger.debug('Active profile changed, relaunching the app');
         // We are delaying the message to make sure it shows above the Settings saved message
         setTimeout(() => {
@@ -509,7 +512,7 @@ class MainProcess {
             messages: [
               {
                 text: 'Active profile changed, relaunching the app to load data for the new profile when the settings finish saving in a few seconds...',
-              }
+              },
             ],
           });
         }, 1000);
@@ -521,7 +524,7 @@ class MainProcess {
           .catch((e) => {
             logger.error('Error waiting for settings save', e);
           });
-        }
+      }
     });
 
     AuthManager.setMessenger(this.mainWindow.webContents);

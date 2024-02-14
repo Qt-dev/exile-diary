@@ -166,9 +166,9 @@ class SettingsManager {
 
   waitForSave() {
     return new Promise((resolve) => {
-      if(!this.saveScheduler) {
+      if (!this.saveScheduler) {
         resolve(null);
-      } else { 
+      } else {
         this.eventEmitter.once('saved', resolve);
       }
     });

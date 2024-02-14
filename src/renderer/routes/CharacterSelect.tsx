@@ -39,7 +39,7 @@ const CharacterSelect = () => {
 
   return (
     <div className="Character-Select">
-      <div className='Character-Select__Box Box'>
+      <div className="Character-Select__Box Box">
         <img src={Logo} alt="Exile Diary Logo" className="Login__Logo" />
         <div className="Character-Select__Title">
           Exile Diary <span className="Text--Legendary">Reborn</span>
