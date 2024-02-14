@@ -500,6 +500,29 @@ class MainProcess {
       logger.debug(`Setting Overlay Persistence to Enabled:${isOverlayEnabled}`);
       this.sendToOverlay('overlay:set-persistence', isOverlayEnabled);
     });
+    SettingsManager.registerListener('activeProfile', (newProfile, oldProfile) => {
+      if(newProfile.characterName !== oldProfile.characterName || newProfile.league !== oldProfile.league) {
+        logger.debug('Active profile changed, relaunching the app');
+        // We are delaying the message to make sure it shows above the Settings saved message
+        setTimeout(() => {
+          RendererLogger.log({
+            messages: [
+              {
+                text: 'Active profile changed, relaunching the app to load data for the new profile when the settings finish saving in a few seconds...',
+              }
+            ],
+          });
+        }, 1000);
+        SettingsManager.waitForSave()
+          .then(() => {
+            app.relaunch();
+            app.quit();
+          })
+          .catch((e) => {
+            logger.error('Error waiting for settings save', e);
+          });
+        }
+    });
 
     AuthManager.setMessenger(this.mainWindow.webContents);
     RendererLogger.init(this.mainWindow.webContents, this.overlayWindow.webContents);
