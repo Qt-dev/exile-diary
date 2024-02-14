@@ -7,9 +7,9 @@ const RunParser = require('./RunParser').default;
 const SkillTreeWatcher = require('./SkillTreeWatcher');
 const Utils = require('./Utils').default;
 const Constants = require('../../helpers/constants').default;
+const SettingsManager = require('../SettingsManager').default;
 
 var DB;
-var settings;
 var tail;
 var inv;
 var tree;
@@ -22,7 +22,7 @@ const instanceServerRegex = /[0-9:\.]+$/;
 
 function start() {
   DB = require('./DB').getDB();
-  settings = require('./settings').get();
+  const settings = SettingsManager.getAll();
 
   if (tail) {
     try {
@@ -159,6 +159,7 @@ function insertEvent(event, timestamp) {
 }
 
 function getEvent(arg) {
+  const settings = SettingsManager.getAll();
   var str = arg.substring(arg.indexOf('] ') + 2);
 
   var masterString = hasMaster(str);
@@ -304,7 +305,7 @@ function hasMapBoss(str) {
 
 async function getOldNPCEvents() {
   DB = require('./DB').getDB();
-  settings = require('./settings').get();
+  const settings = SettingsManager.getAll();
 
   var fs = require('fs');
   var readline = require('readline');

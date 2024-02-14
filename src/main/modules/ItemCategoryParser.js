@@ -175,7 +175,7 @@ function getCategory(item, subcategory = false) {
 
   logger.info(`No category found for item ${item.id || '(no id)'}! JSON follows:`);
   logger.info(JSON.stringify(item));
-  return null;
+  return "Others";
 }
 
 function getEquipmentBaseType(str) {

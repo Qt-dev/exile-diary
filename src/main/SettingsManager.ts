@@ -68,7 +68,7 @@ class SettingsManager {
 
     this.eventEmitter.on('change', (changedKey, value) => {
       const match = this.eventKeyMatcher[changedKey];
-      if (match) match.callback(value);
+      if (match) match.callback(value, this.settings[changedKey]);
     });
   }
 
@@ -127,8 +127,8 @@ class SettingsManager {
     )
       await this.initializeDB(value.characterName);
     this.settings[key] = value;
-    this.eventEmitter.emit('change', key, value);
     this.scheduleSave();
+    this.eventEmitter.emit('change', key, value);
   }
 
   scheduleSave() {
@@ -146,6 +146,8 @@ class SettingsManager {
     await fs.writeFile(tempFilePath, JSON.stringify(this.settings));
     logger.info(`Renaming ${tempFilePath} into  ${settingsPath}`);
     await fs.rename(tempFilePath, settingsPath);
+    this.eventEmitter.emit('saved');
+    if (this.saveScheduler) clearTimeout(this.saveScheduler);
   }
 
   async delete(key) {
@@ -160,6 +162,16 @@ class SettingsManager {
 
   registerListener(key: string, callback: Function) {
     this.eventKeyMatcher[key] = { callback };
+  }
+
+  waitForSave() {
+    return new Promise((resolve) => {
+      if(!this.saveScheduler) {
+        resolve(null);
+      } else { 
+        this.eventEmitter.once('saved', resolve);
+      }
+    });
   }
 }
 

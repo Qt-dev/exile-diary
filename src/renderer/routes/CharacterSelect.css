@@ -1,9 +1,24 @@
 .Character-Select {
   display: flex;
   flex-direction: column;
-  gap: 15px;
   align-items: center;
+  justify-content: center;
+  background-color: #000;
+  width: 100vw;
+  height: 100vh;
 }
+
+.Character-Select__Box {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  /* 10px on each side for the padding + some room */
+  width: calc(100% - 30px); 
+  height: calc(100% - 30px);
+}
+
 .Character-Select__Form {
   display: flex;
   flex-direction: column;
