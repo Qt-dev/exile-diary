@@ -1,5 +1,8 @@
 import ItemCategoryParser from '../modules/ItemCategoryParser';
 import Utils from '../modules/Utils';
+import Logger from 'electron-log';
+
+const logger = Logger.scope('Item');
 
 // Example of Raw Data
 // {
@@ -148,6 +151,10 @@ class Item {
     this.icon = Item.getImageUrl(this.icon);
     this.name = this.name?.replace('<<set:MS>><<set:M>><<set:S>>', '') ?? '';
     this.rarity = RarityByFrameType[this.frameType];
+    if (!this.rarity) {
+      logger.warn(`Unknown frameType (${this.frameType}) for item ${this.name}. Setting rarity to Unknown`)
+      this.rarity = 'Unknown'
+    }
     this.category = ItemCategoryParser.getCategory(this);
 
     this.typeLine = this.typeLine?.replace('<<set:MS>><<set:M>><<set:S>>', '') ?? '';
