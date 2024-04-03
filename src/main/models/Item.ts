@@ -83,6 +83,7 @@ const RarityByFrameType = [
   'Prophecy',
   'Foil',
   'Supporter Foil',
+  'Allflame',
 ];
 
 class Item {
