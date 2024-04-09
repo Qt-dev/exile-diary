@@ -80,6 +80,7 @@ class PriceMatcher {
     { id: 11, name: 'Expedition' },
     { id: 18, name: 'Ancestor' },
     { id: 19, name: 'Affliction' },
+    { id: 20, name: 'Necropolis' },
   ];
 
   DefaultGemFormat = {
@@ -194,6 +195,18 @@ class PriceMatcher {
       test: (item: any) => item.typeline && item.typeline.includes('Incubator'),
       calculateValue: (item: any, minItemValue: number = 0) =>
         this.getValue(item, 'Currency', item.typeline, minItemValue) * (item.stacksize || 1),
+    },
+    {
+      name: 'Allflame Embers',
+      test: (item: any) => item.typeline && item.typeline.startsWith('Allflame Ember'),
+      calculateValue: (item: any, minItemValue: number = 0) =>
+        this.getValue(item, 'AllflameEmber', item.typeline, minItemValue),
+    },
+    {
+      name: 'Coffins',
+      test: (item: any) => item.typeline && item.typeline === 'Filled Coffin',
+      calculateValue: (item: any, minItemValue: number = 0) =>
+        this.getCoffinValue(item, minItemValue),
     },
     {
       name: 'Currency',
@@ -767,6 +780,39 @@ class PriceMatcher {
   getSeedValue(item: any): number {
     const identifier = item.typeline + (this.getSeedLevel(item) >= 76 ? ' L76+' : '');
     return this.getValue(item, 'Seed', identifier) * item.stacksize;
+  }
+
+  /**
+   * Get the value of a Coffin item
+   * @param {any} item Item to get the value of
+   * @param {number} minItemValue Minimum value of an item. Anything below this will make the function return 0
+   * @returns {number} Value of the item in chaos
+   */
+  getCoffinValue(item: any, minItemValue: number): number {
+    const tableId = 'Coffin';
+    const matchRegexp = /L(?<min>\d+)-(?<max>\d+)/;
+    if (!this.ratesCache[tableId]) {
+      logger.info(`No price list found for category ${tableId}, returning 0`);
+      return 0;
+    }
+
+    const mod = item.implicitMods[0]; // Implicit mod is the only mod on the item
+    const ilvl = item.properties.find(({name}) => name === 'Corpse Level').values[0][0]; // Corpse Level is the only property on the item
+    // Find key by:
+    // 1. Starting with the mod name
+    // 2. Read the ilvl range
+    // 3. Check if the item's ilvl is in the range
+    const coffinKey = Object.keys(this.ratesCache[tableId]).find((title) => {
+      if(!title.startsWith(mod)) return false;
+      const match  = title.match(matchRegexp);
+      if(!match) return false;
+      return ilvl >= parseInt(match[1]) && item.ilvl <= parseInt(match[2]);
+    });
+    if(coffinKey) {
+      const value = this.ratesCache[tableId][coffinKey];
+      return minItemValue < value ? value : 0;
+    }
+    return 0;
   }
 
   /**
