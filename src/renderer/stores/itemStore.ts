@@ -30,22 +30,40 @@ export default class ItemStore {
     this.items
       .map((item) => item.toLootTable())
       .forEach((item) => {
-        const { name, quantity, value, totalValue, originalValue } = item;
-        let group = grouped.find((item) => name === item.name);
-        if (!group) {
-          group = {
-            ...item,
-            value: value,
-            originalValue: originalValue,
-            totalValue: 0,
-            quantity: 0,
-            items: [],
-          };
-          grouped.push(group);
+        const { quantity, value, totalValue, originalValue, stackSize } = item;
+        if(stackSize > 0) {
+          let group = grouped.find(({ name }) => name === item.name);
+          if (!group) {
+            group = {
+              ...item,
+              value: value,
+              originalValue: originalValue,
+              totalValue: 0,
+              quantity: 0,
+              items: [],
+            };
+            grouped.push(group);
+          }
+          group.totalValue += totalValue;
+          group.quantity += quantity;
+          group.items.push(item);
+        } else {
+          let group = grouped.find(({ id }) => id === item.id);
+          if (!group) {
+            group = {
+              ...item,
+              value: value,
+              originalValue: originalValue,
+              totalValue: 0,
+              quantity: 0,
+              items: [],
+            };
+            grouped.push(group);
+          }
+          group.totalValue += totalValue;
+          group.quantity += quantity;
+          group.items.push(item);
         }
-        group.totalValue += totalValue;
-        group.quantity += quantity;
-        group.items.push(item);
       });
     return grouped;
   }
