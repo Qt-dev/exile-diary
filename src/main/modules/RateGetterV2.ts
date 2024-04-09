@@ -450,11 +450,11 @@ function cleanUniqueItems(arr, getLowConfidence = false) {
 function cleanByModAndLevel(arr, getLowConfidence = false) {
   const a = {};
   arr?.lines?.forEach((item) => {
-    const { name, chaosValue }  = item;
+    const { name, chaosValue } = item;
     const { ilvl } = item.tradeFilter.query.filters.misc_filters.filters;
     a[`${name} L${ilvl.min}-${ilvl.max}`] = chaosValue;
   });
-  
+
   return a;
 }
 

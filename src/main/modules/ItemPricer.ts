@@ -797,18 +797,18 @@ class PriceMatcher {
     }
 
     const mod = item.implicitMods[0]; // Implicit mod is the only mod on the item
-    const ilvl = item.properties.find(({name}) => name === 'Corpse Level').values[0][0]; // Corpse Level is the only property on the item
+    const ilvl = item.properties.find(({ name }) => name === 'Corpse Level').values[0][0]; // Corpse Level is the only property on the item
     // Find key by:
     // 1. Starting with the mod name
     // 2. Read the ilvl range
     // 3. Check if the item's ilvl is in the range
     const coffinKey = Object.keys(this.ratesCache[tableId]).find((title) => {
-      if(!title.startsWith(mod)) return false;
-      const match  = title.match(matchRegexp);
-      if(!match) return false;
+      if (!title.startsWith(mod)) return false;
+      const match = title.match(matchRegexp);
+      if (!match) return false;
       return ilvl >= parseInt(match[1]) && item.ilvl <= parseInt(match[2]);
     });
-    if(coffinKey) {
+    if (coffinKey) {
       const value = this.ratesCache[tableId][coffinKey];
       return minItemValue < value ? value : 0;
     }

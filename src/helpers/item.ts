@@ -3,7 +3,6 @@ import Constants from './constants';
 
 const logger = Logger.scope('item-helper');
 
-
 // Get the item category from all the itemData.
 // Lots of hardcoded stuff here, but it's the best way that we found.
 export const getCategory = (item, subcategory = false) => {

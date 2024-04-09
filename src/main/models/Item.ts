@@ -152,8 +152,10 @@ class Item {
     this.name = this.name?.replace('<<set:MS>><<set:M>><<set:S>>', '') ?? '';
     this.rarity = RarityByFrameType[this.frameType];
     if (!this.rarity) {
-      logger.warn(`Unknown frameType (${this.frameType}) for item ${this.name}. Setting rarity to Unknown`)
-      this.rarity = 'Unknown'
+      logger.warn(
+        `Unknown frameType (${this.frameType}) for item ${this.name}. Setting rarity to Unknown`
+      );
+      this.rarity = 'Unknown';
     }
     this.category = getCategory(this);
 
