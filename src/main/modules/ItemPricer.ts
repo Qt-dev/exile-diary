@@ -796,8 +796,8 @@ class PriceMatcher {
       return 0;
     }
 
-    const mod = item.implicitMods[0]; // Implicit mod is the only mod on the item
-    const ilvl = item.properties.find(({ name }) => name === 'Corpse Level').values[0][0]; // Corpse Level is the only property on the item
+    const mod = item.parsedItem.implicitMods[0]; // Implicit mod is the only mod on the item
+    const ilvl = item.parsedItem.properties.find(({ name }) => name === 'Corpse Level').values[0][0]; // Corpse Level is the only property on the item
     // Find key by:
     // 1. Starting with the mod name
     // 2. Read the ilvl range
