@@ -806,7 +806,7 @@ class PriceMatcher {
       if (!title.startsWith(mod)) return false;
       const match = title.match(matchRegexp);
       if (!match) return false;
-      return ilvl >= parseInt(match[1]) && item.ilvl <= parseInt(match[2]);
+      return ilvl >= parseInt(match[1]) && ilvl <= parseInt(match[2]);
     });
     if (coffinKey) {
       const value = this.ratesCache[tableId][coffinKey];
