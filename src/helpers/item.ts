@@ -49,6 +49,8 @@ export const getCategory = (item, subcategory = false) => {
     case 5:
       if (type.startsWith('Captured Soul')) {
         return 'Pantheon Soul';
+      } else if (type.includes('Coffin')) {
+        return 'Coffin';
       } else {
         return 'Labyrinth Items';
       }
