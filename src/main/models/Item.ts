@@ -1,4 +1,4 @@
-import ItemCategoryParser from '../modules/ItemCategoryParser';
+import { getCategory } from '../../helpers/item';
 import Utils from '../modules/Utils';
 import Logger from 'electron-log';
 
@@ -155,7 +155,7 @@ class Item {
       logger.warn(`Unknown frameType (${this.frameType}) for item ${this.name}. Setting rarity to Unknown`)
       this.rarity = 'Unknown'
     }
-    this.category = ItemCategoryParser.getCategory(this);
+    this.category = getCategory(this);
 
     this.typeLine = this.typeLine?.replace('<<set:MS>><<set:M>><<set:S>>', '') ?? '';
     if (this.rarity === 'Gem' && this.typeLine !== this.baseType) {

@@ -28,7 +28,7 @@ const rates = {
   },
   cleanRates: async (league: string, date: string): Promise<void> => {
     logger.info(`Cleaning rates for ${date} (league: ${league}) from DB`);
-    const query = 'DELETE FROM fullrates WHERE date < ?';
+    const query = 'DELETE FROM fullrates WHERE date = ?';
     try {
       DB.run(query, [date], league);
     } catch (err) {

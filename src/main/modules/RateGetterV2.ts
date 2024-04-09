@@ -14,7 +14,7 @@ const rateTypes = {
   Currency: cleanCurrency,
   Fragment: cleanCurrency,
 
-  // Tattoo: cleanNameValuePairs,
+  Tattoo: cleanNameValuePairs,
   Omen: cleanNameValuePairs,
   DivinationCard: cleanNameValuePairs,
   Artifact: cleanNameValuePairs,
@@ -45,6 +45,8 @@ const rateTypes = {
   Beast: cleanNameValuePairs,
   Essence: cleanNameValuePairs,
   Vial: cleanNameValuePairs,
+  AllflameEmber: cleanNameValuePairs,
+  Coffin: cleanByModAndLevel,
   // Old Categories
   // "Prophecy" : cleanNameValuePairs,
   // "Watchstone" : cleanWatchstones,
@@ -170,6 +172,7 @@ class RateGetterV2 {
           this.ratesReady = true;
           return;
         } else {
+          logger.info('Forced update, cleaning existing rates');
           await this.cleanRates(today);
         }
       }
@@ -275,10 +278,12 @@ class RateGetterV2 {
     );
     rates['Memory'] = tempRates['Memory'];
     rates['Invitation'] = tempRates['Invitation'];
-
-    // Ancestor Stuff
     rates['Tattoo'] = tempRates['Tattoo'];
     rates['Omen'] = tempRates['Omen'];
+
+    // Necropolis
+    rates['Coffin'] = tempRates['Coffin'];
+    rates['AllflameEmber'] = tempRates['AllflameEmber'];
 
     // Retired data
     // rates['Watchstone'] = tempRates['Watchstone'];
@@ -334,11 +339,13 @@ class RateGetterV2 {
       case 'Beast':
       case 'Essence':
       case 'Vial':
+      case 'Tattoo':
+      case 'AllflameEmber':
+      case 'Coffin':
         // RETIRED
         // case 'Prophecy':
         // case 'Watchstone':
         // case 'Seed':
-        // case 'Tattoo':
         // case 'HelmetEnchant':
         url = `/api/data/itemoverview?type=${category}`;
         break;
@@ -437,6 +444,17 @@ function cleanUniqueItems(arr, getLowConfidence = false) {
     if (item.itemClass === 9) identifier += ` (Relic)`;
     a[identifier] = item.chaosValue;
   });
+  return a;
+}
+
+function cleanByModAndLevel(arr, getLowConfidence = false) {
+  const a = {};
+  arr?.lines?.forEach((item) => {
+    const { name, chaosValue }  = item;
+    const { ilvl } = item.tradeFilter.query.filters.misc_filters.filters;
+    a[`${name} L${ilvl.min}-${ilvl.max}`] = chaosValue;
+  });
+  
   return a;
 }
 
