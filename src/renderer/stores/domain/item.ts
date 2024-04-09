@@ -130,7 +130,7 @@ const getCategory = (item, subcategory = false) => {
 
   // Maligaro's Map quest item has frameType 7, already detected above as a quest item
   if (type.includes(' Map')) return 'Maps';
-  if (type.endsWith('Scarab')) return subcategory ? ['Map Fragments', 'Scarab'] : 'Map Fragments';
+  if (type.includes('Scarab')) return subcategory ? ['Map Fragments', 'Scarab'] : 'Map Fragments';
   if (type.includes('Watchstone')) return 'Atlas Region Upgrade Item';
   if (type.endsWith('Incubator')) return 'Incubator';
   if (type.endsWith('Piece')) return 'Harbinger Item Piece';

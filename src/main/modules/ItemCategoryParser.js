@@ -117,9 +117,6 @@ function getCategory(item, subcategory = false) {
       return 'Prophecy';
   }
 
-  if (t.toLowerCase().endsWith('scarab')) {
-    return subcategory ? ['Map Fragments', 'Scarab'] : 'Map Fragments';
-  }
 
   if (t.includes('Watchstone')) {
     return 'Atlas Region Upgrade Item';
@@ -130,11 +127,16 @@ function getCategory(item, subcategory = false) {
     return 'Maps';
   }
 
-  if (t.toLowerCase().endsWith('incubator')) {
+  const lowerCaseTypeline = t.toLowerCase();
+  if (lowerCaseTypeline.includes('scarab')) {
+    return subcategory ? ['Map Fragments', 'Scarab'] : 'Map Fragments';
+  }
+
+  if (lowerCaseTypeline.endsWith('incubator')) {
     return 'Incubator';
   }
 
-  if (t.toLowerCase().endsWith('piece')) {
+  if (lowerCaseTypeline.endsWith('piece')) {
     return 'Harbinger Item Piece';
   }
 
@@ -142,10 +144,10 @@ function getCategory(item, subcategory = false) {
     return 'Captured Beast';
   }
 
-  if (t.toLowerCase().includes('charm')) {
+  if (lowerCaseTypeline.includes('charm')) {
     return 'Charm';
   }
-  if (t.toLowerCase().includes('tincture')) {
+  if (lowerCaseTypeline.includes('tincture')) {
     return 'Tincture';
   }
 
