@@ -58,6 +58,8 @@ export const getCategory = (item, subcategory = false) => {
       return 'Quest Items';
     case 8:
       return 'Prophecy';
+    case 11:
+      return 'Allflame Ember';
   }
 
   // Maligaro's Map quest item has frameType 7, already detected above as a quest item
@@ -67,7 +69,6 @@ export const getCategory = (item, subcategory = false) => {
   if (type.endsWith('Incubator')) return 'Incubator';
   if (type.endsWith('Piece')) return 'Harbinger Item Piece';
   if (item.icon.includes('BestiaryOrbFull')) return 'Captured Beast';
-  if (type.includes('Allflame Ember')) return 'Allflame Ember';
 
   // Metamorph organs
   if (Constants.items.names.metamorphSamples.includes(iconFileName.replace(/\..*$/, '')))
