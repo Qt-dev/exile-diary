@@ -31,7 +31,7 @@ export default class ItemStore {
       .map((item) => item.toLootTable())
       .forEach((item) => {
         const { quantity, value, totalValue, originalValue, stackSize } = item;
-        if(stackSize > 0) {
+        if (stackSize > 0) {
           let group = grouped.find(({ name }) => name === item.name);
           if (!group) {
             group = {

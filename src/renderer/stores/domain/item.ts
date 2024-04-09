@@ -205,8 +205,10 @@ export class Item {
     this.styleModifiers = itemdata.styleModifiers || {};
 
     this.name = itemdata.name.replace('<<set:MS>><<set:M>><<set:S>>', '').replace(/<>/g, '');
-    if(itemdata.typeLine === 'Filled Coffin') {
-      this.name += `${itemdata.implicitMods[0]} - L${itemdata.properties?.find(({name}) => name === 'Corpse Level').values[0][0]}`;
+    if (itemdata.typeLine === 'Filled Coffin') {
+      this.name += `${itemdata.implicitMods[0]} - L${
+        itemdata.properties?.find(({ name }) => name === 'Corpse Level').values[0][0]
+      }`;
     }
     this.itemId = itemdata.id;
 
