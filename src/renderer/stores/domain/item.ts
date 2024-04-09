@@ -12,6 +12,7 @@ type LootTableData = {
   icon: string;
   quantity: number;
   stashTabId: string;
+  stackSize: number;
   item?: Item;
   itemData?: string;
 };
@@ -204,6 +205,9 @@ export class Item {
     this.styleModifiers = itemdata.styleModifiers || {};
 
     this.name = itemdata.name.replace('<<set:MS>><<set:M>><<set:S>>', '').replace(/<>/g, '');
+    if(itemdata.typeLine === 'Filled Coffin') {
+      this.name += `${itemdata.implicitMods[0]} - L${itemdata.properties?.find(({name}) => name === 'Corpse Level').values[0][0]}`;
+    }
     this.itemId = itemdata.id;
 
     this.itemLevel = Math.max(1, itemdata.ilvl);
@@ -264,7 +268,7 @@ export class Item {
   // Get the full name to display for an item
   @computed getDisplayName(showQuantityInTitle = true): string[] {
     // Any normal Basetype with Quality
-    if (!this.identified && this.quality > 0) {
+    if (!this.identified && this.quality > 0 && this.baseType !== 'Filled Coffin') {
       return [this.baseType];
     }
     // No identified property, no name -> This is a Gem
@@ -326,8 +330,9 @@ export class Item {
   toLootTable(jsonMode: boolean = false): LootTableData {
     const { itemId, value = 0, originalValue = 0, stashTabId = '', rawData } = this;
     const { icon } = rawData;
-    const name = rawData.name || rawData.secretName;
+    const name = rawData.name || rawData.secretName || this.name;
     const type = rawData.hybrid ? rawData.hybrid.baseTypeName : rawData.typeLine;
+    const stackSize = rawData.maxStackSize;
     const quantity = rawData.maxStackSize ? rawData.pickupStackSize ?? rawData.stackSize : 1;
     const fullName = type + (name ? ` (${name})` : '');
     const lootTableData: LootTableData = {
@@ -338,6 +343,7 @@ export class Item {
       totalValue: value,
       icon,
       quantity,
+      stackSize,
       stashTabId,
     };
     if (jsonMode) {
@@ -357,6 +363,7 @@ export class Item {
       originalValue: 0,
       icon: '',
       quantity: 0,
+      stackSize: 0,
       stashTabId: '',
       itemData: '',
     };
