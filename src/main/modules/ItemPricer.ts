@@ -693,11 +693,13 @@ class PriceMatcher {
    * @returns {number} Value of a unique item
    */
   getUniqueItemValue(item: any, minItemValue: number): number {
-    let identifier =
-      item.name ??
-      Utils.getItemName(item.icon) ??
-      Utils.getItemName(item.parsedItem.icon) ??
-      item.typeline;
+    const identifierOptions = [
+      item.name,
+      Utils.getItemName(item.icon),
+      Utils.getItemName(item.parsedItem.icon),
+      item.typeline,
+    ];
+    let identifier = identifierOptions.find((option) => option && option.length > 0 ) || item.typeline;
     // let identifier = item.name || Utils.getItemName(item.icon) || item.typeline;
 
     if (identifier === 'Grand Spectrum' || identifier === 'Combat Focus') {
