@@ -206,7 +206,7 @@
     "tesseract.js": "^5.0.0",
     "uuid": "^9.0.1",
     "webpack": "^5.64.4",
-    "webpack-dev-server": "^4.6.0",
+    "webpack-dev-server": "^5.0.4",
     "webpack-manifest-plugin": "^4.0.2",
     "winston": "^3.8.1",
     "workbox-webpack-plugin": "^6.4.1",
