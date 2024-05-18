@@ -209,6 +209,12 @@ class PriceMatcher {
         this.getCoffinValue(item, minItemValue),
     },
     {
+      name: 'Chaos Orbs',
+      test: (item: any) => item.typeline === 'Chaos Orb',
+      calculateValue: (item: any, minItemValue: number = 0) =>
+        1 * (item.stacksize || 1) >= minItemValue ? 1 * (item.stacksize || 1) : 0,
+    },
+    {
       name: 'Currency',
       test: (item: any) => item.rarity === 'Currency',
       calculateValue: (item: any, minItemValue: number = 0) =>
