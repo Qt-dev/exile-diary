@@ -97,12 +97,8 @@ module.exports = function (proxy, allowedHost) {
       }
     },
 
-    server : {
-      type: getHttpsConfig() ? 'https' : 'http',
-      options: getHttpsConfig() ? getHttpsConfig() : {},
-    },
-    // https: getHttpsConfig(),
     host,
+    setupExitSignals: true,
     historyApiFallback: {
       // Paths with dots should still use the history fallback.
       // See https://github.com/facebook/create-react-app/issues/387.
