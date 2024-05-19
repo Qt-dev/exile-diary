@@ -3,6 +3,7 @@ import DB from '../db/run';
 import dayjs from 'dayjs';
 import RendererLogger from '../RendererLogger';
 import SettingsManager from '../SettingsManager';
+import OldDB from '../db';
 const logger = require('electron-log');
 const Utils = require('./Utils').default;
 const EventEmitter = require('events');
@@ -10,7 +11,6 @@ const ItemPricer = require('./ItemPricer');
 const XPTracker = require('./XPTracker');
 const Constants = require('../../helpers/constants').default;
 
-let OldDB;
 var emitter = new EventEmitter();
 let latestGeneratedArea = null;
 
@@ -21,8 +21,6 @@ function setLatestGeneratedArea(area) {
 async function tryProcess(obj) {
   var event = obj.event;
   var mode = obj.mode;
-
-  OldDB = require('./DB').getDB();
   var lastUsedEvent = await getLastUsedEvent();
   if (!lastUsedEvent) return;
 
@@ -109,13 +107,11 @@ async function tryProcess(obj) {
       firstEvent.area,
       latestGeneratedArea?.level ?? 0,
       latestGeneratedArea?.depth ?? 0,
-    ],
-    (err) => {
-      if (err) {
-        logger.info(
-          `Error manually inserting areainfo (${firstEvent.timestamp} ${firstEvent.area}): ${err}`
-        );
-      }
+    ])
+    .catch((err) => {
+      logger.info(
+        `Error manually inserting areainfo (${firstEvent.timestamp} ${firstEvent.area}): ${err}`
+      );
     }
   );
 
@@ -169,12 +165,8 @@ async function tryProcess(obj) {
           and id > ?
           order by id
         `,
-        [lastUsedEvent, lastUsedEvent, lastUsedEvent],
-        (err, rows) => {
-          if (err) {
-            logger.error(`Unable to get next map event: ${err}`);
-            resolve();
-          }
+        [lastUsedEvent, lastUsedEvent, lastUsedEvent])
+        .then((rows) => {
           if (!rows) {
             logger.info('No valid next map event found');
             resolve();
@@ -195,8 +187,11 @@ async function tryProcess(obj) {
               resolve();
             }
           }
-        }
-      );
+        })
+        .catch((err) => {
+          logger.error(`Unable to get next map event: ${err}`);
+          resolve();
+        });
     });
   }
 
@@ -216,12 +211,9 @@ async function tryProcess(obj) {
         return;
     }
 
-    return new Promise((resolve, reject) => {
-      OldDB.all(sql, [mapEvent.timestamp, currEvent.timestamp], (err, rows) => {
-        if (err) {
-          logger.error(`Unable to get last event: ${err}`);
-          resolve();
-        } else {
+    return new Promise((resolve) => {
+      OldDB.all(sql, [mapEvent.timestamp, currEvent.timestamp])
+        .then((rows) => {
           var lastTownVisit = null;
           for (var i = 0; i < rows.length; i++) {
             var row = rows[i];
@@ -241,21 +233,20 @@ async function tryProcess(obj) {
           } else {
             resolve(lastTownVisit);
           }
-        }
+        })
+        .catch((err) => {
+          logger.error(`Unable to get last town event: ${err}`);
+          resolve();
+        });
       });
-    });
   }
 
   function getAreaInfo(firstEvent, lastEvent) {
     return new Promise((resolve, reject) => {
       OldDB.get(
         'select * from areainfo where id > ? and id < ? and name = ? order by id desc',
-        [firstEvent.timestamp, lastEvent.timestamp, firstEvent.area],
-        (err, row) => {
-          if (err) {
-            logger.error(`Unable to get area info: ${err}`);
-            resolve();
-          }
+        [firstEvent.timestamp, lastEvent.timestamp, firstEvent.area])
+        .then((row) => {
           if (!row) {
             logger.info(
               `No area info found between ${firstEvent.timestamp} and ${lastEvent.timestamp}`
@@ -263,39 +254,40 @@ async function tryProcess(obj) {
             resolve();
           }
           resolve(row);
-        }
-      );
+        })
+        .catch((err) => {
+          logger.error(`Unable to get area info: ${err}`);
+          resolve();
+        });
     });
   }
 }
 
 async function process() {
-  OldDB = require('./DB').getDB();
 
   var currArea = await getCurrAreaInfo();
   if (!currArea) {
     logger.info('No unprocessed area info found');
     var lastEvent = await new Promise(async (resolve, reject) => {
       OldDB.get(
-        " select * from events where event_type='entered' order by id desc ",
-        (err, row) => {
-          if (err) {
-            logger.info(`Error getting last inserted event: ${err}`);
+          " select * from events where event_type='entered' order by id desc "
+        )
+        .then((row) => {
+          if (!row) {
+            logger.info('No last inserted event found!');
             resolve();
           } else {
-            if (!row) {
-              logger.info('No last inserted event found!');
-              resolve();
-            } else {
-              resolve({
-                timestamp: row.id,
-                area: row.event_text,
-                server: row.server,
-              });
-            }
+            resolve({
+              timestamp: row.id,
+              area: row.event_text,
+              server: row.server,
+            });
           }
-        }
-      );
+        })
+        .catch((err) => {
+          logger.info(`Error getting last inserted event: ${err}`);
+          resolve();
+        });
     });
     if (lastEvent) {
       logger.info('Will try processing from event: ' + JSON.stringify(lastEvent));
@@ -380,53 +372,50 @@ async function getKillCount(firstEvent, lastEvent) {
       select * from incubators where incubators.timestamp between ? and ?
       order by timestamp
     `,
-      [firstEvent, firstEvent, lastEvent],
-      (err, rows) => {
-        if (err) {
-          logger.info(`Failed to get kill count: ${err}`);
-        } else {
-          if (rows.length > 1) {
-            var incubators = [];
-            rows.forEach((row) => {
-              incubators.push(JSON.parse(row.data));
+      [firstEvent, firstEvent, lastEvent])
+      .then((rows) => {
+        if (rows.length > 1) {
+          var incubators = [];
+          rows.forEach((row) => {
+            incubators.push(JSON.parse(row.data));
+          });
+          for (var i = 1; i < incubators.length; i++) {
+            var prev = incubators[i - 1];
+            var curr = incubators[i];
+            var killCount = 0;
+            Object.keys(prev).forEach((key) => {
+              if (curr[key] && curr[key].progress - prev[key].progress > killCount) {
+                killCount = curr[key].progress - prev[key].progress;
+              }
             });
-            for (var i = 1; i < incubators.length; i++) {
-              var prev = incubators[i - 1];
-              var curr = incubators[i];
-              var killCount = 0;
-              Object.keys(prev).forEach((key) => {
-                if (curr[key] && curr[key].progress - prev[key].progress > killCount) {
-                  killCount = curr[key].progress - prev[key].progress;
-                }
-              });
-              totalKillCount += killCount;
-            }
+            totalKillCount += killCount;
           }
         }
         logger.info(`Total kill count is ${totalKillCount}`);
         resolve(totalKillCount > 0 ? totalKillCount : null);
-      }
-    );
+      })
+      .catch((err) => {
+        logger.info(`Failed to get kill count: ${err}`);
+        resolve();
+      });
   });
 }
 
 async function getXP(firstEvent, lastEvent) {
-  return new Promise((resolve, reject) => {
+  return new Promise((resolve) => {
     OldDB.get(
       ' select timestamp, xp from xp where timestamp between ? and ? order by timestamp desc limit 1 ',
-      [firstEvent, lastEvent],
-      async (err, row) => {
-        if (err || !row) {
-          logger.info(
-            `Failed to get XP between ${firstEvent} and ${lastEvent} from local DB, retrieving manually`
-          );
-          resolve(await getXPManual());
-        } else {
-          logger.info(`Got XP from DB: ${row.xp} at ${row.timestamp}`);
-          resolve(row.xp);
-        }
-      }
-    );
+      [firstEvent, lastEvent])
+      .then((row) => {
+        logger.info(`Got XP from DB: ${row.xp} at ${row.timestamp}`);
+        resolve(row.xp);
+      })
+      .catch((err) => {
+        logger.info(
+          `Failed to get XP between ${firstEvent} and ${lastEvent} from local DB, retrieving manually`
+        );
+        resolve(getXPManual());
+      });
   });
 }
 
@@ -436,20 +425,20 @@ async function getXPManual() {
 }
 
 async function getLastInventoryTimestamp() {
-  return new Promise((resolve, reject) => {
-    OldDB.get('select timestamp from lastinv', (err, row) => {
-      if (err) {
-        logger.info(`Error getting timestamp for last inventory: ${err}`);
-        resolve(-1);
-      } else {
+  return new Promise((resolve) => {
+    OldDB.get('select timestamp from lastinv')
+      .then((row) => {
         if (!row) {
           logger.info('No last inventory yet');
           resolve(-1);
         } else {
           resolve(row.timestamp);
         }
-      }
-    });
+      })
+      .catch((err) => {
+        logger.info(`Error getting timestamp for last inventory: ${err}`);
+        resolve(-1);
+      });
   });
 }
 
@@ -477,21 +466,20 @@ async function checkItems(area, firstevent, lastevent) {
 }
 
 function getXPDiff(currentXP) {
-  return new Promise((resolve, reject) => {
-    OldDB.get(' select xp from mapruns order by id desc limit 1 ', (err, row) => {
-      if (!err) {
-        logger.info(`current xp: ${currentXP}, previous: ${row.xp}`);
+  return new Promise((resolve) => {
+    OldDB.get(' select xp from mapruns order by id desc limit 1 ')
+      .then((row) => {
         if (!row.xp) {
           // first map recorded - xp diff can't be determined in this case, return 0
           resolve(0);
         } else {
           resolve(currentXP - row.xp);
         }
-      } else {
+      })
+      .catch((err) => {
         logger.info(`Error getting XP gained: ${err}`);
         resolve(null);
-      }
-    });
+      });
   });
 }
 
@@ -499,38 +487,36 @@ function getItems(areaID, firstEvent, lastEvent) {
   return new Promise((resolve, reject) => {
     OldDB.all(
       " select id, event_text from events where id between ? and ? and event_type = 'entered' order by id ",
-      [firstEvent, lastEvent],
-      async (err, rows) => {
-        if (err) {
-          logger.info(`Unable to get item values for ${areaID}: ${err}`);
-          resolve(false);
-        } else {
-          var numItems = 0;
-          var totalProfit = 0;
-          var importantDrops = {};
-          for (var i = 1; i < rows.length; i++) {
-            var prevRow = rows[i - 1];
-            if (!Utils.isTown(prevRow.event_text)) {
-              logger.info(`Getting items picked up in ${prevRow.id} ${prevRow.event_text}`);
-              var items = await getItemsFor(rows[i].id);
-              numItems += items.count;
-              totalProfit += Number.parseFloat(items.value);
-              if (items.importantDrops) {
-                for (let m in items.importantDrops) {
-                  importantDrops[m] = (importantDrops[m] || 0) + items.importantDrops[m];
-                }
+      [firstEvent, lastEvent])
+      .then(async (rows) => {
+        var numItems = 0;
+        var totalProfit = 0;
+        var importantDrops = {};
+        for (var i = 1; i < rows.length; i++) {
+          var prevRow = rows[i - 1];
+          if (!Utils.isTown(prevRow.event_text)) {
+            logger.info(`Getting items picked up in ${prevRow.id} ${prevRow.event_text}`);
+            var items = await getItemsFor(rows[i].id);
+            numItems += items.count;
+            totalProfit += Number.parseFloat(items.value);
+            if (items.importantDrops) {
+              for (let m in items.importantDrops) {
+                importantDrops[m] = (importantDrops[m] || 0) + items.importantDrops[m];
               }
-            } else {
-              logger.info(
-                `Ignoring items picked up in town area ${prevRow.id} ${prevRow.event_text}`
-              );
             }
+          } else {
+            logger.info(
+              `Ignoring items picked up in town area ${prevRow.id} ${prevRow.event_text}`
+            );
           }
-          totalProfit = Number(totalProfit).toFixed(2);
-          resolve({ count: numItems, value: totalProfit, importantDrops: importantDrops });
         }
-      }
-    );
+        totalProfit = Number(totalProfit).toFixed(2);
+        resolve({ count: numItems, value: totalProfit, importantDrops: importantDrops });
+      })
+      .catch((err) => {
+        logger.info(`Unable to get item values for ${areaID}: ${err}`);
+        resolve(false);
+      });
   });
 }
 
@@ -539,12 +525,9 @@ function getItemsFor(evt) {
   var totalValue = 0;
   var importantDrops = {};
   var itemArr = [];
-  return new Promise((resolve, reject) => {
-    OldDB.all(' select * from items where event_id = ? ', [evt], async (err, rows) => {
-      if (err) {
-        logger.info(`Error getting item values for ${evt}: ${err}`);
-        resolve(null);
-      } else {
+  return new Promise((resolve) => {
+    OldDB.all(' select * from items where event_id = ? ', [evt])
+      .then(async (rows) => {
         for (var i = 0; i < rows.length; i++) {
           var item = rows[i];
           // ignore items that are equipped
@@ -569,7 +552,7 @@ function getItemsFor(evt) {
             } else {
               totalValue += price.value;
             }
-            itemArr.push([price.value, item.id, item.event_id]);
+            itemArr.push([price.value ?? 0, item.id, item.event_id]);
           }
         }
 
@@ -578,64 +561,37 @@ function getItemsFor(evt) {
         }
 
         resolve({ count: count, value: totalValue, importantDrops: importantDrops });
-      }
-    });
+      })
+      .catch((err) => {
+        logger.info(`Error getting item values for ${evt}: ${err}`);
+        resolve(null);
+      });
   });
 }
 
 function updateItemValues(arr) {
-  OldDB.serialize(() => {
-    OldDB.run('begin transaction', (err) => {
-      if (err) {
-        logger.info(`Error beginning transaction to insert items: ${err}`);
-      }
-    });
-    var stmt = OldDB.prepare(`update items set value = ? where id = ? and event_id = ?`);
-    arr.forEach((item) => {
-      stmt.run(item, (err) => {
-        if (err) {
-          logger.error(`Unable to set item value for item ${JSON.stringify(item)}`);
-        }
-        //        } else {
-        //          logger.info(`Updated item value ${item[0]} for ${item[1]} in event ${item[2]}`);
-        //        }
-      });
-    });
-    stmt.finalize((err) => {
-      if (err) {
-        logger.warn(`Error inserting items for ${event}: ${err}`);
-        OldDB.run('rollback', (err) => {
-          if (err) {
-            logger.info(`Error rolling back failed item insert: ${err}`);
-          }
-        });
-      } else {
-        OldDB.run('commit', (err) => {
-          if (err) {
-            logger.info(`Error committing item insert: ${err}`);
-          }
-        });
-      }
-    });
-  });
+  OldDB.transaction(`update items set value = ? where id = ? and event_id = ?`, arr)
+    .catch((err) => {
+      logger.warn(`Error inserting items: ${err}`);
+    })
 }
 
 async function insertMapRun(arr) {
   return new Promise((resolve, reject) => {
     OldDB.run(
       `
-      insert into mapruns(id, firstevent, lastevent, iiq, iir, packsize, gained, xp, kills, runinfo) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?) 
-    `,
-      arr,
-      (err) => {
-        if (err) {
-          logger.error(`Unable to insert map run ${JSON.stringify(arr)}: ${err}`);
-        } else {
-          logger.info(`Map run processed successfully: ${JSON.stringify(arr)}`);
-        }
+        insert into mapruns(id, firstevent, lastevent, iiq, iir, packsize, gained, xp, kills, runinfo) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?) 
+      `,
+        arr)
+      .then(() => {
+        logger.info(`Map run processed successfully: ${JSON.stringify(arr)}`);
+      })
+      .catch((err) => {
+        logger.error(`Unable to insert map run ${JSON.stringify(arr)}: ${err}`);
+      })
+      .finally(() => {
         resolve();
-      }
-    );
+      });
   });
 }
 
@@ -644,23 +600,22 @@ async function insertMapRun(arr) {
  *  only start checking events after the end of the previous map (lastUsedEvent))
  */
 function getFirstEvent(area, lastUsedEvent) {
-  return new Promise((resolve, reject) => {
+  return new Promise((resolve) => {
     OldDB.get(
       "select id from events where event_type='entered' and event_text = ? and id > ? order by id",
-      [area.name, lastUsedEvent],
-      (err, row) => {
-        if (err) {
-          logger.error(`Unable to get first event: ${err}`);
-          resolve();
-        }
+      [area.name, lastUsedEvent])
+      .then((row) => {
         if (!row) {
           logger.info('No valid first event found');
           resolve();
         } else {
           resolve(row.id);
         }
-      }
-    );
+      })
+      .catch((err) => {
+        logger.error(`Unable to get first event: ${err}`);
+        resolve();
+      });
   });
 }
 
@@ -669,78 +624,74 @@ function getFirstEvent(area, lastUsedEvent) {
  *  work backward from the last event recorded in the database
  */
 function getLastEvent(area, firstEvent) {
-  return new Promise((resolve, reject) => {
+  return new Promise((resolve) => {
     OldDB.all(
       "select * from events where event_type='entered' and id >= ? order by id desc",
-      [firstEvent],
-      (err, rows) => {
-        if (err) {
-          logger.error(`Unable to get last event: ${err}`);
-          resolve();
-        } else {
-          var lastTownVisit = null;
-          var areaVisitFound = false;
-          for (var i = 0; i < rows.length; i++) {
-            var row = rows[i];
-            if (Utils.isTown(row.event_text)) {
-              lastTownVisit = row.id;
-            } else if (row.event_text === area.name && lastTownVisit) {
-              areaVisitFound = true;
-              resolve(lastTownVisit);
-              break;
-            }
-          }
-          if (!lastTownVisit && !areaVisitFound) {
-            logger.info('No last event found!');
-            resolve();
+      [firstEvent])
+      .then((rows) => {
+        var lastTownVisit = null;
+        var areaVisitFound = false;
+        for (var i = 0; i < rows.length; i++) {
+          var row = rows[i];
+          if (Utils.isTown(row.event_text)) {
+            lastTownVisit = row.id;
+          } else if (row.event_text === area.name && lastTownVisit) {
+            areaVisitFound = true;
+            resolve(lastTownVisit);
+            break;
           }
         }
-      }
-    );
+        if (!lastTownVisit && !areaVisitFound) {
+          logger.info('No last event found!');
+          resolve();
+        }
+      })
+      .catch((err) => {
+        logger.error(`Unable to get last event: ${err}`);
+        resolve();
+      });
   });
 }
 
 function getCurrAreaInfo() {
-  return new Promise((resolve, reject) => {
+  return new Promise((resolve) => {
     OldDB.get(
-      'select * from areainfo where id > (select max(id) from mapruns) order by id desc',
-      (err, row) => {
-        if (err) {
-          logger.error(`Unable to get last area info: ${err}`);
-          resolve();
-        }
+      'select * from areainfo where id > (select max(id) from mapruns) order by id desc')
+      .then((row) => {
         resolve(row);
-      }
-    );
+      })
+      .catch((err) => {
+        logger.error(`Unable to get current area info: ${err}`);
+        resolve();
+      });
   });
 }
 
 function getLastUsedEvent() {
   return new Promise((resolve, reject) => {
-    OldDB.get('select max(lastevent) as lastevent from mapruns', (err, row) => {
-      if (err) {
+    OldDB.get('select max(lastevent) as lastevent from mapruns')
+      .then((row) => {
+        if (!row) {
+          logger.info('No last used event found');
+          resolve('');
+        } else {
+          resolve(row.lastevent);
+        }
+      })
+      .catch((err) => {
         logger.error(`Unable to get last used event: ${err}`);
-        resolve('');
-      }
-      if (!row) {
-        logger.info('No unused event found');
-        resolve('');
-      }
-      resolve(row.lastevent);
-    });
+        resolve();
+      });
   });
 }
 
 function getPrevMapStartEvent() {
   return new Promise((resolve, reject) => {
     OldDB.get(
-      'select * from events where id = (select firstevent from mapruns order by id desc limit 1);',
-      (err, row) => {
-        if (err) {
-          logger.error(`Unable to get previous map start event: ${err}`);
-          resolve('');
-        } else if (!row) {
-          logger.info('No unused event found');
+      'select * from events where id = (select firstevent from mapruns order by id desc limit 1);')
+      .then((row) => {
+        if (!row) {
+          logger.info('No previous map start event found');
           resolve('');
         } else {
           resolve({
@@ -748,8 +699,11 @@ function getPrevMapStartEvent() {
             server: row.server,
           });
         }
-      }
-    );
+      })
+      .catch((err) => {
+        logger.error(`Unable to get previous map start event: ${err}`);
+        resolve('');
+      });
   });
 }
 
@@ -757,19 +711,14 @@ function getMapMods(id) {
   return new Promise((resolve, reject) => {
     OldDB.all(
       'select mod from mapmods where area_id = ? order by cast(id as integer)',
-      [id],
-      (err, rows) => {
-        var mods = [];
-        if (err) {
-          logger.error(`Unable to get last map mods: ${err}`);
-        } else {
-          for (var i = 0; i < rows.length; i++) {
-            mods.push(rows[i].mod);
-          }
-        }
+      [id])
+      .then((rows) => {
+        var mods = rows.map((row) => row.mod);
         resolve(mods);
-      }
-    );
+      })
+      .catch((err) => {
+        logger.error(`Unable to get last map mods: ${err}`);
+      });
   });
 }
 
@@ -1411,19 +1360,17 @@ async function getMapExtraInfo(areaName, firstevent, lastevent, items, areaMods)
 }
 
 function getEvents(firstevent, lastevent) {
-  OldDB = require('./DB').getDB();
-  return new Promise((resolve, reject) => {
+  return new Promise((resolve) => {
     OldDB.all(
-      ' select * from events where id between :first and :last order by id',
-      [firstevent, lastevent],
-      (err, rows) => {
-        var events = [];
-        for (let i = 0; i < rows.length; i++) {
-          events.push(rows[i]);
-        }
-        resolve(events);
-      }
-    );
+      'select * from events where id between ? and ? order by id',
+      [firstevent, lastevent])
+      .then((rows) => {
+        resolve(rows);
+      })
+      .catch((err) => {
+        logger.error(`Unable to get events: ${err}`);
+        resolve([]);
+      });
   });
 }
 

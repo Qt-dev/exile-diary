@@ -6,6 +6,7 @@ const Utils = require('./Utils').default;
 const ItemData = require('./ItemData');
 const ItemPricer = require('./ItemPricer');
 const ItemCategoryParser = require('./ItemCategoryParser');
+const DB = require('../db').default;
 
 const encounters = {
   alva: 'Alva, Master Explorer',
@@ -33,7 +34,6 @@ var pseudoItemPriceCache;
 var DB;
 
 function search(formData) {
-  DB = require('./DB').getDB();
   settings = require('./settings').get();
   pseudoItemPriceCache = {};
   var data = qs.parse(formData);
@@ -41,26 +41,26 @@ function search(formData) {
   var mapIDs = [];
   logger.info(query.sql);
   logger.info(`Params: ${query.params}`);
-  DB.all(query.sql, query.params, (err, rows) => {
-    if (err) {
+  DB.all(query.sql, query.params)
+    .then((rows) => {
+      var totalXP = 0;
+      var totalKills = 0;
+      logger.info(`${rows.length} rows returned`);
+      rows.forEach((row) => {
+        totalXP += row.xpgained;
+        totalKills += row.kills || 0;
+        mapIDs.push(row.id);
+      });
+      emitter.emit('mapSearchResults', rows);
+      if (data.getItems) {
+        getStatSummary(totalXP, totalKills, mapIDs);
+      } else {
+        logger.info('Not getting items');
+      }
+    })
+    .catch((err) => {
       logger.info(`Error retrieving search results: ${err}`);
-      return;
-    }
-    var totalXP = 0;
-    var totalKills = 0;
-    logger.info(`${rows.length} rows returned`);
-    rows.forEach((row) => {
-      totalXP += row.xpgained;
-      totalKills += row.kills || 0;
-      mapIDs.push(row.id);
     });
-    emitter.emit('mapSearchResults', rows);
-    if (data.getItems) {
-      getStatSummary(totalXP, totalKills, mapIDs);
-    } else {
-      logger.info('Not getting items');
-    }
-  });
 }
 
 async function getStatSummary(totalXP, totalKills, mapIDs) {
@@ -149,20 +149,19 @@ async function getItems(mapID) {
       from mapruns m, events e 
       where m.id = ? and e.id between m.firstevent and m.lastevent and e.event_type='entered'
     `,
-      [mapID],
-      async (err, rows) => {
-        if (err) {
-          logger.info(`Error getting items: ${err}`);
-          resolve(null);
-        }
+      [mapID])
+      .then(async (rows) => {
         for (var i = 1; i < rows.length; i++) {
           if (!Utils.isTown(rows[i - 1].event_text)) {
             items = items.concat(await getItemsFromEvent(mapID, rows[i].id));
           }
         }
         resolve(items);
-      }
-    );
+      })
+      .catch((err) => {
+        logger.info(`Error getting items: ${err}`);
+        resolve(null);
+      });
   });
 }
 
@@ -185,13 +184,8 @@ async function getItemsFromEvent(mapID, eventID) {
   return new Promise((resolve, reject) => {
     DB.all(
       'select rawdata, stacksize, category, sockets, value from items where event_id = ?',
-      [eventID],
-      async (err, rows) => {
-        if (err) {
-          logger.info(`Error getting items: ${err}`);
-          resolve(null);
-        }
-
+      [eventID])
+      .then(async (rows) => {
         let date = mapID.substring(0, 8);
         let rates = await getPseudoItemPriceFor(date);
 
@@ -290,8 +284,11 @@ async function getItemsFromEvent(mapID, eventID) {
         }
 
         resolve(items);
-      }
-    );
+      })
+      .catch((err) => {
+        logger.info(`Error getting items: ${err}`);
+        resolve(null);
+      });
   });
 }
 
@@ -302,31 +299,35 @@ async function getCurrencyValue(timestamp, item) {
   return new Promise((resolve, reject) => {
     DB.get(
       'select value from rates where date <= ? and item = ? order by date desc limit 1',
-      [timestamp, currency],
-      async (err, row) => {
-        if (row) {
-          resolve(row.value * stackSize);
-        } else {
-          var currValue = await ItemPricer.getCurrencyByName(currency, timestamp);
-          resolve(currValue * stackSize);
-        }
+      [timestamp, currency])
+    .then(async (row) => {
+      if (row) {
+        resolve(row.value * stackSize);
+      } else {
+        const currValue = await ItemPricer.getCurrencyByName(currency, timestamp);
+        resolve(currValue * stackSize);
       }
-    );
+    })
+    .catch((err) => {
+      logger.info(`Error getting currency value: ${err}`);
+      resolve(null);
+    });
   });
 }
 
 async function getTime(mapID) {
   return new Promise((resolve, reject) => {
-    DB.get('select firstevent, lastevent from mapruns where id = ?', [mapID], (err, row) => {
-      if (err) {
+    DB.get('select firstevent, lastevent from mapruns where id = ?', [mapID])
+      .then((row) => {
+        var startTime = dayjs(row.firstevent, 'YYYYMMDDHHmmss');
+        var endTime = dayjs(row.lastevent, 'YYYYMMDDHHmmss');
+        var runningTime = endTime.diff(startTime, 'seconds');
+        resolve(runningTime);
+      })
+      .catch((err) => {
         logger.info(`Error getting running time: ${err}`);
         resolve(null);
-      }
-      var startTime = dayjs(row.firstevent, 'YYYYMMDDHHmmss');
-      var endTime = dayjs(row.lastevent, 'YYYYMMDDHHmmss');
-      var runningTime = endTime.diff(startTime, 'seconds');
-      resolve(runningTime);
-    });
+      });
   });
 }
 

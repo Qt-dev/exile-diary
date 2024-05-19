@@ -1,5 +1,6 @@
 const logger = require('electron-log');
 const ItemData = require('./ItemData');
+const DB = require('./../db').default;
 
 const Rarity = ItemData.Rarity;
 
@@ -57,44 +58,42 @@ function parseFilter(filterText) {
 }
 
 function getFilterID(forID, char) {
-  const DB = require('./DB').getDB(char);
   return new Promise((resolve, reject) => {
     DB.get(
-      'select timestamp from filters where timestamp < ? order by timestamp desc limit 1',
-      [forID],
-      (err, row) => {
-        if (err) {
-          logger.warn(`Failed to get filter ID: ${err}`);
-          reject();
-        } else if (!row) {
+        'select timestamp from filters where timestamp < ? order by timestamp desc limit 1',
+        [forID])
+      .then((row) => {
+        if(!row) {
           logger.warn(`No filter found for ${forID}`);
           resolve('');
         } else {
           resolve(row.timestamp);
         }
-      }
-    );
+      })
+      .catch((err) => {
+        logger.warn(`Failed to get filter ID: ${err}`);
+        reject();
+      })
   });
 }
 
 function getFilterText(forID, char) {
-  const DB = require('./DB').getDB(char);
   return new Promise((resolve, reject) => {
     DB.get(
-      'select text from filters where timestamp < ? order by timestamp desc limit 1',
-      [forID],
-      (err, row) => {
-        if (err) {
-          logger.warn(`Failed to get filter: ${err}`);
-          reject();
-        } else if (!row) {
+        'select text from filters where timestamp < ? order by timestamp desc limit 1',
+        [forID])
+      .then((row) => {
+        if (!row) {
           logger.warn(`No filter found for ${forID}`);
           resolve('');
         } else {
           resolve(row.text.toString());
         }
-      }
-    );
+      })
+      .catch((err) => {
+        logger.warn(`Failed to get filter: ${err}`);
+        reject();
+      });
   });
 }
 
