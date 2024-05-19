@@ -1,12 +1,12 @@
 import GGGAPI from '../GGGAPI';
 import KillTracker from './KillTracker';
+import DB from '../db';
 const logger = require('electron-log');
 const dayjs = require('dayjs');
 const XPTracker = require('./XPTracker');
 const GearChecker = require('./GearChecker');
 const EventEmitter = require('events');
 
-var DB;
 var settings;
 var emitter = new EventEmitter();
 
@@ -14,7 +14,6 @@ class InventoryGetter extends EventEmitter {
   constructor() {
     super();
 
-    DB = require('./DB').getDB();
     settings = require('./settings').get();
 
     this.on('xp', XPTracker.logXP);
@@ -75,16 +74,17 @@ class InventoryGetter extends EventEmitter {
 
   getPreviousInventory() {
     return new Promise((resolve, reject) => {
-      DB.all('select timestamp, inventory from lastinv order by timestamp desc', (err, rows) => {
-        if (err) {
-          logger.info(`Failed to get previous inventory: ${err}`);
-          resolve({});
-        }
+      DB.all('select timestamp, inventory from lastinv order by timestamp desc')
+      .then((rows) => {
         if (rows.length === 0) {
           resolve({});
         } else {
           resolve(JSON.parse(rows[0].inventory));
         }
+      })
+      .catch((err) => {
+        logger.info(`Failed to get previous inventory: ${err}`);
+        resolve({});
       });
     });
   }
@@ -99,25 +99,21 @@ class InventoryGetter extends EventEmitter {
 
   updateLastInventory(data) {
     var dataString = JSON.stringify(data);
-    DB.serialize(() => {
-      DB.run('delete from lastinv', (err) => {
-        if (err) {
-          logger.info(`Unable to delete last inventory: ${err}`);
-        }
+    let timestamp;
+    DB.run('delete from lastinv')
+      .catch((err) => {
+        logger.info(`Unable to delete last inventory: ${err}`);
+      })
+      .then(() => {
+        timestamp = dayjs().format('YYYYMMDDHHmmss');
+        return DB.run('insert into lastinv(timestamp, inventory) values(?, ?)', [timestamp, dataString]);
+      })
+      .catch((err) => {
+        logger.info(`Unable to update last inventory: ${err}`);
+      })
+      .then(() => {
+        logger.info(`Updated last inventory at ${timestamp} (length: ${dataString.length})`);
       });
-      var timestamp = dayjs().format('YYYYMMDDHHmmss');
-      DB.run(
-        'insert into lastinv(timestamp, inventory) values(?, ?)',
-        [timestamp, dataString],
-        (err) => {
-          if (err) {
-            logger.info(`Unable to update last inventory: ${err}`);
-          } else {
-            logger.info(`Updated last inventory at ${timestamp} (length: ${dataString.length})`);
-          }
-        }
-      );
-    });
   }
 
   getInventory(inventory) {

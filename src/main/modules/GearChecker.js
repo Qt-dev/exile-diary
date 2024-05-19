@@ -1,10 +1,10 @@
 import GGGAPI from '../GGGAPI';
+import DB from '../db';
 const logger = require('electron-log');
 const Utils = require('./Utils').default;
 const zlib = require('zlib');
 const { deepEqual } = require('fast-equals');
 
-var DB;
 var settings;
 
 const gearSlots = [
@@ -68,7 +68,6 @@ async function check(timestamp, eqp) {
     logger.error('No equipment found in inventory. Skipping Gear change Check.');
     return;
   }
-  DB = require('./DB').getDB();
   settings = require('./settings').get();
   if (settings.activeProfile.noGearCheck) {
     logger.info('Gear checking disabled in settings');
@@ -144,27 +143,26 @@ function getPreviousEquipment(timestamp) {
   return new Promise((resolve, reject) => {
     DB.get(
       'select data from gear where timestamp < ? order by timestamp desc limit 1',
-      [timestamp],
-      (err, row) => {
-        if (err) {
-          logger.info(`Unable to retrieve previous equipment: ${err}`);
-          resolve(null);
-        } else if (!row) {
-          logger.info(`No previous equipment found!`);
-          resolve('none');
-        } else {
-          logger.info('Returning previous equipment');
-          zlib.inflate(row.data, (err, buffer) => {
-            if (err) {
-              // old data - compression not implemented yet, just parse directly
-              resolve(JSON.parse(row.data));
-            } else {
-              resolve(JSON.parse(buffer.toString()));
-            }
-          });
-        }
+      [timestamp])
+    .then((row) => {
+      if (!row) {
+        logger.info(`No previous equipment found!`);
+        resolve('none');
+      } else {
+        zlib.inflate(row.data, (err, buffer) => {
+          if (err) {
+            // old data - compression not implemented yet, just parse directly
+            resolve(JSON.parse(row.data));
+          } else {
+            resolve(JSON.parse(buffer.toString()));
+          }
+        });
       }
-    );
+    })
+    .catch((err) => {
+      logger.info(`Unable to retrieve previous equipment: ${err}`);
+      resolve(null);
+    });
   });
 }
 
@@ -269,18 +267,16 @@ async function insertEquipment(timestamp, currData, diffData = '') {
   let data = await Utils.compress(currData);
   let diff = JSON.stringify(diffData);
   DB.run(
-    'insert into gear(timestamp, data, diff) values(?, ?, ?)',
-    [timestamp, data, diff],
-    (err) => {
-      if (err) {
-        logger.info(`Unable to insert equipment: ${err}`);
-      } else {
-        logger.info(
-          `Updated last equipment at ${timestamp} (data length: ${data.length}, diff length: ${diff.length})`
-        );
-      }
-    }
-  );
+      'insert into gear(timestamp, data, diff) values(?, ?, ?)',
+      [timestamp, data, diff])
+    .then(() => {
+      logger.info(
+        `Updated last equipment at ${timestamp} (data length: ${data.length}, diff length: ${diff.length})`
+      );
+    })
+    .catch((err) => {
+      logger.info(`Unable to insert equipment: ${err}`);
+    });
 }
 
 module.exports.check = check;
