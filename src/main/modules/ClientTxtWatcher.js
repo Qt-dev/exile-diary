@@ -134,15 +134,16 @@ async function checkValidLogfile(path) {
 }
 
 function insertEvent(event, timestamp) {
-  DB.run(
-      'insert into events(id, event_type, event_text, server) values(?, ?, ?, ?)',
-      [timestamp, event.type, event.text, event.instanceServer])
+  DB.run('insert into events(id, event_type, event_text, server) values(?, ?, ?, ?)', [
+    timestamp,
+    event.type,
+    event.text,
+    event.instanceServer,
+  ])
     .then(() => {
       if (event.type !== 'chat' && event.type !== 'note') {
         logger.info(
-          `Inserted event ${timestamp} -> ${event.type} ${event.text} ${
-            event.instanceServer || ''
-          }`
+          `Inserted event ${timestamp} -> ${event.type} ${event.text} ${event.instanceServer || ''}`
         );
       }
     })
@@ -152,8 +153,7 @@ function insertEvent(event, timestamp) {
           event.instanceServer || ''
         }  : ${err}`
       );
-    }
-  );
+    });
 }
 
 function getEvent(arg) {
@@ -323,9 +323,12 @@ async function getOldNPCEvents() {
     var str = line.substring(line.indexOf('] ') + 2);
     var npcString = hasNPC(str);
     if (npcString) {
-      DB.run(
-        'insert into events(id, event_type, event_text, server) values(?, ?, ?, ?)',
-        [timestamp, 'leagueNPC', npcString.trim(), ''])
+      DB.run('insert into events(id, event_type, event_text, server) values(?, ?, ?, ?)', [
+        timestamp,
+        'leagueNPC',
+        npcString.trim(),
+        '',
+      ])
         .then(() => {
           logger.info(`Inserted league NPC event ${timestamp} -> ${npcString}`);
         })
@@ -333,15 +336,17 @@ async function getOldNPCEvents() {
           if (!err.message.includes('UNIQUE constraint failed')) {
             logger.info('Failed to insert event: ' + err.message);
           }
-        }
-      );
+        });
       return;
     }
 
     if (hasConqueror(str)) {
-      DB.run(
-        'insert into events(id, event_type, event_text, server) values(?, ?, ?, ?)',
-        [timestamp, 'conqueror', str.trim(), ''])
+      DB.run('insert into events(id, event_type, event_text, server) values(?, ?, ?, ?)', [
+        timestamp,
+        'conqueror',
+        str.trim(),
+        '',
+      ])
         .then(() => {
           logger.info(`Inserted conqueror event ${timestamp} -> ${str}`);
         })
@@ -349,17 +354,19 @@ async function getOldNPCEvents() {
           if (!err.message.includes('UNIQUE constraint failed')) {
             logger.info('Failed to insert event: ' + err.message);
           }
-        }
-      );
+        });
       return;
     }
 
     if (str.startsWith(':')) {
       str = str.substring(2).trim();
       if (Constants.shrineQuotes[str] || Constants.darkshrineQuotes.includes(str)) {
-        DB.run(
-          'insert into events(id, event_type, event_text, server) values(?, ?, ?, ?)',
-          [timestamp, 'shrine', str, ''])
+        DB.run('insert into events(id, event_type, event_text, server) values(?, ?, ?, ?)', [
+          timestamp,
+          'shrine',
+          str,
+          '',
+        ])
           .then(() => {
             logger.info(`Inserted master event ${timestamp} -> ${str}`);
           })
@@ -367,8 +374,7 @@ async function getOldNPCEvents() {
             if (!err.message.includes('UNIQUE constraint failed')) {
               logger.info('Failed to insert event: ' + err.message);
             }
-          }
-        );
+          });
       }
     }
   });

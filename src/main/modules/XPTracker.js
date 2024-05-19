@@ -15,10 +15,9 @@ async function logXP(timestamp, currXP) {
   var prevXP = await getPrevXP(DB);
   if (prevXP !== currXP) {
     logger.info(`XP update ${timestamp}: ${prevXP} -> ${currXP}`);
-    DB.run('insert into xp(timestamp, xp) values(?, ?)', [timestamp, currXP])
-      .catch((err) => {
-        logger.info(`Error inserting xp (${currXP} for ${timestamp}): ${err}`);
-      });
+    DB.run('insert into xp(timestamp, xp) values(?, ?)', [timestamp, currXP]).catch((err) => {
+      logger.info(`Error inserting xp (${currXP} for ${timestamp}): ${err}`);
+    });
   }
 }
 
@@ -34,7 +33,7 @@ function getPrevXP(DB) {
           resolve(row.xp);
         } else {
           resolve(0);
-        } 
+        }
       })
       .catch((err) => {
         logger.info(`Error getting previous XP: ${err}`);

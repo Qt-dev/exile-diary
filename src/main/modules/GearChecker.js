@@ -141,28 +141,26 @@ async function getEquippedJewels() {
 
 function getPreviousEquipment(timestamp) {
   return new Promise((resolve, reject) => {
-    DB.get(
-      'select data from gear where timestamp < ? order by timestamp desc limit 1',
-      [timestamp])
-    .then((row) => {
-      if (!row) {
-        logger.info(`No previous equipment found!`);
-        resolve('none');
-      } else {
-        zlib.inflate(row.data, (err, buffer) => {
-          if (err) {
-            // old data - compression not implemented yet, just parse directly
-            resolve(JSON.parse(row.data));
-          } else {
-            resolve(JSON.parse(buffer.toString()));
-          }
-        });
-      }
-    })
-    .catch((err) => {
-      logger.info(`Unable to retrieve previous equipment: ${err}`);
-      resolve(null);
-    });
+    DB.get('select data from gear where timestamp < ? order by timestamp desc limit 1', [timestamp])
+      .then((row) => {
+        if (!row) {
+          logger.info(`No previous equipment found!`);
+          resolve('none');
+        } else {
+          zlib.inflate(row.data, (err, buffer) => {
+            if (err) {
+              // old data - compression not implemented yet, just parse directly
+              resolve(JSON.parse(row.data));
+            } else {
+              resolve(JSON.parse(buffer.toString()));
+            }
+          });
+        }
+      })
+      .catch((err) => {
+        logger.info(`Unable to retrieve previous equipment: ${err}`);
+        resolve(null);
+      });
   });
 }
 
@@ -266,9 +264,7 @@ function getTempItem(item) {
 async function insertEquipment(timestamp, currData, diffData = '') {
   let data = await Utils.compress(currData);
   let diff = JSON.stringify(diffData);
-  DB.run(
-      'insert into gear(timestamp, data, diff) values(?, ?, ?)',
-      [timestamp, data, diff])
+  DB.run('insert into gear(timestamp, data, diff) values(?, ?, ?)', [timestamp, data, diff])
     .then(() => {
       logger.info(
         `Updated last equipment at ${timestamp} (data length: ${data.length}, diff length: ${diff.length})`

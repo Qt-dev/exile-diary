@@ -149,7 +149,8 @@ async function getItems(mapID) {
       from mapruns m, events e 
       where m.id = ? and e.id between m.firstevent and m.lastevent and e.event_type='entered'
     `,
-      [mapID])
+      [mapID]
+    )
       .then(async (rows) => {
         for (var i = 1; i < rows.length; i++) {
           if (!Utils.isTown(rows[i - 1].event_text)) {
@@ -182,9 +183,9 @@ async function getPseudoItemPriceFor(date) {
 async function getItemsFromEvent(mapID, eventID) {
   var items = [];
   return new Promise((resolve, reject) => {
-    DB.all(
-      'select rawdata, stacksize, category, sockets, value from items where event_id = ?',
-      [eventID])
+    DB.all('select rawdata, stacksize, category, sockets, value from items where event_id = ?', [
+      eventID,
+    ])
       .then(async (rows) => {
         let date = mapID.substring(0, 8);
         let rates = await getPseudoItemPriceFor(date);
@@ -297,21 +298,22 @@ async function getCurrencyValue(timestamp, item) {
   var currency = item.typeLine;
 
   return new Promise((resolve, reject) => {
-    DB.get(
-      'select value from rates where date <= ? and item = ? order by date desc limit 1',
-      [timestamp, currency])
-    .then(async (row) => {
-      if (row) {
-        resolve(row.value * stackSize);
-      } else {
-        const currValue = await ItemPricer.getCurrencyByName(currency, timestamp);
-        resolve(currValue * stackSize);
-      }
-    })
-    .catch((err) => {
-      logger.info(`Error getting currency value: ${err}`);
-      resolve(null);
-    });
+    DB.get('select value from rates where date <= ? and item = ? order by date desc limit 1', [
+      timestamp,
+      currency,
+    ])
+      .then(async (row) => {
+        if (row) {
+          resolve(row.value * stackSize);
+        } else {
+          const currValue = await ItemPricer.getCurrencyByName(currency, timestamp);
+          resolve(currValue * stackSize);
+        }
+      })
+      .catch((err) => {
+        logger.info(`Error getting currency value: ${err}`);
+        resolve(null);
+      });
   });
 }
 

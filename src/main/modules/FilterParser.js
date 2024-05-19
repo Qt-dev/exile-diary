@@ -59,11 +59,11 @@ function parseFilter(filterText) {
 
 function getFilterID(forID, char) {
   return new Promise((resolve, reject) => {
-    DB.get(
-        'select timestamp from filters where timestamp < ? order by timestamp desc limit 1',
-        [forID])
+    DB.get('select timestamp from filters where timestamp < ? order by timestamp desc limit 1', [
+      forID,
+    ])
       .then((row) => {
-        if(!row) {
+        if (!row) {
           logger.warn(`No filter found for ${forID}`);
           resolve('');
         } else {
@@ -73,15 +73,13 @@ function getFilterID(forID, char) {
       .catch((err) => {
         logger.warn(`Failed to get filter ID: ${err}`);
         reject();
-      })
+      });
   });
 }
 
 function getFilterText(forID, char) {
   return new Promise((resolve, reject) => {
-    DB.get(
-        'select text from filters where timestamp < ? order by timestamp desc limit 1',
-        [forID])
+    DB.get('select text from filters where timestamp < ? order by timestamp desc limit 1', [forID])
       .then((row) => {
         if (!row) {
           logger.warn(`No filter found for ${forID}`);

@@ -90,5 +90,5 @@ export const getCategory = (item, subcategory = false) => {
 
   logger.error(`No category found for item ${item.id || '(no id)'}! JSON follows:`);
   logger.info(item);
-  return "Other";
+  return 'Other';
 };

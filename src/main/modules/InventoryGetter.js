@@ -75,17 +75,17 @@ class InventoryGetter extends EventEmitter {
   getPreviousInventory() {
     return new Promise((resolve, reject) => {
       DB.all('select timestamp, inventory from lastinv order by timestamp desc')
-      .then((rows) => {
-        if (rows.length === 0) {
+        .then((rows) => {
+          if (rows.length === 0) {
+            resolve({});
+          } else {
+            resolve(JSON.parse(rows[0].inventory));
+          }
+        })
+        .catch((err) => {
+          logger.info(`Failed to get previous inventory: ${err}`);
           resolve({});
-        } else {
-          resolve(JSON.parse(rows[0].inventory));
-        }
-      })
-      .catch((err) => {
-        logger.info(`Failed to get previous inventory: ${err}`);
-        resolve({});
-      });
+        });
     });
   }
 
@@ -106,7 +106,10 @@ class InventoryGetter extends EventEmitter {
       })
       .then(() => {
         timestamp = dayjs().format('YYYYMMDDHHmmss');
-        return DB.run('insert into lastinv(timestamp, inventory) values(?, ?)', [timestamp, dataString]);
+        return DB.run('insert into lastinv(timestamp, inventory) values(?, ?)', [
+          timestamp,
+          dataString,
+        ]);
       })
       .catch((err) => {
         logger.info(`Unable to update last inventory: ${err}`);
