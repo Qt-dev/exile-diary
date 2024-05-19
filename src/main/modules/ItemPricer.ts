@@ -209,6 +209,12 @@ class PriceMatcher {
         this.getCoffinValue(item, minItemValue),
     },
     {
+      name: 'Chaos Orbs',
+      test: (item: any) => item.typeline === 'Chaos Orb',
+      calculateValue: (item: any, minItemValue: number = 0) =>
+        1 * (item.stacksize || 1) >= minItemValue ? 1 * (item.stacksize || 1) : 0,
+    },
+    {
       name: 'Currency',
       test: (item: any) => item.rarity === 'Currency',
       calculateValue: (item: any, minItemValue: number = 0) =>
@@ -248,7 +254,7 @@ class PriceMatcher {
     },
     {
       name: 'Skill Gem',
-      test: (item: any) => item.category === 'Skill Gems',
+      test: (item: any) => item.category.includes('Skill Gem'),
       calculateValue: (item: any, minItemValue: number = 0) => this.getGemValue(minItemValue, item),
     },
     {
@@ -517,20 +523,20 @@ class PriceMatcher {
    * @param {string}  icon    Path to the map Icon
    * @returns {string}        Name of the league the map belongs to
    */
-  getMapSeriesFromBase64Icon(icon: string): string {
+  getMapSeriesFromBase64Icon(icon: string): { series: string, gen: number } {
     const data = Utils.getBase64EncodedData(icon);
     const seriesFromMn = data.mn ? this.MapSeries.find((series) => series.id === data.mn) : false;
     if (seriesFromMn) {
-      return seriesFromMn.name;
+      return { series: seriesFromMn.name, gen: seriesFromMn.id };
     } else {
-      if (data.f.includes('2DItems/Maps/AtlasMaps')) return 'Atlas';
-      if (data.f.includes('2DItems/Maps/Atlas2Maps')) return 'Ancestor';
-      if (data.f.includes('2DItems/Maps/Map')) return 'Pre 2.4';
-      if (data.f.includes('2DItems/Maps/act4maps')) return 'Pre 2.0';
+      if (data.f.includes('2DItems/Maps/AtlasMaps')) return { series: 'Atlas', gen: 1 };
+      if (data.f.includes('2DItems/Maps/Atlas2Maps')) return { series: 'Ancestor', gen: 1 };
+      if (data.f.includes('2DItems/Maps/Map')) return { series: 'Pre 2.4', gen: 1 };
+      if (data.f.includes('2DItems/Maps/act4maps')) return { series: 'Pre 2.0', gen: 1 };
     }
 
     logger.info(`Invalid map item icon: ${icon}`);
-    return '';
+    return {series: '', gen: 0};
   }
 
   /**
@@ -538,7 +544,7 @@ class PriceMatcher {
    * @param {string}  icon  Path to the map Icon
    * @returns {string}      Name of the series the map belongs to
    */
-  getMapSeries(icon: string): string {
+  getMapSeries(icon: string): { series: string, gen: number } {
     if (
       icon.includes('https://web.poecdn.com/gen/image/') ||
       icon.includes('https://www.pathofexile.com/gen/image/')
@@ -551,15 +557,15 @@ class PriceMatcher {
       : false;
 
     if (seriesFromMn) {
-      return seriesFromMn.name;
+      return { series: seriesFromMn.name, gen: seriesFromMn.id};
     } else {
-      if (icon.includes('2DItems/Maps/AtlasMaps')) return 'Atlas';
-      if (icon.includes('2DItems/Maps/Atlas2Maps')) return 'Ancestor';
-      if (icon.includes('2DItems/Maps/Map')) return 'Pre 2.4';
-      if (icon.includes('2DItems/Maps/act4maps')) return 'Pre 2.0';
+      if (icon.includes('2DItems/Maps/AtlasMaps')) return { series: 'Atlas', gen: 1 };
+      if (icon.includes('2DItems/Maps/Atlas2Maps')) return { series: 'Ancestor', gen: 1 };
+      if (icon.includes('2DItems/Maps/Map')) return { series: 'Pre 2.4', gen: 1 };
+      if (icon.includes('2DItems/Maps/act4maps')) return { series: 'Pre 2.0', gen: 1 };
     }
     logger.info(`Invalid map item icon: ${icon}`);
-    return '';
+    return {series: '', gen: 0};
   }
 
   /**
@@ -693,11 +699,13 @@ class PriceMatcher {
    * @returns {number} Value of a unique item
    */
   getUniqueItemValue(item: any, minItemValue: number): number {
-    let identifier =
-      item.name ??
-      Utils.getItemName(item.icon) ??
-      Utils.getItemName(item.parsedItem.icon) ??
-      item.typeline;
+    const identifierOptions = [
+      item.name,
+      Utils.getItemName(item.icon),
+      Utils.getItemName(item.parsedItem.icon),
+      item.typeline,
+    ];
+    let identifier = identifierOptions.find((option) => option && option.length > 0 ) || item.typeline;
     // let identifier = item.name || Utils.getItemName(item.icon) || item.typeline;
 
     if (identifier === 'Grand Spectrum' || identifier === 'Combat Focus') {
@@ -825,7 +833,7 @@ class PriceMatcher {
   getMapValue(item: any, minItemValue: number): number {
     let name = item.typeline.replace('Superior ', '');
     const tier = ItemData.getMapTier(item.parsedItem);
-    const series = this.getMapSeries(item.parsedItem.icon);
+    const { gen }  = this.getMapSeries(item.parsedItem.icon);
 
     if (item.rarity === 'Magic' && item.identified) {
       // Strip affixes from magic item name
@@ -835,7 +843,8 @@ class PriceMatcher {
         name = 'Temple Map';
       }
     }
-    const identifier = `${name} T${tier} ${series}`;
+
+    const identifier = `${name} T${tier} , Gen-${gen}`;
     return this.getValue(item, 'Map', identifier, minItemValue);
   }
 
