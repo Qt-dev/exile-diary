@@ -148,6 +148,13 @@ const saveStashRefreshInterval = async (e, params) => {
   stashGetter.refreshInterval();
 };
 
+const savePricingSettings = async (e, params) => {
+  logger.info('Saving pricing settings from the renderer process');
+  const { minimumValue } = params;
+  SettingsManager.set('pricing', { minimumValue });
+  RendererLogger.log({ messages: [{ text: 'Pricing settings saved' }] });
+}
+
 const triggerSearch = async (e, params) => {
   logger.info('Triggering search from the renderer process');
   SearchManager.search(params);
@@ -203,6 +210,7 @@ const Responder = {
   'save-settings': saveSettings,
   'save-settings:stashtabs': saveStashTabs,
   'save-settings:stash-refresh-interval': saveStashRefreshInterval,
+  'save-settings:pricing': savePricingSettings,
   'oauth:get-info': getAuthInfo,
   'oauth:is-authenticated': isAuthenticated,
   'oauth:logout': logout,
