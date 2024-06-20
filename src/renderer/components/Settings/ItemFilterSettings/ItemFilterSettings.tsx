@@ -5,7 +5,7 @@ import ListItem from '@mui/material/ListItem';
 import classNames from 'classnames';
 import './ItemFilterSettings.css';
 
-import { electronService } from '../../electron.service';
+import { electronService } from '../../../electron.service';
 import ListItemButton from '@mui/material/ListItemButton';
 import Checkbox from '@mui/material/Checkbox';
 import ListItemText from '@mui/material/ListItemText';
@@ -64,7 +64,7 @@ const ItemFilterRow = ({ filterCat, settings, saveSettingsCallback }) => {
     'ItemFilter-Settings__List-Item': true,
   });
   const [ignored, setIgnored] = React.useState(settings[filterCat.id]?.ignore ?? false);
-  const Icon = require(`../../assets/img/itemtypeicons/${filterCat.id}.png`);
+  const Icon = require(`../../../assets/img/itemtypeicons/${filterCat.id}.png`);
   const toggleEnabled = async (e) => {
     saveSettingsCallback(filterCat.id, { ignore: !ignored });
     setIgnored(!ignored);
