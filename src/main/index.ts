@@ -765,6 +765,7 @@ class MainProcess {
       'get-stash-tabs',
       'save-settings:stashtabs',
       'save-settings:stash-refresh-interval',
+      'save-settings:pricing',
       'search:trigger',
       'get-divine-price',
       'get-all-map-names',

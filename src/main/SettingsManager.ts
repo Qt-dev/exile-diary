@@ -34,6 +34,9 @@ const DefaultSettings = {
   },
   trackedStashTabs: {},
   itemFilter: {},
+  pricing: {
+    minimumValue: 0,
+  },
 };
 
 class SettingsManager {
