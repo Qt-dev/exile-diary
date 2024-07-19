@@ -131,6 +131,7 @@ const stats = {
       SELECT
         areainfo.*, mapruns.*,
         (mapruns.xp - (select xp from mapruns m where m.id < mapruns.id and xp is not null order by m.id desc limit 1)) xpgained,
+        (SELECT COALESCE(SUM(value),0) FROM items WHERE items.event_id BETWEEN firstevent AND lastevent AND ignored = 0) gained,
         (select count(1) from events where event_type='slain' and events.id between firstevent and lastevent) deaths
 
       FROM areainfo, mapruns
@@ -192,7 +193,7 @@ const stats = {
       ${deaths ? `AND deaths BETWEEN ${deaths.min} AND ${deaths.max} ` : ''}
       AND itemcount.items > 0
       AND json_extract(runinfo, '$.ignored') is null
-      AND mapruns.gained > ?
+      AND gained > ?
       AND mapruns.id BETWEEN ? AND ?
       ORDER BY mapruns.id desc
     `;
