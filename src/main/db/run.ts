@@ -44,6 +44,7 @@ type Item = {
   original_value: number;
   stacksize: number;
   rawdata: string;
+  ignored: boolean;
 };
 
 type AreaInfo = {
@@ -151,7 +152,7 @@ const Runs = {
   getItems: async (mapId: number) => {
     logger.info(`Getting items for run ${mapId}`);
     const itemsQuery = `
-      select events.id, items.rarity, items.icon, items.value, items.original_value, items.stacksize, items.rawdata from mapruns, events, items
+      select events.id, items.rarity, items.icon, items.value, items.original_value, items.stacksize, items.rawdata, items.ignored from mapruns, events, items
       where mapruns.id = ?
       and events.id between mapruns.firstevent and mapruns.lastevent
       and items.event_id = events.id;
@@ -180,9 +181,10 @@ const Runs = {
         if (item.value) rawData.value = item.value;
         if (item.original_value) rawData.originalValue = item.original_value;
         if (item.stacksize) rawData.pickupStackSize = item.stacksize;
+        rawData.isIgnored = !!item.ignored;
         formattedItems[item.id].push(JSON.stringify(rawData));
       } else {
-        formattedItems[item.id].push(item.rawdata);
+        formattedItems[item.id].push({isIgnored: !!item.ignored, ...JSON.parse(item.rawdata)});
       }
     }
     return formattedItems;
