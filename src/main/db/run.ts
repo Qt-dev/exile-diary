@@ -1,6 +1,7 @@
 import DB from './index';
 import constants from '../../helpers/constants';
 import Logger from 'electron-log';
+import IgnoreManager from '../IgnoreManager';
 const logger = Logger.scope('db/run');
 
 type ItemProperty = {
@@ -32,6 +33,7 @@ type ItemRawData = {
   originalValue: number;
   pickupStackSize?: number;
   rarity?: string;
+  isIgnored?: boolean;
 };
 
 type Item = {

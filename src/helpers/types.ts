@@ -181,6 +181,7 @@ type ItemData = {
   map_id?: string;
   stashTabId?: string;
   inventoryId: string;
+  isIgnored: boolean;
   incubatedItem?: {
     name: string;
     level: number;

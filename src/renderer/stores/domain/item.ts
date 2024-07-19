@@ -15,6 +15,7 @@ type LootTableData = {
   stackSize: number;
   item?: Item;
   itemData?: string;
+  isIgnored: boolean;
 };
 
 const countSockets = (sockets) => {
@@ -190,6 +191,7 @@ export class Item {
   map_id?: string;
   stashTabId?: string;
   originalValue: number;
+  isIgnored: boolean;
 
   constructor(store, itemdata: ItemData) {
     makeAutoObservable(this, {
@@ -265,6 +267,8 @@ export class Item {
     this.originalValue = itemdata.originalValue;
 
     this.stashTabId = itemdata.stashTabId;
+
+    this.isIgnored = itemdata.isIgnored || false;
   }
 
   // Get the full name to display for an item
@@ -347,6 +351,7 @@ export class Item {
       quantity,
       stackSize,
       stashTabId,
+      isIgnored: this.isIgnored,
     };
     if (jsonMode) {
       lootTableData.itemData = JSON.stringify(this.rawData);
@@ -368,6 +373,7 @@ export class Item {
       stackSize: 0,
       stashTabId: '',
       itemData: '',
+      isIgnored: false,
     };
     return Object.keys(fakeFormattedItem);
   }
