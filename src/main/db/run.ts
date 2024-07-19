@@ -93,7 +93,8 @@ const Runs = {
       select mapruns.id, name, level, depth, iiq, iir, packsize, firstevent, lastevent,
         (mapruns.xp - (select xp from mapruns m where m.id < mapruns.id and xp is not null order by m.id desc limit 1)) xpgained,
         (select count(1) from events where event_type='slain' and events.id between firstevent and lastevent) deaths,
-        gained, kills, runinfo
+        (SELECT COALESCE(SUM(value),0) FROM items WHERE items.event_id BETWEEN firstevent AND lastevent AND ignored = 0) gained,
+        kills, runinfo
       from areainfo, mapruns
       where areainfo.id = mapruns.id
         and json_extract(runinfo, '$.ignored') is null
@@ -136,7 +137,8 @@ const Runs = {
   getRunInfo: async (mapId: number): Promise<any> => {
     logger.info(`Getting run info for run ${mapId}`);
     const mapInfoQuery = `
-      select mapruns.id, name, level, depth, iiq, iir, packsize, xp, kills, runinfo, firstevent, lastevent, gained,
+      select mapruns.id, name, level, depth, iiq, iir, packsize, xp, kills, runinfo, firstevent, lastevent,
+      (SELECT COALESCE(SUM(value),0) FROM items WHERE items.event_id BETWEEN firstevent AND lastevent AND ignored = 0) gained,
       (mapruns.xp - (select xp from mapruns m where m.id < mapruns.id and xp is not null order by m.id desc limit 1)) xpgained,
       (select xp from mapruns m where m.id < mapruns.id and xp is not null order by m.id desc limit 1) prevxp,
       (select league from leagues where timestamp < lastevent order by timestamp desc limit 1) league
@@ -318,9 +320,10 @@ const Runs = {
   getRunsFromDates: async (from: number, to: number) => {
     logger.info(`Getting items from date ${from} to ${to}`);
     const itemsQuery = `
-      SELECT areainfo.name, mapruns.id, firstevent, lastevent, gained
+      SELECT areainfo.name, mapruns.id, firstevent, lastevent,
+      (SELECT COALESCE(SUM(value),0) FROM items WHERE items.event_id BETWEEN firstevent AND lastevent AND ignored = 0) gained,
       FROM mapruns, areainfo
-      WHERE mapruns.gained > -1
+      WHERE gained > -1
       AND areainfo.id = mapruns.id
       AND mapruns.id BETWEEN ? AND ?;
     `;
