@@ -25,9 +25,10 @@ export default class ItemStore {
     });
   }
 
-  groupItemsPerType() {
+  groupItemsPerType(ignoredItems : boolean = false) {
+    const items = ignoredItems ? this.ignoredItems : this.acceptedItems;
     const grouped: any[] = [];
-    this.items
+    items
       .map((item) => item.toLootTable())
       .forEach((item) => {
         const { quantity, value, totalValue, originalValue, stackSize } = item;
@@ -84,38 +85,62 @@ export default class ItemStore {
     });
   }
 
+  @computed getIgnoredItemsForLootTable(key: string, order: Order) {
+    return this.groupItemsPerType(true).sort((a, b) => {
+      let first = a;
+      let second = b;
+      if (order === 'asc') {
+        first = b;
+        second = a;
+      }
+      if (typeof second[key] === 'string') {
+        return second[key].localeCompare(first[key]);
+      } else {
+        return second[key] > first[key] ? 1 : -1;
+      }
+    });
+  }
+
   // Get the full name to display for an item
   @computed getItemsAbove(value: number): Item[] {
     return this.items.filter((item) => item.value >= value);
   }
 
+  @computed get acceptedItems(): Item[] {
+    return this.items.filter((item) => !item.isIgnored);
+  }
+
+  @computed get ignoredItems(): Item[] {
+    return this.items.filter((item) => item.isIgnored);
+  }
+
   @computed get stats(): any {
     const totalValue = parseFloat(
-      this.items
+      this.acceptedItems
         .filter((item) => item.value !== undefined)
         .reduce((total, item) => total + item.value, 0)
         .toFixed(2)
     );
     const originalValue = parseFloat(
-      this.items
+      this.acceptedItems
         .filter((item) => item.originalValue !== undefined)
         .reduce((total, item) => total + item.originalValue, 0)
         .toFixed(2)
     );
     return {
       items: {
-        count: this.items.length,
+        count: this.acceptedItems.length,
       },
       value: {
         total: totalValue,
-        average: this.items.length ? parseFloat((totalValue / this.items.length).toFixed(2)) : 0,
+        average: this.acceptedItems.length ? parseFloat((totalValue / this.acceptedItems.length).toFixed(2)) : 0,
         original: originalValue,
       },
     };
   }
 
   @computed async generateCsv(): Promise<void> {
-    const baseData = this.items.map((item) => item.toLootTable(true));
+    const baseData = this.acceptedItems.map((item) => item.toLootTable(true));
     const csv = await json2csv(baseData, {});
     this.csv = csv;
   }

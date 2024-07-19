@@ -234,6 +234,7 @@ const LootTablePage = ({ profit, store, shouldHideExpandIcon = false }) => {
     setOrderBy(column);
   };
   const sortedItems = store.getItemsForLootTable(orderBy, order);
+  const sortedIgnoredItems = store.getIgnoredItemsForLootTable(orderBy, order);
 
   return (
     <div>
@@ -249,6 +250,9 @@ const LootTablePage = ({ profit, store, shouldHideExpandIcon = false }) => {
         stats={store.stats}
         shouldHideExpandIcon={shouldHideExpandIcon}
       />
+
+      <h2 className="Loot-Table-Page__Header">Ignored Items</h2>
+      <LootTable items={sortedIgnoredItems} sortCallback={sort} order={order} orderBy={orderBy} />
     </div>
   );
 };
