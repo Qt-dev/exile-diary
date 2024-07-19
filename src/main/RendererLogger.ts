@@ -63,7 +63,7 @@ const RendererLogger = {
     }
     for(let i = Math.max(messagesHistory.length - numberOfLogs, 0); i < messagesHistory.length; i++) {
       const { messages, timestamp } = messagesHistory[i];
-      Renderer.send('add-log', { messages, timestamp });
+      Renderer.send('add-log', { messages, timestamp: timestamp.toISOString() });
       OverlayRenderer.send('overlay:message', { messages });
     }
   }
