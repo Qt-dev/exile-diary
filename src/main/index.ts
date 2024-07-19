@@ -23,6 +23,7 @@ import { OverlayController, OVERLAY_WINDOW_OPTS } from 'electron-overlay-window'
 import dayjs, { Dayjs } from 'dayjs';
 import duration from 'dayjs/plugin/duration';
 import AuthManager from './AuthManager';
+import IgnoreManager from './IgnoreManager';
 
 // Old stuff
 import RateGetterV2 from './modules/RateGetterV2';
@@ -157,7 +158,8 @@ class MainProcess {
       logger.info('Starting components');
       RateGetterV2.initialize();
       ClientTxtWatcher.start();
-      await ScreenshotWatcher.start();
+      IgnoreManager.setupSettingsListener({ refreshUICallback: () => this.refreshWindows() });
+      ScreenshotWatcher.start();
       OCRWatcher.start();
       // ItemFilter.load(); not working yet
     }
@@ -731,6 +733,29 @@ class MainProcess {
       logger.info(`Toggling overlay movement - ${this.isOverlayMoveable}`);
       this.isOverlayMoveable = !this.isOverlayMoveable;
       this.sendToOverlay('overlay:toggle-movement', { isOverlayMoveable: this.isOverlayMoveable });
+    });
+  }
+
+  refreshWindows() {
+    // Log before and after refresh
+    RendererLogger.log({
+      messages: [
+        {
+          text: 'Refreshing the UI...',
+        },
+      ],
+    });
+    this.mainWindow.reload();
+    this.overlayWindow.reload();
+    this.overlayWindow.webContents.once('dom-ready', () => {
+      RendererLogger.logLatestMessages();
+      RendererLogger.log({
+        messages: [
+          {
+            text: 'UI has been refreshed.',
+          },
+        ],
+      });
     });
   }
 

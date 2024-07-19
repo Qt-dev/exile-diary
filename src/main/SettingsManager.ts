@@ -129,9 +129,9 @@ class SettingsManager {
       )
     )
       await this.initializeDB(value.characterName);
+    this.eventEmitter.emit('change', key, value);
     this.settings[key] = value;
     this.scheduleSave();
-    this.eventEmitter.emit('change', key, value);
   }
 
   scheduleSave() {

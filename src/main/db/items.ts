@@ -19,6 +19,18 @@ const Items = {
 
     return DB.get(query);
   },
+  updateIgnoredItems: async ({ minimumValue }: any) => {
+    logger.debug(`Updating ignored items with minimum value ${minimumValue}`);
+    const query = `
+      UPDATE items
+        SET ignored = CASE
+          WHEN value < ?
+          THEN 1
+          ELSE 0
+        END
+    `;
+    return DB.run(query, [minimumValue]);
+  },
 };
 
 export default Items;
