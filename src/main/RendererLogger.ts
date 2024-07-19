@@ -1,4 +1,5 @@
 import logger from 'electron-log';
+import dayjs, { Dayjs } from 'dayjs';
 let Renderer: any = null;
 let OverlayRenderer: any = null;
 
@@ -11,12 +12,23 @@ type Message = {
   divinePrice?: number;
 };
 
+const maxHistory = 100;
+const messagesHistory : { timestamp: Dayjs , messages: Message[] }[] = [];
+
+function addToHistory(messages : Message[]) {
+  if(messagesHistory.length > maxHistory - 1) {
+    messagesHistory.shift();
+  }
+  messagesHistory.push({ timestamp: dayjs(), messages });
+}
+
 const RendererLogger = {
   init: (renderer, overlayRenderer) => {
     Renderer = renderer;
     OverlayRenderer = overlayRenderer;
   },
   log: ({ messages, onOverlay = true }: { messages: Message[]; onOverlay?: boolean }) => {
+    addToHistory(messages);
     if (!Renderer) {
       logger.error('Renderer not initialized');
       return;
@@ -44,6 +56,17 @@ const RendererLogger = {
       }
     }
   },
+  logLatestMessages: (numberOfLogs = 10) => {
+    if (!Renderer) {
+      logger.error('Renderer not initialized');
+      return;
+    }
+    for(let i = Math.max(messagesHistory.length - numberOfLogs, 0); i < messagesHistory.length; i++) {
+      const { messages, timestamp } = messagesHistory[i];
+      Renderer.send('add-log', { messages, timestamp });
+      OverlayRenderer.send('overlay:message', { messages });
+    }
+  }
 };
 
 export default RendererLogger;

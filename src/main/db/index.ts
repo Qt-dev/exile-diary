@@ -204,6 +204,11 @@ const Migrations = {
         `UPDATE items SET original_value = old_value, value = old_value WHERE old_value IS NOT NULL`,
         `ALTER TABLE items DROP COLUMN old_value`,
       ],
+      // Version 11 - Add Ignored column to Items 
+      [
+        `pragma user_version = 11`,
+        `ALTER TABLE items ADD ignored NUMBER NOT NULL DEFAULT 0`,
+      ],
     ],
     maintenance: [
       `delete from incubators where timestamp < (select min(timestamp) from (select timestamp from incubators order by timestamp desc limit 25))`,
