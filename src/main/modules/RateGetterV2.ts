@@ -61,6 +61,7 @@ var emitter = new EventEmitter();
 class RateGetterV2 {
   ratesReady: boolean = false;
   isUpdating: boolean = false;
+  postUpdateCallback: Function = () => {};
   constructor() {
     if (nextRateGetTimer) clearTimeout(nextRateGetTimer);
   }
@@ -73,8 +74,9 @@ class RateGetterV2 {
     emitter.removeAllListeners();
   }
 
-  initialize() {
+  initialize({ postUpdateCallback } = { postUpdateCallback : () => {}}) {
     this.update();
+    this.postUpdateCallback = postUpdateCallback;
   }
 
   getLeagueName() {
@@ -194,6 +196,7 @@ class RateGetterV2 {
       });
     } finally {
       this.setIsUpdating(false);
+      this.postUpdateCallback();
     }
   }
 

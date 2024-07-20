@@ -156,7 +156,12 @@ class MainProcess {
 
     if (SettingsManager.get('activeProfile') && SettingsManager.get('activeProfile').valid) {
       logger.info('Starting components');
-      RateGetterV2.initialize();
+      RateGetterV2.initialize({ postUpdateCallback: () => {
+        RendererLogger.log({
+          messages: [{ text: "Today's prices have been updated" }],
+        });
+        this.refreshWindows();
+      }});
       ClientTxtWatcher.start();
       IgnoreManager.setupSettingsListener({ refreshUICallback: () => this.refreshWindows() });
       ScreenshotWatcher.start();
