@@ -46,6 +46,10 @@ const DebugSettings = ({ runStore }) => {
     setIsFetchingStashTabs(false);
   };
 
+  const handleRefreshUI = async () => {
+    await ipcRenderer.send('ui:refresh');
+  };
+
   return (
     <div className="Debug-Settings">
       <h3 className="Debug-Settings__Header">Pricing and Debugging options.</h3>
@@ -113,6 +117,19 @@ const DebugSettings = ({ runStore }) => {
           </Button>
         </ButtonGroup>
       </Stack>
+      <Divider variant="middle" sx={{ width: '50%', margin: '20px auto' }} />
+      <div className="Debug-Settings__Header">
+        Refresh the UI. Useful if you some items are not ignored when they should be.
+      </div>
+      <Stack direction="row" gap={5} justifyContent="center">
+        <ButtonGroup variant="outlined">
+          <Button onClick={handleRefreshUI}>
+            Refresh UI
+          </Button>
+        </ButtonGroup>
+      </Stack>
+
+
     </div>
   );
 };
