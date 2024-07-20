@@ -15,9 +15,9 @@ const IgnoreManager = {
     return false;
   },
   setupSettingsListener: ({ refreshUICallback }) => {
-    SettingsManager.registerListener('pricing', async (newValue) => {
+    SettingsManager.registerListener('pricing', async ({ minimumValue, filterPatterns }) => {
       logger.info('Pricing settings changed, updating ignored items');
-      await DB.updateIgnoredItems({ minimumValue: newValue.minimumValue });
+      await DB.updateIgnoredItems({ minimumValue, filterPatterns });
       refreshUICallback();
     });
   }
