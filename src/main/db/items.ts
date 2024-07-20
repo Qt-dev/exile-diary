@@ -19,12 +19,14 @@ const Items = {
 
     return DB.get(query);
   },
-  updateIgnoredItems: async ({ minimumValue }: any) => {
+  updateIgnoredItems: async ({ minimumValue, filterPatterns }: any) => {
     logger.debug(`Updating ignored items with minimum value ${minimumValue}`);
+    const formattedPatterns = filterPatterns?.map((pattern: string) => `OR typeline LIKE '%${pattern}%'\nOR name LIKE '%${pattern}%'`);
     const query = `
       UPDATE items
         SET ignored = CASE
           WHEN value < ?
+          ${formattedPatterns?.join('\n')}
           THEN 1
           ELSE 0
         END

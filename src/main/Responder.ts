@@ -150,8 +150,8 @@ const saveStashRefreshInterval = async (e, params) => {
 
 const savePricingSettings = async (e, params) => {
   logger.info('Saving pricing settings from the renderer process');
-  const { minimumValue } = params;
-  SettingsManager.set('pricing', { minimumValue });
+  const { minimumValue, filterPatterns } = params;
+  SettingsManager.set('pricing', { minimumValue, filterPatterns });
   RendererLogger.log({ messages: [{ text: 'Pricing settings saved' }] });
 }
 
