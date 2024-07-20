@@ -267,6 +267,10 @@ class MainProcess {
       app.exit();
     });
 
+    ipcMain.on('ui:refresh', () => {
+      this.refreshWindows();
+    })
+
     SearchManager.registerMessageHandler((event, data) => {
       this.sendToMain(event, data);
     });
