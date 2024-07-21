@@ -9,14 +9,14 @@ const IgnoreManager = {
     return IgnoreManager.isItemIgnoredByValue(item) || IgnoreManager.isItemIgnoredByPattern(item);
   },
   isItemIgnoredByValue: (item) => {
-    return item.value < SettingsManager.get('pricing').minimumValue
+    return item.value < SettingsManager.get('filters').minimumValue
   },
   isItemIgnoredByPattern: (item) => {
     return false;
   },
   setupSettingsListener: ({ refreshUICallback }) => {
-    SettingsManager.registerListener('pricing', async ({ minimumValue, filterPatterns }) => {
-      logger.info('Pricing settings changed, updating ignored items');
+    SettingsManager.registerListener('filters', async ({ minimumValue, filterPatterns }) => {
+      logger.info('Filter settings changed, updating ignored items');
       await DB.updateIgnoredItems({ minimumValue, filterPatterns });
       refreshUICallback();
     });

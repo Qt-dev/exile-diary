@@ -5,12 +5,14 @@ import ListItem from '@mui/material/ListItem';
 import classNames from 'classnames';
 import './ItemFilterSettings.css';
 
-import { electronService } from '../../../electron.service';
 import ListItemButton from '@mui/material/ListItemButton';
 import Checkbox from '@mui/material/Checkbox';
 import ListItemText from '@mui/material/ListItemText';
 import ListItemIcon from '@mui/material/ListItemIcon';
-const { ipcRenderer } = electronService;
+import Accordion from '@mui/material/Accordion';
+import AccordionSummary from '@mui/material/AccordionSummary';
+import AccordionDetails from '@mui/material/AccordionDetails';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 
 const ContainerComponent = ({ children, isFolder, disabled, callback }) => {
   if (isFolder) {
@@ -88,7 +90,7 @@ const ItemFilterRow = ({ filterCat, settings, saveSettingsCallback }) => {
             <Checkbox
               size="small"
               edge="start"
-              checked={!ignored}
+              checked={ignored}
               sx={{
                 // color: pink[800],
                 '&.Mui-checked': {
@@ -106,34 +108,33 @@ const ItemFilterRow = ({ filterCat, settings, saveSettingsCallback }) => {
 };
 const ObservedItemFilterRow = observer(ItemFilterRow);
 
-const ItemFilterSettings = ({ settings }) => {
-  settings.itemFilter = settings.itemFilter ?? {};
-  const saveSettings = React.useCallback(
-    (catId, newSetting) => {
-      settings.itemFilter[catId] = { ...settings.itemFilter[catId], ...newSetting };
-      ipcRenderer.invoke('save-settings', { settings });
-    },
-    [settings]
-  );
+const ItemFilterSettings = ({ settings, updateCallback }) => {
+  settings.perCategory = settings.perCategory ?? {};
+  const saveSettings = (catId, newSetting) => {
+    const newSettings = { ...settings };
+    newSettings.perCategory[catId] = { ...newSettings.perCategory[catId], ...newSetting };
+    updateCallback({ perCategory: newSettings.perCategory });
+  }
   return (
-    <div className="ItemFilter-Settings">
-      <div className="ItemFilter-Settings__Header">
-        <div>
-          Select the items you would like to include in value calculation. Excluded items are still
-          logged but will not contribute to the map profit.
-        </div>
-      </div>
-      <List className="ItemFilter-Settings__List">
-        {itemFilterCategories.map((filterCat: any) => (
-          <ObservedItemFilterRow
-            filterCat={filterCat}
-            key={filterCat.id}
-            settings={settings.itemFilter}
-            saveSettingsCallback={saveSettings}
-          />
-        ))}
-      </List>
-    </div>
+    <Accordion className="ItemFilter-Settings">
+      <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+        <h4 className="ItemFilter-Settings__Header">
+          Ignore items per category (<span className="Text--Error">WARNING</span>: This part only applies to future loot)
+        </h4>
+      </AccordionSummary>
+      <AccordionDetails>  
+        <List className="ItemFilter-Settings__List">
+          {itemFilterCategories.map((filterCat: any) => (
+            <ObservedItemFilterRow
+              filterCat={filterCat}
+              key={filterCat.id}
+              settings={settings.perCategory}
+              saveSettingsCallback={saveSettings}
+            />
+          ))}
+        </List>
+      </AccordionDetails>
+    </Accordion>
   );
 };
 
