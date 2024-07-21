@@ -1,12 +1,12 @@
+.ItemFilter-Settings {
+  border: 1px solid #444;
+}
+
 .ItemFilter-Settings__Header {
-  margin: 20px 0 0;
+  margin: 5px 0;
   color: white;
-  /* display: flex;
-  align-items: center;
-  justify-content: space-between; */
   text-align: center;
   width: 100%;
-  gap: 20px;
 }
 
 .ItemFilter-Settings__List {

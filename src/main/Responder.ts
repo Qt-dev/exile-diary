@@ -148,11 +148,11 @@ const saveStashRefreshInterval = async (e, params) => {
   stashGetter.refreshInterval();
 };
 
-const savePricingSettings = async (e, params) => {
-  logger.info('Saving pricing settings from the renderer process');
-  const { minimumValue, filterPatterns } = params;
-  SettingsManager.set('pricing', { minimumValue, filterPatterns });
-  RendererLogger.log({ messages: [{ text: 'Pricing settings saved' }] });
+const saveFilterSettings = async (e, params) => {
+  logger.info('Saving filter settings from the renderer process');
+  const { minimumValue, filterPatterns, perCategory } = params;
+  SettingsManager.set('filters', { minimumValue, filterPatterns, perCategory });
+  RendererLogger.log({ messages: [{ text: 'Filter settings saved' }] });
 }
 
 const triggerSearch = async (e, params) => {
@@ -210,7 +210,7 @@ const Responder = {
   'save-settings': saveSettings,
   'save-settings:stashtabs': saveStashTabs,
   'save-settings:stash-refresh-interval': saveStashRefreshInterval,
-  'save-settings:pricing': savePricingSettings,
+  'save-settings:filters': saveFilterSettings,
   'oauth:get-info': getAuthInfo,
   'oauth:is-authenticated': isAuthenticated,
   'oauth:logout': logout,

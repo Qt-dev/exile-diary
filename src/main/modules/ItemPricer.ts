@@ -950,6 +950,7 @@ async function price(
   item.parsedItem = JSON.parse(item.rawdata);
 
   let minItemValue = 0;
+  // TODO: Find a way to run it on the backend with the rest of the filters
   const filter = ItemFilter.filter(item.parsedItem);
   if (filter && filter.ignore) {
     if (filter.minValue) {

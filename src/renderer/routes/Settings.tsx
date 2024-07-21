@@ -5,11 +5,10 @@ import Tab from '@mui/material/Tab';
 import Box from '@mui/material/Box';
 import StashSettings from '../components/Settings/StashSettings/StashSettings';
 import MainSettings from '../components/Settings/MainSettings/MainSettings';
-import ItemFilterSettings from '../components/Settings/ItemFilterSettings/ItemFilterSettings';
+import FilterSettings from '../components/Settings/FilterSettings/FilterSettings';
 import DebugSettings from '../components/Settings/DebugSettings/DebugSettings';
 import './Settings.css';
 import { observer } from 'mobx-react-lite';
-import PricingSettings from '../components/Settings/PricingSettings/PricingSettings';
 
 // Fix to allow for directory selection in inputs
 declare module 'react' {
@@ -48,7 +47,6 @@ const Settings = ({ characterStore, stashTabStore, runStore }) => {
       <Box>
         <Tabs value={tabValue} centered aria-label="Settings Tabs" onChange={handleTabChange}>
           <Tab label="Account" {...a11yProps(0)} />
-          <Tab label="Pricing" {...a11yProps(1)} />
           <Tab label="Stashes" {...a11yProps(2)} />
           <Tab label="Item Filter" {...a11yProps(3)} />
           <Tab label="Debug" {...a11yProps(4)} />
@@ -59,15 +57,12 @@ const Settings = ({ characterStore, stashTabStore, runStore }) => {
         <MainSettings store={characterStore} settings={settings} runStore={runStore} />
       </div>
       <div hidden={tabValue !== 1}>
-        <PricingSettings settings={settings} />
-      </div>
-      <div hidden={tabValue !== 2}>
         <StashSettings store={stashTabStore} settings={settings} />
       </div>
-      <div hidden={tabValue !== 3}>
-        <ItemFilterSettings settings={settings} />
+      <div hidden={tabValue !== 2}>
+        <FilterSettings settings={settings} />
       </div>
-      <div hidden={tabValue !== 4}>
+      <div hidden={tabValue !== 3}>
         <DebugSettings runStore={runStore} />
       </div>
     </div>

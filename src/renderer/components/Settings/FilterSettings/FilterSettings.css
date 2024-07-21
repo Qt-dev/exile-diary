@@ -1,0 +1,14 @@
+.Filter-Settings {
+  margin: 10px 0
+}
+
+.Filter-Settings__Header {
+  margin: 5px 0 0;
+  color: white;
+  text-align: center;
+  width: 100%;
+}
+
+.Filter-Settings__Button {
+  margin-top: 20px;
+}

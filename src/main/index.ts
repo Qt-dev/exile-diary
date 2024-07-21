@@ -589,7 +589,6 @@ class MainProcess {
     this.mainWindow.once('ready-to-show', () => {
       this.mainWindow.show();
       logger.info('App is ready to show');
-
       RendererLogger.log({
         messages: [
           {
@@ -756,7 +755,7 @@ class MainProcess {
     });
     this.mainWindow.reload();
     this.overlayWindow.reload();
-    this.overlayWindow.webContents.once('dom-ready', () => {
+    this.mainWindow.webContents.once('dom-ready', () => {
       RendererLogger.logLatestMessages();
       RendererLogger.log({
         messages: [
@@ -766,6 +765,7 @@ class MainProcess {
         ],
       });
     });
+    
   }
 
   async startWindows() {
@@ -799,7 +799,7 @@ class MainProcess {
       'get-stash-tabs',
       'save-settings:stashtabs',
       'save-settings:stash-refresh-interval',
-      'save-settings:pricing',
+      'save-settings:filters',
       'search:trigger',
       'get-divine-price',
       'get-all-map-names',

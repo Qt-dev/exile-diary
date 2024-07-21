@@ -33,9 +33,10 @@ const DefaultSettings = {
     y: 0,
   },
   trackedStashTabs: {},
-  itemFilter: {},
-  pricing: {
+  filters: {
     minimumValue: 0,
+    filterPatterns: [],
+    perCategory: {},
   },
 };
 
