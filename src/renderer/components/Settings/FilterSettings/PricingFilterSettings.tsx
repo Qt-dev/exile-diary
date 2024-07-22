@@ -1,22 +1,18 @@
 import TextField from '@mui/material/TextField';
 import Stack from '@mui/material/Stack';
 import React from 'react';
-import { electronService } from '../../../electron.service';
 import Autocomplete  from '@mui/material/Autocomplete';
 import FormControl from '@mui/material/FormControl';
 import { observer } from 'mobx-react-lite';
 import './PricingFilterSettings.css';
-const { logger } = electronService;
 
 const PricingFilterSettings = ({ settings, updateCallback }) => {
   const { minimumValue = 0, filterPatterns = [] } = settings;
   const handleUpdateMinimumValue = async (e) => {
-    const newPrice = e.target.value;
-    logger.info('Updating minimum price to', newPrice);
+    const newPrice = e.target.value; 
     updateCallback({ minimumValue: newPrice, filterPatterns });
   };
   const handleUpdateFilterPatterns = async (e, newValue) => {
-    logger.info('Updating filter patterns to', newValue);
     updateCallback({ minimumValue, filterPatterns: newValue });
   };
 

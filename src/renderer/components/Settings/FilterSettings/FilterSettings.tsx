@@ -12,17 +12,15 @@ const FilterSettings = ({ settings }) => {
   const [ filters, setFilter ] = React.useState(settings.filters);
   
   const handleSaveSettings = async () => {
-    logger.info('Saving filters settings');
+    logger.debug('Saving filters settings from UI');
     ipcRenderer.invoke('save-settings:filters', filters);
   };
 
   const handleUpdate = (settings) => {
-    logger.info('Updating settings', settings);
     setFilter({
       ...filters,
       ...settings,
     });
-    logger.info('Updated settings', filters);
   };
   return (
     <div className="Filter-Settings">
