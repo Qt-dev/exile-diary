@@ -14,6 +14,7 @@ import ItemPricer from './modules/ItemPricer';
 import RunParser from './modules/RunParser';
 import SearchManager from './SearchManager';
 import RateGetterV2 from './modules/RateGetterV2';
+import ItemsDB from './db/items';
 
 const getAppGlobals = async () => {
   logger.info('Loading global settings for the renderer process');
@@ -200,6 +201,11 @@ const fetchOverlayPersistanceStatus = async () => {
   return await SettingsManager.get('overlayPersistenceEnabled');
 };
 
+const updateItemsIgnoreStatus = async (e, { data }) => {
+  logger.info('Updating items ignore status from the renderer process');
+  await ItemsDB.updateIgnoredItems(data);
+}
+
 const Responder = {
   'app-globals': getAppGlobals,
   'load-runs': loadRuns,
@@ -225,6 +231,7 @@ const Responder = {
   'debug:recheck-gain': debugRecheckGain,
   'debug:fetch-rates': debugFetchRates,
   'debug:fetch-stash-tabs': debugFetchStashTabs,
+  'items:filters:db-update': updateItemsIgnoreStatus
 };
 
 export default Responder;

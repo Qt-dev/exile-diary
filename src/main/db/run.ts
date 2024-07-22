@@ -178,16 +178,14 @@ const Runs = {
         secretName = 'Voidforge';
       }
 
-      if (secretName || item.value || item.stacksize) {
+      if (secretName || item.value || item.value === 0  || item.stacksize) {
         if (secretName) rawData.secretName = secretName;
-        if (item.value) rawData.value = item.value;
+        if (item.value || item.value === 0) rawData.value = item.value;
         if (item.original_value) rawData.originalValue = item.original_value;
         if (item.stacksize) rawData.pickupStackSize = item.stacksize;
-        rawData.isIgnored = !!item.ignored;
-        formattedItems[item.id].push(JSON.stringify(rawData));
-      } else {
-        formattedItems[item.id].push({isIgnored: !!item.ignored, ...JSON.parse(item.rawdata)});
       }
+      rawData.isIgnored = !!item.ignored;
+      formattedItems[item.id].push(JSON.stringify(rawData));
     }
     return formattedItems;
   },

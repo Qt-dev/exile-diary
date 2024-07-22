@@ -2,6 +2,7 @@ import { makeAutoObservable, computed } from 'mobx';
 import { v4 as uuidv4 } from 'uuid';
 import { ItemData } from '../../../helpers/types';
 import { getCategory } from '../../../helpers/item';
+import IgnoreManager from '../../../helpers/ignoreManager';
 
 type LootTableData = {
   id: string;
@@ -268,7 +269,15 @@ export class Item {
 
     this.stashTabId = itemdata.stashTabId;
 
-    this.isIgnored = itemdata.isIgnored || false;
+    this.isIgnored = IgnoreManager.isItemIgnored(this) || false;
+  }
+
+  updateIgnoredStatus() {
+    const newIgnoredStatus = IgnoreManager.isItemIgnored(this);
+    if(this.isIgnored !== newIgnoredStatus) {
+      this.store.updateItemIgnoredStatus(this, newIgnoredStatus);
+      this.isIgnored = newIgnoredStatus;
+    }
   }
 
   // Get the full name to display for an item

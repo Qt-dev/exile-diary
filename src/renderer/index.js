@@ -1,4 +1,5 @@
 import React from 'react';
+import Logger from 'electron-log/renderer';
 import ReactDOM from 'react-dom/client';
 import dayjs from 'dayjs';
 import duration from 'dayjs/plugin/duration';
@@ -25,8 +26,6 @@ import CharacterSelect from './routes/CharacterSelect';
 import LoginBox from './routes/LoginBox';
 import Overlay from './routes/Overlay';
 import Help from './routes/Help';
-import { electronService } from './electron.service';
-const { logger } = electronService;
 dayjs.extend(duration);
 dayjs.extend(utc);
 dayjs.extend(calendar);
@@ -35,6 +34,7 @@ const characterStore = new CharacterStore();
 const stashTabStore = new StashTabStore();
 characterStore.fetchCharacters();
 stashTabStore.fetchStashTabs();
+const logger = Logger.scope('renderer/index');
 
 const router = createHashRouter([
   {
@@ -61,6 +61,14 @@ const router = createHashRouter([
           if (!runId) throw new Error(`No run found with this id (${runId})`);
           await runStore.loadRun(runId);
           const run = runStore.runs.find((run) => run.runId === runId);
+          if (!run) {
+            return redirect('/');
+          }
+          try {
+            await runStore.loadDetails(run);
+          } catch (e) {
+            logger.error('Error loading run details', e);
+          }
           return { run };
         },
         errorElement: <div>Error in Run parsing</div>,

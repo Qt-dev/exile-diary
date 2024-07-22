@@ -2,17 +2,48 @@ import { computed, makeAutoObservable, runInAction } from 'mobx';
 import { Order } from '../../helpers/types';
 import { Item } from './domain/item';
 import { json2csv } from 'json-2-csv';
+import { electronService } from '../electron.service'; 
+import { v4 as uuidv4 } from 'uuid';
+import Logger from 'electron-log/renderer';
+const { registerListener, ipcRenderer  } = electronService;
+const logger = Logger.scope('renderer/item-store');
 
 // Mobx store for Items
 export default class ItemStore {
+  IgnoredStatusUpdateFrequency = 3000; // ms to wait before updating the ignore status
+  itemsWaitingUpdate: {id: string, status: boolean}[] = [];
+  ignoredStatusUpdateTimeout: NodeJS.Timeout | null = null;
   items: Item[] = [];
   isLoading = false;
   csv: string = '';
+  id: string;
 
   constructor(lootData) {
+    this.id = uuidv4();
     makeAutoObservable(this);
     this.createItems(lootData);
+    registerListener('items:filters:update', this.id , () => {
+      logger.debug(`Updating filters for items of store ${this.id}`);
+      this.items.forEach((item) => item.updateIgnoredStatus());
+    });
   }
+
+  updateItemIgnoredStatus(item, ignoredStatus) {
+    this.itemsWaitingUpdate.push({id: item.id, status: ignoredStatus});
+    if(!this.ignoredStatusUpdateTimeout) {
+      this.ignoredStatusUpdateTimeout = setTimeout(() => {
+        runInAction(async () => {
+          const itemsToSend = JSON.parse(JSON.stringify(this.itemsWaitingUpdate));
+          if(itemsToSend.length === 0) return;
+          logger.debug(`Updating ${itemsToSend.length} items ignore status`);
+          await ipcRenderer.invoke('items:filters:db-update', { data: itemsToSend });
+          this.itemsWaitingUpdate = [];
+        });
+      }, this.IgnoredStatusUpdateFrequency);
+    }
+  }
+
+  
 
   createItems(lootData) {
     this.isLoading = true;
@@ -143,6 +174,10 @@ export default class ItemStore {
     const baseData = this.acceptedItems.map((item) => item.toLootTable(true));
     const csv = await json2csv(baseData, {});
     this.csv = csv;
+  }
+
+  @computed get value(): number {
+    return this.acceptedItems.reduce((total, item) => total + item.value, 0);
   }
 
   reset() {

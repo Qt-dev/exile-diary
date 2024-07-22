@@ -43,7 +43,7 @@ const AreaStatsRow = ({ stats }) => {
           })}
         </TableCell>
         <TableCell sx={{ width: 100 }} align="right">
-          {stats.profitPerHour.toLocaleString('en-US', {
+          {stats.gainedPerHour.toLocaleString('en-US', {
             minimumFractionDigits: 2,
             maximumFractionDigits: 2,
           })}
