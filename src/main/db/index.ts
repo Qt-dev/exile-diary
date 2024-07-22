@@ -397,7 +397,6 @@ const DB = {
       const statement = db.prepare(query);
       const runMany = db.transaction((params) => {
         for (const param of params) {
-          logger.info(param);
           statement.run(param);
         }
       });
