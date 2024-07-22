@@ -78,7 +78,7 @@ const stats = {
     const query = `
       SELECT mapruns.id AS map_id, areainfo.name AS area, items.*
       FROM items, mapruns, areainfo
-      WHERE items.value > 10 
+      WHERE items.ignored = 0
       AND items.event_id BETWEEN mapruns.firstevent AND mapruns.lastevent
       AND mapruns.id = areainfo.id
     `;
@@ -100,6 +100,7 @@ const stats = {
       SELECT mapruns.id AS map_id, areainfo.name AS area, items.*
       FROM items, mapruns, areainfo, leaguedates
       WHERE items.value > ?
+      AND items.ignored = 0
       AND items.event_id BETWEEN mapruns.firstevent AND mapruns.lastevent
       AND map_id = areainfo.id
       AND map_id BETWEEN ? AND ?
@@ -225,6 +226,7 @@ const stats = {
       SELECT mapruns.id AS map_id, areainfo.name AS area, items.*
       FROM items, mapruns, areainfo
       WHERE items.value > ?
+      AND items.ignored = 0
       AND items.event_id BETWEEN mapruns.firstevent AND mapruns.lastevent
       AND map_id = areainfo.id
       AND mapruns.id IN (${runs.map((r) => r.id).join(',')})
@@ -300,7 +302,8 @@ const stats = {
       JOIN items
       ON items.event_id >= mapruns.firstevent
       AND items.event_id <= mapruns.lastevent
-    WHERE mapruns.id > ?   
+    WHERE mapruns.id > ?
+    AND items.ignored = 0
     `;
 
     try {

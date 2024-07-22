@@ -111,3 +111,9 @@ export const getEquipmentBaseType = (baseType: string) => {
 export const isNonStackable = (baseType: string) => {
   return nonStackableBaseTypes.includes(baseType);
 }
+
+export default {
+  getCategory,
+  getEquipmentBaseType,
+  isNonStackable,
+}
