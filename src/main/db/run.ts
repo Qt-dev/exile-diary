@@ -202,18 +202,6 @@ const Runs = {
     }
   },
 
-  updateProfit: async (mapId: number, profit: number) => {
-    logger.info(`Updating profit for run ${mapId}`);
-    const query = 'UPDATE mapruns SET gained = ? WHERE id = ?';
-    try {
-      DB.run(query, [profit, mapId]);
-      return true;
-    } catch (err) {
-      logger.error(`Error updating profit for ${mapId}: ${JSON.stringify(err)}`);
-      return false;
-    }
-  },
-
   getRun: async (mapId: number) => {
     logger.info(`Getting run ${mapId}`);
     const mapInfo = await Runs.getRunInfo(mapId);
@@ -318,7 +306,7 @@ const Runs = {
     logger.info(`Getting items from date ${from} to ${to}`);
     const itemsQuery = `
       SELECT areainfo.name, mapruns.id, firstevent, lastevent,
-      (SELECT COALESCE(SUM(value),0) FROM items WHERE items.event_id BETWEEN firstevent AND lastevent AND ignored = 0) gained,
+      (SELECT COALESCE(SUM(value),0) FROM items WHERE items.event_id BETWEEN firstevent AND lastevent AND ignored = 0) gained
       FROM mapruns, areainfo
       WHERE gained > -1
       AND areainfo.id = mapruns.id
