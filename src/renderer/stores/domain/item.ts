@@ -269,7 +269,7 @@ export class Item {
 
     this.stashTabId = itemdata.stashTabId;
 
-    this.isIgnored = IgnoreManager.isItemIgnored(this) || false;
+    this.isIgnored = IgnoreManager.isItemIgnored(this) ?? itemdata.isIgnored ?? false;
   }
 
   updateIgnoredStatus() {
