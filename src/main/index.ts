@@ -49,6 +49,8 @@ let modReadingTimer: Dayjs | null = null;
 
 // Initialize logger settings
 logger.initialize({ preload: true });
+logger.transports.console.level = isDev ? 'debug' : 'info';
+logger.transports.file.level = isDev ? 'debug' : 'info';
 logger.scope.defaultLabel = 'main';
 logger.errorHandler.startCatching({
   showDialog: false,
