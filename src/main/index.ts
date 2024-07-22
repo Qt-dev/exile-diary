@@ -163,7 +163,11 @@ class MainProcess {
         this.refreshWindows();
       }});
       ClientTxtWatcher.start();
-      IgnoreManager.setupSettingsListener({ refreshUICallback: () => this.refreshWindows() });
+
+      SettingsManager.unregisterListener('filters');
+      SettingsManager.registerListener('filters', async (settings) => {
+        this.sendToMain('settings:filters:updated', settings)
+      });
       ScreenshotWatcher.start();
       OCRWatcher.start();
       // ItemFilter.load(); not working yet
@@ -267,6 +271,9 @@ class MainProcess {
       app.exit();
     });
 
+    ipcMain.on('settings:filters:ui-updated', () => {
+      this.sendToMain('items:filters:update');
+    });
     ipcMain.on('ui:refresh', () => {
       this.refreshWindows();
     })
@@ -809,6 +816,8 @@ class MainProcess {
       'debug:fetch-rates',
       'debug:fetch-stash-tabs',
       'overlay:get-persistence',
+      'items:filters:db-update',
+      
     ];
     for (const event of events) {
       ipcMain.handle(event, Responder[event]);

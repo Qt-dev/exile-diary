@@ -19,20 +19,16 @@ const Items = {
 
     return DB.get(query);
   },
-  updateIgnoredItems: async ({ minimumValue, filterPatterns }: any) => {
-    logger.debug(`Updating ignored items with minimum value ${minimumValue}`);
-    const formattedPatterns = filterPatterns?.map((pattern: string) => `OR LOWER(typeline) LIKE '%${pattern.toLowerCase()}%'\nOR LOWER(name) LIKE '%${pattern.toLowerCase()}%'`);
+
+  updateIgnoredItems: async (items: { id: string; status: boolean }[]) => {
+    logger.debug(`Updating ${items.length} items ignore status`);
     const query = `
       UPDATE items
-        SET ignored = CASE
-          WHEN value < ?
-          ${formattedPatterns?.join('\n')}
-          THEN 1
-          ELSE 0
-        END
+        SET ignored = ?
+        WHERE id = ?
     `;
-    return DB.run(query, [minimumValue]);
-  },
+    return DB.transaction(query, items.map(({ id, status }) => [status ? 1 : 0, id]));
+  }
 };
 
 export default Items;

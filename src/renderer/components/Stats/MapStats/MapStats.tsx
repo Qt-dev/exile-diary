@@ -49,7 +49,7 @@ const MapRow = ({ maps }) => {
                 })}
               </TableCell>
               <TableCell align="right">
-                {map.profitPerHour.toLocaleString('en-US', {
+                {map.gainedPerHour.toLocaleString('en-US', {
                   minimumFractionDigits: 2,
                   maximumFractionDigits: 2,
                 })}
@@ -90,7 +90,7 @@ const MapStatsRow = ({ stats }) => {
           })}
         </TableCell>
         <TableCell align="right">
-          {stats.profitPerHour.toLocaleString('en-US', {
+          {stats.gainedPerHour.toLocaleString('en-US', {
             minimumFractionDigits: 2,
             maximumFractionDigits: 2,
           })}

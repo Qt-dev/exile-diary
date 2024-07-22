@@ -149,8 +149,8 @@ const RunList = ({ NumbersOfMapsToShow = 10, store, isBoxed = true }) => {
                   <TableCell align="center">{run.iir ? `${run.iir}%` : '-'}</TableCell>
                   <TableCell align="center">{run.packSize ? `${run.packSize}%` : '-'}</TableCell>
                   <TableCell>{dayjs.utc(run.duration?.asMilliseconds()).format('mm:ss')}</TableCell>
-                  <TableCell align="center">{run.profit?.toFixed(2)}</TableCell>
-                  <TableCell align="center">{run.profitPerHour?.toFixed(2)}</TableCell>
+                  <TableCell align="center">{run.gained?.toFixed(2)}</TableCell>
+                  <TableCell align="center">{run.gainedPerHour?.toFixed(2)}</TableCell>
                   <TableCell align="center" className={getXPClassName(run.xpPerHour)}>
                     {run.xpPerHour.toLocaleString('en')}
                   </TableCell>
