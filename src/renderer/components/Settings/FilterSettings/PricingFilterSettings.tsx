@@ -10,7 +10,7 @@ const PricingFilterSettings = ({ settings, updateCallback }) => {
   const { minimumValue = 0, filterPatterns = [] } = settings;
   const handleUpdateMinimumValue = async (e) => {
     const newPrice = e.target.value; 
-    updateCallback({ minimumValue: newPrice, filterPatterns });
+    updateCallback({ minimumValue: parseInt(newPrice), filterPatterns });
   };
   const handleUpdateFilterPatterns = async (e, newValue) => {
     updateCallback({ minimumValue, filterPatterns: newValue });
