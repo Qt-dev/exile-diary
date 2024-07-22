@@ -29,7 +29,8 @@ export default class ItemStore {
   }
 
   updateItemIgnoredStatus(item, ignoredStatus) {
-    this.itemsWaitingUpdate.push({id: item.id, status: ignoredStatus});
+    this.itemsWaitingUpdate.push({id: item.itemId, status: ignoredStatus});
+    logger.debug(`Adding item ${item.itemId} to the list of items to update ignore status`);
     if(!this.ignoredStatusUpdateTimeout) {
       this.ignoredStatusUpdateTimeout = setTimeout(() => {
         runInAction(async () => {
@@ -38,6 +39,10 @@ export default class ItemStore {
           logger.debug(`Updating ${itemsToSend.length} items ignore status`);
           await ipcRenderer.invoke('items:filters:db-update', { data: itemsToSend });
           this.itemsWaitingUpdate = [];
+          if(this.ignoredStatusUpdateTimeout) {
+            clearTimeout(this.ignoredStatusUpdateTimeout);
+            this.ignoredStatusUpdateTimeout = null;
+          }
         });
       }, this.IgnoredStatusUpdateFrequency);
     }

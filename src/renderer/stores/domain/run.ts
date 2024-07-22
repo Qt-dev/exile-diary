@@ -96,7 +96,7 @@ export class Run {
 
     Logger.debug('Building Store', details.items);
     const items: any = [];
-    for (const timestamp in details.items) { ///// WHY IS THIS STRING? DAFUQ
+    for (const timestamp in details.items) {
       // Add loot events to the events array
       Logger.debug('Adding loot event', details.items[timestamp]);
       this.events.push({
