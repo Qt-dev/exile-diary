@@ -107,9 +107,16 @@ const ItemFilterRow = ({ filterCat, settings, saveSettingsCallback }) => {
   );
 };
 const ObservedItemFilterRow = observer(ItemFilterRow);
+const generateEmptySettings = () => {
+  const settings = {};
+  itemFilterCategories.forEach((cat) => {
+    settings[cat.id] = { ignore: false, minimumValue: 0 };
+  });
+  return settings;
+}
 
 const ItemFilterSettings = ({ settings, updateCallback }) => {
-  settings.perCategory = settings.perCategory ?? {};
+  settings.perCategory = {...generateEmptySettings(),  ...settings.perCategory };
   const saveSettings = (catId, newSetting) => {
     const newSettings = { ...settings };
     newSettings.perCategory[catId] = { ...newSettings.perCategory[catId], ...newSetting };
