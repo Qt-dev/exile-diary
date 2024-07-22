@@ -1,4 +1,4 @@
-const ItemCategoryParser = require('./ItemCategoryParser');
+const ItemCategoryParser = require('../../helpers/item').default;
 
 var Rarity = {
   Normal: 0,

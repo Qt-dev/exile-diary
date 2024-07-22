@@ -5,7 +5,7 @@ const logger = require('electron-log');
 const Utils = require('./Utils').default;
 const ItemData = require('./ItemData');
 const ItemPricer = require('./ItemPricer');
-const ItemCategoryParser = require('./ItemCategoryParser');
+const ItemCategoryParser = require('../../helpers/item').default;
 const DB = require('../db').default;
 
 const encounters = {
