@@ -167,6 +167,9 @@ class SettingsManager {
   registerListener(key: string, callback: Function) {
     this.eventKeyMatcher[key] = { callback };
   }
+  unregisterListener(key: string) {
+    delete this.eventKeyMatcher[key];
+  }
 
   waitForSave() {
     return new Promise((resolve) => {
