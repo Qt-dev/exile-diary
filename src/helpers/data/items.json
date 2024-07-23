@@ -2075,7 +2075,18 @@
       "Lesser Sun Artifact": "Stackable Currency",
       "Common Sun Artifact": "Stackable Currency",
       "Greater Sun Artifact": "Stackable Currency",
-      "Grand Sun Artifact": "Stackable Currency"
+      "Grand Sun Artifact": "Stackable Currency",
+
+      "Vaal Aspect": "Jewel",
+
+      "Reality Fragment": "Currency",
+      "Devouring Fragment": "Currency",
+      "Blazing Fragment": "Currency",
+      "Decaying Fragment": "Currency",
+      "Synthesising Fragment": "Currency",
+      "Cosmic Fragment": "Currency",
+      "Awakening Fragment": "Currency"
+
     }
   },
 
