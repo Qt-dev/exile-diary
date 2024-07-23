@@ -26,6 +26,10 @@ export default class ItemStore {
       logger.debug(`Updating filters for items of store ${this.id}`);
       this.items.forEach((item) => item.updateIgnoredStatus());
     });
+    registerListener('prices:updated', this.id , (e, { prices }) => {
+      logger.debug(`Updating prices for items of store ${this.id}`);
+      this.items.forEach((item) => item.itemId && item.updateValue(prices[item.itemId]));
+    });
   }
 
   updateItemIgnoredStatus(item, ignoredStatus) {
