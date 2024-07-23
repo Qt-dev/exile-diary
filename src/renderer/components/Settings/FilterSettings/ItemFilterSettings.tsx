@@ -13,13 +13,15 @@ import Accordion from '@mui/material/Accordion';
 import AccordionSummary from '@mui/material/AccordionSummary';
 import AccordionDetails from '@mui/material/AccordionDetails';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import Stack from '@mui/material/Stack';
+import TextField from '@mui/material/TextField';
 
-const ContainerComponent = ({ children, isFolder, disabled, callback }) => {
+const ContainerComponent = ({ children, isFolder, disabled, callback, onMouseOver, onMouseOut }) => {
   if (isFolder) {
     return <div className="ItemFilter-Settings__List-Item-Container">{children}</div>;
   } else {
     return (
-      <ListItemButton dense onClick={callback} disabled={disabled}>
+      <ListItemButton sx={{ border: '0px solid #666' }} dense onClick={callback} disabled={disabled} onMouseOver={() => onMouseOver()} onMouseOut={() => onMouseOut() }>
         {children}
       </ListItemButton>
     );
@@ -62,46 +64,63 @@ const itemFilterCategories = [
 ];
 
 const ItemFilterRow = ({ filterCat, settings, saveSettingsCallback }) => {
+  const [ignored, setIgnored] = React.useState(settings[filterCat.id]?.ignore ?? false);
+  const [minValue, setMinValue] = React.useState(settings[filterCat.id]?.minimumValue ?? 0);
+  const [hovered, setHovered] = React.useState(false);
   const rowClasses = classNames({
     'ItemFilter-Settings__List-Item': true,
+    'ItemFilter-Settings__List-Item--hovered': hovered,
   });
-  const [ignored, setIgnored] = React.useState(settings[filterCat.id]?.ignore ?? false);
   const Icon = require(`../../../assets/img/itemtypeicons/${filterCat.id}.png`);
   const toggleEnabled = async (e) => {
-    saveSettingsCallback(filterCat.id, { ignore: !ignored });
+    saveSettingsCallback(filterCat.id, { ignore: !ignored, minimumValue: minValue });
     setIgnored(!ignored);
   };
+
+  const saveMinValue = async (e) => {
+    const newMinValue = parseInt(e.target.value);
+    saveSettingsCallback(filterCat.id, { ignore: ignored, minimumValue: newMinValue });
+    setMinValue(newMinValue);
+  }
 
   return (
     <>
       <ListItem
         key={filterCat.id}
         sx={{
-          backgroundColor: 'initial',
-          height: '2.5em',
           width: `100%`,
+          justifyContent: 'space-between',
         }}
-        disablePadding
         className={rowClasses}
+        dense
       >
-        <ContainerComponent callback={toggleEnabled} isFolder={false} disabled={false}>
-          <ListItemIcon sx={{ minWidth: 0 }} className="Stash-Settings__Item-Icon">
-            <img className="Stash-Settings__Item-Icon__Image" src={Icon} alt={filterCat.hint} />
+        <ListItemIcon sx={{ minWidth: '1em'}} >
+          <img className="Stash-Settings__Item-Icon__Image" src={Icon} alt={filterCat.hint} />
+        </ListItemIcon>
+        <Stack direction="row" spacing={2}>
+          <ListItemText>{filterCat.desc}</ListItemText>
+        </Stack>
+        <Stack direction="row" spacing={2} alignItems={'center'} >
+          <ContainerComponent callback={toggleEnabled}
+                              isFolder={false}
+                              disabled={false}
+                              onMouseOver={() => setHovered(true)}
+                              onMouseOut={() => setHovered(false)}
+                              >
             <Checkbox
               size="small"
               edge="start"
               checked={ignored}
               sx={{
-                // color: pink[800],
                 '&.Mui-checked': {
                   color: '#fff',
                 },
               }}
-            />
-          </ListItemIcon>
-
-          <ListItemText>{filterCat.desc}</ListItemText>
-        </ContainerComponent>
+              />
+            <ListItemText>Ignore</ListItemText>
+          </ContainerComponent>
+          <TextField label="Min value" type="number" size="small" value={minValue} onChange={saveMinValue}/>
+        </Stack>
       </ListItem>
     </>
   );
@@ -126,7 +145,7 @@ const ItemFilterSettings = ({ settings, updateCallback }) => {
     <Accordion className="ItemFilter-Settings">
       <AccordionSummary expandIcon={<ExpandMoreIcon />}>
         <h4 className="ItemFilter-Settings__Header">
-          Ignore items per category (<span className="Text--Error">WARNING</span>: This part only applies to future loot)
+          Ignore items per category
         </h4>
       </AccordionSummary>
       <AccordionDetails>  

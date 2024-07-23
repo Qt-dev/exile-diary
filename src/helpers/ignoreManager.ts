@@ -45,10 +45,10 @@ class IgnoreManager {
     );
   }
 
-  isItemIgnoredByValue(item) {
-    if(this.settings.minimumValue === 0) return false;
+  isItemIgnoredByValue(item, value = this.settings.minimumValue) {
+    if(value === 0) return false;
     const actualValue = item.stackSize ? item.value / item.stackSize : item.value;
-    return actualValue <= this.settings.minimumValue
+    return actualValue <= value
   }
 
   isItemIgnoredByPattern(item) {
@@ -59,15 +59,16 @@ class IgnoreManager {
   }
   
   isItemInFilteredCategory(item) {
-    const filter = this.filterPerCategory(item);
-    return filter?.ignore;
+    const filter = this.getFilterPerCategory(item);
+    if(!filter) return false;
+    return filter.ignore || this.isItemIgnoredByValue(item, filter.minimumValue);
   }
 
-  filterPerCategory(item) : PerCategoryFilter {
+  getFilterPerCategory(item) : PerCategoryFilter {
     const { perCategory : itemFilters } = this.settings;
   
     // gem, div card, prophecy can be determined by frametype
-    switch (item.frameType) {
+    switch (item.rawData.frameType) {
       case 4:
         return itemFilters.gem;
       case 6:
