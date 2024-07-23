@@ -10,7 +10,7 @@ const logger = Logger.scope('renderer/item-store');
 
 // Mobx store for Items
 export default class ItemStore {
-  IgnoredStatusUpdateFrequency = 1000; // ms to wait before updating the ignore status
+  IgnoredStatusUpdateFrequency = 300; // ms to wait before updating the ignore status
   itemsWaitingUpdate: {id: string, status: boolean}[] = [];
   ignoredStatusUpdateTimeout: NodeJS.Timeout | null = null;
   items: Item[] = [];
