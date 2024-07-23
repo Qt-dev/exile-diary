@@ -21,7 +21,10 @@ async function insertItems(items, timestamp) {
       item.setValue(value);
       itemsToInsert.push(item.toDbInsertFormat(timestamp));
 
-      formattedItemsForIgnoreManager.push({id: item.id, status: IgnoreManager.isItemIgnored(item)});
+      formattedItemsForIgnoreManager.push({
+        id: item.id,
+        status: IgnoreManager.isItemIgnored(item),
+      });
     }
 
     DB.insertItems(itemsToInsert);
