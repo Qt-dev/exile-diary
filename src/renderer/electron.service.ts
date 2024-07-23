@@ -17,7 +17,7 @@ const refreshGlobals = async () => {
 };
 
 const registerListener = (channel, id, listener) => {
-  if(!Listeners[channel]){
+  if (!Listeners[channel]) {
     Listeners[channel] = {};
     startListener(channel);
   }
@@ -27,8 +27,7 @@ const registerListener = (channel, id, listener) => {
 const startListener = (channel) => {
   logger.debug(`Starting listener for ${channel}`);
   ipcRenderer.on(channel, (event, ...args) => {
-    const functions = Object.keys(Listeners[channel])
-                            .map((id) => Listeners[channel][id]);
+    const functions = Object.keys(Listeners[channel]).map((id) => Listeners[channel][id]);
     logger.debug(`Received event ${channel}`);
     functions.forEach((func) => {
       func(event, ...args);

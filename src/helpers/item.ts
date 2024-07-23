@@ -5,7 +5,6 @@ const gemBaseTypes = Constants.items.baseTypes.gems;
 
 const nonStackableBaseTypes = [...Object.keys(equipmentBaseTypes), ...Object.keys(gemBaseTypes)];
 
-
 const logger = Logger.scope('item-helper');
 
 // Get the item category from all the itemData.
@@ -106,16 +105,16 @@ export const getEquipmentBaseType = (baseType: string) => {
     }
   }
   return null;
-}
+};
 
 export const isNonStackable = (baseType: string) => {
   return nonStackableBaseTypes.includes(baseType);
-}
+};
 
 const Item = {
   getCategory,
   getEquipmentBaseType,
   isNonStackable,
-}
+};
 
 export default Item;

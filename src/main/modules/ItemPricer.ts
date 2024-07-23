@@ -2,7 +2,7 @@ import SettingsManager from '../SettingsManager';
 import RatesManager from '../RatesManager';
 import { writeFile } from 'fs/promises';
 import Constants from '../../helpers/constants';
-import * as ItemCategoryParser  from '../../helpers/item';
+import * as ItemCategoryParser from '../../helpers/item';
 import dayjs from 'dayjs';
 const logger = require('electron-log');
 const ItemData = require('./ItemData');

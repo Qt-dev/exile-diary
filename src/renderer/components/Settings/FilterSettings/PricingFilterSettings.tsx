@@ -1,7 +1,7 @@
 import TextField from '@mui/material/TextField';
 import Stack from '@mui/material/Stack';
 import React from 'react';
-import Autocomplete  from '@mui/material/Autocomplete';
+import Autocomplete from '@mui/material/Autocomplete';
 import FormControl from '@mui/material/FormControl';
 import { observer } from 'mobx-react-lite';
 import './PricingFilterSettings.css';
@@ -9,7 +9,7 @@ import './PricingFilterSettings.css';
 const PricingFilterSettings = ({ settings, updateCallback }) => {
   const { minimumValue = 0, filterPatterns = [] } = settings;
   const handleUpdateMinimumValue = async (e) => {
-    const newPrice = e.target.value; 
+    const newPrice = e.target.value;
     updateCallback({ minimumValue: parseInt(newPrice), filterPatterns });
   };
   const handleUpdateFilterPatterns = async (e, newValue) => {
@@ -17,9 +17,14 @@ const PricingFilterSettings = ({ settings, updateCallback }) => {
   };
 
   return (
-    <div className='Pricing-Filter-Settings'>
+    <div className="Pricing-Filter-Settings">
       <FormControl className="Pricing-Filter-Settings__Settings-Form" fullWidth>
-        <Stack gap={5} direction={'row'} justifyContent="space-evenly" className='Pricing-Filter-Settings__Form-Fields'>
+        <Stack
+          gap={5}
+          direction={'row'}
+          justifyContent="space-evenly"
+          className="Pricing-Filter-Settings__Form-Fields"
+        >
           <TextField
             size="small"
             fullWidth
@@ -39,7 +44,13 @@ const PricingFilterSettings = ({ settings, updateCallback }) => {
             value={filterPatterns}
             onChange={handleUpdateFilterPatterns}
             options={filterPatterns}
-            renderInput={(params) => <TextField {...params} label="Ignore items with these pattern in their name (Not Case Sensitive)" size="small" />}
+            renderInput={(params) => (
+              <TextField
+                {...params}
+                label="Ignore items with these pattern in their name (Not Case Sensitive)"
+                size="small"
+              />
+            )}
             // limitTags={2}
           />
         </Stack>

@@ -177,7 +177,7 @@ const Runs = {
         secretName = 'Voidforge';
       }
 
-      if (secretName || item.value || item.value === 0  || item.stacksize) {
+      if (secretName || item.value || item.value === 0 || item.stacksize) {
         if (secretName) rawData.secretName = secretName;
         if (item.value || item.value === 0) rawData.value = item.value;
         if (item.original_value) rawData.originalValue = item.original_value;

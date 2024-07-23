@@ -4,11 +4,13 @@ import { Outlet, useNavigate } from 'react-router-dom';
 import SideNav from '../components/SideNav/SideNav';
 import Box from '@mui/material/Box';
 import { electronService } from '../electron.service';
-import IgnoreManager from '../../helpers/ignoreManager'
+import IgnoreManager from '../../helpers/ignoreManager';
 import LogBox from '../components/LogBox/LogBox';
 import LogStore from '../stores/logStore';
 const logStore = new LogStore([]);
-IgnoreManager.initialize(Logger.scope('renderer/IgnoreManager'), () => ipcRenderer.send('settings:filters:ui-updated'));
+IgnoreManager.initialize(Logger.scope('renderer/IgnoreManager'), () =>
+  ipcRenderer.send('settings:filters:ui-updated')
+);
 const { ipcRenderer } = electronService;
 const logger = Logger.scope('renderer/Root');
 
@@ -45,7 +47,7 @@ function Root() {
       ipcRenderer.removeAllListeners('oauth:logged-out');
       ipcRenderer.removeAllListeners('oauth:expired-token');
       ipcRenderer.removeAllListeners('settings:filters:updated');
-    }
+    };
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
   const turnNewVersionOff = () => {
     setIsNewVersion(false);

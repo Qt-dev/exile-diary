@@ -123,13 +123,9 @@ const DebugSettings = ({ runStore }) => {
       </div>
       <Stack direction="row" gap={5} justifyContent="center">
         <ButtonGroup variant="outlined">
-          <Button onClick={handleRefreshUI}>
-            Refresh UI
-          </Button>
+          <Button onClick={handleRefreshUI}>Refresh UI</Button>
         </ButtonGroup>
       </Stack>
-
-
     </div>
   );
 };

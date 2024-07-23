@@ -27,10 +27,13 @@ const Items = {
         SET ignored = ?
         WHERE id = ?
     `;
-    return DB.transaction(query, items.map(({ id, status }) => [status ? 1 : 0, id]));
+    return DB.transaction(
+      query,
+      items.map(({ id, status }) => [status ? 1 : 0, id])
+    );
   },
 
-  getAllItemsValues : async () => {
+  getAllItemsValues: async () => {
     logger.debug(`Getting all items values`);
     const query = `
       SELECT id, value

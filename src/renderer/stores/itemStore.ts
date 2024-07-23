@@ -2,16 +2,16 @@ import { computed, makeAutoObservable, runInAction } from 'mobx';
 import { Order } from '../../helpers/types';
 import { Item } from './domain/item';
 import { json2csv } from 'json-2-csv';
-import { electronService } from '../electron.service'; 
+import { electronService } from '../electron.service';
 import { v4 as uuidv4 } from 'uuid';
 import Logger from 'electron-log/renderer';
-const { registerListener, ipcRenderer  } = electronService;
+const { registerListener, ipcRenderer } = electronService;
 const logger = Logger.scope('renderer/item-store');
 
 // Mobx store for Items
 export default class ItemStore {
   IgnoredStatusUpdateFrequency = 300; // ms to wait before updating the ignore status
-  itemsWaitingUpdate: {id: string, status: boolean}[] = [];
+  itemsWaitingUpdate: { id: string; status: boolean }[] = [];
   ignoredStatusUpdateTimeout: NodeJS.Timeout | null = null;
   items: Item[] = [];
   isLoading = false;
@@ -22,28 +22,28 @@ export default class ItemStore {
     this.id = uuidv4();
     makeAutoObservable(this);
     this.createItems(lootData);
-    registerListener('items:filters:update', this.id , () => {
+    registerListener('items:filters:update', this.id, () => {
       logger.debug(`Updating filters for items of store ${this.id}`);
       this.items.forEach((item) => item.updateIgnoredStatus());
     });
-    registerListener('prices:updated', this.id , (e, { prices }) => {
+    registerListener('prices:updated', this.id, (e, { prices }) => {
       logger.debug(`Updating prices for items of store ${this.id}`);
       this.items.forEach((item) => item.itemId && item.updateValue(prices[item.itemId]));
     });
   }
 
   updateItemIgnoredStatus(item, ignoredStatus) {
-    this.itemsWaitingUpdate.push({id: item.itemId, status: ignoredStatus});
+    this.itemsWaitingUpdate.push({ id: item.itemId, status: ignoredStatus });
     logger.debug(`Adding item ${item.itemId} to the list of items to update ignore status`);
-    if(!this.ignoredStatusUpdateTimeout) {
+    if (!this.ignoredStatusUpdateTimeout) {
       this.ignoredStatusUpdateTimeout = setTimeout(() => {
         runInAction(async () => {
           const itemsToSend = JSON.parse(JSON.stringify(this.itemsWaitingUpdate));
-          if(itemsToSend.length === 0) return;
+          if (itemsToSend.length === 0) return;
           logger.debug(`Updating ${itemsToSend.length} items ignore status`);
           await ipcRenderer.invoke('items:filters:db-update', { data: itemsToSend });
           this.itemsWaitingUpdate = [];
-          if(this.ignoredStatusUpdateTimeout) {
+          if (this.ignoredStatusUpdateTimeout) {
             clearTimeout(this.ignoredStatusUpdateTimeout);
             this.ignoredStatusUpdateTimeout = null;
           }
@@ -51,8 +51,6 @@ export default class ItemStore {
       }, this.IgnoredStatusUpdateFrequency);
     }
   }
-
-  
 
   createItems(lootData) {
     this.isLoading = true;
@@ -65,7 +63,7 @@ export default class ItemStore {
     });
   }
 
-  groupItemsPerType(ignoredItems : boolean = false) {
+  groupItemsPerType(ignoredItems: boolean = false) {
     const items = ignoredItems ? this.ignoredItems : this.acceptedItems;
     const grouped: any[] = [];
     items
@@ -173,7 +171,9 @@ export default class ItemStore {
       },
       value: {
         total: totalValue,
-        average: this.acceptedItems.length ? parseFloat((totalValue / this.acceptedItems.length).toFixed(2)) : 0,
+        average: this.acceptedItems.length
+          ? parseFloat((totalValue / this.acceptedItems.length).toFixed(2))
+          : 0,
         original: originalValue,
       },
     };

@@ -154,7 +154,7 @@ const saveFilterSettings = async (e, params) => {
   const { minimumValue, filterPatterns, perCategory } = params;
   SettingsManager.set('filters', { minimumValue, filterPatterns, perCategory });
   RendererLogger.log({ messages: [{ text: 'Filter settings saved' }] });
-}
+};
 
 const triggerSearch = async (e, params) => {
   logger.info('Triggering search from the renderer process');
@@ -204,7 +204,7 @@ const fetchOverlayPersistanceStatus = async () => {
 const updateItemsIgnoreStatus = async (e, { data }) => {
   logger.info('Updating items ignore status from the renderer process');
   await ItemsDB.updateIgnoredItems(data);
-}
+};
 
 const Responder = {
   'app-globals': getAppGlobals,
@@ -231,7 +231,7 @@ const Responder = {
   'debug:recheck-gain': debugRecheckGain,
   'debug:fetch-rates': debugFetchRates,
   'debug:fetch-stash-tabs': debugFetchStashTabs,
-  'items:filters:db-update': updateItemsIgnoreStatus
+  'items:filters:db-update': updateItemsIgnoreStatus,
 };
 
 export default Responder;

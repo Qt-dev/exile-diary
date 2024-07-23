@@ -274,7 +274,7 @@ export class Item {
 
   updateIgnoredStatus() {
     const newIgnoredStatus = IgnoreManager.isItemIgnored(this);
-    if(this.isIgnored !== newIgnoredStatus) {
+    if (this.isIgnored !== newIgnoredStatus) {
       this.store.updateItemIgnoredStatus(this, newIgnoredStatus);
       this.isIgnored = newIgnoredStatus;
     }

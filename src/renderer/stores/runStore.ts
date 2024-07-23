@@ -84,9 +84,11 @@ export default class RunStore {
   }
 
   loadDetails(run: Run) {
-    return electronService.ipcRenderer.invoke('load-run-details', { runId: run.runId }).then((details) => {
-      return run.updateDetails(details);
-    });
+    return electronService.ipcRenderer
+      .invoke('load-run-details', { runId: run.runId })
+      .then((details) => {
+        return run.updateDetails(details);
+      });
   }
 
   getSortedRuns(size = this.runs.length, page = 0) {

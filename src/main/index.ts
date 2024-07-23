@@ -158,22 +158,26 @@ class MainProcess {
 
     if (SettingsManager.get('activeProfile') && SettingsManager.get('activeProfile').valid) {
       logger.info('Starting components');
-      RateGetterV2.initialize({ postUpdateCallback: async () => {
-        RendererLogger.log({
-          messages: [{ text: "Today's prices have been updated" }],
-        });
-        const prices = (await ItemDB.getAllItemsValues())
-                        .reduce((aggregations, { id, value }) => {
-                          aggregations[id] = value
-                          return aggregations
-                        }, {});
-        this.sendToMain('prices:updated', { prices });
-      }});
+      RateGetterV2.initialize({
+        postUpdateCallback: async () => {
+          RendererLogger.log({
+            messages: [{ text: "Today's prices have been updated" }],
+          });
+          const prices = (await ItemDB.getAllItemsValues()).reduce(
+            (aggregations, { id, value }) => {
+              aggregations[id] = value;
+              return aggregations;
+            },
+            {}
+          );
+          this.sendToMain('prices:updated', { prices });
+        },
+      });
       ClientTxtWatcher.start();
 
       SettingsManager.unregisterListener('filters');
       SettingsManager.registerListener('filters', async (settings) => {
-        this.sendToMain('settings:filters:updated', settings)
+        this.sendToMain('settings:filters:updated', settings);
       });
       ScreenshotWatcher.start();
       OCRWatcher.start();
@@ -283,7 +287,7 @@ class MainProcess {
     });
     ipcMain.on('ui:refresh', () => {
       this.refreshWindows();
-    })
+    });
 
     SearchManager.registerMessageHandler((event, data) => {
       this.sendToMain(event, data);
@@ -779,7 +783,6 @@ class MainProcess {
         ],
       });
     });
-    
   }
 
   async startWindows() {
@@ -824,7 +827,6 @@ class MainProcess {
       'debug:fetch-stash-tabs',
       'overlay:get-persistence',
       'items:filters:db-update',
-      
     ];
     for (const event of events) {
       ipcMain.handle(event, Responder[event]);

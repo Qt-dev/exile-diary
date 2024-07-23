@@ -16,12 +16,26 @@ import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import Stack from '@mui/material/Stack';
 import TextField from '@mui/material/TextField';
 
-const ContainerComponent = ({ children, isFolder, disabled, callback, onMouseOver, onMouseOut }) => {
+const ContainerComponent = ({
+  children,
+  isFolder,
+  disabled,
+  callback,
+  onMouseOver,
+  onMouseOut,
+}) => {
   if (isFolder) {
     return <div className="ItemFilter-Settings__List-Item-Container">{children}</div>;
   } else {
     return (
-      <ListItemButton sx={{ border: '0px solid #666' }} dense onClick={callback} disabled={disabled} onMouseOver={() => onMouseOver()} onMouseOut={() => onMouseOut() }>
+      <ListItemButton
+        sx={{ border: '0px solid #666' }}
+        dense
+        onClick={callback}
+        disabled={disabled}
+        onMouseOver={() => onMouseOver()}
+        onMouseOut={() => onMouseOut()}
+      >
         {children}
       </ListItemButton>
     );
@@ -81,7 +95,7 @@ const ItemFilterRow = ({ filterCat, settings, saveSettingsCallback }) => {
     const newMinValue = parseInt(e.target.value);
     saveSettingsCallback(filterCat.id, { ignore: ignored, minimumValue: newMinValue });
     setMinValue(newMinValue);
-  }
+  };
 
   return (
     <>
@@ -94,19 +108,20 @@ const ItemFilterRow = ({ filterCat, settings, saveSettingsCallback }) => {
         className={rowClasses}
         dense
       >
-        <ListItemIcon sx={{ minWidth: '1em'}} >
+        <ListItemIcon sx={{ minWidth: '1em' }}>
           <img className="Stash-Settings__Item-Icon__Image" src={Icon} alt={filterCat.hint} />
         </ListItemIcon>
         <Stack direction="row" spacing={2}>
           <ListItemText>{filterCat.desc}</ListItemText>
         </Stack>
-        <Stack direction="row" spacing={2} alignItems={'center'} >
-          <ContainerComponent callback={toggleEnabled}
-                              isFolder={false}
-                              disabled={false}
-                              onMouseOver={() => setHovered(true)}
-                              onMouseOut={() => setHovered(false)}
-                              >
+        <Stack direction="row" spacing={2} alignItems={'center'}>
+          <ContainerComponent
+            callback={toggleEnabled}
+            isFolder={false}
+            disabled={false}
+            onMouseOver={() => setHovered(true)}
+            onMouseOut={() => setHovered(false)}
+          >
             <Checkbox
               size="small"
               edge="start"
@@ -116,10 +131,16 @@ const ItemFilterRow = ({ filterCat, settings, saveSettingsCallback }) => {
                   color: '#fff',
                 },
               }}
-              />
+            />
             <ListItemText>Ignore</ListItemText>
           </ContainerComponent>
-          <TextField label="Min value" type="number" size="small" value={minValue} onChange={saveMinValue}/>
+          <TextField
+            label="Min value"
+            type="number"
+            size="small"
+            value={minValue}
+            onChange={saveMinValue}
+          />
         </Stack>
       </ListItem>
     </>
@@ -132,23 +153,21 @@ const generateEmptySettings = () => {
     settings[cat.id] = { ignore: false, minimumValue: 0 };
   });
   return settings;
-}
+};
 
 const ItemFilterSettings = ({ settings, updateCallback }) => {
-  settings.perCategory = {...generateEmptySettings(),  ...settings.perCategory };
+  settings.perCategory = { ...generateEmptySettings(), ...settings.perCategory };
   const saveSettings = (catId, newSetting) => {
     const newSettings = { ...settings };
     newSettings.perCategory[catId] = { ...newSettings.perCategory[catId], ...newSetting };
     updateCallback({ perCategory: newSettings.perCategory });
-  }
+  };
   return (
     <Accordion className="ItemFilter-Settings">
       <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-        <h4 className="ItemFilter-Settings__Header">
-          Ignore items per category
-        </h4>
+        <h4 className="ItemFilter-Settings__Header">Ignore items per category</h4>
       </AccordionSummary>
-      <AccordionDetails>  
+      <AccordionDetails>
         <List className="ItemFilter-Settings__List">
           {itemFilterCategories.map((filterCat: any) => (
             <ObservedItemFilterRow

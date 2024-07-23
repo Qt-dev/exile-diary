@@ -23,7 +23,7 @@ async function insertItems(items, timestamp) {
 
     DB.insertItems(itemsToInsert);
     const ignoreSettings = SettingsManager.get('filters');
-    DB.updateIgnoredItems(ignoreSettings)
+    DB.updateIgnoredItems(ignoreSettings);
   }
 }
 

@@ -74,7 +74,7 @@ class RateGetterV2 {
     emitter.removeAllListeners();
   }
 
-  initialize({ postUpdateCallback } = { postUpdateCallback : () => {}}) {
+  initialize({ postUpdateCallback } = { postUpdateCallback: () => {} }) {
     this.update();
     this.postUpdateCallback = postUpdateCallback;
   }
@@ -327,7 +327,7 @@ class RateGetterV2 {
       case 'ClusterJewel':
 
       case 'Map':
-      case 'BlightedMap': // TODO: Add pricing 
+      case 'BlightedMap': // TODO: Add pricing
       case 'BlightRavagedMap': // TODO: Add pricing
       case 'ScourgedMap': // TODO: Add pricing
       case 'UniqueMap':

@@ -3,31 +3,31 @@ import * as ItemManager from './item';
 // const logger = Logger.scope('ignore-manager');
 
 type PerCategoryFilter = {
-  minimumValue: number,
-  ignore: boolean
+  minimumValue: number;
+  ignore: boolean;
 };
 
 type Settings = {
-  minimumValue: number,
-  filterPatterns: string[]
+  minimumValue: number;
+  filterPatterns: string[];
   perCategory: {
-    [key: string]: PerCategoryFilter
-  }
+    [key: string]: PerCategoryFilter;
+  };
 };
 
 class IgnoreManager {
-  settings : Settings =  {
+  settings: Settings = {
     minimumValue: 0,
     filterPatterns: [],
-    perCategory: {}
+    perCategory: {},
   };
-  logger : LogFunctions = {
+  logger: LogFunctions = {
     info: () => {},
     error: () => {},
   } as LogFunctions;
-  triggerIgnoredUpdate : Function = () => {};
+  triggerIgnoredUpdate: Function = () => {};
 
-  initialize(logger : LogFunctions, triggerIgnoredUpdate : Function = () => {}): void {
+  initialize(logger: LogFunctions, triggerIgnoredUpdate: Function = () => {}): void {
     this.logger = logger;
     this.triggerIgnoredUpdate = triggerIgnoredUpdate;
   }
@@ -46,27 +46,30 @@ class IgnoreManager {
   }
 
   isItemIgnoredByValue(item, value = this.settings.minimumValue) {
-    if(value === 0) return false;
+    if (value === 0) return false;
     const actualValue = item.stackSize ? item.value / item.stackSize : item.value;
-    return actualValue <= value
+    return actualValue <= value;
   }
 
   isItemIgnoredByPattern(item) {
-    if(this.settings.filterPatterns.length === 0) return false;
+    if (this.settings.filterPatterns.length === 0) return false;
     const itemName = item.name.toLowerCase();
     const itemType = item.baseType.toLowerCase();
-    return this.settings.filterPatterns.some((pattern) => itemName.includes(pattern.toLowerCase()) || itemType.includes(pattern.toLowerCase()));
+    return this.settings.filterPatterns.some(
+      (pattern) =>
+        itemName.includes(pattern.toLowerCase()) || itemType.includes(pattern.toLowerCase())
+    );
   }
-  
+
   isItemInFilteredCategory(item) {
     const filter = this.getFilterPerCategory(item);
-    if(!filter) return false;
+    if (!filter) return false;
     return filter.ignore || this.isItemIgnoredByValue(item, filter.minimumValue);
   }
 
-  getFilterPerCategory(item) : PerCategoryFilter {
-    const { perCategory : itemFilters } = this.settings;
-  
+  getFilterPerCategory(item): PerCategoryFilter {
+    const { perCategory: itemFilters } = this.settings;
+
     // gem, div card, prophecy can be determined by frametype
     switch (item.rawData.frameType) {
       case 4:
@@ -77,7 +80,7 @@ class IgnoreManager {
         return itemFilters.prophecy;
       // no default case - if none of the above, fall through
     }
-  
+
     // gear - nonunique, unique
     let typeLine = ItemManager.getEquipmentBaseType(item.baseType);
     if (typeLine && ItemManager.isNonStackable(typeLine)) {
@@ -90,7 +93,7 @@ class IgnoreManager {
           return itemFilters.nonunique;
       }
     }
-  
+
     // stackable items
     let cat = ItemManager.getCategory(item.rawData, true);
     switch (cat) {
@@ -106,7 +109,7 @@ class IgnoreManager {
       case 'Incubator':
         return itemFilters.incubator;
     }
-  
+
     if (Array.isArray(cat)) {
       if (cat[0] === 'Map Fragments') {
         return itemFilters.fragment;
@@ -129,11 +132,10 @@ class IgnoreManager {
         }
       }
     }
-  
+
     // default case: return empty filter
     return { ignore: false, minimumValue: 0 };
   }
-
 }
 
 const ignoreManager = new IgnoreManager();

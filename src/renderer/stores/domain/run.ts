@@ -102,17 +102,17 @@ export class Run {
       this.events.push({
         id: timestamp,
         event_type: 'loot',
-        event_text: JSON.stringify(details.items[timestamp]) ,
+        event_text: JSON.stringify(details.items[timestamp]),
       });
 
       // Prepare items for the store
       details.items[timestamp].forEach((item) => {
-        if(!item) return;
+        if (!item) return;
         let newItem;
         try {
           newItem = JSON.parse(item);
         } catch (e) {
-          newItem = {...item};
+          newItem = { ...item };
         }
         newItem.lootTime = timestamp;
         items.push(newItem);
@@ -169,7 +169,7 @@ export class Run {
     return Object.keys(fakeJSONRun);
   }
 
-  @computed get gained () {
+  @computed get gained() {
     return this.itemStore ? this.itemStore.value : this.profit;
   }
 
