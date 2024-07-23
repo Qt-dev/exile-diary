@@ -1,5 +1,10 @@
 import Logger from 'electron-log';
 import Constants from './constants';
+const equipmentBaseTypes = Constants.items.baseTypes.equipments;
+const gemBaseTypes = Constants.items.baseTypes.gems;
+
+const nonStackableBaseTypes = [...Object.keys(equipmentBaseTypes), ...Object.keys(gemBaseTypes)];
+
 
 const logger = Logger.scope('item-helper');
 
@@ -92,3 +97,25 @@ export const getCategory = (item, subcategory = false) => {
   logger.info(item);
   return 'Other';
 };
+
+export const getEquipmentBaseType = (baseType: string) => {
+  const types = Object.keys(equipmentBaseTypes);
+  for (let i = 0; i < types.length; i++) {
+    if (baseType.includes(types[i])) {
+      return types[i];
+    }
+  }
+  return null;
+}
+
+export const isNonStackable = (baseType: string) => {
+  return nonStackableBaseTypes.includes(baseType);
+}
+
+const Item = {
+  getCategory,
+  getEquipmentBaseType,
+  isNonStackable,
+}
+
+export default Item;

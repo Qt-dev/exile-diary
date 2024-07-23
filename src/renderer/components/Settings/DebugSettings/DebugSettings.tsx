@@ -8,7 +8,7 @@ import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import dayjs, { Dayjs } from 'dayjs';
 import Stack from '@mui/material/Stack';
-import { electronService } from '../../electron.service';
+import { electronService } from '../../../electron.service';
 import './DebugSettings.css';
 
 const { ipcRenderer } = electronService;
@@ -44,6 +44,10 @@ const DebugSettings = ({ runStore }) => {
     setIsFetchingStashTabs(true);
     await ipcRenderer.invoke('debug:fetch-stash-tabs');
     setIsFetchingStashTabs(false);
+  };
+
+  const handleRefreshUI = async () => {
+    await ipcRenderer.send('ui:refresh');
   };
 
   return (
@@ -113,6 +117,19 @@ const DebugSettings = ({ runStore }) => {
           </Button>
         </ButtonGroup>
       </Stack>
+      <Divider variant="middle" sx={{ width: '50%', margin: '20px auto' }} />
+      <div className="Debug-Settings__Header">
+        Refresh the UI. Useful if you some items are not ignored when they should be.
+      </div>
+      <Stack direction="row" gap={5} justifyContent="center">
+        <ButtonGroup variant="outlined">
+          <Button onClick={handleRefreshUI}>
+            Refresh UI
+          </Button>
+        </ButtonGroup>
+      </Stack>
+
+
     </div>
   );
 };

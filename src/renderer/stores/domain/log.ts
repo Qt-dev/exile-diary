@@ -10,7 +10,7 @@ type Message = {
 
 export type LogData = {
   id: string;
-  timestamp: number;
+  timestamp: string;
   messages: Message[];
   link: string;
 };
@@ -29,7 +29,7 @@ export class Log {
     });
     this.store = store;
     this.id = uuidv4();
-    this.timestamp = dayjs();
+    this.timestamp = dayjs(logData.timestamp) ?? dayjs();
     this.messages = logData.messages;
     this.link = logData.link;
   }

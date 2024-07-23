@@ -1,6 +1,8 @@
-import { makeAutoObservable } from 'mobx';
+import { makeAutoObservable, computed } from 'mobx';
 import { v4 as uuidv4 } from 'uuid';
 import dayjs, { Dayjs } from 'dayjs';
+import ItemStore from '../itemStore';
+import Logger from 'electron-log/renderer';
 
 type JSONRun = {
   id: string;
@@ -49,6 +51,7 @@ export class Run {
 
   store;
   saveHandler = null;
+  itemStore: ItemStore | null = null;
 
   constructor(store, options = {}) {
     const id = uuidv4();
@@ -91,13 +94,32 @@ export class Run {
     this.events = details.events;
     this.items = details.items;
 
-    for (const timestamp in this.items) {
+    Logger.debug('Building Store', details.items);
+    const items: any = [];
+    for (const timestamp in details.items) {
+      // Add loot events to the events array
+      Logger.debug('Adding loot event', details.items[timestamp]);
       this.events.push({
         id: timestamp,
         event_type: 'loot',
-        event_text: JSON.stringify(this.items[timestamp]),
+        event_text: JSON.stringify(details.items[timestamp]) ,
+      });
+
+      // Prepare items for the store
+      details.items[timestamp].forEach((item) => {
+        if(!item) return;
+        let newItem;
+        try {
+          newItem = JSON.parse(item);
+        } catch (e) {
+          newItem = {...item};
+        }
+        newItem.lootTime = timestamp;
+        items.push(newItem);
       });
     }
+    this.itemStore = new ItemStore(items);
+
     this.events = this.events.sort((a, b) => {
       // If events happen at the same time (= loot + back to hideout), put loot first
       const isDifference = a.id - b.id;
@@ -121,7 +143,7 @@ export class Run {
       lastevent: this.lastEvent?.toISOString() ?? null,
       xpgained: this.xp,
       deaths: this.deaths,
-      gained: this.profit,
+      gained: this.gained,
       kills: this.kills,
       runinfo: JSON.stringify(this.runInfo),
     };
@@ -145,5 +167,13 @@ export class Run {
       runinfo: '',
     };
     return Object.keys(fakeJSONRun);
+  }
+
+  @computed get gained () {
+    return this.itemStore ? this.itemStore.value : this.profit;
+  }
+
+  @computed get gainedPerHour() {
+    return this.duration ? this.gained / this.duration.asHours() : 0;
   }
 }

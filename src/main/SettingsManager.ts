@@ -33,7 +33,11 @@ const DefaultSettings = {
     y: 0,
   },
   trackedStashTabs: {},
-  itemFilter: {},
+  filters: {
+    minimumValue: 0,
+    filterPatterns: [],
+    perCategory: {},
+  },
 };
 
 class SettingsManager {
@@ -126,9 +130,9 @@ class SettingsManager {
       )
     )
       await this.initializeDB(value.characterName);
+    this.eventEmitter.emit('change', key, value);
     this.settings[key] = value;
     this.scheduleSave();
-    this.eventEmitter.emit('change', key, value);
   }
 
   scheduleSave() {
@@ -162,6 +166,9 @@ class SettingsManager {
 
   registerListener(key: string, callback: Function) {
     this.eventKeyMatcher[key] = { callback };
+  }
+  unregisterListener(key: string) {
+    delete this.eventKeyMatcher[key];
   }
 
   waitForSave() {

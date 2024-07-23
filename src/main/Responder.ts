@@ -14,6 +14,7 @@ import ItemPricer from './modules/ItemPricer';
 import RunParser from './modules/RunParser';
 import SearchManager from './SearchManager';
 import RateGetterV2 from './modules/RateGetterV2';
+import ItemsDB from './db/items';
 
 const getAppGlobals = async () => {
   logger.info('Loading global settings for the renderer process');
@@ -148,6 +149,13 @@ const saveStashRefreshInterval = async (e, params) => {
   stashGetter.refreshInterval();
 };
 
+const saveFilterSettings = async (e, params) => {
+  logger.info('Saving filter settings from the renderer process');
+  const { minimumValue, filterPatterns, perCategory } = params;
+  SettingsManager.set('filters', { minimumValue, filterPatterns, perCategory });
+  RendererLogger.log({ messages: [{ text: 'Filter settings saved' }] });
+}
+
 const triggerSearch = async (e, params) => {
   logger.info('Triggering search from the renderer process');
   SearchManager.search(params);
@@ -193,6 +201,11 @@ const fetchOverlayPersistanceStatus = async () => {
   return await SettingsManager.get('overlayPersistenceEnabled');
 };
 
+const updateItemsIgnoreStatus = async (e, { data }) => {
+  logger.info('Updating items ignore status from the renderer process');
+  await ItemsDB.updateIgnoredItems(data);
+}
+
 const Responder = {
   'app-globals': getAppGlobals,
   'load-runs': loadRuns,
@@ -203,6 +216,7 @@ const Responder = {
   'save-settings': saveSettings,
   'save-settings:stashtabs': saveStashTabs,
   'save-settings:stash-refresh-interval': saveStashRefreshInterval,
+  'save-settings:filters': saveFilterSettings,
   'oauth:get-info': getAuthInfo,
   'oauth:is-authenticated': isAuthenticated,
   'oauth:logout': logout,
@@ -217,6 +231,7 @@ const Responder = {
   'debug:recheck-gain': debugRecheckGain,
   'debug:fetch-rates': debugFetchRates,
   'debug:fetch-stash-tabs': debugFetchStashTabs,
+  'items:filters:db-update': updateItemsIgnoreStatus
 };
 
 export default Responder;

@@ -32,6 +32,7 @@ type ItemRawData = {
   originalValue: number;
   pickupStackSize?: number;
   rarity?: string;
+  isIgnored?: boolean;
 };
 
 type Item = {
@@ -42,6 +43,7 @@ type Item = {
   original_value: number;
   stacksize: number;
   rawdata: string;
+  ignored: boolean;
 };
 
 type AreaInfo = {
@@ -90,7 +92,8 @@ const Runs = {
       select mapruns.id, name, level, depth, iiq, iir, packsize, firstevent, lastevent,
         (mapruns.xp - (select xp from mapruns m where m.id < mapruns.id and xp is not null order by m.id desc limit 1)) xpgained,
         (select count(1) from events where event_type='slain' and events.id between firstevent and lastevent) deaths,
-        gained, kills, runinfo
+        (SELECT COALESCE(SUM(value),0) FROM items WHERE items.event_id BETWEEN firstevent AND lastevent AND ignored = 0) gained,
+        kills, runinfo
       from areainfo, mapruns
       where areainfo.id = mapruns.id
         and json_extract(runinfo, '$.ignored') is null
@@ -133,7 +136,8 @@ const Runs = {
   getRunInfo: async (mapId: number): Promise<any> => {
     logger.info(`Getting run info for run ${mapId}`);
     const mapInfoQuery = `
-      select mapruns.id, name, level, depth, iiq, iir, packsize, xp, kills, runinfo, firstevent, lastevent, gained,
+      select mapruns.id, name, level, depth, iiq, iir, packsize, xp, kills, runinfo, firstevent, lastevent,
+      (SELECT COALESCE(SUM(value),0) FROM items WHERE items.event_id BETWEEN firstevent AND lastevent AND ignored = 0) gained,
       (mapruns.xp - (select xp from mapruns m where m.id < mapruns.id and xp is not null order by m.id desc limit 1)) xpgained,
       (select xp from mapruns m where m.id < mapruns.id and xp is not null order by m.id desc limit 1) prevxp,
       (select league from leagues where timestamp < lastevent order by timestamp desc limit 1) league
@@ -149,7 +153,7 @@ const Runs = {
   getItems: async (mapId: number) => {
     logger.info(`Getting items for run ${mapId}`);
     const itemsQuery = `
-      select events.id, items.rarity, items.icon, items.value, items.original_value, items.stacksize, items.rawdata from mapruns, events, items
+      select events.id, items.rarity, items.icon, items.value, items.original_value, items.stacksize, items.rawdata, items.ignored from mapruns, events, items
       where mapruns.id = ?
       and events.id between mapruns.firstevent and mapruns.lastevent
       and items.event_id = events.id;
@@ -173,15 +177,14 @@ const Runs = {
         secretName = 'Voidforge';
       }
 
-      if (secretName || item.value || item.stacksize) {
+      if (secretName || item.value || item.value === 0  || item.stacksize) {
         if (secretName) rawData.secretName = secretName;
-        if (item.value) rawData.value = item.value;
+        if (item.value || item.value === 0) rawData.value = item.value;
         if (item.original_value) rawData.originalValue = item.original_value;
         if (item.stacksize) rawData.pickupStackSize = item.stacksize;
-        formattedItems[item.id].push(JSON.stringify(rawData));
-      } else {
-        formattedItems[item.id].push(item.rawdata);
       }
+      rawData.isIgnored = !!item.ignored;
+      formattedItems[item.id].push(JSON.stringify(rawData));
     }
     return formattedItems;
   },
@@ -195,18 +198,6 @@ const Runs = {
       return true;
     } catch (err) {
       logger.error(`Error updating item values: ${JSON.stringify(err)}`);
-      return false;
-    }
-  },
-
-  updateProfit: async (mapId: number, profit: number) => {
-    logger.info(`Updating profit for run ${mapId}`);
-    const query = 'UPDATE mapruns SET gained = ? WHERE id = ?';
-    try {
-      DB.run(query, [profit, mapId]);
-      return true;
-    } catch (err) {
-      logger.error(`Error updating profit for ${mapId}: ${JSON.stringify(err)}`);
       return false;
     }
   },
@@ -314,9 +305,10 @@ const Runs = {
   getRunsFromDates: async (from: number, to: number) => {
     logger.info(`Getting items from date ${from} to ${to}`);
     const itemsQuery = `
-      SELECT areainfo.name, mapruns.id, firstevent, lastevent, gained
+      SELECT areainfo.name, mapruns.id, firstevent, lastevent,
+      (SELECT COALESCE(SUM(value),0) FROM items WHERE items.event_id BETWEEN firstevent AND lastevent AND ignored = 0) gained
       FROM mapruns, areainfo
-      WHERE mapruns.gained > -1
+      WHERE gained > -1
       AND areainfo.id = mapruns.id
       AND mapruns.id BETWEEN ? AND ?;
     `;

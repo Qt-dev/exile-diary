@@ -2,6 +2,7 @@ import { makeAutoObservable, computed } from 'mobx';
 import { v4 as uuidv4 } from 'uuid';
 import { ItemData } from '../../../helpers/types';
 import { getCategory } from '../../../helpers/item';
+import IgnoreManager from '../../../helpers/ignoreManager';
 
 type LootTableData = {
   id: string;
@@ -15,6 +16,7 @@ type LootTableData = {
   stackSize: number;
   item?: Item;
   itemData?: string;
+  isIgnored: boolean;
 };
 
 const countSockets = (sockets) => {
@@ -190,6 +192,7 @@ export class Item {
   map_id?: string;
   stashTabId?: string;
   originalValue: number;
+  isIgnored: boolean;
 
   constructor(store, itemdata: ItemData) {
     makeAutoObservable(this, {
@@ -265,6 +268,16 @@ export class Item {
     this.originalValue = itemdata.originalValue;
 
     this.stashTabId = itemdata.stashTabId;
+
+    this.isIgnored = IgnoreManager.isItemIgnored(this) ?? itemdata.isIgnored ?? false;
+  }
+
+  updateIgnoredStatus() {
+    const newIgnoredStatus = IgnoreManager.isItemIgnored(this);
+    if(this.isIgnored !== newIgnoredStatus) {
+      this.store.updateItemIgnoredStatus(this, newIgnoredStatus);
+      this.isIgnored = newIgnoredStatus;
+    }
   }
 
   // Get the full name to display for an item
@@ -347,6 +360,7 @@ export class Item {
       quantity,
       stackSize,
       stashTabId,
+      isIgnored: this.isIgnored,
     };
     if (jsonMode) {
       lootTableData.itemData = JSON.stringify(this.rawData);
@@ -368,7 +382,13 @@ export class Item {
       stackSize: 0,
       stashTabId: '',
       itemData: '',
+      isIgnored: false,
     };
     return Object.keys(fakeFormattedItem);
+  }
+
+  updateValue(value: number) {
+    this.value = value;
+    this.updateIgnoredStatus();
   }
 }

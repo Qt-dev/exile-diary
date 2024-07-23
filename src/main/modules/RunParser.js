@@ -1401,6 +1401,7 @@ async function recheckGained(from = 0, to = dayjs().format('YYYYMMDDHHmmss')) {
   const checks = runs.map(async (run) => {
     const items = await DB.getItemsFromRun(run.id);
     let totalProfit = 0;
+    let oldTotalProfit = 0;
     let itemsToUpdate = [];
     for (const item of items) {
       const { value } = await ItemPricer.price(
@@ -1408,6 +1409,7 @@ async function recheckGained(from = 0, to = dayjs().format('YYYYMMDDHHmmss')) {
         SettingsManager.get('activeProfile').league,
         true
       );
+      oldTotalProfit += item.value;
       totalProfit += value;
       if (value !== item.value) {
         itemsToUpdate.push({ value, id: item.id, eventId: item.event_id });
@@ -1416,10 +1418,9 @@ async function recheckGained(from = 0, to = dayjs().format('YYYYMMDDHHmmss')) {
     if (itemsToUpdate.length > 0) {
       DB.updateItemValues(itemsToUpdate);
     }
-    const profitDifference = totalProfit - run.gained;
+    const profitDifference = totalProfit - oldTotalProfit;
     if (profitDifference !== 0) {
       logger.info(`Updating profit from ${run.gained} to ${totalProfit}`);
-      DB.updateProfit(run.id, totalProfit);
     } else {
       logger.info(`No profit difference for ${run.id}`);
     }

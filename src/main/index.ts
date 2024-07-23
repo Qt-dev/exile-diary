@@ -17,6 +17,7 @@ import SettingsManager from './SettingsManager';
 import SearchManager from './SearchManager';
 import GGGAPI from './GGGAPI';
 import League from './db/league';
+import ItemDB from './db/items';
 import RendererLogger from './RendererLogger';
 import * as url from 'url';
 import { OverlayController, OVERLAY_WINDOW_OPTS } from 'electron-overlay-window';
@@ -49,6 +50,8 @@ let modReadingTimer: Dayjs | null = null;
 
 // Initialize logger settings
 logger.initialize({ preload: true });
+logger.transports.console.level = isDev ? 'debug' : 'info';
+logger.transports.file.level = isDev ? 'debug' : 'info';
 logger.scope.defaultLabel = 'main';
 logger.errorHandler.startCatching({
   showDialog: false,
@@ -155,9 +158,24 @@ class MainProcess {
 
     if (SettingsManager.get('activeProfile') && SettingsManager.get('activeProfile').valid) {
       logger.info('Starting components');
-      RateGetterV2.initialize();
+      RateGetterV2.initialize({ postUpdateCallback: async () => {
+        RendererLogger.log({
+          messages: [{ text: "Today's prices have been updated" }],
+        });
+        const prices = (await ItemDB.getAllItemsValues())
+                        .reduce((aggregations, { id, value }) => {
+                          aggregations[id] = value
+                          return aggregations
+                        }, {});
+        this.sendToMain('prices:updated', { prices });
+      }});
       ClientTxtWatcher.start();
-      await ScreenshotWatcher.start();
+
+      SettingsManager.unregisterListener('filters');
+      SettingsManager.registerListener('filters', async (settings) => {
+        this.sendToMain('settings:filters:updated', settings)
+      });
+      ScreenshotWatcher.start();
       OCRWatcher.start();
       // ItemFilter.load(); not working yet
     }
@@ -259,6 +277,13 @@ class MainProcess {
       app.relaunch();
       app.exit();
     });
+
+    ipcMain.on('settings:filters:ui-updated', () => {
+      this.sendToMain('items:filters:update');
+    });
+    ipcMain.on('ui:refresh', () => {
+      this.refreshWindows();
+    })
 
     SearchManager.registerMessageHandler((event, data) => {
       this.sendToMain(event, data);
@@ -578,7 +603,6 @@ class MainProcess {
     this.mainWindow.once('ready-to-show', () => {
       this.mainWindow.show();
       logger.info('App is ready to show');
-
       RendererLogger.log({
         messages: [
           {
@@ -734,6 +758,30 @@ class MainProcess {
     });
   }
 
+  refreshWindows() {
+    // Log before and after refresh
+    RendererLogger.log({
+      messages: [
+        {
+          text: 'Refreshing the UI...',
+        },
+      ],
+    });
+    this.mainWindow.reload();
+    this.overlayWindow.reload();
+    this.mainWindow.webContents.once('dom-ready', () => {
+      RendererLogger.logLatestMessages();
+      RendererLogger.log({
+        messages: [
+          {
+            text: 'UI has been refreshed.',
+          },
+        ],
+      });
+    });
+    
+  }
+
   async startWindows() {
     logger.info(`Starting Exile Diary Reborn v${app.getVersion()}`);
     // Initialize messages for the main window
@@ -765,6 +813,7 @@ class MainProcess {
       'get-stash-tabs',
       'save-settings:stashtabs',
       'save-settings:stash-refresh-interval',
+      'save-settings:filters',
       'search:trigger',
       'get-divine-price',
       'get-all-map-names',
@@ -774,6 +823,8 @@ class MainProcess {
       'debug:fetch-rates',
       'debug:fetch-stash-tabs',
       'overlay:get-persistence',
+      'items:filters:db-update',
+      
     ];
     for (const event of events) {
       ipcMain.handle(event, Responder[event]);

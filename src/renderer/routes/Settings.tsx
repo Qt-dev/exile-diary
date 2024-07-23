@@ -3,10 +3,10 @@ import { useLoaderData } from 'react-router';
 import Tabs from '@mui/material/Tabs';
 import Tab from '@mui/material/Tab';
 import Box from '@mui/material/Box';
-import StashSettings from '../components/StashSettings/StashSettings';
-import MainSettings from '../components/MainSettings/MainSettings';
-import ItemFilterSettings from '../components/ItemFilterSettings/ItemFilterSettings';
-import DebugSettings from '../components/DebugSettings/DebugSettings';
+import StashSettings from '../components/Settings/StashSettings/StashSettings';
+import MainSettings from '../components/Settings/MainSettings/MainSettings';
+import FilterSettings from '../components/Settings/FilterSettings/FilterSettings';
+import DebugSettings from '../components/Settings/DebugSettings/DebugSettings';
 import './Settings.css';
 import { observer } from 'mobx-react-lite';
 
@@ -47,9 +47,9 @@ const Settings = ({ characterStore, stashTabStore, runStore }) => {
       <Box>
         <Tabs value={tabValue} centered aria-label="Settings Tabs" onChange={handleTabChange}>
           <Tab label="Account" {...a11yProps(0)} />
-          <Tab label="Stashes" {...a11yProps(1)} />
-          <Tab label="Item Filter" {...a11yProps(2)} />
-          <Tab label="Debug" {...a11yProps(3)} />
+          <Tab label="Stashes" {...a11yProps(2)} />
+          <Tab label="Item Filter" {...a11yProps(3)} />
+          <Tab label="Debug" {...a11yProps(4)} />
           {/* Add new stuff here */}
         </Tabs>
       </Box>
@@ -60,7 +60,7 @@ const Settings = ({ characterStore, stashTabStore, runStore }) => {
         <StashSettings store={stashTabStore} settings={settings} />
       </div>
       <div hidden={tabValue !== 2}>
-        <ItemFilterSettings settings={settings} />
+        <FilterSettings settings={settings} />
       </div>
       <div hidden={tabValue !== 3}>
         <DebugSettings runStore={runStore} />

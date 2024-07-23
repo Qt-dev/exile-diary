@@ -1,5 +1,6 @@
 import ItemPricer from './ItemPricer';
 import Item from '../models/Item';
+import SettingsManager from '../SettingsManager';
 const logger = require('electron-log');
 const DB = require('../db/items').default;
 
@@ -21,6 +22,8 @@ async function insertItems(items, timestamp) {
     }
 
     DB.insertItems(itemsToInsert);
+    const ignoreSettings = SettingsManager.get('filters');
+    DB.updateIgnoredItems(ignoreSettings)
   }
 }
 

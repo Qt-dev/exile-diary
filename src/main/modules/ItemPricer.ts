@@ -2,11 +2,10 @@ import SettingsManager from '../SettingsManager';
 import RatesManager from '../RatesManager';
 import { writeFile } from 'fs/promises';
 import Constants from '../../helpers/constants';
+import * as ItemCategoryParser  from '../../helpers/item';
 import dayjs from 'dayjs';
 const logger = require('electron-log');
 const ItemData = require('./ItemData');
-const ItemCategoryParser = require('./ItemCategoryParser');
-const ItemFilter = require('./ItemFilter');
 const Utils = require('./Utils').default;
 
 const baseTypeRarities = ['Normal', 'Magic', 'Rare'];
@@ -950,22 +949,6 @@ async function price(
   item.parsedItem = JSON.parse(item.rawdata);
 
   let minItemValue = 0;
-  const filter = ItemFilter.filter(item.parsedItem);
-  if (filter && filter.ignore) {
-    if (filter.minValue) {
-      if (filter.option && filter.option === 'fullStack' && item.parsedItem.maxStackSize) {
-        minItemValue = filter.minValue / item.parsedItem.maxStackSize;
-      } else {
-        minItemValue = filter.minValue;
-      }
-    } else {
-      // Unconditional ignore - stop here and get vendor recipe instead, if any
-      return {
-        isVendor: matcher.isVendorRecipe(item),
-        value: matcher.getVendorRecipeValue(item, minItemValue),
-      };
-    }
-  }
 
   return { isVendor: matcher.isVendorRecipe(item), value: matcher.price(item, minItemValue) };
 }

@@ -84,8 +84,8 @@ export default class RunStore {
   }
 
   loadDetails(run: Run) {
-    electronService.ipcRenderer.invoke('load-run-details', { runId: run.runId }).then((details) => {
-      run.updateDetails(details);
+    return electronService.ipcRenderer.invoke('load-run-details', { runId: run.runId }).then((details) => {
+      return run.updateDetails(details);
     });
   }
 

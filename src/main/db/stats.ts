@@ -78,7 +78,7 @@ const stats = {
     const query = `
       SELECT mapruns.id AS map_id, areainfo.name AS area, items.*
       FROM items, mapruns, areainfo
-      WHERE items.value > 10 
+      WHERE items.ignored = 0
       AND items.event_id BETWEEN mapruns.firstevent AND mapruns.lastevent
       AND mapruns.id = areainfo.id
     `;
@@ -100,6 +100,7 @@ const stats = {
       SELECT mapruns.id AS map_id, areainfo.name AS area, items.*
       FROM items, mapruns, areainfo, leaguedates
       WHERE items.value > ?
+      AND items.ignored = 0
       AND items.event_id BETWEEN mapruns.firstevent AND mapruns.lastevent
       AND map_id = areainfo.id
       AND map_id BETWEEN ? AND ?
@@ -131,6 +132,7 @@ const stats = {
       SELECT
         areainfo.*, mapruns.*,
         (mapruns.xp - (select xp from mapruns m where m.id < mapruns.id and xp is not null order by m.id desc limit 1)) xpgained,
+        (SELECT COALESCE(SUM(value),0) FROM items WHERE items.event_id BETWEEN firstevent AND lastevent AND ignored = 0) gained,
         (select count(1) from events where event_type='slain' and events.id between firstevent and lastevent) deaths
 
       FROM areainfo, mapruns
@@ -192,7 +194,7 @@ const stats = {
       ${deaths ? `AND deaths BETWEEN ${deaths.min} AND ${deaths.max} ` : ''}
       AND itemcount.items > 0
       AND json_extract(runinfo, '$.ignored') is null
-      AND mapruns.gained > ?
+      AND gained > ?
       AND mapruns.id BETWEEN ? AND ?
       ORDER BY mapruns.id desc
     `;
@@ -224,6 +226,7 @@ const stats = {
       SELECT mapruns.id AS map_id, areainfo.name AS area, items.*
       FROM items, mapruns, areainfo
       WHERE items.value > ?
+      AND items.ignored = 0
       AND items.event_id BETWEEN mapruns.firstevent AND mapruns.lastevent
       AND map_id = areainfo.id
       AND mapruns.id IN (${runs.map((r) => r.id).join(',')})
@@ -299,7 +302,8 @@ const stats = {
       JOIN items
       ON items.event_id >= mapruns.firstevent
       AND items.event_id <= mapruns.lastevent
-    WHERE mapruns.id > ?   
+    WHERE mapruns.id > ?
+    AND items.ignored = 0
     `;
 
     try {
