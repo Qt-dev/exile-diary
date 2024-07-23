@@ -1,6 +1,6 @@
 import ItemPricer from './ItemPricer';
 import Item from '../models/Item';
-import IgnoreManager from '../../helpers/IgnoreManager';
+import IgnoreManager from '../../helpers/ignoreManager';
 const logger = require('electron-log');
 const DB = require('../db/items').default;
 
