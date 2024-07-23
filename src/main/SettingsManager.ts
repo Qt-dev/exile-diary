@@ -141,7 +141,7 @@ class SettingsManager {
 
     this.saveScheduler = setTimeout(() => {
       this.save();
-    }, 2000);
+    }, 300);
   }
 
   async save() {
