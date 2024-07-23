@@ -24,6 +24,7 @@ import { OverlayController, OVERLAY_WINDOW_OPTS } from 'electron-overlay-window'
 import dayjs, { Dayjs } from 'dayjs';
 import duration from 'dayjs/plugin/duration';
 import AuthManager from './AuthManager';
+import IgnoreManager from '../helpers/IgnoreManager';
 
 // Old stuff
 import RateGetterV2 from './modules/RateGetterV2';
@@ -183,6 +184,10 @@ class MainProcess {
       OCRWatcher.start();
       // ItemFilter.load(); not working yet
     }
+
+    IgnoreManager.initialize(logger, () => {
+      logger.debug('Backend ignore settings updated');
+    });
   }
 
   sendToOverlay(event: string, data?: any) {
