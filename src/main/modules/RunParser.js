@@ -100,7 +100,7 @@ async function tryProcess(obj) {
 
   var ignoreMapRun = false;
 
-  OldDB.run('insert into areainfo(id, name, level, depth) values(?, ?, ?, ?)', [
+  OldDB.run('INSERT OR REPLACE INTO areainfo(id, name, level, depth) values(?, ?, ?, ?)', [
     firstEvent.timestamp,
     firstEvent.area,
     latestGeneratedArea?.level ?? 0,
@@ -128,7 +128,6 @@ async function tryProcess(obj) {
     mapStats.iiq || null,
     mapStats.iir || null,
     mapStats.packsize || null,
-    items.value,
     xp,
     killCount,
     JSON.stringify(extraInfo),
@@ -335,7 +334,6 @@ async function process() {
     mapStats.iiq,
     mapStats.iir,
     mapStats.packsize,
-    items.value,
     xp,
     killCount,
     JSON.stringify(extraInfo),
@@ -580,7 +578,7 @@ async function insertMapRun(arr) {
   return new Promise((resolve, reject) => {
     OldDB.run(
       `
-        insert into mapruns(id, firstevent, lastevent, iiq, iir, packsize, gained, xp, kills, runinfo) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?) 
+        insert into mapruns(id, firstevent, lastevent, iiq, iir, packsize, xp, kills, runinfo) values (?, ?, ?, ?, ?, ?, ?, ?, ?) 
       `,
       arr
     )
