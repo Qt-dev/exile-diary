@@ -1,6 +1,6 @@
 import ItemPricer from './ItemPricer';
 import Item from '../models/Item';
-import SettingsManager from '../SettingsManager';
+import IgnoreManager from '../../helpers/IgnoreManager';
 const logger = require('electron-log');
 const DB = require('../db/items').default;
 
@@ -12,6 +12,7 @@ async function insertItems(items, timestamp) {
   } else {
     logger.info(`Inserting items for ${timestamp}`);
     const itemsToInsert = [];
+    const formattedItemsForIgnoreManager = [];
     for (const itemKey in items) {
       const item = new Item(items[itemKey]);
       item.setTimestamp(timestamp);
@@ -19,11 +20,12 @@ async function insertItems(items, timestamp) {
       const { value } = await ItemPricer.price(item);
       item.setValue(value);
       itemsToInsert.push(item.toDbInsertFormat(timestamp));
+
+      formattedItemsForIgnoreManager.push({id: item.id, status: IgnoreManager.isItemIgnored(item)});
     }
 
     DB.insertItems(itemsToInsert);
-    const ignoreSettings = SettingsManager.get('filters');
-    DB.updateIgnoredItems(ignoreSettings);
+    DB.updateIgnoredItems(formattedItemsForIgnoreManager);
   }
 }
 
