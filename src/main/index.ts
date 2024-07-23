@@ -17,6 +17,7 @@ import SettingsManager from './SettingsManager';
 import SearchManager from './SearchManager';
 import GGGAPI from './GGGAPI';
 import League from './db/league';
+import ItemDB from './db/items';
 import RendererLogger from './RendererLogger';
 import * as url from 'url';
 import { OverlayController, OVERLAY_WINDOW_OPTS } from 'electron-overlay-window';
@@ -157,11 +158,16 @@ class MainProcess {
 
     if (SettingsManager.get('activeProfile') && SettingsManager.get('activeProfile').valid) {
       logger.info('Starting components');
-      RateGetterV2.initialize({ postUpdateCallback: () => {
+      RateGetterV2.initialize({ postUpdateCallback: async () => {
         RendererLogger.log({
           messages: [{ text: "Today's prices have been updated" }],
         });
-        this.refreshWindows();
+        const prices = (await ItemDB.getAllItemsValues())
+                        .reduce((aggregations, { id, value }) => {
+                          aggregations[id] = value
+                          return aggregations
+                        }, {});
+        this.sendToMain('prices:updated', { prices });
       }});
       ClientTxtWatcher.start();
 

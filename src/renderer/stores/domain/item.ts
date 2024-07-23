@@ -386,4 +386,9 @@ export class Item {
     };
     return Object.keys(fakeFormattedItem);
   }
+
+  updateValue(value: number) {
+    this.value = value;
+    this.updateIgnoredStatus();
+  }
 }

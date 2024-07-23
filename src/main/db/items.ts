@@ -28,7 +28,16 @@ const Items = {
         WHERE id = ?
     `;
     return DB.transaction(query, items.map(({ id, status }) => [status ? 1 : 0, id]));
-  }
+  },
+
+  getAllItemsValues : async () => {
+    logger.debug(`Getting all items values`);
+    const query = `
+      SELECT id, value
+      FROM items
+    `;
+    return DB.all(query);
+  },
 };
 
 export default Items;
