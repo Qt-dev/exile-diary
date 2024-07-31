@@ -287,10 +287,10 @@ async function process(file: string | Buffer) {
     .toBuffer();
   sharp(modsImage).toFile(path.join(filepath, 'mods.jpg'));
 
-  await Promise.all([
-    OCRWatcher.processImageBuffer(statsImage, filePrefix, 'area'),
-    OCRWatcher.processImageBuffer(modsImage, filePrefix, 'mods'),
-  ]);
+  await OCRWatcher.processImageBuffer(statsImage, filePrefix, 'area');
+  await OCRWatcher.processImageBuffer(modsImage, filePrefix, 'mods');
+
+  logger.debug('Finished processing screenshot');
 }
 
 function isBlue(rgba: { r: any; g: any; b: any }) {
