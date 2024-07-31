@@ -166,12 +166,13 @@ async function processImageBuffer(buffer, timestamp, type) {
     });
 
     if (type === 'area') {
+      logger.debug('Processing area info');
       const area = getAreaInfo(lines);
-      const areaName = await getAreaNameFromDB(timestamp);
-      if (areaName) {
+      try {
+        const areaName = await getAreaNameFromDB(timestamp); 
         logger.info(`Got last entered area from db: ${areaName}`);
         area.name = areaName;
-      } else {
+      } catch (e) {
         logger.info(`Got last entered area from ocr: ${area.name}`);
       }
 
