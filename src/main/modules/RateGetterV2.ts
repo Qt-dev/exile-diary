@@ -45,8 +45,8 @@ const rateTypes = {
   Beast: cleanNameValuePairs,
   Essence: cleanNameValuePairs,
   Vial: cleanNameValuePairs,
-  AllflameEmber: cleanNameValuePairs,
-  Coffin: cleanByModAndLevel,
+  // AllflameEmber: cleanNameValuePairs,
+  // Coffin: cleanByModAndLevel,
   // Old Categories
   // "Prophecy" : cleanNameValuePairs,
   // "Watchstone" : cleanWatchstones,
@@ -285,8 +285,8 @@ class RateGetterV2 {
     rates['Omen'] = tempRates['Omen'];
 
     // Necropolis
-    rates['Coffin'] = tempRates['Coffin'];
-    rates['AllflameEmber'] = tempRates['AllflameEmber'];
+    // rates['Coffin'] = tempRates['Coffin'];
+    // rates['AllflameEmber'] = tempRates['AllflameEmber'];
 
     // Retired data
     // rates['Watchstone'] = tempRates['Watchstone'];
@@ -343,9 +343,9 @@ class RateGetterV2 {
       case 'Essence':
       case 'Vial':
       case 'Tattoo':
-      case 'AllflameEmber':
-      case 'Coffin':
         // RETIRED
+        // case 'AllflameEmber':
+        // case 'Coffin':
         // case 'Prophecy':
         // case 'Watchstone':
         // case 'Seed':
