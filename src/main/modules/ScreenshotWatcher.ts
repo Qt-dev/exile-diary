@@ -33,11 +33,11 @@ const emitter = new EventEmitter();
 const getYboundsFromImage = (rawImage: any, metadata: { height: number; width: number }) => {
   type lineData = { blue: number; black: number; total: number };
   const batchSize = Math.floor(metadata.height / 5); // Size of the batch of rows to check together
-  const firstLineMargin = 3; // Margin to make the top line a bit more readable
+  const firstLineMargin = 2; // Margin to make the top line a bit more readable
   const endDetectionHeight = 40; // Height of the bottom limit we detect (Answer to "After how many pixels do we consider this box to be done?")
   const detectionWidth = 40; // Number of pixels to check for detection. We do not need the full line but we need enough pixels to start capturing blue pixels
-  const marginAfterOrange = 85; // Margin after the first orange line to start checking for the end of the box. Distance between bottom of stats and beginning of first mod (-5 px to give room)
-  const minOrangePixels = 20;
+  const marginAfterOrange = 55; // Margin after the first orange line to start checking for the end of the box. Distance between bottom of stats and beginning of first mod (-5 px to give room)
+  const minOrangePixels = 10;
   const initialFirstLine = 200;
 
   let isDone = false;
