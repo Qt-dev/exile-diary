@@ -172,8 +172,8 @@ class PriceMatcher {
     {
       name: 'Other Fragments',
       test: (item: any) =>
-        item.category === 'Map Fragments' ||
-        (item.category === 'Labyrinth Items' && item.typeline.endsWith('to the Goddess')),
+        item.category === 'Map Fragment' ||
+        (item.category === 'Labyrinth Item' && item.typeline.endsWith('to the Goddess')),
       calculateValue: (item: any, minItemValue: number = 0) =>
         this.getValue(item, 'Fragment', item.typeline, minItemValue) * (item.stacksize || 1),
     },

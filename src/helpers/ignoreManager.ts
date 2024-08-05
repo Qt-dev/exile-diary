@@ -99,9 +99,9 @@ class IgnoreManager {
     switch (cat) {
       case 'Maps':
         return itemFilters.map;
-      case 'Map Fragments':
-      case 'Labyrinth Items': // offering to the goddess
-      case 'Misc Map Items': // maven's invitation
+      case 'Map Fragment':
+      case 'Labyrinth Item': // offering to the goddess
+      case 'Misc Map Item': // maven's invitation
         return itemFilters.fragment;
       case 'Currency':
       case 'Stackable Currency':
@@ -111,7 +111,7 @@ class IgnoreManager {
     }
 
     if (Array.isArray(cat)) {
-      if (cat[0] === 'Map Fragments') {
+      if (cat[0] === 'Map Fragment') {
         return itemFilters.fragment;
       } else if (cat[0] === 'Stackable Currency') {
         return itemFilters.currency;

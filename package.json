@@ -76,6 +76,7 @@
     "react:build": "node scripts/build.js",
     "react:test": "node scripts/test.js",
     "react:eject": "node scripts/eject.js",
+    "data:extract": "cd scripts/data-extractor && node index.js update && pathofexile-dat && node index.js items",
     "analyze": "source-map-explorer 'build/static/js/*.js'",
     "build": "npm run react:build && tsc -p src/main && electron-builder -p never",
     "dev": "concurrently \"cross-env BROWSER=none npm run react:start\" \"wait-on http://localhost:3000 && tsc -p src/main -w\" \"wait-on http://localhost:3000 && tsc -p src/main && electron .\""
@@ -221,6 +222,7 @@
     "electron": "^25.8.4",
     "electron-builder": "^24.13.3",
     "electron-reload": "^2.0.0-alpha.1",
+    "pathofexile-dat": "^9.1.0",
     "prettier": "^2.8.7",
     "react": "^18.2.0",
     "react-dev-utils": "^12.0.1",

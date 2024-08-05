@@ -1,0 +1,35 @@
+{
+  "patch": "3.25.0.5",
+  "steam": "C:\\Program Files (x86)\\Steam\\steamapps\\common\\Path of Exile",
+  "files": [],
+  "translations": [
+    "English"
+  ],
+  "tables": [
+    {
+      "name": "BaseItemTypes",
+      "columns": [
+        "Id",
+        "Name",
+        "ItemClassesKey",
+        "InheritsFrom",
+        "ItemVisualIdentity",
+        "TagsKeys"
+      ]
+    },
+    {
+      "name": "ItemClasses",
+      "columns": [
+        "Id"
+      ]
+    },
+    {
+      "name": "ItemFrameType",
+      "columns": [
+        "Id",
+        "Rarity",
+        "DisplayString"
+      ]
+    }
+  ]
+}
