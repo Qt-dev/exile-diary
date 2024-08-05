@@ -60,6 +60,9 @@ jspm_packages/
 # dotenv environment variables file
 .env
 
+# pathofexile-dat temp folders
+scripts/data-extractor/.cache
+scripts/data-extractor/tables
 
 # =========================
 # Operating System Files
