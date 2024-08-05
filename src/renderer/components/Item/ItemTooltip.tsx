@@ -597,7 +597,7 @@ const ItemTooltip = ({ item, influenceIcons }) => {
   const frameType = Constants.items.frameTypes[item.rawData.frameType]?.replace(/\b\w/g, (l) =>
     l.toUpperCase()
   );
-  if (frameType === 'Card') return null; // Cards need special handler
+  if (frameType === 'Divinationcard') return null; // Cards need special handler
 
   const containerClasses = classNames({
     'Item-Tooltip__Container': true,
