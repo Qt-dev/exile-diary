@@ -393,7 +393,6 @@ function registerCustomShortcut() {
   logger.info('Registering custom screenshot shortcut');
 
   globalShortcut.register(customShortcutTrigger, async () => {
-    logger.info('Capturing?');
     emitter.emit('screenshot:capture');
   });
 }
