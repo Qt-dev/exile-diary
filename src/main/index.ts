@@ -386,6 +386,18 @@ class MainProcess {
         this.screenshotLock = false;
       }
     });
+    ScreenshotWatcher.emitter.on('screenshot:timeout', async () => {
+      logger.info('Map Info : Reading from screenshot timed out');
+      RendererLogger.log({
+        messages: [
+          {
+            text: 'Map Info : Reading from screenshot timed out',
+            type: 'error',
+          },
+        ],
+      });
+      this.screenshotLock = false;
+    });
 
     StatsManager.registerProfitPerHourAnnouncer((profitPerHour, divinePrice) => {
       this.sendToMain('update-profit-per-hour', { profitPerHour, divinePrice });

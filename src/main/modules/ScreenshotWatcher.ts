@@ -7,8 +7,9 @@ import chokidar from 'chokidar';
 import Logger from 'electron-log';
 import EventEmitter from 'events';
 import OCRWatcher from './OCRWatcher';
-import { app, globalShortcut, nativeImage } from 'electron';
+import { app, globalShortcut } from 'electron';
 const logger = Logger.scope('main-screenshot-watcher');
+const ProcessingTimeout = 15000;
 
 // const SCREENSHOT_DIRECTORY_SIZE_LIMIT = 400;
 const sizeMultiplier = 3; // We read pixels from a screenshot that is in 1920x1080 * this multiplier
@@ -287,8 +288,26 @@ async function process(file: string | Buffer) {
     .toBuffer();
   sharp(modsImage).toFile(path.join(filepath, 'mods.jpg'));
 
-  await OCRWatcher.processImageBuffer(statsImage, filePrefix, 'area');
-  await OCRWatcher.processImageBuffer(modsImage, filePrefix, 'mods');
+  logger.debug(
+    `Starting screenshot processing. There are ${OCRWatcher.scheduler.getQueueLen()} items in the queue and ${OCRWatcher.scheduler.getNumWorkers()} workers are running`
+  );
+
+  // We make sure we timeout after ProcessingTimeout ms to avoid hanging the process
+  const timeout = setTimeout(async () => {
+    console.error(
+      `There are ${OCRWatcher.scheduler.getQueueLen()} items in the queue, and ${OCRWatcher.scheduler.getNumWorkers()} workers are running`
+    );
+    emitter.emit('screenshot:timeout');
+    // throw new Error('Screenshot processing timed out');
+  }, ProcessingTimeout);
+
+  await Promise.all([
+    OCRWatcher.processImageBuffer(statsImage, filePrefix, 'area'),
+    OCRWatcher.processImageBuffer(modsImage, filePrefix, 'mods'),
+  ]);
+
+  // If we got there, things went fine, so we clear the timeout
+  clearTimeout(timeout);
 
   logger.debug('Finished processing screenshot');
 }

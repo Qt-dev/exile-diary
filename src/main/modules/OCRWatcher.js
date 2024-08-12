@@ -193,6 +193,7 @@ async function processImageBuffer(buffer, timestamp, type) {
         cleanFailedOCR(err, timestamp);
       }
     } else if (type === 'mods') {
+      logger.debug('Processing map mods');
       try {
         const mods = getModInfo(lines);
         let mapModErr = null;
@@ -224,5 +225,6 @@ module.exports = {
   start,
   test,
   emitter,
+  scheduler,
   processImageBuffer,
 };
