@@ -138,14 +138,9 @@ function getModInfo(lines) {
 }
 
 async function getAreaNameFromDB(timestamp) {
-  return new Promise(async (resolve, reject) => {
-    try {
-      const areaName = await DB.getAreaName(timestamp);
-      resolve(areaName);
-    } catch (e) {
-      logger.info(`Error getting area name from db: ${e}`);
-      reject(e);
-    }
+  return DB.getAreaName(timestamp).catch((e) => {
+    logger.error(`Error getting area name from db: ${e}`);
+    throw e;
   });
 }
 
