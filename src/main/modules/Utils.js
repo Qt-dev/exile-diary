@@ -22,7 +22,7 @@ const Utils = {
         return true;
       }
     }
-    if (str.endsWith('Hideout') && !str.includes('Syndicate')) {
+    if (str.endsWith('Hideout') && !str.includes('Syndicate') && str !== 'Kingsmarch') {
       return true;
     }
     return false;
