@@ -450,6 +450,10 @@ class MainProcess {
       this.sendToOverlay('current-run:started', { area: 'Unknown' });
       StatsManager.triggerProfitPerHourAnnouncer();
     });
+    RunParser.toggleRunParseShortcut(SettingsManager.get('runParseScreenshotEnabled'));
+    SettingsManager.registerListener('runParseScreenshotEnabled', (enabled) => {
+      RunParser.toggleRunParseShortcut(enabled);
+    });
 
     KillTracker.emitter.removeAllListeners();
     KillTracker.emitter.on('incubatorsUpdated', (incubators) => {

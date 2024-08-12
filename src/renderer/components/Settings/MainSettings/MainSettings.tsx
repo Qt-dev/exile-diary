@@ -76,6 +76,7 @@ const MainSettings = ({ settings, store, runStore }) => {
   const enableScreenshotFolderWatch =
     settings.screenshots && !!settings.screenshots.allowFolderWatch;
   const overlayPersistenceEnabled = !!settings.overlayPersistenceEnabled;
+  const runParseScreenshotEnabled = !!settings.runParseScreenshotEnabled;
 
   const handleBack = () => {
     navigate('/');
@@ -94,6 +95,7 @@ const MainSettings = ({ settings, store, runStore }) => {
       alternateSplinterPricing: e.target.alternate_splinter_pricing.checked,
       overlayEnabled: e.target.overlay_enabled.checked,
       enableIncubatorAlert: e.target.enable_incubator_alert.checked,
+      runParseScreenshotEnabled: e.target.enable_run_parse_screenshot.checked,
       screenshots: {
         allowCustomShortcut: e.target.enable_screenshot_custom_shortcut.checked,
         allowFolderWatch: e.target.enable_screenshot_folder_watch.checked,
@@ -274,6 +276,17 @@ const MainSettings = ({ settings, store, runStore }) => {
               />
             }
             label="Enable Screenshot Folder Monitoring"
+          />
+        </div>
+        <div className="Settings__Checkbox__Row">
+          <FormControlLabel
+            control={
+              <Checkbox
+                id="enable_run_parse_screenshot"
+                defaultChecked={runParseScreenshotEnabled}
+              />
+            }
+            label="Enable shortcut to finish a run (CTRL+F10)"
           />
         </div>
         {/* TODO: Add these settings if needed */}

@@ -38,6 +38,7 @@ const DefaultSettings = {
     filterPatterns: [],
     perCategory: {},
   },
+  runParseScreenshotEnabled: true,
 };
 
 class SettingsManager {
