@@ -83,6 +83,12 @@ const externalDependencies = {
     debug: () => {},
     scope: () => {},
   },
+  'electron': {
+    globalShortcut: {
+      register: stub(),
+      unregister: stub(),
+    },
+  }
 };
 
 let RunParser: any = (
@@ -1066,6 +1072,85 @@ describe('RunParser', () => {
       expect(externalDependencies['../db/run'].updateItemValues.callCount).to.equal(runs.length);
     });
   });
-});
 
-rewiremock.enable();
+  describe('registerRunParseShortcut', () => {
+    let sandbox;
+    beforeEach(() => {
+      sandbox = createSandbox();
+      externalDependencies['electron'].globalShortcut.register.reset();
+    });
+    afterEach(() => {
+      sandbox.restore();
+      externalDependencies['electron'].globalShortcut.register.reset();
+    });
+    it('should call the right functions', () => {
+      const ParseShortcut = 'ParseShortcut';
+      sandbox.stub(RunParser, 'ParseShortcut').value(ParseShortcut);
+      RunParser.registerRunParseShortcut();
+      expect(externalDependencies['electron'].globalShortcut.register.calledOnce).to.be.true;
+      expect(externalDependencies['electron'].globalShortcut.register.calledWith(ParseShortcut)).to.be.true;
+    });
+    it('should call tryProcess in the callback', () => {
+      const ParseShortcut = 'ParseShortcut';
+      sandbox.stub(RunParser, 'ParseShortcut').value(ParseShortcut);
+      sandbox.stub(RunParser, 'tryProcess').resolves();
+      RunParser.registerRunParseShortcut();
+      const callback = externalDependencies['electron'].globalShortcut.register.firstCall.args[1];
+      callback();
+      expect(RunParser.tryProcess.calledOnce).to.be.true;
+      expect(RunParser.tryProcess.calledWith(null)).to.be.true;
+    });
+    it('should not error if tryProcess fails', () => {
+      const ParseShortcut = 'ParseShortcut';
+      sandbox.stub(RunParser, 'ParseShortcut').value(ParseShortcut);
+      sandbox.stub(RunParser, 'tryProcess').rejects();
+      RunParser.registerRunParseShortcut();
+      const callback = externalDependencies['electron'].globalShortcut.register.firstCall.args[1];
+      callback();
+      expect(RunParser.tryProcess.calledOnce).to.be.true;
+    });
+  });
+
+  describe('unregisterRunParseShortcut', () => {
+    let sandbox;
+    beforeEach(() => {
+      sandbox = createSandbox();
+      externalDependencies['electron'].globalShortcut.unregister.reset();
+    });
+    afterEach(() => {
+      sandbox.restore();
+      externalDependencies['electron'].globalShortcut.unregister.reset();
+    });
+    it('should call the right functions', () => {
+      const ParseShortcut = 'ParseShortcut';
+      sandbox.stub(RunParser, 'ParseShortcut').value(ParseShortcut);
+      RunParser.unregisterRunParseShortcut();
+      expect(externalDependencies['electron'].globalShortcut.unregister.calledOnce).to.be.true;
+      expect(externalDependencies['electron'].globalShortcut.unregister.calledWith(ParseShortcut)).to.be.true;
+    });
+  });
+
+  describe('toggleRunParseShortcut', () => {
+    let sandbox;
+    beforeEach(() => {
+      sandbox = createSandbox();
+    });
+    afterEach(() => {
+      sandbox.restore();
+    });
+    it('should call registerRunParseShortcut if given true', () => {
+      const register = sandbox.stub(RunParser, 'registerRunParseShortcut');
+      const unregister = sandbox.stub(RunParser, 'unregisterRunParseShortcut');
+      RunParser.toggleRunParseShortcut(true);
+      expect(register.calledOnce).to.be.true;
+      expect(unregister.called).to.be.false;
+    });
+    it('should call unregisterRunParseShortcut if given false', () => {
+      const register = sandbox.stub(RunParser, 'registerRunParseShortcut');
+      const unregister = sandbox.stub(RunParser, 'unregisterRunParseShortcut');
+      RunParser.toggleRunParseShortcut(false);
+      expect(register.called).to.be.false;
+      expect(unregister.calledOnce).to.be.true;
+    });
+  });
+});

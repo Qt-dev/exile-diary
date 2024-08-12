@@ -1,16 +1,17 @@
 import GGGAPI from '../GGGAPI';
-import { ItemData } from '../../helpers/types';
 import DB from '../db/run';
 import dayjs from 'dayjs';
 import RendererLogger from '../RendererLogger';
 import SettingsManager from '../SettingsManager';
 import OldDB from '../db';
+import { globalShortcut } from 'electron';
 const logger = require('electron-log');
 const Utils = require('./Utils').default;
 const EventEmitter = require('events');
 const ItemPricer = require('./ItemPricer');
 const XPTracker = require('./XPTracker');
 const Constants = require('../../helpers/constants').default;
+const ParseShortcut = 'CommandOrControl+F10';
 
 type ParsedEvent = {
   timestamp: number;
@@ -1322,6 +1323,26 @@ const RunParser = {
         ],
       });
     });
+  },
+
+  ParseShortcut, // Exposed for testing
+
+  registerRunParseShortcut: () => {
+    globalShortcut.register(RunParser.ParseShortcut, () => {
+      RunParser.tryProcess(null);
+    });
+  },
+
+  unregisterRunParseShortcut: () => {
+    globalShortcut.unregister(RunParser.ParseShortcut);
+  },
+
+  toggleRunParseShortcut: (state) => {
+    if(state) {
+      RunParser.registerRunParseShortcut();
+    } else {
+      RunParser.unregisterRunParseShortcut();
+    }
   },
 };
 
