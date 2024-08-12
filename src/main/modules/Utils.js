@@ -17,12 +17,10 @@ const Utils = {
   },
 
   isTown: (str) => {
-    for (var i = 0; i < Constants.townstrings.length; i++) {
-      if (str === Constants.townstrings[i]) {
-        return true;
-      }
+    if(Constants.townstrings.find((townstring) => str === townstring)) {
+      return true;
     }
-    if (str.endsWith('Hideout') && !str.includes('Syndicate') && str !== 'Kingsmarch') {
+    if (str.endsWith('Hideout') && !str.includes('Syndicate')) {
       return true;
     }
     return false;
