@@ -68,7 +68,11 @@ function start() {
         line.toLowerCase().endsWith(`] ${settings.activeProfile.characterName.toLowerCase()}: end`)
       ) {
         logger.info('Detected map end signal, processing last map run');
-        RunParser.process();
+        try {
+          RunParser.tryProcess();
+        } catch (err) {
+          logger.error(`Error processing last map run: ${err}`);
+        }
       } else if (line.includes('Generating')) {
         // 2023/09/22 23:53:40 90163078 1186a0e2 [DEBUG Client 5808] Generating level 83 area "MapWorldsIvoryTemple" with seed 2066513710
         const timestamp = line.substring(0, 19).replace(/[^0-9]/g, '');
@@ -89,25 +93,29 @@ function start() {
         var timestamp = line.substring(0, 19).replace(/[^0-9]/g, '');
         var event = getEvent(line);
         if (event) {
-          insertEvent(event, timestamp);
-          if (event.type === 'entered') {
-            // corresponding "you have entered" line found for instance server; clear flag
-            instanceServerFound = false;
-            if (!Utils.isTown(event.text)) {
-              logger.info(`Entered map area ${event.text}, will try processing previous area`);
-              currentInstance = event.text;
-              emitter.emit('enteredMap', event.text);
-              RunParser.tryProcess({
-                event: { timestamp: timestamp, area: event.text, server: event.instanceServer },
-                mode: 'automatic',
+          try {
+            insertEvent(event, timestamp);
+            if (event.type === 'entered') {
+              // corresponding "you have entered" line found for instance server; clear flag
+              instanceServerFound = false;
+              if (!Utils.isTown(event.text)) {
+                logger.info(`Entered map area ${event.text}, will try processing previous area`);
+                currentInstance = event.text;
+                emitter.emit('enteredMap', event.text);
+                RunParser.tryProcess({
+                  event: { timestamp: timestamp, area: event.text, server: event.instanceServer },
+                  mode: 'automatic',
+                });
+              }
+              tree.saveNewTree(timestamp);
+              inv.getInventoryDiffs(timestamp).then(async (diff) => {
+                if (diff && Object.keys(diff).length > 0) {
+                  await ItemParser.insertItems(diff, timestamp);
+                }
               });
             }
-            tree.saveNewTree(timestamp);
-            inv.getInventoryDiffs(timestamp).then(async (diff) => {
-              if (diff && Object.keys(diff).length > 0) {
-                await ItemParser.insertItems(diff, timestamp);
-              }
-            });
+          } catch (e) {
+            logger.error(`Error processing event: ${e}`);
           }
         }
       }
