@@ -505,7 +505,7 @@ class MainProcess {
       if (seed !== '1') {
         this.latestGeneratedAreaLevel = level;
         this.latestGeneratedAreaSeed = seed;
-        RunParser.setLatestGeneratedArea({ level });
+        RunParser.setLatestGeneratedAreaLevel(level);
       }
     });
     ClientTxtWatcher.emitter.on('enteredMap', (area) => {

@@ -377,7 +377,7 @@ const DB = {
     const manager = DB.getManager(league);
     if (!manager) return null;
 
-    return await manager.runTask(() => manager.db.prepare(sql).get(params));
+    return manager.runTask(() => manager.db.prepare(sql).get(params));
   },
 
   run: async (sql: string, params: any[] = [], league: string | undefined = undefined) => {
