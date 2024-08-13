@@ -210,7 +210,10 @@ const Migrations = {
       // Version 12 - Remove gained column from mapruns
       [`pragma user_version = 12`, `ALTER TABLE mapruns DROP COLUMN gained`],
       // Version 13 - Update runes in DB to categorize them as Runes
-      [`pragma user_version = 13`, `UPDATE items SET category = 'Kalguuran Rune' WHERE rarity = 'Currency' AND typeline LIKE '% Rune%'`],
+      [
+        `pragma user_version = 13`,
+        `UPDATE items SET category = 'Kalguuran Rune' WHERE rarity = 'Currency' AND typeline LIKE '% Rune%'`,
+      ],
     ],
     maintenance: [
       `delete from incubators where timestamp < (select min(timestamp) from (select timestamp from incubators order by timestamp desc limit 25))`,
@@ -343,17 +346,22 @@ const DB = {
     return path.join(userDataPath, `${league}.leaguedb`);
   },
 
-  getCharacterDbPath: (characterName?: string, league?: string,  oldVersion?: true) => {
+  getCharacterDbPath: (characterName?: string, league?: string, oldVersion?: true) => {
     if (!characterName || !league) {
       const settings = getSettings();
-      if (!settings || !settings.activeProfile || !settings.activeProfile.characterName || !settings.activeProfile.characterName) {
+      if (
+        !settings ||
+        !settings.activeProfile ||
+        !settings.activeProfile.characterName ||
+        !settings.activeProfile.characterName
+      ) {
         // logger.error("No active profile selected, can't get DB");
         return null;
       }
       characterName = settings.activeProfile.characterName;
       league = settings.activeProfile.league;
     }
-    if(oldVersion) {
+    if (oldVersion) {
       return path.join(userDataPath, `${characterName}.db`);
     } else {
       return path.join(userDataPath, `${characterName}.${league}.db`);
@@ -370,9 +378,12 @@ const DB = {
       return null;
     }
 
-    if(
-      (!league && !!characterName && !!characterdbOldPath) &&
-      fs.existsSync(characterdbOldPath) && !fs.existsSync(dbPath)
+    if (
+      !league &&
+      !!characterName &&
+      !!characterdbOldPath &&
+      fs.existsSync(characterdbOldPath) &&
+      !fs.existsSync(dbPath)
     ) {
       logger.info(`Found the old pattern in db name, copying ${characterdbOldPath} to  ${dbPath}`);
       fs.copyFileSync(characterdbOldPath, dbPath);

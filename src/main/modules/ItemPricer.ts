@@ -225,7 +225,7 @@ class PriceMatcher {
       test: (item: any) => item.category && item.category === 'Kalguuran Rune',
       calculateValue: (item: any, minItemValue: number = 0) => {
         return this.getValue(item, 'KalguuranRune', item.typeline, minItemValue);
-      }
+      },
     },
     {
       name: 'Currency',

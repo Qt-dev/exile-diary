@@ -83,12 +83,12 @@ const externalDependencies = {
     debug: () => {},
     scope: () => {},
   },
-  'electron': {
+  electron: {
     globalShortcut: {
       register: stub(),
       unregister: stub(),
     },
-  }
+  },
 };
 
 let RunParser: any = (
@@ -1088,7 +1088,8 @@ describe('RunParser', () => {
       sandbox.stub(RunParser, 'ParseShortcut').value(ParseShortcut);
       RunParser.registerRunParseShortcut();
       expect(externalDependencies['electron'].globalShortcut.register.calledOnce).to.be.true;
-      expect(externalDependencies['electron'].globalShortcut.register.calledWith(ParseShortcut)).to.be.true;
+      expect(externalDependencies['electron'].globalShortcut.register.calledWith(ParseShortcut)).to
+        .be.true;
     });
     it('should call tryProcess in the callback', () => {
       const ParseShortcut = 'ParseShortcut';
@@ -1126,7 +1127,8 @@ describe('RunParser', () => {
       sandbox.stub(RunParser, 'ParseShortcut').value(ParseShortcut);
       RunParser.unregisterRunParseShortcut();
       expect(externalDependencies['electron'].globalShortcut.unregister.calledOnce).to.be.true;
-      expect(externalDependencies['electron'].globalShortcut.unregister.calledWith(ParseShortcut)).to.be.true;
+      expect(externalDependencies['electron'].globalShortcut.unregister.calledWith(ParseShortcut))
+        .to.be.true;
     });
   });
 

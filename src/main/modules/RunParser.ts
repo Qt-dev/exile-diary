@@ -1338,7 +1338,7 @@ const RunParser = {
   },
 
   toggleRunParseShortcut: (state) => {
-    if(state) {
+    if (state) {
       RunParser.registerRunParseShortcut();
     } else {
       RunParser.unregisterRunParseShortcut();

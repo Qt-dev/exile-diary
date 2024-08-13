@@ -17,7 +17,7 @@ const Utils = {
   },
 
   isTown: (str) => {
-    if(Constants.townstrings.find((townstring) => str === townstring)) {
+    if (Constants.townstrings.find((townstring) => str === townstring)) {
       return true;
     }
     if (str.endsWith('Hideout') && !str.includes('Syndicate')) {

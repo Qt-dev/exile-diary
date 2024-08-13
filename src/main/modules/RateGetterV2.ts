@@ -84,7 +84,7 @@ class RateGetterV2 {
     const activeProfile = SettingsManager.get('activeProfile');
     let league = activeProfile.league;
 
-    if(useOverride && activeProfile.leagueOverride && activeProfile.leagueOverride.length > 0) {
+    if (useOverride && activeProfile.leagueOverride && activeProfile.leagueOverride.length > 0) {
       league = activeProfile.leagueOverride;
     } else if (
       activeProfile.league &&
@@ -92,7 +92,7 @@ class RateGetterV2 {
       activeProfile &&
       activeProfile.overrideSSF
     ) {
-      // override ssf and get item prices from corresponding trade league 
+      // override ssf and get item prices from corresponding trade league
       // TODO undocumented league naming convention change in 3.13... must check this every league from now on
       // as of 3.13 "SSF Ritual HC" <--> "Hardcore Ritual"
       league = activeProfile.league.replace('SSF', '').trim();
@@ -151,7 +151,7 @@ class RateGetterV2 {
 
       // if (Utils.isPrivateLeague(activeProfile.league)) {
       //   // TODO: Fix this part with private leagues
-      //   if (privateLeaguePriceMaps && privateLeaguePriceMaps[activeProfile.league]) { 
+      //   if (privateLeaguePriceMaps && privateLeaguePriceMaps[activeProfile.league]) {
       //     logger.info(
       //       `Private league ${activeProfile.league} will use prices from ${
       //         privateLeaguePriceMaps[activeProfile.league]
