@@ -46,7 +46,7 @@ enum SYSTEMS {
   MACOS = 'darwin',
 }
 const autoUpdaterIntervalTime = 1000 * 60 * 60; // 1 hour
-const isDev = require('electron-is-dev');
+const isDev = require('electron-is-dev') || SettingsManager.get('forceDebugMode');
 let modReadingTimer: Dayjs | null = null;
 
 // Initialize logger settings
@@ -482,6 +482,7 @@ class MainProcess {
       logger.info("<span class='eventText'>Getting item prices from poe.ninja...</span>");
     });
     RateGetterV2.on('doneGettingPrices', () => {
+      ItemPricer.updateRates(); 
       logger.info("<span class='eventText'>Finished getting item prices from poe.ninja</span>");
     });
     RateGetterV2.on('gettingPricesFailed', () => {

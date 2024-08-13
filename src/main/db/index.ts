@@ -7,6 +7,7 @@ import * as sqliteRegex from './sqlite-regex--cjs-fix';
 import SettingsManager from '../SettingsManager';
 import { v4 as uuidv4 } from 'uuid';
 import EventEmitter from 'events';
+import fs from 'fs';
 
 const logger = Logger.scope('db/index');
 const userDataPath = app.getPath('userData');
@@ -208,6 +209,8 @@ const Migrations = {
       [`pragma user_version = 11`, `ALTER TABLE items ADD ignored NUMBER NOT NULL DEFAULT 0`],
       // Version 12 - Remove gained column from mapruns
       [`pragma user_version = 12`, `ALTER TABLE mapruns DROP COLUMN gained`],
+      // Version 13 - Update runes in DB to categorize them as Runes
+      [`pragma user_version = 13`, `UPDATE items SET category = 'Kalguuran Rune' WHERE rarity = 'Currency' AND typeline LIKE '% Rune%'`],
     ],
     maintenance: [
       `delete from incubators where timestamp < (select min(timestamp) from (select timestamp from incubators order by timestamp desc limit 25))`,
@@ -340,16 +343,21 @@ const DB = {
     return path.join(userDataPath, `${league}.leaguedb`);
   },
 
-  getCharacterDbPath: (characterName?: string) => {
-    if (!characterName) {
+  getCharacterDbPath: (characterName?: string, league?: string,  oldVersion?: true) => {
+    if (!characterName || !league) {
       const settings = getSettings();
-      if (!settings || !settings.activeProfile || !settings.activeProfile.characterName) {
+      if (!settings || !settings.activeProfile || !settings.activeProfile.characterName || !settings.activeProfile.characterName) {
         // logger.error("No active profile selected, can't get DB");
         return null;
       }
       characterName = settings.activeProfile.characterName;
+      league = settings.activeProfile.league;
     }
-    return path.join(userDataPath, `${characterName}.db`);
+    if(oldVersion) {
+      return path.join(userDataPath, `${characterName}.db`);
+    } else {
+      return path.join(userDataPath, `${characterName}.${league}.db`);
+    }
   },
 
   getManager: (
@@ -357,8 +365,17 @@ const DB = {
     characterName: string | undefined = undefined
   ) => {
     const dbPath = !!league ? DB.getLeagueDbPath(league) : DB.getCharacterDbPath(characterName);
+    let characterdbOldPath = DB.getCharacterDbPath(characterName, league, true);
     if (!dbPath) {
       return null;
+    }
+
+    if(
+      (!league && !!characterName && !!characterdbOldPath) &&
+      fs.existsSync(characterdbOldPath) && !fs.existsSync(dbPath)
+    ) {
+      logger.info(`Found the old pattern in db name, copying ${characterdbOldPath} to  ${dbPath}`);
+      fs.copyFileSync(characterdbOldPath, dbPath);
     }
     const manager: DBManager = DBConnections.get(dbPath) || new DBManager({ dbPath });
     DBConnections.set(dbPath, manager);

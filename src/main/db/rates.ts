@@ -37,7 +37,7 @@ const rates = {
   },
   insertRates: async (league: string, date: string, rates: any): Promise<boolean> => {
     logger.info(`Inserting rates for ${date} (league: ${league}) into DB`);
-    const query = 'INSERT OR IGNORE INTO fullrates (date, data) VALUES (?, ?)';
+    const query = 'INSERT OR REPLACE INTO fullrates (date, data) VALUES (?, ?)';
     const data = JSON.stringify(rates);
     const buffer = await new Promise((resolve, reject) => {
       zlib.deflate(data, (err, buffer) => {

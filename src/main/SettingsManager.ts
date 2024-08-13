@@ -13,6 +13,7 @@ const DefaultSettings = {
   activeProfile: {
     characterName: null,
     league: null,
+    leagueOverride: null,
     valid: false,
   },
   alternateSplinterPricing: true,
@@ -20,6 +21,7 @@ const DefaultSettings = {
   clientTxt: null,
   screenshotDir: null,
   overlayEnabled: true,
+  forceDebugMode: false,
   screenshots: {
     allowCustomShortcut: true,
     allowFolderWatch: false,

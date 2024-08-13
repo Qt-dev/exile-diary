@@ -59,6 +59,11 @@ const MainSettings = ({ settings, store, runStore }) => {
     setScreenshotLocation(path.join(e.target.files[0].path));
   };
 
+  // League Override
+  const [leagueOverride, setLeagueOverride] = React.useState(
+    settings.activeProfile.leagueOverride ? settings.activeProfile.leagueOverride : ''
+  );
+
   const handleRedirectToLogin = () => {
     navigate('/login');
   };
@@ -77,6 +82,7 @@ const MainSettings = ({ settings, store, runStore }) => {
     settings.screenshots && !!settings.screenshots.allowFolderWatch;
   const overlayPersistenceEnabled = !!settings.overlayPersistenceEnabled;
   const runParseScreenshotEnabled = !!settings.runParseScreenshotEnabled;
+  const forceDebugMode = !!settings.forceDebugMode;
 
   const handleBack = () => {
     navigate('/');
@@ -88,6 +94,7 @@ const MainSettings = ({ settings, store, runStore }) => {
       activeProfile: {
         characterName: character,
         league: store.characters.find((char: any) => char.name === character).league,
+        leagueOverride: leagueOverride,
         valid: true,
       },
       clientTxt: e.target.log_location.value,
@@ -96,6 +103,7 @@ const MainSettings = ({ settings, store, runStore }) => {
       overlayEnabled: e.target.overlay_enabled.checked,
       enableIncubatorAlert: e.target.enable_incubator_alert.checked,
       runParseScreenshotEnabled: e.target.enable_run_parse_screenshot.checked,
+      forceDebugMode: e.target.force_debug_mode.checked,
       screenshots: {
         allowCustomShortcut: e.target.enable_screenshot_custom_shortcut.checked,
         allowFolderWatch: e.target.enable_screenshot_folder_watch.checked,
@@ -223,6 +231,17 @@ const MainSettings = ({ settings, store, runStore }) => {
             />
           </Button>
         </div>
+        <div className="Settings__Row">
+          <TextField
+            fullWidth
+            label="PoE.ninja league name to change league used for pricing, leave blank for character's league. (e.g. Standard, Settlers)"
+            id="league_override"
+            variant="filled"
+            size="small"
+            value={leagueOverride}
+            onChange={(e) => setLeagueOverride(e.target.value)}
+          />
+        </div>
         <Divider className="Settings__Separator" />
         <div className="Settings__Checkbox__Row">
           <FormControlLabel
@@ -287,6 +306,11 @@ const MainSettings = ({ settings, store, runStore }) => {
               />
             }
             label="Enable shortcut to finish a run (CTRL+F10)"
+          />
+        <div className="Settings__Checkbox__Row">
+          <FormControlLabel
+            control={<Checkbox id="force_debug_mode" defaultChecked={forceDebugMode} />}
+            label="Force Debug Mode"
           />
         </div>
         {/* TODO: Add these settings if needed */}

@@ -62,6 +62,13 @@ async function getRatesFor(eventId: string, league = SettingsManager.get('active
   return ratesCache[date][league] ?? {};
 }
 
+async function updateRates(league = SettingsManager.get('activeProfile').league) {
+  const date = dayjs().format('YYYYMMDD');
+  ratesCache[date] = ratesCache[date] || {};
+  ratesCache[date][league] = await RatesManager.fetchRatesForDay(league, date);
+  writeFile(`./${date}.json`, JSON.stringify(ratesCache[date][league])); // In case you need to inspect the full rates for a day
+}
+
 class PriceMatcher {
   ratesCache: {};
   date: string;
@@ -212,6 +219,13 @@ class PriceMatcher {
       test: (item: any) => item.typeline === 'Chaos Orb',
       calculateValue: (item: any, minItemValue: number = 0) =>
         1 * (item.stacksize || 1) >= minItemValue ? 1 * (item.stacksize || 1) : 0,
+    },
+    {
+      name: 'Kalguuran Runes',
+      test: (item: any) => item.category && item.category === 'Kalguuran Rune',
+      calculateValue: (item: any, minItemValue: number = 0) => {
+        return this.getValue(item, 'KalguuranRune', item.typeline, minItemValue);
+      }
     },
     {
       name: 'Currency',
@@ -980,4 +994,5 @@ export default {
   price,
   getRatesFor,
   getCurrencyByName,
+  updateRates,
 };
