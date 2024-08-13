@@ -7,6 +7,7 @@ import * as sqliteRegex from './sqlite-regex--cjs-fix';
 import SettingsManager from '../SettingsManager';
 import { v4 as uuidv4 } from 'uuid';
 import EventEmitter from 'events';
+import fs from 'fs';
 
 const logger = Logger.scope('db/index');
 const userDataPath = app.getPath('userData');
@@ -340,16 +341,21 @@ const DB = {
     return path.join(userDataPath, `${league}.leaguedb`);
   },
 
-  getCharacterDbPath: (characterName?: string) => {
-    if (!characterName) {
+  getCharacterDbPath: (characterName?: string, league?: string,  oldVersion?: true) => {
+    if (!characterName || !league) {
       const settings = getSettings();
-      if (!settings || !settings.activeProfile || !settings.activeProfile.characterName) {
+      if (!settings || !settings.activeProfile || !settings.activeProfile.characterName || !settings.activeProfile.characterName) {
         // logger.error("No active profile selected, can't get DB");
         return null;
       }
       characterName = settings.activeProfile.characterName;
+      league = settings.activeProfile.league;
     }
-    return path.join(userDataPath, `${characterName}.db`);
+    if(oldVersion) {
+      return path.join(userDataPath, `${characterName}.db`);
+    } else {
+      return path.join(userDataPath, `${characterName}.${league}.db`);
+    }
   },
 
   getManager: (
@@ -357,8 +363,17 @@ const DB = {
     characterName: string | undefined = undefined
   ) => {
     const dbPath = !!league ? DB.getLeagueDbPath(league) : DB.getCharacterDbPath(characterName);
+    let characterdbOldPath = DB.getCharacterDbPath(characterName, league, true);
     if (!dbPath) {
       return null;
+    }
+
+    if(
+      (!league && !!characterName && !!characterdbOldPath) &&
+      fs.existsSync(characterdbOldPath) && !fs.existsSync(dbPath)
+    ) {
+      logger.info(`Found the old pattern in db name, copying ${characterdbOldPath} to  ${dbPath}`);
+      fs.copyFileSync(characterdbOldPath, dbPath);
     }
     const manager: DBManager = DBConnections.get(dbPath) || new DBManager({ dbPath });
     DBConnections.set(dbPath, manager);
