@@ -133,7 +133,7 @@ class RateGetterV2 {
     try {
       this.setIsUpdating(true);
       const activeProfile = SettingsManager.get('activeProfile');
-      const privateLeaguePriceMaps = SettingsManager.get('privateLeaguePriceMaps');
+      // const privateLeaguePriceMaps = SettingsManager.get('privateLeaguePriceMaps');
       if (!activeProfile) {
         logger.error('No settings found, will not attempt to get prices');
         return;
@@ -148,22 +148,22 @@ class RateGetterV2 {
         return;
       }
 
-      if (Utils.isPrivateLeague(activeProfile.league)) {
-        // TODO: Fix this part with private leagues
-        if (privateLeaguePriceMaps && privateLeaguePriceMaps[activeProfile.league]) {
-          logger.info(
-            `Private league ${activeProfile.league} will use prices from ${
-              privateLeaguePriceMaps[activeProfile.league]
-            }`
-          );
-          activeProfile.league = privateLeaguePriceMaps[activeProfile.league];
-        } else {
-          logger.info(
-            `No price map set for private league ${activeProfile.league}, will not attempt to get prices`
-          );
-          return;
-        }
-      }
+      // if (Utils.isPrivateLeague(activeProfile.league)) {
+      //   // TODO: Fix this part with private leagues
+      //   if (privateLeaguePriceMaps && privateLeaguePriceMaps[activeProfile.league]) { 
+      //     logger.info(
+      //       `Private league ${activeProfile.league} will use prices from ${
+      //         privateLeaguePriceMaps[activeProfile.league]
+      //       }`
+      //     );
+      //     activeProfile.league = privateLeaguePriceMaps[activeProfile.league];
+      //   } else {
+      //     logger.info(
+      //       `No price map set for private league ${activeProfile.league}, will not attempt to get prices`
+      //     );
+      //     return;
+      //   }
+      // }
 
       const today = dayjs().format('YYYYMMDD');
       const hasExisting = await this.hasExistingRates(today);
