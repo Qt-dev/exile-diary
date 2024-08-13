@@ -209,6 +209,8 @@ const Migrations = {
       [`pragma user_version = 11`, `ALTER TABLE items ADD ignored NUMBER NOT NULL DEFAULT 0`],
       // Version 12 - Remove gained column from mapruns
       [`pragma user_version = 12`, `ALTER TABLE mapruns DROP COLUMN gained`],
+      // Version 13 - Update runes in DB to categorize them as Runes
+      [`pragma user_version = 13`, `UPDATE items SET category = 'Kalguuran Rune' WHERE rarity = 'Currency' AND typeline LIKE '% Rune%'`],
     ],
     maintenance: [
       `delete from incubators where timestamp < (select min(timestamp) from (select timestamp from incubators order by timestamp desc limit 25))`,

@@ -32,6 +32,16 @@ export const getCategory = (item, subcategory = false) => {
     if (type.includes(invitation)) return invitation;
   }
 
+  // Kalguuran Runes are basically currency, and so they appear in our list of extracted data from the game
+  // this makes sure they are not classified as currency
+  if (
+    (item.descrText && item.descrText.includes('be used for Runesmithing')) ||
+    (item.rawdata && item.rawdata.descrText && item.rawdata.descrText.includes('be used for Runesmithing'))
+  ) {
+    return 'Kalguuran Rune';
+  }
+
+
   // Misc basetypes that we know of
   if (Constants.items.baseTypes.others[type]) {
     const foundBaseType = Constants.items.baseTypes.others[type];
@@ -74,6 +84,7 @@ export const getCategory = (item, subcategory = false) => {
   if (type.endsWith('Incubator')) return 'Incubator';
   if (type.endsWith('Piece')) return 'Harbinger Item Piece';
   if (item.icon.includes('BestiaryOrbFull')) return 'Captured Beast';
+  if (item.descrText && item.descrText.includes('be used for Runesmithing')) return 'Kalguuran Rune';
 
   // Metamorph organs
   if (Constants.items.names.metamorphSamples.includes(iconFileName.replace(/\..*$/, '')))

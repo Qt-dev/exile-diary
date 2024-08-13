@@ -45,6 +45,7 @@ const rateTypes = {
   Beast: cleanNameValuePairs,
   Essence: cleanNameValuePairs,
   Vial: cleanNameValuePairs,
+  KalguuranRune: cleanNameValuePairs,
   // AllflameEmber: cleanNameValuePairs,
   // Coffin: cleanByModAndLevel,
   // Old Categories
@@ -285,6 +286,7 @@ class RateGetterV2 {
     rates['Invitation'] = tempRates['Invitation'];
     rates['Tattoo'] = tempRates['Tattoo'];
     rates['Omen'] = tempRates['Omen'];
+    rates['KalguuranRune'] = tempRates['KalguuranRune'];
 
     // Necropolis
     // rates['Coffin'] = tempRates['Coffin'];
@@ -337,6 +339,7 @@ class RateGetterV2 {
       case 'Invitation':
       case 'Scarab':
       case 'Memory': // TODO: Fix pricing
+      case 'KalguuranRune':
 
       case 'BaseType':
       case 'Fossil':
