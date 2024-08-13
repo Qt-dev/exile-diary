@@ -307,6 +307,7 @@ const MainSettings = ({ settings, store, runStore }) => {
             }
             label="Enable shortcut to finish a run (CTRL+F10)"
           />
+        </div>
         <div className="Settings__Checkbox__Row">
           <FormControlLabel
             control={<Checkbox id="force_debug_mode" defaultChecked={forceDebugMode} />}
