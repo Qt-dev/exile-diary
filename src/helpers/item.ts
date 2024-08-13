@@ -83,6 +83,8 @@ export const getCategory = (item, subcategory = false) => {
   if (type.includes('Watchstone')) return 'Atlas Region Upgrade Item';
   if (type.endsWith('Incubator')) return 'Incubator';
   if (type.endsWith('Piece')) return 'Harbinger Item Piece';
+  if (type.includes('Tincture')) return 'Tincture';
+  if (type.includes('Relic') && item.area === 'The Forbidden Sanctum') return 'Relic';
   if (item.icon.includes('BestiaryOrbFull')) return 'Captured Beast';
   if (item.descrText && item.descrText.includes('be used for Runesmithing')) return 'Kalguuran Rune';
 
