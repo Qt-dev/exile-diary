@@ -214,6 +214,13 @@ class PriceMatcher {
         1 * (item.stacksize || 1) >= minItemValue ? 1 * (item.stacksize || 1) : 0,
     },
     {
+      name: 'Kalguuran Runes',
+      test: (item: any) => item.category && item.category === 'Kalguuran Rune',
+      calculateValue: (item: any, minItemValue: number = 0) => {
+        return this.getValue(item, 'KalguuranRune', item.typeline, minItemValue);
+      }
+    },
+    {
       name: 'Currency',
       test: (item: any) => item.rarity === 'Currency',
       calculateValue: (item: any, minItemValue: number = 0) =>
