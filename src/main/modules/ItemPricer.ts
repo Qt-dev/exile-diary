@@ -62,6 +62,13 @@ async function getRatesFor(eventId: string, league = SettingsManager.get('active
   return ratesCache[date][league] ?? {};
 }
 
+async function updateRates(league = SettingsManager.get('activeProfile').league) {
+  const date = dayjs().format('YYYYMMDD');
+  ratesCache[date] = ratesCache[date] || {};
+  ratesCache[date][league] = await RatesManager.fetchRatesForDay(league, date);
+  writeFile(`./${date}.json`, JSON.stringify(ratesCache[date][league])); // In case you need to inspect the full rates for a day
+}
+
 class PriceMatcher {
   ratesCache: {};
   date: string;
@@ -980,4 +987,5 @@ export default {
   price,
   getRatesFor,
   getCurrencyByName,
+  updateRates,
 };

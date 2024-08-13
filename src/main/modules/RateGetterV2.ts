@@ -79,17 +79,19 @@ class RateGetterV2 {
     this.postUpdateCallback = postUpdateCallback;
   }
 
-  getLeagueName() {
+  getLeagueName(useOverride = true) {
     const activeProfile = SettingsManager.get('activeProfile');
     let league = activeProfile.league;
 
-    if (
+    if(useOverride && activeProfile.leagueOverride && activeProfile.leagueOverride.length > 0) {
+      league = activeProfile.leagueOverride;
+    } else if (
       activeProfile.league &&
       activeProfile.league.includes('SSF') &&
       activeProfile &&
       activeProfile.overrideSSF
     ) {
-      // override ssf and get item prices from corresponding trade league
+      // override ssf and get item prices from corresponding trade league 
       // TODO undocumented league naming convention change in 3.13... must check this every league from now on
       // as of 3.13 "SSF Ritual HC" <--> "Hardcore Ritual"
       league = activeProfile.league.replace('SSF', '').trim();
@@ -131,7 +133,7 @@ class RateGetterV2 {
     try {
       this.setIsUpdating(true);
       const activeProfile = SettingsManager.get('activeProfile');
-      const privateLeaguePriceMaps = SettingsManager.get('privateLeaguePriceMaps');
+      // const privateLeaguePriceMaps = SettingsManager.get('privateLeaguePriceMaps');
       if (!activeProfile) {
         logger.error('No settings found, will not attempt to get prices');
         return;
@@ -146,22 +148,22 @@ class RateGetterV2 {
         return;
       }
 
-      if (Utils.isPrivateLeague(activeProfile.league)) {
-        // TODO: Fix this part with private leagues
-        if (privateLeaguePriceMaps && privateLeaguePriceMaps[activeProfile.league]) {
-          logger.info(
-            `Private league ${activeProfile.league} will use prices from ${
-              privateLeaguePriceMaps[activeProfile.league]
-            }`
-          );
-          activeProfile.league = privateLeaguePriceMaps[activeProfile.league];
-        } else {
-          logger.info(
-            `No price map set for private league ${activeProfile.league}, will not attempt to get prices`
-          );
-          return;
-        }
-      }
+      // if (Utils.isPrivateLeague(activeProfile.league)) {
+      //   // TODO: Fix this part with private leagues
+      //   if (privateLeaguePriceMaps && privateLeaguePriceMaps[activeProfile.league]) { 
+      //     logger.info(
+      //       `Private league ${activeProfile.league} will use prices from ${
+      //         privateLeaguePriceMaps[activeProfile.league]
+      //       }`
+      //     );
+      //     activeProfile.league = privateLeaguePriceMaps[activeProfile.league];
+      //   } else {
+      //     logger.info(
+      //       `No price map set for private league ${activeProfile.league}, will not attempt to get prices`
+      //     );
+      //     return;
+      //   }
+      // }
 
       const today = dayjs().format('YYYYMMDD');
       const hasExisting = await this.hasExistingRates(today);
@@ -293,7 +295,7 @@ class RateGetterV2 {
     // rates['Seed'] = tempRates['Seed'];
     // rates['Prophecy'] = tempRates['Prophecy'];
 
-    const ratesWereUpdated = await DB.insertRates(this.getLeagueName(), date, rates);
+    const ratesWereUpdated = await DB.insertRates(this.getLeagueName(false), date, rates);
     if (!ratesWereUpdated) {
       emitter.emit('gettingPricesFailed');
       return;

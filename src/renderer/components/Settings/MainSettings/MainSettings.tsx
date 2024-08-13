@@ -59,6 +59,11 @@ const MainSettings = ({ settings, store, runStore }) => {
     setScreenshotLocation(path.join(e.target.files[0].path));
   };
 
+  // League Override
+  const [leagueOverride, setLeagueOverride] = React.useState(
+    settings.activeProfile.leagueOverride ? settings.activeProfile.leagueOverride : ''
+  );
+
   const handleRedirectToLogin = () => {
     navigate('/login');
   };
@@ -88,6 +93,7 @@ const MainSettings = ({ settings, store, runStore }) => {
       activeProfile: {
         characterName: character,
         league: store.characters.find((char: any) => char.name === character).league,
+        leagueOverride: leagueOverride,
         valid: true,
       },
       clientTxt: e.target.log_location.value,
@@ -222,6 +228,17 @@ const MainSettings = ({ settings, store, runStore }) => {
               onInput={handleOpenScreenshotLocation}
             />
           </Button>
+        </div>
+        <div className="Settings__Row">
+          <TextField
+            fullWidth
+            label="PoE.ninja league name to change league used for pricing, leave blank for character's league. (e.g. Standard, Settlers)"
+            id="league_override"
+            variant="filled"
+            size="small"
+            value={leagueOverride}
+            onChange={(e) => setLeagueOverride(e.target.value)}
+          />
         </div>
         <Divider className="Settings__Separator" />
         <div className="Settings__Checkbox__Row">
