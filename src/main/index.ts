@@ -466,6 +466,7 @@ class MainProcess {
       logger.info("<span class='eventText'>Getting item prices from poe.ninja...</span>");
     });
     RateGetterV2.on('doneGettingPrices', () => {
+      ItemPricer.updateRates(); 
       logger.info("<span class='eventText'>Finished getting item prices from poe.ninja</span>");
     });
     RateGetterV2.on('gettingPricesFailed', () => {
