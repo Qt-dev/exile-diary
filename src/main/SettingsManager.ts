@@ -13,6 +13,7 @@ const DefaultSettings = {
   activeProfile: {
     characterName: null,
     league: null,
+    leagueOverride: null,
     valid: false,
   },
   alternateSplinterPricing: true,
