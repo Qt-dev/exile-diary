@@ -46,7 +46,7 @@ enum SYSTEMS {
   MACOS = 'darwin',
 }
 const autoUpdaterIntervalTime = 1000 * 60 * 60; // 1 hour
-const isDev = require('electron-is-dev');
+const isDev = require('electron-is-dev') || SettingsManager.get('forceDebugMode');
 let modReadingTimer: Dayjs | null = null;
 
 // Initialize logger settings

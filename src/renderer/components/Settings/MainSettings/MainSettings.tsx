@@ -76,6 +76,7 @@ const MainSettings = ({ settings, store, runStore }) => {
   const enableScreenshotFolderWatch =
     settings.screenshots && !!settings.screenshots.allowFolderWatch;
   const overlayPersistenceEnabled = !!settings.overlayPersistenceEnabled;
+  const forceDebugMode = !!settings.forceDebugMode;
 
   const handleBack = () => {
     navigate('/');
@@ -94,6 +95,7 @@ const MainSettings = ({ settings, store, runStore }) => {
       alternateSplinterPricing: e.target.alternate_splinter_pricing.checked,
       overlayEnabled: e.target.overlay_enabled.checked,
       enableIncubatorAlert: e.target.enable_incubator_alert.checked,
+      forceDebugMode: e.target.force_debug_mode.checked,
       screenshots: {
         allowCustomShortcut: e.target.enable_screenshot_custom_shortcut.checked,
         allowFolderWatch: e.target.enable_screenshot_folder_watch.checked,
@@ -274,6 +276,12 @@ const MainSettings = ({ settings, store, runStore }) => {
               />
             }
             label="Enable Screenshot Folder Monitoring"
+          />
+        </div>
+        <div className="Settings__Checkbox__Row">
+          <FormControlLabel
+            control={<Checkbox id="force_debug_mode" defaultChecked={forceDebugMode} />}
+            label="Force Debug Mode"
           />
         </div>
         {/* TODO: Add these settings if needed */}

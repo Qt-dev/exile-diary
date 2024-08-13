@@ -20,6 +20,7 @@ const DefaultSettings = {
   clientTxt: null,
   screenshotDir: null,
   overlayEnabled: true,
+  forceDebugMode: false,
   screenshots: {
     allowCustomShortcut: true,
     allowFolderWatch: false,
