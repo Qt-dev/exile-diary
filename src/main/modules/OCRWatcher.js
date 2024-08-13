@@ -138,14 +138,9 @@ function getModInfo(lines) {
 }
 
 async function getAreaNameFromDB(timestamp) {
-  return new Promise(async (resolve, reject) => {
-    try {
-      const areaName = await DB.getAreaName(timestamp);
-      resolve(areaName);
-    } catch (e) {
-      logger.info(`Error getting area name from db: ${e}`);
-      reject(e);
-    }
+  return DB.getAreaName(timestamp).catch((e) => {
+    logger.error(`Error getting area name from db: ${e}`);
+    throw e;
   });
 }
 
@@ -193,6 +188,7 @@ async function processImageBuffer(buffer, timestamp, type) {
         cleanFailedOCR(err, timestamp);
       }
     } else if (type === 'mods') {
+      logger.debug('Processing map mods');
       try {
         const mods = getModInfo(lines);
         let mapModErr = null;
@@ -224,5 +220,6 @@ module.exports = {
   start,
   test,
   emitter,
+  scheduler,
   processImageBuffer,
 };

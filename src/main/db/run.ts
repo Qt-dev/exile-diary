@@ -297,7 +297,7 @@ const Runs = {
 
   getAreaName: async (timestamp: string) => {
     const query =
-      "select event_text as area from events where event_type='entered' and id < ? order by id desc limit 1";
+      "SELECT event_text AS area FROM events WHERE event_type='entered' AND id < ? ORDER BY id DESC LIMIT 1";
     const { area } = (await DB.get(query, [timestamp])) as { area: string };
     return area;
   },

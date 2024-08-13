@@ -155,7 +155,9 @@ const RunList = ({ NumbersOfMapsToShow = 10, store, isBoxed = true }) => {
                     {run.xpPerHour.toLocaleString('en')}
                   </TableCell>
                   <TableCell align="center">{deaths.length > 0 ? deaths : '-'}</TableCell>
-                  <TableCell align="center">{run.kills || '-'}</TableCell>
+                  <TableCell align="center">
+                    {run.kills && run.kills > -1 ? run.kills : '-'}
+                  </TableCell>
                 </TableRow>
               );
             })}

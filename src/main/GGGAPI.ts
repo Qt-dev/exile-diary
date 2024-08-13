@@ -9,6 +9,12 @@ import RendererLogger from './RendererLogger';
 const axios = setupCache(Axios);
 const CACHE_TIME_IN_SECONDS = 5;
 
+type Inventory = {
+  inventory: any[];
+  equipment: any[];
+  experience: number;
+};
+
 const limiters = new Bottleneck.Group({
   maxConcurrent: 1,
   minTime: 333,
@@ -178,7 +184,7 @@ const getAllCharacters = async () => {
   }
 };
 
-const getDataForInventory = async () => {
+const getDataForInventory = async (): Promise<Inventory> => {
   logger.info('Getting inventory and XP data from the GGG API');
   try {
     const { characterName, token } = await getSettings();
@@ -198,7 +204,7 @@ const getDataForInventory = async () => {
     };
   } catch (e: any) {
     logger.error(`Error while getting inventory from the GGG API: ${e.message}`);
-    return [];
+    return { inventory: [], equipment: [], experience: 0 };
   }
 };
 
@@ -268,7 +274,7 @@ const APIManager = {
     const characters = await getAllCharacters();
     return characters ?? [];
   },
-  getDataForInventory: async () => {
+  getDataForInventory: async (): Promise<Inventory> => {
     const inventory = await getDataForInventory();
     return inventory;
   },

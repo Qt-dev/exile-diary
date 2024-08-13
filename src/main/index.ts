@@ -386,6 +386,18 @@ class MainProcess {
         this.screenshotLock = false;
       }
     });
+    ScreenshotWatcher.emitter.on('screenshot:timeout', async () => {
+      logger.info('Map Info : Reading from screenshot timed out');
+      RendererLogger.log({
+        messages: [
+          {
+            text: 'Map Info : Reading from screenshot timed out',
+            type: 'error',
+          },
+        ],
+      });
+      this.screenshotLock = false;
+    });
 
     StatsManager.registerProfitPerHourAnnouncer((profitPerHour, divinePrice) => {
       this.sendToMain('update-profit-per-hour', { profitPerHour, divinePrice });
@@ -437,6 +449,10 @@ class MainProcess {
       this.sendToMain('current-run:started', { area: 'Unknown' });
       this.sendToOverlay('current-run:started', { area: 'Unknown' });
       StatsManager.triggerProfitPerHourAnnouncer();
+    });
+    RunParser.toggleRunParseShortcut(SettingsManager.get('runParseScreenshotEnabled'));
+    SettingsManager.registerListener('runParseScreenshotEnabled', (enabled) => {
+      RunParser.toggleRunParseShortcut(enabled);
     });
 
     KillTracker.emitter.removeAllListeners();
@@ -506,7 +522,7 @@ class MainProcess {
       if (seed !== '1') {
         this.latestGeneratedAreaLevel = level;
         this.latestGeneratedAreaSeed = seed;
-        RunParser.setLatestGeneratedArea({ level });
+        RunParser.setLatestGeneratedAreaLevel(level);
       }
     });
     ClientTxtWatcher.emitter.on('enteredMap', (area) => {
