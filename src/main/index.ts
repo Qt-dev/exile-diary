@@ -49,10 +49,14 @@ const autoUpdaterIntervalTime = 1000 * 60 * 60; // 1 hour
 const isDev = require('electron-is-dev') || SettingsManager.get('forceDebugMode');
 let modReadingTimer: Dayjs | null = null;
 
+function setLogTransport(debugMode) {
+  logger.transports.console.level = debugMode ? 'debug' : 'info';
+  logger.transports.file.level = debugMode ? 'debug' : 'info';
+}
+
 // Initialize logger settings
 logger.initialize({ preload: true });
-logger.transports.console.level = isDev ? 'debug' : 'info';
-logger.transports.file.level = isDev ? 'debug' : 'info';
+setLogTransport(isDev)
 logger.scope.defaultLabel = 'main';
 logger.errorHandler.startCatching({
   showDialog: false,
@@ -577,6 +581,14 @@ class MainProcess {
           });
       }
     });
+
+    SettingsManager.registerListener('forceDebugMode', (newMode: boolean, oldMode: boolean) => {
+      if(newMode !== oldMode) {
+        logger.debug(`Setting Debug Mode to Enabled:${newMode}`);
+        setLogTransport(newMode);
+      }
+    });
+
 
     AuthManager.setMessenger(this.mainWindow.webContents);
     RendererLogger.init(this.mainWindow.webContents, this.overlayWindow.webContents);
