@@ -72,7 +72,7 @@ async function updateRates(league = SettingsManager.get('activeProfile').league)
 class PriceMatcher {
   ratesCache: {};
   date: string;
-  MapSeries = [
+  MapSeries = [ // Update every league to add the new series or new maps won't be priced
     { id: 1, name: 'Atlas2-3.4' },
     { id: 2, name: 'Atlas2' },
     { id: 3, name: 'Synthesis' },
@@ -87,6 +87,7 @@ class PriceMatcher {
     { id: 18, name: 'Ancestor' },
     { id: 19, name: 'Affliction' },
     { id: 20, name: 'Necropolis' },
+    { id: 21, name: 'Settlers' },
   ];
 
   DefaultGemFormat = {
