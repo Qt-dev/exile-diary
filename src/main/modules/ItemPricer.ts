@@ -66,13 +66,13 @@ async function updateRates(league = SettingsManager.get('activeProfile').league)
   const date = dayjs().format('YYYYMMDD');
   ratesCache[date] = ratesCache[date] || {};
   ratesCache[date][league] = await RatesManager.fetchRatesForDay(league, date);
-  writeFile(`./${date}.json`, JSON.stringify(ratesCache[date][league])); // In case you need to inspect the full rates for a day
+  //writeFile(`./${date}.json`, JSON.stringify(ratesCache[date][league])); // In case you need to inspect the full rates for a day
 }
 
 class PriceMatcher {
   ratesCache: {};
   date: string;
-  MapSeries = [
+  MapSeries = [ // Update every league to add the new series or new maps won't be priced
     { id: 1, name: 'Atlas2-3.4' },
     { id: 2, name: 'Atlas2' },
     { id: 3, name: 'Synthesis' },
@@ -87,6 +87,7 @@ class PriceMatcher {
     { id: 18, name: 'Ancestor' },
     { id: 19, name: 'Affliction' },
     { id: 20, name: 'Necropolis' },
+    { id: 21, name: 'Settlers' },
   ];
 
   DefaultGemFormat = {
@@ -284,7 +285,7 @@ class PriceMatcher {
     },
     {
       name: 'Map',
-      test: (item: any) => item.category === 'Maps',
+      test: (item: any) => item.category === 'Map' || item.category === 'Maps',
       calculateValue: (item: any, minItemValue: number = 0) => this.getMapValue(item, minItemValue),
     },
     {
