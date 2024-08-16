@@ -285,7 +285,7 @@ class PriceMatcher {
     },
     {
       name: 'Map',
-      test: (item: any) => item.category === 'Maps',
+      test: (item: any) => item.category === 'Map' || item.category === 'Maps',
       calculateValue: (item: any, minItemValue: number = 0) => this.getMapValue(item, minItemValue),
     },
     {
