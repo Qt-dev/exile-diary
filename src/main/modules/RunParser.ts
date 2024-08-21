@@ -1065,7 +1065,7 @@ const RunParser = {
 
   insertMapRun: async (mapData: MapData): Promise<void> => {
     return OldDB.run(
-      'INSERT INTO mapruns(id, firstevent, lastevent, iiq, iir, packsize, xp, kills, runinfo) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?) ',
+      'INSERT OR REPLACE INTO mapruns(id, firstevent, lastevent, iiq, iir, packsize, xp, kills, runinfo) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?) ',
       mapData
     )
       .then(() => {
