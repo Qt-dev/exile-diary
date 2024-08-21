@@ -120,6 +120,9 @@ function start() {
         }
       }
     });
+    tail.on('error', (error) => {
+      logger.error(`Error reading client.txt: ${error}`); 
+    });
     tail.watch();
   }
 }
