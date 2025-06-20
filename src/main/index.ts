@@ -56,7 +56,7 @@ function setLogTransport(debugMode) {
 
 // Initialize logger settings
 logger.initialize({ preload: true });
-setLogTransport(isDev)
+setLogTransport(isDev);
 logger.scope.defaultLabel = 'main';
 logger.errorHandler.startCatching({
   showDialog: false,
@@ -306,7 +306,7 @@ class MainProcess {
     OCRWatcher.emitter.on('OCRError', () => {
       logger.info('Error getting area info from screenshot. Please try again');
     });
-    OCRWatcher.emitter.on('areaInfoComplete', (info) => { 
+    OCRWatcher.emitter.on('areaInfoComplete', (info) => {
       const tier = getMapTierString({ level: parseInt(info.areaInfo.level) });
       let stats = `IIR: ${info.mapStats.iir} / IIQ: ${info.mapStats.iiq}`;
       if (info.mapStats.packsize && info.mapStats.packsize > 0)
@@ -583,12 +583,11 @@ class MainProcess {
     });
 
     SettingsManager.registerListener('forceDebugMode', (newMode: boolean, oldMode: boolean) => {
-      if(newMode !== oldMode) {
+      if (newMode !== oldMode) {
         logger.debug(`Setting Debug Mode to Enabled:${newMode}`);
         setLogTransport(newMode);
       }
     });
-
 
     AuthManager.setMessenger(this.mainWindow.webContents);
     RendererLogger.init(this.mainWindow.webContents, this.overlayWindow.webContents);
