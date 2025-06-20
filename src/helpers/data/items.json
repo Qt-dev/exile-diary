@@ -1660,37 +1660,115 @@
       "Withering Touch Support": "Support Skill Gem"
     },
     "others": {
-      "Chayula's Breachstone": ["Map Fragment", "Breachstone"],
-      "Chayula's Charged Breachstone": ["Map Fragment", "Breachstone"],
-      "Chayula's Enriched Breachstone": ["Map Fragment", "Breachstone"],
-      "Chayula's Flawless Breachstone": ["Map Fragment", "Breachstone"],
-      "Chayula's Pure Breachstone": ["Map Fragment", "Breachstone"],
-      "Esh's Breachstone": ["Map Fragment", "Breachstone"],
-      "Esh's Charged Breachstone": ["Map Fragment", "Breachstone"],
-      "Esh's Enriched Breachstone": ["Map Fragment", "Breachstone"],
-      "Esh's Flawless Breachstone": ["Map Fragment", "Breachstone"],
-      "Esh's Pure Breachstone": ["Map Fragment", "Breachstone"],
-      "Tul's Breachstone": ["Map Fragment", "Breachstone"],
-      "Tul's Charged Breachstone": ["Map Fragment", "Breachstone"],
-      "Tul's Enriched Breachstone": ["Map Fragment", "Breachstone"],
-      "Tul's Flawless Breachstone": ["Map Fragment", "Breachstone"],
-      "Tul's Pure Breachstone": ["Map Fragment", "Breachstone"],
-      "Uul-Netol's Breachstone": ["Map Fragment", "Breachstone"],
-      "Uul-Netol's Charged Breachstone": ["Map Fragment", "Breachstone"],
-      "Uul-Netol's Enriched Breachstone": ["Map Fragment", "Breachstone"],
-      "Uul-Netol's Flawless Breachstone": ["Map Fragment", "Breachstone"],
-      "Uul-Netol's Pure Breachstone": ["Map Fragment", "Breachstone"],
-      "Xoph's Breachstone": ["Map Fragment", "Breachstone"],
-      "Xoph's Charged Breachstone": ["Map Fragment", "Breachstone"],
-      "Xoph's Enriched Breachstone": ["Map Fragment", "Breachstone"],
-      "Xoph's Flawless Breachstone": ["Map Fragment", "Breachstone"],
-      "Xoph's Pure Breachstone": ["Map Fragment", "Breachstone"],
+      "Chayula's Breachstone": [
+        "Map Fragment",
+        "Breachstone"
+      ],
+      "Chayula's Charged Breachstone": [
+        "Map Fragment",
+        "Breachstone"
+      ],
+      "Chayula's Enriched Breachstone": [
+        "Map Fragment",
+        "Breachstone"
+      ],
+      "Chayula's Flawless Breachstone": [
+        "Map Fragment",
+        "Breachstone"
+      ],
+      "Chayula's Pure Breachstone": [
+        "Map Fragment",
+        "Breachstone"
+      ],
+      "Esh's Breachstone": [
+        "Map Fragment",
+        "Breachstone"
+      ],
+      "Esh's Charged Breachstone": [
+        "Map Fragment",
+        "Breachstone"
+      ],
+      "Esh's Enriched Breachstone": [
+        "Map Fragment",
+        "Breachstone"
+      ],
+      "Esh's Flawless Breachstone": [
+        "Map Fragment",
+        "Breachstone"
+      ],
+      "Esh's Pure Breachstone": [
+        "Map Fragment",
+        "Breachstone"
+      ],
+      "Tul's Breachstone": [
+        "Map Fragment",
+        "Breachstone"
+      ],
+      "Tul's Charged Breachstone": [
+        "Map Fragment",
+        "Breachstone"
+      ],
+      "Tul's Enriched Breachstone": [
+        "Map Fragment",
+        "Breachstone"
+      ],
+      "Tul's Flawless Breachstone": [
+        "Map Fragment",
+        "Breachstone"
+      ],
+      "Tul's Pure Breachstone": [
+        "Map Fragment",
+        "Breachstone"
+      ],
+      "Uul-Netol's Breachstone": [
+        "Map Fragment",
+        "Breachstone"
+      ],
+      "Uul-Netol's Charged Breachstone": [
+        "Map Fragment",
+        "Breachstone"
+      ],
+      "Uul-Netol's Enriched Breachstone": [
+        "Map Fragment",
+        "Breachstone"
+      ],
+      "Uul-Netol's Flawless Breachstone": [
+        "Map Fragment",
+        "Breachstone"
+      ],
+      "Uul-Netol's Pure Breachstone": [
+        "Map Fragment",
+        "Breachstone"
+      ],
+      "Xoph's Breachstone": [
+        "Map Fragment",
+        "Breachstone"
+      ],
+      "Xoph's Charged Breachstone": [
+        "Map Fragment",
+        "Breachstone"
+      ],
+      "Xoph's Enriched Breachstone": [
+        "Map Fragment",
+        "Breachstone"
+      ],
+      "Xoph's Flawless Breachstone": [
+        "Map Fragment",
+        "Breachstone"
+      ],
+      "Xoph's Pure Breachstone": [
+        "Map Fragment",
+        "Breachstone"
+      ],
       "Abyss Scarab": "Map Fragment",
       "Abyss Scarab of Edifice": "Map Fragment",
       "Abyss Scarab of Emptiness": "Map Fragment",
       "Abyss Scarab of Multitudes": "Map Fragment",
       "Abyss Scarab of Profound Depth": "Map Fragment",
-      "Al-Hezmin's Crest": ["Map Fragment", "Guardian Fragment"],
+      "Al-Hezmin's Crest": [
+        "Map Fragment",
+        "Guardian Fragment"
+      ],
       "Ambush Scarab": "Map Fragment",
       "Ambush Scarab of Containment": "Map Fragment",
       "Ambush Scarab of Discernment": "Map Fragment",
@@ -1701,7 +1779,10 @@
       "Anarchy Scarab of Gigantification": "Map Fragment",
       "Anarchy Scarab of Partnership": "Map Fragment",
       "Awakening Fragment": "Map Fragment",
-      "Baran's Crest": ["Map Fragment", "Guardian Fragment"],
+      "Baran's Crest": [
+        "Map Fragment",
+        "Guardian Fragment"
+      ],
       "Bestiary Scarab": "Map Fragment",
       "Bestiary Scarab of Duplicating": "Map Fragment",
       "Bestiary Scarab of the Herd": "Map Fragment",
@@ -1752,8 +1833,14 @@
       "Domination Scarab of Apparitions": "Map Fragment",
       "Domination Scarab of Evolution": "Map Fragment",
       "Domination Scarab of Terrors": "Map Fragment",
-      "Drox's Crest": ["Map Fragment", "Guardian Fragment"],
-      "Eber's Key": ["Map Fragment", "Pale Council Key"],
+      "Drox's Crest": [
+        "Map Fragment",
+        "Guardian Fragment"
+      ],
+      "Eber's Key": [
+        "Map Fragment",
+        "Pale Council Key"
+      ],
       "Essence Scarab": "Map Fragment",
       "Essence Scarab of Adaptation": "Map Fragment",
       "Essence Scarab of Ascent": "Map Fragment",
@@ -1766,18 +1853,54 @@
       "Expedition Scarab of Verisium Powder": "Map Fragment",
       "Farric Lure": "Map Fragment",
       "Fenumal Lure": "Map Fragment",
-      "Fragment of Constriction": ["Map Fragment", "Guardian Fragment"],
-      "Fragment of Emptiness": ["Map Fragment", "Guardian Fragment"],
-      "Fragment of Enslavement": ["Map Fragment", "Guardian Fragment"],
-      "Fragment of Eradication": ["Map Fragment", "Guardian Fragment"],
-      "Fragment of Knowledge": ["Map Fragment", "Guardian Fragment"],
-      "Fragment of Purification": ["Map Fragment", "Guardian Fragment"],
-      "Fragment of Shape": ["Map Fragment", "Guardian Fragment"],
-      "Fragment of Terror": ["Map Fragment", "Guardian Fragment"],
-      "Fragment of the Chimera": ["Map Fragment", "Guardian Fragment"],
-      "Fragment of the Hydra": ["Map Fragment", "Guardian Fragment"],
-      "Fragment of the Minotaur": ["Map Fragment", "Guardian Fragment"],
-      "Fragment of the Phoenix": ["Map Fragment", "Guardian Fragment"],
+      "Fragment of Constriction": [
+        "Map Fragment",
+        "Guardian Fragment"
+      ],
+      "Fragment of Emptiness": [
+        "Map Fragment",
+        "Guardian Fragment"
+      ],
+      "Fragment of Enslavement": [
+        "Map Fragment",
+        "Guardian Fragment"
+      ],
+      "Fragment of Eradication": [
+        "Map Fragment",
+        "Guardian Fragment"
+      ],
+      "Fragment of Knowledge": [
+        "Map Fragment",
+        "Guardian Fragment"
+      ],
+      "Fragment of Purification": [
+        "Map Fragment",
+        "Guardian Fragment"
+      ],
+      "Fragment of Shape": [
+        "Map Fragment",
+        "Guardian Fragment"
+      ],
+      "Fragment of Terror": [
+        "Map Fragment",
+        "Guardian Fragment"
+      ],
+      "Fragment of the Chimera": [
+        "Map Fragment",
+        "Guardian Fragment"
+      ],
+      "Fragment of the Hydra": [
+        "Map Fragment",
+        "Guardian Fragment"
+      ],
+      "Fragment of the Minotaur": [
+        "Map Fragment",
+        "Guardian Fragment"
+      ],
+      "Fragment of the Phoenix": [
+        "Map Fragment",
+        "Guardian Fragment"
+      ],
       "Gift to the Goddess": "Map Fragment",
       "Gilded Abyss Scarab": "Map Fragment",
       "Gilded Ambush Scarab": "Map Fragment",
@@ -1817,7 +1940,10 @@
       "Influencing Scarab of Hordes": "Map Fragment",
       "Influencing Scarab of the Elder": "Map Fragment",
       "Influencing Scarab of the Shaper": "Map Fragment",
-      "Inya's Key": ["Map Fragment", "Pale Council Key"],
+      "Inya's Key": [
+        "Map Fragment",
+        "Pale Council Key"
+      ],
       "Key to Decay": "Map Fragment",
       "Key to the Crucible": "Map Fragment",
       "Legion Scarab": "Map Fragment",
@@ -1826,11 +1952,26 @@
       "Legion Scarab of Officers": "Map Fragment",
       "Legion Scarab of The Sekhema": "Map Fragment",
       "Maddening Object": "Map Fragment",
-      "Mortal Grief": ["Map Fragment", "Mortal Fragment"],
-      "Mortal Hope": ["Map Fragment", "Mortal Fragment"],
-      "Mortal Ignorance": ["Map Fragment", "Mortal Fragment"],
-      "Mortal Rage": ["Map Fragment", "Mortal Fragment"],
-      "Mortal Set": ["Map Fragment", "Mortal Fragment"],
+      "Mortal Grief": [
+        "Map Fragment",
+        "Mortal Fragment"
+      ],
+      "Mortal Hope": [
+        "Map Fragment",
+        "Mortal Fragment"
+      ],
+      "Mortal Ignorance": [
+        "Map Fragment",
+        "Mortal Fragment"
+      ],
+      "Mortal Rage": [
+        "Map Fragment",
+        "Mortal Fragment"
+      ],
+      "Mortal Set": [
+        "Map Fragment",
+        "Mortal Fragment"
+      ],
       "Offering to the Goddess": "Map Fragment",
       "Pale Court Set": "Map Fragment",
       "Polished Abyss Scarab": "Map Fragment",
@@ -1870,10 +2011,22 @@
       "Rusted Torment Scarab": "Map Fragment",
       "Rusted Ultimatum Scarab": "Map Fragment",
       "Sacred Blossom": "Map Fragment",
-      "Sacrifice at Dawn": ["Map Fragment", "Sacrifice Fragment"],
-      "Sacrifice at Dusk": ["Map Fragment", "Sacrifice Fragment"],
-      "Sacrifice at Midnight": ["Map Fragment", "Sacrifice Fragment"],
-      "Sacrifice at Noon": ["Map Fragment", "Sacrifice Fragment"],
+      "Sacrifice at Dawn": [
+        "Map Fragment",
+        "Sacrifice Fragment"
+      ],
+      "Sacrifice at Dusk": [
+        "Map Fragment",
+        "Sacrifice Fragment"
+      ],
+      "Sacrifice at Midnight": [
+        "Map Fragment",
+        "Sacrifice Fragment"
+      ],
+      "Sacrifice at Noon": [
+        "Map Fragment",
+        "Sacrifice Fragment"
+      ],
       "Sacrifice Set": "Map Fragment",
       "Saqawine Lure": "Map Fragment",
       "Scarab of Adversaries": "Map Fragment",
@@ -1916,8 +2069,14 @@
       "Unrelenting Timeless Maraketh Emblem": "Map Fragment",
       "Unrelenting Timeless Templar Emblem": "Map Fragment",
       "Unrelenting Timeless Vaal Emblem": "Map Fragment",
-      "Veritania's Crest": ["Map Fragment", "Guardian Fragment"],
-      "Volkuur's Key": ["Map Fragment", "Pale Council Key"],
+      "Veritania's Crest": [
+        "Map Fragment",
+        "Guardian Fragment"
+      ],
+      "Volkuur's Key": [
+        "Map Fragment",
+        "Pale Council Key"
+      ],
       "Winged Abyss Scarab": "Map Fragment",
       "Winged Ambush Scarab": "Map Fragment",
       "Winged Bestiary Scarab": "Map Fragment",
@@ -1934,7 +2093,10 @@
       "Winged Sulphite Scarab": "Map Fragment",
       "Winged Torment Scarab": "Map Fragment",
       "Winged Ultimatum Scarab": "Map Fragment",
-      "Yriel's Key": ["Map Fragment", "Pale Council Key"],
+      "Yriel's Key": [
+        "Map Fragment",
+        "Pale Council Key"
+      ],
       "Chronicle of Atzoatl": "Misc Map Item",
       "Incandescent Invitation": "Misc Map Item",
       "Inscribed Ultimatum": "Misc Map Item",
@@ -1959,15 +2121,33 @@
       "Primordial Remnant": "Misc Map Item",
       "Screaming Invitation": "Misc Map Item",
       "Writhing Invitation": "Misc Map Item",
-      "Aberrant Fossil": ["Currency", "Fossil"],
-      "Abrasive Catalyst": ["Currency", "Catalyst"],
-      "Abyssal Delirium Orb": ["Currency", "Delirium Orb"],
-      "Accelerating Catalyst": ["Currency", "Catalyst"],
-      "Aetheric Fossil": ["Currency", "Fossil"],
+      "Aberrant Fossil": [
+        "Currency",
+        "Fossil"
+      ],
+      "Abrasive Catalyst": [
+        "Currency",
+        "Catalyst"
+      ],
+      "Abyssal Delirium Orb": [
+        "Currency",
+        "Delirium Orb"
+      ],
+      "Accelerating Catalyst": [
+        "Currency",
+        "Catalyst"
+      ],
+      "Aetheric Fossil": [
+        "Currency",
+        "Fossil"
+      ],
       "Albino Rhoa Feather": "Currency",
       "Alchemy Shard": "Currency",
       "Alteration Shard": "Currency",
-      "Amber Oil": ["Currency", "Oil"],
+      "Amber Oil": [
+        "Currency",
+        "Oil"
+      ],
       "Amplifying Power Core": "Currency",
       "Ancestral Tattoo of Bloodlines": "Currency",
       "Ancient Orb": "Currency",
@@ -1976,72 +2156,195 @@
       "Apprentice Cartographer's Seal": "Currency",
       "Armour Recombinator": "Currency",
       "Armourer's Scrap": "Currency",
-      "Armoursmith's Delirium Orb": ["Currency", "Delirium Orb"],
+      "Armoursmith's Delirium Orb": [
+        "Currency",
+        "Delirium Orb"
+      ],
       "Astragali": "Currency",
       "Augmenting Power Core": "Currency",
       "Awakened Sextant": "Currency",
       "Awakener's Orb": "Currency",
-      "Azure Oil": ["Currency", "Oil"],
+      "Azure Oil": [
+        "Currency",
+        "Oil"
+      ],
       "Bestiary Orb": "Currency",
       "Binding Shard": "Currency",
-      "Black Oil": ["Currency", "Oil"],
-      "Blacksmith's Delirium Orb": ["Currency", "Delirium Orb"],
+      "Black Oil": [
+        "Currency",
+        "Oil"
+      ],
+      "Blacksmith's Delirium Orb": [
+        "Currency",
+        "Delirium Orb"
+      ],
       "Blacksmith's Whetstone": "Currency",
       "Blessed Orb": "Currency",
-      "Blessing of Chayula": ["Currency", "Breach Blessing"],
-      "Blessing of Esh": ["Currency", "Breach Blessing"],
-      "Blessing of Tul": ["Currency", "Breach Blessing"],
-      "Blessing of Uul-Netol": ["Currency", "Breach Blessing"],
-      "Blessing of Xoph": ["Currency", "Breach Blessing"],
-      "Blighted Delirium Orb": ["Currency", "Delirium Orb"],
+      "Blessing of Chayula": [
+        "Currency",
+        "Breach Blessing"
+      ],
+      "Blessing of Esh": [
+        "Currency",
+        "Breach Blessing"
+      ],
+      "Blessing of Tul": [
+        "Currency",
+        "Breach Blessing"
+      ],
+      "Blessing of Uul-Netol": [
+        "Currency",
+        "Breach Blessing"
+      ],
+      "Blessing of Xoph": [
+        "Currency",
+        "Breach Blessing"
+      ],
+      "Blighted Delirium Orb": [
+        "Currency",
+        "Delirium Orb"
+      ],
       "Blighted Scouting Report": "Currency",
-      "Bloodstained Fossil": ["Currency", "Fossil"],
-      "Bound Fossil": ["Currency", "Fossil"],
+      "Bloodstained Fossil": [
+        "Currency",
+        "Fossil"
+      ],
+      "Bound Fossil": [
+        "Currency",
+        "Fossil"
+      ],
       "Bound Rune": "Currency",
       "Bounty Rune": "Currency",
       "Burial Medallion": "Currency",
       "Cartographer's Chisel": "Currency",
-      "Cartographer's Delirium Orb": ["Currency", "Delirium Orb"],
-      "Challenging Delirium Orb": ["Currency", "Delirium Orb"],
+      "Cartographer's Delirium Orb": [
+        "Currency",
+        "Delirium Orb"
+      ],
+      "Challenging Delirium Orb": [
+        "Currency",
+        "Delirium Orb"
+      ],
       "Chaos Orb": "Currency",
       "Chaos Shard": "Currency",
       "Charged Compass": "Currency",
       "Chromatic Orb": "Currency",
-      "Clear Oil": ["Currency", "Oil"],
+      "Clear Oil": [
+        "Currency",
+        "Oil"
+      ],
       "Comprehensive Scouting Report": "Currency",
-      "Corroded Fossil": ["Currency", "Fossil"],
+      "Corroded Fossil": [
+        "Currency",
+        "Fossil"
+      ],
       "Corrupt": "Currency",
       "Crescent Splinter": "Currency",
-      "Crimson Oil": ["Currency", "Oil"],
+      "Crimson Oil": [
+        "Currency",
+        "Oil"
+      ],
       "Crusader's Exalted Orb": "Currency",
       "Crystalline Geode": "Currency",
-      "Deafening Essence of Anger": ["Currency", "Essence"],
-      "Deafening Essence of Anguish": ["Currency", "Essence"],
-      "Deafening Essence of Contempt": ["Currency", "Essence"],
-      "Deafening Essence of Doubt": ["Currency", "Essence"],
-      "Deafening Essence of Dread": ["Currency", "Essence"],
-      "Deafening Essence of Envy": ["Currency", "Essence"],
-      "Deafening Essence of Fear": ["Currency", "Essence"],
-      "Deafening Essence of Greed": ["Currency", "Essence"],
-      "Deafening Essence of Hatred": ["Currency", "Essence"],
-      "Deafening Essence of Loathing": ["Currency", "Essence"],
-      "Deafening Essence of Misery": ["Currency", "Essence"],
-      "Deafening Essence of Rage": ["Currency", "Essence"],
-      "Deafening Essence of Scorn": ["Currency", "Essence"],
-      "Deafening Essence of Sorrow": ["Currency", "Essence"],
-      "Deafening Essence of Spite": ["Currency", "Essence"],
-      "Deafening Essence of Suffering": ["Currency", "Essence"],
-      "Deafening Essence of Torment": ["Currency", "Essence"],
-      "Deafening Essence of Woe": ["Currency", "Essence"],
-      "Deafening Essence of Wrath": ["Currency", "Essence"],
-      "Deafening Essence of Zeal": ["Currency", "Essence"],
-      "Deft Fossil": ["Currency", "Fossil"],
+      "Deafening Essence of Anger": [
+        "Currency",
+        "Essence"
+      ],
+      "Deafening Essence of Anguish": [
+        "Currency",
+        "Essence"
+      ],
+      "Deafening Essence of Contempt": [
+        "Currency",
+        "Essence"
+      ],
+      "Deafening Essence of Doubt": [
+        "Currency",
+        "Essence"
+      ],
+      "Deafening Essence of Dread": [
+        "Currency",
+        "Essence"
+      ],
+      "Deafening Essence of Envy": [
+        "Currency",
+        "Essence"
+      ],
+      "Deafening Essence of Fear": [
+        "Currency",
+        "Essence"
+      ],
+      "Deafening Essence of Greed": [
+        "Currency",
+        "Essence"
+      ],
+      "Deafening Essence of Hatred": [
+        "Currency",
+        "Essence"
+      ],
+      "Deafening Essence of Loathing": [
+        "Currency",
+        "Essence"
+      ],
+      "Deafening Essence of Misery": [
+        "Currency",
+        "Essence"
+      ],
+      "Deafening Essence of Rage": [
+        "Currency",
+        "Essence"
+      ],
+      "Deafening Essence of Scorn": [
+        "Currency",
+        "Essence"
+      ],
+      "Deafening Essence of Sorrow": [
+        "Currency",
+        "Essence"
+      ],
+      "Deafening Essence of Spite": [
+        "Currency",
+        "Essence"
+      ],
+      "Deafening Essence of Suffering": [
+        "Currency",
+        "Essence"
+      ],
+      "Deafening Essence of Torment": [
+        "Currency",
+        "Essence"
+      ],
+      "Deafening Essence of Woe": [
+        "Currency",
+        "Essence"
+      ],
+      "Deafening Essence of Wrath": [
+        "Currency",
+        "Essence"
+      ],
+      "Deafening Essence of Zeal": [
+        "Currency",
+        "Essence"
+      ],
+      "Deft Fossil": [
+        "Currency",
+        "Fossil"
+      ],
       "Delirious Scouting Report": "Currency",
-      "Delirium Orb": ["Currency", "Delirium Orb"],
-      "Dense Fossil": ["Currency", "Fossil"],
+      "Delirium Orb": [
+        "Currency",
+        "Delirium Orb"
+      ],
+      "Dense Fossil": [
+        "Currency",
+        "Fossil"
+      ],
       "Deregulation Scroll": "Currency",
       "Divine Orb": "Currency",
-      "Diviner's Delirium Orb": ["Currency", "Delirium Orb"],
+      "Diviner's Delirium Orb": [
+        "Currency",
+        "Delirium Orb"
+      ],
       "Eldritch Chaos Orb": "Currency",
       "Eldritch Exalted Orb": "Currency",
       "Eldritch Orb of Annulment": "Currency",
@@ -2052,10 +2355,22 @@
       "Engineer's Orb": "Currency",
       "Engineer's Shard": "Currency",
       "Enkindling Orb": "Currency",
-      "Essence of Delirium": ["Currency", "Essence"],
-      "Essence of Horror": ["Currency", "Essence"],
-      "Essence of Hysteria": ["Currency", "Essence"],
-      "Essence of Insanity": ["Currency", "Essence"],
+      "Essence of Delirium": [
+        "Currency",
+        "Essence"
+      ],
+      "Essence of Horror": [
+        "Currency",
+        "Essence"
+      ],
+      "Essence of Hysteria": [
+        "Currency",
+        "Essence"
+      ],
+      "Essence of Insanity": [
+        "Currency",
+        "Essence"
+      ],
       "Eternal Orb": "Currency",
       "Exalted Orb": "Currency",
       "Exalted Shard": "Currency",
@@ -2067,25 +2382,61 @@
       "Exceptional Sun Artifact": "Currency",
       "Exotic Coinage": "Currency",
       "Explorer's Scouting Report": "Currency",
-      "Faceted Fossil": ["Currency", "Fossil"],
+      "Faceted Fossil": [
+        "Currency",
+        "Fossil"
+      ],
       "Facetor's Lens": "Currency",
-      "Fertile Catalyst": ["Currency", "Catalyst"],
+      "Fertile Catalyst": [
+        "Currency",
+        "Catalyst"
+      ],
       "Filled Coffin": "Currency",
-      "Fine Delirium Orb": ["Currency", "Delirium Orb"],
-      "Foreboding Delirium Orb": ["Currency", "Delirium Orb"],
-      "Fossilised Delirium Orb": ["Currency", "Delirium Orb"],
-      "Fractured Fossil": ["Currency", "Fossil"],
+      "Fine Delirium Orb": [
+        "Currency",
+        "Delirium Orb"
+      ],
+      "Foreboding Delirium Orb": [
+        "Currency",
+        "Delirium Orb"
+      ],
+      "Fossilised Delirium Orb": [
+        "Currency",
+        "Delirium Orb"
+      ],
+      "Fractured Fossil": [
+        "Currency",
+        "Fossil"
+      ],
       "Fracturing Orb": "Currency",
       "Fracturing Shard": "Currency",
       "Fragmentation Scroll": "Currency",
-      "Fragmented Delirium Orb": ["Currency", "Delirium Orb"],
-      "Frigid Fossil": ["Currency", "Fossil"],
-      "Fundamental Fossil": ["Currency", "Fossil"],
+      "Fragmented Delirium Orb": [
+        "Currency",
+        "Delirium Orb"
+      ],
+      "Frigid Fossil": [
+        "Currency",
+        "Fossil"
+      ],
+      "Fundamental Fossil": [
+        "Currency",
+        "Fossil"
+      ],
       "Gemcutter's Prism": "Currency",
-      "Gilded Fossil": ["Currency", "Fossil"],
+      "Gilded Fossil": [
+        "Currency",
+        "Fossil"
+      ],
       "Glassblower's Bauble": "Currency",
-      "Glyphic Fossil": ["Currency", "Fossil"],
-      "Golden Oil": ["Currency", "Oil"],
+      "Glyphic Fossil": [
+        "Currency",
+        "Fossil"
+      ],
+      "Golden Oil": [
+        "Currency",
+        "Oil"
+      ],
       "Grand Black Scythe Artifact": "Currency",
       "Grand Broken Circle Artifact": "Currency",
       "Grand Eldritch Ember": "Currency",
@@ -2102,7 +2453,10 @@
       "Harbinger's Orb": "Currency",
       "Harbinger's Shard": "Currency",
       "Hinekora's Lock": "Currency",
-      "Hollow Fossil": ["Currency", "Fossil"],
+      "Hollow Fossil": [
+        "Currency",
+        "Fossil"
+      ],
       "Honoured Tattoo of the Barbarian": "Currency",
       "Honoured Tattoo of the Berserker": "Currency",
       "Honoured Tattoo of the Dove": "Currency",
@@ -2124,17 +2478,35 @@
       "Horizon Shard": "Currency",
       "Hunter's Exalted Orb": "Currency",
       "Igneous Geode": "Currency",
-      "Imbued Catalyst": ["Currency", "Catalyst"],
-      "Imperial Delirium Orb": ["Currency", "Delirium Orb"],
+      "Imbued Catalyst": [
+        "Currency",
+        "Catalyst"
+      ],
+      "Imperial Delirium Orb": [
+        "Currency",
+        "Delirium Orb"
+      ],
       "Imprint": "Currency",
       "Imprinted Bestiary Orb": "Currency",
-      "Indigo Oil": ["Currency", "Oil"],
+      "Indigo Oil": [
+        "Currency",
+        "Oil"
+      ],
       "Influenced Scouting Report": "Currency",
       "Infused Engineer's Orb": "Currency",
       "Instilling Orb": "Currency",
-      "Intrinsic Catalyst": ["Currency", "Catalyst"],
-      "Jagged Fossil": ["Currency", "Fossil"],
-      "Jeweller's Delirium Orb": ["Currency", "Delirium Orb"],
+      "Intrinsic Catalyst": [
+        "Currency",
+        "Catalyst"
+      ],
+      "Jagged Fossil": [
+        "Currency",
+        "Fossil"
+      ],
+      "Jeweller's Delirium Orb": [
+        "Currency",
+        "Delirium Orb"
+      ],
       "Jeweller's Orb": "Currency",
       "Jewellery Recombinator": "Currency",
       "Journey Rune": "Currency",
@@ -2143,7 +2515,10 @@
       "Journey Tattoo of the Mind": "Currency",
       "Journey Tattoo of the Soul": "Currency",
       "Journeyman Cartographer's Seal": "Currency",
-      "Kalguuran Delirium Orb": ["Currency", "Delirium Orb"],
+      "Kalguuran Delirium Orb": [
+        "Currency",
+        "Delirium Orb"
+      ],
       "Lesser Black Scythe Artifact": "Currency",
       "Lesser Broken Circle Artifact": "Currency",
       "Lesser Eldritch Ember": "Currency",
@@ -2161,7 +2536,10 @@
       "Loyalty Tattoo of Rakiata": "Currency",
       "Loyalty Tattoo of Tawhanuku": "Currency",
       "Loyalty Tattoo of Utula": "Currency",
-      "Lucent Fossil": ["Currency", "Fossil"],
+      "Lucent Fossil": [
+        "Currency",
+        "Fossil"
+      ],
       "Lycia's Invocation of Acrobatics": "Currency",
       "Lycia's Invocation of Ancestral Bond": "Currency",
       "Lycia's Invocation of Arrow Dancing": "Currency",
@@ -2210,21 +2588,54 @@
       "Maven's Chisel of Procurement": "Currency",
       "Maven's Chisel of Proliferation": "Currency",
       "Maven's Chisel of Scarabs": "Currency",
-      "Metallic Fossil": ["Currency", "Fossil"],
+      "Metallic Fossil": [
+        "Currency",
+        "Fossil"
+      ],
       "Mirror of Kalandra": "Currency",
       "Mirror Shard": "Currency",
       "Mountain Rune": "Currency",
-      "Muttering Essence of Anger": ["Currency", "Essence"],
-      "Muttering Essence of Contempt": ["Currency", "Essence"],
-      "Muttering Essence of Fear": ["Currency", "Essence"],
-      "Muttering Essence of Greed": ["Currency", "Essence"],
-      "Muttering Essence of Hatred": ["Currency", "Essence"],
-      "Muttering Essence of Sorrow": ["Currency", "Essence"],
-      "Muttering Essence of Torment": ["Currency", "Essence"],
-      "Muttering Essence of Woe": ["Currency", "Essence"],
+      "Muttering Essence of Anger": [
+        "Currency",
+        "Essence"
+      ],
+      "Muttering Essence of Contempt": [
+        "Currency",
+        "Essence"
+      ],
+      "Muttering Essence of Fear": [
+        "Currency",
+        "Essence"
+      ],
+      "Muttering Essence of Greed": [
+        "Currency",
+        "Essence"
+      ],
+      "Muttering Essence of Hatred": [
+        "Currency",
+        "Essence"
+      ],
+      "Muttering Essence of Sorrow": [
+        "Currency",
+        "Essence"
+      ],
+      "Muttering Essence of Torment": [
+        "Currency",
+        "Essence"
+      ],
+      "Muttering Essence of Woe": [
+        "Currency",
+        "Essence"
+      ],
       "Necromancy Net": "Currency",
-      "Noxious Catalyst": ["Currency", "Catalyst"],
-      "Obscured Delirium Orb": ["Currency", "Delirium Orb"],
+      "Noxious Catalyst": [
+        "Currency",
+        "Catalyst"
+      ],
+      "Obscured Delirium Orb": [
+        "Currency",
+        "Delirium Orb"
+      ],
       "Oil Extractor": "Currency",
       "Omen of Acceleration": "Currency",
       "Omen of Adrenaline": "Currency",
@@ -2242,9 +2653,15 @@
       "Omen of Revenge": "Currency",
       "Omen of the Jeweller": "Currency",
       "Omen of the Soul Devourer": "Currency",
-      "Opalescent Oil": ["Currency", "Oil"],
+      "Opalescent Oil": [
+        "Currency",
+        "Oil"
+      ],
       "Operative's Scouting Report": "Currency",
-      "Opulent Fossil": ["Currency", "Fossil"],
+      "Opulent Fossil": [
+        "Currency",
+        "Fossil"
+      ],
       "Orb of Alchemy": "Currency",
       "Orb of Alteration": "Currency",
       "Orb of Annulment": "Currency",
@@ -2265,95 +2682,275 @@
       "Power Core": "Currency",
       "Power Rune": "Currency",
       "Primal Crystallised Lifeforce": "Currency",
-      "Primal Delirium Orb": ["Currency", "Delirium Orb"],
+      "Primal Delirium Orb": [
+        "Currency",
+        "Delirium Orb"
+      ],
       "Primal Wisps": "Currency",
       "Prime Regrading Lens": "Currency",
       "Prime Sextant": "Currency",
-      "Prismatic Catalyst": ["Currency", "Catalyst"],
-      "Prismatic Fossil": ["Currency", "Fossil"],
-      "Prismatic Oil": ["Currency", "Oil"],
-      "Pristine Fossil": ["Currency", "Fossil"],
+      "Prismatic Catalyst": [
+        "Currency",
+        "Catalyst"
+      ],
+      "Prismatic Fossil": [
+        "Currency",
+        "Fossil"
+      ],
+      "Prismatic Oil": [
+        "Currency",
+        "Oil"
+      ],
+      "Pristine Fossil": [
+        "Currency",
+        "Fossil"
+      ],
       "Prophecy": "Currency",
       "Redeemer's Exalted Orb": "Currency",
       "Reflecting Mist": "Currency",
-      "Reflective Oil": ["Currency", "Oil"],
+      "Reflective Oil": [
+        "Currency",
+        "Oil"
+      ],
       "Regal Orb": "Currency",
       "Regal Shard": "Currency",
       "Reinforced Iron Net": "Currency",
       "Reinforced Rope Net": "Currency",
       "Reinforced Steel Net": "Currency",
-      "Remnant of Corruption": ["Currency", "Essence"],
+      "Remnant of Corruption": [
+        "Currency",
+        "Essence"
+      ],
       "Ritual Splinter": "Currency",
       "Ritual Vessel": "Currency",
       "River Rune": "Currency",
       "Rogue's Marker": "Currency",
       "Sacred Crystallised Lifeforce": "Currency",
       "Sacred Orb": "Currency",
-      "Sanctified Fossil": ["Currency", "Fossil"],
-      "Scorched Fossil": ["Currency", "Fossil"],
+      "Sanctified Fossil": [
+        "Currency",
+        "Fossil"
+      ],
+      "Scorched Fossil": [
+        "Currency",
+        "Fossil"
+      ],
       "Scrap Metal": "Currency",
-      "Screaming Essence of Anger": ["Currency", "Essence"],
-      "Screaming Essence of Anguish": ["Currency", "Essence"],
-      "Screaming Essence of Contempt": ["Currency", "Essence"],
-      "Screaming Essence of Doubt": ["Currency", "Essence"],
-      "Screaming Essence of Dread": ["Currency", "Essence"],
-      "Screaming Essence of Envy": ["Currency", "Essence"],
-      "Screaming Essence of Fear": ["Currency", "Essence"],
-      "Screaming Essence of Greed": ["Currency", "Essence"],
-      "Screaming Essence of Hatred": ["Currency", "Essence"],
-      "Screaming Essence of Loathing": ["Currency", "Essence"],
-      "Screaming Essence of Misery": ["Currency", "Essence"],
-      "Screaming Essence of Rage": ["Currency", "Essence"],
-      "Screaming Essence of Scorn": ["Currency", "Essence"],
-      "Screaming Essence of Sorrow": ["Currency", "Essence"],
-      "Screaming Essence of Spite": ["Currency", "Essence"],
-      "Screaming Essence of Suffering": ["Currency", "Essence"],
-      "Screaming Essence of Torment": ["Currency", "Essence"],
-      "Screaming Essence of Woe": ["Currency", "Essence"],
-      "Screaming Essence of Wrath": ["Currency", "Essence"],
-      "Screaming Essence of Zeal": ["Currency", "Essence"],
+      "Screaming Essence of Anger": [
+        "Currency",
+        "Essence"
+      ],
+      "Screaming Essence of Anguish": [
+        "Currency",
+        "Essence"
+      ],
+      "Screaming Essence of Contempt": [
+        "Currency",
+        "Essence"
+      ],
+      "Screaming Essence of Doubt": [
+        "Currency",
+        "Essence"
+      ],
+      "Screaming Essence of Dread": [
+        "Currency",
+        "Essence"
+      ],
+      "Screaming Essence of Envy": [
+        "Currency",
+        "Essence"
+      ],
+      "Screaming Essence of Fear": [
+        "Currency",
+        "Essence"
+      ],
+      "Screaming Essence of Greed": [
+        "Currency",
+        "Essence"
+      ],
+      "Screaming Essence of Hatred": [
+        "Currency",
+        "Essence"
+      ],
+      "Screaming Essence of Loathing": [
+        "Currency",
+        "Essence"
+      ],
+      "Screaming Essence of Misery": [
+        "Currency",
+        "Essence"
+      ],
+      "Screaming Essence of Rage": [
+        "Currency",
+        "Essence"
+      ],
+      "Screaming Essence of Scorn": [
+        "Currency",
+        "Essence"
+      ],
+      "Screaming Essence of Sorrow": [
+        "Currency",
+        "Essence"
+      ],
+      "Screaming Essence of Spite": [
+        "Currency",
+        "Essence"
+      ],
+      "Screaming Essence of Suffering": [
+        "Currency",
+        "Essence"
+      ],
+      "Screaming Essence of Torment": [
+        "Currency",
+        "Essence"
+      ],
+      "Screaming Essence of Woe": [
+        "Currency",
+        "Essence"
+      ],
+      "Screaming Essence of Wrath": [
+        "Currency",
+        "Essence"
+      ],
+      "Screaming Essence of Zeal": [
+        "Currency",
+        "Essence"
+      ],
       "Scroll Fragment": "Currency",
       "Scroll of Wisdom": "Currency",
       "Secondary Regrading Lens": "Currency",
-      "Sepia Oil": ["Currency", "Oil"],
-      "Serrated Fossil": ["Currency", "Fossil"],
-      "Shrieking Essence of Anger": ["Currency", "Essence"],
-      "Shrieking Essence of Anguish": ["Currency", "Essence"],
-      "Shrieking Essence of Contempt": ["Currency", "Essence"],
-      "Shrieking Essence of Doubt": ["Currency", "Essence"],
-      "Shrieking Essence of Dread": ["Currency", "Essence"],
-      "Shrieking Essence of Envy": ["Currency", "Essence"],
-      "Shrieking Essence of Fear": ["Currency", "Essence"],
-      "Shrieking Essence of Greed": ["Currency", "Essence"],
-      "Shrieking Essence of Hatred": ["Currency", "Essence"],
-      "Shrieking Essence of Loathing": ["Currency", "Essence"],
-      "Shrieking Essence of Misery": ["Currency", "Essence"],
-      "Shrieking Essence of Rage": ["Currency", "Essence"],
-      "Shrieking Essence of Scorn": ["Currency", "Essence"],
-      "Shrieking Essence of Sorrow": ["Currency", "Essence"],
-      "Shrieking Essence of Spite": ["Currency", "Essence"],
-      "Shrieking Essence of Suffering": ["Currency", "Essence"],
-      "Shrieking Essence of Torment": ["Currency", "Essence"],
-      "Shrieking Essence of Woe": ["Currency", "Essence"],
-      "Shrieking Essence of Wrath": ["Currency", "Essence"],
-      "Shrieking Essence of Zeal": ["Currency", "Essence"],
-      "Shuddering Fossil": ["Currency", "Fossil"],
+      "Sepia Oil": [
+        "Currency",
+        "Oil"
+      ],
+      "Serrated Fossil": [
+        "Currency",
+        "Fossil"
+      ],
+      "Shrieking Essence of Anger": [
+        "Currency",
+        "Essence"
+      ],
+      "Shrieking Essence of Anguish": [
+        "Currency",
+        "Essence"
+      ],
+      "Shrieking Essence of Contempt": [
+        "Currency",
+        "Essence"
+      ],
+      "Shrieking Essence of Doubt": [
+        "Currency",
+        "Essence"
+      ],
+      "Shrieking Essence of Dread": [
+        "Currency",
+        "Essence"
+      ],
+      "Shrieking Essence of Envy": [
+        "Currency",
+        "Essence"
+      ],
+      "Shrieking Essence of Fear": [
+        "Currency",
+        "Essence"
+      ],
+      "Shrieking Essence of Greed": [
+        "Currency",
+        "Essence"
+      ],
+      "Shrieking Essence of Hatred": [
+        "Currency",
+        "Essence"
+      ],
+      "Shrieking Essence of Loathing": [
+        "Currency",
+        "Essence"
+      ],
+      "Shrieking Essence of Misery": [
+        "Currency",
+        "Essence"
+      ],
+      "Shrieking Essence of Rage": [
+        "Currency",
+        "Essence"
+      ],
+      "Shrieking Essence of Scorn": [
+        "Currency",
+        "Essence"
+      ],
+      "Shrieking Essence of Sorrow": [
+        "Currency",
+        "Essence"
+      ],
+      "Shrieking Essence of Spite": [
+        "Currency",
+        "Essence"
+      ],
+      "Shrieking Essence of Suffering": [
+        "Currency",
+        "Essence"
+      ],
+      "Shrieking Essence of Torment": [
+        "Currency",
+        "Essence"
+      ],
+      "Shrieking Essence of Woe": [
+        "Currency",
+        "Essence"
+      ],
+      "Shrieking Essence of Wrath": [
+        "Currency",
+        "Essence"
+      ],
+      "Shrieking Essence of Zeal": [
+        "Currency",
+        "Essence"
+      ],
+      "Shuddering Fossil": [
+        "Currency",
+        "Fossil"
+      ],
       "Silver Coin": "Currency",
-      "Silver Oil": ["Currency", "Oil"],
+      "Silver Oil": [
+        "Currency",
+        "Oil"
+      ],
       "Simple Iron Net": "Currency",
       "Simple Rope Net": "Currency",
       "Simple Sextant": "Currency",
       "Simple Steel Net": "Currency",
       "Simulacrum Splinter": "Currency",
-      "Singular Delirium Orb": ["Currency", "Delirium Orb"],
+      "Singular Delirium Orb": [
+        "Currency",
+        "Delirium Orb"
+      ],
       "Singular Scouting Report": "Currency",
-      "Skittering Delirium Orb": ["Currency", "Delirium Orb"],
+      "Skittering Delirium Orb": [
+        "Currency",
+        "Delirium Orb"
+      ],
       "Specularity Scroll": "Currency",
-      "Splinter of Chayula": ["Currency", "Breach Splinter"],
-      "Splinter of Esh": ["Currency", "Breach Splinter"],
-      "Splinter of Tul": ["Currency", "Breach Splinter"],
-      "Splinter of Uul-Netol": ["Currency", "Breach Splinter"],
-      "Splinter of Xoph": ["Currency", "Breach Splinter"],
+      "Splinter of Chayula": [
+        "Currency",
+        "Breach Splinter"
+      ],
+      "Splinter of Esh": [
+        "Currency",
+        "Breach Splinter"
+      ],
+      "Splinter of Tul": [
+        "Currency",
+        "Breach Splinter"
+      ],
+      "Splinter of Uul-Netol": [
+        "Currency",
+        "Breach Splinter"
+      ],
+      "Splinter of Xoph": [
+        "Currency",
+        "Breach Splinter"
+      ],
       "Stacked Deck": "Currency",
       "Strong Iron Net": "Currency",
       "Strong Rope Net": "Currency",
@@ -2364,16 +2961,25 @@
       "Tainted Armourer's Scrap": "Currency",
       "Tainted Blacksmith's Whetstone": "Currency",
       "Tainted Blessing": "Currency",
-      "Tainted Catalyst": ["Currency", "Catalyst"],
+      "Tainted Catalyst": [
+        "Currency",
+        "Catalyst"
+      ],
       "Tainted Chaos Orb": "Currency",
       "Tainted Chromatic Orb": "Currency",
       "Tainted Divine Teardrop": "Currency",
       "Tainted Exalted Orb": "Currency",
       "Tainted Jeweller's Orb": "Currency",
       "Tainted Mythic Orb": "Currency",
-      "Tainted Oil": ["Currency", "Oil"],
+      "Tainted Oil": [
+        "Currency",
+        "Oil"
+      ],
       "Tainted Orb of Fusing": "Currency",
-      "Tangled Fossil": ["Currency", "Fossil"],
+      "Tangled Fossil": [
+        "Currency",
+        "Fossil"
+      ],
       "Tattoo of the Arohongui Makanga": "Currency",
       "Tattoo of the Arohongui Moonwarden": "Currency",
       "Tattoo of the Arohongui Scout": "Currency",
@@ -2434,14 +3040,26 @@
       "Tattoo of the Valako Shieldbearer": "Currency",
       "Tattoo of the Valako Stormrider": "Currency",
       "Tattoo of the Valako Warrior": "Currency",
-      "Teal Oil": ["Currency", "Oil"],
-      "Tempering Catalyst": ["Currency", "Catalyst"],
+      "Teal Oil": [
+        "Currency",
+        "Oil"
+      ],
+      "Tempering Catalyst": [
+        "Currency",
+        "Catalyst"
+      ],
       "Tempering Orb": "Currency",
-      "Thaumaturge's Delirium Orb": ["Currency", "Delirium Orb"],
+      "Thaumaturge's Delirium Orb": [
+        "Currency",
+        "Delirium Orb"
+      ],
       "Thaumaturgical Net": "Currency",
       "Time Rune": "Currency",
       "Time-light Scroll": "Currency",
-      "Timeless Delirium Orb": ["Currency", "Delirium Orb"],
+      "Timeless Delirium Orb": [
+        "Currency",
+        "Delirium Orb"
+      ],
       "Timeless Eternal Empire Splinter": "Currency",
       "Timeless Karui Splinter": "Currency",
       "Timeless Maraketh Splinter": "Currency",
@@ -2449,16 +3067,25 @@
       "Timeless Vaal Splinter": "Currency",
       "Transforming Power Core": "Currency",
       "Transmutation Shard": "Currency",
-      "Turbulent Catalyst": ["Currency", "Catalyst"],
+      "Turbulent Catalyst": [
+        "Currency",
+        "Catalyst"
+      ],
       "Uncarved Gemstone": "Currency",
       "Unshaping Orb": "Currency",
-      "Unstable Catalyst": ["Currency", "Catalyst"],
+      "Unstable Catalyst": [
+        "Currency",
+        "Catalyst"
+      ],
       "Vaal Orb": "Currency",
       "Vaal Scouting Report": "Currency",
       "Valdo's Puzzle Box": "Currency",
       "Veiled Orb": "Currency",
       "Veiled Scarab": "Currency",
-      "Verdant Oil": ["Currency", "Oil"],
+      "Verdant Oil": [
+        "Currency",
+        "Oil"
+      ],
       "Vial of Awakening": "Currency",
       "Vial of Consequence": "Currency",
       "Vial of Dominance": "Currency",
@@ -2468,45 +3095,147 @@
       "Vial of the Ghost": "Currency",
       "Vial of the Ritual": "Currency",
       "Vial of Transcendence": "Currency",
-      "Violet Oil": ["Currency", "Oil"],
+      "Violet Oil": [
+        "Currency",
+        "Oil"
+      ],
       "Vivid Crystallised Lifeforce": "Currency",
       "Vivid Wisps": "Currency",
-      "Wailing Essence of Anger": ["Currency", "Essence"],
-      "Wailing Essence of Anguish": ["Currency", "Essence"],
-      "Wailing Essence of Contempt": ["Currency", "Essence"],
-      "Wailing Essence of Doubt": ["Currency", "Essence"],
-      "Wailing Essence of Fear": ["Currency", "Essence"],
-      "Wailing Essence of Greed": ["Currency", "Essence"],
-      "Wailing Essence of Hatred": ["Currency", "Essence"],
-      "Wailing Essence of Loathing": ["Currency", "Essence"],
-      "Wailing Essence of Rage": ["Currency", "Essence"],
-      "Wailing Essence of Sorrow": ["Currency", "Essence"],
-      "Wailing Essence of Spite": ["Currency", "Essence"],
-      "Wailing Essence of Suffering": ["Currency", "Essence"],
-      "Wailing Essence of Torment": ["Currency", "Essence"],
-      "Wailing Essence of Woe": ["Currency", "Essence"],
-      "Wailing Essence of Wrath": ["Currency", "Essence"],
-      "Wailing Essence of Zeal": ["Currency", "Essence"],
+      "Wailing Essence of Anger": [
+        "Currency",
+        "Essence"
+      ],
+      "Wailing Essence of Anguish": [
+        "Currency",
+        "Essence"
+      ],
+      "Wailing Essence of Contempt": [
+        "Currency",
+        "Essence"
+      ],
+      "Wailing Essence of Doubt": [
+        "Currency",
+        "Essence"
+      ],
+      "Wailing Essence of Fear": [
+        "Currency",
+        "Essence"
+      ],
+      "Wailing Essence of Greed": [
+        "Currency",
+        "Essence"
+      ],
+      "Wailing Essence of Hatred": [
+        "Currency",
+        "Essence"
+      ],
+      "Wailing Essence of Loathing": [
+        "Currency",
+        "Essence"
+      ],
+      "Wailing Essence of Rage": [
+        "Currency",
+        "Essence"
+      ],
+      "Wailing Essence of Sorrow": [
+        "Currency",
+        "Essence"
+      ],
+      "Wailing Essence of Spite": [
+        "Currency",
+        "Essence"
+      ],
+      "Wailing Essence of Suffering": [
+        "Currency",
+        "Essence"
+      ],
+      "Wailing Essence of Torment": [
+        "Currency",
+        "Essence"
+      ],
+      "Wailing Essence of Woe": [
+        "Currency",
+        "Essence"
+      ],
+      "Wailing Essence of Wrath": [
+        "Currency",
+        "Essence"
+      ],
+      "Wailing Essence of Zeal": [
+        "Currency",
+        "Essence"
+      ],
       "War Rune": "Currency",
       "Warlord's Exalted Orb": "Currency",
       "Weapon Recombinator": "Currency",
-      "Weeping Essence of Anger": ["Currency", "Essence"],
-      "Weeping Essence of Contempt": ["Currency", "Essence"],
-      "Weeping Essence of Doubt": ["Currency", "Essence"],
-      "Weeping Essence of Fear": ["Currency", "Essence"],
-      "Weeping Essence of Greed": ["Currency", "Essence"],
-      "Weeping Essence of Hatred": ["Currency", "Essence"],
-      "Weeping Essence of Rage": ["Currency", "Essence"],
-      "Weeping Essence of Sorrow": ["Currency", "Essence"],
-      "Weeping Essence of Suffering": ["Currency", "Essence"],
-      "Weeping Essence of Torment": ["Currency", "Essence"],
-      "Weeping Essence of Woe": ["Currency", "Essence"],
-      "Weeping Essence of Wrath": ["Currency", "Essence"],
-      "Whispering Delirium Orb": ["Currency", "Delirium Orb"],
-      "Whispering Essence of Contempt": ["Currency", "Essence"],
-      "Whispering Essence of Greed": ["Currency", "Essence"],
-      "Whispering Essence of Hatred": ["Currency", "Essence"],
-      "Whispering Essence of Woe": ["Currency", "Essence"],
+      "Weeping Essence of Anger": [
+        "Currency",
+        "Essence"
+      ],
+      "Weeping Essence of Contempt": [
+        "Currency",
+        "Essence"
+      ],
+      "Weeping Essence of Doubt": [
+        "Currency",
+        "Essence"
+      ],
+      "Weeping Essence of Fear": [
+        "Currency",
+        "Essence"
+      ],
+      "Weeping Essence of Greed": [
+        "Currency",
+        "Essence"
+      ],
+      "Weeping Essence of Hatred": [
+        "Currency",
+        "Essence"
+      ],
+      "Weeping Essence of Rage": [
+        "Currency",
+        "Essence"
+      ],
+      "Weeping Essence of Sorrow": [
+        "Currency",
+        "Essence"
+      ],
+      "Weeping Essence of Suffering": [
+        "Currency",
+        "Essence"
+      ],
+      "Weeping Essence of Torment": [
+        "Currency",
+        "Essence"
+      ],
+      "Weeping Essence of Woe": [
+        "Currency",
+        "Essence"
+      ],
+      "Weeping Essence of Wrath": [
+        "Currency",
+        "Essence"
+      ],
+      "Whispering Delirium Orb": [
+        "Currency",
+        "Delirium Orb"
+      ],
+      "Whispering Essence of Contempt": [
+        "Currency",
+        "Essence"
+      ],
+      "Whispering Essence of Greed": [
+        "Currency",
+        "Essence"
+      ],
+      "Whispering Essence of Hatred": [
+        "Currency",
+        "Essence"
+      ],
+      "Whispering Essence of Woe": [
+        "Currency",
+        "Essence"
+      ],
       "Wild Crystallised Lifeforce": "Currency",
       "Wild Wisps": "Currency",
       "Ashbark Tincture": "Tincture",
@@ -2522,7 +3251,12 @@
     }
   },
   "names": {
-    "memories": ["Kirac's Memory", "Alva's Memory", "Niko's Memory", "Einhar's Memory"],
+    "memories": [
+      "Kirac's Memory",
+      "Alva's Memory",
+      "Niko's Memory",
+      "Einhar's Memory"
+    ],
     "invitations": [
       "Writhing Invitation",
       "Screaming Invitation",
