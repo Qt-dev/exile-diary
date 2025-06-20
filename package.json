@@ -80,7 +80,7 @@
     "data:extract": "cd scripts/data-extractor && node index.js update && pathofexile-dat && node index.js items && prettier --write \"../../src/**/*.json\"",
     "analyze": "source-map-explorer 'build/static/js/*.js'",
     "build": "npm run react:build && tsc -p src/main && electron-builder -p never",
-    "dev": "concurrently \"cross-env BROWSER=none npm run react:start\" \"wait-on http://localhost:3000 && tsc -p src/main -w\" \"wait-on http://localhost:3000 && tsc -p src/main && electron .\""
+    "dev": "concurrently \"cross-env BROWSER=none npm run react:start\" \"wait-on http://localhost:3003 && tsc -p src/main -w\" \"wait-on http://localhost:3003 && tsc -p src/main && electron .\""
   },
   "eslintConfig": {
     "extends": [

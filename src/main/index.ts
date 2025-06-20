@@ -39,7 +39,7 @@ import StatsManager from './StatsManager';
 import ItemPricer from './modules/ItemPricer';
 
 dayjs.extend(duration);
-const devUrl = 'http://localhost:3000';
+const devUrl = 'http://localhost:3003';
 enum SYSTEMS {
   WINDOWS = 'win32',
   LINUX = 'debian',
@@ -306,7 +306,7 @@ class MainProcess {
     OCRWatcher.emitter.on('OCRError', () => {
       logger.info('Error getting area info from screenshot. Please try again');
     });
-    OCRWatcher.emitter.on('areaInfoComplete', (info) => {
+    OCRWatcher.emitter.on('areaInfoComplete', (info) => { 
       const tier = getMapTierString({ level: parseInt(info.areaInfo.level) });
       let stats = `IIR: ${info.mapStats.iir} / IIQ: ${info.mapStats.iiq}`;
       if (info.mapStats.packsize && info.mapStats.packsize > 0)
