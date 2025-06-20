@@ -18,7 +18,7 @@ var emitter = new EventEmitter();
 var lastInstanceServer = null;
 var instanceServerFound = false;
 let currentInstance = null;
-const instanceServerRegex = /[0-9:\.]+$/;
+const instanceServerRegex = /((?:[0-9]{1,3}\.){3}[0-9]{1,3}:\d{1,5})/;
 
 function start() {
   const settings = SettingsManager.getAll();
