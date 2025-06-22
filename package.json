@@ -192,7 +192,7 @@
     "source-map-loader": "^4.0.1",
     "style-loader": "^3.3.1",
     "tailwindcss": "^3.0.2",
-    "tesseract.js": "^5.1.0",
+    "tesseract.js": "^6.0.1",
     "uuid": "^9.0.1",
     "winston": "^3.8.1",
     "xlsx": "https://cdn.sheetjs.com/xlsx-0.20.3/xlsx-0.20.3.tgz"
@@ -220,7 +220,6 @@
     "css-minimizer-webpack-plugin": "^7.0.0",
     "electron": "^36.5.0",
     "electron-builder": "^24.13.3",
-    "electron-reload": "^2.0.0-alpha.1",
     "mocha": "^10.7.0",
     "pathofexile-dat": "^9.1.0",
     "prettier": "^2.8.7",
