@@ -737,7 +737,7 @@ class MainProcess {
       logger.info('Closing the overlay');
     });
 
-    this.overlayWindow.on('closed', (event) => {
+    this.overlayWindow.once('closed', () => {
       logger.error('Overlay closed, it could be an issue');
       RendererLogger.log({
         messages: [
