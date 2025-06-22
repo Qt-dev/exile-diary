@@ -67,7 +67,6 @@
   },
   "scripts": {
     "start": "electron .",
-    "test": " tsc -p src/main",
     "test:all": "mocha --import=tsx -R spec \"./test/**/*.spec.ts\"",
     "postinstall": "electron-builder install-app-deps",
     "pack": "electron-builder --dir",
@@ -80,7 +79,7 @@
     "data:extract": "cd scripts/data-extractor && node index.js update && pathofexile-dat && node index.js items && prettier --write \"../../src/**/*.json\"",
     "analyze": "source-map-explorer 'build/static/js/*.js'",
     "build": "npm run react:build && tsc -p src/main && electron-builder -p never",
-    "dev": "concurrently \"cross-env BROWSER=none npm run react:start\" \"wait-on http://localhost:3003 && tsc -p src/main -w\" \"wait-on http://localhost:3003 && tsc -p src/main && electron .\""
+    "dev": "concurrently \"cross-env BROWSER=none npm run react:start\" \"wait-on -s 1 http://localhost:3003 && tsc -p src/main -w --preserveWatchOutput\" \"wait-on -s 1 http://localhost:3003 && tsc -p src/main && electron .\""
   },
   "eslintConfig": {
     "extends": [
@@ -126,8 +125,8 @@
     "@mui/icons-material": "^5.14.18",
     "@mui/material": "^5.14.18",
     "@mui/x-date-pickers": "^6.18.1",
-    "axios": "^1.6.8",
-    "axios-cache-interceptor": "^1.5.2",
+    "axios": "^1.10.0",
+    "axios-cache-interceptor": "^1.8.0",
     "babel-jest": "^27.4.2",
     "babel-loader": "^8.2.3",
     "babel-plugin-named-asset-import": "^0.3.8",
@@ -154,7 +153,6 @@
     "eslint": "^8.3.0",
     "eslint-config-react-app": "^7.0.1",
     "eslint-webpack-plugin": "^3.1.1",
-    "express": "^4.19.2",
     "fast-equals": "^4.0.1",
     "file-loader": "^6.2.0",
     "file-saver": "^2.0.5",
@@ -162,20 +160,17 @@
     "html-to-image": "^1.11.11",
     "html-webpack-plugin": "^5.5.0",
     "identity-obj-proxy": "^3.0.0",
-    "imgur": "^2.2.0",
     "jest": "^27.4.3",
     "jest-resolve": "^27.4.2",
     "jest-watch-typeahead": "^1.0.0",
     "js-levenshtein": "^1.1.6",
     "json-2-csv": "^4.1.1",
-    "merge-img": "^2.1.3",
     "mini-css-extract-plugin": "^2.4.5",
     "mobx": "^6.9.0",
     "mobx-persist": "^0.4.1",
     "mobx-react-lite": "^3.4.3",
     "nodejs-tail": "^1.1.1",
     "opn": "^6.0.0",
-    "pastebin-js": "^1.0.6",
     "postcss": "^8.4.4",
     "postcss-flexbugs-fixes": "^5.0.2",
     "postcss-loader": "^6.2.1",
@@ -201,12 +196,11 @@
     "tesseract.js": "^5.1.0",
     "uuid": "^9.0.1",
     "winston": "^3.8.1",
-    "workbox-webpack-plugin": "^6.4.1",
-    "xlsx": "^0.18.5"
+    "xlsx": "https://cdn.sheetjs.com/xlsx-0.20.3/xlsx-0.20.3.tgz"
   },
   "devDependencies": {
     "@babel/plugin-proposal-private-property-in-object": "^7.21.11",
-    "@pmmmwh/react-refresh-webpack-plugin": "^0.5.13",
+    "@pmmmwh/react-refresh-webpack-plugin": "^0.5.16",
     "@svgr/webpack": "^8.1.0",
     "@testing-library/jest-dom": "^5.16.5",
     "@testing-library/react": "^13.4.0",
@@ -234,7 +228,7 @@
     "react": "^18.2.0",
     "react-dev-utils": "^12.0.1",
     "react-dom": "^18.2.0",
-    "react-refresh": "^0.14.0",
+    "react-refresh": "^0.14.2",
     "rewiremock": "^3.14.5",
     "sinon": "^18.0.0",
     "terser-webpack-plugin": "^5.3.10",
@@ -243,9 +237,10 @@
     "typescript": "^5.2.2",
     "wait-on": "^7.2.0",
     "web-vitals": "^2.1.4",
-    "webpack": "^5.91.0",
-    "webpack-dev-server": "^5.0.4",
-    "webpack-manifest-plugin": "^5.0.0"
+    "webpack": "^5.99.9",
+    "webpack-dev-server": "^5.2.2",
+    "webpack-manifest-plugin": "^5.0.1",
+    "workbox-webpack-plugin": "^7.3.0"
   },
   "jest": {
     "roots": [

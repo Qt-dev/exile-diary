@@ -1,11 +1,11 @@
-import React from 'react';
+import React, { ReactNode } from 'react';
 import dayjs from 'dayjs';
 import constants from '../../../helpers/constants';
 import ItemStore from '../../stores/itemStore';
 import ItemList from '../ItemList/ItemList';
 import './RunEvent.css';
 
-const formatLine = (event, text) => {
+const formatLine = (event, text) : ReactNode => {
   const time = dayjs(event.id, 'YYYYMMDDHHmmss').format('HH:mm:ss');
 
   return (
@@ -67,16 +67,14 @@ const textPerEventType = {
   },
 };
 
-const generateNode = (event, runInfo, previousEvent) => {
+const generateNode = (event, runInfo, previousEvent) : ReactNode => {
   const type = event.event_type;
   const isImportant =
     textPerEventType[type] && textPerEventType[type](event, runInfo, previousEvent);
 
   return isImportant
     ? formatLine(event, textPerEventType[type](event, runInfo, previousEvent))
-    : (event) => {
-        return formatLine(event, `Unknown event type: ${event.event_type}`);
-      };
+    : formatLine(event, `Unknown event type: ${event.event_type}`);
 };
 
 const RunEvent = ({ event, runInfo, previousEvent }) => {
