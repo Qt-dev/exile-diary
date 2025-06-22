@@ -3,7 +3,7 @@ import fs from 'fs/promises';
 import SettingsManager from '../SettingsManager';
 import path from 'path';
 import dayjs from 'dayjs';
-import chokidar from 'chokidar';
+import chokidar, { type FSWatcher } from 'chokidar';
 import Logger from 'electron-log';
 import EventEmitter from 'events';
 import OCRWatcher from './OCRWatcher';
@@ -14,7 +14,7 @@ const ProcessingTimeout = 15000;
 // const SCREENSHOT_DIRECTORY_SIZE_LIMIT = 400;
 const sizeMultiplier = 3; // We read pixels from a screenshot that is in 1920x1080 * this multiplier
 const customShortcutTrigger = 'CommandOrControl+F8';
-let watcher: chokidar.FSWatcher | null;
+let watcher: FSWatcher | null;
 const emitter = new EventEmitter();
 
 /*
@@ -367,7 +367,6 @@ function registerWatcher(screenshotDir) {
     usePolling: true,
     awaitWriteFinish: true,
     ignoreInitial: true,
-    disableGlobbing: true,
   });
   watcher.on('add', async (path) => {
     logger.info('Cropping new screenshot: ' + path);

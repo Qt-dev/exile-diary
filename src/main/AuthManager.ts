@@ -16,6 +16,12 @@ const code_challenge = base64url.fromBase64(base64Digest);
 
 const state = randomstring.generate(32);
 
+type FullToken = {
+  access_token: string;
+  expires_in: number;
+  username: string;
+}
+
 const TokenStore = new Store({
   name: 'creds',
   encryptionKey: 'exilediary',
@@ -81,7 +87,7 @@ const AuthManager = {
     });
     return token;
   },
-  saveToken: async (token) => {
+  saveToken: async (token : FullToken) => {
     const { access_token, expires_in, username } = token;
     if (access_token === undefined || expires_in === undefined) {
       logger.error('Received bad information from the API', token);
