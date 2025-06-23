@@ -89,6 +89,7 @@ class PriceMatcher {
     { id: 19, name: 'Affliction' },
     { id: 20, name: 'Necropolis' },
     { id: 21, name: 'Settlers' },
+    { id: 22, name: 'Mercenaries' }, 
   ];
 
   DefaultGemFormat = {
