@@ -249,9 +249,9 @@ async function process(file: string | Buffer) {
 
   // Stats
   const statsDimensions = {
-    width: areaInfoWidth - 3 * sizeMultiplier, // We strip the right, it will always be a border
+    width: areaInfoWidth - 3, // We strip the right, it will always be a border
     height: bounds.y[0] - 28 * sizeMultiplier - 50, // We strip the top margin above the area text as well as the bottom margin between boxes
-    top: 28 * sizeMultiplier,
+    top: 26 * sizeMultiplier,
     left: Math.floor(halfWidth * scaleFactor - areaInfoWidth - 1),
   };
   logger.info('before stats', statsDimensions);
@@ -262,7 +262,7 @@ async function process(file: string | Buffer) {
     .modulate({
       hue: 200,
     })
-    .normalise({ lower: 1, upper: 85 })
+    .normalise({ lower: 5, upper: 90 })
     .greyscale()
     .resize(Math.floor(statsDimensions.width / 2))
     .toBuffer();
