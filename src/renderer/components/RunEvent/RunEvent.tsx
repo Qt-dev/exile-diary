@@ -5,7 +5,7 @@ import ItemStore from '../../stores/itemStore';
 import ItemList from '../ItemList/ItemList';
 import './RunEvent.css';
 
-const formatLine = (event, text) : ReactNode => {
+const formatLine = (event, text): ReactNode => {
   const time = dayjs(event.id, 'YYYYMMDDHHmmss').format('HH:mm:ss');
 
   return (
@@ -67,7 +67,7 @@ const textPerEventType = {
   },
 };
 
-const generateNode = (event, runInfo, previousEvent) : ReactNode => {
+const generateNode = (event, runInfo, previousEvent): ReactNode => {
   const type = event.event_type;
   const isImportant =
     textPerEventType[type] && textPerEventType[type](event, runInfo, previousEvent);

@@ -873,34 +873,34 @@ class MainProcess {
     this.setupResizer();
 
     const test = 2;
-  
+
     // Restarter for development
     if (isDev) {
       const spawnApp = () => {
         const child = spawn(
-            path.join(
-                __dirname,
-                '..',
-                '..',
-                'node_modules',
-                '.bin',
-                'electron' + (process.platform === SYSTEMS.WINDOWS ? '.cmd' : '')
-              ), 
-            [app.getAppPath()], 
-            {
-              detached: true,
-              stdio: 'inherit',
-              shell: true,
-            });
+          path.join(
+            __dirname,
+            '..',
+            '..',
+            'node_modules',
+            '.bin',
+            'electron' + (process.platform === SYSTEMS.WINDOWS ? '.cmd' : '')
+          ),
+          [app.getAppPath()],
+          {
+            detached: true,
+            stdio: 'inherit',
+            shell: true,
+          }
+        );
         child.unref();
         app.exit();
       };
 
-      chokidar.watch(__dirname, {})
-        .once('change', (filePath) => {
-          logger.info(`File changed: ${filePath}, restarting the app...`);
-          spawnApp();
-        });
+      chokidar.watch(__dirname, {}).once('change', (filePath) => {
+        logger.info(`File changed: ${filePath}, restarting the app...`);
+        spawnApp();
+      });
     }
 
     this.setWindowListeners();
