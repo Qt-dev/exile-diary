@@ -76,7 +76,7 @@
     "react:build": "node scripts/build.js",
     "react:test": "node scripts/test.js",
     "react:eject": "node scripts/eject.js",
-    "data:extract": "cd scripts/poe-extractor && npm run update && npm run generate && prettier --write \"output\" && cd output && cpy ./areas.json ../../../src/helpers/data/ && cpy ./items.json ../../../src/helpers/data/",
+    "data:extract": "cd scripts/poe-extractor && npm run update && npm run generate && prettier --write \"output\" && cd output && cpy ./areas.json ../../../src/helpers/data/ && cpy ./items.json ../../../src/helpers/data/ && cpy ./mapMods.json ../../../src/helpers/data/",
     "analyze": "source-map-explorer 'build/static/js/*.js'",
     "build": "npm run react:build && tsc -p src/main && electron-builder -p never",
     "dev": "concurrently \"cross-env BROWSER=none npm run react:start\" \"wait-on -s 1 http://localhost:3003 && tsc -p src/main -w --preserveWatchOutput\" \"wait-on -s 1 http://localhost:3003 && tsc -p src/main && electron .\""
