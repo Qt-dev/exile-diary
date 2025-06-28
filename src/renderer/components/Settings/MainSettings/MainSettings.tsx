@@ -263,7 +263,7 @@ const MainSettings = ({ settings, store, runStore }) => {
               <Checkbox
                 id="overlay_persistence_disabled"
                 disabled
-                defaultChecked={overlayPersistenceEnabled}
+                defaultChecked={!overlayPersistenceEnabled}
               />
             }
             label="Enable Overlay Persistence (Toggle this setting by pressing CTRL+F7)"
