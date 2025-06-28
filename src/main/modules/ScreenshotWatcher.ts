@@ -3,7 +3,7 @@ import fs from 'fs/promises';
 import SettingsManager from '../SettingsManager';
 import path from 'path';
 import dayjs from 'dayjs';
-import chokidar from 'chokidar';
+import chokidar, { type FSWatcher } from 'chokidar';
 import Logger from 'electron-log';
 import EventEmitter from 'events';
 import OCRWatcher from './OCRWatcher';
@@ -14,7 +14,7 @@ const ProcessingTimeout = 15000;
 // const SCREENSHOT_DIRECTORY_SIZE_LIMIT = 400;
 const sizeMultiplier = 3; // We read pixels from a screenshot that is in 1920x1080 * this multiplier
 const customShortcutTrigger = 'CommandOrControl+F8';
-let watcher: chokidar.FSWatcher | null;
+let watcher: FSWatcher | null;
 const emitter = new EventEmitter();
 
 /*
@@ -249,9 +249,9 @@ async function process(file: string | Buffer) {
 
   // Stats
   const statsDimensions = {
-    width: areaInfoWidth - 3 * sizeMultiplier, // We strip the right, it will always be a border
+    width: areaInfoWidth - 3, // We strip the right, it will always be a border
     height: bounds.y[0] - 28 * sizeMultiplier - 50, // We strip the top margin above the area text as well as the bottom margin between boxes
-    top: 28 * sizeMultiplier,
+    top: 26 * sizeMultiplier,
     left: Math.floor(halfWidth * scaleFactor - areaInfoWidth - 1),
   };
   logger.info('before stats', statsDimensions);
@@ -262,7 +262,7 @@ async function process(file: string | Buffer) {
     .modulate({
       hue: 200,
     })
-    .normalise({ lower: 1, upper: 85 })
+    .normalise({ lower: 5, upper: 90 })
     .greyscale()
     .resize(Math.floor(statsDimensions.width / 2))
     .toBuffer();
@@ -367,7 +367,6 @@ function registerWatcher(screenshotDir) {
     usePolling: true,
     awaitWriteFinish: true,
     ignoreInitial: true,
-    disableGlobbing: true,
   });
   watcher.on('add', async (path) => {
     logger.info('Cropping new screenshot: ' + path);

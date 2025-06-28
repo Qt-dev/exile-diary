@@ -9,6 +9,9 @@ import {
   nativeImage,
   screen,
 } from 'electron';
+import chokidar from 'chokidar';
+import { spawn } from 'child_process';
+
 import { autoUpdater } from 'electron-updater';
 import * as path from 'path';
 import logger from 'electron-log';
@@ -737,7 +740,7 @@ class MainProcess {
       logger.info('Closing the overlay');
     });
 
-    this.overlayWindow.on('closed', (event) => {
+    this.overlayWindow.once('closed', () => {
       logger.error('Overlay closed, it could be an issue');
       RendererLogger.log({
         messages: [
@@ -869,20 +872,35 @@ class MainProcess {
     this.setupListeners();
     this.setupResizer();
 
+    const test = 2;
+  
     // Restarter for development
     if (isDev) {
-      require('electron-reload')(__dirname, {
-        electron: path.join(
-          __dirname,
-          '..',
-          '..',
-          'node_modules',
-          '.bin',
-          'electron' + (process.platform === SYSTEMS.WINDOWS ? '.cmd' : '')
-        ),
-        forceHardReset: true,
-        hardResetMethod: 'exit',
-      });
+      const spawnApp = () => {
+        const child = spawn(
+            path.join(
+                __dirname,
+                '..',
+                '..',
+                'node_modules',
+                '.bin',
+                'electron' + (process.platform === SYSTEMS.WINDOWS ? '.cmd' : '')
+              ), 
+            [app.getAppPath()], 
+            {
+              detached: true,
+              stdio: 'inherit',
+              shell: true,
+            });
+        child.unref();
+        app.exit();
+      };
+
+      chokidar.watch(__dirname, {})
+        .once('change', (filePath) => {
+          logger.info(`File changed: ${filePath}, restarting the app...`);
+          spawnApp();
+        });
     }
 
     this.setWindowListeners();

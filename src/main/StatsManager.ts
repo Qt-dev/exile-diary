@@ -304,7 +304,10 @@ class StatsManager {
     // Count boolean stats
     for (const key of booleanStatsKeys) {
       if (run.parsedRunInfo?.[key]) {
-        this.stats.misc[key] = ++this.stats.misc[key] ?? 1;
+        if (!this.stats.misc[key]) {
+          this.stats.misc[key] = 0;
+        }
+        this.stats.misc[key] = ++this.stats.misc[key];
       }
     }
 
@@ -436,7 +439,10 @@ class StatsManager {
 
         if (parsedStats.tier3Rooms) {
           for (const room of parsedStats.tier3Rooms) {
-            stats.details.tier3Rooms[room] = stats.details.tier3Rooms[room]++ ?? 1;
+            if (stats.details.tier3Rooms[room] === undefined) {
+              stats.details.tier3Rooms[room] = 0;
+            }
+            stats.details.tier3Rooms[room] = ++stats.details.tier3Rooms[room];
           }
         }
 
