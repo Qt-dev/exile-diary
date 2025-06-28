@@ -67,7 +67,7 @@
   },
   "scripts": {
     "start": "electron .",
-    "test:all": "mocha --import=tsx -R spec \"./test/**/*.spec.ts\"",
+    "test": "jest --config jest.config.js --runInBand",
     "postinstall": "electron-builder install-app-deps",
     "pack": "electron-builder --dir",
     "dist": "electron-builder",
@@ -127,7 +127,6 @@
     "@mui/x-date-pickers": "^6.18.1",
     "axios": "^1.10.0",
     "axios-cache-interceptor": "^1.8.0",
-    "babel-jest": "^27.4.2",
     "babel-loader": "^8.2.3",
     "babel-plugin-named-asset-import": "^0.3.8",
     "babel-preset-react-app": "^10.0.1",
@@ -159,9 +158,7 @@
     "html-to-image": "^1.11.11",
     "html-webpack-plugin": "^5.5.0",
     "identity-obj-proxy": "^3.0.0",
-    "jest": "^27.4.3",
     "jest-resolve": "^27.4.2",
-    "jest-watch-typeahead": "^1.0.0",
     "js-levenshtein": "^1.1.6",
     "json-2-csv": "^4.1.1",
     "mini-css-extract-plugin": "^2.4.5",
@@ -220,6 +217,9 @@
     "css-minimizer-webpack-plugin": "^7.0.0",
     "electron": "^36.5.0",
     "electron-builder": "^24.13.3",
+    "jest": "^30.0.3",
+    "jest-environment-jsdom": "^30.0.2",
+    "jest-watch-typeahead": "^3.0.1",
     "mocha": "^10.7.0",
     "pathofexile-dat": "^9.1.0",
     "prettier": "^2.8.7",
@@ -230,6 +230,7 @@
     "rewiremock": "^3.14.5",
     "sinon": "^18.0.0",
     "terser-webpack-plugin": "^5.3.10",
+    "ts-jest": "^29.4.0",
     "tslib": "^2.5.0",
     "tsx": "^4.16.5",
     "typescript": "^5.2.2",
@@ -239,57 +240,6 @@
     "webpack-dev-server": "^5.2.2",
     "webpack-manifest-plugin": "^5.0.1",
     "workbox-webpack-plugin": "^7.3.0"
-  },
-  "jest": {
-    "roots": [
-      "<rootDir>/src"
-    ],
-    "collectCoverageFrom": [
-      "src/**/*.{js,jsx,ts,tsx}",
-      "!src/**/*.d.ts"
-    ],
-    "setupFiles": [
-      "react-app-polyfill/jsdom"
-    ],
-    "setupFilesAfterEnv": [
-      "<rootDir>/src/setupTests.js"
-    ],
-    "testMatch": [
-      "<rootDir>/src/**/__tests__/**/*.{js,jsx,ts,tsx}",
-      "<rootDir>/src/**/*.{spec,test}.{js,jsx,ts,tsx}"
-    ],
-    "testEnvironment": "jsdom",
-    "transform": {
-      "^.+\\.(js|jsx|mjs|cjs|ts|tsx)$": "<rootDir>/config/jest/babelTransform.js",
-      "^.+\\.css$": "<rootDir>/config/jest/cssTransform.js",
-      "^(?!.*\\.(js|jsx|mjs|cjs|ts|tsx|css|json)$)": "<rootDir>/config/jest/fileTransform.js"
-    },
-    "transformIgnorePatterns": [
-      "[/\\\\]node_modules[/\\\\].+\\.(js|jsx|mjs|cjs|ts|tsx)$",
-      "^.+\\.module\\.(css|sass|scss)$"
-    ],
-    "modulePaths": [],
-    "moduleNameMapper": {
-      "^react-native$": "react-native-web",
-      "^.+\\.module\\.(css|sass|scss)$": "identity-obj-proxy"
-    },
-    "moduleFileExtensions": [
-      "web.js",
-      "js",
-      "web.ts",
-      "ts",
-      "web.tsx",
-      "tsx",
-      "json",
-      "web.jsx",
-      "jsx",
-      "node"
-    ],
-    "watchPlugins": [
-      "jest-watch-typeahead/filename",
-      "jest-watch-typeahead/testname"
-    ],
-    "resetMocks": true
   },
   "babel": {
     "presets": [
