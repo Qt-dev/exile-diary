@@ -213,6 +213,8 @@
     "chai-as-promised": "^8.0.0",
     "concurrently": "^8.2.2",
     "copy-webpack-plugin": "^12.0.2",
+    "cpy": "^11.1.0",
+    "cpy-cli": "^5.0.0",
     "cross-env": "^7.0.3",
     "css-minimizer-webpack-plugin": "^7.0.0",
     "electron": "^36.5.0",
