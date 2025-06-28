@@ -6,7 +6,17 @@ import * as uniqueIcons from './data/uniqueIcons.json';
 import * as items from './data/items.json';
 import areas from './data/areas.json';
 
-const Constants = {
+type Constants = {
+  mapMods: string[];
+  areas: {
+    [key: string]: string[];
+  };
+  items: {
+    [key: string]: any;
+  };
+}
+
+const Constants: Constants = {
   ...atlasRegions,
   ...constants,
   ...dialogue,
@@ -15,5 +25,6 @@ const Constants = {
   areas,
   items,
 };
+
 
 export default Constants;
