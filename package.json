@@ -68,6 +68,7 @@
   "scripts": {
     "start": "electron .",
     "test": "jest --config jest.config.js --runInBand",
+    "test:watch": "jest --config jest.config.js --runInBand --watch",
     "postinstall": "electron-builder install-app-deps",
     "pack": "electron-builder --dir",
     "dist": "electron-builder",
