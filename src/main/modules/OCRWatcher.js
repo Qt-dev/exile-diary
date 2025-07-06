@@ -160,6 +160,9 @@ async function processImageBuffer(buffer, timestamp, type) {
       logger.info(line.trim());
     });
 
+    const areaId = await DB.getAreaId();
+    logger.info(`Got areaId: ${areaId} for timestamp: ${timestamp}`);
+
     if (type === 'area') {
       logger.debug('Processing area info');
       const area = getAreaInfo(lines);
@@ -174,7 +177,7 @@ async function processImageBuffer(buffer, timestamp, type) {
       try {
         if (area.name) {
           await DB.insertAreaInfo({
-            id: timestamp,
+            areaId: areaId,
             name: area.name,
             level: area.level,
             depth: area.depth,
@@ -184,7 +187,7 @@ async function processImageBuffer(buffer, timestamp, type) {
         } else {
           throw 'No area name found';
         }
-      } catch (e) {
+      } catch (err) {
         cleanFailedOCR(err, timestamp);
       }
     } else if (type === 'mods') {
@@ -194,7 +197,7 @@ async function processImageBuffer(buffer, timestamp, type) {
         let mapModErr = null;
 
         try {
-          await DB.insertMapMods(timestamp, mods);
+          await DB.replaceMapMods(areaId, mods);
         } catch (e) {
           mapModErr = e;
         }

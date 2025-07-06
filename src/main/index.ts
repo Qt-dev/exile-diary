@@ -532,12 +532,14 @@ class MainProcess {
         RunParser.setLatestGeneratedAreaLevel(level);
       }
     });
-    ClientTxtWatcher.emitter.on('enteredMap', (area) => {
+    ClientTxtWatcher.emitter.on('enteredMap', async ({ area, event }) => {
       logger.info('Entered map ' + area);
+      const hasProcessed = await RunParser.tryProcess({ event });
       if (this.awaitingMapEntering) {
         this.awaitingMapEntering = false;
         this.sendToMain('current-run:started', { area, level: this.latestGeneratedAreaLevel });
         this.sendToOverlay('current-run:started', { area, level: this.latestGeneratedAreaLevel });
+        await RunParser.startRun(area, parseInt(this.latestGeneratedAreaLevel ?? '0'), area);
       }
     });
 

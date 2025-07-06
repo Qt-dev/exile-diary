@@ -8,7 +8,7 @@ class StringMatcher {
   static getMap(str) {
     if (!allAreas) {
       allAreas = [];
-      let keys = Object.keys(Constants.areas);
+      let keys = Object.keys(Constants.areas).sort((a, b) => a - b);
       for (let i = 0; i < keys.length; i++) {
         allAreas.push(...Constants.areas[keys[i]]);
       }
@@ -40,14 +40,17 @@ class StringMatcher {
   }
 
   static getClosest(str, arr) {
-    var minLevenshtein = 999;
-    var ret = '';
-    for (var i = 0; i < arr.length; i++) {
-      var match = arr[i];
-      var score = levenshtein(str.toUpperCase(), match.toUpperCase());
-      if (score < 2) {
+    let minLevenshtein = 999;
+    let ret = '';
+    for (let i = 0; i < arr.length; i++) {
+      const match = arr[i];
+      const score = levenshtein(str.toUpperCase(), match.toUpperCase());
+      if (score <= 2) { // Only 2 or less characters of difference means it is basically the same string with a typo
         return match;
-      } else if (score < minLevenshtein || (score === minLevenshtein && match.indexOf('#') < 0)) {
+      } else if (
+        score < minLevenshtein || // The string is closer than the previous best match 
+        (score === minLevenshtein && match.indexOf('#') < 0) // The string is equally close but does not contain a placeholder for numbers
+      ) {
         minLevenshtein = score;
         ret = match;
       }

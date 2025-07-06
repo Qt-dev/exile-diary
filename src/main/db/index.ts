@@ -214,6 +214,82 @@ const Migrations = {
         `pragma user_version = 13`,
         `UPDATE items SET category = 'Kalguuran Rune' WHERE rarity = 'Currency' AND typeline LIKE '% Rune%'`,
       ],
+      
+      [
+        // Mapruns format
+        `CREATE TABLE mapruns_bis (
+            id INTEGER NOT NULL UNIQUE,
+            firstevent TEXT UNIQUE NOT NULL,
+            lastevent TEXT UNIQUE NOT NULL,
+            iiq NUMBER,
+            iir NUMBER,
+            packsize NUMBER,
+            xp NUMBER,
+            runinfo TEXT,
+            kills NUMBER,
+            completed NUMBER DEFAULT 0,
+            PRIMARY KEY("id" AUTOINCREMENT)
+        )`,
+        `INSERT INTO mapruns_bis (firstevent, lastevent, iiq, iir, packsize, xp, runinfo, kills, completed)
+          SELECT firstevent, lastevent, iiq, iir, packsize, xp, runinfo, kills, 1 FROM mapruns`,
+        `DROP TABLE mapruns`,
+        `ALTER TABLE mapruns_bis RENAME TO mapruns`,
+
+        // Mapmods format
+        `CREATE TABLE mapmods_bis 
+        (
+        	id INTEGER NOT NULL,
+        	area_id INTEGER NOT NULL,
+        	mod TEXT NOT NULL,
+        	PRIMARY KEY ("id" AUTOINCREMENT)
+        )`,
+        `INSERT INTO mapmods_bis (area_id, mod)
+        	SELECT mapruns.id, mod
+        	FROM mapmods, mapruns
+        	WHERE mapmods.area_id = mapruns.id
+        `,
+        `DROP TABLE mapmods`,
+        `ALTER TABLE mapmods_bis RENAME TO mapmods`,
+          
+        // Delete duplicated areainfo entries to make the areainfo unique per map_id
+        `DELETE FROM areainfo
+        WHERE areainfo.id NOT IN
+        (
+          SELECT a.id
+          FROM areainfo a
+          WHERE id =
+          (
+            SELECT MAX(id)
+            FROM areainfo a2
+            WHERE a2.area_id = a.area_id
+            )	
+            GROUP BY area_id
+            )`,
+
+        // AreaInfo Format
+        `CREATE TABLE areainfo_bis 
+        (
+          id INTEGER NOT NULL,
+          area_id INTEGER NOT NULL UNIQUE,
+          name TEXT,
+          level INTEGER,
+          depth INTEGER,
+          PRIMARY KEY ("id" AUTOINCREMENT)
+        )`,
+
+        `INSERT INTO areainfo_bis (area_id, name, level, depth)
+          SELECT mapruns.id, areainfo.name, areainfo.level, areainfo.depth
+          FROM mapruns, areainfo
+          WHERE areainfo.id BETWEEN mapruns.firstevent AND mapruns.lastevent
+        `,
+        
+        `DROP TABLE areainfo`,
+        
+        `ALTER TABLE areainfo_bis RENAME TO areainfo`,
+        
+        
+        `pragma user_version = 14`
+      ],
     ],
     maintenance: [
       `delete from incubators where timestamp < (select min(timestamp) from (select timestamp from incubators order by timestamp desc limit 25))`,
@@ -318,7 +394,9 @@ class DBManager {
       const index = sqlList.indexOf(sqlPatch);
       if (version === 0 || index > version) {
         logger.debug(`Running initialization SQL for ${this.db.name} - version ${index}`);
+        logger.debug(`SQL commands: ${JSON.stringify(sqlPatch)}`);
         for (const command of sqlList[index]) {
+          logger.debug(`Running command: ${command}`);
           await this.runTask(() => this.db.prepare(command).run());
           migrationCounter++;
         }
@@ -397,7 +475,7 @@ const DB = {
   all: async (sql: string, params: any[] = [], league: string | undefined = undefined) => {
     const manager = DB.getManager(league);
     if (!manager) return null;
-
+    
     return await manager.runTask(() => manager.db.prepare(sql).all(params));
   },
 

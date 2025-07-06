@@ -60,7 +60,7 @@ const router = createHashRouter([
           const { runId } = params;
           if (!runId) throw new Error(`No run found with this id (${runId})`);
           await runStore.loadRun(runId);
-          const run = runStore.runs.find((run) => run.runId === runId);
+          const run = runStore.runs.find((run) => run.runId === parseInt(runId));
           if (!run) {
             return redirect('/');
           }
