@@ -1,4 +1,4 @@
-const Tail = require('nodejs-tail');
+const Tail = require('tail').Tail;
 const logger = require('electron-log');
 const EventEmitter = require('events');
 const InventoryGetter = require('./InventoryGetter');
@@ -25,7 +25,7 @@ function start() {
 
   if (tail) {
     try {
-      tail.close();
+      tail.unwatch();
     } catch (err) {
       logger.error(err);
     }
@@ -34,13 +34,23 @@ function start() {
   if (settings.clientTxt) {
     checkValidLogfile(settings.clientTxt);
 
-    logger.info(`Watching ${settings.clientTxt}`);
+    const options = {
+      fromBeginning: false,
+      follow: true,
+      useWatchFile: true,
+      fsWatchOptions: {
+        persistent: true,
+        interval: 500,
+      },
+    };
+    logger.info(`Watching ${settings.clientTxt}`, options);
 
-    tail = new Tail(`${settings.clientTxt}`, { usePolling: true, disableGlobbing: true });
+    tail = new Tail(`${settings.clientTxt}`, options);
     inv = new InventoryGetter();
     tree = SkillTreeWatcher;
 
     tail.on('line', (line) => {
+      logger.debug(`Client.txt line: ${line}`);
       if (process.platform === 'linux') {
         // Remove carriage return
         // NOTE: PoE run on wine, the client.txt file has Windows carriage return
