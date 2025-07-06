@@ -101,8 +101,8 @@ function start() {
               if (!Utils.isTown(event.text)) {
                 logger.info(`Entered map area ${event.text}, will try processing previous area`);
                 currentInstance = event.text;
-                emitter.emit('enteredMap', event.text);
-                RunParser.tryProcess({
+                emitter.emit('enteredMap', {
+                  area: event.text,
                   event: { timestamp: timestamp, area: event.text, server: event.instanceServer },
                   mode: 'automatic',
                 });
@@ -145,7 +145,7 @@ async function checkValidLogfile(path) {
 }
 
 function insertEvent(event, timestamp) {
-  DB.run('insert into events(id, event_type, event_text, server) values(?, ?, ?, ?)', [
+  DB.run('INSERT INTO events(id, event_type, event_text, server) values(?, ?, ?, ?)', [
     timestamp,
     event.type,
     event.text,

@@ -2,10 +2,9 @@ import { makeAutoObservable, computed } from 'mobx';
 import { v4 as uuidv4 } from 'uuid';
 import dayjs, { Dayjs } from 'dayjs';
 import ItemStore from '../itemStore';
-import Logger from 'electron-log/renderer';
 
 type JSONRun = {
-  id: string;
+  id: number;
   name: string;
   level: number;
   depth: number | null;
@@ -19,12 +18,13 @@ type JSONRun = {
   gained: number;
   kills: number | null;
   runinfo: string;
+  mods: { mod: string; }[];
 };
 
 export class Run {
   id = null;
   lastUpdate: Dayjs;
-  runId = '';
+  runId = 0;
   name = 'Unknown';
   level = 0;
   depth = null;
@@ -52,6 +52,7 @@ export class Run {
   store;
   saveHandler = null;
   itemStore: ItemStore | null = null;
+  mods: { mod: string; }[] = [];
 
   constructor(store, options = {}) {
     const id = uuidv4();
@@ -89,16 +90,18 @@ export class Run {
   }
 
   updateDetails(details) {
+    // Logger.debug('Updating Run Details', details);
     this.league = details.league;
     this.initialxp = details.prevxp;
     this.events = details.events;
     this.items = details.items;
+    this.mods = details.mods || [];
 
-    Logger.debug('Building Store', details.items);
+    // Logger.debug('Building Store', details.items);
     const items: any = [];
     for (const timestamp in details.items) {
       // Add loot events to the events array
-      Logger.debug('Adding loot event', details.items[timestamp]);
+      // Logger.debug('Adding loot event', details.items[timestamp]);
       this.events.push({
         id: timestamp,
         event_type: 'loot',
@@ -146,12 +149,13 @@ export class Run {
       gained: this.gained,
       kills: this.kills,
       runinfo: JSON.stringify(this.runInfo),
+      mods: this.mods,
     };
   }
 
   static getCsvHeaders() {
     const fakeJSONRun: JSONRun = {
-      id: '',
+      id: 0,
       name: '',
       level: 0,
       depth: 0,
@@ -165,6 +169,7 @@ export class Run {
       gained: 0,
       kills: 0,
       runinfo: '',
+      mods: [],
     };
     return Object.keys(fakeJSONRun);
   }

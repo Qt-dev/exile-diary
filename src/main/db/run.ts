@@ -82,6 +82,31 @@ const getItemNameFromIcon = (iconUrl: string) => {
 };
 
 const Runs = {
+  getAreaId: async (): Promise<number> => {
+    logger.info('Getting area ID from DB');
+    const query = `
+      SELECT id FROM mapruns
+      ORDER BY id DESC
+      LIMIT 1;
+    `;
+    const result = await DB.get(query);
+    return result ? result.id : 0;
+  },
+
+  insertMapRun: async (mapData: any): Promise<any> => {
+    const formattedMapData = mapData.map((item) => {
+      if (typeof item === 'boolean') {
+        return +item; // Convert boolean to number (0 or 1)
+      }
+      return item;
+    });
+    logger.debug('Inserting map run:', formattedMapData);
+    return DB.run(
+      'INSERT INTO mapruns(firstevent, lastevent, iiq, iir, packsize, xp, kills, runinfo, completed) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
+      formattedMapData
+    );
+  },
+
   getLastRuns: async (numberOfRunsToShow: number) => {
     logger.info(
       `Getting last ${
@@ -95,7 +120,7 @@ const Runs = {
         (SELECT COALESCE(SUM(value),0) FROM items WHERE items.event_id BETWEEN firstevent AND lastevent AND ignored = 0) gained,
         kills, runinfo
       from areainfo, mapruns
-      where areainfo.id = mapruns.id
+      where areainfo.area_id = mapruns.id
         and json_extract(runinfo, '$.ignored') is null
       order by mapruns.id desc
       limit ?
@@ -107,15 +132,14 @@ const Runs = {
   },
 
   getRunMods: async (mapId: number): Promise<any> => {
-    logger.info(`Getting mods for run ${mapId}`);
     const mapModsQuery = `
-      select mod
-      from mapmods
-      where id = ?
+      SELECT mod
+      FROM mapmods
+      WHERE area_id = ?
+      ORDER BY id;
     `;
 
-    const mapMods = await DB.all(mapModsQuery, [mapId]);
-
+    const mapMods = await DB.all(mapModsQuery, [BigInt(mapId)]);
     return mapMods;
   },
 
@@ -142,10 +166,10 @@ const Runs = {
       (select xp from mapruns m where m.id < mapruns.id and xp is not null order by m.id desc limit 1) prevxp,
       (select league from leagues where timestamp < lastevent order by timestamp desc limit 1) league
       from areainfo, mapruns where mapruns.id = ?
-        and areainfo.id = ?
+        and areainfo.area_id = mapruns.id
     `;
 
-    const mapInfo = await DB.get(mapInfoQuery, [mapId, mapId]);
+    const mapInfo = await DB.get(mapInfoQuery, [mapId]);
 
     return mapInfo;
   },
@@ -220,29 +244,29 @@ const Runs = {
   },
 
   getAreaInfo: async (areaId: number) => {
-    const query = 'select * from areainfo where id = ?';
+    const query = 'select * from areainfo where area_id = ?';
     const areaInfo = (await DB.get(query, [areaId])) as AreaInfo;
     return areaInfo;
   },
 
   insertAreaInfo: async ({
-    id,
+    areaId,
     name,
     level,
     depth,
   }: {
-    id: number;
+    areaId: number;
     name?: string;
     level?: number;
     depth?: number;
   }) => {
-    const currentInfo: any = Runs.getAreaInfo(id);
+    const currentInfo: any = Runs.getAreaInfo(areaId);
     const query =
-      'INSERT INTO areainfo(id, name, level, depth) VALUES(?, ?, ?, ?) ON CONFLICT(id) DO UPDATE SET name = ?, level = ?, depth = ?';
+      'INSERT INTO areainfo(area_id, name, level, depth) VALUES(?, ?, ?, ?) ON CONFLICT(area_id) DO UPDATE SET name = ?, level = ?, depth = ?';
     try {
       if (!name && !level && !depth) throw 'No areaInfo provided';
       const params = [
-        id,
+        areaId,
         name ?? currentInfo.name,
         level ?? currentInfo.level,
         depth ?? currentInfo.depth,
@@ -254,7 +278,7 @@ const Runs = {
       return true;
     } catch (err) {
       logger.error(err);
-      logger.error(`Error inserting new areaInfo for ${name}(${id}): ${JSON.stringify(err)}`);
+      logger.error(`Error inserting new areaInfo for ${name}(${areaId}): ${JSON.stringify(err)}`);
       return false;
     }
   },
@@ -271,10 +295,10 @@ const Runs = {
   },
 
   insertMapMods: async (mapId: number, mods: string[]) => {
-    const query = 'INSERT INTO mapmods(area_id, id, mod) VALUES(?, ?, ?)';
+    const query = 'INSERT INTO mapmods(area_id, mod) VALUES(?, ?)';
     try {
-      mods.forEach((mod, i) => {
-        DB.run(query, [mapId, i, mod]);
+      mods.forEach((mod) => {
+        DB.run(query, [mapId, mod]);
       });
       return true;
     } catch (err) {
@@ -284,8 +308,13 @@ const Runs = {
     }
   },
 
+  replaceMapMods: async (mapId: number, mods: string[]) => {
+    await Runs.deleteMapMods(mapId);
+    await Runs.insertMapMods(mapId, mods);
+  },
+
   deleteMapMods: async (mapId: number) => {
-    const query = 'DELETE FROM mapmods WHERE id = ?';
+    const query = 'DELETE FROM mapmods WHERE mapmods.area_id = ?';
     try {
       DB.run(query, [mapId]);
       return true;
@@ -309,8 +338,8 @@ const Runs = {
       (SELECT COALESCE(SUM(value),0) FROM items WHERE items.event_id BETWEEN firstevent AND lastevent AND ignored = 0) gained
       FROM mapruns, areainfo
       WHERE gained > -1
-      AND areainfo.id = mapruns.id
-      AND mapruns.id BETWEEN ? AND ?;
+      AND areainfo.area_id = mapruns.id
+      AND mapruns.firstevent BETWEEN ? AND ?;
     `;
 
     const runs = await DB.all(itemsQuery, [from, to]);

@@ -61,7 +61,7 @@ const stats = {
             GROUP BY mapruns.id
           ) as conquerortimes
         ON conquerortimes.run_id = mapruns.id
-      WHERE mapruns.id = areainfo.id
+      WHERE mapruns.id = areainfo.area_id
       AND json_extract(runinfo, '$.ignored') is null
       ORDER BY mapruns.id desc
       `;
@@ -80,7 +80,7 @@ const stats = {
       FROM items, mapruns, areainfo
       WHERE items.ignored = 0
       AND items.event_id BETWEEN mapruns.firstevent AND mapruns.lastevent
-      AND mapruns.id = areainfo.id
+      AND mapruns.id = areainfo.area_id
     `;
 
     try {
@@ -102,7 +102,7 @@ const stats = {
       WHERE items.value > ?
       AND items.ignored = 0
       AND items.event_id BETWEEN mapruns.firstevent AND mapruns.lastevent
-      AND map_id = areainfo.id
+      AND map_id = areainfo.area_id
       AND map_id BETWEEN ? AND ?
     `;
 
@@ -147,7 +147,7 @@ const stats = {
             ) as itemcount
             ON itemcount.run_id = mapruns.id
 
-      WHERE mapruns.id = areainfo.id
+      WHERE mapruns.id = areainfo.area_id
       ${
         selectedMods.length > 0
           ? `AND (
@@ -195,7 +195,7 @@ const stats = {
       AND itemcount.items > 0
       AND json_extract(runinfo, '$.ignored') is null
       AND gained > ?
-      AND mapruns.id BETWEEN ? AND ?
+      AND mapruns.firstevent BETWEEN ? AND ?
       ORDER BY mapruns.id desc
     `;
 
@@ -228,7 +228,7 @@ const stats = {
       WHERE items.value > ?
       AND items.ignored = 0
       AND items.event_id BETWEEN mapruns.firstevent AND mapruns.lastevent
-      AND map_id = areainfo.id
+      AND map_id = areainfo.area_id
       AND mapruns.id IN (${runs.map((r) => r.id).join(',')})
     `;
 
@@ -245,7 +245,7 @@ const stats = {
     const query = `
       SELECT DISTINCT areainfo.name
       FROM areainfo, mapruns
-      WHERE mapruns.id = areainfo.id
+      WHERE mapruns.id = areainfo.area_id
       AND json_extract(runinfo, '$.ignored') is null
       ORDER BY areainfo.name asc
     `;
@@ -294,7 +294,7 @@ const stats = {
           )
       )
       FROM mapruns
-      WHERE mapruns.id > ?
+      WHERE mapruns.firstevent > ?
     ) AS total_time_seconds,
     COUNT(DISTINCT items.id) AS items,
     COUNT(DISTINCT mapruns.id) AS runs
@@ -302,7 +302,7 @@ const stats = {
       JOIN items
       ON items.event_id >= mapruns.firstevent
       AND items.event_id <= mapruns.lastevent
-    WHERE mapruns.id > ?
+    WHERE mapruns.firstevent > ?
     AND items.ignored = 0
     `;
 
