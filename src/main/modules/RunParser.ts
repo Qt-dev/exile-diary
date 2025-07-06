@@ -27,7 +27,7 @@ type Event = {
 };
 
 type AreaInfo = {
-  areaId: number;
+  area_id: number;
   name: string;
   level?: number;
   depth?: number;
@@ -61,7 +61,7 @@ type MapData = [
 
 const RunParser = {
   latestGeneratedArea: {
-    areaId: 0,
+    area_id: 0,
     name: '',
   } as AreaInfo,
   emitter: new EventEmitter(),
@@ -314,10 +314,11 @@ const RunParser = {
   },
 
   getItemStats: async (
-    area: { areaId: number; name: string },
+    area: { area_id: number; name: string },
     firsteventTimestamp: number,
     lasteventTimestamp: number
   ): Promise<ItemStats | false> => {
+    logger.debug(`Getting item stats for ${area.area_id} ${area.name} between ${firsteventTimestamp} and ${lasteventTimestamp}`);
     let lastInventoyTimestamp: number;
     let timestampCheckCount = 0;
 
@@ -343,17 +344,17 @@ const RunParser = {
       }
     }
 
-    logger.debug(`Getting chaos value of items from ${area.areaId} ${area.name}`);
+    logger.debug(`Getting chaos value of items from ${area.area_id} ${area.name}`);
     try {
       const itemStats = (await RunParser.generateItemStats(
-        `${area.areaId}`,
+        `${area.area_id}`,
         firsteventTimestamp,
         lasteventTimestamp
       )) as ItemStats;
       if (itemStats) logger.debug(`Total profit is ${itemStats.value} in ${itemStats.count} items`);
       return itemStats;
     } catch (err) {
-      logger.error(`Unable to get item values for ${area.areaId} ${area.name}: ${err}`);
+      logger.error(`Unable to get item values for ${area.area_id} ${area.name}: ${err}`);
       return false;
     }
   },
@@ -1164,7 +1165,7 @@ const RunParser = {
       mapStats = RunParser.getMapStats(mapMods);
     } else {
       areaInfo = {
-        areaId,
+        area_id: areaId,
         name: '',
       };
     }
