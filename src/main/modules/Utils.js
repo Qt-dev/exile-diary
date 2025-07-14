@@ -16,13 +16,12 @@ const Utils = {
     }
   },
 
-  isTown: (str) => {
-    if (Constants.townstrings.find((townstring) => str === townstring)) {
-      return true;
+  isTown: (name) => {
+    const area = Object.values(Constants.worldAreas).find((area) => area.name === name);
+    if (area) {
+      return area.isTown || area.isHideout;
     }
-    if (str.endsWith('Hideout') && !str.includes('Syndicate')) {
-      return true;
-    }
+
     return false;
   },
 

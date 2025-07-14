@@ -1,3 +1,4 @@
+import dayjs from 'dayjs';
 import DB from './index';
 import Logger from 'electron-log';
 import zlib from 'zlib';
@@ -5,12 +6,13 @@ const logger = Logger.scope('db/rates');
 
 const rates = {
   getFullRates: async (league: string, date: string): Promise<any> => {
-    logger.info(`Getting rates for ${date} (league: ${league}) from DB`);
+    const formattedDate = dayjs(date).format('YYYYMMDD');
+    logger.info(`Getting rates for ${formattedDate} (league: ${league}) from DB`);
     const query =
       'SELECT date, data FROM fullrates WHERE date <= ? OR date = (SELECT min(date) FROM fullrates) ORDER BY date DESC';
 
     try {
-      const [{ data }] = (await DB.all(query, [date], league)) as any[];
+      const [{ data }] = (await DB.all(query, [formattedDate], league)) as any[];
       return await new Promise((resolve, reject) => {
         zlib.inflate(data, (err, buffer) => {
           if (err) {
@@ -36,7 +38,8 @@ const rates = {
     }
   },
   insertRates: async (league: string, date: string, rates: any): Promise<boolean> => {
-    logger.info(`Inserting rates for ${date} (league: ${league}) into DB`);
+    const formattedDate = dayjs(date).format('YYYYMMDD');
+    logger.info(`Inserting rates for ${formattedDate} (league: ${league}) into DB`);
     const query = 'INSERT OR REPLACE INTO fullrates (date, data) VALUES (?, ?)';
     const data = JSON.stringify(rates);
     const buffer = await new Promise((resolve, reject) => {
@@ -49,7 +52,7 @@ const rates = {
       });
     });
     try {
-      DB.run(query, [date, buffer], league);
+      DB.run(query, [formattedDate, buffer], league);
       return true;
     } catch (err) {
       logger.error(`Error inserting rates for ${date} (league: ${league}): ${JSON.stringify(err)}`);

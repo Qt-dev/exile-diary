@@ -5,7 +5,7 @@ const logger = Logger.scope('db/skilltree');
 const SkillTree = {
   getPreviousTree: async () => {
     logger.info('Getting previous skill tree');
-    const query = 'select timestamp, data from passives order by timestamp desc limit 1';
+    const query = 'SELECT timestamp, data FROM passives ORDER BY timestamp DESC LIMIT 1';
 
     try {
       const row = await DB.get(query);
@@ -18,7 +18,7 @@ const SkillTree = {
 
   insertPassivetree: async (timestamp: number, data: string) => {
     logger.info('Inserting new skill tree');
-    const query = 'insert into passives(timestamp, data) values(?, ?)';
+    const query = 'INSERT INTO passives(timestamp, data) values(?, ?)';
 
     try {
       await DB.run(query, [timestamp, data]);

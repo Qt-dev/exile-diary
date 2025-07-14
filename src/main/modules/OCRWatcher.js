@@ -90,9 +90,11 @@ function cleanFailedOCR(e, timestamp) {
   mapInfoManager.cleanup();
   logger.info('Error processing screenshot: ' + e);
   emitter.emit('OCRError');
-  if (timestamp) {
-    DB.deleteAreaInfo(timestamp);
-    DB.deleteMapMods(timestamp);
+  const cleanTimestamp = dayjs(timestamp, "YYYYMMDDHHmmss").toISOString();
+  const runId = DB.getRunIdFromTimestamp(cleanTimestamp);
+  if (timestamp && runId) {
+    DB.deleteAreaInfo(runId);
+    DB.deleteMapMods(runId);
   }
 }
 

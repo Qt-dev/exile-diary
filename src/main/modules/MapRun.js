@@ -140,17 +140,17 @@ class MapRun extends EventEmitter {
     return new Promise((resolve) => {
       DB.all(
         `
-          select events.id, items.rarity, items.icon, items.value, items.stacksize, items.rawdata from mapruns, events, items
-          where mapruns.id = ?
-          and events.id between mapruns.firstevent and mapruns.lastevent
-          and items.event_id = events.id;
+          select event.id, item.rarity, item.icon, item.value, item.stack_size, item.raw_data from run, event, item
+          where run.id = ?
+          and DATETIME(event.timestamp) between DATETIME(run.first_event) and DATETIME(run.last_event)
+          and item.event_id = event.id;
         `,
         [mapID]
       )
         .then((rows) => {
           let items = {};
           rows.forEach((row) => {
-            let data = JSON.parse(row.rawdata);
+            let data = JSON.parse(row.raw_data);
             if (!items[row.id]) {
               items[row.id] = [];
             }
@@ -163,13 +163,13 @@ class MapRun extends EventEmitter {
                 }
               }
             }
-            if (secretName || row.value || row.stacksize) {
+            if (secretName || row.value || row.stack_size) {
               if (secretName) data.secretName = secretName;
               if (row.value) data.value = row.value;
-              if (row.stacksize) data.pickupStackSize = row.stacksize;
+              if (row.stack_size) data.pickupStackSize = row.stacksize;
               items[row.id].push(JSON.stringify(data));
             } else {
-              items[row.id].push(row.rawdata);
+              items[row.id].push(row.raw_data);
             }
           });
           resolve(items);
@@ -183,11 +183,11 @@ class MapRun extends EventEmitter {
 
   async getLeague(mapID) {
     return new Promise((resolve) => {
-      DB.get('select league from leagues where timestamp < ? order by timestamp desc limit 1', [
+      DB.get('SELECT name FROM league WHERE DATETIME(timestamp) < DATETIME(?) ORDER BY timestamp DESC LIMIT 1', [
         mapID,
       ])
         .then((row) => {
-          resolve(row.league);
+          resolve(row.name);
         })
         .catch((err) => {
           logger.error(`Failed to get league: ${err}`);
@@ -195,6 +195,6 @@ class MapRun extends EventEmitter {
         });
     });
   }
-}
+} 
 
 module.exports = MapRun;

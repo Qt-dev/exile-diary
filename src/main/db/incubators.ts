@@ -5,7 +5,7 @@ const logger = Logger.scope('db/incubators');
 const incubators = {
   getPreviousIncubators: async () => {
     logger.info('Getting previous incubators');
-    const query = 'select timestamp, data from incubators order by timestamp desc limit 1';
+    const query = 'SELECT timestamp, data FROM incubator ORDER BY timestamp DESC LIMIT 1';
 
     try {
       const row = await DB.get(query);
@@ -18,7 +18,7 @@ const incubators = {
 
   insertNewIncubators: async (timestamp: number, data: string) => {
     logger.info('Inserting new incubators');
-    const query = 'insert into incubators(timestamp, data) values(?, ?)';
+    const query = 'INSERT INTO incubator(timestamp, data) values(?, ?)';
 
     try {
       await DB.run(query, [timestamp, data]);

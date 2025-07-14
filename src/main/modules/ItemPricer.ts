@@ -54,7 +54,7 @@ type PriceMatch = {
 async function getRatesFor(eventId: string, league = SettingsManager.get('activeProfile').league) {
   const date = eventId.slice(0, 8);
   if (!ratesCache[date] || !ratesCache[date][league]) {
-    logger.info('No rates for this date, fetching...');
+    logger.info(`No rates for this date (${date}), fetching...`);
     ratesCache[date] = ratesCache[date] || {};
     ratesCache[date][league] = await RatesManager.fetchRatesForDay(league, date);
     // writeFile(`./${date}.json`, JSON.stringify(ratesCache[date][league])); // In case you need to inspect the full rates for a day
@@ -185,25 +185,25 @@ class PriceMatcher {
         item.category === 'Map Fragment' ||
         (item.category === 'Labyrinth Item' && item.typeline.endsWith('to the Goddess')),
       calculateValue: (item: any, minItemValue: number = 0) =>
-        this.getValue(item, 'Fragment', item.typeline, minItemValue) * (item.stacksize || 1),
+        this.getValue(item, 'Fragment', item.typeline, minItemValue) * (item.stack_size || 1),
     },
     {
       name: 'Tattoo',
       test: (item: any) => item.typeline && item.typeline.includes('Tattoo'),
       calculateValue: (item: any, minItemValue: number = 0) =>
-        this.getValue(item, 'Tattoo', item.typeline, minItemValue) * (item.stacksize || 1),
+        this.getValue(item, 'Tattoo', item.typeline, minItemValue) * (item.stack_size || 1),
     },
     {
       name: 'Omen',
       test: (item: any) => item.typeline && item.typeline.includes('Omen'),
       calculateValue: (item: any, minItemValue: number = 0) =>
-        this.getValue(item, 'Omen', item.typeline, minItemValue) * (item.stacksize || 1),
+        this.getValue(item, 'Omen', item.typeline, minItemValue) * (item.stack_size || 1),
     },
     {
       name: 'Incubator',
       test: (item: any) => item.typeline && item.typeline.includes('Incubator'),
       calculateValue: (item: any, minItemValue: number = 0) =>
-        this.getValue(item, 'Currency', item.typeline, minItemValue) * (item.stacksize || 1),
+        this.getValue(item, 'Currency', item.typeline, minItemValue) * (item.stack_size || 1),
     },
     {
       name: 'Allflame Embers',
@@ -221,7 +221,7 @@ class PriceMatcher {
       name: 'Chaos Orbs',
       test: (item: any) => item.typeline === 'Chaos Orb',
       calculateValue: (item: any, minItemValue: number = 0) =>
-        1 * (item.stacksize || 1) >= minItemValue ? 1 * (item.stacksize || 1) : 0,
+        1 * (item.stack_size || 1) >= minItemValue ? 1 * (item.stack_size || 1) : 0,
     },
     {
       name: 'Kalguuran Runes',
@@ -234,7 +234,7 @@ class PriceMatcher {
       name: 'Currency',
       test: (item: any) => item.rarity === 'Currency',
       calculateValue: (item: any, minItemValue: number = 0) =>
-        this.getValue(item, 'Currency', item.typeline, minItemValue) * (item.stacksize || 1),
+        this.getValue(item, 'Currency', item.typeline, minItemValue) * (item.stack_size || 1),
     },
     {
       name: 'Unique Maps',
@@ -371,7 +371,7 @@ class PriceMatcher {
     if (log) {
       logger.info(`[${table}] : ${identifier} => ${value}`);
     }
-    return minItemValue < value * (item.stacksize || 1) ? value : 0;
+    return minItemValue < value * (item.stack_size || 1) ? value : 0;
   }
 
   /**
@@ -614,11 +614,11 @@ class PriceMatcher {
   getCurrencyShardStackValue(minItemValue: number, item: any, identifier: string): number {
     const wholeOrbName = Constants.shardTypes[identifier];
     const shardValue = this.getValue(item, 'Currency', wholeOrbName) / 20;
-    const stackValue = shardValue * item.stacksize;
+    const stackValue = shardValue * item.stack_size;
     if (log) {
       if (shardValue >= minItemValue) {
         logger.info(
-          `[Currency] : ${identifier} => ${shardValue} x ${item.stacksize} = ${stackValue}`
+          `[Currency] : ${identifier} => ${shardValue} x ${item.stack_size} = ${stackValue}`
         );
       } else {
         logger.info(`[Currency] : ${identifier} => ${shardValue} < ${minItemValue}, ignoring`);
@@ -637,13 +637,14 @@ class PriceMatcher {
   getSplinterStackValue(minItemValue: number, item: any, identifier: string): number {
     const fragmentType = Constants.fragmentTypes[identifier];
     const type = fragmentType.itemType ?? 'Fragment';
-    const splinterValue = this.getValue(item, type, fragmentType.item) / fragmentType.stackSize;
-    const stackValue = splinterValue * item.stacksize;
+    const splinterValue = this.getValue(item, type, fragmentType.item) / fragmentType.stack_Size;
+    logger.debug(item);
+    const stackValue = splinterValue * item.parsedItem.stackSize;
     logger.info('Splinter value: ', fragmentType, splinterValue, stackValue);
     if (log) {
       if (splinterValue >= minItemValue) {
         logger.info(
-          `Using alternate splinter pricing : ${identifier} => ${splinterValue} x ${item.stacksize} = ${stackValue}`
+          `Using alternate splinter pricing : ${identifier} => ${splinterValue} x ${item.stack_Size} = ${stackValue}`
         );
       } else {
         logger.info(
@@ -804,7 +805,7 @@ class PriceMatcher {
    */
   getSeedValue(item: any): number {
     const identifier = item.typeline + (this.getSeedLevel(item) >= 76 ? ' L76+' : '');
-    return this.getValue(item, 'Seed', identifier) * item.stacksize;
+    return this.getValue(item, 'Seed', identifier) * item.stack_size;
   }
 
   /**
@@ -938,7 +939,7 @@ class PriceMatcher {
    */
   getDivinationCardValue(item: any, minItemValue: number): number {
     const identifier = item.typeline;
-    return this.getValue(item, 'DivinationCard', identifier, minItemValue) * item.stacksize;
+    return this.getValue(item, 'DivinationCard', identifier, minItemValue) * item.stack_size;
   }
 }
 
@@ -954,7 +955,7 @@ async function price(
   league: string = SettingsManager.get('activeProfile').league,
   forceToday: boolean = false
 ): Promise<{ isVendor: boolean; value: number }> {
-  const date = forceToday ? dayjs().format('YYYYMMDD') : item.event_id.slice(0, 8);
+  const date = forceToday ? dayjs().format('YYYYMMDD') : dayjs(item.drop_time).format('YYYYMMDD');
   if (!matchers[date]) matchers[date] = new PriceMatcher(date);
   const matcher: PriceMatcher = matchers[date];
   await matcher.fetchRates(league);
@@ -963,7 +964,7 @@ async function price(
     return { isVendor: false, value: 0 };
   }
 
-  item.parsedItem = JSON.parse(item.rawdata);
+  item.parsedItem = JSON.parse(item.raw_data);
 
   let minItemValue = 0;
 

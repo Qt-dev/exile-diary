@@ -113,8 +113,6 @@ class MainProcess {
   isDownloadingUpdate: boolean;
   autoUpdaterInterval?: NodeJS.Timeout;
   saveBoundsCallback?: NodeJS.Timeout;
-  latestGeneratedAreaLevel?: string;
-  latestGeneratedAreaSeed?: string;
   awaitingMapEntering: boolean = false;
   screenshotLock: boolean = false;
   isOverlayMoveable: boolean;
@@ -310,11 +308,18 @@ class MainProcess {
       logger.info('Error getting area info from screenshot. Please try again');
     });
     OCRWatcher.emitter.on('areaInfoComplete', (info) => {
+      logger.info('Got area info from OCR', info);
       const tier = getMapTierString({ level: parseInt(info.areaInfo.level) });
       let stats = `IIR: ${info.mapStats.iir} / IIQ: ${info.mapStats.iiq}`;
-      if (info.mapStats.packsize && info.mapStats.packsize > 0)
-        stats += ` / Pack Size: ${info.mapStats.packsize}`;
+      if (info.mapStats.pack_size && info.mapStats.pack_size > 0)
+        stats += ` / Pack Size: ${info.mapStats.pack_size}`;
       const modReadingDuration = dayjs().diff(modReadingTimer);
+      RunParser.setCurrentMapStats({
+        name: info.areaInfo.name,
+        level: info.areaInfo.level,
+        depth: info.areaInfo.depth,
+        ...info.mapStats,
+      });
       logger.info(
         `Got area info for ${info.areaInfo.name} (${tier} - ${stats}) in ${modReadingDuration}ms`
       );
@@ -499,10 +504,9 @@ class MainProcess {
     });
 
     ClientTxtWatcher.emitter.removeAllListeners();
-    ClientTxtWatcher.emitter.on('localChatDisabled', () => {
+    ClientTxtWatcher.emitter.on('client-logs:error:local-chat-disabled', () => {
       logger.info(
-        "<span class='eventText'>Unable to track area changes. Please check if local chat is enabled.</span>",
-        true
+        "Unable to track area changes. Please check if local chat is enabled."
       );
     });
     ClientTxtWatcher.emitter.on('switchedCharacter', async (c) => {
@@ -523,13 +527,29 @@ class MainProcess {
         `<span class='eventText'>${path} has not been updated recently even though the game is running. Please check if PoE is using a different Client.txt file.</span>`
       );
     });
-    ClientTxtWatcher.emitter.on('generatedMap', ({ level, seed }) => {
-      logger.info('Generated map ' + level + ' ' + seed, '-', this.latestGeneratedAreaSeed);
-      this.awaitingMapEntering = seed !== this.latestGeneratedAreaSeed && seed !== '1';
+    ClientTxtWatcher.emitter.on('client-logs:generated-map', async ({ areaId, level, seed }) => {
+      const areaName = RunParser.getAreaNameFromId(areaId);
+      logger.info(`Generated map ${areaName} (${areaId}) (lvl${level}) (${seed}) - Latest: ${RunParser.latestGeneratedArea.seed}`);
+
+      // We just generated a new map that is neither the latest generated map nor town / hideouts
+      this.awaitingMapEntering = seed !== RunParser.latestGeneratedArea.seed && seed !== '1';
+      
+      // We insert an event into the database to track generated maps
+      const timestamp = dayjs().toISOString();
+      await RunParser.insertEvent({
+        event_type: 'generatedArea',
+        event_text: JSON.stringify({
+          areaName,
+          areaId,
+          level,
+          seed,
+        }),
+        timestamp
+      });
+
+      // If this is a new area, we update the latest generated area data here and in RunParser
       if (seed !== '1') {
-        this.latestGeneratedAreaLevel = level;
-        this.latestGeneratedAreaSeed = seed;
-        RunParser.setLatestGeneratedAreaLevel(level);
+        RunParser.setLatestGeneratedAreaData(level, areaName, seed);
       }
     });
     ClientTxtWatcher.emitter.on('enteredMap', async ({ area, event }) => {
@@ -537,9 +557,9 @@ class MainProcess {
       const hasProcessed = await RunParser.tryProcess({ event });
       if (this.awaitingMapEntering) {
         this.awaitingMapEntering = false;
-        this.sendToMain('current-run:started', { area, level: this.latestGeneratedAreaLevel });
-        this.sendToOverlay('current-run:started', { area, level: this.latestGeneratedAreaLevel });
-        await RunParser.startRun(area, parseInt(this.latestGeneratedAreaLevel ?? '0'), area);
+        this.sendToMain('current-run:started', { area, level: RunParser.latestGeneratedArea.level });
+        this.sendToOverlay('current-run:started', { area, level: RunParser.latestGeneratedArea.level });
+        await RunParser.startRun(area, RunParser.latestGeneratedArea.level ?? 0, area);
       }
     });
 

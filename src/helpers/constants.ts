@@ -4,6 +4,7 @@ import * as dialogue from './data/dialogue.json';
 import * as mapMods from './data/mapMods.json';
 import * as uniqueIcons from './data/uniqueIcons.json';
 import * as items from './data/items.json';
+import * as worldAreas from './data/worldAreas.json';
 import areas from './data/areas.json';
 
 type ConstantContainer = {
@@ -24,6 +25,7 @@ const Constants: ConstantContainer = {
   ...mapMods,
   ...uniqueIcons,
   areas,
+  worldAreas,
   items,
 };
 

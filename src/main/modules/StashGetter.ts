@@ -337,8 +337,8 @@ class StashGetter {
     };
   }
 
-  parseItem(rawdata, timestamp) {
-    const item = new Item(rawdata);
+  parseItem(raw_data, timestamp) {
+    const item = new Item(raw_data);
     item.setTimestamp(timestamp);
     return item;
   }

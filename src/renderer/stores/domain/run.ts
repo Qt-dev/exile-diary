@@ -10,14 +10,14 @@ type JSONRun = {
   depth: number | null;
   iiq: number;
   iir: number;
-  packsize: number;
-  firstevent: string | null;
-  lastevent: string | null;
+  pack_size: number;
+  first_event: string | null;
+  last_event: string | null;
   xpgained: number;
   deaths: number;
   gained: number;
   kills: number | null;
-  runinfo: string;
+  run_info: string;
   mods: { mod: string; }[];
 };
 
@@ -75,9 +75,9 @@ export class Run {
     this.depth = json.depth;
     this.iiq = json.iiq ?? this.iiq;
     this.iir = json.iir ?? this.iir;
-    this.packSize = json.packsize ?? this.packSize;
-    this.firstEvent = dayjs(json.firstevent, 'YYYYMMDDHHmmss');
-    this.lastEvent = dayjs(json.lastevent, 'YYYYMMDDHHmmss');
+    this.packSize = json.pack_size ?? this.packSize;
+    this.firstEvent = dayjs(json.first_event);
+    this.lastEvent = dayjs(json.last_event);
     this.duration = dayjs.duration(this.lastEvent.diff(this.firstEvent));
     this.xp = json.xpgained;
     this.xpPerHour = this.xp / this.duration.asHours();
@@ -85,7 +85,7 @@ export class Run {
     this.profit = json.gained;
     this.profitPerHour = this.profit / this.duration.asHours();
     this.kills = json.kills;
-    this.runInfo = json.runinfo ? JSON.parse(json.runinfo) : {};
+    this.runInfo = json.run_info ? JSON.parse(json.run_info) : {};
     this.lastUpdate = dayjs();
   }
 
@@ -141,14 +141,14 @@ export class Run {
       depth: this.depth,
       iiq: this.iiq,
       iir: this.iir,
-      packsize: this.packSize,
-      firstevent: this.firstEvent?.toISOString() ?? null,
-      lastevent: this.lastEvent?.toISOString() ?? null,
+      pack_size: this.packSize,
+      first_event: this.firstEvent?.toISOString() ?? null,
+      last_event: this.lastEvent?.toISOString() ?? null,
       xpgained: this.xp,
       deaths: this.deaths,
       gained: this.gained,
       kills: this.kills,
-      runinfo: JSON.stringify(this.runInfo),
+      run_info: JSON.stringify(this.runInfo),
       mods: this.mods,
     };
   }
@@ -161,14 +161,14 @@ export class Run {
       depth: 0,
       iiq: 0,
       iir: 0,
-      packsize: 0,
-      firstevent: '',
-      lastevent: '',
+      pack_size: 0,
+      first_event: '',
+      last_event: '',
       xpgained: 0,
       deaths: 0,
       gained: 0,
       kills: 0,
-      runinfo: '',
+      run_info: '',
       mods: [],
     };
     return Object.keys(fakeJSONRun);

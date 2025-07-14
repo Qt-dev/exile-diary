@@ -216,68 +216,112 @@ const Migrations = {
       ],
       
       [
+        // Delete view before all migrations
+        `DROP VIEW IF EXISTS leaguedates`,
+
         // Mapruns format
+        // TODO: Rename columns to be snake case
         `CREATE TABLE mapruns_bis (
             id INTEGER NOT NULL UNIQUE,
-            firstevent TEXT UNIQUE NOT NULL,
-            lastevent TEXT UNIQUE NOT NULL,
+            first_event TEXT UNIQUE NOT NULL,
+            last_event TEXT UNIQUE NOT NULL,
             iiq NUMBER,
             iir NUMBER,
-            packsize NUMBER,
+            pack_size NUMBER,
             xp NUMBER,
-            runinfo TEXT,
+            run_info TEXT,
             kills NUMBER,
             completed NUMBER DEFAULT 0,
             PRIMARY KEY("id" AUTOINCREMENT)
         )`,
-        `INSERT INTO mapruns_bis (firstevent, lastevent, iiq, iir, packsize, xp, runinfo, kills, completed)
+        `DELETE from mapruns WHERE firstevent = -1 OR lastevent = -1`,
+        `INSERT INTO mapruns_bis (first_event, last_event, iiq, iir, pack_size, xp, run_info, kills, completed)
           SELECT firstevent, lastevent, iiq, iir, packsize, xp, runinfo, kills, 1 FROM mapruns`,
-        `DROP TABLE mapruns`,
-        `ALTER TABLE mapruns_bis RENAME TO mapruns`,
+        `UPDATE mapruns_bis
+          SET 
+            last_event = CAST(last_event AS INT),
+            first_event = CAST(first_event AS INT)`,
+        `UPDATE mapruns_bis
+          SET 
+            first_event = strftime('%Y-%m-%d %H:%M:%S', 
+              substr(first_event, 1, 4) || '-' || 
+              substr(first_event, 5, 2) || '-' || 
+              substr(first_event, 7, 2) || ' ' || 
+              substr(first_event, 9, 2) || ':' || 
+              substr(first_event, 11, 2) || ':' || 
+              substr(first_event, 13, 2)),
+            last_event = strftime('%Y-%m-%d %H:%M:%S', 
+              substr(last_event, 1, 4) || '-' || 
+              substr(last_event, 5, 2) || '-' || 
+              substr(last_event, 7, 2) || ' ' || 
+              substr(last_event, 9, 2) || ':' || 
+              substr(last_event, 11, 2) || ':' || 
+              substr(last_event, 13, 2))`,
+        `ALTER TABLE mapruns_bis RENAME TO "run"`,
+
+        // Events Format
+        `CREATE TABLE events_bis 
+        (
+          id INTEGER NOT NULL,
+          event_type TEXT NOT NULL,
+          event_text TEXT,
+          server TEXT,
+          timestamp TEXT NOT NULL DEFAULT (datetime('now')),
+          PRIMARY KEY ("id" AUTOINCREMENT)
+        )`,
+        `INSERT INTO events_bis (event_type, event_text, server, timestamp)
+          SELECT event_type, event_text, server, id
+          FROM events
+        `,
+        `UPDATE events_bis
+          SET timestamp = strftime('%Y-%m-%d %H:%M:%S', 
+                        substr(timestamp, 1, 4) || '-' || 
+                        substr(timestamp, 5, 2) || '-' || 
+                        substr(timestamp, 7, 2) || ' ' || 
+                        substr(timestamp, 9, 2) || ':' || 
+                        substr(timestamp, 11, 2) || ':' || 
+                        substr(timestamp, 13, 2))`,
+        `DROP TABLE events`,
+        `ALTER TABLE events_bis RENAME TO event`,
 
         // Mapmods format
         `CREATE TABLE mapmods_bis 
         (
         	id INTEGER NOT NULL,
-        	area_id INTEGER NOT NULL,
+        	run_id INTEGER NOT NULL,
         	mod TEXT NOT NULL,
         	PRIMARY KEY ("id" AUTOINCREMENT)
         )`,
-        `INSERT INTO mapmods_bis (area_id, mod)
+        `INSERT INTO mapmods_bis (run_id, mod)
         	SELECT mapruns.id, mod
         	FROM mapmods, mapruns
         	WHERE mapmods.area_id = mapruns.id
         `,
         `DROP TABLE mapmods`,
-        `ALTER TABLE mapmods_bis RENAME TO mapmods`,
+        `ALTER TABLE mapmods_bis RENAME TO mapmod`,
           
         // Delete duplicated areainfo entries to make the areainfo unique per map_id
         `DELETE FROM areainfo
         WHERE areainfo.id NOT IN
         (
-          SELECT a.id
-          FROM areainfo a
-          WHERE id =
-          (
-            SELECT MAX(id)
-            FROM areainfo a2
-            WHERE a2.area_id = a.area_id
-            )	
-            GROUP BY area_id
-            )`,
+          SELECT MAX(a.id)
+            FROM areainfo a, mapruns
+            WHERE a.id BETWEEN mapruns.firstevent AND mapruns.lastevent
+            GROUP BY mapruns.id
+        )`,
 
         // AreaInfo Format
         `CREATE TABLE areainfo_bis 
         (
           id INTEGER NOT NULL,
-          area_id INTEGER NOT NULL UNIQUE,
+          run_id INTEGER NOT NULL UNIQUE,
           name TEXT,
           level INTEGER,
           depth INTEGER,
           PRIMARY KEY ("id" AUTOINCREMENT)
         )`,
 
-        `INSERT INTO areainfo_bis (area_id, name, level, depth)
+        `INSERT INTO areainfo_bis (run_id, name, level, depth)
           SELECT mapruns.id, areainfo.name, areainfo.level, areainfo.depth
           FROM mapruns, areainfo
           WHERE areainfo.id BETWEEN mapruns.firstevent AND mapruns.lastevent
@@ -285,14 +329,215 @@ const Migrations = {
         
         `DROP TABLE areainfo`,
         
-        `ALTER TABLE areainfo_bis RENAME TO areainfo`,
+        `ALTER TABLE areainfo_bis RENAME TO area_info`,
         
+
+        // Gear Format
+        `CREATE TABLE gear_bis (
+          id INTEGER NOT NULL,
+          data TEXT NOT NULL,
+          diff TEXT,
+          timestamp TEXT NOT NULL,
+          PRIMARY KEY(id AUTOINCREMENT)
+        )`,
+
+        `INSERT INTO gear_bis (timestamp, data, diff)
+        SELECT timestamp, data, diff
+        FROM gear`,
+
+        `UPDATE gear_bis
+        SET timestamp = strftime('%Y-%m-%d %H:%M:%S', 
+                    substr(timestamp, 1, 4) || '-' || 
+                    substr(timestamp, 5, 2) || '-' || 
+                    substr(timestamp, 7, 2) || ' ' || 
+                    substr(timestamp, 9, 2) || ':' || 
+                    substr(timestamp, 11, 2) || ':' || 
+                    substr(timestamp, 13, 2))`,
+
+        `DROP TABLE gear`,
+        `ALTER TABLE gear_bis RENAME TO gear`,
+
+        // Filters Format
+        `CREATE TABLE filters_bis (
+          id INTEGER NOT NULL,
+          text TEXT NOT NULL,
+          timestamp TEXT NOT NULL,
+          PRIMARY KEY (id AUTOINCREMENT)
+        )`,
+        `INSERT INTO filters_bis (text, timestamp)
+          SELECT text, timestamp
+          FROM filters`,
         
+        `UPDATE filters_bis
+          SET timestamp = strftime('%Y-%m-%d %H:%M:%S',
+                        substr(timestamp, 1, 4) || '-' ||
+                        substr(timestamp, 5, 2) || '-' ||
+                        substr(timestamp, 7, 2) || ' ' ||
+                        substr(timestamp, 9, 2) || ':' ||
+                        substr(timestamp, 11, 2) || ':' ||
+                        substr(timestamp, 13, 2))`,
+        
+        `DROP TABLE filters`,
+        `ALTER TABLE filters_bis RENAME TO "filter"`,
+
+        // Incubators Format
+        `CREATE TABLE incubators_bis (
+          id INTEGER NOT NULL,
+          data TEXT NOT NULL,
+          timestamp TEXT NOT NULL,
+          PRIMARY KEY (id AUTOINCREMENT)
+        )`,
+        `INSERT INTO incubators_bis (data, timestamp)
+          SELECT data, timestamp
+          FROM incubators`,
+        `UPDATE incubators_bis
+          SET timestamp = strftime('%Y-%m-%d %H:%M:%S',
+                        substr(timestamp, 1, 4) || '-' ||
+                        substr(timestamp, 5, 2) || '-' ||
+                        substr(timestamp, 7, 2) || ' ' ||
+                        substr(timestamp, 9, 2) || ':' ||
+                        substr(timestamp, 11, 2) || ':' ||
+                        substr(timestamp, 13, 2))`,
+        `DROP TABLE incubators`,
+        `ALTER TABLE incubators_bis RENAME TO incubator`,
+
+        // Items Format
+        `CREATE TABLE items_bis (
+          id INTEGER NOT NULL,
+          item_id TEXT NOT NULL,
+          event_id TEXT NOT NULL,
+          icon TEXT NOT NULL,
+          name TEXT,
+          rarity TEXT NOT NULL,
+          category TEXT NOT NULL,
+          identified INTEGER NOT NULL,
+          typeline TEXT NOT NULL,
+          sockets TEXT,
+          stack_size INTEGER,
+          raw_data TEXT,
+          value INTEGER NOT NULL DEFAULT 0,
+          original_value INTEGER NOT NULL DEFAULT 0,
+          ignored INTEGER NOT NULL DEFAULT 0,
+          PRIMARY KEY ("id" AUTOINCREMENT)
+        )`,
+        `INSERT INTO items_bis (item_id, event_id, icon, name, rarity, category, identified, typeline, sockets, stack_size, raw_data, value, original_value, ignored)
+          SELECT id, event_id, icon, name, rarity, category, identified, typeline, sockets, stacksize, rawdata, value, original_value, ignored
+          FROM items`,
+
+        `UPDATE items_bis
+          SET event_id = 
+            (
+            SELECT id 
+            FROM event
+            WHERE
+              date(strftime('%Y-%m-%d %H:%M:%S', 
+                substr(event_id, 1, 4) || '-' || 
+                substr(event_id, 5, 2) || '-' || 
+                substr(event_id, 7, 2) || ' ' || 
+                substr(event_id, 9, 2) || ':' || 
+                substr(event_id, 11, 2) || ':' || 
+                substr(event_id, 13, 2))) = 
+              date(event.timestamp)
+            )`,
+        `DROP TABLE items`,
+        `ALTER TABLE items_bis RENAME TO item`,
+
+        // Leagues Format
+        `CREATE TABLE leagues_bis (
+          id INTEGER NOT NULL,
+          name TEXT NOT NULL UNIQUE,
+          timestamp TEXT NOT NULL,
+          PRIMARY KEY ("id" AUTOINCREMENT)
+        )`,
+        `INSERT INTO leagues_bis (name, timestamp)
+          SELECT league, timestamp
+          FROM leagues`,
+        `UPDATE leagues_bis
+          SET timestamp = strftime('%Y-%m-%d %H:%M:%S', 
+                        substr(timestamp, 1, 4) || '-' || 
+                        substr(timestamp, 5, 2) || '-' || 
+                        substr(timestamp, 7, 2) || ' ' || 
+                        substr(timestamp, 9, 2) || ':' || 
+                        substr(timestamp, 11, 2) || ':' || 
+                        substr(timestamp, 13, 2))`,
+        `DROP TABLE leagues`,
+        `ALTER TABLE leagues_bis RENAME TO league`,
+        
+
+        // LastInv Format
+        `CREATE TABLE last_inventory (
+          id INTEGER NOT NULL,
+          timestamp TEXT NOT NULL,
+          inventory TEXT NOT NULL,
+          PRIMARY KEY ("id" AUTOINCREMENT)
+        )`,
+        `INSERT INTO last_inventory (timestamp, inventory)
+          SELECT timestamp, inventory
+          FROM lastinv`,
+        `UPDATE last_inventory
+          SET timestamp = strftime('%Y-%m-%d %H:%M:%S', 
+                        substr(timestamp, 1, 4) || '-' || 
+                        substr(timestamp, 5, 2) || '-' || 
+                        substr(timestamp, 7, 2) || ' ' || 
+                        substr(timestamp, 9, 2) || ':' || 
+                        substr(timestamp, 11, 2) || ':' || 
+                        substr(timestamp, 13, 2))`,
+        `DROP TABLE lastinv`,
+
+        // Passives Format
+        `CREATE TABLE passives_bis (
+          id INTEGER NOT NULL,
+          timestamp TEXT NOT NULL,
+          data TEXT NOT NULL,
+          PRIMARY KEY ("id" AUTOINCREMENT)
+        )`,
+        `INSERT INTO passives_bis (timestamp, data)
+          SELECT timestamp, data
+          FROM passives`,
+        `UPDATE passives_bis
+          SET timestamp = strftime('%Y-%m-%d %H:%M:%S', 
+                        substr(timestamp, 1, 4) || '-' || 
+                        substr(timestamp, 5, 2) || '-' || 
+                        substr(timestamp, 7, 2) || ' ' || 
+                        substr(timestamp, 9, 2) || ':' || 
+                        substr(timestamp, 11, 2) || ':' || 
+                        substr(timestamp, 13, 2))`,
+        `DROP TABLE passives`,
+        `ALTER TABLE passives_bis RENAME TO passives`,
+
+        // XP Format
+        `CREATE TABLE xp_bis (
+          id INTEGER NOT NULL,
+          xp INTEGER NOT NULL,
+          timestamp TEXT NOT NULL UNIQUE,
+          PRIMARY KEY ("id" AUTOINCREMENT)
+        )`,
+        `INSERT INTO xp_bis (timestamp, xp)
+          SELECT timestamp, xp
+          FROM xp`,
+        `UPDATE xp_bis
+          SET timestamp = strftime('%Y-%m-%d %H:%M:%S', 
+                        substr(timestamp, 1, 4) || '-' || 
+                        substr(timestamp, 5, 2) || '-' || 
+                        substr(timestamp, 7, 2) || ' ' || 
+                        substr(timestamp, 9, 2) || ':' || 
+                        substr(timestamp, 11, 2) || ':' || 
+                        substr(timestamp, 13, 2))`,
+        `DROP TABLE xp`,
+        `ALTER TABLE xp_bis RENAME TO xp`,
+
+        `DROP TABLE mapruns`, // Remove old mapruns table. This could be used as a central reference for other tables
+        `CREATE VIEW league_dates AS
+          SELECT name, timestamp AS start, 
+          (SELECT IFNULL(MIN(timestamp), DATETIME('now')) FROM "league" l2 WHERE l2.timestamp > "league".timestamp) AS end
+          FROM "league"
+          ORDER BY start`, // Create the view again after all migrations
+
         `pragma user_version = 14`
       ],
     ],
     maintenance: [
-      `delete from incubators where timestamp < (select min(timestamp) from (select timestamp from incubators order by timestamp desc limit 25))`,
+      `delete from incubator where timestamp < (select min(timestamp) from (select timestamp from incubator order by timestamp desc limit 25))`,
     ],
   },
   league: {
@@ -369,10 +614,12 @@ class DBManager {
     const id = uuidv4();
     return new Promise((resolve) => {
       this.eventEmitter.once(`task:start:${id}`, () => {
+        // logger.info(`Running task ${id}`);
         const result = task();
         this.eventEmitter.emit(`task:end:${id}`);
         resolve(result);
       });
+      // logger.info(`Adding task ${id}`);
       this.tasks.push(id);
       this.eventEmitter.emit(`task:added`);
     });

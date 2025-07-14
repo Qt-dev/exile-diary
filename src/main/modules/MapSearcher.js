@@ -183,7 +183,7 @@ async function getPseudoItemPriceFor(date) {
 async function getItemsFromEvent(mapID, eventID) {
   var items = [];
   return new Promise((resolve, reject) => {
-    DB.all('select rawdata, stacksize, category, sockets, value from items where event_id = ?', [
+    DB.all('SELECT raw_data, stack_size, category, sockets, value from item where event_id = ?', [
       eventID,
     ])
       .then(async (rows) => {
@@ -196,7 +196,7 @@ async function getItemsFromEvent(mapID, eventID) {
         let gcpItems = 0;
 
         for (let i = 0; i < rows.length; i++) {
-          var item = JSON.parse(rows[i].rawdata);
+          var item = JSON.parse(rows[i].raw_data);
 
           item.chaosValue = rows[i].value || 0;
 
