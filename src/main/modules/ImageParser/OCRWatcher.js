@@ -1,12 +1,12 @@
 const path = require('path');
-const fs = require('fs');
 const chokidar = require('chokidar');
 const logger = require('electron-log');
 const EventEmitter = require('events');
-const StringMatcher = require('./StringMatcher');
-const { getMapStats } = require('./RunParser').default;
+const StringParser = require('../StringParser/StringParser').default;
+const { getMapStats } = require('../RunParser').default;
 const { createWorker, createScheduler } = require('tesseract.js');
-let DB = require('../db/run').default;
+const dayjs = require('dayjs');
+let DB = require('../../db/run').default;
 
 let watcher;
 const emitter = new EventEmitter();
@@ -14,7 +14,7 @@ const app = require('electron').app || require('@electron/remote').app;
 let mapInfoManager;
 
 const watchPaths = [
-  path.join(app.getPath('userData'), '.temp_capture', '*_area.png'),
+  // path.join(app.getPath('userData'), '.temp_capture', '*_area.png'),
   path.join(app.getPath('userData'), '.temp_capture', '*_mods.png'),
 ];
 const numOfWorkers = 2;
@@ -31,11 +31,11 @@ class MapInfoManager {
     this.mapMods = null;
     this.areaInfo = null;
   }
-  checkAreaInfoComplete() {
-    const { areaInfo, mapMods } = this;
-    if (!!areaInfo && !!mapMods) {
+  checkJobComplete() {                                                                                                                                                                                                                                                                                            
+    const { mapMods } = this;
+    if (!!mapMods) {
       const mapStats = getMapStats(mapMods);
-      emitter.emit('areaInfoComplete', { areaInfo, mapMods, mapStats });
+      emitter.emit('ocr:completed-job', { mapMods, mapStats });
       this.cleanup();
     }
   }
@@ -86,56 +86,20 @@ async function start() {
   await setupScheduler();
 }
 
-function cleanFailedOCR(e, timestamp) {
+async function cleanFailedOCR(e, timestamp) {
   mapInfoManager.cleanup();
   logger.info('Error processing screenshot: ' + e);
   emitter.emit('OCRError');
   const cleanTimestamp = dayjs(timestamp, "YYYYMMDDHHmmss").toISOString();
-  const runId = DB.getRunIdFromTimestamp(cleanTimestamp);
+  const runId = await DB.getRunIdFromTimestamp(cleanTimestamp);
   if (timestamp && runId) {
-    DB.deleteAreaInfo(runId);
-    DB.deleteMapMods(runId);
+    await DB.deleteAreaInfo(runId);
+    await DB.deleteMapMods(runId);
   }
-}
-
-function getAreaInfo(lines) {
-  let areaInfo = {};
-
-  for (let i = 0; i < lines.length; i++) {
-    const line = lines[i];
-    if (!areaInfo.name) {
-      const str = StringMatcher.getMap(line);
-      if (str.length > 0) {
-        areaInfo.name = str;
-        continue;
-      }
-    }
-    const levelMatch = line.match(/[Ll]evel\s*:*\s*([1-9][0-9])?/);
-    if (levelMatch) {
-      areaInfo.level = levelMatch.pop();
-      continue;
-    }
-    const depthMatch = line.match(/[Dd]epth\s*:\s*([1-9][0-9]+)?/);
-    if (depthMatch) {
-      areaInfo.depth = depthMatch.pop();
-      continue;
-    }
-  }
-
-  if (!areaInfo.depth) {
-    areaInfo.depth = null;
-  }
-  return areaInfo;
 }
 
 function getModInfo(lines) {
-  const mods = [];
-  for (let i = 0; i < lines.length; i++) {
-    const mod = StringMatcher.getMod(lines[i]);
-    if (mod.length > 0) {
-      mods.push(mod);
-    }
-  }
+  const mods = StringParser.GetMods(lines.filter((line) => line && line.length > 0).map((line) => line.toLowerCase().trim()));
   return mods;
 }
 
@@ -162,36 +126,38 @@ async function processImageBuffer(buffer, timestamp, type) {
       logger.info(line.trim());
     });
 
-    const areaId = await DB.getAreaId();
-    logger.info(`Got areaId: ${areaId} for timestamp: ${timestamp}`);
+    const { id: runId } = await DB.getLatestUncompletedRun();
+    // const areaId = await DB.getAreaId();
+    logger.info(`Got areaId: ${runId} for timestamp: ${timestamp}`);
 
     if (type === 'area') {
       logger.debug('Processing area info');
-      const area = getAreaInfo(lines);
-      try {
-        const areaName = area.name ?? (await getAreaNameFromDB(timestamp));
-        logger.info(`Got last entered area: ${areaName}`);
-        area.name = areaName;
-      } catch (e) {
-        logger.info(`Got last entered area from ocr: ${area.name}`);
-      }
+      logger.debug('Will actually do nothing now.');
+      // const area = getAreaInfo(lines);
+      // try {
+      //   const areaName = area.name ?? (await getAreaNameFromDB(timestamp));
+      //   logger.info(`Got last entered area: ${areaName}`);
+      //   area.name = areaName;
+      // } catch (e) {
+      //   logger.info(`Got last entered area from ocr: ${area.name}`);
+      // }
 
-      try {
-        if (area.name) {
-          await DB.insertAreaInfo({
-            areaId: areaId,
-            name: area.name,
-            level: area.level,
-            depth: area.depth,
-          });
-          mapInfoManager.setAreaInfo(area);
-          mapInfoManager.checkAreaInfoComplete();
-        } else {
-          throw 'No area name found';
-        }
-      } catch (err) {
-        cleanFailedOCR(err, timestamp);
-      }
+      // try {
+      //   if (area.name) {
+      //     await DB.insertAreaInfo({
+      //       areaId: runId,
+      //       name: area.name,
+      //       level: area.level,
+      //       depth: area.depth,
+      //     });
+      //     mapInfoManager.setAreaInfo(area);
+      //     mapInfoManager.checkJobComplete();                                                                                                                                                                                                                                                                                            
+      //   } else {
+      //     throw 'No area name found';
+      //   }
+      // } catch (err) {
+      //   cleanFailedOCR(err, timestamp);
+      // }
     } else if (type === 'mods') {
       logger.debug('Processing map mods');
       try {
@@ -199,18 +165,18 @@ async function processImageBuffer(buffer, timestamp, type) {
         let mapModErr = null;
 
         try {
-          await DB.replaceMapMods(areaId, mods);
+          await DB.replaceMapMods(runId, mods);
         } catch (e) {
           mapModErr = e;
         }
         if (mapModErr) {
-          cleanFailedOCR(mapModErr, timestamp);
+          await cleanFailedOCR(mapModErr, timestamp);
         } else {
           mapInfoManager.setMapMods(mods);
-          mapInfoManager.checkAreaInfoComplete();
+          mapInfoManager.checkJobComplete();                                                                                                                                                                                                                                                                                            
         }
       } catch (e) {
-        cleanFailedOCR(e, timestamp);
+        await cleanFailedOCR(e, timestamp);
       }
     }
   } catch (e) {
