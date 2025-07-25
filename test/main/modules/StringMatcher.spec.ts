@@ -1,7 +1,7 @@
 import { describe, test, expect } from '@jest/globals';
 import StringMatcher from '../../../src/main/modules/StringMatcher';
 import logger from 'electron-log';
-import Constants from '../../../src/helpers/constants'
+import Constants from '../../../src/helpers/constants';
 
 jest.mock('electron-log', () => ({
   scope: jest.fn(),
