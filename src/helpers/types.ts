@@ -95,13 +95,13 @@ type RunInfo = {
 type Run = {
   id: string;
   name: string;
-  runinfo: string;
+  run_info: string;
   areaType: string;
   parsedRunInfo?: RunInfo;
   kills?: number;
   gained?: number;
-  firstevent: number;
-  lastevent: number;
+  first_event: number;
+  last_event: number;
   deaths?: number;
   conqueror_time?: number;
   conqueror_deaths?: number;

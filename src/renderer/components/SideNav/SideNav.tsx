@@ -98,13 +98,15 @@ const SideNav = ({ version, isNewVersion, turnNewVersionOff }) => {
   return (
     <div className="Side-Nav Box">
       <div className="Header">
-        <div className="Header__Logo">
-          <img src={Logo} alt="Exile Diary Logo" />
+        <div className="Header__Box">
+          <div className="Header__Logo">
+            <img src={Logo} alt="Exile Diary Logo" />
+          </div>
+          <div className="Header__Title">
+            Exile Diary <span className="Text--Legendary">Reborn</span>
+          </div>
         </div>
-        <div className="Header__Title">
-          Exile Diary <span className="Text--Legendary">Reborn</span>
-        </div>
-        <div className="Header__Version">{version}</div>
+        <div className="Header__Version">v{version}</div>
       </div>
 
       <Divider className="Separator" />

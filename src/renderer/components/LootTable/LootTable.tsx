@@ -14,6 +14,8 @@ import { Order } from '../../../helpers/types';
 import './LootTable.css';
 import Collapse from '@mui/material/Collapse';
 import Price from '../Pricing/Price';
+import { electronService } from '../../electron.service';
+const { logger } = electronService;
 
 type LootTableColumn = 'name' | 'quantity' | 'value' | 'totalValue' | 'originalValue';
 
@@ -235,6 +237,7 @@ const LootTablePage = ({ profit, store, shouldHideExpandIcon = false }) => {
   };
   const sortedItems = store.getItemsForLootTable(orderBy, order);
   const sortedIgnoredItems = store.getIgnoredItemsForLootTable(orderBy, order);
+  logger.info('Sorted items for LootTable', profit);
 
   return (
     <div>

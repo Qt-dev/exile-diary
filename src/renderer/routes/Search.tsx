@@ -32,11 +32,11 @@ const SearchResultsHeader = ({
       <div className="DataSearchResults__Stats__SubTitle">
         Between{' '}
         <b className="Text--Implicit Text">
-          {dayjs(searchParams.from, dateFormat).format('YYYY-MM-DD HH:mm:ss')}
+          {dayjs(searchParams.from).format('YYYY-MM-DD HH:mm:ss')}
         </b>{' '}
         and{' '}
         <b className="Text--Implicit Text">
-          {dayjs(searchParams.to, dateFormat).format('YYYY-MM-DD HH:mm:ss')}
+          {dayjs(searchParams.to).format('YYYY-MM-DD HH:mm:ss')}
         </b>
       </div>
     ) : null;
@@ -246,7 +246,7 @@ const Search = ({ store }) => {
         shouldDisplayCharacterName={shouldDisplayCharacterName}
         handleToggleDisplayCharacterName={handleToggleDisplayCharacterName}
       />
-      <Divider className="Search__Divider" sx={{ margin: '1em 0' }}>
+      <Divider className="Search__Divider" sx={{ margin: '1em 0', borderWidth: '0' }}>
         <Chip label="Results" />
       </Divider>
       <div className="Search__Screenshot__Container">{screenshotIcon}</div>

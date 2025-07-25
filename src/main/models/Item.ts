@@ -111,13 +111,14 @@ class Item {
   rarity: string;
   category: any;
   sockets: string | null;
+  drop_item?: number;
 
   /* Getters for properties calling in the db format */
   get event_id() {
     return this.eventId;
   }
 
-  get rawdata() {
+  get raw_data() {
     return this.rawData;
   }
 
@@ -125,7 +126,7 @@ class Item {
     return this.typeLine;
   }
 
-  get stacksize() {
+  get stack_size() {
     return this.stackSize;
   }
 
@@ -194,7 +195,7 @@ class Item {
       originalValue = 0,
     } = this;
 
-    const stacksize = this.stackSize || null;
+    const stack_size = this.stackSize || null;
 
     return [
       id,
@@ -206,7 +207,7 @@ class Item {
       identified ? 1 : 0,
       typeline,
       sockets,
-      stacksize,
+      stack_size,
       rawData,
       value,
       originalValue,

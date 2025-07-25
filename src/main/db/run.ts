@@ -13,8 +13,8 @@ type ItemProperty = {
 type ItemRawData = {
   verified: boolean;
   icon: string;
-  stackSize: number;
-  maxStackSize: number;
+  stack_size: number;
+  max_stack_size: number;
   league: string;
   id: string;
   name: string;
@@ -36,13 +36,19 @@ type ItemRawData = {
 };
 
 type Item = {
-  id: string;
+  id: number;
+  item_id: string;
+  event_id: number;
+  category: string;
   rarity: string;
   icon: string;
   value: number;
   original_value: number;
-  stacksize: number;
-  rawdata: string;
+  stack_size: number;
+  raw_data: string;
+  name: string;
+  typeline: string;
+  sockets: string;
   ignored: boolean;
 };
 
@@ -51,7 +57,16 @@ type AreaInfo = {
   name: string;
   level: number;
   depth: number;
+  run_id: number;
+  iir?: number;
+  pack_size?: number;
+  iiq?: number;
 };
+
+interface ItemsFromTimestamp extends Item {
+  event_text: string;
+  drop_time: string;
+}
 
 const getItemNameFromIcon = (iconUrl: string) => {
   if (iconUrl.includes('?')) {
@@ -82,6 +97,58 @@ const getItemNameFromIcon = (iconUrl: string) => {
 };
 
 const Runs = {
+  updateLastEvent: async (timestamp: string) => {
+    logger.info(`Updating last event for latest run to ${timestamp}`);
+    const query = 'UPDATE run SET last_event = ? WHERE id = (SELECT MAX(id) FROM run WHERE completed = 0)';
+    try {
+      await DB.run(query, [timestamp]);
+      return true;
+    } catch (err) {
+      logger.error(`Error updating last event for latest run: ${JSON.stringify(err)}`);
+      return false;
+    }
+  },
+
+  getLatestUncompletedRun: async (): Promise<{ id: number; first_event: string; last_event: string }> => {
+    logger.info('Getting run ID from DB');
+    const query = `
+      SELECT id, first_event, last_event FROM run
+      WHERE completed = 0
+      ORDER BY id DESC
+      LIMIT 1;
+    `;
+    const result = await DB.get(query);
+    return result;
+  },
+
+  getCurrentAreaData: async (): Promise<AreaInfo | null> => {
+    logger.info('Getting current area data from DB');
+    const query = `
+      SELECT area_info.*, iir, iiq, pack_size
+      FROM area_info, run
+      WHERE run.id = area_info.run_id
+      AND run.completed = 0
+      ORDER BY area_info.id DESC
+      LIMIT 1;
+    `;
+    const result = await DB.get(query);
+    return result;
+  },
+
+  insertMapRun: async (mapData: any): Promise<any> => {
+    const formattedMapData = mapData.map((item) => {
+      if (typeof item === 'boolean') {
+        return +item; // Convert boolean to number (0 or 1)
+      }
+      return item;
+    });
+    logger.debug('Inserting map run:', formattedMapData);
+    return DB.run(
+      'INSERT INTO run(first_event, last_event, iiq, iir, pack_size, xp, kills, run_info, completed) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
+      formattedMapData
+    );
+  },
+
   getLastRuns: async (numberOfRunsToShow: number) => {
     logger.info(
       `Getting last ${
@@ -89,16 +156,16 @@ const Runs = {
       } runs from DB`
     );
     const lastRunsQuery = `
-      select mapruns.id, name, level, depth, iiq, iir, packsize, firstevent, lastevent,
-        (mapruns.xp - (select xp from mapruns m where m.id < mapruns.id and xp is not null order by m.id desc limit 1)) xpgained,
-        (select count(1) from events where event_type='slain' and events.id between firstevent and lastevent) deaths,
-        (SELECT COALESCE(SUM(value),0) FROM items WHERE items.event_id BETWEEN firstevent AND lastevent AND ignored = 0) gained,
-        kills, runinfo
-      from areainfo, mapruns
-      where areainfo.id = mapruns.id
-        and json_extract(runinfo, '$.ignored') is null
-      order by mapruns.id desc
-      limit ?
+      SELECT run.id, name, level, depth, iiq, iir, pack_size, first_event, last_event, completed,
+        (run.xp - (SELECT xp FROM run m WHERE m.id < run.id AND xp IS NOT null ORDER BY m.id desc limit 1)) xpgained,
+        (SELECT count(1) FROM event WHERE event_type='slain' AND DATETIME(event.timestamp) between DATETIME(first_event) AND DATETIME(last_event)) deaths,
+        (SELECT COALESCE(SUM(value),0) FROM item, event WHERE item.event_id = event.id AND DATETIME(event.timestamp) BETWEEN DATETIME(first_event) AND DATETIME(last_event) AND ignored = 0) gained,
+        kills, run_info
+      FROM area_info, run
+      WHERE area_info.run_id = run.id
+        AND json_extract(run_info, '$.ignored') IS null
+      ORDER BY run.id desc
+      LIMIT ?
     `;
 
     const runData = await DB.all(lastRunsQuery, [numberOfRunsToShow]);
@@ -107,25 +174,24 @@ const Runs = {
   },
 
   getRunMods: async (mapId: number): Promise<any> => {
-    logger.info(`Getting mods for run ${mapId}`);
     const mapModsQuery = `
-      select mod
-      from mapmods
-      where id = ?
+      SELECT mod
+      FROM mapmod
+      WHERE run_id = ?
+      ORDER BY id;
     `;
 
-    const mapMods = await DB.all(mapModsQuery, [mapId]);
-
+    const mapMods = await DB.all(mapModsQuery, [BigInt(mapId)]);
     return mapMods;
   },
 
   getEvents: async (mapId: number) => {
     logger.info(`Getting events for run ${mapId}`);
     const eventsQuery = `
-      select events.* from mapruns, events 
-      where mapruns.id = ?
-      and events.id between mapruns.firstevent and mapruns.lastevent 
-      order by events.id;
+      SELECT event.* FROM run, event
+      WHERE run.id = ?
+      AND DATETIME(event.timestamp) BETWEEN DATETIME(run.first_event) AND DATETIME(run.last_event)
+      ORDER BY event.id;
     `;
 
     const events = await DB.all(eventsQuery, [mapId]);
@@ -136,16 +202,16 @@ const Runs = {
   getRunInfo: async (mapId: number): Promise<any> => {
     logger.info(`Getting run info for run ${mapId}`);
     const mapInfoQuery = `
-      select mapruns.id, name, level, depth, iiq, iir, packsize, xp, kills, runinfo, firstevent, lastevent,
-      (SELECT COALESCE(SUM(value),0) FROM items WHERE items.event_id BETWEEN firstevent AND lastevent AND ignored = 0) gained,
-      (mapruns.xp - (select xp from mapruns m where m.id < mapruns.id and xp is not null order by m.id desc limit 1)) xpgained,
-      (select xp from mapruns m where m.id < mapruns.id and xp is not null order by m.id desc limit 1) prevxp,
-      (select league from leagues where timestamp < lastevent order by timestamp desc limit 1) league
-      from areainfo, mapruns where mapruns.id = ?
-        and areainfo.id = ?
+      SELECT run.id, name, level, depth, iiq, iir, pack_size, xp, kills, run_info, first_event, last_event, completed,
+      (SELECT COALESCE(SUM(value),0) FROM item, event WHERE item.event_id = event.id AND DATETIME(event.timestamp) BETWEEN DATETIME(first_event) AND DATETIME(last_event) AND ignored = 0) gained,
+      (run.xp - (SELECT xp FROM run m WHERE m.id < run.id AND xp IS NOT null ORDER BY m.id desc LIMIT 1)) xpgained,
+      (SELECT xp FROM run m WHERE m.id < run.id AND xp IS NOT null ORDER BY m.id desc LIMIT 1) prevxp,
+      (SELECT name FROM league WHERE DATETIME(timestamp) < DATETIME(last_event) ORDER BY timestamp desc LIMIT 1) league
+      FROM area_info, run WHERE run.id = ?
+        AND area_info.run_id = run.id
     `;
 
-    const mapInfo = await DB.get(mapInfoQuery, [mapId, mapId]);
+    const mapInfo = await DB.get(mapInfoQuery, [mapId]);
 
     return mapInfo;
   },
@@ -153,10 +219,11 @@ const Runs = {
   getItems: async (mapId: number) => {
     logger.info(`Getting items for run ${mapId}`);
     const itemsQuery = `
-      select events.id, items.rarity, items.icon, items.value, items.original_value, items.stacksize, items.rawdata, items.ignored from mapruns, events, items
-      where mapruns.id = ?
-      and events.id between mapruns.firstevent and mapruns.lastevent
-      and items.event_id = events.id;
+      SELECT event.id, event.timestamp, item.rarity, item.icon, item.value, item.original_value, item.stack_size, item.raw_data, item.ignored
+      FROM run, event, item
+      WHERE run.id = ?
+      AND DATETIME(event.timestamp) BETWEEN DATETIME(run.first_event) AND DATETIME(run.last_event)
+      AND item.event_id = event.id;
     `;
 
     const items = (await DB.all(itemsQuery, [mapId])) as Item[];
@@ -164,7 +231,7 @@ const Runs = {
     const formattedItems: any = {};
 
     for (const item of items) {
-      const rawData: ItemRawData = JSON.parse(item.rawdata);
+      const rawData: ItemRawData = JSON.parse(item.raw_data);
       rawData.rarity = item.rarity;
       if (!formattedItems.hasOwnProperty(item.id)) {
         formattedItems[item.id] = [];
@@ -177,11 +244,11 @@ const Runs = {
         secretName = 'Voidforge';
       }
 
-      if (secretName || item.value || item.value === 0 || item.stacksize) {
+      if (secretName || item.value || item.value === 0 || item.stack_size) {
         if (secretName) rawData.secretName = secretName;
         if (item.value || item.value === 0) rawData.value = item.value;
         if (item.original_value) rawData.originalValue = item.original_value;
-        if (item.stacksize) rawData.pickupStackSize = item.stacksize;
+        if (item.stack_size) rawData.pickupStackSize = item.stack_size;
       }
       rawData.isIgnored = !!item.ignored;
       formattedItems[item.id].push(JSON.stringify(rawData));
@@ -191,10 +258,10 @@ const Runs = {
 
   updateItemValues: async (items: any) => {
     logger.info(`Updating item values for ${items.length} items`);
-    const query = 'UPDATE items SET value = ? WHERE id = ? AND event_id = ?';
+    const query = 'UPDATE item SET value = ? WHERE id = ? AND event_id = ?';
     const params = items.map((item: any) => [item.value, item.id, item.eventId]);
     try {
-      DB.transaction(query, params);
+      await DB.transaction(query, params);
       return true;
     } catch (err) {
       logger.error(`Error updating item values: ${JSON.stringify(err)}`);
@@ -220,62 +287,62 @@ const Runs = {
   },
 
   getAreaInfo: async (areaId: number) => {
-    const query = 'select * from areainfo where id = ?';
+    const query = 'SELECT * FROM area_info WHERE run_id = ?';
     const areaInfo = (await DB.get(query, [areaId])) as AreaInfo;
     return areaInfo;
   },
 
   insertAreaInfo: async ({
-    id,
+    areaId,
     name,
     level,
     depth,
   }: {
-    id: number;
+    areaId: number;
     name?: string;
     level?: number;
     depth?: number;
   }) => {
-    const currentInfo: any = Runs.getAreaInfo(id);
+    const currentInfo: any = await Runs.getAreaInfo(areaId);
     const query =
-      'INSERT INTO areainfo(id, name, level, depth) VALUES(?, ?, ?, ?) ON CONFLICT(id) DO UPDATE SET name = ?, level = ?, depth = ?';
+      'INSERT INTO area_info(run_id, name, level, depth) VALUES(?, ?, ?, ?) ON CONFLICT(run_id) DO UPDATE SET name = ?, level = ?, depth = ?';
     try {
       if (!name && !level && !depth) throw 'No areaInfo provided';
       const params = [
-        id,
-        name ?? currentInfo.name,
-        level ?? currentInfo.level,
-        depth ?? currentInfo.depth,
-        name ?? currentInfo.name,
-        level ?? currentInfo.level,
-        depth ?? currentInfo.depth,
+        areaId,
+        name ?? (currentInfo ? currentInfo.name : 'Unknown Area'),
+        level ?? (currentInfo ? currentInfo.level : null),
+        depth ?? (currentInfo ? currentInfo.depth : null),
+        name ?? (currentInfo ? currentInfo.name : 'Unknown Area'),
+        level ?? (currentInfo ? currentInfo.level : null),
+        depth ?? (currentInfo ? currentInfo.depth : null),
       ];
-      DB.run(query, params);
+      await DB.run(query, params);
       return true;
     } catch (err) {
       logger.error(err);
-      logger.error(`Error inserting new areaInfo for ${name}(${id}): ${JSON.stringify(err)}`);
+      logger.error(`Error inserting new areaInfo for ${name}(${areaId}): ${JSON.stringify(err)}`);
       return false;
     }
   },
 
-  deleteAreaInfo: async (areaId: number) => {
-    const query = 'DELETE FROM areainfo WHERE id = ?';
+  deleteAreaInfo: async (runId: number) => {
+    const query = 'DELETE FROM areainfo WHERE run_id = ?';
     try {
-      DB.run(query, [areaId]);
+      await DB.run(query, [runId]);
       return true;
     } catch (err) {
-      logger.error(`Error deleting areaInfo for ${areaId}: ${JSON.stringify(err)}`);
+      logger.error(`Error deleting areaInfo for ${runId}: ${JSON.stringify(err)}`);
       return false;
     }
   },
 
   insertMapMods: async (mapId: number, mods: string[]) => {
-    const query = 'INSERT INTO mapmods(area_id, id, mod) VALUES(?, ?, ?)';
+    const query = 'INSERT INTO mapmod(run_id, mod) VALUES(?, ?)';
     try {
-      mods.forEach((mod, i) => {
-        DB.run(query, [mapId, i, mod]);
-      });
+      await Promise.all(mods.map(async (mod) => {
+        await DB.run(query, [mapId, mod]);
+      }));
       return true;
     } catch (err) {
       logger.error(`Error inserting new mapMods for ${mapId}:`);
@@ -284,10 +351,15 @@ const Runs = {
     }
   },
 
+  replaceMapMods: async (mapId: number, mods: string[]) => {
+    await Runs.deleteMapMods(mapId);
+    await Runs.insertMapMods(mapId, mods);
+  },
+
   deleteMapMods: async (mapId: number) => {
-    const query = 'DELETE FROM mapmods WHERE id = ?';
+    const query = 'DELETE FROM mapmod WHERE mapmod.run_id = ?';
     try {
-      DB.run(query, [mapId]);
+      await DB.run(query, [mapId]); 
       return true;
     } catch (err) {
       logger.error(`Error deleting mapMods for ${mapId}: ${JSON.stringify(err)}`);
@@ -297,20 +369,20 @@ const Runs = {
 
   getAreaName: async (timestamp: string) => {
     const query =
-      "SELECT event_text AS area FROM events WHERE event_type='entered' AND id < ? ORDER BY id DESC LIMIT 1";
+      "SELECT event_text AS area FROM event WHERE event_type='entered' AND id < ? ORDER BY id DESC LIMIT 1";
     const { area } = (await DB.get(query, [timestamp])) as { area: string };
     return area;
   },
 
-  getRunsFromDates: async (from: number, to: number) => {
+  getRunsFromDates: async (from: string, to: string) => {
     logger.info(`Getting items from date ${from} to ${to}`);
     const itemsQuery = `
-      SELECT areainfo.name, mapruns.id, firstevent, lastevent,
-      (SELECT COALESCE(SUM(value),0) FROM items WHERE items.event_id BETWEEN firstevent AND lastevent AND ignored = 0) gained
-      FROM mapruns, areainfo
+      SELECT areainfo.name, run.id, first_event, last_event,
+      (SELECT COALESCE(SUM(value),0) FROM item, event WHERE event.id = item.event_id AND DATETIME(event.timestamp) BETWEEN DATETIME(first_event) AND DATETIME(last_event) AND ignored = 0) gained
+      FROM run, areainfo
       WHERE gained > -1
-      AND areainfo.id = mapruns.id
-      AND mapruns.id BETWEEN ? AND ?;
+      AND areainfo.run_id = run.id
+      AND DATETIME(run.first_event) BETWEEN DATETIME(?) AND DATETIME(?);
     `;
 
     const runs = await DB.all(itemsQuery, [from, to]);
@@ -321,17 +393,284 @@ const Runs = {
   getItemsFromRun: async (mapRunId: string) => {
     logger.info(`Getting items from run: ${mapRunId}`);
     const itemsQuery = `
-      SELECT items.*
-      FROM items, mapruns
-      WHERE mapruns.id = ? 
-      AND items.event_id BETWEEN mapruns.firstevent AND mapruns.lastevent
-      GROUP BY items.id, items.event_id;
+      SELECT item.*, event.timestamp AS drop_time
+      FROM item, run, event
+      WHERE item.event_id = event.id
+      AND run.id = ? 
+      AND DATETIME(event.timestamp) BETWEEN DATETIME(run.first_event) AND DATETIME(run.last_event)
+      GROUP BY item.id, item.event_id;
     `;
 
     const items = await DB.all(itemsQuery, [mapRunId]);
 
     return items;
   },
+
+  insertEvent: async (event: any) => {
+    logger.info(`Inserting event: ${JSON.stringify(event)}`);
+    const query = `
+      INSERT INTO event( event_type, event_text, timestamp, server)
+      VALUES(?, ?, ?, ?)
+    `;
+    try {
+      await DB.run(query, [
+        event.event_type,
+        event.event_text,
+        event.timestamp,
+        event.server,
+      ]);
+      return true;
+    } catch (err) {
+      logger.error(`Error inserting event: ${JSON.stringify(err)}`);
+      return false;
+    }
+  },
+
+  setCurrentAreaInfo: async ({
+    name,
+    level,
+    depth,
+  }: {
+    name: string;
+    level: number;
+    depth: number;
+  }) => {
+    const { id: runId } = await Runs.getLatestUncompletedRun() ?? { id: 0};
+    logger.info(`Setting current map stats for run ${runId}: ${name} (${level}, ${depth})`);
+    const query = `
+      INSERT INTO area_info (name, level, depth, run_id)
+      VALUES (?, ?, ?, ?)
+      ON CONFLICT(run_id) DO
+      UPDATE SET
+        name = ?,
+        level = ?,
+        depth = ?;
+    `;
+    try {
+      await DB.run(query, [name, level, depth, runId, name, level, depth]);
+      return true;
+    } catch (err) {
+      logger.error(`Error setting current map stats: ${JSON.stringify(err)}`);
+      return false;
+    }
+  },
+
+  setCurrentRunStats: async ({
+    iir,
+    iiq,
+    pack_size
+  }: {
+    iir: number;
+    iiq: number;
+    pack_size: number;
+  }) => {
+    const { id: runId } = await Runs.getLatestUncompletedRun();
+    logger.info(`Setting current run stats for ${runId}: IIR: ${iir}, IIQ: ${iiq}, Pack Size: ${pack_size}`);
+    const query = `
+    UPDATE run SET
+      iir = ?,
+      iiq = ?,
+      pack_size = ?
+    WHERE id = ?
+    `;
+    try {
+      await DB.run(query, [iir, iiq, pack_size, runId]);
+      return true;
+    } catch (err) {
+      logger.error(`Error setting current run stats: ${JSON.stringify(err)}`);
+      return false;
+    }
+  },
+
+  getRunIdFromTimestamp: async (timestamp: string): Promise<number | null> => {
+    logger.info(`Getting run ID from timestamp: ${timestamp}`);
+    const query = `
+      SELECT id FROM run
+      WHERE DATETIME(?) BETWEEN first_event AND last_event
+    `;
+    const result = await DB.get(query, [timestamp]);
+    return result ? result.id : null;
+  },
+
+  getLastMapEnterEvent: async (): Promise<any> => {
+    logger.info('Getting last map enter event from DB');
+    const query = `
+      SELECT * FROM event
+      WHERE event_type='entered'
+      AND DATETIME(event.timestamp) >= (SELECT MAX(DATETIME(first_event)) FROM run WHERE completed IS 0)
+      ORDER BY timestamp ASC
+      LIMIT 1
+    `;
+    const result = await DB.get(query);
+    return result || null;
+  },
+
+  getLastMapGeneratedEvent: async (): Promise<any> => {
+    logger.info('Getting last map generated event from DB');
+    const query = `
+      SELECT * FROM event
+      WHERE event_type='generatedArea'
+      ORDER BY timestamp DESC
+      LIMIT 1
+    `;
+    const result = await DB.get(query);
+    if(result) result.event_text = JSON.parse(result.event_text);
+    return result || null;
+  },
+
+  updateCurrentRunFirstEvent: async () => {
+    logger.info(`Updating current run first event to the latest Entered timestamp`);
+    const query = `
+      UPDATE run
+      SET first_event = (
+        SELECT timestamp FROM event, run
+        WHERE timestamp >= run.first_event
+        AND event_type = 'entered'
+        LIMIT 1
+      )
+      WHERE 
+      (
+        SELECT COUNT(*)
+          FROM event, run
+          WHERE event_type = 'entered'
+          AND timestamp >= run.first_event
+      ) = 1
+      AND completed = 0
+    `;
+    try {
+      await DB.run(query);
+      return true;
+    } catch (err) {
+      logger.error(err);
+      logger.error(`Error updating current run first event: ${JSON.stringify(err)}`);
+      return false;
+    }
+  },
+
+  insertGeneratedMap: async (data: { timestamp: string; areaId: string; areaName: string; level: number; seed: number }) => {
+    logger.info(`Inserting generated map: ${JSON.stringify(data)}`);
+    const query = `
+      INSERT INTO run (first_event, last_event, run_info)
+      VALUES (?, ?, ?);
+      INSERT INTO area_info (run_id, name, level)
+      VALUES (SELECT id FROM run ORDER BY id DESC LIMIT 1, ?, ?);
+    `;
+    try {
+      await DB.run(query, [
+        data.timestamp,
+        data.timestamp,
+        JSON.stringify({"area": data.areaName, "level": data.level, "seed": data.seed}),
+        data.areaName,
+        data.level
+      ]);
+      return true;
+    } catch (err) {
+      logger.error(`Error inserting generated map: ${JSON.stringify(err)}`);
+      return false;
+    }
+  },
+
+  getItemsBetweenEvents: async (startTime: string, endTime: string): Promise<ItemsFromTimestamp[]> => {
+    logger.info(`Getting items dropped between ${startTime} and ${endTime}`);
+    const query = `
+      SELECT event_text, item.*, event.timestamp AS drop_time
+      FROM event, run
+        LEFT JOIN item
+        ON item.event_id = event.id
+      WHERE
+        event_type = 'entered'
+        AND
+          (
+            DATETIME(event.timestamp) BETWEEN DATETIME(?) AND DATETIME(?)
+          )
+            
+      GROUP BY item_id
+      ORDER BY drop_time ASC
+    `;
+    try {
+      const rows = await DB.all(query, [startTime, endTime]);
+      return rows;
+    } catch (err) {
+      logger.error(`Error getting items:`, err);
+      return [];
+    }
+  },
+
+  getIncubatorDataBetweenEvents: async (startTime: string, endTime: string): Promise<any[]> => {
+    logger.info(`Getting incubator data between ${startTime} and ${endTime}`);
+    const query =  `
+      SELECT * FROM incubator
+      WHERE DATETIME(incubator.timestamp) BETWEEN DATETIME(?) AND DATETIME(?)
+      ORDER BY timestamp
+    `;
+
+    try {
+      const rows = await DB.all(query, [startTime, endTime]);
+      return rows;
+    } catch (err) {
+      logger.error(`Error getting incubator data: ${JSON.stringify(err)}`);
+      return [];
+    }
+  },
+
+  updateRunInfo: async (runId: number, formattedRunInfo: any[]) => {
+    logger.info(`Updating run info for run ${runId}`);
+    const query = `UPDATE run SET first_event = ?, last_event = ?, iiq = ?, iir = ?, pack_size = ?, xp = ?, kills = ?, run_info = ?, completed = ? WHERE id = ?`;
+    try {
+      await DB.run(query, [...formattedRunInfo, runId]);
+      return true;
+    } catch (err) {
+      logger.error(`Error updating run info: ${JSON.stringify(err)}`);
+      return false;
+    }
+  },
+
+  getOngoingMapRun: async (): Promise<any> => {
+    logger.info('Getting ongoing map run from DB');
+    const query = `
+      SELECT * FROM run
+      WHERE completed = 0
+      LIMIT 1
+    `;
+    try {
+      const row = await DB.get(query);
+      return row;
+    } catch (err) {
+      logger.error(`Error getting ongoing map run: ${JSON.stringify(err)}`);
+      return null;
+    }
+  },
+
+  startRun: async (runId: number, firstEvent: string) => {
+    logger.info(`Starting run with ID ${runId}`);
+    const query = `
+      UPDATE run
+      SET first_event = ?
+      WHERE id = ?
+    `;
+    try {
+      await DB.run(query, [firstEvent, runId]);
+      return true;
+    } catch (err) {
+      logger.error(`Error starting run: ${JSON.stringify(err)}`);
+      return false;
+    }
+  },
+
+  isFirstRun: async (): Promise<boolean> => {
+    logger.info('Checking if this is the first run');
+    const query = `
+      SELECT COUNT(*) as count FROM run
+    `;
+    try {
+      const row = await DB.get(query);
+      return row.count === 0;
+    } catch (err) {
+      logger.error(`Error checking if first run: ${JSON.stringify(err)}`);
+      return false;
+    }
+  }, 
+
 };
 
 export default Runs;

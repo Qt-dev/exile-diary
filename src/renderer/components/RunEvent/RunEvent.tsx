@@ -3,10 +3,21 @@ import dayjs from 'dayjs';
 import constants from '../../../helpers/constants';
 import ItemStore from '../../stores/itemStore';
 import ItemList from '../ItemList/ItemList';
+import Logger from 'electron-log/renderer';
 import './RunEvent.css';
 
+
+const ignoredEventTypes = [
+  'master',
+  'leagueNPC',
+];
+
 const formatLine = (event, text): ReactNode => {
-  const time = dayjs(event.id, 'YYYYMMDDHHmmss').format('HH:mm:ss');
+  Logger.info('Formatting event line:', event);
+  const time = dayjs(event.timestamp).format('HH:mm:ss');
+  if(ignoredEventTypes.includes(event.event_type)) {
+    return null;
+  }
 
   return (
     <div className="Run__Event">
@@ -58,10 +69,28 @@ const textPerEventType = {
   },
   loot: (event) => {
     const lootData = JSON.parse(event.event_text).map((loot) => JSON.parse(loot));
+    Logger.info('Loot data:', lootData);
     return (
       <>
         <span>Picked Up:</span>
         <ItemList store={new ItemStore(lootData)} />
+      </>
+    );
+  },
+  generatedArea: (event) => {
+    const areaData = JSON.parse(event.event_text);
+    return (
+      <>
+        Game generated the area <span className="Text--Rare">{areaData.areaName} (lvl {areaData.level})</span> with seed <span className="Text--Magic">{areaData.seed}</span>
+      </>
+    );
+  },
+  shrine: (event) => {
+    // const shrineData = JSON.parse(event.event_text);
+    const shrineName = constants.shrineQuotes[event.event_text];
+    return (
+      <>
+        Activated <span className="Text--Rare">{shrineName}</span>
       </>
     );
   },

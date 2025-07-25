@@ -132,11 +132,15 @@ const RunList = ({ NumbersOfMapsToShow = 10, store, isBoxed = true }) => {
               const deaths = [...Array(run.deaths || 0)].map((death, i) => (
                 <div key={`death-${i}`} className="Run__Death-Icon" />
               ));
+              const classes = classNames({
+                'Run-list__Run': true,
+                'Run-list__Run--Incomplete': !run.completed,
+              });
               return (
                 <TableRow
                   key={run.id}
                   onClick={() => handleRunClick(run.runId)}
-                  className="Run-list__Run"
+                  className={classes}
                   hover
                 >
                   <TableCell>{run.firstEvent?.calendar()}</TableCell>
@@ -152,7 +156,7 @@ const RunList = ({ NumbersOfMapsToShow = 10, store, isBoxed = true }) => {
                   <TableCell align="center">{run.gained?.toFixed(2)}</TableCell>
                   <TableCell align="center">{run.gainedPerHour?.toFixed(2)}</TableCell>
                   <TableCell align="center" className={getXPClassName(run.xpPerHour)}>
-                    {run.xpPerHour.toLocaleString('en')}
+                    {run.completed ? run.xpPerHour.toLocaleString('en') : '-- Ongoing --'}
                   </TableCell>
                   <TableCell align="center">{deaths.length > 0 ? deaths : '-'}</TableCell>
                   <TableCell align="center">

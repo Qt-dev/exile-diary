@@ -47,8 +47,8 @@ const getAreaType = (area: string) => {
 
 const formatRun = (run: Run): Run => {
   const newRun = { ...run };
-  if (newRun.runinfo) {
-    newRun.parsedRunInfo = JSON.parse(newRun.runinfo);
+  if (newRun.run_info) {
+    newRun.parsedRunInfo = JSON.parse(newRun.run_info);
     if (!newRun.parsedRunInfo) return newRun;
 
     newRun.areaType = newRun.parsedRunInfo.blightedMap ? 'blightedMaps' : getAreaType(newRun.name);
@@ -594,7 +594,7 @@ class StatsManager {
     }
 
     // Area Stats
-    const time = Number(this.getRunningTime(run.firstevent, run.lastevent));
+    const time = Number(this.getRunningTime(run.first_event, run.last_event));
 
     this.stats.areas[run.areaType] = this.stats.areas[run.areaType] ?? {
       count: 0,
@@ -637,7 +637,7 @@ class StatsManager {
     areaStats.maps = areaStats.maps ?? [];
     areaStats.maps.push({
       id: run.id,
-      date: run.firstevent,
+      date: run.first_event,
       time: time,
       gained: run.gained,
       profitPerHour: !!run.gained && time > 0 ? run.gained / (time / 3600) : 0,
@@ -833,7 +833,7 @@ class StatsManager {
         const battleTime = run.parsedRunInfo?.bossBattle?.time
           ? Number(run.parsedRunInfo.bossBattle.time)
           : 0;
-
+        logger.debug(run.parsedRunInfo, battleTime)
         stats.count++;
         stats.totalTime += battleTime;
         stats.fastest =
@@ -884,7 +884,7 @@ class ProfitTracker {
     }
   }
   getProfitPerHourForLastHour() {
-    return DB.getProfitPerHour(dayjs().subtract(1, 'hour').format('YYYYMMDDHHmmss'));
+    return DB.getProfitPerHour(dayjs().subtract(1, 'hour').toISOString());
   }
   getProfitPerHourForLastDay() {
     return DB.getProfitPerHour();
@@ -906,7 +906,6 @@ const statsManager = {
       'Divine Orb'
     );
     const manager = new StatsManager({ runs, items, divinePrice });
-
     return manager.stats;
   },
   getAllMapNames: async () => {

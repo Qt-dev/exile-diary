@@ -17,10 +17,11 @@ const SkillTreeWatcher = {
       logger.info(`New skill tree found at ${timestamp}`);
       logger.info(`Previous Skill Tree: ${previousTree}`);
       logger.info(`New Skill Tree: ${newTree}`);
-      SkillTreeWatcher.insertPassiveTree(timestamp, newTree);
+      await SkillTreeWatcher.insertPassiveTree(timestamp, newTree);
     }
   },
 };
 
 module.exports = SkillTreeWatcher;
 module.exports.emitter = emitter;
+export default SkillTreeWatcher;

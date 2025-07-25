@@ -5,26 +5,27 @@ import ItemStore from '../itemStore';
 import Logger from 'electron-log/renderer';
 
 type JSONRun = {
-  id: string;
+  id: number;
   name: string;
   level: number;
   depth: number | null;
   iiq: number;
   iir: number;
-  packsize: number;
-  firstevent: string | null;
-  lastevent: string | null;
+  pack_size: number;
+  first_event: string | null;
+  last_event: string | null;
   xpgained: number;
   deaths: number;
   gained: number;
   kills: number | null;
-  runinfo: string;
+  run_info: string;
+  mods: { mod: string; }[];
 };
 
 export class Run {
   id = null;
   lastUpdate: Dayjs;
-  runId = '';
+  runId = 0;
   name = 'Unknown';
   level = 0;
   depth = null;
@@ -42,6 +43,8 @@ export class Run {
   kills = null;
   runInfo = null;
 
+  completed = false; // Whether the run is completed or not
+
   // Details
   league: String | null = null;
   initialxp: number | null = null;
@@ -52,6 +55,7 @@ export class Run {
   store;
   saveHandler = null;
   itemStore: ItemStore | null = null;
+  mods: { mod: string; }[] = [];
 
   constructor(store, options = {}) {
     const id = uuidv4();
@@ -74,39 +78,45 @@ export class Run {
     this.depth = json.depth;
     this.iiq = json.iiq ?? this.iiq;
     this.iir = json.iir ?? this.iir;
-    this.packSize = json.packsize ?? this.packSize;
-    this.firstEvent = dayjs(json.firstevent, 'YYYYMMDDHHmmss');
-    this.lastEvent = dayjs(json.lastevent, 'YYYYMMDDHHmmss');
+    this.packSize = json.pack_size ?? this.packSize;
+    this.firstEvent = dayjs(json.first_event);
+    this.lastEvent = dayjs(json.last_event);
     this.duration = dayjs.duration(this.lastEvent.diff(this.firstEvent));
     this.xp = json.xpgained;
     this.xpPerHour = this.xp / this.duration.asHours();
-    this.deaths = this.deaths || json.deaths;
+    this.deaths = json.deaths || this.deaths;
     this.profit = json.gained;
     this.profitPerHour = this.profit / this.duration.asHours();
     this.kills = json.kills;
-    this.runInfo = json.runinfo ? JSON.parse(json.runinfo) : {};
+    this.runInfo = json.run_info ? JSON.parse(json.run_info) : {};
     this.lastUpdate = dayjs();
+    this.completed = !!(json.completed) || false;
   }
 
   updateDetails(details) {
+    // Logger.debug('Updating Run Details', details);
     this.league = details.league;
     this.initialxp = details.prevxp;
     this.events = details.events;
     this.items = details.items;
+    this.mods = details.mods || [];
+    this.completed = !!details.completed || false;
 
-    Logger.debug('Building Store', details.items);
+    // Logger.debug('Building Store', details.items);
     const items: any = [];
-    for (const timestamp in details.items) {
+    for (const eventId in details.items) {
       // Add loot events to the events array
-      Logger.debug('Adding loot event', details.items[timestamp]);
+      // Logger.debug('Adding loot event', details.items[eventId]);
+      const timestamp = details.events.find((e) => e.id === parseInt(eventId))?.timestamp || dayjs().toISOString();
       this.events.push({
-        id: timestamp,
+        id: eventId,
         event_type: 'loot',
-        event_text: JSON.stringify(details.items[timestamp]),
+        event_text: JSON.stringify(details.items[eventId]),
+        timestamp,
       });
 
       // Prepare items for the store
-      details.items[timestamp].forEach((item) => {
+      details.items[eventId].forEach((item) => {
         if (!item) return;
         let newItem;
         try {
@@ -138,33 +148,35 @@ export class Run {
       depth: this.depth,
       iiq: this.iiq,
       iir: this.iir,
-      packsize: this.packSize,
-      firstevent: this.firstEvent?.toISOString() ?? null,
-      lastevent: this.lastEvent?.toISOString() ?? null,
+      pack_size: this.packSize,
+      first_event: this.firstEvent?.toISOString() ?? null,
+      last_event: this.lastEvent?.toISOString() ?? null,
       xpgained: this.xp,
       deaths: this.deaths,
       gained: this.gained,
       kills: this.kills,
-      runinfo: JSON.stringify(this.runInfo),
+      run_info: JSON.stringify(this.runInfo),
+      mods: this.mods,
     };
   }
 
   static getCsvHeaders() {
     const fakeJSONRun: JSONRun = {
-      id: '',
+      id: 0,
       name: '',
       level: 0,
       depth: 0,
       iiq: 0,
       iir: 0,
-      packsize: 0,
-      firstevent: '',
-      lastevent: '',
+      pack_size: 0,
+      first_event: '',
+      last_event: '',
       xpgained: 0,
       deaths: 0,
       gained: 0,
       kills: 0,
-      runinfo: '',
+      run_info: '',
+      mods: [],
     };
     return Object.keys(fakeJSONRun);
   }

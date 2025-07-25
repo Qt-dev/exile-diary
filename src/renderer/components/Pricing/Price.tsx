@@ -22,16 +22,17 @@ const OptionalDivineValue = ({ value, divinePrice, displayChaos }) => {
 const Price = ({ value, divinePrice = 0, displayChaos = true }) => {
   const realDivinePrice = divinePrice ?? 0;
   const shouldDisplayChaos = displayChaos || value < realDivinePrice;
+  const formattedValue = parseFloat(parseFloat(value).toFixed(2)); // We make sure all values are formatted to 2 decimal places
   return (
     <span className="Price">
       {shouldDisplayChaos && (
         <>
-          {value}
+          {formattedValue}
           <ChaosIcon />{' '}
         </>
       )}
       <OptionalDivineValue
-        value={value}
+        value={formattedValue}
         divinePrice={realDivinePrice}
         displayChaos={shouldDisplayChaos}
       />

@@ -26,15 +26,17 @@ import * as url from 'url';
 import { OverlayController, OVERLAY_WINDOW_OPTS } from 'electron-overlay-window';
 import dayjs, { Dayjs } from 'dayjs';
 import duration from 'dayjs/plugin/duration';
+import isSameOrAfter from 'dayjs/plugin/isSameOrAfter'
 import AuthManager from './AuthManager';
 import IgnoreManager from '../helpers/ignoreManager';
+import LogProcessor from './modules/LogProcessor';
 
 // Old stuff
 import RateGetterV2 from './modules/RateGetterV2';
 import Utils from './modules/Utils';
-import ScreenshotWatcher from './modules/ScreenshotWatcher';
+import ScreenshotWatcher from './modules/ImageParser/ScreenshotWatcher';
 import * as ClientTxtWatcher from './modules/ClientTxtWatcher';
-import * as OCRWatcher from './modules/OCRWatcher';
+import * as OCRWatcher from './modules/ImageParser/OCRWatcher';
 import StashGetter from './modules/StashGetter';
 import RunParser from './modules/RunParser';
 import KillTracker from './modules/KillTracker';
@@ -42,6 +44,7 @@ import StatsManager from './StatsManager';
 import ItemPricer from './modules/ItemPricer';
 
 dayjs.extend(duration);
+dayjs.extend(isSameOrAfter);
 const devUrl = 'http://localhost:3003';
 enum SYSTEMS {
   WINDOWS = 'win32',
@@ -113,8 +116,6 @@ class MainProcess {
   isDownloadingUpdate: boolean;
   autoUpdaterInterval?: NodeJS.Timeout;
   saveBoundsCallback?: NodeJS.Timeout;
-  latestGeneratedAreaLevel?: string;
-  latestGeneratedAreaSeed?: string;
   awaitingMapEntering: boolean = false;
   screenshotLock: boolean = false;
   isOverlayMoveable: boolean;
@@ -309,14 +310,22 @@ class MainProcess {
     OCRWatcher.emitter.on('OCRError', () => {
       logger.info('Error getting area info from screenshot. Please try again');
     });
-    OCRWatcher.emitter.on('areaInfoComplete', (info) => {
-      const tier = getMapTierString({ level: parseInt(info.areaInfo.level) });
+    OCRWatcher.emitter.on('ocr:completed-job', (info) => {
+      logger.info('Got area info from OCR', info);
+      const { level, name, depth } = RunParser.latestGeneratedArea;
+      const tier = getMapTierString({ level });
       let stats = `IIR: ${info.mapStats.iir} / IIQ: ${info.mapStats.iiq}`;
-      if (info.mapStats.packsize && info.mapStats.packsize > 0)
-        stats += ` / Pack Size: ${info.mapStats.packsize}`;
+      if (info.mapStats.pack_size && info.mapStats.pack_size > 0)
+        stats += ` / Pack Size: ${info.mapStats.pack_size}`;
       const modReadingDuration = dayjs().diff(modReadingTimer);
+      RunParser.setCurrentMapStats({
+        name,
+        level,
+        depth,
+        ...info.mapStats,
+      });
       logger.info(
-        `Got area info for ${info.areaInfo.name} (${tier} - ${stats}) in ${modReadingDuration}ms`
+        `Got area info for ${name} (${tier} - ${stats}) in ${modReadingDuration}ms`
       );
       RendererLogger.log({
         messages: [
@@ -324,7 +333,7 @@ class MainProcess {
             text: 'Got area info for ',
           },
           {
-            text: info.areaInfo.name,
+            text: name,
             type: 'important',
           },
           {
@@ -333,10 +342,11 @@ class MainProcess {
         ],
       });
       this.sendToOverlay('current-run:info', {
-        name: info.areaInfo.name,
-        level: info.areaInfo.level,
+        name,
+        level,
         ...info.mapStats,
       });
+      RunParser.refreshTracking();
     });
 
     ScreenshotWatcher.emitter.removeAllListeners();
@@ -390,6 +400,7 @@ class MainProcess {
           });
         }
         logger.info('Map info : Reading done');
+        RunParser.refreshTracking();
         this.screenshotLock = false;
       }
     });
@@ -411,12 +422,19 @@ class MainProcess {
     });
 
     RunParser.emitter.removeAllListeners();
-    RunParser.emitter.on('runProcessed', async (run) => {
+    RunParser.refreshTracking();
+    RunParser.emitter.on('run-parser:latest-area-updated', (area) => {
+      logger.info('Latest area updated:', area);
+      this.sendToMain('current-run:started', { area: area.name, level: area.level, iir: area.iir > 0 ? area.iir : null, pack_size: area.pack_size > 0 ? area.pack_size : null, iiq: area.iiq > 0 ? area.iiq : null });
+      this.sendToOverlay('current-run:started', { area: area.name, level: area.level, iir: area.iir > 0 ? area.iir : null, pack_size: area.pack_size > 0 ? area.pack_size : null, iiq: area.iiq > 0 ? area.iiq : null });
+      this.sendToMain('refresh-runs');
+    });
+    RunParser.emitter.on('run-parser:run-processed', async (run) => {
       const f = new Intl.NumberFormat();
       const divinePrice = await ItemPricer.getCurrencyByName('Divine Orb');
       logger.info(
-        `Completed run in <span class='eventText'>${run.name}</span> ` +
-          `(${(Utils.getRunningTime(run.firstevent, run.lastevent), 'mm:ss')}` +
+        `Completed run in ${run.name} ` +
+          `(${(Utils.getRunningTime(run.firstEvent, run.lastEvent), 'mm:ss')}` +
           (run.gained ? `, ${run.gained} chaos orbs` : '') +
           (run.kills ? `, ${f.format(run.kills)} kills` : '') +
           (run.xp ? `, ${f.format(run.xp)} XP` : '') +
@@ -433,7 +451,7 @@ class MainProcess {
             link: `run/${run.id}`,
           },
           {
-            text: ` (${Utils.getRunningTime(run.firstevent, run.lastevent)}, `,
+            text: ` (${Utils.getRunningTime(run.firstEvent, run.lastEvent)}, `,
           },
           {
             text: '',
@@ -452,9 +470,7 @@ class MainProcess {
           },
         ],
       });
-      this.sendToMain('refresh-runs');
-      this.sendToMain('current-run:started', { area: 'Unknown' });
-      this.sendToOverlay('current-run:started', { area: 'Unknown' });
+      RunParser.refreshTracking();
       StatsManager.triggerProfitPerHourAnnouncer();
     });
     RunParser.toggleRunParseShortcut(SettingsManager.get('runParseScreenshotEnabled'));
@@ -499,12 +515,6 @@ class MainProcess {
     });
 
     ClientTxtWatcher.emitter.removeAllListeners();
-    ClientTxtWatcher.emitter.on('localChatDisabled', () => {
-      logger.info(
-        "<span class='eventText'>Unable to track area changes. Please check if local chat is enabled.</span>",
-        true
-      );
-    });
     ClientTxtWatcher.emitter.on('switchedCharacter', async (c) => {
       // this.sendToMain('refresh-settings');
     });
@@ -523,21 +533,22 @@ class MainProcess {
         `<span class='eventText'>${path} has not been updated recently even though the game is running. Please check if PoE is using a different Client.txt file.</span>`
       );
     });
-    ClientTxtWatcher.emitter.on('generatedMap', ({ level, seed }) => {
-      logger.info('Generated map ' + level + ' ' + seed, '-', this.latestGeneratedAreaSeed);
-      this.awaitingMapEntering = seed !== this.latestGeneratedAreaSeed && seed !== '1';
-      if (seed !== '1') {
-        this.latestGeneratedAreaLevel = level;
-        this.latestGeneratedAreaSeed = seed;
-        RunParser.setLatestGeneratedAreaLevel(level);
-      }
+
+    LogProcessor.emitter.removeAllListeners();
+    LogProcessor.emitter.on('client-logs:error:local-chat-disabled', () => {
+      logger.info(
+        "Unable to track area changes. Please check if local chat is enabled."
+      );
     });
-    ClientTxtWatcher.emitter.on('enteredMap', (area) => {
+    LogProcessor.emitter.on('client-logs:generated-run', async ({ areaId, areaName, level, seed, runId }) => {
+      logger.info(`Generated run ${areaName} (${areaId}) (lvl${level}) (${seed}) - Latest: ${RunParser.latestGeneratedArea.seed}`);
+      RunParser.refreshTracking();
+    });
+    LogProcessor.emitter.on('client-logs:entered-map', async ({ area }) => {
       logger.info('Entered map ' + area);
-      if (this.awaitingMapEntering) {
-        this.awaitingMapEntering = false;
-        this.sendToMain('current-run:started', { area, level: this.latestGeneratedAreaLevel });
-        this.sendToOverlay('current-run:started', { area, level: this.latestGeneratedAreaLevel });
+      const hasStarted = await RunParser.tryUpdateCurrentArea();
+      if (hasStarted) {
+        RunParser.refreshTracking();
       }
     });
 
@@ -692,6 +703,7 @@ class MainProcess {
     // OverlayController listeners
     OverlayController.events.on('attach', (event) => {
       logger.info('Overlay attached to Path of Exile process');
+      RunParser.refreshTracking();
       this.overlayWindow.setBounds(OverlayController.targetBounds);
       this.sendToOverlay('overlay:trigger-reposition');
     });

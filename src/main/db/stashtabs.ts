@@ -10,19 +10,19 @@ const StashTabs = {
     league: string
   ): Promise<boolean> => {
     logger.info('Inserting new stash data');
-    const query = 'insert into stashes(timestamp, value, items) values(?, ?, ?)';
+    const query = 'INSERT INTO stashes(timestamp, value, items) VALUES(?, ?, ?)';
     try {
-      DB.run(query, [timestamp, value, rawData], league);
+      await DB.run(query, [timestamp, value, rawData], league);
       return true;
     } catch (err) {
       logger.error(`Error inserting new stash data: ${JSON.stringify(err)}`);
       return false;
     }
   },
-  getStashData: async (timestamp: number, league: string): Promise<any> => {
+  getStashData: async (timestamp: string, league: string): Promise<any> => {
     logger.info(`Getting stash data for ${league} at ${timestamp}`);
     const query =
-      'SELECT items, value FROM stashes where timestamp <= ? ORDER BY timestamp DESC LIMIT 1';
+      'SELECT items, value FROM stashes WHERE timestamp <= ? ORDER BY timestamp DESC LIMIT 1';
     try {
       const stash = await DB.get(query, [timestamp], league);
       return stash ?? [];
@@ -33,7 +33,7 @@ const StashTabs = {
   },
   getPreviousStashValue: async (timestamp: number | string, league: string): Promise<number> => {
     logger.info(`Getting previous stash value for ${league} before ${timestamp}`);
-    const query = 'SELECT value FROM stashes where timestamp < ? order by timestamp desc limit 1';
+    const query = 'SELECT value FROM stashes WHERE timestamp < ? ORDER BY timestamp DESC LIMIT 1';
     try {
       const { value } = (await DB.get(query, [timestamp], league)) as any;
       return value;
@@ -57,7 +57,7 @@ const StashTabs = {
   getRunsSinceLastCheck: async (date: number): Promise<number> => {
     logger.info(`Getting maps since last check from DB`);
     const query =
-      "SELECT count(1) as count FROM mapruns where id > ? and json_extract(runinfo, '$.ignored') is null";
+      "SELECT count(1) as count FROM mapruns WHERE id > ? AND json_extract(runinfo, '$.ignored') IS NULL";
     try {
       const { count } = (await DB.get(query, [date])) as any;
       return count;
@@ -71,7 +71,7 @@ const StashTabs = {
   ): Promise<{ timestamp: number; value: number; len: number }> => {
     logger.info(`Getting latest stash value from DB`);
     const query =
-      'SELECT timestamp, value, length(items) as len FROM stashes order by timestamp desc limit 1';
+      'SELECT timestamp, value, length(items) as len FROM stashes ORDER BY timestamp DESC LIMIT 1';
     try {
       const [{ timestamp, value, len }] = (await DB.all(query, [], league)) as any[];
       return { timestamp, value, len };

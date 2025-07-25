@@ -59,8 +59,8 @@ const DataSearchForm = ({
   const handleSearch = (e) => {
     e.preventDefault();
     searchFunction({
-      from: from?.format('YYYYMMDDHHmmss'),
-      to: to?.format('YYYYMMDDHHmmss'),
+      from: from?.toISOString(),
+      to: to?.toISOString(),
       minLootValue,
       minMapValue,
       neededItemName,

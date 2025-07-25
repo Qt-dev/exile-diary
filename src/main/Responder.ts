@@ -45,6 +45,7 @@ const loadRun = async (e, { runId }) => {
 const loadRunDetails = async (e, { runId }) => {
   logger.info(`Loading details for run with id: ${runId}`);
   const run = await Runs.getRun(runId);
+  logger.info(run);
   return run;
 };
 

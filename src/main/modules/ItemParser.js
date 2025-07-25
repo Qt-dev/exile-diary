@@ -53,3 +53,4 @@ async function isDuplicateInventory(items) {
 }
 
 module.exports.insertItems = insertItems;
+export default { insertItems };

@@ -74,7 +74,7 @@ class InventoryGetter extends EventEmitter {
 
   getPreviousInventory() {
     return new Promise((resolve, reject) => {
-      DB.all('select timestamp, inventory from lastinv order by timestamp desc')
+      DB.all('SELECT timestamp, inventory FROM last_inventory ORDER BY timestamp DESC')
         .then((rows) => {
           if (rows.length === 0) {
             resolve({});
@@ -100,13 +100,13 @@ class InventoryGetter extends EventEmitter {
   updateLastInventory(data) {
     var dataString = JSON.stringify(data);
     let timestamp;
-    DB.run('delete from lastinv')
+    DB.run('DELETE FROM last_inventory')
       .catch((err) => {
         logger.info(`Unable to delete last inventory: ${err}`);
       })
       .then(() => {
-        timestamp = dayjs().format('YYYYMMDDHHmmss');
-        return DB.run('insert into lastinv(timestamp, inventory) values(?, ?)', [
+        timestamp = dayjs().toISOString();
+        return DB.run('INSERT INTO last_inventory(timestamp, inventory) VALUES(?, ?)', [
           timestamp,
           dataString,
         ]);
@@ -145,5 +145,8 @@ class InventoryGetter extends EventEmitter {
   }
 }
 
-module.exports = InventoryGetter;
+const inventoryGetter = new InventoryGetter();
+
+module.exports = inventoryGetter;
 module.exports.emitter = emitter;
+export default inventoryGetter;
