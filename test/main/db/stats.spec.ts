@@ -23,6 +23,7 @@ describe('stats', () => {
     // Setup dayjs mock
     (mockDayjs as any).mockReturnValue({
       subtract: jest.fn().mockReturnThis(),
+      toISOString: jest.fn().mockReturnValue('20230101120000'),
       format: jest.fn().mockReturnValue('20230101120000'),
     });
   });
@@ -583,7 +584,7 @@ describe('stats', () => {
       const calledQuery = mockDB.get.mock.calls[0][0];
       
       expect(calledQuery).toContain('SUM(item.value) as total_profit');
-      expect(calledQuery).toContain('SUM(run.last_event - run.first_event)');
+      expect(calledQuery).toContain('SUM(JULIANDAY(run.last_event) - JULIANDAY(run.first_event))');
       expect(calledQuery).toContain('COUNT(DISTINCT item.id) AS items');
       expect(calledQuery).toContain('COUNT(DISTINCT run.id) AS runs');
       expect(calledQuery).toContain('JOIN item');
@@ -598,7 +599,7 @@ describe('stats', () => {
 
       expect(mockDayjs).toHaveBeenCalled();
       expect(mockDayjs().subtract).toHaveBeenCalledWith(1, 'day');
-      expect(mockDayjs().format).toHaveBeenCalledWith('YYYYMMDDHHmmss');
+      expect(mockDayjs().toISOString).toHaveBeenCalled();
     });
   });
 });

@@ -31,18 +31,18 @@ jest.mock('electron-log', () => ({
 describe('RunParser', () => {
   describe('setLatestGeneratedArea', () => {
     afterEach(() => {
-      RunParser.setLatestGeneratedArea({ id: 0, name: '' });
+      RunParser.setLatestGeneratedArea({ run_id: 1, level: 80, depth: 0, name: '' });
     });
 
     it('should set the latestGeneratedArea', () => {
-      const areaInfo = { id: 1, name: 'test' };
+      const areaInfo = { id: 1, name: 'test', run_id: 1, level: 70, depth: 0  };
       RunParser.setLatestGeneratedArea(areaInfo);
       expect(RunParser.latestGeneratedArea).toEqual(areaInfo);
     });
 
     it('should not set it up if there is no area argument', () => {
       const areaInfo = { id: 1, name: 'test' };
-      RunParser.setLatestGeneratedArea({ id: 0, name: '' });
+      RunParser.setLatestGeneratedArea({ run_id: 1, level: 80, depth: 0, name: '' });
       expect(RunParser.latestGeneratedArea).not.toEqual(areaInfo);
     });
   });
@@ -55,29 +55,20 @@ describe('RunParser', () => {
     it('should return the correct area info', async () => {
       const area = 'Area 1';
       jest.spyOn(DB, 'get').mockResolvedValue(area);
-      const result = await RunParser.getAreaInfo(
-        { timestamp: 1, area: 'Place 1', server: '1.1.1.1' },
-        { timestamp: 2, area: 'Place 2', server: '1.1.1.2' }
-      );
+      const result = await RunParser.getAreaInfo(1);
       expect(result).toBe(area);
     });
 
     it('should return null if the DB call fails', async () => {
       jest.spyOn(DB, 'get').mockRejectedValue(new Error('DB Error'));
-      const result = await RunParser.getAreaInfo(
-        { timestamp: 1, area: 'Place 1', server: '1.1.1.1' },
-        { timestamp: 2, area: 'Place 2', server: '1.1.1.2' }
-      );
+      const result = await RunParser.getAreaInfo(1);
 
       expect(result).toBeNull();
     });
 
     it('should return null if there is no result from the DB call', async () => {
       jest.spyOn(DB, 'get').mockResolvedValue(undefined);
-      const result = await RunParser.getAreaInfo(
-        { timestamp: 1, area: 'Place 1', server: '1.1.1.1' },
-        { timestamp: 2, area: 'Place 2', server: '1.1.1.2' }
-      );
+      const result = await RunParser.getAreaInfo(1);
       expect(result).toBeNull();
     });
   });
@@ -109,8 +100,9 @@ describe('RunParser', () => {
     });
 
     it('should return the right XP', async () => {
+      jest.spyOn(RunParser, 'getMapRun').mockResolvedValue({ first_event: '1', last_event: '2' });
       jest.spyOn(DB, 'get').mockResolvedValue({ xp: 100 });
-      const xp = await RunParser.getXP(1, 2); // Pass both arguments as numbers
+      const xp = await RunParser.getXP(1, '2');
       expect(xp).toEqual(100);
     });
 
@@ -120,14 +112,14 @@ describe('RunParser', () => {
         .spyOn(GGGAPI, 'getDataForInventory')
         .mockResolvedValue({ inventory: [], equipment: [], experience: expectedValue });
       jest.spyOn(DB, 'get').mockRejectedValue(new Error('DB Error'));
-      const xp = await RunParser.getXP(1, 2); // Pass both arguments as numbers
+      const xp = await RunParser.getXP(1, '2'); 
       expect(xp).toEqual(expectedValue);
     });
 
     it('should return null if getXPManual fails', async () => {
       jest.spyOn(DB, 'get').mockRejectedValue(new Error('DB Error'));
       jest.spyOn(GGGAPI, 'getDataForInventory').mockRejectedValue(new Error('API Error'));
-      const xp = await RunParser.getXP(1, 2); // Pass both arguments as numbers
+      const xp = await RunParser.getXP(1, '2');
       expect(xp).toBeNull();
     });
   });
@@ -178,7 +170,7 @@ describe('RunParser', () => {
           id: 1,
           name: 'item1',
           typeline: 'White Item',
-          rawdata: JSON.stringify({ inventoryId: 'MainInventory' }),
+          raw_data: JSON.stringify({ inventoryId: 'MainInventory' }),
           category: 'Weapon',
           event_id: 1,
         },
@@ -186,7 +178,7 @@ describe('RunParser', () => {
           id: 2,
           name: 'item2',
           typeline: 'White Item',
-          rawdata: JSON.stringify({ inventoryId: 'MainInventory' }),
+          raw_data: JSON.stringify({ inventoryId: 'MainInventory' }),
           category: 'Armor',
           event_id: 2,
         },

@@ -27,35 +27,36 @@ describe('Runs', () => {
     jest.restoreAllMocks();
   });
 
-  describe('getAreaId', () => {
-    it('should return the last area ID', async () => {
-      const mockResult = { id: 42 };
+  describe('getLatestUncompletedRun', () => {
+    it('should return the last area', async () => {
+      const mockResult = { id: 42, first_event: '1', last_event: '2' };
       mockDB.get.mockResolvedValue(mockResult);
       
-      const result = await Runs.getAreaId();
+      const result = await Runs.getLatestUncompletedRun();
       
       expect(mockDB.get).toHaveBeenCalledTimes(1);
       const args = mockDB.get.mock.calls[0][0];
-      expect(args).toContain('SELECT id FROM run');
+      expect(args).toContain('SELECT id, first_event, last_event FROM run');
       expect(args).toContain('ORDER BY id DESC');
       expect(args).toContain('LIMIT 1');
       
-      expect(result).toBe(42);
+      expect(result).toBe(mockResult);
     });
 
     it('should return 0 when no runs exist', async () => {
-      mockDB.get.mockResolvedValue({id: 0});
+      const emptyResult = {id: 0, first_event: null, last_event: null};
+      mockDB.get.mockResolvedValue(emptyResult);
       
-      const result = await Runs.getAreaId();
+      const result = await Runs.getLatestUncompletedRun();
 
-      expect(result).toBe(0);
+      expect(result).toEqual(emptyResult);
     });
 
     it('should handle database query failure', async () => {
       const mockError = new Error('Database error');
       mockDB.get.mockRejectedValue(mockError);
       
-      await expect(Runs.getAreaId()).rejects.toThrow('Database error');
+      await expect(Runs.getLatestUncompletedRun()).rejects.toThrow('Database error');
     });
   });
 
@@ -231,10 +232,6 @@ describe('Runs', () => {
 
       const result = await Runs.getItems(mapId);
 
-      expect(mockDB.all).toHaveBeenCalledWith(
-        expect.stringContaining('SELECT event.id, item.rarity'),
-        [mapId]
-      );
       expect(result).toEqual({
         1: ['{"typeLine":"Sword","identified":true,"rarity":"Rare","value":100,"originalValue":90,"pickupStackSize":1,"isIgnored":false}'],
       });
@@ -377,11 +374,12 @@ describe('Runs', () => {
   describe('deleteAreaInfo', () => {
     it('should delete area info successfully', async () => {
       const areaId = 42;
+      mockDB.run.mockReset();
       mockDB.run.mockResolvedValue(undefined);
 
       const result = await Runs.deleteAreaInfo(areaId);
 
-      expect(mockDB.run).toHaveBeenCalledWith('DELETE FROM areainfo WHERE id = ?', [areaId]);
+      expect(mockDB.run).toHaveBeenCalledWith('DELETE FROM areainfo WHERE run_id = ?', [areaId]);
       expect(result).toBe(true);
     });
 

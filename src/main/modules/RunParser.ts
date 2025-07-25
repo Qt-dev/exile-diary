@@ -190,26 +190,39 @@ const RunParser = {
     runId: number,
     lastEventTimestamp?: string
   ): Promise<number | null> => {
-    const { first_event } = await RunParser.getMapRun(runId);
-    return OldDB.get(
-      'SELECT timestamp, xp FROM xp WHERE DATETIME(timestamp) BETWEEN DATETIME(?) AND DATETIME(?) ORDER BY timestamp DESC LIMIT 1 ',
-      [first_event, lastEventTimestamp]
-    )
-      .then((row) => {
-        logger.debug(`Got XP from DB: ${row.xp} at ${row.timestamp}`);
-        return row.xp;
-      })
-      .catch(async (err) => {
-        logger.error(
-          `Failed to get XP between ${first_event} and ${lastEventTimestamp} from local DB, retrieving from API`
-        );
-        const { experience } = await GGGAPI.getDataForInventory();
-        return experience;
-      })
-      .catch((err) => {
+    let first_event : string | null = null;
+    let shouldQueryAPI = false;
+    let experience : number | null = null;
+    try {
+      ({ first_event } = await RunParser.getMapRun(runId));
+    } catch (error) {
+      logger.error(`Failed to get map run for runId ${runId}: ${error}`);
+    }
+    
+    try {
+      if(!first_event) throw new Error('First event is null');
+      const row = await OldDB.get(
+        'SELECT timestamp, xp FROM xp WHERE DATETIME(timestamp) BETWEEN DATETIME(?) AND DATETIME(?) ORDER BY timestamp DESC LIMIT 1 ',
+        [first_event, lastEventTimestamp]
+      );
+      logger.debug(`Got XP from DB: ${row.xp} at ${row.timestamp}`);
+      experience = row.xp;
+    } catch (err) {
+      logger.error(
+        `Failed to get XP between ${first_event} and ${lastEventTimestamp} from local DB, retrieving from API`
+      );
+      shouldQueryAPI = true;
+    }
+
+    if(shouldQueryAPI) {
+      try {
+        const { experience : GGGExperience } = await GGGAPI.getDataForInventory();
+        experience = GGGExperience;
+      } catch (err) {
         logger.error(`Failed to get XP from API: ${err}`);
-        return null;
-      });
+      }
+    }
+    return experience;
   },
 
   getXPDiff: async (currentXP: number | null): Promise<number | null> => {

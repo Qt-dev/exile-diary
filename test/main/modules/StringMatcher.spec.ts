@@ -27,7 +27,7 @@ describe('StringMatcher', () => {
       for(const mod of mods) {
         const now = new Date();
         const closest = StringMatcher.getClosest(mod, Constants.mapMods);
-        console.log(`Found closest match: ${closest} for mod: ${mod} in ${new Date().getMilliseconds() - now.getMilliseconds()} ms`);
+        // console.log(`Found closest match: ${closest} for mod: ${mod} in ${new Date().getMilliseconds() - now.getMilliseconds()} ms`);
         expect(closest.toLowerCase()).toBe(mod.replace(/\d+/g, '#'));
       };
     });
@@ -42,7 +42,7 @@ describe('StringMatcher', () => {
       for(const mod of mods) {
         const now = new Date();
         const closest = StringMatcher.getClosest(mod, Constants.mapMods);
-        console.log(`Found closest match: ${closest} for mod: ${mod} in ${new Date().getMilliseconds() - now.getMilliseconds()} ms`);
+        // console.log(`Found closest match: ${closest} for mod: ${mod} in ${new Date().getMilliseconds() - now.getMilliseconds()} ms`);
         expect(closest.toLowerCase()).toBe(mod.toLowerCase().replace(/\d+/g, '#'));
       };
     });
@@ -55,7 +55,7 @@ describe('StringMatcher', () => {
       for(const mod of mods) {
         const now = new Date();
         const closest = StringMatcher.getClosest(mod, Constants.mapMods);
-        console.log(`Found closest match: ${closest} for mod: ${mod} in ${new Date().getMilliseconds() - now.getMilliseconds()} ms`);
+        // console.log(`Found closest match: ${closest} for mod: ${mod} in ${new Date().getMilliseconds() - now.getMilliseconds()} ms`);
         expect(closest.toLowerCase()).toBe(mod.toLowerCase().replace(/\d+/g, '#'));
       };
     });
@@ -70,7 +70,7 @@ describe('StringMatcher', () => {
       for(const mod of modsData) {
         const now = new Date();
         const closest = StringMatcher.getClosest(mod.input, Constants.mapMods);
-        console.log(`Found closest match: ${closest} for mod: ${mod} in ${new Date().getMilliseconds() - now.getMilliseconds()} ms`);
+        // console.log(`Found closest match: ${closest} for mod: ${mod} in ${new Date().getMilliseconds() - now.getMilliseconds()} ms`);
         expect(closest.toLowerCase()).toBe(mod.expected.toLowerCase());
       };
     });
