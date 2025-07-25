@@ -3,7 +3,7 @@ import RatesManager from '../RatesManager';
 import { writeFile } from 'fs/promises';
 import Constants from '../../helpers/constants';
 import * as ItemCategoryParser from '../../helpers/item';
-import dayjs from 'dayjs';
+import dayjs, { min } from 'dayjs';
 const logger = require('electron-log');
 const ItemData = require('./ItemData');
 const Utils = require('./Utils').default;
@@ -66,7 +66,7 @@ async function updateRates(league = SettingsManager.get('activeProfile').league)
   const date = dayjs().format('YYYYMMDD');
   ratesCache[date] = ratesCache[date] || {};
   ratesCache[date][league] = await RatesManager.fetchRatesForDay(league, date);
-  //writeFile(`./${date}.json`, JSON.stringify(ratesCache[date][league])); // In case you need to inspect the full rates for a day
+  // writeFile(`./${date}.json`, JSON.stringify(ratesCache[date][league])); // In case you need to inspect the full rates for a day
 }
 
 class PriceMatcher {
@@ -185,25 +185,25 @@ class PriceMatcher {
         item.category === 'Map Fragment' ||
         (item.category === 'Labyrinth Item' && item.typeline.endsWith('to the Goddess')),
       calculateValue: (item: any, minItemValue: number = 0) =>
-        this.getValue(item, 'Fragment', item.typeline, minItemValue) * (item.stack_size || 1),
+        this.getValue(item, 'Fragment', item.typeline, minItemValue) * (item.stackSize || 1),
     },
     {
       name: 'Tattoo',
       test: (item: any) => item.typeline && item.typeline.includes('Tattoo'),
       calculateValue: (item: any, minItemValue: number = 0) =>
-        this.getValue(item, 'Tattoo', item.typeline, minItemValue) * (item.stack_size || 1),
+        this.getValue(item, 'Tattoo', item.typeline, minItemValue) * (item.stackSize || 1),
     },
     {
       name: 'Omen',
       test: (item: any) => item.typeline && item.typeline.includes('Omen'),
       calculateValue: (item: any, minItemValue: number = 0) =>
-        this.getValue(item, 'Omen', item.typeline, minItemValue) * (item.stack_size || 1),
+        this.getValue(item, 'Omen', item.typeline, minItemValue) * (item.stackSize || 1),
     },
     {
       name: 'Incubator',
       test: (item: any) => item.typeline && item.typeline.includes('Incubator'),
       calculateValue: (item: any, minItemValue: number = 0) =>
-        this.getValue(item, 'Currency', item.typeline, minItemValue) * (item.stack_size || 1),
+        this.getValue(item, 'Currency', item.typeline, minItemValue) * (item.stackSize || 1),
     },
     {
       name: 'Allflame Embers',
@@ -221,7 +221,7 @@ class PriceMatcher {
       name: 'Chaos Orbs',
       test: (item: any) => item.typeline === 'Chaos Orb',
       calculateValue: (item: any, minItemValue: number = 0) =>
-        1 * (item.stack_size || 1) >= minItemValue ? 1 * (item.stack_size || 1) : 0,
+        1 * (item.stackSize || 1) >= minItemValue ? 1 * (item.stackSize || 1) : 0,
     },
     {
       name: 'Kalguuran Runes',
@@ -234,7 +234,7 @@ class PriceMatcher {
       name: 'Currency',
       test: (item: any) => item.rarity === 'Currency',
       calculateValue: (item: any, minItemValue: number = 0) =>
-        this.getValue(item, 'Currency', item.typeline, minItemValue) * (item.stack_size || 1),
+        this.getValue(item, 'Currency', item.typeline, minItemValue) * (item.stackSize || 1),
     },
     {
       name: 'Unique Maps',
@@ -371,7 +371,7 @@ class PriceMatcher {
     if (log) {
       logger.info(`[${table}] : ${identifier} => ${value}`);
     }
-    return minItemValue < value * (item.stack_size || 1) ? value : 0;
+    return minItemValue < value * (item.stackSize || 1) ? value : 0;
   }
 
   /**
@@ -392,6 +392,12 @@ class PriceMatcher {
    */
   price(item: any, minItemValue: number): number {
     const pricingRule = this.match(item);
+    if(item.typeline === 'More is Never Enough') {
+
+      logger.info('rule: ', pricingRule.name, 'for item:', item.typeline, minItemValue);
+      logger.info(pricingRule.calculateValue(item, minItemValue));
+    }
+
     const calculatedValue = pricingRule.calculateValue(item, minItemValue);
     if (log) {
       logger.info(
@@ -614,11 +620,11 @@ class PriceMatcher {
   getCurrencyShardStackValue(minItemValue: number, item: any, identifier: string): number {
     const wholeOrbName = Constants.shardTypes[identifier];
     const shardValue = this.getValue(item, 'Currency', wholeOrbName) / 20;
-    const stackValue = shardValue * item.stack_size;
+    const stackValue = shardValue * item.stackSize;
     if (log) {
       if (shardValue >= minItemValue) {
         logger.info(
-          `[Currency] : ${identifier} => ${shardValue} x ${item.stack_size} = ${stackValue}`
+          `[Currency] : ${identifier} => ${shardValue} x ${item.stackSize} = ${stackValue}`
         );
       } else {
         logger.info(`[Currency] : ${identifier} => ${shardValue} < ${minItemValue}, ignoring`);
@@ -637,14 +643,14 @@ class PriceMatcher {
   getSplinterStackValue(minItemValue: number, item: any, identifier: string): number {
     const fragmentType = Constants.fragmentTypes[identifier];
     const type = fragmentType.itemType ?? 'Fragment';
-    const splinterValue = this.getValue(item, type, fragmentType.item) / fragmentType.stack_Size;
+    const splinterValue = this.getValue(item, type, fragmentType.item) / fragmentType.stackSize;
     logger.debug(item);
     const stackValue = splinterValue * item.parsedItem.stackSize;
     logger.info('Splinter value: ', fragmentType, splinterValue, stackValue);
     if (log) {
       if (splinterValue >= minItemValue) {
         logger.info(
-          `Using alternate splinter pricing : ${identifier} => ${splinterValue} x ${item.stack_Size} = ${stackValue}`
+          `Using alternate splinter pricing : ${identifier} => ${splinterValue} x ${item.stackSize} = ${stackValue}`
         );
       } else {
         logger.info(
@@ -805,7 +811,7 @@ class PriceMatcher {
    */
   getSeedValue(item: any): number {
     const identifier = item.typeline + (this.getSeedLevel(item) >= 76 ? ' L76+' : '');
-    return this.getValue(item, 'Seed', identifier) * item.stack_size;
+    return this.getValue(item, 'Seed', identifier) * item.stackSize;
   }
 
   /**
@@ -939,6 +945,7 @@ class PriceMatcher {
    */
   getDivinationCardValue(item: any, minItemValue: number): number {
     const identifier = item.typeline;
+
     return this.getValue(item, 'DivinationCard', identifier, minItemValue) * item.stack_size;
   }
 }
@@ -967,6 +974,11 @@ async function price(
   item.parsedItem = JSON.parse(item.raw_data);
 
   let minItemValue = 0;
+
+  if (log) {
+    logger.info(`Pricing item: ${item.typeline} (${item.id})`);
+    logger.info(item);
+  }
 
   return { isVendor: matcher.isVendorRecipe(item), value: matcher.price(item, minItemValue) };
 }

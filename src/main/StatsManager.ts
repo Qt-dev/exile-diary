@@ -833,7 +833,7 @@ class StatsManager {
         const battleTime = run.parsedRunInfo?.bossBattle?.time
           ? Number(run.parsedRunInfo.bossBattle.time)
           : 0;
-
+        logger.debug(run.parsedRunInfo, battleTime)
         stats.count++;
         stats.totalTime += battleTime;
         stats.fastest =

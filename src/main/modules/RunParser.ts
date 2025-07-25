@@ -6,18 +6,20 @@ import SettingsManager from '../SettingsManager';
 import WorldAreas from '../../helpers/data/worldAreas.json';
 import OldDB from '../db';
 import { globalShortcut } from 'electron';
+import Utils from './Utils';
+import minMax from 'dayjs/plugin/minMax' // ES 2015
 const logger = require('electron-log');
-const Utils = require('./Utils').default;
 const EventEmitter = require('events');
 const ItemPricer = require('./ItemPricer');
 const XPTracker = require('./XPTracker');
 const Constants = require('../../helpers/constants').default;
 const ParseShortcut = 'CommandOrControl+F10';
+dayjs.extend(minMax);
 
 type ParsedEvent = {
   timestamp: string;
-  area: string;
-  server: string;
+  area?: string;
+  server?: string;
 };
 
 type Event = {
@@ -28,11 +30,14 @@ type Event = {
 };
 
 type AreaInfo = {
-  area_id: number;
+  run_id: number;
   name: string;
-  level?: number;
-  depth?: number;
+  level: number;
+  depth: number;
   seed?: number;
+  iir?: number;
+  pack_size?: number;
+  iiq?: number;
 };
 
 type ItemStats = {
@@ -63,19 +68,61 @@ type MapData = [
 
 const RunParser = {
   latestGeneratedArea: {
-    area_id: 0,
+    run_id: 0,
+    level: 0,
+    depth: 0,
+    // seed: 0,
     name: '',
+    iir: 0,
+    pack_size: 0,
+    iiq: 0,
   } as AreaInfo,
   emitter: new EventEmitter(),
+
+  refreshTracking: async () => {
+    logger.info('Refreshing RunParser tracking');
+    const data = await DB.getCurrentAreaData() ?? {
+      run_id: 0,
+      level: 0,
+      depth: 0,
+      name: 'No Area',
+      seed: 0,
+      iir: 0,
+      pack_size: 0,
+      iiq: 0,
+    };
+
+    RunParser.setLatestGeneratedArea({
+      run_id: data.run_id,
+      level: data.level,
+      depth: data.depth,
+      name: data.name,
+      iir: data.iir,
+      pack_size: data.pack_size,
+      iiq: data.iiq,
+    });
+
+    RunParser.emitter.emit('run-parser:latest-area-updated', RunParser.latestGeneratedArea);
+  },
 
   setLatestGeneratedArea: (area: AreaInfo) => {
     RunParser.latestGeneratedArea = area;
   },
 
-  setLatestGeneratedAreaData: (level: number, name: string, seed: number) => {
+  setLatestGeneratedAreaData: (level: number, name: string, seed: number, runId: number) => {
     RunParser.latestGeneratedArea.level = level;
     RunParser.latestGeneratedArea.name = name;
     RunParser.latestGeneratedArea.seed = seed;
+    RunParser.latestGeneratedArea.run_id = runId;
+  },
+
+  resetRunData: () => {
+    RunParser.latestGeneratedArea = {
+      run_id: 0,
+      level: 0,
+      depth: 0,
+      name: '',
+    };
   },
 
   getAreaInfo: async (
@@ -140,12 +187,13 @@ const RunParser = {
   },
 
   getXP: async (
-    runId: number
+    runId: number,
+    lastEventTimestamp?: string
   ): Promise<number | null> => {
-    const { first_event, last_event } = await RunParser.getMapRun(runId);
+    const { first_event } = await RunParser.getMapRun(runId);
     return OldDB.get(
       'SELECT timestamp, xp FROM xp WHERE DATETIME(timestamp) BETWEEN DATETIME(?) AND DATETIME(?) ORDER BY timestamp DESC LIMIT 1 ',
-      [first_event, last_event]
+      [first_event, lastEventTimestamp]
     )
       .then((row) => {
         logger.debug(`Got XP from DB: ${row.xp} at ${row.timestamp}`);
@@ -153,7 +201,7 @@ const RunParser = {
       })
       .catch(async (err) => {
         logger.error(
-          `Failed to get XP between ${first_event} and ${last_event} from local DB, retrieving from API`
+          `Failed to get XP between ${first_event} and ${lastEventTimestamp} from local DB, retrieving from API`
         );
         const { experience } = await GGGAPI.getDataForInventory();
         return experience;
@@ -190,6 +238,11 @@ const RunParser = {
     );
   },
 
+  /**
+   * Parses the items from a run and extracts relevant information.
+   * @param items The items to parse.
+   * @returns An object containing the count of items, total value, and important drops.
+   */
   parseItems: async (
     items: Item[]
   ): Promise<{ count: number; value: number; importantDrops: any }> => {
@@ -199,8 +252,10 @@ const RunParser = {
     const importantDrops = {};
     const formattedItems: [number, number, number][] = [];
     for (let item of items) {
+      if(!item.raw_data) continue;
+
       const jsonData = JSON.parse(item.raw_data);
-      if (jsonData.inventoryId === 'MainInventory') {
+      if (jsonData && jsonData.inventoryId === 'MainInventory') {
         count++;
         if (item.category === 'Metamorph Sample') {
           const organ = item.typeline.slice(item.typeline.lastIndexOf(' ') + 1).toLowerCase();
@@ -217,11 +272,15 @@ const RunParser = {
         } else {
           totalValue += price.value;
         }
+        if(!price.value) {
+          logger.debug(`Found an item with price: ${price.value}`, item);
+        }
         formattedItems.push([price.value ?? 0, item.id, item.event_id]);
       }
     }
 
     if (formattedItems.length > 0) {
+      logger.debug(formattedItems);
       RunParser.updateItemValues(formattedItems);
     }
 
@@ -229,54 +288,48 @@ const RunParser = {
   },
 
   generateItemStats: async (
-    areaID: string,
+    runId: string,
     firstEventTimestamp: string,
     lastEventTimestamp: string
   ) => {
     logger.debug(
-      `Getting item values for ${areaID} between ${firstEventTimestamp} and ${lastEventTimestamp}`
+      `Getting item values for ${runId} between ${firstEventTimestamp} and ${lastEventTimestamp}`
     );
-    const query = `
-      SELECT event_text, item.*, event.timestamp AS drop_time
-      FROM event
-        LEFT JOIN item
-        ON item.event_id = event.id
-      WHERE
-        event_type = 'entered'
-        AND
-          (
-            DATETIME(event.timestamp) BETWEEN DATETIME(?) AND DATETIME(?)
-          )
-    `;
     type Zone = { event_text: string; id: number };
     try {
-      const rows = await OldDB.all(query, [
+      const rows = await DB.getItemsBetweenEvents(
         firstEventTimestamp,
-        lastEventTimestamp,
-      ]);
+        lastEventTimestamp
+      );
       let itemsCount = 0;
       let totalProfit = 0;
       let importantDrops = {};
 
+      // Get Zones from the items list
       const zones: Zone[] = rows
         .map((row) => ({ event_text: row.event_text, id: row.event_id }))
         .filter((zone, index, self) => self.findIndex((t) => t.id === zone.id) === index);
-
       logger.debug(`Got ${zones.length} zones`);
+      logger.debug(zones);
 
       for (let zone of zones) {
         const index = zones.findIndex((z) => z.id === zone.id);
-        logger.debug('Zone: ', zone, index, zones);
+        logger.debug(`Handling items for zone: ${zone.event_text} (id:${index})`);
+
+        // Bail if you are in the first zone since there's no previous zone to compare with
         const lastZone: any = zones[index - 1];
         if (!lastZone) {
           logger.debug('No last zone', lastZone, zone, index);
           continue;
         }
+
+        // If the previous zone was not a town, check the loot difference in the current zone
         if (!Utils.isTown(lastZone.event_text)) {
           // We are in a town but were not in the previous step
           logger.debug(`Getting items picked up in ${lastZone.id} ${lastZone.event_text}`);
           const items = rows.filter((row) => row.event_id === zone.id);
-          logger.debug(items.length, rows.length);
+          logger.debug(`Found ${items.length} items in ${rows.length} rows`);
+
           const itemsData = await RunParser.parseItems(items);
           itemsCount += itemsData.count;
           totalProfit += itemsData.value;
@@ -295,7 +348,7 @@ const RunParser = {
       totalProfit = parseFloat(Number(totalProfit).toFixed(2));
       return { count: itemsCount, value: totalProfit, importantDrops };
     } catch (err) {
-      logger.info(`Unable to get item values for ${areaID}: ${err}`);
+      logger.info(`Unable to get item values for ${runId}: ${err}`);
       return false;
     }
   },
@@ -317,12 +370,12 @@ const RunParser = {
   },
 
   getItemStats: async (
-    area: { area_id: number; name: string },
+    area: { run_id: number; name: string },
     firsteventTimestamp: string,
     lasteventTimestamp: string
   ): Promise<ItemStats | false> => {
-    logger.debug(`Getting item stats for ${area.area_id} ${area.name} between ${firsteventTimestamp} and ${lasteventTimestamp}`);
-    let lastInventoyTimestamp: string;
+    logger.debug(`Getting item stats for (${area.run_id}) ${area.name} between ${firsteventTimestamp} and ${lasteventTimestamp}`);
+    let lastInventoryTimestamp: string;
     let timestampCheckCount = 0;
 
     // Make sure the last inventory has been processed, wait 3s at a time until we're good
@@ -330,11 +383,9 @@ const RunParser = {
     while (timestampCheckCount < 3) {
       timestampCheckCount++;
       logger.debug('Getting latest inventory timestamp');
-      lastInventoyTimestamp = (await RunParser.getLastInventoryTimestamp()) ?? dayjs.unix(0).toISOString();
-      logger.debug('Found ' + lastInventoyTimestamp);
+      lastInventoryTimestamp = (await RunParser.getLastInventoryTimestamp()) ?? dayjs.unix(0).toISOString();
       if (
-        dayjs(lastInventoyTimestamp).isAfter(dayjs(lasteventTimestamp)) || // Last inventory is newer than the last event
-        dayjs(lastInventoyTimestamp).isSame(dayjs(lasteventTimestamp)) // Last inventory is the same as the last event
+        dayjs(lasteventTimestamp).isSameOrAfter(dayjs(lastInventoryTimestamp)) // Last inventory is newer than the last event
       ) {
         break;
       } else {
@@ -343,24 +394,24 @@ const RunParser = {
           return false;
         } else {
           logger.error(
-            `Last inventory not yet processed (${dayjs(lastInventoyTimestamp)} < ${dayjs(lasteventTimestamp)}), waiting 3 seconds`
+            `Last inventory not yet processed (${dayjs(lastInventoryTimestamp)} < ${dayjs(lasteventTimestamp)}), waiting 3 seconds`
           );
           await Utils.sleep(3000);
         }
       }
     }
 
-    logger.debug(`Getting chaos value of items from ${area.area_id} ${area.name}`);
+    logger.debug(`Getting chaos value of items from ${area.run_id} ${area.name}`);
     try {
       const itemStats = (await RunParser.generateItemStats(
-        `${area.area_id}`,
+        `${area.run_id}`,
         firsteventTimestamp,
         lasteventTimestamp
       )) as ItemStats;
       if (itemStats) logger.debug(`Total profit is ${itemStats.value} in ${itemStats.count} items`);
       return itemStats;
     } catch (err) {
-      logger.error(`Unable to get item values for ${area.area_id} ${area.name}: ${err}`);
+      logger.error(`Unable to get item values for ${area.run_id} ${area.name}: ${err}`);
       return false;
     }
   },
@@ -368,14 +419,7 @@ const RunParser = {
   getKillCount: async (firsteventTimestamp: string, lasteventTimestamp: string) => {
     logger.debug(`Getting Kill count between ${firsteventTimestamp} and ${lasteventTimestamp}`);
     let totalKillCount = 0;
-    return OldDB.all(
-      `
-          SELECT * FROM incubator
-          WHERE DATETIME(incubator.timestamp) BETWEEN DATETIME(?) AND DATETIME(?)
-          ORDER BY timestamp
-        `,
-      [firsteventTimestamp, lasteventTimestamp]
-    )
+    return DB.getIncubatorDataBetweenEvents(firsteventTimestamp, lasteventTimestamp)
       .then((rows) => {
         if (rows.length > 1) {
           rows.forEach((row, index) => {
@@ -560,7 +604,7 @@ const RunParser = {
             run.mapBoss[lastEnteredArea] = run.mapBoss[lastEnteredArea] || {};
             // only take the earliest possible battle start
             if (!run.mapBoss[lastEnteredArea].battleStart) {
-              run.mapBoss[lastEnteredArea].battleStart = evt.id;
+              run.mapBoss[lastEnteredArea].battleStart = evt.timestamp;
             }
           }
           if (
@@ -571,7 +615,7 @@ const RunParser = {
             run.mapBoss = run.mapBoss || {};
             run.mapBoss[lastEnteredArea] = run.mapBoss[lastEnteredArea] || {};
             // cold river map has two bosses that both emit death lines - take the latest
-            run.mapBoss[lastEnteredArea].bossKilled = evt.id;
+            run.mapBoss[lastEnteredArea].bossKilled = evt.timestamp;
           }
           continue;
         case 'master':
@@ -626,7 +670,7 @@ const RunParser = {
             // "This is the key to a crucible that stretches the sanity of the mind"
             run.mapBoss = run.mapBoss || {};
             run.mapBoss[lastEnteredArea] = run.mapBoss[lastEnteredArea] || {};
-            run.mapBoss[lastEnteredArea].bossKilled = evt.id;
+            run.mapBoss[lastEnteredArea].bossKilled = evt.timestamp;
           }
           continue;
         case 'Catarina, Master of Undeath':
@@ -930,27 +974,30 @@ const RunParser = {
     if (run.maven && run.maven.firstLine) {
       bossBattleStart = run.maven.firstLine;
     }
+
     // take the earliest possible boss battle start
     if (run.mapBoss && run.mapBoss[areaName] && run.mapBoss[areaName].battleStart) {
-      bossBattleStart = Math.min(
-        bossBattleStart || Number.MAX_SAFE_INTEGER,
-        run.mapBoss[areaName].battleStart
+      bossBattleStart = dayjs.min(
+        dayjs(!!bossBattleStart ? bossBattleStart : undefined),
+        dayjs(run.mapBoss[areaName].battleStart)
       );
     }
 
-    let bossBattleEnd: number | undefined;
+    let bossBattleEnd: dayjs.Dayjs | undefined;
     if (run.maven && run.maven.bossKilled) {
       bossBattleEnd = run.maven.bossKilled;
     }
     // take the latest possible boss kill time - to handle cold river multiboss
     if (run.mapBoss && run.mapBoss[areaName] && run.mapBoss[areaName].bossKilled) {
-      bossBattleEnd = Math.max(bossBattleEnd || 0, run.mapBoss[areaName].bossKilled);
+      bossBattleEnd = dayjs.max(dayjs(bossBattleEnd || 0), dayjs(run.mapBoss[areaName].bossKilled));
     }
 
     if (bossBattleStart && bossBattleEnd) {
       run.bossBattle = {};
-      run.bossBattle.time = dayjs(bossBattleStart, 'YYYYMMDDHHmmss').diff(dayjs(bossBattleEnd, 'YYYYMMDDHHmmss'), 's');
-      let bossBattleDeaths = RunParser.countDeaths(events, dayjs(bossBattleStart, 'YYYYMMDDHHmmss').toISOString(), dayjs(bossBattleEnd, 'YYYYMMDDHHmmss').toISOString());
+      logger.info(`Boss battle in ${areaName} timers: ${bossBattleStart} - ${bossBattleEnd}`);
+
+      run.bossBattle.time = dayjs(bossBattleStart).diff(dayjs(bossBattleEnd), 's');
+      let bossBattleDeaths = RunParser.countDeaths(events, dayjs(bossBattleStart).toISOString(), dayjs(bossBattleEnd).toISOString());
       if (bossBattleDeaths) {
         run.bossBattle.deaths = bossBattleDeaths;
       }
@@ -1057,33 +1104,6 @@ const RunParser = {
     return run;
   },
 
-  addMapInfo: async ({
-    areaId,
-    areaName,
-    latestGeneratedArea
-  }: {
-    areaId: number;
-    areaName?: string;
-    latestGeneratedArea: AreaInfo | null;
-  }) => {
-    return OldDB.run(
-      'INSERT INTO area_info(run_id, name, level, depth) VALUES(?, ?, ?, ?) ON CONFLICT(run_id) DO UPDATE SET name = ?, level = ?, depth = ?',
-      [
-      areaId,
-      areaName,
-      latestGeneratedArea?.level ?? 0,
-      latestGeneratedArea?.depth ?? 0,
-      // On Conflict
-      areaName,
-      latestGeneratedArea?.level ?? 0,
-      latestGeneratedArea?.depth ?? 0,
-    ]).catch((err) => {
-      logger.info(
-        `Error manually inserting areainfo (${areaName} - ${areaId}): ${err}`
-      );
-    });
-  },
-
   updateMapRun: async (areaId: number, mapData: MapData): Promise<void> => {
     logger.debug('Updating map run:', mapData);
     const formattedMapData = mapData.map((item) => {
@@ -1092,14 +1112,12 @@ const RunParser = {
       }
       return item;
     });
-    return OldDB.run(
-      `UPDATE run SET first_event = ?, last_event = ?, iiq = ?, iir = ?, pack_size = ?, xp = ?, kills = ?, run_info = ?, completed = ? WHERE id = ?`, [...formattedMapData, areaId]
-    )
+    return DB.updateRunInfo(areaId, formattedMapData)
       .then(() => {
-        logger.debug(`Map run ${areaId} processed successfully: ${JSON.stringify(mapData)}`);
+        logger.debug(`Map run ${areaId} processed successfully with these arguments: ${JSON.stringify(mapData)}`);
       })
       .catch((err) => {
-        logger.error(`Unable to insert map run ${areaId} ${JSON.stringify(mapData)}: ${err}`);
+        logger.error(`Unable to update map run ${areaId} with these arguments: ${JSON.stringify(mapData)}.\nError: ${err}`);
       });
   },
 
@@ -1142,12 +1160,7 @@ const RunParser = {
         event
       WHERE 
         event_type='entered'
-        AND
-        (
-          DATETIME(event.timestamp) > (SELECT MAX(DATETIME(last_event)) FROM run WHERE completed IS 1)
-          OR
-          DATETIME(event.timestamp) >= (SELECT MAX(DATETIME(first_event)) FROM run WHERE completed IS 0)
-        )
+        AND DATETIME(event.timestamp) >= (SELECT MAX(DATETIME(first_event)) FROM run WHERE completed IS 0)
       ORDER BY timestamp
     `;
 
@@ -1166,148 +1179,214 @@ const RunParser = {
     }
   },
 
-  processRun: async (areaId: number, lastEvent: ParsedEvent) => {
-    if(!lastEvent.timestamp) {
-      lastEvent.timestamp = dayjs().toISOString();
-      logger.warn(`Last event for area ${areaId} is missing timestamp`);
+  getLatestGeneratedEvents: async (): Promise<ParsedEvent[]> => {
+    const query = `
+      SELECT timestamp, event_text, server
+      FROM 
+        event
+      WHERE 
+        event_type='generatedArea'
+        AND DATETIME(event.timestamp) >= (SELECT MAX(DATETIME(first_event)) FROM run WHERE completed IS 0)
+      ORDER BY timestamp
+    `;
+
+    try {
+      const rows = await OldDB.all(query);
+      return rows.map((row) => {
+        const rowData = JSON.parse(row.event_text);
+        return {
+          timestamp: row.timestamp,
+          area: rowData.areaName,
+          server: row.server,
+        };
+      });
+    } catch (err) {
+      logger.error(`Unable to get latest unused map entering events: ${err}`);
+      return [];
     }
+  },
+
+  processRun: async (lastEventTimestamp: string) => {
     let mapStats = {
       iiq: 0,
       iir: 0,
       pack_size: 0,
     };
     let mapMods: any[] = [];
-    let areaInfo = await RunParser.getAreaInfo(areaId);
+
+    logger.info(`Processing map run ending at ${lastEventTimestamp}`);
+
+    // Read latest Run ID
+    const { id: runId, first_event: firstEvent } = await DB.getLatestUncompletedRun();
+    if (!runId) {
+      logger.info('No uncompleted map run found');
+      return false;
+    }
+
+    let areaInfo = await RunParser.getAreaInfo(runId);
     if (areaInfo) {
-      mapMods = (await RunParser.getMapMods(areaId)) as any[];
+      mapMods = (await RunParser.getMapMods(runId)) as any[];
+      logger.debug(`Map mods: ${JSON.stringify(mapMods)}`);
       mapStats = RunParser.getMapStats(mapMods);
+      logger.debug(`Map stats: ${JSON.stringify(mapStats)}`);
     } else {
       areaInfo = {
-        area_id: areaId,
+        run_id: runId,
+        level: 0,
+        depth: 0,
         name: '',
       };
     }
-    logger.debug('Map AreaInfo', areaInfo);
-    const { first_event : firstEvent } = await RunParser.getMapRun(areaId);
+    logger.debug('Run AreaInfo', areaInfo);
 
 
+    // Calculate XP -- OLD
+    // TODO: Clean that up
     const xp = XPTracker.isMaxXP()
       ? Constants.MAX_XP
-      : await RunParser.getXP(areaId);
+      : await RunParser.getXP(runId, lastEventTimestamp);
     const xpDiff = await RunParser.getXPDiff(xp);
+
+
+    // Get Item Stats
     const itemStats = await RunParser.getItemStats(
       areaInfo,
       firstEvent,
-      lastEvent.timestamp
+      lastEventTimestamp
     );
+    // If no item stats are found, set default values
     const items = itemStats ? itemStats : { count: 0, value: 0, importantDrops: {} };
-    let killCount = await RunParser.getKillCount(firstEvent, lastEvent.timestamp);
+
+    // Get the kill count if possible
+    let killCount = await RunParser.getKillCount(firstEvent, lastEventTimestamp);
+
+    // Get all the extra info (like Maven, Atlas Region, etc.)
     const extraInfo = await RunParser.getMapExtraInfo(
       areaInfo.name,
       firstEvent,
-      lastEvent.timestamp,
+      lastEventTimestamp,
       items,
       mapMods
     );
 
-    let ignoreMapRun = false;
 
-    RunParser.addMapInfo({ areaId , areaName: areaInfo.name, latestGeneratedArea: RunParser.latestGeneratedArea });
-
-    // if no items picked up, no kills, and no xp gained, log map run but ignore it (profit = -1, kills = -1)
-    if (!items.count && !xpDiff && !killCount) {
-      items.value = -1;
-      killCount = -1;
-      extraInfo.ignored = true;
-      ignoreMapRun = true;
-      logger.info('No items or xp gained, map run will be logged as invisible');
-    }
-    logger.debug(`Map stats: ${JSON.stringify(mapStats)}`);
-
-    let runArr: MapData = [
+    let runArguments: MapData = [
       firstEvent,
-      lastEvent.timestamp,
+      lastEventTimestamp,
       mapStats.iiq || null,
       mapStats.iir || null,
       mapStats.pack_size || null,
       xp,
-      killCount > -1 ? killCount : null,
+      killCount > -1 ? killCount : null, // if killCount is -1, set it to null
       JSON.stringify(extraInfo),
       true, // completed
     ];
-    RunParser.updateMapRun(areaId, runArr).then(() => {
-      if (!ignoreMapRun) {
-        RunParser.emitter.emit('runProcessed', {
+
+
+    return RunParser.updateMapRun(runId, runArguments)
+      .then(() => {
+        RunParser.emitter.emit('run-parser:run-processed', {
           name: areaInfo.name,
           gained: items.value,
           xp: xpDiff,
           kills: killCount > -1 ? killCount : null,
-          firstevent: firstEvent,
-          lastevent: lastEvent.timestamp,
+          firstEvent,
+          lastEvent: lastEventTimestamp,
         });
-      }
-    });
+        RunParser.resetRunData();
+      });
   },
 
+  /**
+   * Tries to process a map run event.
+   * @param parameters - The parameters containing the event to process. (Optional)
+   * @returns A promise that resolves when the processing is complete or when it does not need to process.
+   * If a map run is processed, it returns 1.
+   * If no map run is processed, it returns undefined.
+   * @throws Will log an error if processing fails.
+   */
   tryProcess: async (parameters: { event: ParsedEvent } | null) => {
     let event: ParsedEvent;
     let wasGivenEvent: boolean = false;
+    logger.debug('RunParser.tryProcess', parameters);
     if (parameters && parameters.event) {
       event = parameters.event;
       wasGivenEvent = true;
     } else {
+      // If no event is provided, we try to get the last map enter event from the database
       logger.debug('No event found, looking up in db');
-      let lastEvent = await RunParser.getLastMapEnterEvent();
+      let lastEvent = await DB.getLastMapEnterEvent();
       logger.debug('Last event:', lastEvent);
-      if (!lastEvent) return;
+      if (!lastEvent) return false;
       event = lastEvent;
     }
+
+    // = The last map area event, the one that triggers this processing
+    const latestGeneratedEvent = (await DB.getLastMapGeneratedEvent());
+    logger.debug('Latest generated event:', latestGeneratedEvent);
+    event.area = event.area ?? latestGeneratedEvent.event_text.areaName;
+    if (!event.area) {
+      logger.debug('No area found in event, cannot process run');
+      return false;
+    }
+
+    // Update the last event timestamp in the database
+    await DB.updateLastEvent(event.timestamp);
+
+    const lastEventTimestamp = event.timestamp;
+
+    // Get all the enter events from the beginning of the latest uncompleted run
     const mapEvents = await RunParser.getLatestUnusedMapEnteredEvents();
     if (mapEvents.length < 1) {
       logger.debug('No map enter events found');
-      return;
+      return false;
     }
 
+    // Check if we have one of the enter events that is not a town
     const mapFirstEvent = mapEvents.find((event) => !Utils.isTown(event.area));
     if (!mapFirstEvent) {
       logger.debug('No map first map enter event found');
-      return;
+      return false;
     }
 
     logger.debug('Map enter event found:\n', JSON.stringify(mapFirstEvent));
     logger.debug(`${event.area} -> ${mapFirstEvent.area}`);
 
+    // If we are in the lab, do not process
     if (Utils.isLabArea(event.area) && Utils.isLabArea(mapFirstEvent.area)) {
       logger.debug('Still in lab, not processing');
-      return;
+      return false;
+    } else if (Utils.isVaalArea(event.area)) {
+      logger.debug('Entered a vaal area, not processing');
+      return false;
     } else if (event.area === mapFirstEvent.area) {
+      // If in the mine, do not process
+      // TODO: make it work?
       if (event.area === 'Azurite Mine') {
         logger.debug('Still in delve, not processing');
-        return;
-      } else if (event.area === 'Memory Void') {
-        logger.debug('Still in memory, not processing');
-        return;
-      } 
-      else if (event.server === mapFirstEvent.server && wasGivenEvent) {
+        return false;
+      }
+      // Check if the server of the event matches the first event's server ??
+      else if (wasGivenEvent && event.server && event.server === mapFirstEvent.server) {
         logger.debug(`Still in same area ${event.area}, not processing`);
-        return;
+        return false;
       }
     }
 
-    const lastEvent = mapEvents.reverse().find((event) => Utils.isTown(event.area));
-    if (!lastEvent) return;
+    // Check for the run's last town event?
+    // const lastEvent = mapEvents.reverse().find((event) => Utils.isTown(event.area));
+    // if (!lastEvent) return;
+    // logger.debug('Last town event found:\n', JSON.stringify(lastEvent));
 
-    logger.debug('Last town event found:\n', JSON.stringify(lastEvent));
-    try { 
-      const areaId = await DB.getAreaId();
-      logger.debug(`Processing run for area ID: ${areaId}`);
-      await RunParser.processRun(areaId, lastEvent);
+    try {
+      logger.debug(`Processing run for area: ${event.area} at ${lastEventTimestamp}`);
+      await RunParser.processRun(lastEventTimestamp);
     } catch (e) {
       logger.error(`Error processing run: ${e}`);
-      return;
+      return false;
     }
 
-    return 1;
+    return true;
   },
 
   recheckGained: async (from = dayjs.unix(0).toISOString(), to = dayjs().toISOString()) => {
@@ -1344,6 +1423,7 @@ const RunParser = {
         }
       }
       if (itemsToUpdate.length > 0) {
+        logger.debug(`Updating ${itemsToUpdate.length} items for run ${run.id}`, itemsToUpdate);
         DB.updateItemValues(itemsToUpdate);
       }
       const profitDifference = totalProfit - oldTotalProfit;
@@ -1377,7 +1457,7 @@ const RunParser = {
   registerRunParseShortcut: () => {
     globalShortcut.register(RunParser.ParseShortcut, () => {
       logger.debug('Run parse shortcut triggered');
-      RunParser.tryProcess(null);
+      RunParser.tryProcess({event : { timestamp: dayjs().toISOString() }});
     });
   },
 
@@ -1393,13 +1473,15 @@ const RunParser = {
     }
   },
 
-  getAreaNameFromId: (areaId: string): string => {
+  getAreaFromId: (areaId: string): any => {
+    logger.info(`Getting area name for ID: ${areaId}`);
+    // logger.debug(WorldAreas)
     const worldArea = WorldAreas[areaId] ?? {
       name: 'Unknown Area',
       baseLevel: 0,
     };
-
-    return worldArea.name;
+    logger.debug(worldArea);
+    return worldArea;
   },
 
   insertEvent: async (event: Event) => {
@@ -1430,17 +1512,54 @@ const RunParser = {
   },
 
   setCurrentMapStats: (stats: { name: string, level: number; depth: number; iir: number; iiq: number; pack_size: number }) => {
-    DB.setCurrentAreaInfo({
-      name: stats.name,
-      level: stats.level,
-      depth: stats.depth
-    });
     DB.setCurrentRunStats({
       iir: stats.iir,
       iiq: stats.iiq,
       pack_size: stats.pack_size
     });
   },
+
+  insertGeneratedMap: async (data: { timestamp: string; areaId: string; areaName: string; level: number; seed: number }) => {
+    logger.debug('Inserting generated map:', data);
+    await DB.insertGeneratedMap(data);
+  },
+
+  hasOngoingMapRun: async () => {
+    const ongoingRun = await DB.getOngoingMapRun();
+    logger.debug('Checking for ongoing map run:', ongoingRun, ' - exists:', !!ongoingRun);
+    return !!ongoingRun;
+  },
+
+  createNewMapRun: async ({ areaId, areaName, level, seed, timestamp }) => {
+    logger.debug('Creating new map run:', areaId, areaName, level, seed);
+    const { lastInsertRowid: runId } = await DB.insertMapRun([
+      timestamp, // first event timestamp
+      timestamp, // last event timestamp
+      0, // iiq
+      0, // iir
+      0, // packsize
+      0, // xp
+      0, // kills
+      JSON.stringify({ areaId, areaName, level, seed }), // run info
+      false // completed
+    ]);
+    logger.info(`Created new map run: ${runId}`);
+
+    await DB.insertAreaInfo({
+      areaId: runId,
+      name: areaName,
+      level: level
+    });
+    logger.info(`Inserted area info for run ${runId}: ${areaName} (level ${level})`);
+
+    return runId;
+  },
+
+  tryUpdateCurrentArea: async () => {
+    logger.debug('Trying to start current run if not already started');
+    return await DB.updateCurrentRunFirstEvent();
+  }
+
 };
 
 export default RunParser;

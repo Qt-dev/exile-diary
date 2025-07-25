@@ -126,7 +126,7 @@ class Item {
     return this.typeLine;
   }
 
-  get stacksize() {
+  get stack_size() {
     return this.stackSize;
   }
 

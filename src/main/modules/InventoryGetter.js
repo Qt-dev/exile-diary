@@ -145,5 +145,8 @@ class InventoryGetter extends EventEmitter {
   }
 }
 
-module.exports = InventoryGetter;
+const inventoryGetter = new InventoryGetter();
+
+module.exports = inventoryGetter;
 module.exports.emitter = emitter;
+export default inventoryGetter;
