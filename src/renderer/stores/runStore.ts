@@ -130,7 +130,8 @@ export default class RunStore {
   }
 
   registerCurrentRun(json) {
-    this.currentRun = new Run(this, { name: json.area, level: json.level });
+    logger.info('Registering current run', json);
+    this.currentRun = new Run(this, { name: json.area, level: json.level, iir: json.iir, pack_size: json.pack_size, iiq: json.iiq });
   }
 
   updateCurrentRun(json) {

@@ -2,6 +2,7 @@ import { makeAutoObservable, computed } from 'mobx';
 import { v4 as uuidv4 } from 'uuid';
 import dayjs, { Dayjs } from 'dayjs';
 import ItemStore from '../itemStore';
+import Logger from 'electron-log/renderer';
 
 type JSONRun = {
   id: number;
@@ -41,6 +42,8 @@ export class Run {
   profit = 0;
   kills = null;
   runInfo = null;
+
+  completed = false; // Whether the run is completed or not
 
   // Details
   league: String | null = null;
@@ -87,6 +90,7 @@ export class Run {
     this.kills = json.kills;
     this.runInfo = json.run_info ? JSON.parse(json.run_info) : {};
     this.lastUpdate = dayjs();
+    this.completed = !!(json.completed) || false;
   }
 
   updateDetails(details) {
@@ -96,20 +100,23 @@ export class Run {
     this.events = details.events;
     this.items = details.items;
     this.mods = details.mods || [];
+    this.completed = !!details.completed || false;
 
     // Logger.debug('Building Store', details.items);
     const items: any = [];
-    for (const timestamp in details.items) {
+    for (const eventId in details.items) {
       // Add loot events to the events array
-      // Logger.debug('Adding loot event', details.items[timestamp]);
+      // Logger.debug('Adding loot event', details.items[eventId]);
+      const timestamp = details.events.find((e) => e.id === parseInt(eventId))?.timestamp || dayjs().toISOString();
       this.events.push({
-        id: timestamp,
+        id: eventId,
         event_type: 'loot',
-        event_text: JSON.stringify(details.items[timestamp]),
+        event_text: JSON.stringify(details.items[eventId]),
+        timestamp,
       });
 
       // Prepare items for the store
-      details.items[timestamp].forEach((item) => {
+      details.items[eventId].forEach((item) => {
         if (!item) return;
         let newItem;
         try {

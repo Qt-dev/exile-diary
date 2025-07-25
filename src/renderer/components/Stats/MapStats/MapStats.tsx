@@ -40,7 +40,7 @@ const MapRow = ({ maps }) => {
         <TableBody>
           {maps.map((map, index) => (
             <TableRow key={index} component={Link} to={`/run/${map.id}`}>
-              <TableCell>{dayjs(map.date, 'YYYYMMDDHHmmss').toString()}</TableCell>
+              <TableCell>{dayjs(map.date).toString()}</TableCell>
               <TableCell>{dayjs.utc(map.time * 1000).format('HH:mm:ss')}</TableCell>
               <TableCell align="right">
                 {map.gained.toLocaleString('en-US', {
@@ -49,7 +49,7 @@ const MapRow = ({ maps }) => {
                 })}
               </TableCell>
               <TableCell align="right">
-                {map.gainedPerHour.toLocaleString('en-US', {
+                {map.profitPerHour.toLocaleString('en-US', {
                   minimumFractionDigits: 2,
                   maximumFractionDigits: 2,
                 })}
@@ -90,7 +90,7 @@ const MapStatsRow = ({ stats }) => {
           })}
         </TableCell>
         <TableCell align="right">
-          {stats.gainedPerHour.toLocaleString('en-US', {
+          {stats.profitPerHour.toLocaleString('en-US', {
             minimumFractionDigits: 2,
             maximumFractionDigits: 2,
           })}

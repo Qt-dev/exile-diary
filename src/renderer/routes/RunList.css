@@ -83,6 +83,10 @@
   color: #cc8888;
 }
 
+.Run-list__Run--Incomplete {
+  background-color: rgba(79, 163, 0, 0.171);
+}
+
 .Run_Filter-Selector__Item.MuiMenuItem-root {
   color: #fff;
   padding-left: 10px;

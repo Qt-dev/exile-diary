@@ -10,18 +10,35 @@
   text-align: center;
 }
 
+.Side-Nav .Header__Box {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  width: 100%;
+  gap: 5px;
+}
+
 .Side-Nav .Header__Logo {
-  width: 90%;
+  width: 50%;
   margin: auto;
 }
 
+.Side-Nav .Header__Logo img {
+  width: 100%;
+}
+
 .Side-Nav .Header__Title {
-  font-size: 20px;
+  font-size: 18px;
   color: #fff;
+  text-align: left;
 }
 
 .Side-Nav .Header__Version {
   font-size: 16px;
+}
+
+.Side-Nav .Side-Nav__Link {
+  font-size: 20px;
 }
 
 /* .Side-Nav .Side-Nav__Menu {

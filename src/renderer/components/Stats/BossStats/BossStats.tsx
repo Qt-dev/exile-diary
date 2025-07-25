@@ -146,10 +146,10 @@ const BossStatsRow = ({ stat }: { stat: BossStat }) => {
           {stat.count.toLocaleString('en-US', { maximumFractionDigits: 0 })}
         </TableCell>
         <TableCell align="center">
-          {stat.count === 0 ? '--' : dayjs.utc(stat.totalTime * 1000).format('HH:mm:ss')}
+          {stat.count === 0 ? '--' : stat.totalTime > 0 ? dayjs.utc(stat.totalTime * 1000).format('HH:mm:ss') : 'N/A'}
         </TableCell>
         <TableCell align="center">
-          {stat.count === 0 ? '--' : dayjs.utc(stat.fastest * 1000).format('HH:mm:ss')}
+          {stat.count === 0 ? '--' : stat.fastest < Number.MAX_SAFE_INTEGER ? dayjs.utc(stat.fastest * 1000).format('HH:mm:ss') : 'N/A'}
         </TableCell>
         <TableCell align="right">{stat.deaths}</TableCell>
       </TableRow>
