@@ -1,5 +1,4 @@
-﻿
-// Mock the dependencies first
+﻿// Mock the dependencies first
 jest.mock('../../../src/main/db/index');
 jest.mock('../../../src/helpers/constants', () => ({
   uniqueFlasks: { 'Flask1.png': 'Test Flask' },
@@ -31,22 +30,22 @@ describe('Runs', () => {
     it('should return the last area', async () => {
       const mockResult = { id: 42, first_event: '1', last_event: '2' };
       mockDB.get.mockResolvedValue(mockResult);
-      
+
       const result = await Runs.getLatestUncompletedRun();
-      
+
       expect(mockDB.get).toHaveBeenCalledTimes(1);
       const args = mockDB.get.mock.calls[0][0];
       expect(args).toContain('SELECT id, first_event, last_event FROM run');
       expect(args).toContain('ORDER BY id DESC');
       expect(args).toContain('LIMIT 1');
-      
+
       expect(result).toBe(mockResult);
     });
 
     it('should return 0 when no runs exist', async () => {
-      const emptyResult = {id: 0, first_event: null, last_event: null};
+      const emptyResult = { id: 0, first_event: null, last_event: null };
       mockDB.get.mockResolvedValue(emptyResult);
-      
+
       const result = await Runs.getLatestUncompletedRun();
 
       expect(result).toEqual(emptyResult);
@@ -55,7 +54,7 @@ describe('Runs', () => {
     it('should handle database query failure', async () => {
       const mockError = new Error('Database error');
       mockDB.get.mockRejectedValue(mockError);
-      
+
       await expect(Runs.getLatestUncompletedRun()).rejects.toThrow('Database error');
     });
   });
@@ -89,10 +88,17 @@ describe('Runs', () => {
 
       await Runs.insertMapRun(mapData);
 
-      expect(mockDB.run).toHaveBeenCalledWith(
-        expect.any(String),
-        ['first', 'last', 0, 0, 0, 0, 0, '{}', 0]
-      );
+      expect(mockDB.run).toHaveBeenCalledWith(expect.any(String), [
+        'first',
+        'last',
+        0,
+        0,
+        0,
+        0,
+        0,
+        '{}',
+        0,
+      ]);
     });
 
     it('should handle mixed data types', async () => {
@@ -101,10 +107,16 @@ describe('Runs', () => {
 
       await Runs.insertMapRun(mapData);
 
-      expect(mockDB.run).toHaveBeenCalledWith(
-        expect.any(String),
-        ['first', 'last', null, undefined, 1, 0, 'string', 123]
-      );
+      expect(mockDB.run).toHaveBeenCalledWith(expect.any(String), [
+        'first',
+        'last',
+        null,
+        undefined,
+        1,
+        0,
+        'string',
+        123,
+      ]);
     });
   });
 
@@ -118,7 +130,10 @@ describe('Runs', () => {
 
       const result = await Runs.getLastRuns(10);
 
-      expect(mockDB.all).toHaveBeenCalledWith(expect.stringContaining('SELECT run.id, name, level'), [10]);
+      expect(mockDB.all).toHaveBeenCalledWith(
+        expect.stringContaining('SELECT run.id, name, level'),
+        [10]
+      );
       expect(result).toEqual(mockRuns);
     });
 
@@ -136,7 +151,9 @@ describe('Runs', () => {
 
       await Runs.getLastRuns(5);
 
-      const expectedQuery = expect.stringMatching(/SELECT run\.id, name, level.*FROM area_info, run.*WHERE area_info\.run_id = run\.id.*ORDER BY run\.id desc.*LIMIT \?/s);
+      const expectedQuery = expect.stringMatching(
+        /SELECT run\.id, name, level.*FROM area_info, run.*WHERE area_info\.run_id = run\.id.*ORDER BY run\.id desc.*LIMIT \?/s
+      );
       expect(mockDB.all).toHaveBeenCalledWith(expectedQuery, [5]);
     });
   });
@@ -233,7 +250,9 @@ describe('Runs', () => {
       const result = await Runs.getItems(mapId);
 
       expect(result).toEqual({
-        1: ['{"typeLine":"Sword","identified":true,"rarity":"Rare","value":100,"originalValue":90,"pickupStackSize":1,"isIgnored":false}'],
+        1: [
+          '{"typeLine":"Sword","identified":true,"rarity":"Rare","value":100,"originalValue":90,"pickupStackSize":1,"isIgnored":false}',
+        ],
       });
     });
 
@@ -291,7 +310,7 @@ describe('Runs', () => {
       const items = [{ id: 'item1', eventId: 'event1', value: 100 }];
       const mockError = new Error('Transaction failed');
       mockDB.transaction.mockRejectedValue(mockError);
-      
+
       const result = await Runs.updateItemValues(items);
 
       expect(result).toBe(false);
@@ -339,7 +358,9 @@ describe('Runs', () => {
   describe('insertAreaInfo', () => {
     it('should insert area info successfully', async () => {
       const areaData = { areaId: 42, name: 'Test Area', level: 83, depth: 0 };
-      jest.spyOn(Runs, 'getAreaInfo').mockResolvedValue({ name: undefined, level: undefined, depth: undefined } as any);
+      jest
+        .spyOn(Runs, 'getAreaInfo')
+        .mockResolvedValue({ name: undefined, level: undefined, depth: undefined } as any);
       mockDB.run.mockResolvedValue(undefined);
 
       const result = await Runs.insertAreaInfo(areaData);
@@ -353,7 +374,9 @@ describe('Runs', () => {
 
     it('should handle missing area info', async () => {
       const areaData = { areaId: 42 };
-      jest.spyOn(Runs, 'getAreaInfo').mockResolvedValue({ name: undefined, level: undefined, depth: undefined } as any);
+      jest
+        .spyOn(Runs, 'getAreaInfo')
+        .mockResolvedValue({ name: undefined, level: undefined, depth: undefined } as any);
 
       const result = await Runs.insertAreaInfo(areaData);
 
@@ -362,7 +385,9 @@ describe('Runs', () => {
 
     it('should handle database insertion failure', async () => {
       const areaData = { areaId: 42, name: 'Test Area' };
-      jest.spyOn(Runs, 'getAreaInfo').mockResolvedValue({ name: undefined, level: undefined, depth: undefined } as any);
+      jest
+        .spyOn(Runs, 'getAreaInfo')
+        .mockResolvedValue({ name: undefined, level: undefined, depth: undefined } as any);
       mockDB.run.mockRejectedValue(new Error('Constraint violation'));
 
       const result = await Runs.insertAreaInfo(areaData);
@@ -387,9 +412,9 @@ describe('Runs', () => {
       const areaId = 42;
       const mockError = new Error('Foreign key constraint');
       mockDB.run.mockRejectedValue(mockError);
-      
+
       const result = await Runs.deleteAreaInfo(areaId);
-      
+
       expect(result).toBe(false);
     });
   });
@@ -397,7 +422,7 @@ describe('Runs', () => {
   describe('insertMapMods', () => {
     beforeEach(() => {
       mockDB.run.mockReset();
-    })
+    });
     it('should insert map mods successfully', async () => {
       const mapId = 42;
       const mods = ['Increased Monster Life', 'Added Fire Damage'];
@@ -406,14 +431,14 @@ describe('Runs', () => {
       const result = await Runs.insertMapMods(mapId, mods);
 
       expect(mockDB.run).toHaveBeenCalledTimes(2);
-      expect(mockDB.run).toHaveBeenCalledWith(
-        'INSERT INTO mapmod(run_id, mod) VALUES(?, ?)',
-        [mapId, 'Increased Monster Life']
-      );
-      expect(mockDB.run).toHaveBeenCalledWith(
-        'INSERT INTO mapmod(run_id, mod) VALUES(?, ?)',
-        [mapId, 'Added Fire Damage']
-      );
+      expect(mockDB.run).toHaveBeenCalledWith('INSERT INTO mapmod(run_id, mod) VALUES(?, ?)', [
+        mapId,
+        'Increased Monster Life',
+      ]);
+      expect(mockDB.run).toHaveBeenCalledWith('INSERT INTO mapmod(run_id, mod) VALUES(?, ?)', [
+        mapId,
+        'Added Fire Damage',
+      ]);
       expect(result).toBe(true);
     });
 
@@ -432,7 +457,7 @@ describe('Runs', () => {
       const mods = ['Test Mod'];
       const mockError = new Error('Insertion failed');
       mockDB.run.mockRejectedValue(mockError);
-      
+
       const result = await Runs.insertMapMods(mapId, mods);
 
       expect(result).toBe(false);
@@ -460,7 +485,9 @@ describe('Runs', () => {
 
       const result = await Runs.deleteMapMods(mapId);
 
-      expect(mockDB.run).toHaveBeenCalledWith('DELETE FROM mapmod WHERE mapmod.run_id = ?', [mapId]);
+      expect(mockDB.run).toHaveBeenCalledWith('DELETE FROM mapmod WHERE mapmod.run_id = ?', [
+        mapId,
+      ]);
       expect(result).toBe(true);
     });
 
@@ -468,11 +495,10 @@ describe('Runs', () => {
       const mapId = 42;
       const mockError = new Error('Deletion failed');
       mockDB.run.mockRejectedValue(mockError);
-      
+
       const result = await Runs.deleteMapMods(mapId);
 
       expect(result).toBe(false);
-
     });
   });
 
@@ -481,9 +507,9 @@ describe('Runs', () => {
       const timestamp = '123456789';
       const mockResult = { area: 'Test Area' };
       mockDB.get.mockResolvedValue(mockResult);
-      
+
       const result = await Runs.getAreaName(timestamp);
-      
+
       expect(mockDB.get).toHaveBeenCalledWith(
         "SELECT event_text AS area FROM event WHERE event_type='entered' AND id < ? ORDER BY id DESC LIMIT 1",
         [timestamp]
@@ -517,10 +543,7 @@ describe('Runs', () => {
 
       const result = await Runs.getItemsFromRun(mapRunId);
 
-      expect(mockDB.all).toHaveBeenCalledWith(
-        expect.stringContaining('SELECT item.*'),
-        [mapRunId]
-      );
+      expect(mockDB.all).toHaveBeenCalledWith(expect.stringContaining('SELECT item.*'), [mapRunId]);
       expect(result).toEqual(mockItems);
     });
   });
@@ -572,14 +595,14 @@ describe('Runs', () => {
       INSERT INTO event( event_type, event_text, timestamp, server)
       VALUES(?, ?, ?, ?)
     `;
-      
+
       expect(mockDB.run).toHaveBeenCalledWith(expectedQuery, [
         event.event_type,
         event.event_text,
         event.timestamp,
         event.server,
       ]);
-      
+
       // Verify query matches expected SQLite event table schema
       expect(expectedQuery).toContain('INSERT INTO event');
       expect(expectedQuery).toContain('event_type');
@@ -589,5 +612,3 @@ describe('Runs', () => {
     });
   });
 });
-
-

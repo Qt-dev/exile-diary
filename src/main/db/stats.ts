@@ -76,7 +76,7 @@ const stats = {
       return [];
     }
   },
-  getAllItems: async (league: string): Promise<any[]> => { 
+  getAllItems: async (league: string): Promise<any[]> => {
     const query = `
       SELECT run.id AS map_id, area_info.name AS area, item.*
       FROM item, run, area_info, event
@@ -209,7 +209,8 @@ const stats = {
     try {
       const queryArgs: any[] = [];
       if (neededItemName) queryArgs.push(neededItemName);
-      if (selectedMods.length > 0) queryArgs.push(...(selectedMods.map((mod) => mod.replace(/\%/g, "^%").replace(/#/g, '%'))));
+      if (selectedMods.length > 0)
+        queryArgs.push(...selectedMods.map((mod) => mod.replace(/\%/g, '^%').replace(/#/g, '%')));
       if (selectedMaps.length > 0) queryArgs.push(...selectedMaps);
       queryArgs.push(minMapValue);
       queryArgs.push(from);
@@ -309,16 +310,20 @@ const stats = {
     logger.debug(`Getting profit per hour since ${beginningOfTracking}`);
 
     try {
-      const { total_time_seconds: totalTime, total_profit: profit, runs, items } = (await DB.get(query, [
-        beginningOfTracking,
-        beginningOfTracking,
-      ])) as {
+      const {
+        total_time_seconds: totalTime,
+        total_profit: profit,
+        runs,
+        items,
+      } = (await DB.get(query, [beginningOfTracking, beginningOfTracking])) as {
         total_time_seconds: number;
         total_profit: number;
         runs: number;
         items: number;
       };
-      logger.debug(`Total profit: ${profit}, Total time: ${totalTime} seconds for ${runs} runs and ${items} items`);
+      logger.debug(
+        `Total profit: ${profit}, Total time: ${totalTime} seconds for ${runs} runs and ${items} items`
+      );
       const profitPerHour = totalTime > 0 ? (profit / totalTime) * 3600 : 0;
       return parseFloat(profitPerHour.toFixed(2)) ?? 0;
     } catch (err) {

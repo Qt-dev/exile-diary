@@ -392,8 +392,7 @@ class PriceMatcher {
    */
   price(item: any, minItemValue: number): number {
     const pricingRule = this.match(item);
-    if(item.typeline === 'More is Never Enough') {
-
+    if (item.typeline === 'More is Never Enough') {
       logger.info('rule: ', pricingRule.name, 'for item:', item.typeline, minItemValue);
       logger.info(pricingRule.calculateValue(item, minItemValue));
     }

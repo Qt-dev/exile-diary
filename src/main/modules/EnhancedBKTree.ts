@@ -1,6 +1,6 @@
 /**
  * Enhanced BK-Tree implementation with multi-stage search and OCR preprocessing
- * 
+ *
  * This enhanced version includes:
  * 1. Multi-stage distance-based search (progressive tolerance)
  * 2. OCR-aware preprocessing integration
@@ -38,19 +38,19 @@ export class EnhancedBKTree {
     if (!word) return;
 
     this.size++;
-    
+
     // Store original word mapping for normalized versions
     const normalized = OCRStringNormalizer.normalizeLevel1(word);
     this.normalizedToOriginal.set(normalized, word);
-    
+
     // For case-insensitive BK-Tree, use lowercase as the tree key
     const lowercaseWord = word.toLowerCase();
     this.normalizedToOriginal.set(lowercaseWord, word);
-    
+
     if (!this.root) {
       this.root = {
         word: lowercaseWord,
-        children: new Map()
+        children: new Map(),
       };
       return;
     }
@@ -60,7 +60,7 @@ export class EnhancedBKTree {
 
   private addRecursive(node: BKTreeNode, word: string): void {
     const distance = fastestLevenshtein.distance(node.word, word);
-    
+
     if (distance === 0) {
       // Word already exists, don't add duplicate
       this.size--;
@@ -72,7 +72,7 @@ export class EnhancedBKTree {
     } else {
       node.children.set(distance, {
         word: word,
-        children: new Map()
+        children: new Map(),
       });
     }
   }
@@ -86,38 +86,44 @@ export class EnhancedBKTree {
     // Stage 1: Preprocess the query
     const preprocessing = OCRStringNormalizer.smartPreprocess(query);
     const searchTargets = [preprocessing.primary, ...preprocessing.alternatives];
-    
+
     // Stage 2: Multi-stage search with progressive tolerance
     const stages = [
       { maxDistance: 2, type: 'exact' as const, maxResults: 1 },
       { maxDistance: 4, type: 'close' as const, maxResults: 3 },
       { maxDistance: 7, type: 'fuzzy' as const, maxResults: 5 },
-      { maxDistance: 12, type: 'aggressive' as const, maxResults: 10 }
+      { maxDistance: 12, type: 'aggressive' as const, maxResults: 10 },
     ];
 
     // Try each search target with each stage
     for (const target of searchTargets) {
       // Convert target to lowercase for case-insensitive tree search
       const lowercaseTarget = target.toLowerCase();
-      
+
       for (const stage of stages) {
         const results = this.searchWithDistance(lowercaseTarget, stage.maxDistance);
-        
+
         if (results.length > 0) {
           // Map results back to original case and score them
-          const scoredResults = results.map(result => {
+          const scoredResults = results.map((result) => {
             const originalCaseResult = this.normalizedToOriginal.get(result) || result;
             return {
               word: originalCaseResult,
               distance: fastestLevenshtein.distance(lowercaseTarget, result),
-              confidence: this.calculateConfidence(query, target, originalCaseResult, stage.type, preprocessing.corruptionLevel),
-              matchType: stage.type
+              confidence: this.calculateConfidence(
+                query,
+                target,
+                originalCaseResult,
+                stage.type,
+                preprocessing.corruptionLevel
+              ),
+              matchType: stage.type,
             };
           });
 
           // Sort by confidence (highest first)
           scoredResults.sort((a, b) => b.confidence - a.confidence);
-          
+
           // Return the best result if confidence is acceptable
           const bestResult = scoredResults[0];
           if (bestResult.confidence > this.getMinConfidenceThreshold(stage.type)) {
@@ -141,9 +147,14 @@ export class EnhancedBKTree {
     return results;
   }
 
-  private searchRecursive(node: BKTreeNode, query: string, maxDistance: number, results: string[]): void {
+  private searchRecursive(
+    node: BKTreeNode,
+    query: string,
+    maxDistance: number,
+    results: string[]
+  ): void {
     const distance = fastestLevenshtein.distance(node.word, query);
-    
+
     if (distance <= maxDistance) {
       results.push(node.word);
     }
@@ -174,34 +185,41 @@ export class EnhancedBKTree {
       exact: 0.95,
       close: 0.8,
       fuzzy: 0.6,
-      aggressive: 0.4
+      aggressive: 0.4,
     }[matchType];
 
     // Calculate distance-based penalty (case-insensitive)
-    const originalDistance = fastestLevenshtein.distance(originalQuery.toLowerCase(), match.toLowerCase());
-    const processedDistance = fastestLevenshtein.distance(processedQuery.toLowerCase(), match.toLowerCase());
-    
+    const originalDistance = fastestLevenshtein.distance(
+      originalQuery.toLowerCase(),
+      match.toLowerCase()
+    );
+    const processedDistance = fastestLevenshtein.distance(
+      processedQuery.toLowerCase(),
+      match.toLowerCase()
+    );
+
     // Use the better of the two distances
     const bestDistance = Math.min(originalDistance, processedDistance);
     const maxLength = Math.max(originalQuery.length, match.length);
-    
+
     if (maxLength === 0) return 0;
-    
+
     // Distance penalty (0 to 1, where 1 is no penalty)
-    const distancePenalty = Math.max(0, 1 - (bestDistance / maxLength));
-    
+    const distancePenalty = Math.max(0, 1 - bestDistance / maxLength);
+
     // Length similarity bonus (strings of similar length are more likely to be correct)
-    const lengthRatio = Math.min(originalQuery.length, match.length) / Math.max(originalQuery.length, match.length);
+    const lengthRatio =
+      Math.min(originalQuery.length, match.length) / Math.max(originalQuery.length, match.length);
     const lengthBonus = lengthRatio * 0.2;
-    
+
     // Corruption level adjustment
     const corruptionAdjustment = {
       low: 0.1,
       medium: 0.05,
       high: 0,
-      extreme: -0.1
+      extreme: -0.1,
     }[corruptionLevel];
-    
+
     // Special bonus for exact character matches in key positions
     let positionBonus = 0;
     if (originalQuery.length > 0 && match.length > 0) {
@@ -209,16 +227,20 @@ export class EnhancedBKTree {
       if (originalQuery[0].toLowerCase() === match[0].toLowerCase()) {
         positionBonus += 0.1;
       }
-      
+
       // Last character match bonus
-      if (originalQuery[originalQuery.length - 1].toLowerCase() === match[match.length - 1].toLowerCase()) {
+      if (
+        originalQuery[originalQuery.length - 1].toLowerCase() ===
+        match[match.length - 1].toLowerCase()
+      ) {
         positionBonus += 0.05;
       }
     }
-    
+
     // Calculate final confidence
-    const confidence = baseConfidence * distancePenalty + lengthBonus + corruptionAdjustment + positionBonus;
-    
+    const confidence =
+      baseConfidence * distancePenalty + lengthBonus + corruptionAdjustment + positionBonus;
+
     return Math.max(0, Math.min(1, confidence));
   }
 
@@ -230,7 +252,7 @@ export class EnhancedBKTree {
       exact: 0.8,
       close: 0.6,
       fuzzy: 0.4,
-      aggressive: 0.25
+      aggressive: 0.25,
     }[matchType];
   }
 
@@ -241,7 +263,7 @@ export class EnhancedBKTree {
     this.root = null;
     this.size = 0;
     this.normalizedToOriginal.clear();
-    
+
     for (const word of words) {
       this.add(word);
     }
@@ -250,10 +272,10 @@ export class EnhancedBKTree {
   /**
    * Get enhanced tree statistics
    */
-  getStats(): { 
-    size: number; 
-    depth: number; 
-    avgChildren: number; 
+  getStats(): {
+    size: number;
+    depth: number;
+    avgChildren: number;
     normalizedMappings: number;
   } {
     if (!this.root) {
@@ -263,19 +285,24 @@ export class EnhancedBKTree {
     const totalChildren = { count: 0 };
     const nodeCount = { count: 0 };
     const maxDepth = this.calculateDepth(this.root, 0, totalChildren, nodeCount);
-    
+
     return {
       size: this.size,
       depth: maxDepth,
       avgChildren: nodeCount.count > 0 ? totalChildren.count / nodeCount.count : 0,
-      normalizedMappings: this.normalizedToOriginal.size
+      normalizedMappings: this.normalizedToOriginal.size,
     };
   }
 
-  private calculateDepth(node: BKTreeNode, currentDepth: number, totalChildren: { count: number }, nodeCount: { count: number }): number {
+  private calculateDepth(
+    node: BKTreeNode,
+    currentDepth: number,
+    totalChildren: { count: number },
+    nodeCount: { count: number }
+  ): number {
     nodeCount.count++;
     totalChildren.count += node.children.size;
-    
+
     if (node.children.size === 0) {
       return currentDepth;
     }
@@ -309,10 +336,10 @@ export class EnhancedBKTree {
   findBestMatch(query: string): { word: string; distance: number } | null {
     const result = this.findBestMatchEnhanced(query);
     if (!result) return null;
-    
+
     return {
       word: result.word,
-      distance: result.distance
+      distance: result.distance,
     };
   }
 
@@ -320,7 +347,7 @@ export class EnhancedBKTree {
    * Batch process multiple queries efficiently
    */
   findBestMatchesBatch(queries: string[]): (SearchResult | null)[] {
-    return queries.map(query => this.findBestMatchEnhanced(query));
+    return queries.map((query) => this.findBestMatchEnhanced(query));
   }
 
   /**
@@ -345,20 +372,26 @@ export class EnhancedBKTree {
       { maxDistance: 2, type: 'exact' as const, name: 'Exact (distance ≤ 2)' },
       { maxDistance: 4, type: 'close' as const, name: 'Close (distance ≤ 4)' },
       { maxDistance: 7, type: 'fuzzy' as const, name: 'Fuzzy (distance ≤ 7)' },
-      { maxDistance: 12, type: 'aggressive' as const, name: 'Aggressive (distance ≤ 12)' }
+      { maxDistance: 12, type: 'aggressive' as const, name: 'Aggressive (distance ≤ 12)' },
     ];
 
     for (const target of [preprocessing.primary, ...preprocessing.alternatives]) {
       for (const stage of stages) {
         const candidates = this.searchWithDistance(target, stage.maxDistance);
-        
+
         let bestMatch: SearchResult | null = null;
         if (candidates.length > 0) {
-          const scoredResults = candidates.map(candidate => ({
+          const scoredResults = candidates.map((candidate) => ({
             word: candidate,
             distance: fastestLevenshtein.distance(target, candidate),
-            confidence: this.calculateConfidence(query, target, candidate, stage.type, preprocessing.corruptionLevel),
-            matchType: stage.type
+            confidence: this.calculateConfidence(
+              query,
+              target,
+              candidate,
+              stage.type,
+              preprocessing.corruptionLevel
+            ),
+            matchType: stage.type,
           }));
 
           scoredResults.sort((a, b) => b.confidence - a.confidence);
@@ -368,7 +401,7 @@ export class EnhancedBKTree {
         stageResults.push({
           stage: `${stage.name} (target: "${target}")`,
           candidates: candidates.slice(0, 5), // Show first 5 candidates
-          bestMatch
+          bestMatch,
         });
       }
     }

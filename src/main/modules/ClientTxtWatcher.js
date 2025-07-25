@@ -16,8 +16,6 @@ let parsedInstanceServerTwice = false;
 // Line Parsing Regular Expressions
 const lineParseRegex = /^(?<timestamp>.{19}).*]\s(?<line>.*)$/;
 
-
-
 function start() {
   const settings = SettingsManager.getAll();
 
@@ -49,16 +47,14 @@ function start() {
     tail.on('line', async (line) => {
       // logger.debug(`Client.txt line: ${line}`);
       const lowerCaseLine = line.toLowerCase();
-      
+
       const stringPatterns = {
         end: [
           `] @to ${settings.activeProfile.characterName.toLowerCase()}: end`,
           `] ${settings.activeProfile.characterName.toLowerCase()}: end`,
         ],
-        generating: [
-          'generating'
-        ],
-      }
+        generating: ['generating'],
+      };
 
       if (process.platform === 'linux') {
         // Remove carriage return
@@ -75,8 +71,7 @@ function start() {
       }
       // Extract timestamp and line content from the match
       const { timestamp: originalTimestamp, line: content } = lineMatch.groups;
-      const timestamp = dayjs(originalTimestamp, 'YYYY/MM/DD HH:mm:ss').toISOString(); 
-
+      const timestamp = dayjs(originalTimestamp, 'YYYY/MM/DD HH:mm:ss').toISOString();
 
       // set afk flag to avoid unnecessary net worth checking
       if (line.includes('] : AFK mode is now ON. Autoreply')) {
@@ -90,17 +85,19 @@ function start() {
         global.afk = false;
       }
 
-      if (stringPatterns.end.some(pattern => lowerCaseLine.endsWith(pattern))) { // Check for end map signal
+      if (stringPatterns.end.some((pattern) => lowerCaseLine.endsWith(pattern))) {
+        // Check for end map signal
         LogProcessor.schedule(async () => {
           LogProcessor.processEnd(timestamp, content);
         });
-      } else if (stringPatterns.generating.some(pattern => lowerCaseLine.includes(pattern))) { // Check for area generation
+      } else if (stringPatterns.generating.some((pattern) => lowerCaseLine.includes(pattern))) {
+        // Check for area generation
         // 2023/09/22 23:53:40 90163078 1186a0e2 [DEBUG Client 5808] Generating level 83 area "MapWorldsIvoryTemple" with seed 2066513710
         LogProcessor.schedule(async () => {
           LogProcessor.processGeneration(timestamp, content);
         });
-
-      } else if (line.includes('Connecting to instance server at')) { // Check for disabled local chat using the instance server pattern
+      } else if (line.includes('Connecting to instance server at')) {
+        // Check for disabled local chat using the instance server pattern
         LogProcessor.schedule(async () => {
           LogProcessor.processNewInstance(timestamp, content);
         });
@@ -134,7 +131,6 @@ async function checkValidLogfile(path) {
     return;
   }
 }
-
 
 module.exports.start = start;
 module.exports.emitter = emitter;

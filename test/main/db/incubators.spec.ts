@@ -160,7 +160,7 @@ describe('incubators', () => {
       // Verify the query is SQLite compatible
       const expectedQuery = 'INSERT INTO incubator(timestamp, data) values(?, ?)';
       expect(mockDB.run).toHaveBeenCalledWith(expectedQuery, [timestamp, data]);
-      
+
       // Verify query matches expected SQLite incubator table schema
       expect(expectedQuery).toContain('INSERT INTO incubator');
       expect(expectedQuery).toContain('timestamp');

@@ -58,9 +58,7 @@ describe('stats', () => {
 
       const result = await stats.getAllRuns();
 
-      expect(mockDB.all).toHaveBeenCalledWith(
-        expect.stringContaining('SELECT')
-      );
+      expect(mockDB.all).toHaveBeenCalledWith(expect.stringContaining('SELECT'));
       expect(result).toEqual(mockRuns);
     });
 
@@ -88,7 +86,7 @@ describe('stats', () => {
 
       // Get the query that was called
       const calledQuery = mockDB.all.mock.calls[0][0];
-      
+
       // Verify it contains expected SQLite elements
       expect(calledQuery).toContain('SELECT');
       expect(calledQuery).toContain('FROM area_info, run');
@@ -96,7 +94,7 @@ describe('stats', () => {
       expect(calledQuery).toContain('WHERE run.id = area_info.run_id');
       expect(calledQuery).toContain('json_extract(run_info');
       expect(calledQuery).toContain('ORDER BY run.id desc');
-      
+
       // Verify battle-specific death counts
       expect(calledQuery).toContain('conqueror_deaths');
       expect(calledQuery).toContain('mastermind_deaths');
@@ -165,13 +163,15 @@ describe('stats', () => {
       await stats.getAllItems(league);
 
       const calledQuery = mockDB.all.mock.calls[0][0];
-      
+
       // Verify query structure
       expect(calledQuery).toContain('SELECT run.id AS map_id, area_info.name AS area, item.*');
       expect(calledQuery).toContain('FROM item, run, area_info, event');
       expect(calledQuery).toContain('WHERE event.id = item.event_id');
       expect(calledQuery).toContain('AND item.ignored = 0');
-      expect(calledQuery).toContain('AND DATETIME(event.timestamp) BETWEEN DATETIME(run.first_event) AND DATETIME(run.last_event)');
+      expect(calledQuery).toContain(
+        'AND DATETIME(event.timestamp) BETWEEN DATETIME(run.first_event) AND DATETIME(run.last_event)'
+      );
       expect(calledQuery).toContain('AND run.id = area_info.run_id');
     });
   });
@@ -189,10 +189,11 @@ describe('stats', () => {
 
       const result = await stats.getAllItemsForDates(from, to, minLootValue);
 
-      expect(mockDB.all).toHaveBeenCalledWith(
-        expect.stringContaining('WHERE item.value > ?'),
-        [minLootValue, from, to]
-      );
+      expect(mockDB.all).toHaveBeenCalledWith(expect.stringContaining('WHERE item.value > ?'), [
+        minLootValue,
+        from,
+        to,
+      ]);
       expect(result).toEqual(mockItems);
     });
 
@@ -203,10 +204,7 @@ describe('stats', () => {
 
       await stats.getAllItemsForDates(from, to);
 
-      expect(mockDB.all).toHaveBeenCalledWith(
-        expect.any(String),
-        [0, from, to]
-      );
+      expect(mockDB.all).toHaveBeenCalledWith(expect.any(String), [0, from, to]);
     });
 
     it('should return empty array when database query fails', async () => {
@@ -229,9 +227,11 @@ describe('stats', () => {
       await stats.getAllItemsForDates(from, to, minLootValue);
 
       const calledQuery = mockDB.all.mock.calls[0][0];
-      
+
       expect(calledQuery).toContain('WHERE item.value > ?');
-      expect(calledQuery).toContain('AND DATETIME(run.first_event) BETWEEN DATETIME(?) AND DATETIME(?)');
+      expect(calledQuery).toContain(
+        'AND DATETIME(run.first_event) BETWEEN DATETIME(?) AND DATETIME(?)'
+      );
     });
   });
 
@@ -345,7 +345,7 @@ describe('stats', () => {
       await stats.getAllRunsForDates(params);
 
       const calledQuery = mockDB.all.mock.calls[0][0];
-      
+
       // Verify complex query structure
       expect(calledQuery).toContain('LEFT JOIN');
       expect(calledQuery).toContain('itemcount.run_id = run.id');
@@ -368,10 +368,9 @@ describe('stats', () => {
 
       const result = await stats.getAllItemsForRuns({ runs, minLootValue });
 
-      expect(mockDB.all).toHaveBeenCalledWith(
-        expect.stringContaining('AND run.id IN (1,2,3)'),
-        [minLootValue]
-      );
+      expect(mockDB.all).toHaveBeenCalledWith(expect.stringContaining('AND run.id IN (1,2,3)'), [
+        minLootValue,
+      ]);
       expect(result).toEqual(mockItems);
     });
 
@@ -382,10 +381,9 @@ describe('stats', () => {
 
       const result = await stats.getAllItemsForRuns({ runs, minLootValue });
 
-      expect(mockDB.all).toHaveBeenCalledWith(
-        expect.stringContaining('AND run.id IN ()'),
-        [minLootValue]
-      );
+      expect(mockDB.all).toHaveBeenCalledWith(expect.stringContaining('AND run.id IN ()'), [
+        minLootValue,
+      ]);
       expect(result).toEqual([]);
     });
 
@@ -437,7 +435,7 @@ describe('stats', () => {
       await stats.getAllMapNames();
 
       const calledQuery = mockDB.all.mock.calls[0][0];
-      
+
       expect(calledQuery).toContain('SELECT DISTINCT area_info.name');
       expect(calledQuery).toContain('FROM area_info, run');
       expect(calledQuery).toContain('WHERE run.id = area_info.run_id');
@@ -486,7 +484,7 @@ describe('stats', () => {
       await stats.getAllPossibleMods();
 
       const calledQuery = mockDB.all.mock.calls[0][0];
-      
+
       expect(calledQuery).toContain("REGEXP_REPLACE(mod, '\\d+', '#')");
       expect(calledQuery).toContain('FROM mapmod');
       expect(calledQuery).toContain('ORDER BY mod ASC');
@@ -524,10 +522,7 @@ describe('stats', () => {
 
       const result = await stats.getProfitPerHour(customTime);
 
-      expect(mockDB.get).toHaveBeenCalledWith(
-        expect.any(String),
-        [customTime, customTime]
-      );
+      expect(mockDB.get).toHaveBeenCalledWith(expect.any(String), [customTime, customTime]);
       expect(result).toBe(1000); // 2000 profit in 2 hours = 1000 per hour
     });
 
@@ -582,7 +577,7 @@ describe('stats', () => {
       await stats.getProfitPerHour();
 
       const calledQuery = mockDB.get.mock.calls[0][0];
-      
+
       expect(calledQuery).toContain('SUM(item.value) as total_profit');
       expect(calledQuery).toContain('SUM(JULIANDAY(run.last_event) - JULIANDAY(run.first_event))');
       expect(calledQuery).toContain('COUNT(DISTINCT item.id) AS items');
@@ -603,5 +598,3 @@ describe('stats', () => {
     });
   });
 });
-
-

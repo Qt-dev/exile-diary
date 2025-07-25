@@ -183,9 +183,10 @@ class MapRun extends EventEmitter {
 
   async getLeague(mapID) {
     return new Promise((resolve) => {
-      DB.get('SELECT name FROM league WHERE DATETIME(timestamp) < DATETIME(?) ORDER BY timestamp DESC LIMIT 1', [
-        mapID,
-      ])
+      DB.get(
+        'SELECT name FROM league WHERE DATETIME(timestamp) < DATETIME(?) ORDER BY timestamp DESC LIMIT 1',
+        [mapID]
+      )
         .then((row) => {
           resolve(row.name);
         })
@@ -195,6 +196,6 @@ class MapRun extends EventEmitter {
         });
     });
   }
-} 
+}
 
 module.exports = MapRun;

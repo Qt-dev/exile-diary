@@ -214,7 +214,7 @@ const Migrations = {
         `pragma user_version = 13`,
         `UPDATE items SET category = 'Kalguuran Rune' WHERE rarity = 'Currency' AND typeline LIKE '% Rune%'`,
       ],
-      
+
       [
         // Delete view before all migrations
         `DROP VIEW IF EXISTS leaguedates`,
@@ -299,7 +299,7 @@ const Migrations = {
         `,
         `DROP TABLE mapmods`,
         `ALTER TABLE mapmods_bis RENAME TO mapmod`,
-          
+
         // Delete duplicated areainfo entries to make the areainfo unique per map_id
         `DELETE FROM areainfo
         WHERE areainfo.id NOT IN
@@ -326,11 +326,10 @@ const Migrations = {
           FROM mapruns, areainfo
           WHERE areainfo.id BETWEEN mapruns.firstevent AND mapruns.lastevent
         `,
-        
+
         `DROP TABLE areainfo`,
-        
+
         `ALTER TABLE areainfo_bis RENAME TO area_info`,
-        
 
         // Gear Format
         `CREATE TABLE gear_bis (
@@ -367,7 +366,7 @@ const Migrations = {
         `INSERT INTO filters_bis (text, timestamp)
           SELECT text, timestamp
           FROM filters`,
-        
+
         `UPDATE filters_bis
           SET timestamp = strftime('%Y-%m-%d %H:%M:%S',
                         substr(timestamp, 1, 4) || '-' ||
@@ -376,7 +375,7 @@ const Migrations = {
                         substr(timestamp, 9, 2) || ':' ||
                         substr(timestamp, 11, 2) || ':' ||
                         substr(timestamp, 13, 2))`,
-        
+
         `DROP TABLE filters`,
         `ALTER TABLE filters_bis RENAME TO "filter"`,
 
@@ -462,7 +461,6 @@ const Migrations = {
                         substr(timestamp, 13, 2))`,
         `DROP TABLE leagues`,
         `ALTER TABLE leagues_bis RENAME TO league`,
-        
 
         // LastInv Format
         `CREATE TABLE last_inventory (
@@ -533,7 +531,7 @@ const Migrations = {
           FROM "league"
           ORDER BY start`, // Create the view again after all migrations
 
-        `pragma user_version = 14`
+        `pragma user_version = 14`,
       ],
     ],
     maintenance: [
@@ -722,7 +720,7 @@ const DB = {
   all: async (sql: string, params: any[] = [], league: string | undefined = undefined) => {
     const manager = DB.getManager(league);
     if (!manager) return null;
-    
+
     return await manager.runTask(() => manager.db.prepare(sql).all(params));
   },
 

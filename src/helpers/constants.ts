@@ -16,7 +16,7 @@ type ConstantContainer = {
     [key: string]: any;
   };
   [key: string]: any;
-}
+};
 
 const Constants: ConstantContainer = {
   ...atlasRegions,
@@ -28,6 +28,5 @@ const Constants: ConstantContainer = {
   worldAreas,
   items,
 };
-
 
 export default Constants;

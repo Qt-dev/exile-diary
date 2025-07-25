@@ -73,7 +73,7 @@ describe('SkillTree', () => {
 
       const expectedQuery = 'SELECT timestamp, data FROM passives ORDER BY timestamp DESC LIMIT 1';
       expect(mockDB.get).toHaveBeenCalledWith(expectedQuery);
-      
+
       // Verify query matches expected SQLite passives table schema
       expect(expectedQuery).toContain('SELECT timestamp, data');
       expect(expectedQuery).toContain('FROM passives');
@@ -84,7 +84,11 @@ describe('SkillTree', () => {
     it('should handle large skill tree data', async () => {
       const largeSkillTreeData = JSON.stringify({
         nodes: Array(500).fill(1),
-        masteries: Object.fromEntries(Array(100).fill(0).map((_, i) => [i, i + 1000])),
+        masteries: Object.fromEntries(
+          Array(100)
+            .fill(0)
+            .map((_, i) => [i, i + 1000])
+        ),
         jewels: Array(50).fill({ name: 'test jewel', stats: ['stat1', 'stat2'] }),
       });
       const mockResult = {
@@ -175,7 +179,11 @@ describe('SkillTree', () => {
       const timestamp = 1672574400000;
       const largeData = JSON.stringify({
         nodes: Array(1000).fill(1),
-        masteries: Object.fromEntries(Array(200).fill(0).map((_, i) => [i, i + 1000])),
+        masteries: Object.fromEntries(
+          Array(200)
+            .fill(0)
+            .map((_, i) => [i, i + 1000])
+        ),
         jewels: Array(100).fill({ name: 'test jewel', stats: ['stat1', 'stat2'] }),
         keystones: Array(20).fill('keystone'),
         ascendancy: {
@@ -204,7 +212,7 @@ describe('SkillTree', () => {
       // Verify the query is SQLite compatible
       const expectedQuery = 'INSERT INTO passives(timestamp, data) values(?, ?)';
       expect(mockDB.run).toHaveBeenCalledWith(expectedQuery, [timestamp, data]);
-      
+
       // Verify query matches expected SQLite passives table schema
       expect(expectedQuery).toContain('INSERT INTO passives');
       expect(expectedQuery).toContain('timestamp');
@@ -281,5 +289,3 @@ describe('SkillTree', () => {
     });
   });
 });
-
-

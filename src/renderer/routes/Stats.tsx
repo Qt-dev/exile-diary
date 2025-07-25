@@ -46,7 +46,9 @@ const Stats = () => {
   const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
     setTabValue(newValue);
   };
-  itemStore.createItems(stats.items.loot.map((item) => ({ ...item, ...JSON.parse(item.raw_data) })));
+  itemStore.createItems(
+    stats.items.loot.map((item) => ({ ...item, ...JSON.parse(item.raw_data) }))
+  );
   const screenshot = useCallback(async () => {
     if (screenShotRef.current === null) {
       return;

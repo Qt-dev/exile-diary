@@ -6,16 +6,12 @@ import ItemList from '../ItemList/ItemList';
 import Logger from 'electron-log/renderer';
 import './RunEvent.css';
 
-
-const ignoredEventTypes = [
-  'master',
-  'leagueNPC',
-];
+const ignoredEventTypes = ['master', 'leagueNPC'];
 
 const formatLine = (event, text): ReactNode => {
   Logger.info('Formatting event line:', event);
   const time = dayjs(event.timestamp).format('HH:mm:ss');
-  if(ignoredEventTypes.includes(event.event_type)) {
+  if (ignoredEventTypes.includes(event.event_type)) {
     return null;
   }
 
@@ -81,7 +77,11 @@ const textPerEventType = {
     const areaData = JSON.parse(event.event_text);
     return (
       <>
-        Game generated the area <span className="Text--Rare">{areaData.areaName} (lvl {areaData.level})</span> with seed <span className="Text--Magic">{areaData.seed}</span>
+        Game generated the area{' '}
+        <span className="Text--Rare">
+          {areaData.areaName} (lvl {areaData.level})
+        </span>{' '}
+        with seed <span className="Text--Magic">{areaData.seed}</span>
       </>
     );
   },

@@ -61,7 +61,7 @@ describe('League', () => {
 
       const expectedQuery = 'INSERT OR IGNORE INTO league(timestamp, name) values(?, ?)';
       expect(mockDB.run).toHaveBeenCalledWith(expectedQuery, [mockISOString, leagueName]);
-      
+
       // Verify query matches expected SQLite league table schema
       expect(expectedQuery).toContain('INSERT OR IGNORE INTO league');
       expect(expectedQuery).toContain('timestamp');

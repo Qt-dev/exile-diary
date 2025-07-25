@@ -19,7 +19,7 @@ type JSONRun = {
   gained: number;
   kills: number | null;
   run_info: string;
-  mods: { mod: string; }[];
+  mods: { mod: string }[];
 };
 
 export class Run {
@@ -55,7 +55,7 @@ export class Run {
   store;
   saveHandler = null;
   itemStore: ItemStore | null = null;
-  mods: { mod: string; }[] = [];
+  mods: { mod: string }[] = [];
 
   constructor(store, options = {}) {
     const id = uuidv4();
@@ -90,7 +90,7 @@ export class Run {
     this.kills = json.kills;
     this.runInfo = json.run_info ? JSON.parse(json.run_info) : {};
     this.lastUpdate = dayjs();
-    this.completed = !!(json.completed) || false;
+    this.completed = !!json.completed || false;
   }
 
   updateDetails(details) {
@@ -107,7 +107,8 @@ export class Run {
     for (const eventId in details.items) {
       // Add loot events to the events array
       // Logger.debug('Adding loot event', details.items[eventId]);
-      const timestamp = details.events.find((e) => e.id === parseInt(eventId))?.timestamp || dayjs().toISOString();
+      const timestamp =
+        details.events.find((e) => e.id === parseInt(eventId))?.timestamp || dayjs().toISOString();
       this.events.push({
         id: eventId,
         event_type: 'loot',

@@ -8,12 +8,12 @@ import Logger from 'electron-log';
 import EventEmitter from 'events';
 import OCRWatcher from './OCRWatcher';
 import { app, globalShortcut } from 'electron';
-import Piscina from "piscina";
-import { resolve } from "path";
-import { filename } from "./ImageSaverWorker";
+import Piscina from 'piscina';
+import { resolve } from 'path';
+import { filename } from './ImageSaverWorker';
 
 const piscina = new Piscina({
-  filename: resolve(__dirname, "./workerWrapper.js"),
+  filename: resolve(__dirname, './workerWrapper.js'),
   workerData: { fullpath: filename },
 });
 const isDev = true;
@@ -34,10 +34,7 @@ const getMargin = (rawImage: any, metadata: { height: number; width: number }) =
   const lineIndex = metadata.height - (metadata.height - marginHeight); // This is the line we will check, starting from the bottom of the image
 
   // Get all the pixels from the a line at the height we decided to check
-  const line = rawImage.slice(
-    metadata.width * (lineIndex),
-    metadata.width * (lineIndex + 1)
-  );
+  const line = rawImage.slice(metadata.width * lineIndex, metadata.width * (lineIndex + 1));
 
   // Now we check the line from the end, looking for the first non-black pixel
   // In this case, we are looking for any object where the RGB values are not all below 10
@@ -63,8 +60,6 @@ const getMargin = (rawImage: any, metadata: { height: number; width: number }) =
     logger.warn('All the pixels on that line seem to be black, we will work with 0 margin.');
   }
 
-
-
   // Debug - Save the raw image line to a file for debugging purposes
   // require('fs').writeFileSync(path.join(app.getPath('userData'), 'margin-line.json'), JSON.stringify(line));
 
@@ -82,8 +77,12 @@ const getModsBox = (rawImage: any, margin: number, metadata: { height: number; w
   };
 };
 
-
-function getModsYBounds(rawImage: any, margin: number, boxMargin: number, metadata: { height: number; width: number }) {
+function getModsYBounds(
+  rawImage: any,
+  margin: number,
+  boxMargin: number,
+  metadata: { height: number; width: number }
+) {
   const modsBox: { start: number; end: number } = { start: -1, end: -1 };
   const detectionHeightStartIndex = Math.floor(metadata.height * 0.1); // Start checking at 10% of the height
   const detectionWidth = 30; // Width of the area we are checking for mods
@@ -101,25 +100,24 @@ function getModsYBounds(rawImage: any, margin: number, boxMargin: number, metada
       }
     }
 
-
     if (orangePixels >= detectionWidth * 0.7) {
       logger.debug(`Found orange line at y=${y} with ${orangePixels} oranges`);
       orangeLineIndex = y;
       maxOrangePixels = orangePixels;
       break; // We found the first line with enough orange pixels, we can stop checking
     }
-
   }
-  logger.debug(`Maximum orange pixels found in a line: ${maxOrangePixels} on line ${orangeLineIndex}`);
+  logger.debug(
+    `Maximum orange pixels found in a line: ${maxOrangePixels} on line ${orangeLineIndex}`
+  );
 
-
-  if( !orangeLineIndex || orangeLineIndex === -1) {
+  if (!orangeLineIndex || orangeLineIndex === -1) {
     logger.warn('No orange line found, cannot determine mods box.');
     return modsBox; // No orange line found, we cannot determine the mods box
   }
-  
+
   let linesArray: { line: number; blue: number; black: number }[] = [];
-  for(let y = orangeLineIndex + 1; y < metadata.height - 1; y++) {
+  for (let y = orangeLineIndex + 1; y < metadata.height - 1; y++) {
     let bluePixels = 0;
     let blackPixels = 0;
 
@@ -138,7 +136,7 @@ function getModsYBounds(rawImage: any, margin: number, boxMargin: number, metada
     if (modsBox.start === -1 && bluePixels >= 6) {
       logger.debug(`Found blue line at y=${y} with ${bluePixels} blues`);
       const previousLine = linesArray.length > 1 ? linesArray[linesArray.length - 2] : null; // Get the previous line data
-      if(previousLine && previousLine.black >= detectionWidth * 0.9) {
+      if (previousLine && previousLine.black >= detectionWidth * 0.9) {
         logger.debug(`It is after a black line with ${previousLine.black} blacks`);
         modsBox.start = y - boxMargin;
       }
@@ -148,11 +146,13 @@ function getModsYBounds(rawImage: any, margin: number, boxMargin: number, metada
       blackPixels >= detectionWidth * 0.9 && // We found a line with enough black pixels
       bluePixels <= 2 && // We found a line with at most 2 blue pixels
       linesArray.length >= endOfBoxThreshold && // We have enough lines to check the last 12 lines
-      Math.max(...linesArray.slice(-endOfBoxThreshold).map(line => line.blue)) <= 2 && // The last 12 lines have at most 2 blue pixels
-      Math.max(...linesArray.slice(-endOfBoxThreshold).map(line => line.black)) >= 15 // The last 12 lines have at least 15 black pixels
+      Math.max(...linesArray.slice(-endOfBoxThreshold).map((line) => line.blue)) <= 2 && // The last 12 lines have at most 2 blue pixels
+      Math.max(...linesArray.slice(-endOfBoxThreshold).map((line) => line.black)) >= 15 // The last 12 lines have at least 15 black pixels
     ) {
       logger.debug(`Found black line at y=${y} with ${blackPixels} blacks`);
-      logger.debug(`It has not had more than 2 blues, only blacks in the last ${endOfBoxThreshold} lines`);
+      logger.debug(
+        `It has not had more than 2 blues, only blacks in the last ${endOfBoxThreshold} lines`
+      );
       modsBox.end = y + boxMargin;
       break; // We found the end of the mods box, we can stop checking
     }
@@ -161,7 +161,13 @@ function getModsYBounds(rawImage: any, margin: number, boxMargin: number, metada
   return modsBox;
 }
 
-function getModsXBounds(rawImage: any, margin: number, boxMargin: number, yBounds: { start: number, end: number },metadata: { height: number; width: number }) {
+function getModsXBounds(
+  rawImage: any,
+  margin: number,
+  boxMargin: number,
+  yBounds: { start: number; end: number },
+  metadata: { height: number; width: number }
+) {
   const blueArray: number[] = [];
   const imageWidth = metadata.width - 1 - margin;
   let xBoundary = 0;
@@ -195,7 +201,7 @@ function getModsXBounds(rawImage: any, margin: number, boxMargin: number, yBound
   return { start: xBoundary, end: metadata.width - margin };
 }
 
-let timers : any[] = [];
+let timers: any[] = [];
 /**
  * Main Processing function. It takes a file and processes it to get the mods and stats
  * @param file String of the file location or Buffer of the image
@@ -233,29 +239,24 @@ async function processScreenshot(file: string | Buffer) {
     timer: performance.now(),
   });
 
-  const image = await sharp(file)
-      .resize(target.width, target.height)
-      .png()
-      .toBuffer();
+  const image = await sharp(file).resize(target.width, target.height).png().toBuffer();
 
   timers.push({
     name: 'after-resize',
     timer: performance.now(),
   });
 
-  const rawImage = await sharp(image)
-    .clone()
-    .raw({ depth: 'char' })
-    .toBuffer();
+  const rawImage = await sharp(image).clone().raw({ depth: 'char' }).toBuffer();
 
-    
-  const formattedRawImage : { r: number, g: number, b: number }[] = rawImage
-    .reduce((acc : { r: number, g: number, b: number }[], curr, index) => {
+  const formattedRawImage: { r: number; g: number; b: number }[] = rawImage.reduce(
+    (acc: { r: number; g: number; b: number }[], curr, index) => {
       if (index % 3 === 0) {
         acc.push({ r: curr, g: rawImage[index + 1], b: rawImage[index + 2] });
       }
       return acc;
-    }, []);
+    },
+    []
+  );
   timers.push({
     name: 'after-raw',
     timer: performance.now(),
@@ -267,7 +268,10 @@ async function processScreenshot(file: string | Buffer) {
     name: 'After Margin',
     timer: performance.now(),
   });
-  const modsBox = getModsBox(formattedRawImage, margin, { height: target.height, width: target.width });
+  const modsBox = getModsBox(formattedRawImage, margin, {
+    height: target.height,
+    width: target.width,
+  });
   timers.push({
     name: 'After Mods Box',
     timer: performance.now(),
@@ -281,23 +285,30 @@ async function processScreenshot(file: string | Buffer) {
   const modsImage = await sharp(image)
     .extract(modsBoxDimensions)
     .resize(Math.floor(modsBoxDimensions.width * 2))
-    .grayscale()                // Step 1: Grayscale
-    .normalize()               // Step 2: Boost contrast
-    .negate()                  // Step 3: Invert dark text on dark background
-    .threshold(50)            // Step 4: Convert to black & white
-    .sharpen()              // Step 4: Sharpen the image
-    .png()                     // Step 5: Output format
-    .toBuffer();               // Keep in memory
+    .grayscale() // Step 1: Grayscale
+    .normalize() // Step 2: Boost contrast
+    .negate() // Step 3: Invert dark text on dark background
+    .threshold(50) // Step 4: Convert to black & white
+    .sharpen() // Step 4: Sharpen the image
+    .png() // Step 5: Output format
+    .toBuffer(); // Keep in memory
 
   timers.push({
     name: 'after-new-processing',
     timer: performance.now(),
   });
 
-  if (isDev) piscina.run({imageBuffer: image, filename: 'screenshot', filePath: filepath}, {name: 'saveImage'});
+  if (isDev)
+    piscina.run(
+      { imageBuffer: image, filename: 'screenshot', filePath: filepath },
+      { name: 'saveImage' }
+    );
 
-  if (isDev) piscina.run({imageBuffer: modsImage, filename: 'mods.png', filePath: filepath}, {name: 'saveImage'});
-
+  if (isDev)
+    piscina.run(
+      { imageBuffer: modsImage, filename: 'mods.png', filePath: filepath },
+      { name: 'saveImage' }
+    );
 
   timers.push({
     name: 'after-mods-extract',
@@ -497,5 +508,5 @@ function start() {
 export default {
   start,
   emitter,
-  process : processScreenshot,
+  process: processScreenshot,
 };

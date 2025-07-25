@@ -5,7 +5,7 @@ import { EnhancedBKTree } from './EnhancedBKTree';
 
 /**
  * StringParser - High-performance string matching for Path of Exile mod strings
- * 
+ *
  * This class provides optimized string matching algorithms for matching mod strings
  * against the Constants.mapMods array using Enhanced BK-Tree with OCR preprocessing
  * and multi-stage search for maximum accuracy.
@@ -14,7 +14,7 @@ class StringParser {
   // Enhanced BK-Tree with OCR preprocessing and multi-stage search
   private static enhancedBkTree: EnhancedBKTree | null = null;
   private static enhancedBkTreeInitialized = false;
-  
+
   // Static initialization block - automatically build Enhanced BK-Tree on module load
   static {
     try {
@@ -24,13 +24,13 @@ class StringParser {
       logger.error('Failed to initialize Enhanced BK-Tree on module load:', error);
     }
   }
-  
+
   /**
    * Find the closest matching mod string from Constants.mapMods
-   * 
+   *
    * This function uses Enhanced BK-Tree with OCR preprocessing and multi-stage search
    * for improved accuracy on corrupted text from OCR systems.
-   * 
+   *
    * @param str - The input string to match
    * @returns The closest matching mod string, or empty string if no good match found
    */
@@ -47,7 +47,7 @@ class StringParser {
 
     // Use enhanced search with OCR preprocessing and confidence scoring
     const result = this.enhancedBkTree.findBestMatchEnhanced(str);
-    
+
     if (!result) {
       return '';
     }
@@ -64,7 +64,7 @@ class StringParser {
 
   /**
    * Batch process multiple mod strings efficiently using Enhanced BK-Tree
-   * 
+   *
    * @param modStrings - Array of mod strings to match
    * @returns Array of matched mod strings, same length as input
    */
@@ -81,7 +81,7 @@ class StringParser {
     }
 
     const results: string[] = [];
-    
+
     // Process each string using Enhanced BK-Tree for efficient search
     for (const modString of modStrings) {
       if (!modString || modString.length < 5) {
@@ -91,7 +91,7 @@ class StringParser {
       }
 
       const bestMatch = this.enhancedBkTree.findBestMatchEnhanced(modString);
-      
+
       if (!bestMatch) {
         logger.debug(`No best match found for mod string: ${modString}`);
         results.push('');
@@ -124,7 +124,7 @@ class StringParser {
 
     // Extract all numbers (including decimals) from the original input
     const numbers = originalInput.match(/\d+(?:\.\d+)?/g) || [];
-    
+
     if (numbers.length === 0) {
       return matchedString;
     }
@@ -152,24 +152,28 @@ class StringParser {
     if (distance === 0) {
       return 0.95; // Exact case-insensitive matches should have high confidence
     }
-    
+
     // For low distance matches (1-3), be more lenient - likely case-insensitive fuzzy
     if (distance <= 3) {
-      return {
-        exact: 0.7,   // Distance 1-2 with exact match type
-        close: 0.5,   // Distance 1-3 with close match type
-        fuzzy: 0.3,   // Distance 2-4 with fuzzy match type
-        aggressive: 0.2
-      }[matchType as keyof typeof this] || 0.3;
+      return (
+        {
+          exact: 0.7, // Distance 1-2 with exact match type
+          close: 0.5, // Distance 1-3 with close match type
+          fuzzy: 0.3, // Distance 2-4 with fuzzy match type
+          aggressive: 0.2,
+        }[matchType as keyof typeof this] || 0.3
+      );
     }
-    
+
     // For higher distances (4+), use original conservative thresholds for OCR corruption
-    return {
-      exact: 0.8,
-      close: 0.6,
-      fuzzy: 0.4,
-      aggressive: 0.25
-    }[matchType as keyof typeof this] || 0.3;
+    return (
+      {
+        exact: 0.8,
+        close: 0.6,
+        fuzzy: 0.4,
+        aggressive: 0.25,
+      }[matchType as keyof typeof this] || 0.3
+    );
   }
 
   /**
@@ -182,9 +186,11 @@ class StringParser {
     this.enhancedBkTree = new EnhancedBKTree();
     this.enhancedBkTree.buildFromArray(Constants.mapMods);
     this.enhancedBkTreeInitialized = true;
-    
+
     const stats = this.enhancedBkTree.getStats();
-    logger.info(`Enhanced BK-Tree initialized with ${stats.size} mod strings, ${stats.normalizedMappings} normalized mappings`);
+    logger.info(
+      `Enhanced BK-Tree initialized with ${stats.size} mod strings, ${stats.normalizedMappings} normalized mappings`
+    );
   }
 
   /**
@@ -205,11 +211,16 @@ class StringParser {
   /**
    * Get statistics about the Enhanced BK-Tree
    */
-  static getStats(): { size: number; depth: number; avgChildren: number; normalizedMappings: number } | null {
+  static getStats(): {
+    size: number;
+    depth: number;
+    avgChildren: number;
+    normalizedMappings: number;
+  } | null {
     if (!this.enhancedBkTreeInitialized || !this.enhancedBkTree) {
       return null;
     }
-    
+
     return this.enhancedBkTree.getStats();
   }
 

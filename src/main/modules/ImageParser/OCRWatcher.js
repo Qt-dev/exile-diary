@@ -31,7 +31,7 @@ class MapInfoManager {
     this.mapMods = null;
     this.areaInfo = null;
   }
-  checkJobComplete() {                                                                                                                                                                                                                                                                                            
+  checkJobComplete() {
     const { mapMods } = this;
     if (!!mapMods) {
       const mapStats = getMapStats(mapMods);
@@ -90,7 +90,7 @@ async function cleanFailedOCR(e, timestamp) {
   mapInfoManager.cleanup();
   logger.info('Error processing screenshot: ' + e);
   emitter.emit('OCRError');
-  const cleanTimestamp = dayjs(timestamp, "YYYYMMDDHHmmss").toISOString();
+  const cleanTimestamp = dayjs(timestamp, 'YYYYMMDDHHmmss').toISOString();
   const runId = await DB.getRunIdFromTimestamp(cleanTimestamp);
   if (timestamp && runId) {
     await DB.deleteAreaInfo(runId);
@@ -99,7 +99,9 @@ async function cleanFailedOCR(e, timestamp) {
 }
 
 function getModInfo(lines) {
-  const mods = StringParser.GetMods(lines.filter((line) => line && line.length > 0).map((line) => line.toLowerCase().trim()));
+  const mods = StringParser.GetMods(
+    lines.filter((line) => line && line.length > 0).map((line) => line.toLowerCase().trim())
+  );
   return mods;
 }
 
@@ -151,7 +153,7 @@ async function processImageBuffer(buffer, timestamp, type) {
       //       depth: area.depth,
       //     });
       //     mapInfoManager.setAreaInfo(area);
-      //     mapInfoManager.checkJobComplete();                                                                                                                                                                                                                                                                                            
+      //     mapInfoManager.checkJobComplete();
       //   } else {
       //     throw 'No area name found';
       //   }
@@ -173,7 +175,7 @@ async function processImageBuffer(buffer, timestamp, type) {
           await cleanFailedOCR(mapModErr, timestamp);
         } else {
           mapInfoManager.setMapMods(mods);
-          mapInfoManager.checkJobComplete();                                                                                                                                                                                                                                                                                            
+          mapInfoManager.checkJobComplete();
         }
       } catch (e) {
         await cleanFailedOCR(e, timestamp);

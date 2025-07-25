@@ -1,44 +1,121 @@
 /**
  * Enhanced String Normalizer for OCR-corrupted text
- * 
+ *
  * This module handles the preprocessing and normalization of OCR-corrupted strings
  * before they are processed by the BK-Tree or other matching algorithms.
  */
 
 export class OCRStringNormalizer {
   // OCR artifact characters that should be removed or replaced
-  private static readonly OCR_ARTIFACTS = ['`', '~', '°', '·', '¿', '¡', '«', '»', '‹', '›', '¦', '¨', '¯', '´', '¸'];
-  
+  private static readonly OCR_ARTIFACTS = [
+    '`',
+    '~',
+    '°',
+    '·',
+    '¿',
+    '¡',
+    '«',
+    '»',
+    '‹',
+    '›',
+    '¦',
+    '¨',
+    '¯',
+    '´',
+    '¸',
+  ];
+
   // Common OCR character replacements (corrupted -> correct)
   private static readonly OCR_REPLACEMENTS: Record<string, string> = {
     // Numbers commonly misread as letters
-    '4': 'A', '8': 'B', '6': 'G', '0': 'O', '1': 'I', '5': 'S', '3': 'E', '2': 'Z',
-    
+    '4': 'A',
+    '8': 'B',
+    '6': 'G',
+    '0': 'O',
+    '1': 'I',
+    '5': 'S',
+    '3': 'E',
+    '2': 'Z',
+
     // Letters commonly misread as numbers
-    'A': '4', 'B': '8', 'G': '6', 'O': '0', 'I': '1', 'S': '5', 'E': '3', 'Z': '2',
-    
+    A: '4',
+    B: '8',
+    G: '6',
+    O: '0',
+    I: '1',
+    S: '5',
+    E: '3',
+    Z: '2',
+
     // Special character confusions
-    '@': 'A', '$': 'S', '!': 'I', '|': 'I',
-    
+    '@': 'A',
+    $: 'S',
+    '!': 'I',
+    '|': 'I',
+
     // Accented characters to regular characters
-    'Á': 'A', 'À': 'A', 'Â': 'A', 'Ä': 'A', 'Å': 'A', 'Ã': 'A',
-    'á': 'a', 'à': 'a', 'â': 'a', 'ä': 'a', 'å': 'a', 'ã': 'a',
-    'É': 'E', 'È': 'E', 'Ê': 'E', 'Ë': 'E',
-    'é': 'e', 'è': 'e', 'ê': 'e', 'ë': 'e',
-    'Í': 'I', 'Ì': 'I', 'Î': 'I', 'Ï': 'I',
-    'í': 'i', 'ì': 'i', 'î': 'i', 'ï': 'i',
-    'Ó': 'O', 'Ò': 'O', 'Ô': 'O', 'Ö': 'O', 'Õ': 'O',
-    'ó': 'o', 'ò': 'o', 'ô': 'o', 'ö': 'o', 'õ': 'o',
-    'Ú': 'U', 'Ù': 'U', 'Û': 'U', 'Ü': 'U',
-    'ú': 'u', 'ù': 'u', 'û': 'u', 'ü': 'u',
-    'Ý': 'Y', 'ý': 'y', 'ÿ': 'y',
-    'Ç': 'C', 'ç': 'c',
-    'Ñ': 'N', 'ñ': 'n',
-    
+    Á: 'A',
+    À: 'A',
+    Â: 'A',
+    Ä: 'A',
+    Å: 'A',
+    Ã: 'A',
+    á: 'a',
+    à: 'a',
+    â: 'a',
+    ä: 'a',
+    å: 'a',
+    ã: 'a',
+    É: 'E',
+    È: 'E',
+    Ê: 'E',
+    Ë: 'E',
+    é: 'e',
+    è: 'e',
+    ê: 'e',
+    ë: 'e',
+    Í: 'I',
+    Ì: 'I',
+    Î: 'I',
+    Ï: 'I',
+    í: 'i',
+    ì: 'i',
+    î: 'i',
+    ï: 'i',
+    Ó: 'O',
+    Ò: 'O',
+    Ô: 'O',
+    Ö: 'O',
+    Õ: 'O',
+    ó: 'o',
+    ò: 'o',
+    ô: 'o',
+    ö: 'o',
+    õ: 'o',
+    Ú: 'U',
+    Ù: 'U',
+    Û: 'U',
+    Ü: 'U',
+    ú: 'u',
+    ù: 'u',
+    û: 'u',
+    ü: 'u',
+    Ý: 'Y',
+    ý: 'y',
+    ÿ: 'y',
+    Ç: 'C',
+    ç: 'c',
+    Ñ: 'N',
+    ñ: 'n',
+
     // Other common OCR errors
-    'ß': 'B', 'þ': 'b', 'Ð': 'D', 'ð': 'd', 'ƒ': 'f'
+    ß: 'B',
+    þ: 'b',
+    Ð: 'D',
+    ð: 'd',
+    ƒ: 'f',
   };
-  
+
   // Bidirectional OCR replacements for more flexible matching
   private static readonly BIDIRECTIONAL_REPLACEMENTS = new Map([
     ['A', ['4', '@', 'Á', 'À', 'Â']],
@@ -61,7 +138,7 @@ export class OCRStringNormalizer {
     ['s', ['5', '$', 'z']],
     ['#', ['H', 'N', '%']],
     ['%', ['#', 'X']],
-    [' ', ['_', '-', '.']]
+    [' ', ['_', '-', '.']],
   ]);
 
   /**
@@ -69,22 +146,28 @@ export class OCRStringNormalizer {
    */
   static normalizeLevel1(input: string): string {
     if (!input) return '';
-    
+
     let normalized = input;
-    
+
     // Remove OCR artifacts
     for (const artifact of this.OCR_ARTIFACTS) {
-      normalized = normalized.replace(new RegExp(artifact.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g'), '');
+      normalized = normalized.replace(
+        new RegExp(artifact.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g'),
+        ''
+      );
     }
-    
+
     // Replace accented characters and common OCR errors
     for (const [corrupted, correct] of Object.entries(this.OCR_REPLACEMENTS)) {
-      normalized = normalized.replace(new RegExp(corrupted.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g'), correct);
+      normalized = normalized.replace(
+        new RegExp(corrupted.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g'),
+        correct
+      );
     }
-    
+
     // Normalize spaces (multiple spaces to single space, trim)
     normalized = normalized.replace(/\s+/g, ' ').trim();
-    
+
     return normalized;
   }
 
@@ -93,10 +176,10 @@ export class OCRStringNormalizer {
    */
   static normalizeLevel2(input: string): string {
     let normalized = this.normalizeLevel1(input);
-    
+
     // Remove all non-alphanumeric characters except # and %
     normalized = normalized.replace(/[^a-zA-Z0-9#%\s]/g, '');
-    
+
     // Normalize common OCR letter/number confusions more aggressively
     normalized = normalized
       .replace(/[4@]/g, 'A')
@@ -107,10 +190,10 @@ export class OCRStringNormalizer {
       .replace(/[5$]/g, 'S')
       .replace(/[3]/g, 'E')
       .replace(/[2]/g, 'Z');
-    
+
     // Normalize spaces
     normalized = normalized.replace(/\s+/g, ' ').trim();
-    
+
     return normalized;
   }
 
@@ -119,16 +202,16 @@ export class OCRStringNormalizer {
    */
   static normalizeLevel3(input: string): string {
     let normalized = this.normalizeLevel2(input);
-    
+
     // Convert to lowercase for case-insensitive matching
     normalized = normalized.toLowerCase();
-    
+
     // Remove all spaces
     normalized = normalized.replace(/\s/g, '');
-    
+
     // Keep only letters, numbers, #, %
     normalized = normalized.replace(/[^a-z0-9#%]/g, '');
-    
+
     return normalized;
   }
 
@@ -145,16 +228,16 @@ export class OCRStringNormalizer {
     const level1 = this.normalizeLevel1(input);
     const level2 = this.normalizeLevel2(input);
     const level3 = this.normalizeLevel3(input);
-    
+
     // Generate character variants for the most promising version
     const variants = this.generateCharacterVariants(level1, 3); // Max 3 variants
-    
+
     return {
       original: input,
       level1,
       level2,
       level3,
-      variants
+      variants,
     };
   }
 
@@ -164,22 +247,23 @@ export class OCRStringNormalizer {
   private static generateCharacterVariants(input: string, maxVariants: number): string[] {
     const variants: Set<string> = new Set();
     variants.add(input); // Always include the input itself
-    
+
     // Try replacing characters with their OCR alternatives
     for (let i = 0; i < input.length && variants.size < maxVariants + 1; i++) {
       const char = input[i];
       const alternatives = this.BIDIRECTIONAL_REPLACEMENTS.get(char);
-      
+
       if (alternatives) {
-        for (const alt of alternatives.slice(0, 2)) { // Limit to first 2 alternatives
+        for (const alt of alternatives.slice(0, 2)) {
+          // Limit to first 2 alternatives
           if (variants.size >= maxVariants + 1) break;
-          
+
           const variant = input.substring(0, i) + alt + input.substring(i + 1);
           variants.add(variant);
         }
       }
     }
-    
+
     // Remove the original input from variants list
     const result = Array.from(variants);
     return result.slice(1); // Return only the variants, not the original
@@ -194,13 +278,13 @@ export class OCRStringNormalizer {
     corruptionLevel: 'low' | 'medium' | 'high' | 'extreme';
   } {
     if (!input) return { primary: '', alternatives: [], corruptionLevel: 'low' };
-    
+
     // Detect corruption level based on OCR artifacts and character patterns
     const corruptionLevel = this.detectCorruptionLevel(input);
-    
+
     let primary: string;
     let alternatives: string[] = [];
-    
+
     switch (corruptionLevel) {
       case 'low':
         primary = this.normalizeLevel1(input);
@@ -221,10 +305,10 @@ export class OCRStringNormalizer {
         alternatives = [allVersions.level1, allVersions.level2, ...allVersions.variants];
         break;
     }
-    
+
     // Remove duplicates and empty strings
-    alternatives = [...new Set(alternatives)].filter(alt => alt && alt !== primary);
-    
+    alternatives = [...new Set(alternatives)].filter((alt) => alt && alt !== primary);
+
     return { primary, alternatives, corruptionLevel };
   }
 
@@ -233,29 +317,29 @@ export class OCRStringNormalizer {
    */
   private static detectCorruptionLevel(input: string): 'low' | 'medium' | 'high' | 'extreme' {
     let score = 0;
-    
+
     // Check for OCR artifacts
     for (const artifact of this.OCR_ARTIFACTS) {
       if (input.includes(artifact)) score += 2;
     }
-    
+
     // Check for accented characters
     if (/[àáâãäåæçèéêëìíîïðñòóôõöøùúûüýþÿ]/i.test(input)) score += 1;
-    
+
     // Check for number/letter confusion patterns
     if (/[0-9][a-zA-Z]|[a-zA-Z][0-9]/.test(input)) score += 1;
-    
+
     // Check for suspicious character sequences
     if (/[^a-zA-Z0-9\s#%][a-zA-Z]|[a-zA-Z][^a-zA-Z0-9\s#%]/.test(input)) score += 1;
-    
+
     // Check for multiple consecutive special characters
     if (/[^a-zA-Z0-9\s]{2,}/.test(input)) score += 2;
-    
+
     // Check for very short words (possible character deletions)
     const words = input.split(/\s+/);
-    const shortWords = words.filter(word => word.length === 1 && word !== '#' && word !== '%');
+    const shortWords = words.filter((word) => word.length === 1 && word !== '#' && word !== '%');
     if (shortWords.length > words.length * 0.3) score += 2;
-    
+
     if (score >= 6) return 'extreme';
     if (score >= 4) return 'high';
     if (score >= 2) return 'medium';

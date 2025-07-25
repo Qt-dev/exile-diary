@@ -12,9 +12,11 @@ jest.mock('../../../src/main/db', () => ({
   all: jest.fn(),
   transaction: jest.fn(),
   run: jest.fn(),
-  }));
+}));
 jest.mock('../../../src/main/GGGAPI', () => ({
-  getDataForInventory: jest.fn().mockReturnValue(Promise.resolve({ inventory: [], equipment: [], experience: 0 })),
+  getDataForInventory: jest
+    .fn()
+    .mockReturnValue(Promise.resolve({ inventory: [], equipment: [], experience: 0 })),
 }));
 jest.mock('../../../src/main/SettingsManager', () => ({}));
 jest.mock('../../../src/main/modules/Utils', () => ({}));
@@ -27,7 +29,6 @@ jest.mock('electron-log', () => ({
   error: jest.fn(),
 }));
 
-
 describe('RunParser', () => {
   describe('setLatestGeneratedArea', () => {
     afterEach(() => {
@@ -35,7 +36,7 @@ describe('RunParser', () => {
     });
 
     it('should set the latestGeneratedArea', () => {
-      const areaInfo = { id: 1, name: 'test', run_id: 1, level: 70, depth: 0  };
+      const areaInfo = { id: 1, name: 'test', run_id: 1, level: 70, depth: 0 };
       RunParser.setLatestGeneratedArea(areaInfo);
       expect(RunParser.latestGeneratedArea).toEqual(areaInfo);
     });
@@ -112,7 +113,7 @@ describe('RunParser', () => {
         .spyOn(GGGAPI, 'getDataForInventory')
         .mockResolvedValue({ inventory: [], equipment: [], experience: expectedValue });
       jest.spyOn(DB, 'get').mockRejectedValue(new Error('DB Error'));
-      const xp = await RunParser.getXP(1, '2'); 
+      const xp = await RunParser.getXP(1, '2');
       expect(xp).toEqual(expectedValue);
     });
 

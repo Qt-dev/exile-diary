@@ -5,6 +5,7 @@ This document describes the newly created test datasets for the StringParser ben
 ## Overview
 
 The new datasets replace the previous corrected datasets with freshly generated ones that:
+
 - Use all valid mods from `src/helpers/data/mapMods.json`
 - Include realistic OCR-style corruptions
 - Meet the specified requirements for corruption distribution and characteristics
@@ -12,8 +13,9 @@ The new datasets replace the previous corrected datasets with freshly generated 
 ## Dataset Specifications
 
 ### Sizes
+
 - **Small Dataset 1**: 10 entries
-- **Small Dataset 2**: 10 entries  
+- **Small Dataset 2**: 10 entries
 - **Small Dataset 3**: 10 entries
 - **Medium Dataset 1**: 20 entries
 - **Medium Dataset 2**: 30 entries
@@ -24,6 +26,7 @@ The new datasets replace the previous corrected datasets with freshly generated 
 ### Corruption Characteristics
 
 Each dataset meets the following requirements:
+
 - **Minimum 30% corruption rate**: At least 30% of strings contain corruptions
 - **First character corruption**: At least 10% of strings have corrupted first characters
 - **Corruption extent**: Maximum 20% of each string's length is affected by corruption
@@ -33,6 +36,7 @@ Each dataset meets the following requirements:
 The generator applies three types of realistic OCR errors:
 
 1. **Character Replacements**: Common OCR misreads
+
    - `A` → `4`, `@`, `Á`
    - `I` → `1`, `l`, `!`
    - `O` → `0`, `Q`, `C`
@@ -40,6 +44,7 @@ The generator applies three types of realistic OCR errors:
    - And many more...
 
 2. **Character Additions**: OCR artifacts
+
    - Random insertion of characters like `·`, `¨`, `¿`, `¡`, `«`, `»`
 
 3. **Character Deletions**: OCR misses
@@ -48,6 +53,7 @@ The generator applies three types of realistic OCR errors:
 ### Actual Corruption Rates
 
 The generated datasets achieved:
+
 - Small Dataset 1: 50.0% corrupted (1 first-char)
 - Small Dataset 2: 50.0% corrupted (1 first-char)
 - Small Dataset 3: 40.0% corrupted (1 first-char)
@@ -95,15 +101,16 @@ Each test case follows the standard format:
 
 ```typescript
 interface TestData {
-  original: string;    // The original clean mod from mapMods.json
-  corrupted: string;   // The corrupted version with OCR-style errors
-  expected: string;    // The expected output (same as original)
+  original: string; // The original clean mod from mapMods.json
+  corrupted: string; // The corrupted version with OCR-style errors
+  expected: string; // The expected output (same as original)
 }
 ```
 
 ## Generation Script
 
 The datasets were generated using `GenerateNewDatasets.ts`, which:
+
 - Loads all 1,790 mods from `mapMods.json`
 - Applies realistic OCR corruptions
 - Ensures proper distribution of corruption types

@@ -99,7 +99,8 @@ const getItemNameFromIcon = (iconUrl: string) => {
 const Runs = {
   updateLastEvent: async (timestamp: string) => {
     logger.info(`Updating last event for latest run to ${timestamp}`);
-    const query = 'UPDATE run SET last_event = ? WHERE id = (SELECT MAX(id) FROM run WHERE completed = 0)';
+    const query =
+      'UPDATE run SET last_event = ? WHERE id = (SELECT MAX(id) FROM run WHERE completed = 0)';
     try {
       await DB.run(query, [timestamp]);
       return true;
@@ -109,7 +110,11 @@ const Runs = {
     }
   },
 
-  getLatestUncompletedRun: async (): Promise<{ id: number; first_event: string; last_event: string }> => {
+  getLatestUncompletedRun: async (): Promise<{
+    id: number;
+    first_event: string;
+    last_event: string;
+  }> => {
     logger.info('Getting run ID from DB');
     const query = `
       SELECT id, first_event, last_event FROM run
@@ -340,9 +345,11 @@ const Runs = {
   insertMapMods: async (mapId: number, mods: string[]) => {
     const query = 'INSERT INTO mapmod(run_id, mod) VALUES(?, ?)';
     try {
-      await Promise.all(mods.map(async (mod) => {
-        await DB.run(query, [mapId, mod]);
-      }));
+      await Promise.all(
+        mods.map(async (mod) => {
+          await DB.run(query, [mapId, mod]);
+        })
+      );
       return true;
     } catch (err) {
       logger.error(`Error inserting new mapMods for ${mapId}:`);
@@ -359,7 +366,7 @@ const Runs = {
   deleteMapMods: async (mapId: number) => {
     const query = 'DELETE FROM mapmod WHERE mapmod.run_id = ?';
     try {
-      await DB.run(query, [mapId]); 
+      await DB.run(query, [mapId]);
       return true;
     } catch (err) {
       logger.error(`Error deleting mapMods for ${mapId}: ${JSON.stringify(err)}`);
@@ -413,12 +420,7 @@ const Runs = {
       VALUES(?, ?, ?, ?)
     `;
     try {
-      await DB.run(query, [
-        event.event_type,
-        event.event_text,
-        event.timestamp,
-        event.server,
-      ]);
+      await DB.run(query, [event.event_type, event.event_text, event.timestamp, event.server]);
       return true;
     } catch (err) {
       logger.error(`Error inserting event: ${JSON.stringify(err)}`);
@@ -435,7 +437,7 @@ const Runs = {
     level: number;
     depth: number;
   }) => {
-    const { id: runId } = await Runs.getLatestUncompletedRun() ?? { id: 0};
+    const { id: runId } = (await Runs.getLatestUncompletedRun()) ?? { id: 0 };
     logger.info(`Setting current map stats for run ${runId}: ${name} (${level}, ${depth})`);
     const query = `
       INSERT INTO area_info (name, level, depth, run_id)
@@ -458,14 +460,16 @@ const Runs = {
   setCurrentRunStats: async ({
     iir,
     iiq,
-    pack_size
+    pack_size,
   }: {
     iir: number;
     iiq: number;
     pack_size: number;
   }) => {
     const { id: runId } = await Runs.getLatestUncompletedRun();
-    logger.info(`Setting current run stats for ${runId}: IIR: ${iir}, IIQ: ${iiq}, Pack Size: ${pack_size}`);
+    logger.info(
+      `Setting current run stats for ${runId}: IIR: ${iir}, IIQ: ${iiq}, Pack Size: ${pack_size}`
+    );
     const query = `
     UPDATE run SET
       iir = ?,
@@ -514,7 +518,7 @@ const Runs = {
       LIMIT 1
     `;
     const result = await DB.get(query);
-    if(result) result.event_text = JSON.parse(result.event_text);
+    if (result) result.event_text = JSON.parse(result.event_text);
     return result || null;
   },
 
@@ -547,7 +551,13 @@ const Runs = {
     }
   },
 
-  insertGeneratedMap: async (data: { timestamp: string; areaId: string; areaName: string; level: number; seed: number }) => {
+  insertGeneratedMap: async (data: {
+    timestamp: string;
+    areaId: string;
+    areaName: string;
+    level: number;
+    seed: number;
+  }) => {
     logger.info(`Inserting generated map: ${JSON.stringify(data)}`);
     const query = `
       INSERT INTO run (first_event, last_event, run_info)
@@ -559,9 +569,9 @@ const Runs = {
       await DB.run(query, [
         data.timestamp,
         data.timestamp,
-        JSON.stringify({"area": data.areaName, "level": data.level, "seed": data.seed}),
+        JSON.stringify({ area: data.areaName, level: data.level, seed: data.seed }),
         data.areaName,
-        data.level
+        data.level,
       ]);
       return true;
     } catch (err) {
@@ -570,7 +580,10 @@ const Runs = {
     }
   },
 
-  getItemsBetweenEvents: async (startTime: string, endTime: string): Promise<ItemsFromTimestamp[]> => {
+  getItemsBetweenEvents: async (
+    startTime: string,
+    endTime: string
+  ): Promise<ItemsFromTimestamp[]> => {
     logger.info(`Getting items dropped between ${startTime} and ${endTime}`);
     const query = `
       SELECT event_text, item.*, event.timestamp AS drop_time
@@ -598,7 +611,7 @@ const Runs = {
 
   getIncubatorDataBetweenEvents: async (startTime: string, endTime: string): Promise<any[]> => {
     logger.info(`Getting incubator data between ${startTime} and ${endTime}`);
-    const query =  `
+    const query = `
       SELECT * FROM incubator
       WHERE DATETIME(incubator.timestamp) BETWEEN DATETIME(?) AND DATETIME(?)
       ORDER BY timestamp
@@ -669,8 +682,7 @@ const Runs = {
       logger.error(`Error checking if first run: ${JSON.stringify(err)}`);
       return false;
     }
-  }, 
-
+  },
 };
 
 export default Runs;

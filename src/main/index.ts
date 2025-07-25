@@ -26,7 +26,7 @@ import * as url from 'url';
 import { OverlayController, OVERLAY_WINDOW_OPTS } from 'electron-overlay-window';
 import dayjs, { Dayjs } from 'dayjs';
 import duration from 'dayjs/plugin/duration';
-import isSameOrAfter from 'dayjs/plugin/isSameOrAfter'
+import isSameOrAfter from 'dayjs/plugin/isSameOrAfter';
 import AuthManager from './AuthManager';
 import IgnoreManager from '../helpers/ignoreManager';
 import LogProcessor from './modules/LogProcessor';
@@ -324,9 +324,7 @@ class MainProcess {
         depth,
         ...info.mapStats,
       });
-      logger.info(
-        `Got area info for ${name} (${tier} - ${stats}) in ${modReadingDuration}ms`
-      );
+      logger.info(`Got area info for ${name} (${tier} - ${stats}) in ${modReadingDuration}ms`);
       RendererLogger.log({
         messages: [
           {
@@ -425,8 +423,20 @@ class MainProcess {
     RunParser.refreshTracking();
     RunParser.emitter.on('run-parser:latest-area-updated', (area) => {
       logger.info('Latest area updated:', area);
-      this.sendToMain('current-run:started', { area: area.name, level: area.level, iir: area.iir > 0 ? area.iir : null, pack_size: area.pack_size > 0 ? area.pack_size : null, iiq: area.iiq > 0 ? area.iiq : null });
-      this.sendToOverlay('current-run:started', { area: area.name, level: area.level, iir: area.iir > 0 ? area.iir : null, pack_size: area.pack_size > 0 ? area.pack_size : null, iiq: area.iiq > 0 ? area.iiq : null });
+      this.sendToMain('current-run:started', {
+        area: area.name,
+        level: area.level,
+        iir: area.iir > 0 ? area.iir : null,
+        pack_size: area.pack_size > 0 ? area.pack_size : null,
+        iiq: area.iiq > 0 ? area.iiq : null,
+      });
+      this.sendToOverlay('current-run:started', {
+        area: area.name,
+        level: area.level,
+        iir: area.iir > 0 ? area.iir : null,
+        pack_size: area.pack_size > 0 ? area.pack_size : null,
+        iiq: area.iiq > 0 ? area.iiq : null,
+      });
       this.sendToMain('refresh-runs');
     });
     RunParser.emitter.on('run-parser:run-processed', async (run) => {
@@ -536,14 +546,17 @@ class MainProcess {
 
     LogProcessor.emitter.removeAllListeners();
     LogProcessor.emitter.on('client-logs:error:local-chat-disabled', () => {
-      logger.info(
-        "Unable to track area changes. Please check if local chat is enabled."
-      );
+      logger.info('Unable to track area changes. Please check if local chat is enabled.');
     });
-    LogProcessor.emitter.on('client-logs:generated-run', async ({ areaId, areaName, level, seed, runId }) => {
-      logger.info(`Generated run ${areaName} (${areaId}) (lvl${level}) (${seed}) - Latest: ${RunParser.latestGeneratedArea.seed}`);
-      RunParser.refreshTracking();
-    });
+    LogProcessor.emitter.on(
+      'client-logs:generated-run',
+      async ({ areaId, areaName, level, seed, runId }) => {
+        logger.info(
+          `Generated run ${areaName} (${areaId}) (lvl${level}) (${seed}) - Latest: ${RunParser.latestGeneratedArea.seed}`
+        );
+        RunParser.refreshTracking();
+      }
+    );
     LogProcessor.emitter.on('client-logs:entered-map', async ({ area }) => {
       logger.info('Entered map ' + area);
       const hasStarted = await RunParser.tryUpdateCurrentArea();

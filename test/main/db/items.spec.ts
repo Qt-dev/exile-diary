@@ -22,8 +22,36 @@ describe('Items', () => {
   describe('insertItems', () => {
     it('should insert items successfully with valid data', async () => {
       const mockItems = [
-        ['item1', '2023-01-01T12:00:00.000Z', 'icon1.png', 'Item Name', 'Rare', 'Weapon', 1, 'Sword', 'RRR', 1, '{"raw":"data"}', 100, 90],
-        ['item2', '2023-01-01T12:01:00.000Z', 'icon2.png', 'Item Name 2', 'Normal', 'Armor', 0, 'Chest', 'BB', 1, '{"raw":"data2"}', 50, 45],
+        [
+          'item1',
+          '2023-01-01T12:00:00.000Z',
+          'icon1.png',
+          'Item Name',
+          'Rare',
+          'Weapon',
+          1,
+          'Sword',
+          'RRR',
+          1,
+          '{"raw":"data"}',
+          100,
+          90,
+        ],
+        [
+          'item2',
+          '2023-01-01T12:01:00.000Z',
+          'icon2.png',
+          'Item Name 2',
+          'Normal',
+          'Armor',
+          0,
+          'Chest',
+          'BB',
+          1,
+          '{"raw":"data2"}',
+          50,
+          45,
+        ],
       ];
       mockDB.transaction.mockResolvedValue(undefined);
 
@@ -53,7 +81,21 @@ describe('Items', () => {
 
     it('should handle database transaction failure', async () => {
       const mockItems = [
-        ['item1', '2023-01-01T12:00:00.000Z', 'icon1.png', 'Item Name', 'Rare', 'Weapon', 1, 'Sword', 'RRR', 1, '{"raw":"data"}', 100, 90],
+        [
+          'item1',
+          '2023-01-01T12:00:00.000Z',
+          'icon1.png',
+          'Item Name',
+          'Rare',
+          'Weapon',
+          1,
+          'Sword',
+          'RRR',
+          1,
+          '{"raw":"data"}',
+          100,
+          90,
+        ],
       ];
       const mockError = new Error('Transaction failed');
       mockDB.transaction.mockRejectedValue(mockError);
@@ -66,7 +108,23 @@ describe('Items', () => {
     });
 
     it('should validate SQL query structure for SQLite compatibility', async () => {
-      const mockItems = [['item1', '2023-01-01T12:00:00.000Z', 'icon1.png', 'Item Name', 'Rare', 'Weapon', 1, 'Sword', 'RRR', 1, '{"raw":"data"}', 100, 90]];
+      const mockItems = [
+        [
+          'item1',
+          '2023-01-01T12:00:00.000Z',
+          'icon1.png',
+          'Item Name',
+          'Rare',
+          'Weapon',
+          1,
+          'Sword',
+          'RRR',
+          1,
+          '{"raw":"data"}',
+          100,
+          90,
+        ],
+      ];
       mockDB.transaction.mockResolvedValue(undefined);
 
       await Items.insertItems(mockItems);
@@ -76,9 +134,9 @@ describe('Items', () => {
       (item_id, event_id, icon, name, rarity, category, identified, typeline, sockets, stack_size, raw_data, value, original_value)
       values(?, (SELECT id FROM event WHERE event.timestamp = ?), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
       `;
-      
+
       expect(mockDB.transaction).toHaveBeenCalledWith(expectedQuery, mockItems);
-      
+
       // Verify query matches expected SQLite item table schema
       expect(expectedQuery).toContain('INSERT INTO item');
       expect(expectedQuery).toContain('item_id');
@@ -118,9 +176,7 @@ describe('Items', () => {
 
       const result = await Items.getMatchingItemsCount(itemIds);
 
-      expect(mockDB.get).toHaveBeenCalledWith(
-        'SELECT COUNT(1) AS count FROM item WHERE ()'
-      );
+      expect(mockDB.get).toHaveBeenCalledWith('SELECT COUNT(1) AS count FROM item WHERE ()');
       expect(result).toEqual(mockResult);
     });
 
@@ -175,7 +231,10 @@ describe('Items', () => {
         SET ignored = ?
         WHERE id = ?
     `,
-        [[1, 'item1'], [0, 'item2']]
+        [
+          [1, 'item1'],
+          [0, 'item2'],
+        ]
       );
     });
 
@@ -185,10 +244,7 @@ describe('Items', () => {
 
       const result = await Items.updateIgnoredItems(items);
 
-      expect(mockDB.transaction).toHaveBeenCalledWith(
-        expect.stringContaining('UPDATE item'),
-        []
-      );
+      expect(mockDB.transaction).toHaveBeenCalledWith(expect.stringContaining('UPDATE item'), []);
     });
 
     it('should convert boolean status to integer correctly', async () => {
@@ -201,10 +257,11 @@ describe('Items', () => {
 
       await Items.updateIgnoredItems(items);
 
-      expect(mockDB.transaction).toHaveBeenCalledWith(
-        expect.stringContaining('UPDATE item'),
-        [[1, 'item1'], [0, 'item2'], [1, 'item3']]
-      );
+      expect(mockDB.transaction).toHaveBeenCalledWith(expect.stringContaining('UPDATE item'), [
+        [1, 'item1'],
+        [0, 'item2'],
+        [1, 'item3'],
+      ]);
     });
 
     it('should handle database transaction failure', async () => {
@@ -226,9 +283,9 @@ describe('Items', () => {
         SET ignored = ?
         WHERE id = ?
     `;
-      
+
       expect(mockDB.transaction).toHaveBeenCalledWith(expectedQuery, [[1, 'item1']]);
-      
+
       // Verify query matches expected SQLite item table schema
       expect(expectedQuery).toContain('UPDATE item');
       expect(expectedQuery).toContain('SET ignored = ?');
@@ -284,9 +341,9 @@ describe('Items', () => {
       SELECT id, value
       FROM item
     `;
-      
+
       expect(mockDB.all).toHaveBeenCalledWith(expectedQuery);
-      
+
       // Verify query matches expected SQLite item table schema
       expect(expectedQuery).toContain('SELECT id, value');
       expect(expectedQuery).toContain('FROM item');
