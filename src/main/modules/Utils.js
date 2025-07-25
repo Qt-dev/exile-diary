@@ -16,20 +16,32 @@ const Utils = {
     }
   },
 
-  isTown: (name) => {
+  getArea: (name) => {
     const area = Object.values(Constants.worldAreas).find((area) => area.name === name);
+    return area ?? null;
+  },
+
+  isTown: (name) => {
+    const area = Utils.getArea(name);
     if (area) {
-      return area.isTown || area.isHideout;
+      return area.isTown || area.isHideout || area.isLabyrinthAirlock;
     }
 
     return false;
   },
 
-  isLabArea: (str) => {
-    for (var i = 0; i < Constants.areas.labyrinth.length; i++) {
-      if (str.includes(Constants.areas.labyrinth[i])) {
-        return true;
-      }
+  isVaalArea: (name) => {
+    const area = Utils.getArea(name);
+    if (area) {
+      return area.isVaalArea;
+    }
+    return false;
+  },
+
+  isLabArea: (name) => {
+    const area = Utils.getArea(name);
+    if (area) {
+      return area.isLabyrinthArea || area.isLabyrinthAirlock || area.isLabyrinthBossArea;
     }
     return false;
   },
@@ -250,7 +262,7 @@ const Utils = {
     return str;
   },
 
-  getRunningTime: (firstevent, lastevent, format = 'HH:mm:ss', options = null) => {
+  getRunningTime: (firstevent, lastevent, format = 'HH:mm:ss', options) => {
     return dayjs
       .duration(dayjs(lastevent, 'YYYYMMDDHHmmss').diff(dayjs(firstevent, 'YYYYMMDDHHmmss')))
       .format(format, options);
