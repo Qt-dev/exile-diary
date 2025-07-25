@@ -84,7 +84,7 @@ export class Run {
     this.duration = dayjs.duration(this.lastEvent.diff(this.firstEvent));
     this.xp = json.xpgained;
     this.xpPerHour = this.xp / this.duration.asHours();
-    this.deaths = this.deaths || json.deaths;
+    this.deaths = json.deaths || this.deaths;
     this.profit = json.gained;
     this.profitPerHour = this.profit / this.duration.asHours();
     this.kills = json.kills;
