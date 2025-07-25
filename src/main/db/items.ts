@@ -5,6 +5,7 @@ const logger = Logger.scope('db/items');
 const Items = {
   insertItems: (items: any[]) => {
     logger.debug(`Inserting ${items.length} items`);
+    logger.debug(items);
     const query = `
       INSERT INTO item
       (item_id, event_id, icon, name, rarity, category, identified, typeline, sockets, stack_size, raw_data, value, original_value)

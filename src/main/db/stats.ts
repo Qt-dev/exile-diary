@@ -38,14 +38,15 @@ const stats = {
     logger.debug('Getting all maps');
     const query = `
       SELECT
-        area_info.name, run.*,	
-        (SELECT count(1) FROM event WHERE conquerortimes.run_id = run.id AND DATETIME(event.timestamp) BETWEEN DATETIME(conquerortimes.start) AND DATETIME(conquerortimes.end) AND event.event_type = 'slain' ) AS conqueror_deaths,
-        (SELECT count(1) FROM event WHERE json_extract(run.run_info, '$.mastermindBattle') IS NOT NULL AND DATETIME(event.timestamp) BETWEEN DATETIME(json_extract(run.run_info, '$.mastermindBattle.battle2start')) AND DATETIME(min(json_extract(run.run_info, '$.mastermindBattle.completed'), run.last_event)) AND event.event_type = 'slain' ) AS mastermind_deaths,
-        (SELECT count(1) FROM event WHERE json_extract(run.run_info, '$.sirusBattle') IS NOT NULL AND DATETIME(event.timestamp) BETWEEN DATETIME(json_extract(run.run_info, '$.sirusBattle.start')) AND DATETIME(min(json_extract(run.run_info, '$.sirusBattle.completed'), run.last_event)) AND event.event_type = 'slain' ) AS sirus_deaths,
-        (SELECT count(1) FROM event WHERE json_extract(run.run_info, '$.shaperBattle') IS NOT NULL AND DATETIME(event.timestamp) BETWEEN DATETIME(json_extract(run.run_info, '$.shaperBattle.phase1start')) AND DATETIME(min(json_extract(run.run_info, '$.shaperBattle.completed'), run.last_event)) AND event.event_type = 'slain' ) AS shaper_deaths,
-        (SELECT count(1) FROM event WHERE json_extract(run.run_info, '$.maven.mavenDefeated') IS NOT NULL AND DATETIME(event.timestamp) BETWEEN DATETIME(json_extract(run.run_info, '$.maven.firstline')) AND DATETIME(min(json_extract(run.run_info, '$.maven.mavenDefeated'), run.last_event)) AND event.event_type = 'slain' ) AS maven_deaths,
-        (SELECT count(1) FROM event WHERE json_extract(run.run_info, '$.oshabiBattle') IS NOT NULL AND DATETIME(event.timestamp) BETWEEN DATETIME(json_extract(run.run_info, '$.oshabiBattle.start')) AND DATETIME(min(json_extract(run.run_info, '$.oshabiBattle.completed'), run.last_event)) AND event.event_type = 'slain' ) AS oshabi_deaths,
-        (SELECT count(1) FROM event WHERE json_extract(run.run_info, '$.venariusBattle') IS NOT NULL AND DATETIME(event.timestamp) BETWEEN DATETIME(json_extract(run.run_info, '$.venariusBattle.start')) AND DATETIME(min(json_extract(run.run_info, '$.venariusBattle.completed'), run.last_event)) AND event.event_type = 'slain' ) AS venarius_deaths
+        area_info.name, run.*,
+        (SELECT COALESCE(SUM(value),0) FROM item, event WHERE event.id = item.event_id AND DATETIME(event.timestamp) BETWEEN DATETIME(first_event) AND DATETIME(last_event) AND ignored = 0) gained,
+        (SELECT count(1) FROM event WHERE conquerortimes.run_id = run.id AND event.id BETWEEN conquerortimes.start AND conquerortimes.end AND event.event_type = 'slain' ) AS conqueror_deaths,
+        (SELECT count(1) FROM event WHERE json_extract(run.run_info, '$.mastermindBattle') IS NOT NULL AND event.id BETWEEN json_extract(run.run_info, '$.mastermindBattle.battle2start') AND min(json_extract(run.run_info, '$.mastermindBattle.completed'), run.last_event) AND event.event_type = 'slain' ) AS mastermind_deaths,
+        (SELECT count(1) FROM event WHERE json_extract(run.run_info, '$.sirusBattle') IS NOT NULL AND event.id BETWEEN json_extract(run.run_info, '$.sirusBattle.start') AND min(json_extract(run.run_info, '$.sirusBattle.completed'), run.last_event) AND event.event_type = 'slain' ) AS sirus_deaths,
+        (SELECT count(1) FROM event WHERE json_extract(run.run_info, '$.shaperBattle') IS NOT NULL AND event.id BETWEEN json_extract(run.run_info, '$.shaperBattle.phase1start') AND min(json_extract(run.run_info, '$.shaperBattle.completed'), run.last_event) AND event.event_type = 'slain' ) AS shaper_deaths,
+        (SELECT count(1) FROM event WHERE json_extract(run.run_info, '$.maven.mavenDefeated') IS NOT NULL AND event.id BETWEEN json_extract(run.run_info, '$.maven.firstline') AND min(json_extract(run.run_info, '$.maven.mavenDefeated'), run.last_event) AND event.event_type = 'slain' ) AS maven_deaths,
+        (SELECT count(1) FROM event WHERE json_extract(run.run_info, '$.oshabiBattle') IS NOT NULL AND event.id BETWEEN json_extract(run.run_info, '$.oshabiBattle.start') AND min(json_extract(run.run_info, '$.oshabiBattle.completed'), run.last_event) AND event.event_type = 'slain' ) AS oshabi_deaths,
+        (SELECT count(1) FROM event WHERE json_extract(run.run_info, '$.venariusBattle') IS NOT NULL AND event.id BETWEEN json_extract(run.run_info, '$.venariusBattle.start') AND min(json_extract(run.run_info, '$.venariusBattle.completed'), run.last_event) AND event.event_type = 'slain' ) AS venarius_deaths
 
       FROM area_info, run
       LEFT JOIN
@@ -55,8 +56,8 @@ const stats = {
               max(event.id) AS end
             FROM event, run
             WHERE 
-              event.id between run.first_event
-              AND run.last_event
+              DATETIME(event.timestamp) BETWEEN DATETIME(run.first_event)
+              AND DATETIME(run.last_event)
               AND event.event_type = 'conqueror'
               AND json_extract(run.run_info, '$.conqueror') IS NOT NULL
             GROUP BY run.id
@@ -136,7 +137,7 @@ const stats = {
         area_info.*, run.*,
         (run.xp - (SELECT xp FROM run m WHERE m.id < run.id AND xp IS NOT null ORDER BY m.id desc LIMIT 1)) xpgained,
         (SELECT COALESCE(SUM(value),0) FROM item, event WHERE event.id = item.event_id AND DATETIME(event.timestamp) BETWEEN DATETIME(first_event) AND DATETIME(last_event) AND ignored = 0) gained,
-        (SELECT count(1) FROM event WHERE event_type='slain' AND DATETIME(events.timestamp) BETWEEN DATETIME(first_event) AND DATETIME(last_event)) deaths
+        (SELECT count(1) FROM event WHERE event_type='slain' AND DATETIME(event.timestamp) BETWEEN DATETIME(first_event) AND DATETIME(last_event)) deaths
 
       FROM area_info, run
 
@@ -156,9 +157,9 @@ const stats = {
         selectedMods.length > 0
           ? `AND (
           SELECT count(*) as has_mod
-          FROM run, mapmod
+          FROM mapmod
           WHERE run.id = mapmod.run_id
-          AND ( ${selectedMods.map(() => ` mapmod.mod LIKE ? `).join(' OR ')} )
+          AND ( ${selectedMods.map(() => ` mapmod.mod LIKE ? ESCAPE '^'`).join(' OR ')} )
           ) > 0 `
           : ''
       }
@@ -197,20 +198,23 @@ const stats = {
       }
       ${deaths ? `AND deaths BETWEEN ${deaths.min} AND ${deaths.max} ` : ''}
       AND itemcount.items > 0
-      AND json_extract(run_info, '$.ignored') is null
+      AND json_extract(run_info, '$.ignored') IS NULL
       AND gained > ?
       AND DATETIME(run.first_event) BETWEEN DATETIME(?) AND DATETIME(?)
       ORDER BY run.id desc
     `;
 
+    logger.info(query);
+
     try {
       const queryArgs: any[] = [];
       if (neededItemName) queryArgs.push(neededItemName);
-      if (selectedMods.length > 0) queryArgs.push(...selectedMods);
+      if (selectedMods.length > 0) queryArgs.push(...(selectedMods.map((mod) => mod.replace(/\%/g, "^%").replace(/#/g, '%'))));
       if (selectedMaps.length > 0) queryArgs.push(...selectedMaps);
       queryArgs.push(minMapValue);
       queryArgs.push(from);
       queryArgs.push(to);
+      logger.info(queryArgs);
       const runs = await DB.all(query, queryArgs);
       return runs ?? [];
     } catch (err) {

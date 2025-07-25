@@ -224,7 +224,7 @@ const Migrations = {
         `CREATE TABLE mapruns_bis (
             id INTEGER NOT NULL UNIQUE,
             first_event TEXT UNIQUE NOT NULL,
-            last_event TEXT UNIQUE NOT NULL,
+            last_event TEXT NOT NULL,
             iiq NUMBER,
             iir NUMBER,
             pack_size NUMBER,
