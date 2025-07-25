@@ -21,8 +21,8 @@
  * Note: Results are consistent across runs due to hardcoded test data
  */
 
-import Constants from '../src/helpers/constants';
-import StringParser from '../src/main/modules/StringParser/StringParser';
+import Constants from '../../../src/helpers/constants';
+import StringParser from '../../../src/main/modules/StringParser/StringParser';
 import { NEW_TEST_DATASETS } from './NewTestDatasets';
 
 // Import StringMatcher
