@@ -1,6 +1,6 @@
-﻿
 // Mock the dependencies first
 jest.mock('../../../src/main/db/index');
+jest.mock('dayjs');
 jest.mock('dayjs');
 jest.mock('electron-log', () => ({
   scope: jest.fn(() => ({
