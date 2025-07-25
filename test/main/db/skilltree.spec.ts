@@ -1,4 +1,3 @@
-﻿
 // Mock the dependencies first
 jest.mock('../../../src/main/db/index');
 jest.mock('electron-log', () => ({
