@@ -597,7 +597,7 @@ const Runs = {
             DATETIME(event.timestamp) BETWEEN DATETIME(?) AND DATETIME(?)
           )
             
-      GROUP BY item_id
+      GROUP BY item_id, drop_time
       ORDER BY drop_time ASC
     `;
     try {
