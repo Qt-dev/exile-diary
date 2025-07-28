@@ -47,9 +47,9 @@ class LogProcessorScheduler {
   runTask(task: Function): Promise<any> {
     const id = uuidv4();
     return new Promise((resolve) => {
-      this.eventEmitter.once(`task:start:${id}`, () => {
+      this.eventEmitter.once(`task:start:${id}`, async () => {
         // logger.info(`Running task ${id}`);
-        const result = task();
+        const result = await task();
         this.eventEmitter.emit(`task:end:${id}`);
         resolve(result);
       });
