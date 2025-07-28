@@ -310,7 +310,7 @@ class MainProcess {
     OCRWatcher.emitter.on('OCRError', () => {
       logger.info('Error getting area info from screenshot. Please try again');
     });
-    OCRWatcher.emitter.on('ocr:completed-job', (info) => {
+    OCRWatcher.emitter.on('ocr:completed-job', async (info) => {
       logger.info('Got area info from OCR', info);
       const { level, name, depth } = RunParser.latestGeneratedArea;
       const tier = getMapTierString({ level });
@@ -318,7 +318,7 @@ class MainProcess {
       if (info.mapStats.pack_size && info.mapStats.pack_size > 0)
         stats += ` / Pack Size: ${info.mapStats.pack_size}`;
       const modReadingDuration = dayjs().diff(modReadingTimer);
-      RunParser.setCurrentMapStats({
+      await RunParser.setCurrentMapStats({
         name,
         level,
         depth,
@@ -339,12 +339,12 @@ class MainProcess {
           },
         ],
       });
-      this.sendToOverlay('current-run:info', {
-        name,
-        level,
-        ...info.mapStats,
-      });
       RunParser.refreshTracking();
+      // this.sendToOverlay('current-run:info', {
+      //   name,
+      //   level,
+      //   ...info.mapStats,
+      // });
     });
 
     ScreenshotWatcher.emitter.removeAllListeners();
@@ -398,7 +398,6 @@ class MainProcess {
           });
         }
         logger.info('Map info : Reading done');
-        RunParser.refreshTracking();
         this.screenshotLock = false;
       }
     });

@@ -1523,7 +1523,7 @@ const RunParser = {
     logger.info(`Started run in ${area} (${level})`);
   },
 
-  setCurrentMapStats: (stats: {
+  setCurrentMapStats: async (stats: {
     name: string;
     level: number;
     depth: number;
@@ -1531,7 +1531,7 @@ const RunParser = {
     iiq: number;
     pack_size: number;
   }) => {
-    DB.setCurrentRunStats({
+    await DB.setCurrentRunStats({
       iir: stats.iir,
       iiq: stats.iiq,
       pack_size: stats.pack_size,

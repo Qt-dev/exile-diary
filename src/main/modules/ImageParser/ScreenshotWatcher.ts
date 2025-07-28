@@ -336,6 +336,8 @@ async function processScreenshot(file: string | Buffer) {
     // OCRWatcher.processImageBuffer(statsImage, filePrefix, 'area'),
     OCRWatcher.processImageBuffer(modsImage, filePrefix, 'mods'),
   ]);
+
+  OCRWatcher.checkJobComplete();
   timers.push({
     name: 'after-ocr',
     timer: performance.now(),
