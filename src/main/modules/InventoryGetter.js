@@ -55,6 +55,10 @@ class InventoryGetter extends EventEmitter {
         }
       });
 
+      logger.debug(`Inventory diff: ${JSON.stringify(diff)}`);
+      logger.debug(`Previous inventory: ${JSON.stringify(prev)}`);
+      logger.debug(`Current inventory: ${JSON.stringify(curr)}`);
+
       this.updateLastInventory(curr);
       resolve(diff);
     });
@@ -100,17 +104,17 @@ class InventoryGetter extends EventEmitter {
   updateLastInventory(data) {
     var dataString = JSON.stringify(data);
     let timestamp;
-    DB.run('DELETE FROM last_inventory')
-      .catch((err) => {
-        logger.info(`Unable to delete last inventory: ${err}`);
-      })
-      .then(() => {
-        timestamp = dayjs().toISOString();
-        return DB.run('INSERT INTO last_inventory(timestamp, inventory) VALUES(?, ?)', [
-          timestamp,
-          dataString,
-        ]);
-      })
+    // DB.run('DELETE FROM last_inventory')
+    //   .catch((err) => {
+    //     logger.info(`Unable to delete last inventory: ${err}`);
+    //   })
+    //   .then(() => {
+      timestamp = dayjs().toISOString();
+      return DB.run('INSERT INTO last_inventory(timestamp, inventory) VALUES(?, ?)', [
+        timestamp,
+        dataString,
+      ])
+      // })
       .catch((err) => {
         logger.info(`Unable to update last inventory: ${err}`);
       })
@@ -122,6 +126,8 @@ class InventoryGetter extends EventEmitter {
   getInventory(inventory) {
     var mainInventory = {};
     var equippedItems = {};
+    logger.debug(`Parsing inventory for ${inventory?.length} items`);
+    logger.debug(inventory);
     inventory?.forEach((item) => {
       if (item.inventoryId === 'MainInventory') {
         mainInventory[item.id] = item;
