@@ -175,7 +175,6 @@ async function processImageBuffer(buffer, timestamp, type) {
           await cleanFailedOCR(mapModErr, timestamp);
         } else {
           mapInfoManager.setMapMods(mods);
-          mapInfoManager.checkJobComplete();
         }
       } catch (e) {
         await cleanFailedOCR(e, timestamp);
@@ -195,4 +194,5 @@ module.exports = {
   emitter,
   scheduler,
   processImageBuffer,
+  checkJobComplete: () => mapInfoManager.checkJobComplete(),
 };
