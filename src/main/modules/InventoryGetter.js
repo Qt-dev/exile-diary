@@ -55,9 +55,9 @@ class InventoryGetter extends EventEmitter {
         }
       });
 
-      logger.debug(`Inventory diff: ${JSON.stringify(diff)}`);
-      logger.debug(`Previous inventory: ${JSON.stringify(prev)}`);
-      logger.debug(`Current inventory: ${JSON.stringify(curr)}`);
+      // logger.debug(`Inventory diff: ${JSON.stringify(diff)}`);
+      // logger.debug(`Previous inventory: ${JSON.stringify(prev)}`);
+      // logger.debug(`Current inventory: ${JSON.stringify(curr)}`);
 
       this.updateLastInventory(curr);
       resolve(diff);
