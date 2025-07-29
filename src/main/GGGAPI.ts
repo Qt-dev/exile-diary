@@ -197,9 +197,9 @@ const getDataForInventory = async (): Promise<Inventory> => {
     const rucksack = character.rucksack ?? [];
     const inventory = [...mainInventory, ...rucksack];
     logger.info(`Found inventory for character: ${characterName}`);
-    logger.debug(`Inventory: ${JSON.stringify(inventory)}`);
-    logger.debug(`Equipment: ${JSON.stringify(equipment)}`);
-    logger.debug(`Experience: ${experience}`);
+    // logger.debug(`Inventory: ${JSON.stringify(inventory)}`);
+    // logger.debug(`Equipment: ${JSON.stringify(equipment)}`);
+    // logger.debug(`Experience: ${experience}`);
     return {
       inventory,
       equipment,
