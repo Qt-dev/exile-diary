@@ -173,7 +173,7 @@ const getAllCharacters = async () => {
     const response: any = await request({
       params: getRequestParams(Endpoints.characters(), token),
       group: '/character',
-      cacheTime: 60 * 5,
+      // cacheTime: 60 * 5,
     });
     const characters = await response.data.characters;
     logger.info(`Found ${characters.length} characters from the GGG API for account: ${username}`);
