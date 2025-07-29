@@ -19,6 +19,8 @@
       "public/icon.*",
       "public/icon512x512.*"
     ],
+    "nativeRebuilder": "parallel",
+    
     "win": {
       "target": "nsis",
       "artifactName": "exile-diary-reborn-setup-${version}.${ext}",
