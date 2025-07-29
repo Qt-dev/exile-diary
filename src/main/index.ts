@@ -62,7 +62,7 @@ function setLogTransport(debugMode) {
 
 // Initialize logger settings
 logger.initialize({ preload: true });
-setLogTransport(isDev);
+setLogTransport(isDev || SettingsManager.get('forceDebugMode'));
 logger.scope.defaultLabel = 'main';
 logger.errorHandler.startCatching({
   showDialog: false,

@@ -1,6 +1,6 @@
 {
   "name": "exile-diary",
-  "version": "1.8.1",
+  "version": "1.8.2-dev1",
   "main": "./build/main/index.js",
   "homepage": "./",
   "build": {
@@ -19,6 +19,8 @@
       "public/icon.*",
       "public/icon512x512.*"
     ],
+    "nativeRebuilder": "parallel",
+    
     "win": {
       "target": "nsis",
       "artifactName": "exile-diary-reborn-setup-${version}.${ext}",
@@ -133,7 +135,7 @@
     "babel-plugin-named-asset-import": "^0.3.8",
     "babel-preset-react-app": "^10.0.1",
     "base64url": "^3.0.1",
-    "better-sqlite3": "^12.0.0",
+    "better-sqlite3": "^12.2.0",
     "bfj": "^7.0.2",
     "bottleneck": "^2.19.5",
     "browserslist": "^4.18.1",
@@ -217,8 +219,8 @@
     "cpy-cli": "^5.0.0",
     "cross-env": "^7.0.3",
     "css-minimizer-webpack-plugin": "^7.0.0",
-    "electron": "^36.5.0",
-    "electron-builder": "^24.13.3",
+    "electron": "^37.2.4",
+    "electron-builder": "^26.0.12",
     "jest": "^30.0.3",
     "jest-environment-jsdom": "^30.0.2",
     "jest-watch-typeahead": "^3.0.1",

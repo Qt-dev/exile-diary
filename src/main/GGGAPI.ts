@@ -173,7 +173,7 @@ const getAllCharacters = async () => {
     const response: any = await request({
       params: getRequestParams(Endpoints.characters(), token),
       group: '/character',
-      cacheTime: 60 * 5,
+      // cacheTime: 60 * 5,
     });
     const characters = await response.data.characters;
     logger.info(`Found ${characters.length} characters from the GGG API for account: ${username}`);
@@ -197,6 +197,9 @@ const getDataForInventory = async (): Promise<Inventory> => {
     const rucksack = character.rucksack ?? [];
     const inventory = [...mainInventory, ...rucksack];
     logger.info(`Found inventory for character: ${characterName}`);
+    // logger.debug(`Inventory: ${JSON.stringify(inventory)}`);
+    // logger.debug(`Equipment: ${JSON.stringify(equipment)}`);
+    // logger.debug(`Experience: ${experience}`);
     return {
       inventory,
       equipment,

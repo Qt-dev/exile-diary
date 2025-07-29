@@ -117,7 +117,7 @@ function getModsYBounds(
   }
 
   let linesArray: { line: number; blue: number; black: number }[] = [];
-  for (let y = orangeLineIndex + 1; y < metadata.height - 1; y++) {
+  for (let y = orangeLineIndex + 5; y < metadata.height - 1; y++) {
     let bluePixels = 0;
     let blackPixels = 0;
 
