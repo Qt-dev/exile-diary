@@ -109,18 +109,20 @@ class InventoryGetter extends EventEmitter {
     //     logger.info(`Unable to delete last inventory: ${err}`);
     //   })
     //   .then(() => {
-      timestamp = dayjs().toISOString();
-      return DB.run('INSERT INTO last_inventory(timestamp, inventory) VALUES(?, ?)', [
+    timestamp = dayjs().toISOString();
+    return (
+      DB.run('INSERT INTO last_inventory(timestamp, inventory) VALUES(?, ?)', [
         timestamp,
         dataString,
       ])
-      // })
-      .catch((err) => {
-        logger.info(`Unable to update last inventory: ${err}`);
-      })
-      .then(() => {
-        logger.info(`Updated last inventory at ${timestamp} (length: ${dataString.length})`);
-      });
+        // })
+        .catch((err) => {
+          logger.info(`Unable to update last inventory: ${err}`);
+        })
+        .then(() => {
+          logger.info(`Updated last inventory at ${timestamp} (length: ${dataString.length})`);
+        })
+    );
   }
 
   getInventory(inventory) {
