@@ -1,6 +1,6 @@
 {
   "name": "exile-diary",
-  "version": "1.8.2-dev1",
+  "version": "1.8.2",
   "main": "./build/main/index.js",
   "homepage": "./",
   "build": {
@@ -20,7 +20,6 @@
       "public/icon512x512.*"
     ],
     "nativeRebuilder": "parallel",
-    
     "win": {
       "target": "nsis",
       "artifactName": "exile-diary-reborn-setup-${version}.${ext}",
