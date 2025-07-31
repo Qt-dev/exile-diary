@@ -47,7 +47,8 @@
       "category": "Utility",
       "maintainer": "qt-dev",
       "asarUnpack": [
-        "node_modules/sharp/**"
+        "node_modules/sharp/**",
+        "node_modules/@img/sharp-libvips-linux-x64/lib/**"
       ]
     },
     "flatpak": {
