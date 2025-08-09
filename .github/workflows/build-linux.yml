@@ -9,7 +9,7 @@ on:
 
 jobs:
   linux-build:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
         with:
@@ -24,6 +24,7 @@ jobs:
       - name: Install flathub dependencies
         run: |
           sudo flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
+          sudo flatpak install -y
       - name: Install npm dependencies
         run: npm install  
       - name: Build app
