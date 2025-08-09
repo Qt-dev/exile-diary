@@ -22,7 +22,7 @@ jobs:
     needs: create-release
     runs-on: windows-latest
     concurrency:
-      group: build-${{ github.ref_name }}
+      group: build-${{ github.ref_name }}-windows
       cancel-in-progress: true
     steps:
       - uses: actions/checkout@v4
@@ -59,7 +59,7 @@ jobs:
     needs: create-release
     runs-on: ubuntu-latest
     concurrency:
-      group: build-${{ github.ref_name }}
+      group: build-${{ github.ref_name }}-linux
       cancel-in-progress: true
     steps:
       - uses: actions/checkout@v4
