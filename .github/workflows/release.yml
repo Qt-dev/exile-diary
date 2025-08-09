@@ -35,8 +35,7 @@ jobs:
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: app
-          overwrite: true
+          name: windows-app
           path: |
             dist/exile-diary-reborn-setup-${{ github.ref_name }}.exe
             dist/exile-diary-reborn-setup-${{ github.ref_name }}.exe.blockmap
@@ -75,8 +74,7 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: app
-          overwrite: true
+          name: linux-app
           path: |
             dist/latest-linux.yml
             dist/exile-diary_${{ github.ref_name }}_amd64.flatpak
