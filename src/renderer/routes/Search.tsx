@@ -26,7 +26,6 @@ const SearchResultsHeader = ({
   availableMaps,
   shouldDisplayCharacterName,
 }) => {
-  const dateFormat = 'YYYYMMDDHHmmss';
   const dateString =
     searchParams?.to && searchParams?.from ? (
       <div className="DataSearchResults__Stats__SubTitle">
