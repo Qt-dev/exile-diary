@@ -18,7 +18,9 @@ jobs:
         with:
           node-version: '22'
       - name: Install linux dependencies
-        run: sudo apt-get install -y flatpak flatpak-builder
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y flatpak flatpak-builder
       - name: Install npm dependencies
         run: npm install  
       - name: Build app
