@@ -23,12 +23,12 @@ jobs:
           sudo apt-get install -y flatpak flatpak-builder elfutils
       - name: Install flathub dependencies
         run: |
-          sudo flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
-          sudo flatpak install -y flathub org.freedesktop.Platform/x86_64/24.08 org.freedesktop.Sdk/x86_64/24.08
+          flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
+          flatpak install -y flathub org.freedesktop.Platform/x86_64/24.08 org.freedesktop.Sdk/x86_64/24.08
       - name: Install npm dependencies
-        run: sudo npm install
+        run: npm install
       - name: Build app
-        run: sudo npm run build:linux
+        run: npm run build:linux
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
