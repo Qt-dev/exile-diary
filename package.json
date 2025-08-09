@@ -78,7 +78,7 @@
     "react:build": "node scripts/build.js",
     "react:test": "node scripts/test.js",
     "react:eject": "node scripts/eject.js",
-    "data:extract": "cd scripts/poe-extractor && npm run update && npm run generate && prettier --write \"output\" && cd output && cpy areas.json items.json mapMods.json worldAreas.json ../../../src/helpers/data/",
+    "data:extract": "cd scripts/poe-extractor && npm run update && npm run generate && prettier --write \"output\" && cd output && cpy areas.json items.json mapMods.json worldAreas.json uniques.json ../../../src/helpers/data/",
     "analyze": "source-map-explorer 'build/static/js/*.js'",
     "benchmark": "tsc -p src/main && npx tsx test/ParserBenchmark.ts",
     "build": "npm run react:build && tsc -p src/main && electron-builder -p never",
