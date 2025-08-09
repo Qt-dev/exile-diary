@@ -24,7 +24,7 @@ jobs:
       - name: Install flathub dependencies
         run: |
           sudo flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
-          sudo flatpak install -y
+          sudo flatpak install -y flathub org.freedesktop.Platform/x86_64/24.08
       - name: Install npm dependencies
         run: npm install  
       - name: Build app
@@ -40,11 +40,9 @@ jobs:
             dist/exile-diary_${{ inputs.version }}_amd64.AppImage
       - name: Update release
         uses: softprops/action-gh-release@v2
-        if: ${{ !contains(inputs.version, '-') }}
         with:
           tag_name: v${{ inputs.version }}
           files: |
-            dist/exile-diary_${{ inputs.version }}_amd64.deb
             dist/latest-linux.yml
             dist/exile-diary_${{ inputs.version }}_amd64.flatpak
             dist/exile-diary_${{ inputs.version }}_amd64.AppImage
