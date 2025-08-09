@@ -46,7 +46,7 @@ jobs:
       - name: Update release
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: v${{ github.ref_name }}
+          tag_name: ${{ github.ref_name }}
           draft: false
           prerelease: false
           files: |
@@ -90,7 +90,7 @@ jobs:
       - name: Update release
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: v${{ github.ref_name }}
+          tag_name: ${{ github.ref_name }}
           files: |
             dist/latest-linux.yml
             dist/exile-diary_${{ github.ref_name }}_amd64.flatpak
