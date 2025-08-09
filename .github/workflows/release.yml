@@ -1,0 +1,105 @@
+name: release
+run-name: Build version ${{ github.ref_name }}
+on:
+  push:
+    tags:        
+      - '*'
+
+jobs:
+  create-release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Create release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.ref_name }}
+          draft: true
+          prerelease: ${{ contains(github.ref_name, '-') }}
+          generate_release_notes: true
+
+  # Build Windows
+  build-windows:
+    runs-on: windows-latest
+    concurrency:
+      group: build-${{ github.ref_name }}
+      cancel-in-progress: true
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref_name }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install dependencies
+        run: npm install  
+      - name: Build app
+        run: npm run build
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: app
+          path: |
+            dist/exile-diary-reborn-setup-${{ github.ref_name }}.exe
+            dist/exile-diary-reborn-setup-${{ github.ref_name }}.exe.blockmap
+            dist/latest.yml
+      - name: Update release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v${{ github.ref_name }}
+          draft: false
+          prerelease: false
+          files: |
+            dist/exile-diary-reborn-setup-${{ github.ref_name }}.exe
+            dist/exile-diary-reborn-setup-${{ github.ref_name }}.exe.blockmap
+            dist/latest.yml
+
+  # Build Linux
+  build-linux:
+    runs-on: ubuntu-latest
+    concurrency:
+      group: build-${{ github.ref_name }}
+      cancel-in-progress: true
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref_name }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install linux dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y flatpak flatpak-builder elfutils
+      - name: Install flathub dependencies
+        run: |
+          flatpak remote-add -u --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
+      - name: Install npm dependencies
+        run: npm install
+      - name: Build app
+        run: npm run build:linux
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: app
+          path: |
+            dist/latest-linux.yml
+            dist/exile-diary_${{ github.ref_name }}_amd64.flatpak
+            dist/exile-diary_${{ github.ref_name }}_amd64.AppImage
+      - name: Update release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v${{ github.ref_name }}
+          files: |
+            dist/latest-linux.yml
+            dist/exile-diary_${{ github.ref_name }}_amd64.flatpak
+            dist/exile-diary_${{ github.ref_name }}_amd64.AppImage
+
+  # Publish Release
+  publish-release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Publish release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.ref_name }}
+          draft: false
