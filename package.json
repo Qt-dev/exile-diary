@@ -1,6 +1,6 @@
 {
   "name": "exile-diary",
-  "version": "1.8.2",
+  "version": "1.8.3",
   "main": "./build/main/index.js",
   "homepage": "./",
   "build": {
@@ -41,7 +41,10 @@
       "installerHeaderIcon": "./src/renderer/assets/img/icons/win/ExileDiary.ico"
     },
     "linux": {
-      "target": [ "flatpak", "AppImage" ],
+      "target": [
+        "flatpak",
+        "AppImage"
+      ],
       "executableName": "exile-diary",
       "icon": "./src/renderer/assets/img/icons/png",
       "category": "Utility",
