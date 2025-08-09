@@ -16,7 +16,7 @@ jobs:
           ref: v${{ inputs.version }}
       - uses: actions/setup-node@v3
         with:
-          node-version: '18'
+          node-version: '22'
       - name: Install linux dependencies
         run: sudo apt-get install -y flatpak flatpak-builder
       - name: Install npm dependencies
@@ -30,3 +30,5 @@ jobs:
           path: |
             dist/exile-diary_${{ inputs.version }}_amd64.deb
             dist/latest-linux.yml
+            dist/exile-diary_${{ inputs.version }}_amd64.flatpak
+            dist/exile-diary_${{ inputs.version }}_amd64.AppImage
