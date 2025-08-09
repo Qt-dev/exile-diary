@@ -21,6 +21,9 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y flatpak flatpak-builder elfutils
+      - name: Install flathub dependencies
+        run: |
+          flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
       - name: Install npm dependencies
         run: npm install  
       - name: Build app
