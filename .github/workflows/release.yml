@@ -19,10 +19,8 @@ jobs:
 
   # Build Windows
   build-windows:
+    needs: create-release
     runs-on: windows-latest
-    concurrency:
-      group: build-${{ github.ref_name }}
-      cancel-in-progress: true
     steps:
       - uses: actions/checkout@v4
         with:
@@ -45,9 +43,7 @@ jobs:
       - name: Update release
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: v${{ github.ref_name }}
-          draft: false
-          prerelease: false
+          tag_name: ${{ github.ref_name }}
           files: |
             dist/exile-diary-reborn-setup-${{ github.ref_name }}.exe
             dist/exile-diary-reborn-setup-${{ github.ref_name }}.exe.blockmap
@@ -55,10 +51,8 @@ jobs:
 
   # Build Linux
   build-linux:
+    needs: create-release
     runs-on: ubuntu-latest
-    concurrency:
-      group: build-${{ github.ref_name }}
-      cancel-in-progress: true
     steps:
       - uses: actions/checkout@v4
         with:
@@ -88,7 +82,7 @@ jobs:
       - name: Update release
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: v${{ github.ref_name }}
+          tag_name: ${{ github.ref_name }}
           files: |
             dist/latest-linux.yml
             dist/exile-diary_${{ github.ref_name }}_amd64.flatpak
@@ -96,6 +90,7 @@ jobs:
 
   # Publish Release
   publish-release:
+    needs: [build-windows, build-linux]
     runs-on: ubuntu-latest
     steps:
       - name: Publish release
