@@ -2,7 +2,6 @@ import { makeAutoObservable, computed } from 'mobx';
 import { v4 as uuidv4 } from 'uuid';
 import dayjs, { Dayjs } from 'dayjs';
 import ItemStore from '../itemStore';
-import Logger from 'electron-log/renderer';
 
 type JSONRun = {
   id: number;
