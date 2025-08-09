@@ -36,6 +36,7 @@ jobs:
             dist/exile-diary_${{ inputs.version }}_amd64.AppImage
       - name: Update release
         uses: softprops/action-gh-release@v2
+        if: ${{ !contains(inputs.version, '-') }}
         with:
           tag_name: v${{ inputs.version }}
           files: |
