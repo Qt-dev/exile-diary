@@ -22,7 +22,7 @@
     "nativeRebuilder": "parallel",
     "win": {
       "target": "nsis",
-      "artifactName": "${productName}-setup-v${version}.${ext}",
+      "artifactName": "exile-diary-reborn-setup-v${version}.${ext}",
       "icon": "./src/renderer/assets/img/icons/win/ExileDiary.ico",
       "extraResources": [
         "eng.traineddata",
@@ -41,7 +41,7 @@
       "installerHeaderIcon": "./src/renderer/assets/img/icons/win/ExileDiary.ico"
     },
     "linux": {
-      "artifactName": "${productName}_v${version}_amd64.${ext}",
+      "artifactName": "exile-diary-reborn_v${version}_amd64.${ext}",
       "target": [
         "flatpak",
         "AppImage"

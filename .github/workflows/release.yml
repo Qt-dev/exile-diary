@@ -79,16 +79,16 @@ jobs:
           overwrite: true
           path: |
             dist/latest-linux.yml
-            dist/exile-diary_${{ github.ref_name }}_amd64.flatpak
-            dist/exile-diary_${{ github.ref_name }}_amd64.AppImage
+            dist/exile-diary-reborn_${{ github.ref_name }}_amd64.flatpak
+            dist/exile-diary-reborn_${{ github.ref_name }}_amd64.AppImage
       - name: Update release
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ github.ref_name }}
           files: |
             dist/latest-linux.yml
-            dist/exile-diary_${{ github.ref_name }}_amd64.flatpak
-            dist/exile-diary_${{ github.ref_name }}_amd64.AppImage
+            dist/exile-diary-reborn_${{ github.ref_name }}_amd64.flatpak
+            dist/exile-diary-reborn_${{ github.ref_name }}_amd64.AppImage
 
   # Publish Release
   publish-release:
