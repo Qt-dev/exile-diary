@@ -56,8 +56,8 @@
     },
     "flatpak": {
       "useWaylandFlags": true,
-      "runtimeVersion": "22.08",
-      "baseVersion": "22.08",
+      "runtimeVersion": "24.08",
+      "baseVersion": "24.08",
       "files": [
         [
           "./eng.traineddata",
