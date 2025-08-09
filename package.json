@@ -54,7 +54,7 @@
         "node_modules/sharp/**",
         "node_modules/@img/sharp-libvips-linux-x64/lib/**"
       ],
-      "files": [
+      "extraFiles": [
         {
           "from": "./eng.traineddata",
           "to": "lib/com.exilediary.reborn/resources/eng.traineddata"
