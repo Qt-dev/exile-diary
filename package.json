@@ -1,6 +1,6 @@
 {
   "name": "exile-diary",
-  "version": "1.8.4",
+  "version": "1.8.5-dev3",
   "main": "./build/main/index.js",
   "homepage": "./",
   "build": {
@@ -56,8 +56,8 @@
     },
     "flatpak": {
       "useWaylandFlags": true,
-      "runtimeVersion": "22.08",
-      "baseVersion": "22.08",
+      "runtimeVersion": "24.08",
+      "baseVersion": "24.08",
       "files": [
         [
           "./eng.traineddata",
@@ -86,6 +86,7 @@
     "analyze": "source-map-explorer 'build/static/js/*.js'",
     "benchmark": "tsc -p src/main && npx tsx test/ParserBenchmark.ts",
     "build": "npm run react:build && tsc -p src/main && set \"DEBUG=electron-builder\" && electron-builder -p never",
+    "build:linux": "npm run react:build && tsc -p src/main && env DEBUG=\"@malept/flatpak-bundler\" electron-builder -p never",
     "dev": "concurrently \"cross-env BROWSER=none npm run react:start\" \"wait-on -s 1 http://localhost:3003 && tsc -p src/main -w --preserveWatchOutput\" \"wait-on -s 1 http://localhost:3003 && tsc -p src/main && electron .\""
   },
   "eslintConfig": {
