@@ -34,3 +34,11 @@ jobs:
             dist/latest-linux.yml
             dist/exile-diary_${{ inputs.version }}_amd64.flatpak
             dist/exile-diary_${{ inputs.version }}_amd64.AppImage
+      - name: Update release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            dist/exile-diary_${{ inputs.version }}_amd64.deb
+            dist/latest-linux.yml
+            dist/exile-diary_${{ inputs.version }}_amd64.flatpak
+            dist/exile-diary_${{ inputs.version }}_amd64.AppImage
