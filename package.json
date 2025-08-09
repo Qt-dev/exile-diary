@@ -55,14 +55,14 @@
         "node_modules/@img/sharp-libvips-linux-x64/lib/**"
       ],
       "files": [
-        [
-          "./eng.traineddata",
-          "lib/com.exilediary.reborn/resources/eng.traineddata"
-        ],
-        [
-          "./src/main/db/extensions/regexp.so",
-          "lib/com.exilediary.reborn/resources/db/extensions/regexp.so"
-        ]
+        {
+          "from": "./eng.traineddata",
+          "to": "lib/com.exilediary.reborn/resources/eng.traineddata"
+        },
+        {
+          "from": "./src/main/db/extensions/regexp.so",
+          "to": "lib/com.exilediary.reborn/resources/db/extensions/regexp.so"
+        }
       ]
     },
     "flatpak": {
