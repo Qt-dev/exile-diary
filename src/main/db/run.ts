@@ -82,15 +82,7 @@ const getItemNameFromIcon = (iconUrl: string) => {
       ''
     );
 
-    if (decodedPath.includes('/Flasks/')) {
-      const flaskId = decodedPath.replace('Art/', '').replace('Flasks/', '');
-      return constants.uniqueFlasks[flaskId] || null;
-    } else if (decodedPath.includes('/Maps/')) {
-      const mapId = decodedPath.replace('Art/', '').replace('Maps/', '');
-      return constants.uniqueMaps[mapId] || null;
-    } else {
-      return constants.uniqueIconsNew[decodedPath] || null;
-    }
+    return constants.uniques.byIconPath[decodedPath] || null;
   } else {
     return constants.uniqueIcons[iconUrl] || null;
   }

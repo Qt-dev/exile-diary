@@ -307,31 +307,12 @@ const Utils = {
       icon.includes('https://www.pathofexile.com/gen/image/')
     ) {
       var jsonData = Utils.getBase64EncodedData(icon);
-      if (jsonData.f.includes('/Flasks/')) {
-        return getFlaskName(jsonData.f);
-      } else if (jsonData.f.includes('/Maps/')) {
-        return getUniqueMapName(jsonData.f);
-      } else {
-        let path = jsonData.f.replace('2DItems/', '');
-        if (Constants.uniqueIconsNew[path]) {
-          return Constants.uniqueIconsNew[path];
-        }
-        //        logger.info(`Invalid icon data found: ${jsonData.f}`);
-        else return null;
-      }
+      let path = jsonData.f.replace('2DItems/', '');
+      if (Constants.uniques.byIconPath[path]) {
+        return Constants.uniques.byIconPath[path];
+      } else return null;
     } else {
       return Constants.uniqueIcons[icon] || null;
-    }
-
-    function getFlaskName(str) {
-      // 3.10 icon url generation changed - 2 part replace required now
-      var flaskId = str.replace('Art/', '').replace('2DItems/Flasks/', '');
-      return Constants.uniqueFlasks[flaskId] || null;
-    }
-
-    function getUniqueMapName(str) {
-      var mapId = str.replace('Art/', '').replace('2DItems/Maps/', '');
-      return Constants.uniqueMaps[mapId] || null;
     }
   },
 
