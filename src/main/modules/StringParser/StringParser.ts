@@ -1,4 +1,4 @@
-const levenshtein = require('js-levenshtein');
+
 import logger from 'electron-log';
 import Constants from '../../../helpers/constants';
 import { EnhancedBKTree } from './EnhancedBKTree';
