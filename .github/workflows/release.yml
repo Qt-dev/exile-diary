@@ -19,6 +19,7 @@ jobs:
 
   # Build Windows
   build-windows:
+    needs: create-release
     runs-on: windows-latest
     concurrency:
       group: build-${{ github.ref_name }}
@@ -55,6 +56,7 @@ jobs:
 
   # Build Linux
   build-linux:
+    needs: create-release
     runs-on: ubuntu-latest
     concurrency:
       group: build-${{ github.ref_name }}
@@ -96,6 +98,7 @@ jobs:
 
   # Publish Release
   publish-release:
+    needs: [build-windows, build-linux]
     runs-on: ubuntu-latest
     steps:
       - name: Publish release
