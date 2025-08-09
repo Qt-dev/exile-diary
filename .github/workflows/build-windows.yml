@@ -32,6 +32,9 @@ jobs:
       - name: Update release
         uses: softprops/action-gh-release@v2
         with:
+          tag_name: v${{ inputs.version }}
+          draft: false
+          prerelease: false
           files: |
             dist/exile-diary-reborn-setup-${{ inputs.version }}.exe
             dist/exile-diary-reborn-setup-${{ inputs.version }}.exe.blockmap
