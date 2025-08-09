@@ -24,7 +24,7 @@ jobs:
       - name: Install flathub dependencies
         run: |
           sudo flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
-          sudo flatpak install -y flathub org.freedesktop.Platform/x86_64/24.08
+          sudo flatpak install -y flathub org.freedesktop.Platform/x86_64/24.08 org.freedesktop.Sdk/x86_64/24.08
       - name: Install npm dependencies
         run: npm install  
       - name: Build app
