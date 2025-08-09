@@ -53,12 +53,7 @@
       "asarUnpack": [
         "node_modules/sharp/**",
         "node_modules/@img/sharp-libvips-linux-x64/lib/**"
-      ]
-    },
-    "flatpak": {
-      "useWaylandFlags": true,
-      "runtimeVersion": "24.08",
-      "baseVersion": "24.08",
+      ],
       "files": [
         [
           "./eng.traineddata",
@@ -69,6 +64,11 @@
           "lib/com.exilediary.reborn/resources/db/extensions/regexp.so"
         ]
       ]
+    },
+    "flatpak": {
+      "useWaylandFlags": true,
+      "runtimeVersion": "24.08",
+      "baseVersion": "24.08"
     }
   },
   "scripts": {
