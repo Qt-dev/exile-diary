@@ -2,6 +2,11 @@
   margin: 10px 0;
 }
 
+.Settings__Character-Select {
+  display: flex;
+  gap: 10px;
+}
+
 .Settings .Settings__Separator {
   margin: 20px 0;
 }

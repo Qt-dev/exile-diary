@@ -31,13 +31,32 @@ const MainSettings = ({ settings, store, runStore }) => {
   const [character, setCharacter] = React.useState(
     settings.activeProfile.characterName ? settings.activeProfile.characterName : ''
   );
+  const [league, setLeague] = React.useState(
+    settings.activeProfile.league ? settings.activeProfile.league : ''
+  );
   const handleCharacterChange = (e) => {
     e.preventDefault();
     setCharacter(e.target.value);
   };
-  const charactersOptions = store.characters.map((character: any) => (
+
+  const handleLeagueChange = (e) => {
+    e.preventDefault();
+    setLeague(e.target.value);
+  };
+
+  const leagueOptions = store.characters.map((character: any) => character.league)
+    .filter((league, index) => store.characters.findIndex((char: any) => char.league === league) === index)
+    .map((league) => (
+    <MenuItem key={league} value={league}>
+      {league}
+    </MenuItem>
+  ));
+
+  const charactersOptions = store.characters
+    .filter((character: any) => character.league === league)
+    .map((character: any) => (
     <MenuItem key={character.name} value={character.name}>
-      {character.name} (Level {character.level}) {character.class} - {character.league}{' '}
+      {character.name} (Level {character.level}) {character.class}{' '}
       {character.current ? '(Last Active)' : ''}
     </MenuItem>
   ));
@@ -72,7 +91,7 @@ const MainSettings = ({ settings, store, runStore }) => {
   };
 
   const username = settings.username ? settings.username : '';
-  const league = settings.activeProfile.league ? settings.activeProfile.league : 'Unknown';
+  // const league = settings.activeProfile.league ? settings.activeProfile.league : 'Unknown';
   const alternateSplinterPricing = !!settings.alternateSplinterPricing;
   const overlayEnabled = !!settings.overlayEnabled;
   const enableIncubatorAlert = !!settings.enableIncubatorAlert;
@@ -157,9 +176,21 @@ const MainSettings = ({ settings, store, runStore }) => {
             </>
           )}
         </div>
-        <div className="Settings__Row">
+        <div className="Settings__Row Settings__Character-Select">
           <Select
-            fullWidth
+            
+            label="League"
+            id="league"
+            variant="filled"
+            size="small"
+            disabled={leagueOptions.length === 0}
+            value={store.isLoading ? null : league}
+            onChange={handleLeagueChange}
+          >
+            {leagueOptions}
+          </Select>
+          <Select
+            
             label="Character"
             id="character"
             variant="filled"
