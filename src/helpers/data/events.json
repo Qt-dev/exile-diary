@@ -1,0 +1,6978 @@
+{
+  "dialogue": {},
+  "byQuote": {
+    "Triumphant at last!": {
+      "id": "IzaroDeath1",
+      "npc": "Izaro",
+      "category": "Labyrinth",
+      "type": "BossFight",
+      "arguments": {
+        "action": "defeated",
+        "phase": 4,
+        "target": "Izaro"
+      }
+    },
+    "You are free!": {
+      "id": "IzaroDeath2",
+      "npc": "Izaro",
+      "category": "Labyrinth",
+      "type": "BossFight",
+      "arguments": {
+        "action": "defeated",
+        "phase": 4,
+        "target": "Izaro"
+      }
+    },
+    "I die for the Empire!": {
+      "id": "IzaroDeath3",
+      "npc": "Izaro",
+      "category": "Labyrinth",
+      "type": "BossFight",
+      "arguments": {
+        "action": "defeated",
+        "phase": 4,
+        "target": "Izaro"
+      }
+    },
+    "The trap of tyranny is inescapable.": {
+      "id": "IzaroDeath4",
+      "npc": "Izaro",
+      "category": "Labyrinth",
+      "type": "BossFight",
+      "arguments": {
+        "action": "defeated",
+        "phase": 4,
+        "target": "Izaro"
+      }
+    },
+    "Delight in your gilded dungeon, ascendant.": {
+      "id": "IzaroDeath5",
+      "npc": "Izaro",
+      "category": "Labyrinth",
+      "type": "BossFight",
+      "arguments": {
+        "action": "defeated",
+        "phase": 4,
+        "target": "Izaro"
+      }
+    },
+    "Your destination is more dangerous than the journey, ascendant.": {
+      "id": "IzaroDeath6",
+      "npc": "Izaro",
+      "category": "Labyrinth",
+      "type": "BossFight",
+      "arguments": {
+        "action": "defeated",
+        "phase": 4,
+        "target": "Izaro"
+      }
+    },
+    "Oh, the weary traveler draws close to the end of the path.": {
+      "id": "Izaro1_Prefight",
+      "npc": "Izaro",
+      "category": "Labyrinth",
+      "type": "BossFight",
+      "arguments": {
+        "action": "started",
+        "phase": 1,
+        "target": "Izaro"
+      }
+    },
+    "When the time comes to strike, an emperor strikes without hesitation. To entertain doubt is to dance with death.": {
+      "id": "Izaro2_Prefight",
+      "npc": "Izaro",
+      "category": "Labyrinth",
+      "type": "BossFight",
+      "arguments": {
+        "action": "started",
+        "phase": 2,
+        "target": "Izaro"
+      }
+    },
+    "An aspirant can afford to be promising. An emperor must keep those promises.": {
+      "id": "Izaro3_Prefight",
+      "npc": "Izaro",
+      "category": "Labyrinth",
+      "type": "BossFight",
+      "arguments": {
+        "action": "started",
+        "phase": 3,
+        "target": "Izaro"
+      }
+    },
+    "You killed my poor little Argus.": {
+      "id": "IzaroGargoyleDeathRandom",
+      "npc": "Izaro",
+      "category": "Labyrinth",
+      "type": "BossFight",
+      "arguments": {
+        "action": "defeated",
+        "phase": 1,
+        "target": "Argus"
+      }
+    },
+    "Goodbye, Argus. I couldn't have asked for a more faithful and loving companion.": {
+      "id": "IzaroGargoyleDeath2",
+      "npc": "Izaro",
+      "category": "Labyrinth",
+      "type": "BossFight",
+      "arguments": {
+        "action": "defeated",
+        "phase": 1,
+        "target": "Argus"
+      }
+    },
+    "Oh, Argus. I shall miss you.": {
+      "id": "IzaroGargoyleDeath3",
+      "npc": "Izaro",
+      "category": "Labyrinth",
+      "type": "BossFight",
+      "arguments": {
+        "action": "defeated",
+        "phase": 1,
+        "target": "Argus"
+      }
+    },
+    "Turn back, trespasser. Cease this madness.": {
+      "id": "ShaperMiniboss1Killed",
+      "npc": "The Shaper",
+      "category": "Shaper",
+      "type": "BossFight",
+      "arguments": {
+        "action": "unknown",
+        "enemy": "Shaper",
+        "phase": 1
+      }
+    },
+    "You tamper with things you do not understand.": {
+      "id": "ShaperMiniboss2Killed",
+      "npc": "The Shaper",
+      "category": "Shaper",
+      "type": "BossFight",
+      "arguments": {
+        "action": "unknown",
+        "enemy": "Shaper",
+        "phase": 1
+      }
+    },
+    "Your recklessness will not go unpunished.": {
+      "id": "ShaperMiniboss3Killed",
+      "npc": "The Shaper",
+      "category": "Shaper",
+      "type": "BossFight",
+      "arguments": {
+        "action": "unknown",
+        "enemy": "Shaper",
+        "phase": 1
+      }
+    },
+    "This is your final warning: Leave, or perish.": {
+      "id": "ShaperMiniboss4Killed",
+      "npc": "The Shaper",
+      "category": "Shaper",
+      "type": "BossFight",
+      "arguments": {
+        "action": "unknown",
+        "enemy": "Shaper",
+        "phase": 1
+      }
+    },
+    "I see you, little mouse... you don't belong here. Run along!": {
+      "id": "ShaperMapShapersRealm",
+      "npc": "The Shaper",
+      "category": "Shaper",
+      "type": "BossFight",
+      "arguments": {
+        "action": "unknown",
+        "enemy": "Shaper",
+        "phase": 1
+      }
+    },
+    "You force my hand again, little mouse... So be it. You've chosen to side with Chaos. This is my world, and you shall obey my Order!": {
+      "id": "ShaperIntro",
+      "npc": "The Shaper",
+      "category": "Shaper",
+      "type": "BossFight",
+      "arguments": {
+        "action": "unknown",
+        "enemy": "Shaper",
+        "phase": 1
+      }
+    },
+    "Behold the face of your unmaking!": {
+      "id": "ShaperHalfHealthA",
+      "npc": "The Shaper",
+      "category": "Shaper",
+      "type": "BossFight",
+      "arguments": {
+        "action": "unknown",
+        "enemy": "Shaper",
+        "phase": 1
+      }
+    },
+    "The horror must be stopped, obstacles destroyed!": {
+      "id": "ShaperHalfHealthB",
+      "npc": "The Shaper",
+      "category": "Shaper",
+      "type": "BossFight",
+      "arguments": {
+        "action": "unknown",
+        "enemy": "Shaper",
+        "phase": 1
+      }
+    },
+    "These memories are mine! I cannot lose them!": {
+      "id": "ShaperQuarterHealthA",
+      "npc": "The Shaper",
+      "category": "Shaper",
+      "type": "BossFight",
+      "arguments": {
+        "action": "unknown",
+        "enemy": "Shaper",
+        "phase": 1
+      }
+    },
+    "To save the future, the past must be sacrificed!": {
+      "id": "ShaperQuarterHealthB",
+      "npc": "The Shaper",
+      "category": "Shaper",
+      "type": "BossFight",
+      "arguments": {
+        "action": "unknown",
+        "enemy": "Shaper",
+        "phase": 1
+      }
+    },
+    "Tread no further, villain.": {
+      "id": "ShaperIntroGenericRandom",
+      "npc": "The Shaper",
+      "category": "Shaper",
+      "type": "BossFight",
+      "arguments": {
+        "action": "unknown",
+        "enemy": "Shaper",
+        "phase": 1
+      }
+    },
+    "These worlds are not yours.": {
+      "id": "ShaperIntroGeneric2",
+      "npc": "The Shaper",
+      "category": "Shaper",
+      "type": "BossFight",
+      "arguments": {
+        "action": "unknown",
+        "enemy": "Shaper",
+        "phase": 1
+      }
+    },
+    "You reek of imperfection.": {
+      "id": "ShaperIntroGeneric3",
+      "npc": "The Shaper",
+      "category": "Shaper",
+      "type": "BossFight",
+      "arguments": {
+        "action": "unknown",
+        "enemy": "Shaper",
+        "phase": 1
+      }
+    },
+    "Cast yourself into oblivion.": {
+      "id": "ShaperIntroGeneric4",
+      "npc": "The Shaper",
+      "category": "Shaper",
+      "type": "BossFight",
+      "arguments": {
+        "action": "unknown",
+        "enemy": "Shaper",
+        "phase": 1
+      }
+    },
+    "Prepare to face your unmaking.": {
+      "id": "ShaperIntroGeneric5",
+      "npc": "The Shaper",
+      "category": "Shaper",
+      "type": "BossFight",
+      "arguments": {
+        "action": "unknown",
+        "enemy": "Shaper",
+        "phase": 1
+      }
+    },
+    "You do not belong here.": {
+      "id": "ShaperIntroGeneric6",
+      "npc": "The Shaper",
+      "category": "Shaper",
+      "type": "BossFight",
+      "arguments": {
+        "action": "unknown",
+        "enemy": "Shaper",
+        "phase": 1
+      }
+    },
+    "Imperfect!": {
+      "id": "ShaperBanish2",
+      "npc": "The Shaper",
+      "category": "Shaper",
+      "type": "BossFight",
+      "arguments": {
+        "action": "unknown",
+        "enemy": "Shaper",
+        "phase": 1
+      }
+    },
+    "Irrelevant!": {
+      "id": "ShaperBanish3",
+      "npc": "The Shaper",
+      "category": "Shaper",
+      "type": "BossFight",
+      "arguments": {
+        "action": "unknown",
+        "enemy": "Shaper",
+        "phase": 1
+      }
+    },
+    "Insubstantial!": {
+      "id": "ShaperBanish4",
+      "npc": "The Shaper",
+      "category": "Shaper",
+      "type": "BossFight",
+      "arguments": {
+        "action": "unknown",
+        "enemy": "Shaper",
+        "phase": 1
+      }
+    },
+    "Insignificant!": {
+      "id": "ShaperBanish5",
+      "npc": "The Shaper",
+      "category": "Shaper",
+      "type": "BossFight",
+      "arguments": {
+        "action": "unknown",
+        "enemy": "Shaper",
+        "phase": 1
+      }
+    },
+    "Inconsequential!": {
+      "id": "ShaperBanish6",
+      "npc": "The Shaper",
+      "category": "Shaper",
+      "type": "BossFight",
+      "arguments": {
+        "action": "unknown",
+        "enemy": "Shaper",
+        "phase": 1
+      }
+    },
+    "To me, exile! Quickly!": {
+      "id": "ZanaElderBossWarning",
+      "npc": "Zana, Master Cartographer",
+      "category": "Elder",
+      "type": "BossFight",
+      "arguments": {
+        "boss": "Elder",
+        "action": "defeated"
+      }
+    },
+    "So that was the Elder... what terrible, monstrous power! We must find a way to defeat it, exile. We seem to have driven it from this world. There must be a way to defeat it for good...": {
+      "id": "ZanaElderBossComplete",
+      "npc": "Zana, Master Cartographer",
+      "category": "Elder",
+      "type": "BossFight",
+      "arguments": {
+        "boss": "Elder",
+        "action": "defeated"
+      }
+    },
+    "Haha! You are captured, stupid beast.": {
+      "id": "EinharBeastCapture1",
+      "npc": "Einhar, Beastmaster",
+      "category": "Beasts",
+      "type": "Capture",
+      "arguments": {
+        "beastType": "yellow"
+      }
+    },
+    "You have been captured, beast. You will be a survivor, or you will be food.": {
+      "id": "EinharBeastCapture2",
+      "npc": "Einhar, Beastmaster",
+      "category": "Beasts",
+      "type": "Capture",
+      "arguments": {
+        "beastType": "yellow"
+      }
+    },
+    "This one is captured. Einhar will take it.": {
+      "id": "EinharBeastCapture3",
+      "npc": "Einhar, Beastmaster",
+      "category": "Beasts",
+      "type": "Capture",
+      "arguments": {
+        "beastType": "yellow"
+      }
+    },
+    "Great job, Exile! Einhar will take the captured beast to the Menagerie.": {
+      "id": "EinharSpecialBeastCapture1",
+      "npc": "Einhar, Beastmaster",
+      "category": "Beasts",
+      "type": "Capture",
+      "arguments": {
+        "beastType": "red"
+      }
+    },
+    "The First Ones look upon this capture with pride, Exile. You hunt well.": {
+      "id": "EinharSpecialBeastCapture2",
+      "npc": "Einhar, Beastmaster",
+      "category": "Beasts",
+      "type": "Capture",
+      "arguments": {
+        "beastType": "red"
+      }
+    },
+    "Survivor! You are well prepared for the end. This is a fine capture.": {
+      "id": "EinharSpecialBeastCapture3",
+      "npc": "Einhar, Beastmaster",
+      "category": "Beasts",
+      "type": "Capture",
+      "arguments": {
+        "beastType": "red"
+      }
+    },
+    "The First Ones are watching, survivor. Don't disappoint them!": {
+      "id": "EinharBeastcraftStart1",
+      "npc": "Einhar, Beastmaster",
+      "category": "Beasts",
+      "type": "Craft",
+      "arguments": {
+        "action": "start"
+      }
+    },
+    "Prove to the First Ones you are worthy, Exile!": {
+      "id": "EinharBeastcraftStart2",
+      "npc": "Einhar, Beastmaster",
+      "category": "Beasts",
+      "type": "Craft",
+      "arguments": {
+        "action": "start"
+      }
+    },
+    "The ritual... is complete!": {
+      "id": "EinharBeastcraftSuccess1",
+      "npc": "Einhar, Beastmaster",
+      "category": "Beasts",
+      "type": "Craft",
+      "arguments": {
+        "action": "defeated"
+      }
+    },
+    "You are truly a survivor!": {
+      "id": "EinharBeastcraftSuccess2",
+      "npc": "Einhar, Beastmaster",
+      "category": "Beasts",
+      "type": "Craft",
+      "arguments": {
+        "action": "defeated"
+      }
+    },
+    "Time to fight!": {
+      "id": "AlvaBossFightRandom",
+      "npc": "Alva, Master Explorer",
+      "category": "Incursion",
+      "type": "Unlock",
+      "arguments": {
+        "roomName": "Temple of Atzoatl"
+      }
+    },
+    "No risk, no reward!": {
+      "id": "AlvaBossFight2",
+      "npc": "Alva, Master Explorer",
+      "category": "Incursion",
+      "type": "Unlock",
+      "arguments": {
+        "roomName": "Temple of Atzoatl"
+      }
+    },
+    "This better be worth it!": {
+      "id": "AlvaBossFight3",
+      "npc": "Alva, Master Explorer",
+      "category": "Incursion",
+      "type": "Unlock",
+      "arguments": {
+        "roomName": "Temple of Atzoatl"
+      }
+    },
+    "You better be filled with gold!": {
+      "id": "AlvaBossFight4",
+      "npc": "Alva, Master Explorer",
+      "category": "Incursion",
+      "type": "Unlock",
+      "arguments": {
+        "roomName": "Temple of Atzoatl"
+      }
+    },
+    "Maybe they'd not have killed so many of each other if they'd grown fruit instead.": {
+      "id": "AlvaTempleFeature_PoisonRoomIII",
+      "npc": "Alva, Master Explorer",
+      "category": "Incursion",
+      "type": "Unlock",
+      "arguments": {
+        "roomId": "PoisonRoomIII",
+        "roomName": "Toxic Grove"
+      }
+    },
+    "So many dead... Let's please not end up like that.": {
+      "id": "AlvaTempleFeature_SacrificeRoomIII",
+      "npc": "Alva, Master Explorer",
+      "category": "Incursion",
+      "type": "Unlock",
+      "arguments": {
+        "roomId": "SacrificeRoomIII",
+        "roomName": "Apex of Ascension"
+      }
+    },
+    "There was so much potential for good here. What a waste.": {
+      "id": "AlvaTempleFeature_StormRoomIII",
+      "npc": "Alva, Master Explorer",
+      "category": "Incursion",
+      "type": "Unlock",
+      "arguments": {
+        "roomId": "StormRoomIII",
+        "roomName": "Storm of Corruption"
+      }
+    },
+    "Remind me again why you let them fill this place with traps?": {
+      "id": "AlvaTempleFeature_TrapRoomIII",
+      "npc": "Alva, Master Explorer",
+      "category": "Incursion",
+      "type": "Unlock",
+      "arguments": {
+        "roomId": "TrapRoomIII",
+        "roomName": "Defense Research Lab"
+      }
+    },
+    "Madness spread. These maps, all the places on them... None of them exist!": {
+      "id": "AlvaTempleFeature_CartographyRoomIII",
+      "npc": "Alva, Master Explorer",
+      "category": "Incursion",
+      "type": "Unlock",
+      "arguments": {
+        "roomId": "CartographyRoomIII",
+        "roomName": "Atlas of Worlds"
+      }
+    },
+    "How is this possible!? She should be long dead!": {
+      "id": "AlvaTempleFeature_QueensChambersIII",
+      "npc": "Alva, Master Explorer",
+      "category": "Incursion",
+      "type": "Unlock",
+      "arguments": {
+        "roomId": "QueensChambersIII",
+        "roomName": "Throne of Atziri"
+      }
+    },
+    "What a pack-rat! These relics will fetch a pretty penny back home!": {
+      "id": "AlvaTempleFeature_ChestsIII",
+      "npc": "Alva, Master Explorer",
+      "category": "Incursion",
+      "type": "Unlock",
+      "arguments": {
+        "roomId": "ChestsIII",
+        "roomName": "Museum of Artefacts"
+      }
+    },
+    "Ugh... Something about this place feels... wrong.": {
+      "id": "AlvaTempleFeature_CorruptionRoomIII",
+      "npc": "Alva, Master Explorer",
+      "category": "Incursion",
+      "type": "Unlock",
+      "arguments": {
+        "roomId": "CorruptionRoomIII",
+        "roomName": "Locus of Corruption"
+      }
+    },
+    "I suppose they wanted to use these explosives to mine more gems.": {
+      "id": "AlvaTempleFeature_ExplosivesRoomIII",
+      "npc": "Alva, Master Explorer",
+      "category": "Incursion",
+      "type": "Unlock",
+      "arguments": {
+        "roomId": "ExplosivesRoomIII",
+        "roomName": "Shrine of Unmaking"
+      }
+    },
+    "You must've really shaken them, Exile. Look how much they wanted to protect themselves.": {
+      "id": "AlvaTempleFeature_ArmourRoomIII",
+      "npc": "Alva, Master Explorer",
+      "category": "Incursion",
+      "type": "Unlock",
+      "arguments": {
+        "roomId": "ArmourRoomIII",
+        "roomName": "Chamber of Iron"
+      }
+    },
+    "For a relatively peaceful empire they sure made a lot of weapons.": {
+      "id": "AlvaTempleFeature_WeaponRoomIII",
+      "npc": "Alva, Master Explorer",
+      "category": "Incursion",
+      "type": "Unlock",
+      "arguments": {
+        "roomId": "WeaponRoomIII",
+        "roomName": "Hall of Champions"
+      }
+    },
+    "They trained an army. But why? To protect from you?": {
+      "id": "AlvaTempleFeature_BreedingRoomIII",
+      "npc": "Alva, Master Explorer",
+      "category": "Incursion",
+      "type": "Unlock",
+      "arguments": {
+        "roomId": "BreedingRoomIII",
+        "roomName": "Hall of War"
+      }
+    },
+    "From crimson blood to purple flame, this cult must be put to rest.": {
+      "id": "AlvaTempleFeature_BreachRoomIII",
+      "npc": "Alva, Master Explorer",
+      "category": "Incursion",
+      "type": "Unlock",
+      "arguments": {
+        "roomId": "BreachRoomIII",
+        "roomName": "House of the Others"
+      }
+    },
+    "Goodness, if Chitus had ever found these... he'd have been unstoppable.": {
+      "id": "AlvaTempleFeature_GemRoomIII",
+      "npc": "Alva, Master Explorer",
+      "category": "Incursion",
+      "type": "Unlock",
+      "arguments": {
+        "roomId": "GemRoomIII",
+        "roomName": "Doryani's Institute"
+      }
+    },
+    "By the gods... Exile, you're a genius.": {
+      "id": "AlvaTempleFeature_CurrencyVaultIII",
+      "npc": "Alva, Master Explorer",
+      "category": "Incursion",
+      "type": "Unlock",
+      "arguments": {
+        "roomId": "CurrencyVaultIII",
+        "roomName": "Wealth of the Vaal"
+      }
+    },
+    "I'm not one for stereotypes, but damn, I do love jewellery.": {
+      "id": "AlvaTempleFeature_TrinketRoomIII",
+      "npc": "Alva, Master Explorer",
+      "category": "Incursion",
+      "type": "Unlock",
+      "arguments": {
+        "roomId": "TrinketRoomIII",
+        "roomName": "Glittering Halls"
+      }
+    },
+    "Colour me impressed, Exile. This is elaborate.": {
+      "id": "AlvaTempleFeature_WorkshopIII",
+      "npc": "Alva, Master Explorer",
+      "category": "Incursion",
+      "type": "Unlock",
+      "arguments": {
+        "roomId": "WorkshopIII",
+        "roomName": "Factory"
+      }
+    },
+    "I just got goosebumps.": {
+      "id": "AlvaTempleFeature_EmpoweringRoomIII",
+      "npc": "Alva, Master Explorer",
+      "category": "Incursion",
+      "type": "Unlock",
+      "arguments": {
+        "roomId": "EmpoweringRoomIII",
+        "roomName": "Temple Nexus"
+      }
+    },
+    "The waters look clean enough. Couldn't pay me to drink it, though.": {
+      "id": "AlvaTempleFeature_HealingRoomIII",
+      "npc": "Alva, Master Explorer",
+      "category": "Incursion",
+      "type": "Unlock",
+      "arguments": {
+        "roomId": "HealingRoomIII",
+        "roomName": "Sanctum of Immortality"
+      }
+    },
+    "Oh gods, eggs everywhere! Why would you want this, exile!?": {
+      "id": "AlvaTempleFeature_BossMinionsIII",
+      "npc": "Alva, Master Explorer",
+      "category": "Incursion",
+      "type": "Unlock",
+      "arguments": {
+        "roomId": "BossMinionsIII",
+        "roomName": "Hybridisation Chamber"
+      }
+    },
+    "Whew... I'm sweating like a hog in heat.": {
+      "id": "AlvaTempleFeature_BossFireIII",
+      "npc": "Alva, Master Explorer",
+      "category": "Incursion",
+      "type": "Unlock",
+      "arguments": {
+        "roomId": "BossFireIII",
+        "roomName": "Crucible of Flame"
+      }
+    },
+    "What on earth did they need this much energy for?": {
+      "id": "AlvaTempleFeature_BossLightningIII",
+      "npc": "Alva, Master Explorer",
+      "category": "Incursion",
+      "type": "Unlock",
+      "arguments": {
+        "roomId": "BossLightningIII",
+        "roomName": "Conduit of Lightning"
+      }
+    },
+    "Careful Exile... Something unseen still dwells here.": {
+      "id": "AlvaTempleFeature_LegionRoomIII",
+      "npc": "Alva, Master Explorer",
+      "category": "Incursion",
+      "type": "Unlock",
+      "arguments": {
+        "roomId": "LegionRoomIII",
+        "roomName": "Unknown"
+      }
+    },
+    "What? Do you not have nets, exile?": {
+      "id": "BetrayalEinharOnCaptureSpecial",
+      "npc": "Einhar, Beastmaster",
+      "category": "Beasts",
+      "type": "Capture",
+      "arguments": {
+        "beastType": "red"
+      }
+    },
+    "Ohhh... That was a juicy one, exile.": {
+      "id": "BetrayalEinharOnCapture1",
+      "npc": "Einhar, Beastmaster",
+      "category": "Beasts",
+      "type": "Capture",
+      "arguments": {
+        "beastType": "yellow"
+      }
+    },
+    "Do not worry little beast! We are friends now!": {
+      "id": "BetrayalEinharOnCapture2",
+      "npc": "Einhar, Beastmaster",
+      "category": "Beasts",
+      "type": "Capture",
+      "arguments": {
+        "beastType": "yellow"
+      }
+    },
+    "Off you go, little beast! Away!": {
+      "id": "BetrayalEinharOnCapture3",
+      "npc": "Einhar, Beastmaster",
+      "category": "Beasts",
+      "type": "Capture",
+      "arguments": {
+        "beastType": "yellow"
+      }
+    },
+    "We will be best friends beast! Until we slaughter you!": {
+      "id": "BetrayalEinharOnCapture4",
+      "npc": "Einhar, Beastmaster",
+      "category": "Beasts",
+      "type": "Capture",
+      "arguments": {
+        "beastType": "yellow"
+      }
+    },
+    "Ah, over too soon!": {
+      "id": "VaganKillPlayerZero",
+      "npc": "Vagan, Victory's Herald",
+      "category": "Betrayal",
+      "type": "Fight",
+      "arguments": {
+        "target": "Vagan",
+        "action": "killedPlayer"
+      }
+    },
+    "A fight for the ages!": {
+      "id": "VaganKillPlayerOne",
+      "npc": "Vagan, Victory's Herald",
+      "category": "Betrayal",
+      "type": "Fight",
+      "arguments": {
+        "target": "Vagan",
+        "action": "killedPlayer"
+      }
+    },
+    "Ugh. Sorry you had to fall here, among all this.": {
+      "id": "VaganKillPlayerTwo",
+      "npc": "Vagan, Victory's Herald",
+      "category": "Betrayal",
+      "type": "Fight",
+      "arguments": {
+        "target": "Vagan",
+        "action": "killedPlayer"
+      }
+    },
+    "A rousing success!": {
+      "id": "VaganKillPlayerThree",
+      "npc": "Vagan, Victory's Herald",
+      "category": "Betrayal",
+      "type": "Fight",
+      "arguments": {
+        "target": "Vagan",
+        "action": "killedPlayer"
+      }
+    },
+    "A good strike... and a painful one.": {
+      "id": "VaganDefeatedZero",
+      "npc": "Vagan, Victory's Herald",
+      "category": "Betrayal",
+      "type": "Fight",
+      "arguments": {
+        "target": "Vagan",
+        "action": "defeated"
+      }
+    },
+    "Uggggh...": {
+      "id": "VaganDefeatedOne",
+      "npc": "Vagan, Victory's Herald",
+      "category": "Betrayal",
+      "type": "Fight",
+      "arguments": {
+        "target": "Vagan",
+        "action": "defeated"
+      }
+    },
+    "Please... not... here...": {
+      "id": "VaganDefeatedTwo",
+      "npc": "Vagan, Victory's Herald",
+      "category": "Betrayal",
+      "type": "Fight",
+      "arguments": {
+        "target": "Vagan",
+        "action": "defeated"
+      }
+    },
+    "Only fair... I suppose...!": {
+      "id": "VaganDefeatedThree",
+      "npc": "Vagan, Victory's Herald",
+      "category": "Betrayal",
+      "type": "Fight",
+      "arguments": {
+        "target": "Vagan",
+        "action": "defeated"
+      }
+    },
+    "Be a friend... don't lock me up... again.": {
+      "id": "VaganDefeatedFour",
+      "npc": "Vagan, Victory's Herald",
+      "category": "Betrayal",
+      "type": "Fight",
+      "arguments": {
+        "target": "Vagan",
+        "action": "defeated"
+      }
+    },
+    "A spot more... wheeling and dealing...?": {
+      "id": "VaganDefeatedFive",
+      "npc": "Vagan, Victory's Herald",
+      "category": "Betrayal",
+      "type": "Fight",
+      "arguments": {
+        "target": "Vagan",
+        "action": "defeated"
+      }
+    },
+    "Bitter justice... for my betrayal...": {
+      "id": "VaganDefeatedSix",
+      "npc": "Vagan, Victory's Herald",
+      "category": "Betrayal",
+      "type": "Fight",
+      "arguments": {
+        "target": "Vagan",
+        "action": "defeated"
+      }
+    },
+    "One death... is as good as another.": {
+      "id": "VaganDefeatedSeven",
+      "npc": "Vagan, Victory's Herald",
+      "category": "Betrayal",
+      "type": "Fight",
+      "arguments": {
+        "target": "Vagan",
+        "action": "defeated"
+      }
+    },
+    "I see... you've been training!": {
+      "id": "VaganDefeatedEight",
+      "npc": "Vagan, Victory's Herald",
+      "category": "Betrayal",
+      "type": "Fight",
+      "arguments": {
+        "target": "Vagan",
+        "action": "defeated"
+      }
+    },
+    "A proper good turnabout...": {
+      "id": "VaganDefeatedNine",
+      "npc": "Vagan, Victory's Herald",
+      "category": "Betrayal",
+      "type": "Fight",
+      "arguments": {
+        "target": "Vagan",
+        "action": "defeated"
+      }
+    },
+    "Well this... is embarrassing...": {
+      "id": "VaganDefeatedTen",
+      "npc": "Vagan, Victory's Herald",
+      "category": "Betrayal",
+      "type": "Fight",
+      "arguments": {
+        "target": "Vagan",
+        "action": "defeated"
+      }
+    },
+    "A surprise upset!... good show...": {
+      "id": "VaganSafehouseLeaderDefeatedZero",
+      "npc": "Vagan, Victory's Herald",
+      "category": "Betrayal",
+      "type": "Fight",
+      "arguments": {
+        "target": "Vagan",
+        "action": "defeated"
+      }
+    },
+    "An impressive display, warrior, but not enough.": {
+      "id": "VaganDefeatedEleven",
+      "npc": "Jun, Veiled Master",
+      "category": "Betrayal",
+      "type": "Fight",
+      "arguments": {
+        "target": "Vagan",
+        "action": "defeated"
+      }
+    },
+    "A worthy foe.": {
+      "id": "HakuKillPlayerZero",
+      "npc": "Haku, Warmaster",
+      "category": "Betrayal",
+      "type": "Fight",
+      "arguments": {
+        "target": "Haku",
+        "action": "killedPlayer"
+      }
+    },
+    "You will feed the worms.": {
+      "id": "HakuKillPlayerOne",
+      "npc": "Haku, Warmaster",
+      "category": "Betrayal",
+      "type": "Fight",
+      "arguments": {
+        "target": "Haku",
+        "action": "killedPlayer"
+      }
+    },
+    "A glorious fight!": {
+      "id": "HakuKillPlayerTwo",
+      "npc": "Haku, Warmaster",
+      "category": "Betrayal",
+      "type": "Fight",
+      "arguments": {
+        "target": "Haku",
+        "action": "killedPlayer"
+      }
+    },
+    "Mother of Death, a gift.": {
+      "id": "HakuKillPlayerThree",
+      "npc": "Haku, Warmaster",
+      "category": "Betrayal",
+      "type": "Fight",
+      "arguments": {
+        "target": "Haku",
+        "action": "killedPlayer"
+      }
+    },
+    "Tukohama... how did I fail?": {
+      "id": "HakuDefeatedZero",
+      "npc": "Haku, Warmaster",
+      "category": "Betrayal",
+      "type": "Fight",
+      "arguments": {
+        "target": "Haku",
+        "action": "defeated"
+      }
+    },
+    "No... the cart must... ugh...": {
+      "id": "HakuDefeatedOne",
+      "npc": "Haku, Warmaster",
+      "category": "Betrayal",
+      "type": "Fight",
+      "arguments": {
+        "target": "Haku",
+        "action": "defeated"
+      }
+    },
+    "Ancestors... I - forgive me.": {
+      "id": "HakuDefeatedTwo",
+      "npc": "Haku, Warmaster",
+      "category": "Betrayal",
+      "type": "Fight",
+      "arguments": {
+        "target": "Haku",
+        "action": "defeated"
+      }
+    },
+    "Hinekora... I am sorry.": {
+      "id": "HakuDefeatedThree",
+      "npc": "Haku, Warmaster",
+      "category": "Betrayal",
+      "type": "Fight",
+      "arguments": {
+        "target": "Haku",
+        "action": "defeated"
+      }
+    },
+    "Don't... lock me up again...": {
+      "id": "HakuDefeatedFour",
+      "npc": "Haku, Warmaster",
+      "category": "Betrayal",
+      "type": "Fight",
+      "arguments": {
+        "target": "Haku",
+        "action": "defeated"
+      }
+    },
+    "Ugh... exile... another deal...?": {
+      "id": "HakuDefeatedFive",
+      "npc": "Haku, Warmaster",
+      "category": "Betrayal",
+      "type": "Fight",
+      "arguments": {
+        "target": "Haku",
+        "action": "defeated"
+      }
+    },
+    "I strayed too far... from the Way.": {
+      "id": "HakuDefeatedSix",
+      "npc": "Haku, Warmaster",
+      "category": "Betrayal",
+      "type": "Fight",
+      "arguments": {
+        "target": "Haku",
+        "action": "defeated"
+      }
+    },
+    "Ancestors... I will see you again.": {
+      "id": "HakuDefeatedSeven",
+      "npc": "Haku, Warmaster",
+      "category": "Betrayal",
+      "type": "Fight",
+      "arguments": {
+        "target": "Haku",
+        "action": "defeated"
+      }
+    },
+    "You... have learned much...": {
+      "id": "HakuDefeatedEight",
+      "npc": "Haku, Warmaster",
+      "category": "Betrayal",
+      "type": "Fight",
+      "arguments": {
+        "target": "Haku",
+        "action": "defeated"
+      }
+    },
+    "This was... a cursed task.": {
+      "id": "HakuDefeatedNine",
+      "npc": "Haku, Warmaster",
+      "category": "Betrayal",
+      "type": "Fight",
+      "arguments": {
+        "target": "Haku",
+        "action": "defeated"
+      }
+    },
+    "I was a fool... to follow my fury.": {
+      "id": "HakuDefeatedTen",
+      "npc": "Haku, Warmaster",
+      "category": "Betrayal",
+      "type": "Fight",
+      "arguments": {
+        "target": "Haku",
+        "action": "defeated"
+      }
+    },
+    "Ancestors, have you forsaken me?": {
+      "id": "HakuSafehouseLeaderDefeatedZero",
+      "npc": "Haku, Warmaster",
+      "category": "Betrayal",
+      "type": "Fight",
+      "arguments": {
+        "target": "Haku",
+        "action": "defeated"
+      }
+    },
+    "Stay down, Haku.": {
+      "id": "HakuDefeatedEleven",
+      "npc": "Jun, Veiled Master",
+      "category": "Betrayal",
+      "type": "Fight",
+      "arguments": {
+        "target": "Haku",
+        "action": "defeated"
+      }
+    },
+    "It did it! It defended its domain!": {
+      "id": "ItThatFledKillPlayerZero",
+      "npc": "It That Fled",
+      "category": "Betrayal",
+      "type": "Fight",
+      "arguments": {
+        "target": "ItThatFled",
+        "action": "killedPlayer"
+      }
+    },
+    "Its bones will make crisp white splinters.": {
+      "id": "ItThatFledKillPlayerOne",
+      "npc": "It That Fled",
+      "category": "Betrayal",
+      "type": "Fight",
+      "arguments": {
+        "target": "ItThatFled",
+        "action": "killedPlayer"
+      }
+    },
+    "Time now, with It gone.": {
+      "id": "ItThatFledKillPlayerTwo",
+      "npc": "It That Fled",
+      "category": "Betrayal",
+      "type": "Fight",
+      "arguments": {
+        "target": "ItThatFled",
+        "action": "killedPlayer"
+      }
+    },
+    "Why is It still? Play with It! Play!": {
+      "id": "ItThatFledKillPlayerThree",
+      "npc": "It That Fled",
+      "category": "Betrayal",
+      "type": "Fight",
+      "arguments": {
+        "target": "ItThatFled",
+        "action": "killedPlayer"
+      }
+    },
+    "Its domain! Noooo!": {
+      "id": "ItThatFledDefeatedZero",
+      "npc": "It That Fled",
+      "category": "Betrayal",
+      "type": "Fight",
+      "arguments": {
+        "target": "ItThatFled",
+        "action": "defeated"
+      }
+    },
+    "It doesn't understand...": {
+      "id": "ItThatFledDefeatedOne",
+      "npc": "It That Fled",
+      "category": "Betrayal",
+      "type": "Fight",
+      "arguments": {
+        "target": "ItThatFled",
+        "action": "defeated"
+      }
+    },
+    "Why... why does It want its friends!?": {
+      "id": "ItThatFledDefeatedTwo",
+      "npc": "It That Fled",
+      "category": "Betrayal",
+      "type": "Fight",
+      "arguments": {
+        "target": "ItThatFled",
+        "action": "defeated"
+      }
+    },
+    "It... was only playing...": {
+      "id": "ItThatFledDefeatedThree",
+      "npc": "It That Fled",
+      "category": "Betrayal",
+      "type": "Fight",
+      "arguments": {
+        "target": "ItThatFled",
+        "action": "defeated"
+      }
+    },
+    "No no no no, not the Lonely Place again!": {
+      "id": "ItThatFledDefeatedFour",
+      "npc": "It That Fled",
+      "category": "Betrayal",
+      "type": "Fight",
+      "arguments": {
+        "target": "ItThatFled",
+        "action": "defeated"
+      }
+    },
+    "Bargain... bargain... bargain-bargain...": {
+      "id": "ItThatFledDefeatedFive",
+      "npc": "It That Fled",
+      "category": "Betrayal",
+      "type": "Fight",
+      "arguments": {
+        "target": "ItThatFled",
+        "action": "defeated"
+      }
+    },
+    "Such agony! It can share with It if It wants...": {
+      "id": "ItThatFledDefeatedSix",
+      "npc": "It That Fled",
+      "category": "Betrayal",
+      "type": "Fight",
+      "arguments": {
+        "target": "ItThatFled",
+        "action": "defeated"
+      }
+    },
+    "Does It get to go through the Dark Place again?": {
+      "id": "ItThatFledDefeatedSeven",
+      "npc": "It That Fled",
+      "category": "Betrayal",
+      "type": "Fight",
+      "arguments": {
+        "target": "ItThatFled",
+        "action": "defeated"
+      }
+    },
+    "Now It is It That Lost, too. Its are even... Its are fair...": {
+      "id": "ItThatFledDefeatedEight",
+      "npc": "It That Fled",
+      "category": "Betrayal",
+      "type": "Fight",
+      "arguments": {
+        "target": "ItThatFled",
+        "action": "defeated"
+      }
+    },
+    "It has failed the Lords. It seeks mercy! Give It mercy!": {
+      "id": "ItThatFledDefeatedNine",
+      "npc": "It That Fled",
+      "category": "Betrayal",
+      "type": "Fight",
+      "arguments": {
+        "target": "ItThatFled",
+        "action": "defeated"
+      }
+    },
+    "It... lost...? It hurts within It. Dull and sharp... still and moving...": {
+      "id": "ItThatFledDefeatedTen",
+      "npc": "It That Fled",
+      "category": "Betrayal",
+      "type": "Fight",
+      "arguments": {
+        "target": "ItThatFled",
+        "action": "defeated"
+      }
+    },
+    "But... It was a Lord!": {
+      "id": "ItThatFledSafehouseLeaderDefeatedZero",
+      "npc": "It That Fled",
+      "category": "Betrayal",
+      "type": "Fight",
+      "arguments": {
+        "target": "ItThatFled",
+        "action": "defeated"
+      }
+    },
+    "Don't get back up, fiend.": {
+      "id": "ItThatFledDefeatedEleven",
+      "npc": "Jun, Veiled Master",
+      "category": "Betrayal",
+      "type": "Fight",
+      "arguments": {
+        "target": "ItThatFled",
+        "action": "defeated"
+      }
+    },
+    "I was hoping for a bigger storm.": {
+      "id": "JorginKillPlayerZero",
+      "npc": "Thane Jorgin the Banished",
+      "category": "Betrayal",
+      "type": "Fight",
+      "arguments": {
+        "target": "Jorgin",
+        "action": "killedPlayer"
+      }
+    },
+    "The prize remains in the hands of the strongest.": {
+      "id": "JorginKillPlayerOne",
+      "npc": "Thane Jorgin the Banished",
+      "category": "Betrayal",
+      "type": "Fight",
+      "arguments": {
+        "target": "Jorgin",
+        "action": "killedPlayer"
+      }
+    },
+    "Eh, I was really hoping you'd burn this place.": {
+      "id": "JorginKillPlayerTwo",
+      "npc": "Thane Jorgin the Banished",
+      "category": "Betrayal",
+      "type": "Fight",
+      "arguments": {
+        "target": "Jorgin",
+        "action": "killedPlayer"
+      }
+    },
+    "And the strongest remains the victor, ha ha ho!": {
+      "id": "JorginKillPlayerThree",
+      "npc": "Thane Jorgin the Banished",
+      "category": "Betrayal",
+      "type": "Fight",
+      "arguments": {
+        "target": "Jorgin",
+        "action": "killedPlayer"
+      }
+    },
+    "I am... conquered... and impressed...": {
+      "id": "JorginDefeatedZero",
+      "npc": "Thane Jorgin the Banished",
+      "category": "Betrayal",
+      "type": "Fight",
+      "arguments": {
+        "target": "Jorgin",
+        "action": "defeated"
+      }
+    },
+    "The caravan... is yours...": {
+      "id": "JorginDefeatedOne",
+      "npc": "Thane Jorgin the Banished",
+      "category": "Betrayal",
+      "type": "Fight",
+      "arguments": {
+        "target": "Jorgin",
+        "action": "defeated"
+      }
+    },
+    "The ultimate disgrace...": {
+      "id": "JorginDefeatedTwo",
+      "npc": "Thane Jorgin the Banished",
+      "category": "Betrayal",
+      "type": "Fight",
+      "arguments": {
+        "target": "Jorgin",
+        "action": "defeated"
+      }
+    },
+    "Well... you've passed ma test...": {
+      "id": "JorginDefeatedThree",
+      "npc": "Thane Jorgin the Banished",
+      "category": "Betrayal",
+      "type": "Fight",
+      "arguments": {
+        "target": "Jorgin",
+        "action": "defeated"
+      }
+    },
+    "I don't... want to be... caged again...": {
+      "id": "JorginDefeatedFour",
+      "npc": "Thane Jorgin the Banished",
+      "category": "Betrayal",
+      "type": "Fight",
+      "arguments": {
+        "target": "Jorgin",
+        "action": "defeated"
+      }
+    },
+    "I guess, uh, we should... talk?": {
+      "id": "JorginDefeatedFive",
+      "npc": "Thane Jorgin the Banished",
+      "category": "Betrayal",
+      "type": "Fight",
+      "arguments": {
+        "target": "Jorgin",
+        "action": "defeated"
+      }
+    },
+    "Might... politics... two sides of the same coin...": {
+      "id": "JorginDefeatedSix",
+      "npc": "Thane Jorgin the Banished",
+      "category": "Betrayal",
+      "type": "Fight",
+      "arguments": {
+        "target": "Jorgin",
+        "action": "defeated"
+      }
+    },
+    "Kill me yet again... I'll return stronger. Thus, we evolve.": {
+      "id": "JorginDefeatedSeven",
+      "npc": "Thane Jorgin the Banished",
+      "category": "Betrayal",
+      "type": "Fight",
+      "arguments": {
+        "target": "Jorgin",
+        "action": "defeated"
+      }
+    },
+    "Good show, exile. A real comeback.": {
+      "id": "JorginDefeatedEight",
+      "npc": "Thane Jorgin the Banished",
+      "category": "Betrayal",
+      "type": "Fight",
+      "arguments": {
+        "target": "Jorgin",
+        "action": "defeated"
+      }
+    },
+    "Numbers alone... can't be counted on...": {
+      "id": "JorginDefeatedNine",
+      "npc": "Thane Jorgin the Banished",
+      "category": "Betrayal",
+      "type": "Fight",
+      "arguments": {
+        "target": "Jorgin",
+        "action": "defeated"
+      }
+    },
+    "It seems... I have... failed... my own test.": {
+      "id": "JorginDefeatedTen",
+      "npc": "Thane Jorgin the Banished",
+      "category": "Betrayal",
+      "type": "Fight",
+      "arguments": {
+        "target": "Jorgin",
+        "action": "defeated"
+      }
+    },
+    "Good, exile. The strongest wins. I knew one day it would not be me.": {
+      "id": "JorginSafehouseLeaderDefeatedZero",
+      "npc": "Thane Jorgin the Banished",
+      "category": "Betrayal",
+      "type": "Fight",
+      "arguments": {
+        "target": "Jorgin",
+        "action": "defeated"
+      }
+    },
+    "Where are your First Ones now, Ezomyte?": {
+      "id": "JorginDefeatedEleven",
+      "npc": "Jun, Veiled Master",
+      "category": "Betrayal",
+      "type": "Fight",
+      "arguments": {
+        "target": "Jorgin",
+        "action": "defeated"
+      }
+    },
+    "You're not the strongest here. We are. Tell us what we want to know.": {
+      "id": "JorginDefeatedTwelve",
+      "npc": "Jun, Veiled Master",
+      "category": "Betrayal",
+      "type": "Fight",
+      "arguments": {
+        "target": "Jorgin",
+        "action": "defeated"
+      }
+    },
+    "Good. Get this cleaned up.": {
+      "id": "AislingKillPlayerZero",
+      "npc": "Aisling Laffrey, The Silent Butcher",
+      "category": "Betrayal",
+      "type": "Fight",
+      "arguments": {
+        "target": "Aisling",
+        "action": "killedPlayer"
+      }
+    },
+    "Keep moving.": {
+      "id": "AislingKillPlayerOne",
+      "npc": "Aisling Laffrey, The Silent Butcher",
+      "category": "Betrayal",
+      "type": "Fight",
+      "arguments": {
+        "target": "Aisling",
+        "action": "killedPlayer"
+      }
+    },
+    "Let's finish up and get out of here.": {
+      "id": "AislingKillPlayerTwo",
+      "npc": "Aisling Laffrey, The Silent Butcher",
+      "category": "Betrayal",
+      "type": "Fight",
+      "arguments": {
+        "target": "Aisling",
+        "action": "killedPlayer"
+      }
+    },
+    "Too easy.": {
+      "id": "AislingKillPlayerThree",
+      "npc": "Aisling Laffrey, The Silent Butcher",
+      "category": "Betrayal",
+      "type": "Fight",
+      "arguments": {
+        "target": "Aisling",
+        "action": "killedPlayer"
+      }
+    },
+    "What!? No!": {
+      "id": "AislingDefeatedZero",
+      "npc": "Aisling Laffrey, The Silent Butcher",
+      "category": "Betrayal",
+      "type": "Fight",
+      "arguments": {
+        "target": "Aisling",
+        "action": "defeated"
+      }
+    },
+    "It can't be...!": {
+      "id": "AislingDefeatedOne",
+      "npc": "Aisling Laffrey, The Silent Butcher",
+      "category": "Betrayal",
+      "type": "Fight",
+      "arguments": {
+        "target": "Aisling",
+        "action": "defeated"
+      }
+    },
+    "No, not possible...!": {
+      "id": "AislingDefeatedTwo",
+      "npc": "Aisling Laffrey, The Silent Butcher",
+      "category": "Betrayal",
+      "type": "Fight",
+      "arguments": {
+        "target": "Aisling",
+        "action": "defeated"
+      }
+    },
+    "But... I can't...!": {
+      "id": "AislingDefeatedThree",
+      "npc": "Aisling Laffrey, The Silent Butcher",
+      "category": "Betrayal",
+      "type": "Fight",
+      "arguments": {
+        "target": "Aisling",
+        "action": "defeated"
+      }
+    },
+    "All that plannin'... for what?!": {
+      "id": "AislingDefeatedFour",
+      "npc": "Aisling Laffrey, The Silent Butcher",
+      "category": "Betrayal",
+      "type": "Fight",
+      "arguments": {
+        "target": "Aisling",
+        "action": "defeated"
+      }
+    },
+    "Wait... another deal!": {
+      "id": "AislingDefeatedFive",
+      "npc": "Aisling Laffrey, The Silent Butcher",
+      "category": "Betrayal",
+      "type": "Fight",
+      "arguments": {
+        "target": "Aisling",
+        "action": "defeated"
+      }
+    },
+    "No, not again!": {
+      "id": "AislingDefeatedSix",
+      "npc": "Aisling Laffrey, The Silent Butcher",
+      "category": "Betrayal",
+      "type": "Fight",
+      "arguments": {
+        "target": "Aisling",
+        "action": "defeated"
+      }
+    },
+    "Ugh... gets no easier, does it?": {
+      "id": "AislingDefeatedSeven",
+      "npc": "Aisling Laffrey, The Silent Butcher",
+      "category": "Betrayal",
+      "type": "Fight",
+      "arguments": {
+        "target": "Aisling",
+        "action": "defeated"
+      }
+    },
+    "You... got... lucky...!": {
+      "id": "AislingDefeatedEight",
+      "npc": "Aisling Laffrey, The Silent Butcher",
+      "category": "Betrayal",
+      "type": "Fight",
+      "arguments": {
+        "target": "Aisling",
+        "action": "defeated"
+      }
+    },
+    "How... unprofessional.": {
+      "id": "AislingDefeatedNine",
+      "npc": "Aisling Laffrey, The Silent Butcher",
+      "category": "Betrayal",
+      "type": "Fight",
+      "arguments": {
+        "target": "Aisling",
+        "action": "defeated"
+      }
+    },
+    "Ugh... careless!": {
+      "id": "AislingDefeatedTen",
+      "npc": "Aisling Laffrey, The Silent Butcher",
+      "category": "Betrayal",
+      "type": "Fight",
+      "arguments": {
+        "target": "Aisling",
+        "action": "defeated"
+      }
+    },
+    "You may have claimed this victory, but we will rise again. You cannot win, exile. Not forever.": {
+      "id": "AislingSafehouseLeaderDefeatedZero",
+      "npc": "Aisling Laffrey, The Silent Butcher",
+      "category": "Betrayal",
+      "type": "Fight",
+      "arguments": {
+        "target": "Aisling",
+        "action": "defeated"
+      }
+    },
+    "You're done, Aisling.": {
+      "id": "AislingDefeatedEleven",
+      "npc": "Jun, Veiled Master",
+      "category": "Betrayal",
+      "type": "Fight",
+      "arguments": {
+        "target": "Aisling",
+        "action": "defeated"
+      }
+    },
+    "Your reign of terror's over. Talk.": {
+      "id": "AislingDefeatedTwelve",
+      "npc": "Jun, Veiled Master",
+      "category": "Betrayal",
+      "type": "Fight",
+      "arguments": {
+        "target": "Aisling",
+        "action": "defeated"
+      }
+    },
+    "Your bones will rot in these walls for all time.": {
+      "id": "CameriaKillPlayerZero",
+      "npc": "Cameria the Coldblooded",
+      "category": "Betrayal",
+      "type": "Fight",
+      "arguments": {
+        "target": "Cameria",
+        "action": "killedPlayer"
+      }
+    },
+    "I think I'll drag you behind this caravan just for fun.": {
+      "id": "CameriaKillPlayerOne",
+      "npc": "Cameria the Coldblooded",
+      "category": "Betrayal",
+      "type": "Fight",
+      "arguments": {
+        "target": "Cameria",
+        "action": "killedPlayer"
+      }
+    },
+    "So many limbs, so little time!": {
+      "id": "CameriaKillPlayerTwo",
+      "npc": "Cameria the Coldblooded",
+      "category": "Betrayal",
+      "type": "Fight",
+      "arguments": {
+        "target": "Cameria",
+        "action": "killedPlayer"
+      }
+    },
+    "Aww, over too soon!": {
+      "id": "CameriaKillPlayerThree",
+      "npc": "Cameria the Coldblooded",
+      "category": "Betrayal",
+      "type": "Fight",
+      "arguments": {
+        "target": "Cameria",
+        "action": "killedPlayer"
+      }
+    },
+    "I had you!": {
+      "id": "CameriaDefeatedZero",
+      "npc": "Cameria the Coldblooded",
+      "category": "Betrayal",
+      "type": "Fight",
+      "arguments": {
+        "target": "Cameria",
+        "action": "defeated"
+      }
+    },
+    "Urgh... not possible...": {
+      "id": "CameriaDefeatedOne",
+      "npc": "Cameria the Coldblooded",
+      "category": "Betrayal",
+      "type": "Fight",
+      "arguments": {
+        "target": "Cameria",
+        "action": "defeated"
+      }
+    },
+    "How? You are weak!": {
+      "id": "CameriaDefeatedTwo",
+      "npc": "Cameria the Coldblooded",
+      "category": "Betrayal",
+      "type": "Fight",
+      "arguments": {
+        "target": "Cameria",
+        "action": "defeated"
+      }
+    },
+    "But I had the upper hand!": {
+      "id": "CameriaDefeatedThree",
+      "npc": "Cameria the Coldblooded",
+      "category": "Betrayal",
+      "type": "Fight",
+      "arguments": {
+        "target": "Cameria",
+        "action": "defeated"
+      }
+    },
+    "No, not the questions again!": {
+      "id": "CameriaDefeatedFour",
+      "npc": "Cameria the Coldblooded",
+      "category": "Betrayal",
+      "type": "Fight",
+      "arguments": {
+        "target": "Cameria",
+        "action": "defeated"
+      }
+    },
+    "Pretty good... for a talker...": {
+      "id": "CameriaDefeatedFive",
+      "npc": "Cameria the Coldblooded",
+      "category": "Betrayal",
+      "type": "Fight",
+      "arguments": {
+        "target": "Cameria",
+        "action": "defeated"
+      }
+    },
+    "What... gonna make me hurt my little friends again?": {
+      "id": "CameriaDefeatedSix",
+      "npc": "Cameria the Coldblooded",
+      "category": "Betrayal",
+      "type": "Fight",
+      "arguments": {
+        "target": "Cameria",
+        "action": "defeated"
+      }
+    },
+    "Kill me once, shame on you...": {
+      "id": "CameriaDefeatedSeven",
+      "npc": "Cameria the Coldblooded",
+      "category": "Betrayal",
+      "type": "Fight",
+      "arguments": {
+        "target": "Cameria",
+        "action": "defeated"
+      }
+    },
+    "Is this... is this a bloody prank?": {
+      "id": "CameriaDefeatedEight",
+      "npc": "Cameria the Coldblooded",
+      "category": "Betrayal",
+      "type": "Fight",
+      "arguments": {
+        "target": "Cameria",
+        "action": "defeated"
+      }
+    },
+    "Why did I come here?": {
+      "id": "CameriaDefeatedNine",
+      "npc": "Cameria the Coldblooded",
+      "category": "Betrayal",
+      "type": "Fight",
+      "arguments": {
+        "target": "Cameria",
+        "action": "defeated"
+      }
+    },
+    "I don't understand how I lost.": {
+      "id": "CameriaDefeatedTen",
+      "npc": "Cameria the Coldblooded",
+      "category": "Betrayal",
+      "type": "Fight",
+      "arguments": {
+        "target": "Cameria",
+        "action": "defeated"
+      }
+    },
+    "This is a lie...": {
+      "id": "CameriaSafehouseLeaderDefeatedZero",
+      "npc": "Cameria the Coldblooded",
+      "category": "Betrayal",
+      "type": "Fight",
+      "arguments": {
+        "target": "Cameria",
+        "action": "defeated"
+      }
+    },
+    "See? Even nightmares may be defeated.": {
+      "id": "CameriaDefeatedEleven",
+      "npc": "Jun, Veiled Master",
+      "category": "Betrayal",
+      "type": "Fight",
+      "arguments": {
+        "target": "Cameria",
+        "action": "defeated"
+      }
+    },
+    "Match: Leo.": {
+      "id": "LeoKillPlayerZero",
+      "npc": "Leo, Wolf of the Pits",
+      "category": "Betrayal",
+      "type": "Fight",
+      "arguments": {
+        "target": "Leo",
+        "action": "killedPlayer"
+      }
+    },
+    "I guess it's back to work then.": {
+      "id": "LeoKillPlayerOne",
+      "npc": "Leo, Wolf of the Pits",
+      "category": "Betrayal",
+      "type": "Fight",
+      "arguments": {
+        "target": "Leo",
+        "action": "killedPlayer"
+      }
+    },
+    "Not a nice place to die, is it exile?": {
+      "id": "LeoKillPlayerTwo",
+      "npc": "Leo, Wolf of the Pits",
+      "category": "Betrayal",
+      "type": "Fight",
+      "arguments": {
+        "target": "Leo",
+        "action": "killedPlayer"
+      }
+    },
+    "Didn't even get to use my signature one-handed throw!": {
+      "id": "LeoKillPlayerThree",
+      "npc": "Leo, Wolf of the Pits",
+      "category": "Betrayal",
+      "type": "Fight",
+      "arguments": {
+        "target": "Leo",
+        "action": "killedPlayer"
+      }
+    },
+    "How did I lose a bloody cage match?": {
+      "id": "LeoDefeatedZero",
+      "npc": "Leo, Wolf of the Pits",
+      "category": "Betrayal",
+      "type": "Fight",
+      "arguments": {
+        "target": "Leo",
+        "action": "defeated"
+      }
+    },
+    "Urgh... too much of a ruckus.": {
+      "id": "LeoDefeatedOne",
+      "npc": "Leo, Wolf of the Pits",
+      "category": "Betrayal",
+      "type": "Fight",
+      "arguments": {
+        "target": "Leo",
+        "action": "defeated"
+      }
+    },
+    "Gotta be honest. My heart wasn't in this one.": {
+      "id": "LeoDefeatedTwo",
+      "npc": "Leo, Wolf of the Pits",
+      "category": "Betrayal",
+      "type": "Fight",
+      "arguments": {
+        "target": "Leo",
+        "action": "defeated"
+      }
+    },
+    "Fair. Fair fight. Not bad.": {
+      "id": "LeoDefeatedThree",
+      "npc": "Leo, Wolf of the Pits",
+      "category": "Betrayal",
+      "type": "Fight",
+      "arguments": {
+        "target": "Leo",
+        "action": "defeated"
+      }
+    },
+    "No more time-outs, please...": {
+      "id": "LeoDefeatedFour",
+      "npc": "Leo, Wolf of the Pits",
+      "category": "Betrayal",
+      "type": "Fight",
+      "arguments": {
+        "target": "Leo",
+        "action": "defeated"
+      }
+    },
+    "Even better with a weapon than with words...": {
+      "id": "LeoDefeatedFive",
+      "npc": "Leo, Wolf of the Pits",
+      "category": "Betrayal",
+      "type": "Fight",
+      "arguments": {
+        "target": "Leo",
+        "action": "defeated"
+      }
+    },
+    "I'm really building a damaged reputation here.": {
+      "id": "LeoDefeatedSix",
+      "npc": "Leo, Wolf of the Pits",
+      "category": "Betrayal",
+      "type": "Fight",
+      "arguments": {
+        "target": "Leo",
+        "action": "defeated"
+      }
+    },
+    "This one's going to hurt, isn't it?": {
+      "id": "LeoDefeatedSeven",
+      "npc": "Leo, Wolf of the Pits",
+      "category": "Betrayal",
+      "type": "Fight",
+      "arguments": {
+        "target": "Leo",
+        "action": "defeated"
+      }
+    },
+    "Hah! I knew you'd get me back for killing you.": {
+      "id": "LeoDefeatedEight",
+      "npc": "Leo, Wolf of the Pits",
+      "category": "Betrayal",
+      "type": "Fight",
+      "arguments": {
+        "target": "Leo",
+        "action": "defeated"
+      }
+    },
+    "I shouldn't have jumped in like I did!": {
+      "id": "LeoDefeatedNine",
+      "npc": "Leo, Wolf of the Pits",
+      "category": "Betrayal",
+      "type": "Fight",
+      "arguments": {
+        "target": "Leo",
+        "action": "defeated"
+      }
+    },
+    "Sure can pick 'em, can't ya Leo?": {
+      "id": "LeoDefeatedTen",
+      "npc": "Leo, Wolf of the Pits",
+      "category": "Betrayal",
+      "type": "Fight",
+      "arguments": {
+        "target": "Leo",
+        "action": "defeated"
+      }
+    },
+    "Bugger. How about a rematch, eh?": {
+      "id": "LeoSafehouseLeaderDefeatedZero",
+      "npc": "Leo, Wolf of the Pits",
+      "category": "Betrayal",
+      "type": "Fight",
+      "arguments": {
+        "target": "Leo",
+        "action": "defeated"
+      }
+    },
+    "Talk, or else I will make you talk.": {
+      "id": "LeoDefeatedEleven",
+      "npc": "Jun, Veiled Master",
+      "category": "Betrayal",
+      "type": "Fight",
+      "arguments": {
+        "target": "Leo",
+        "action": "defeated"
+      }
+    },
+    "It's over, Leo. Where's the Lifegiver?": {
+      "id": "LeoDefeatedTwelve",
+      "npc": "Jun, Veiled Master",
+      "category": "Betrayal",
+      "type": "Fight",
+      "arguments": {
+        "target": "Leo",
+        "action": "defeated"
+      }
+    },
+    "I told you this bastion would not fall.": {
+      "id": "ElreonKillPlayerZero",
+      "npc": "Elreon, Light's Judge",
+      "category": "Betrayal",
+      "type": "Fight",
+      "arguments": {
+        "target": "Elreon",
+        "action": "killedPlayer"
+      }
+    },
+    "You should never have come here, child.": {
+      "id": "ElreonKillPlayerOne",
+      "npc": "Elreon, Light's Judge",
+      "category": "Betrayal",
+      "type": "Fight",
+      "arguments": {
+        "target": "Elreon",
+        "action": "killedPlayer"
+      }
+    },
+    "Add one more sin to the pile - and burn it.": {
+      "id": "ElreonKillPlayerTwo",
+      "npc": "Elreon, Light's Judge",
+      "category": "Betrayal",
+      "type": "Fight",
+      "arguments": {
+        "target": "Elreon",
+        "action": "killedPlayer"
+      }
+    },
+    "When you see him, exile, shrink not from God.": {
+      "id": "ElreonKillPlayerThree",
+      "npc": "Elreon, Light's Judge",
+      "category": "Betrayal",
+      "type": "Fight",
+      "arguments": {
+        "target": "Elreon",
+        "action": "killedPlayer"
+      }
+    },
+    "Agh... my faith was not strong enough...": {
+      "id": "ElreonDefeatedZero",
+      "npc": "Elreon, Light's Judge",
+      "category": "Betrayal",
+      "type": "Fight",
+      "arguments": {
+        "target": "Elreon",
+        "action": "defeated"
+      }
+    },
+    "Not here!": {
+      "id": "ElreonDefeatedOne",
+      "npc": "Elreon, Light's Judge",
+      "category": "Betrayal",
+      "type": "Fight",
+      "arguments": {
+        "target": "Elreon",
+        "action": "defeated"
+      }
+    },
+    "Expose our sins, exile. It is what we deserve.": {
+      "id": "ElreonDefeatedTwo",
+      "npc": "Elreon, Light's Judge",
+      "category": "Betrayal",
+      "type": "Fight",
+      "arguments": {
+        "target": "Elreon",
+        "action": "defeated"
+      }
+    },
+    "I've... failed...": {
+      "id": "ElreonDefeatedThree",
+      "npc": "Elreon, Light's Judge",
+      "category": "Betrayal",
+      "type": "Fight",
+      "arguments": {
+        "target": "Elreon",
+        "action": "defeated"
+      }
+    },
+    "Back... to the Inquisition...": {
+      "id": "ElreonDefeatedFour",
+      "npc": "Elreon, Light's Judge",
+      "category": "Betrayal",
+      "type": "Fight",
+      "arguments": {
+        "target": "Elreon",
+        "action": "defeated"
+      }
+    },
+    "We should solve this with words.": {
+      "id": "ElreonDefeatedFive",
+      "npc": "Elreon, Light's Judge",
+      "category": "Betrayal",
+      "type": "Fight",
+      "arguments": {
+        "target": "Elreon",
+        "action": "defeated"
+      }
+    },
+    "God certainly keeps testing me.": {
+      "id": "ElreonDefeatedSix",
+      "npc": "Elreon, Light's Judge",
+      "category": "Betrayal",
+      "type": "Fight",
+      "arguments": {
+        "target": "Elreon",
+        "action": "defeated"
+      }
+    },
+    "To fall, perhaps to die again, but pure I remain.": {
+      "id": "ElreonDefeatedSeven",
+      "npc": "Elreon, Light's Judge",
+      "category": "Betrayal",
+      "type": "Fight",
+      "arguments": {
+        "target": "Elreon",
+        "action": "defeated"
+      }
+    },
+    "Perhaps I deserve this vengeance.": {
+      "id": "ElreonDefeatedEight",
+      "npc": "Elreon, Light's Judge",
+      "category": "Betrayal",
+      "type": "Fight",
+      "arguments": {
+        "target": "Elreon",
+        "action": "defeated"
+      }
+    },
+    "God's eyes are not upon us this day.": {
+      "id": "ElreonDefeatedNine",
+      "npc": "Elreon, Light's Judge",
+      "category": "Betrayal",
+      "type": "Fight",
+      "arguments": {
+        "target": "Elreon",
+        "action": "defeated"
+      }
+    },
+    "Lord, did I err?": {
+      "id": "ElreonDefeatedTen",
+      "npc": "Elreon, Light's Judge",
+      "category": "Betrayal",
+      "type": "Fight",
+      "arguments": {
+        "target": "Elreon",
+        "action": "defeated"
+      }
+    },
+    "I thought God was working through me...": {
+      "id": "ElreonSafehouseLeaderDefeatedZero",
+      "npc": "Elreon, Light's Judge",
+      "category": "Betrayal",
+      "type": "Fight",
+      "arguments": {
+        "target": "Elreon",
+        "action": "defeated"
+      }
+    },
+    "I'm sorry, holy man, but you've chosen the wrong crusade.": {
+      "id": "ElreonDefeatedEleven",
+      "npc": "Jun, Veiled Master",
+      "category": "Betrayal",
+      "type": "Fight",
+      "arguments": {
+        "target": "Elreon",
+        "action": "defeated"
+      }
+    },
+    "The weak perish. Such is life.": {
+      "id": "ToraKillPlayerZero",
+      "npc": "Tora, the Culler",
+      "category": "Betrayal",
+      "type": "Fight",
+      "arguments": {
+        "target": "Tora",
+        "action": "killedPlayer"
+      }
+    },
+    "You should have stayed out of this.": {
+      "id": "ToraKillPlayerOne",
+      "npc": "Tora, the Culler",
+      "category": "Betrayal",
+      "type": "Fight",
+      "arguments": {
+        "target": "Tora",
+        "action": "killedPlayer"
+      }
+    },
+    "The Syndicate's death toll climbs.": {
+      "id": "ToraKillPlayerTwo",
+      "npc": "Tora, the Culler",
+      "category": "Betrayal",
+      "type": "Fight",
+      "arguments": {
+        "target": "Tora",
+        "action": "killedPlayer"
+      }
+    },
+    "A successful hunt.": {
+      "id": "ToraKillPlayerThree",
+      "npc": "Tora, the Culler",
+      "category": "Betrayal",
+      "type": "Fight",
+      "arguments": {
+        "target": "Tora",
+        "action": "killedPlayer"
+      }
+    },
+    "Nest invader!": {
+      "id": "ToraDefeatedZero",
+      "npc": "Tora, the Culler",
+      "category": "Betrayal",
+      "type": "Fight",
+      "arguments": {
+        "target": "Tora",
+        "action": "defeated"
+      }
+    },
+    "Damn your lust for wreckage.": {
+      "id": "ToraDefeatedOne",
+      "npc": "Tora, the Culler",
+      "category": "Betrayal",
+      "type": "Fight",
+      "arguments": {
+        "target": "Tora",
+        "action": "defeated"
+      }
+    },
+    "Nature.. is wounded... here...": {
+      "id": "ToraDefeatedTwo",
+      "npc": "Tora, the Culler",
+      "category": "Betrayal",
+      "type": "Fight",
+      "arguments": {
+        "target": "Tora",
+        "action": "defeated"
+      }
+    },
+    "Only fair...": {
+      "id": "ToraDefeatedThree",
+      "npc": "Tora, the Culler",
+      "category": "Betrayal",
+      "type": "Fight",
+      "arguments": {
+        "target": "Tora",
+        "action": "defeated"
+      }
+    },
+    "The cage beckons...": {
+      "id": "ToraDefeatedFour",
+      "npc": "Tora, the Culler",
+      "category": "Betrayal",
+      "type": "Fight",
+      "arguments": {
+        "target": "Tora",
+        "action": "defeated"
+      }
+    },
+    "We're not beasts... we can settle this other ways, like before.": {
+      "id": "ToraDefeatedFive",
+      "npc": "Tora, the Culler",
+      "category": "Betrayal",
+      "type": "Fight",
+      "arguments": {
+        "target": "Tora",
+        "action": "defeated"
+      }
+    },
+    "You're making my life complicated, Exile.": {
+      "id": "ToraDefeatedSix",
+      "npc": "Tora, the Culler",
+      "category": "Betrayal",
+      "type": "Fight",
+      "arguments": {
+        "target": "Tora",
+        "action": "defeated"
+      }
+    },
+    "The cycle of life and death is supposed to be general, not specific.": {
+      "id": "ToraDefeatedSeven",
+      "npc": "Tora, the Culler",
+      "category": "Betrayal",
+      "type": "Fight",
+      "arguments": {
+        "target": "Tora",
+        "action": "defeated"
+      }
+    },
+    "It seems... you've evolved...": {
+      "id": "ToraDefeatedEight",
+      "npc": "Tora, the Culler",
+      "category": "Betrayal",
+      "type": "Fight",
+      "arguments": {
+        "target": "Tora",
+        "action": "defeated"
+      }
+    },
+    "I was too slow...": {
+      "id": "ToraDefeatedNine",
+      "npc": "Tora, the Culler",
+      "category": "Betrayal",
+      "type": "Fight",
+      "arguments": {
+        "target": "Tora",
+        "action": "defeated"
+      }
+    },
+    "I pounced too recklessly.": {
+      "id": "ToraDefeatedTen",
+      "npc": "Tora, the Culler",
+      "category": "Betrayal",
+      "type": "Fight",
+      "arguments": {
+        "target": "Tora",
+        "action": "defeated"
+      }
+    },
+    "Rise. If I must fall, respect the natural order by rising to your potential.": {
+      "id": "ToraSafehouseLeaderDefeatedZero",
+      "npc": "Tora, the Culler",
+      "category": "Betrayal",
+      "type": "Fight",
+      "arguments": {
+        "target": "Tora",
+        "action": "defeated"
+      }
+    },
+    "You forced us down this path, Tora.": {
+      "id": "ToraDefeatedEleven",
+      "npc": "Jun, Veiled Master",
+      "category": "Betrayal",
+      "type": "Fight",
+      "arguments": {
+        "target": "Tora",
+        "action": "defeated"
+      }
+    },
+    "A nice, clean kill.": {
+      "id": "VoriciKillPlayerZero",
+      "npc": "Vorici, Silent Brother",
+      "category": "Betrayal",
+      "type": "Fight",
+      "arguments": {
+        "target": "Vorici",
+        "action": "killedPlayer"
+      }
+    },
+    "I do like a tidy ending.": {
+      "id": "VoriciKillPlayerOne",
+      "npc": "Vorici, Silent Brother",
+      "category": "Betrayal",
+      "type": "Fight",
+      "arguments": {
+        "target": "Vorici",
+        "action": "killedPlayer"
+      }
+    },
+    "Secrets remain secret.": {
+      "id": "VoriciKillPlayerTwo",
+      "npc": "Vorici, Silent Brother",
+      "category": "Betrayal",
+      "type": "Fight",
+      "arguments": {
+        "target": "Vorici",
+        "action": "killedPlayer"
+      }
+    },
+    "A shame. I rather liked that villain.": {
+      "id": "VoriciKillPlayerThree",
+      "npc": "Vorici, Silent Brother",
+      "category": "Betrayal",
+      "type": "Fight",
+      "arguments": {
+        "target": "Vorici",
+        "action": "killedPlayer"
+      }
+    },
+    "Defeated... within my own walls.": {
+      "id": "VoriciDefeatedZero",
+      "npc": "Vorici, Silent Brother",
+      "category": "Betrayal",
+      "type": "Fight",
+      "arguments": {
+        "target": "Vorici",
+        "action": "defeated"
+      }
+    },
+    "A costly error.": {
+      "id": "VoriciDefeatedOne",
+      "npc": "Vorici, Silent Brother",
+      "category": "Betrayal",
+      "type": "Fight",
+      "arguments": {
+        "target": "Vorici",
+        "action": "defeated"
+      }
+    },
+    "How uncivilised...": {
+      "id": "VoriciDefeatedTwo",
+      "npc": "Vorici, Silent Brother",
+      "category": "Betrayal",
+      "type": "Fight",
+      "arguments": {
+        "target": "Vorici",
+        "action": "defeated"
+      }
+    },
+    "Deeply disappointing.": {
+      "id": "VoriciDefeatedThree",
+      "npc": "Vorici, Silent Brother",
+      "category": "Betrayal",
+      "type": "Fight",
+      "arguments": {
+        "target": "Vorici",
+        "action": "defeated"
+      }
+    },
+    "Perhaps my time in confinement had a larger impact than I anticipated.": {
+      "id": "VoriciDefeatedFour",
+      "npc": "Vorici, Silent Brother",
+      "category": "Betrayal",
+      "type": "Fight",
+      "arguments": {
+        "target": "Vorici",
+        "action": "defeated"
+      }
+    },
+    "I... want another moment of your time...": {
+      "id": "VoriciDefeatedFive",
+      "npc": "Vorici, Silent Brother",
+      "category": "Betrayal",
+      "type": "Fight",
+      "arguments": {
+        "target": "Vorici",
+        "action": "defeated"
+      }
+    },
+    "I was a fool to work with you.": {
+      "id": "VoriciDefeatedSix",
+      "npc": "Vorici, Silent Brother",
+      "category": "Betrayal",
+      "type": "Fight",
+      "arguments": {
+        "target": "Vorici",
+        "action": "defeated"
+      }
+    },
+    "I faced death before... what's once more?": {
+      "id": "VoriciDefeatedSeven",
+      "npc": "Vorici, Silent Brother",
+      "category": "Betrayal",
+      "type": "Fight",
+      "arguments": {
+        "target": "Vorici",
+        "action": "defeated"
+      }
+    },
+    "You! You have improved!": {
+      "id": "VoriciDefeatedEight",
+      "npc": "Vorici, Silent Brother",
+      "category": "Betrayal",
+      "type": "Fight",
+      "arguments": {
+        "target": "Vorici",
+        "action": "defeated"
+      }
+    },
+    "How inelegant...": {
+      "id": "VoriciDefeatedNine",
+      "npc": "Vorici, Silent Brother",
+      "category": "Betrayal",
+      "type": "Fight",
+      "arguments": {
+        "target": "Vorici",
+        "action": "defeated"
+      }
+    },
+    "Foiled by my own selfishness. Humiliating.": {
+      "id": "VoriciDefeatedTen",
+      "npc": "Vorici, Silent Brother",
+      "category": "Betrayal",
+      "type": "Fight",
+      "arguments": {
+        "target": "Vorici",
+        "action": "defeated"
+      }
+    },
+    "You... only delay our inexorable rise.": {
+      "id": "VoriciSafehouseLeaderDefeatedZero",
+      "npc": "Vorici, Silent Brother",
+      "category": "Betrayal",
+      "type": "Fight",
+      "arguments": {
+        "target": "Vorici",
+        "action": "defeated"
+      }
+    },
+    "Too easy, assassin.": {
+      "id": "VoriciDefeatedEleven",
+      "npc": "Jun, Veiled Master",
+      "category": "Betrayal",
+      "type": "Fight",
+      "arguments": {
+        "target": "Vorici",
+        "action": "defeated"
+      }
+    },
+    "You've lost. Time to speak, silent brother.": {
+      "id": "VoriciDefeatedTwelve",
+      "npc": "Jun, Veiled Master",
+      "category": "Betrayal",
+      "type": "Fight",
+      "arguments": {
+        "target": "Vorici",
+        "action": "defeated"
+      }
+    },
+    "Thank the gods... I mean, totally had that one under control the whole time.": {
+      "id": "GuffKillPlayerZero",
+      "npc": "Guff \"Tiny\" Grenn",
+      "category": "Betrayal",
+      "type": "Fight",
+      "arguments": {
+        "target": "Guff",
+        "action": "killedPlayer"
+      }
+    },
+    "Brinerot property remains Brinerot property!": {
+      "id": "GuffKillPlayerOne",
+      "npc": "Guff \"Tiny\" Grenn",
+      "category": "Betrayal",
+      "type": "Fight",
+      "arguments": {
+        "target": "Guff",
+        "action": "killedPlayer"
+      }
+    },
+    "Oof, not a pretty place to fall. I know I wouldn't want to rest here.": {
+      "id": "GuffKillPlayerTwo",
+      "npc": "Guff \"Tiny\" Grenn",
+      "category": "Betrayal",
+      "type": "Fight",
+      "arguments": {
+        "target": "Guff",
+        "action": "killedPlayer"
+      }
+    },
+    "Never doubted... for a second... that I could do it!": {
+      "id": "GuffKillPlayerThree",
+      "npc": "Guff \"Tiny\" Grenn",
+      "category": "Betrayal",
+      "type": "Fight",
+      "arguments": {
+        "target": "Guff",
+        "action": "killedPlayer"
+      }
+    },
+    "Ohh, oh, me kidney...": {
+      "id": "GuffDefeatedZero",
+      "npc": "Guff \"Tiny\" Grenn",
+      "category": "Betrayal",
+      "type": "Fight",
+      "arguments": {
+        "target": "Guff",
+        "action": "defeated"
+      }
+    },
+    "My spleen, my poor spleen!": {
+      "id": "GuffDefeatedOne",
+      "npc": "Guff \"Tiny\" Grenn",
+      "category": "Betrayal",
+      "type": "Fight",
+      "arguments": {
+        "target": "Guff",
+        "action": "defeated"
+      }
+    },
+    "Acch, ya got me in the lung...": {
+      "id": "GuffDefeatedTwo",
+      "npc": "Guff \"Tiny\" Grenn",
+      "category": "Betrayal",
+      "type": "Fight",
+      "arguments": {
+        "target": "Guff",
+        "action": "defeated"
+      }
+    },
+    "Ow! Ah ah ah ow! You hit me in the eyeball! Why the eyeball, Exile?": {
+      "id": "GuffDefeatedThree",
+      "npc": "Guff \"Tiny\" Grenn",
+      "category": "Betrayal",
+      "type": "Fight",
+      "arguments": {
+        "target": "Guff",
+        "action": "defeated"
+      }
+    },
+    "Not back to the bin? Ugh.": {
+      "id": "GuffDefeatedFour",
+      "npc": "Guff \"Tiny\" Grenn",
+      "category": "Betrayal",
+      "type": "Fight",
+      "arguments": {
+        "target": "Guff",
+        "action": "defeated"
+      }
+    },
+    "Guess I was better as a merchant than a fighter.": {
+      "id": "GuffDefeatedFive",
+      "npc": "Guff \"Tiny\" Grenn",
+      "category": "Betrayal",
+      "type": "Fight",
+      "arguments": {
+        "target": "Guff",
+        "action": "defeated"
+      }
+    },
+    "You gonna make me turn traitor again? 'Cause I - 'cause I will.": {
+      "id": "GuffDefeatedSix",
+      "npc": "Guff \"Tiny\" Grenn",
+      "category": "Betrayal",
+      "type": "Fight",
+      "arguments": {
+        "target": "Guff",
+        "action": "defeated"
+      }
+    },
+    "My head just keeps trying to leave me shoulders!": {
+      "id": "GuffDefeatedSeven",
+      "npc": "Guff \"Tiny\" Grenn",
+      "category": "Betrayal",
+      "type": "Fight",
+      "arguments": {
+        "target": "Guff",
+        "action": "defeated"
+      }
+    },
+    "Well, look as us aye! Back and forth, forth and back.": {
+      "id": "GuffDefeatedEight",
+      "npc": "Guff \"Tiny\" Grenn",
+      "category": "Betrayal",
+      "type": "Fight",
+      "arguments": {
+        "target": "Guff",
+        "action": "defeated"
+      }
+    },
+    "I should never have jumped in like that. Aye... not great thinking.": {
+      "id": "GuffDefeatedNine",
+      "npc": "Guff \"Tiny\" Grenn",
+      "category": "Betrayal",
+      "type": "Fight",
+      "arguments": {
+        "target": "Guff",
+        "action": "defeated"
+      }
+    },
+    "Well, this is what I get for sticking me nose in!": {
+      "id": "GuffDefeatedTen",
+      "npc": "Guff \"Tiny\" Grenn",
+      "category": "Betrayal",
+      "type": "Fight",
+      "arguments": {
+        "target": "Guff",
+        "action": "defeated"
+      }
+    },
+    "Oh boy, hoo, Guff's done it now.": {
+      "id": "GuffSafehouseLeaderDefeatedZero",
+      "npc": "Guff \"Tiny\" Grenn",
+      "category": "Betrayal",
+      "type": "Fight",
+      "arguments": {
+        "target": "Guff",
+        "action": "defeated"
+      }
+    },
+    "Fun's over, Brinerot.": {
+      "id": "GuffDefeatedEleven",
+      "npc": "Jun, Veiled Master",
+      "category": "Betrayal",
+      "type": "Fight",
+      "arguments": {
+        "target": "Guff",
+        "action": "defeated"
+      }
+    },
+    "Well, it wasn't like you were ever going to win.": {
+      "id": "JanusKillPlayerZero",
+      "npc": "Janus Perandus",
+      "category": "Betrayal",
+      "type": "Fight",
+      "arguments": {
+        "target": "Janus",
+        "action": "killedPlayer"
+      }
+    },
+    "Nobody touches a Perandus' wealth.": {
+      "id": "JanusKillPlayerOne",
+      "npc": "Janus Perandus",
+      "category": "Betrayal",
+      "type": "Fight",
+      "arguments": {
+        "target": "Janus",
+        "action": "killedPlayer"
+      }
+    },
+    "Wonderful. Can we hurry this up?": {
+      "id": "JanusKillPlayerTwo",
+      "npc": "Janus Perandus",
+      "category": "Betrayal",
+      "type": "Fight",
+      "arguments": {
+        "target": "Janus",
+        "action": "killedPlayer"
+      }
+    },
+    "I did it! All by myself...!": {
+      "id": "JanusKillPlayerThree",
+      "npc": "Janus Perandus",
+      "category": "Betrayal",
+      "type": "Fight",
+      "arguments": {
+        "target": "Janus",
+        "action": "killedPlayer"
+      }
+    },
+    "No... I needed... this land...": {
+      "id": "JanusDefeatedZero",
+      "npc": "Janus Perandus",
+      "category": "Betrayal",
+      "type": "Fight",
+      "arguments": {
+        "target": "Janus",
+        "action": "defeated"
+      }
+    },
+    "My... cargo...": {
+      "id": "JanusDefeatedOne",
+      "npc": "Janus Perandus",
+      "category": "Betrayal",
+      "type": "Fight",
+      "arguments": {
+        "target": "Janus",
+        "action": "defeated"
+      }
+    },
+    "This... is not good...": {
+      "id": "JanusDefeatedTwo",
+      "npc": "Janus Perandus",
+      "category": "Betrayal",
+      "type": "Fight",
+      "arguments": {
+        "target": "Janus",
+        "action": "defeated"
+      }
+    },
+    "Mortifying.": {
+      "id": "JanusDefeatedThree",
+      "npc": "Janus Perandus",
+      "category": "Betrayal",
+      "type": "Fight",
+      "arguments": {
+        "target": "Janus",
+        "action": "defeated"
+      }
+    },
+    "No more cells... you have to promise me...": {
+      "id": "JanusDefeatedFour",
+      "npc": "Janus Perandus",
+      "category": "Betrayal",
+      "type": "Fight",
+      "arguments": {
+        "target": "Janus",
+        "action": "defeated"
+      }
+    },
+    "You win... let's parlay.": {
+      "id": "JanusDefeatedFive",
+      "npc": "Janus Perandus",
+      "category": "Betrayal",
+      "type": "Fight",
+      "arguments": {
+        "target": "Janus",
+        "action": "defeated"
+      }
+    },
+    "To think... I worked with you...": {
+      "id": "JanusDefeatedSix",
+      "npc": "Janus Perandus",
+      "category": "Betrayal",
+      "type": "Fight",
+      "arguments": {
+        "target": "Janus",
+        "action": "defeated"
+      }
+    },
+    "Wait, let me think...!": {
+      "id": "JanusDefeatedSeven",
+      "npc": "Janus Perandus",
+      "category": "Betrayal",
+      "type": "Fight",
+      "arguments": {
+        "target": "Janus",
+        "action": "defeated"
+      }
+    },
+    "I've never been so embarrassed.": {
+      "id": "JanusDefeatedEight",
+      "npc": "Janus Perandus",
+      "category": "Betrayal",
+      "type": "Fight",
+      "arguments": {
+        "target": "Janus",
+        "action": "defeated"
+      }
+    },
+    "What an absolute shambles.": {
+      "id": "JanusDefeatedNine",
+      "npc": "Janus Perandus",
+      "category": "Betrayal",
+      "type": "Fight",
+      "arguments": {
+        "target": "Janus",
+        "action": "defeated"
+      }
+    },
+    "You... went for the wrong person, Exile...": {
+      "id": "JanusDefeatedTen",
+      "npc": "Janus Perandus",
+      "category": "Betrayal",
+      "type": "Fight",
+      "arguments": {
+        "target": "Janus",
+        "action": "defeated"
+      }
+    },
+    "You... shouldn't even be here! This shouldn't be allowed!": {
+      "id": "JanusSafehouseLeaderDefeatedZero",
+      "npc": "Janus Perandus",
+      "category": "Betrayal",
+      "type": "Fight",
+      "arguments": {
+        "target": "Janus",
+        "action": "defeated"
+      }
+    },
+    "In the dirt, worm.": {
+      "id": "JanusDefeatedEleven",
+      "npc": "Jun, Veiled Master",
+      "category": "Betrayal",
+      "type": "Fight",
+      "arguments": {
+        "target": "Janus",
+        "action": "defeated"
+      }
+    },
+    "Beg for your life, Perandus.": {
+      "id": "JanusDefeatedTwelve",
+      "npc": "Jun, Veiled Master",
+      "category": "Betrayal",
+      "type": "Fight",
+      "arguments": {
+        "target": "Janus",
+        "action": "defeated"
+      }
+    },
+    "And stay out!": {
+      "id": "HillockKillPlayerZero",
+      "npc": "Hillock, the Blacksmith",
+      "category": "Betrayal",
+      "type": "Fight",
+      "arguments": {
+        "target": "Hillock",
+        "action": "killedPlayer"
+      }
+    },
+    "What's mine is mine.": {
+      "id": "HillockKillPlayerOne",
+      "npc": "Hillock, the Blacksmith",
+      "category": "Betrayal",
+      "type": "Fight",
+      "arguments": {
+        "target": "Hillock",
+        "action": "killedPlayer"
+      }
+    },
+    "Smushed.": {
+      "id": "HillockKillPlayerTwo",
+      "npc": "Hillock, the Blacksmith",
+      "category": "Betrayal",
+      "type": "Fight",
+      "arguments": {
+        "target": "Hillock",
+        "action": "killedPlayer"
+      }
+    },
+    "Easy easy easy.": {
+      "id": "HillockKillPlayerThree",
+      "npc": "Hillock, the Blacksmith",
+      "category": "Betrayal",
+      "type": "Fight",
+      "arguments": {
+        "target": "Hillock",
+        "action": "killedPlayer"
+      }
+    },
+    "Arrrgh!": {
+      "id": "HillockDefeatedZero",
+      "npc": "Hillock, the Blacksmith",
+      "category": "Betrayal",
+      "type": "Fight",
+      "arguments": {
+        "target": "Hillock",
+        "action": "defeated"
+      }
+    },
+    "Uggggggh!": {
+      "id": "HillockDefeatedOne",
+      "npc": "Hillock, the Blacksmith",
+      "category": "Betrayal",
+      "type": "Fight",
+      "arguments": {
+        "target": "Hillock",
+        "action": "defeated"
+      }
+    },
+    "My... toys...!": {
+      "id": "HillockDefeatedTwo",
+      "npc": "Hillock, the Blacksmith",
+      "category": "Betrayal",
+      "type": "Fight",
+      "arguments": {
+        "target": "Hillock",
+        "action": "defeated"
+      }
+    },
+    "You cheated! Must have!": {
+      "id": "HillockDefeatedThree",
+      "npc": "Hillock, the Blacksmith",
+      "category": "Betrayal",
+      "type": "Fight",
+      "arguments": {
+        "target": "Hillock",
+        "action": "defeated"
+      }
+    },
+    "No... not in the dark again...": {
+      "id": "HillockDefeatedFour",
+      "npc": "Hillock, the Blacksmith",
+      "category": "Betrayal",
+      "type": "Fight",
+      "arguments": {
+        "target": "Hillock",
+        "action": "defeated"
+      }
+    },
+    "My head still hurts!": {
+      "id": "HillockDefeatedFive",
+      "npc": "Hillock, the Blacksmith",
+      "category": "Betrayal",
+      "type": "Fight",
+      "arguments": {
+        "target": "Hillock",
+        "action": "defeated"
+      }
+    },
+    "Don't make me... hurt my friends again...": {
+      "id": "HillockDefeatedSix",
+      "npc": "Hillock, the Blacksmith",
+      "category": "Betrayal",
+      "type": "Fight",
+      "arguments": {
+        "target": "Hillock",
+        "action": "defeated"
+      }
+    },
+    "No... don't want to die... again..": {
+      "id": "HillockDefeatedSeven",
+      "npc": "Hillock, the Blacksmith",
+      "category": "Betrayal",
+      "type": "Fight",
+      "arguments": {
+        "target": "Hillock",
+        "action": "defeated"
+      }
+    },
+    "My turn... already...?": {
+      "id": "HillockDefeatedEight",
+      "npc": "Hillock, the Blacksmith",
+      "category": "Betrayal",
+      "type": "Fight",
+      "arguments": {
+        "target": "Hillock",
+        "action": "defeated"
+      }
+    },
+    "Bad... bad... BAD!": {
+      "id": "HillockDefeatedNine",
+      "npc": "Hillock, the Blacksmith",
+      "category": "Betrayal",
+      "type": "Fight",
+      "arguments": {
+        "target": "Hillock",
+        "action": "defeated"
+      }
+    },
+    "Stupid Hillock! Stupid!": {
+      "id": "HillockDefeatedTen",
+      "npc": "Hillock, the Blacksmith",
+      "category": "Betrayal",
+      "type": "Fight",
+      "arguments": {
+        "target": "Hillock",
+        "action": "defeated"
+      }
+    },
+    "I don't... understand... I was the boss...": {
+      "id": "HillockSafehouseLeaderDefeatedZero",
+      "npc": "Hillock, the Blacksmith",
+      "category": "Betrayal",
+      "type": "Fight",
+      "arguments": {
+        "target": "Hillock",
+        "action": "defeated"
+      }
+    },
+    "Brains over brawn, every time.": {
+      "id": "HillockDefeatedTwelve",
+      "npc": "Jun, Veiled Master",
+      "category": "Betrayal",
+      "type": "Fight",
+      "arguments": {
+        "target": "Hillock",
+        "action": "defeated"
+      }
+    },
+    "You will never achieve victory fighting only for yourself.": {
+      "id": "GraviciusKillPlayerZero",
+      "npc": "Gravicius Reborn",
+      "category": "Betrayal",
+      "type": "Fight",
+      "arguments": {
+        "target": "Gravicius",
+        "action": "killedPlayer"
+      }
+    },
+    "Secure the cargo, and make sure that one is fully dead.": {
+      "id": "GraviciusKillPlayerOne",
+      "npc": "Gravicius Reborn",
+      "category": "Betrayal",
+      "type": "Fight",
+      "arguments": {
+        "target": "Gravicius",
+        "action": "killedPlayer"
+      }
+    },
+    "Pile this carcass with the others.": {
+      "id": "GraviciusKillPlayerTwo",
+      "npc": "Gravicius Reborn",
+      "category": "Betrayal",
+      "type": "Fight",
+      "arguments": {
+        "target": "Gravicius",
+        "action": "killedPlayer"
+      }
+    },
+    "You brought this on yourself.": {
+      "id": "GraviciusKillPlayerThree",
+      "npc": "Gravicius Reborn",
+      "category": "Betrayal",
+      "type": "Fight",
+      "arguments": {
+        "target": "Gravicius",
+        "action": "killedPlayer"
+      }
+    },
+    "Is no defense enough?": {
+      "id": "GraviciusDefeatedZero",
+      "npc": "Gravicius Reborn",
+      "category": "Betrayal",
+      "type": "Fight",
+      "arguments": {
+        "target": "Gravicius",
+        "action": "defeated"
+      }
+    },
+    "You brute!": {
+      "id": "GraviciusDefeatedOne",
+      "npc": "Gravicius Reborn",
+      "category": "Betrayal",
+      "type": "Fight",
+      "arguments": {
+        "target": "Gravicius",
+        "action": "defeated"
+      }
+    },
+    "You are no thing of God!": {
+      "id": "GraviciusDefeatedTwo",
+      "npc": "Gravicius Reborn",
+      "category": "Betrayal",
+      "type": "Fight",
+      "arguments": {
+        "target": "Gravicius",
+        "action": "defeated"
+      }
+    },
+    "How is this possible?": {
+      "id": "GraviciusDefeatedThree",
+      "npc": "Gravicius Reborn",
+      "category": "Betrayal",
+      "type": "Fight",
+      "arguments": {
+        "target": "Gravicius",
+        "action": "defeated"
+      }
+    },
+    "The flesh can be bound and shackled, but faith will persevere in the end.": {
+      "id": "GraviciusDefeatedFour",
+      "npc": "Gravicius Reborn",
+      "category": "Betrayal",
+      "type": "Fight",
+      "arguments": {
+        "target": "Gravicius",
+        "action": "defeated"
+      }
+    },
+    "More deals, Exile?": {
+      "id": "GraviciusDefeatedFive",
+      "npc": "Gravicius Reborn",
+      "category": "Betrayal",
+      "type": "Fight",
+      "arguments": {
+        "target": "Gravicius",
+        "action": "defeated"
+      }
+    },
+    "Wait, wait!": {
+      "id": "GraviciusDefeatedSix",
+      "npc": "Gravicius Reborn",
+      "category": "Betrayal",
+      "type": "Fight",
+      "arguments": {
+        "target": "Gravicius",
+        "action": "defeated"
+      }
+    },
+    "I shall die a thousand times if needed!": {
+      "id": "GraviciusDefeatedSeven",
+      "npc": "Gravicius Reborn",
+      "category": "Betrayal",
+      "type": "Fight",
+      "arguments": {
+        "target": "Gravicius",
+        "action": "defeated"
+      }
+    },
+    "Turnabout is fair play.": {
+      "id": "GraviciusDefeatedEight",
+      "npc": "Gravicius Reborn",
+      "category": "Betrayal",
+      "type": "Fight",
+      "arguments": {
+        "target": "Gravicius",
+        "action": "defeated"
+      }
+    },
+    "I don't have to win every battle to win the war.": {
+      "id": "GraviciusDefeatedNine",
+      "npc": "Gravicius Reborn",
+      "category": "Betrayal",
+      "type": "Fight",
+      "arguments": {
+        "target": "Gravicius",
+        "action": "defeated"
+      }
+    },
+    "Just a small misstep on the inevitable path to salvation.": {
+      "id": "GraviciusDefeatedTen",
+      "npc": "Gravicius Reborn",
+      "category": "Betrayal",
+      "type": "Fight",
+      "arguments": {
+        "target": "Gravicius",
+        "action": "defeated"
+      }
+    },
+    "Bring your Inquisition, Exile. I guarantee I've personally run far worse than your darkest imagining.": {
+      "id": "GraviciusSafehouseLeaderDefeatedZero",
+      "npc": "Gravicius Reborn",
+      "category": "Betrayal",
+      "type": "Fight",
+      "arguments": {
+        "target": "Gravicius",
+        "action": "defeated"
+      }
+    },
+    "On your knees, General.": {
+      "id": "GraviciusDefeatedTwelve",
+      "npc": "Jun, Veiled Master",
+      "category": "Betrayal",
+      "type": "Fight",
+      "arguments": {
+        "target": "Gravicius",
+        "action": "defeated"
+      }
+    },
+    "Off the gears you fall, Exile, whipping into darkness, drained of life by the vampire Time.": {
+      "id": "RikerKillPlayerZero",
+      "npc": "Riker Maloney, Midnight Tinkerer",
+      "category": "Betrayal",
+      "type": "Fight",
+      "arguments": {
+        "target": "Riker",
+        "action": "killedPlayer"
+      }
+    },
+    "Your grand theft was automatically doomed to fail the moment you challenged me.": {
+      "id": "RikerKillPlayerOne",
+      "npc": "Riker Maloney, Midnight Tinkerer",
+      "category": "Betrayal",
+      "type": "Fight",
+      "arguments": {
+        "target": "Riker",
+        "action": "killedPlayer"
+      }
+    },
+    "This house of splattered corpses masks the true terror of the Syndicate.": {
+      "id": "RikerKillPlayerTwo",
+      "npc": "Riker Maloney, Midnight Tinkerer",
+      "category": "Betrayal",
+      "type": "Fight",
+      "arguments": {
+        "target": "Riker",
+        "action": "killedPlayer"
+      }
+    },
+    "You should never challenge an immortal to combat. I will finish you every time.": {
+      "id": "RikerKillPlayerThree",
+      "npc": "Riker Maloney, Midnight Tinkerer",
+      "category": "Betrayal",
+      "type": "Fight",
+      "arguments": {
+        "target": "Riker",
+        "action": "killedPlayer"
+      }
+    },
+    "Defender... down...": {
+      "id": "RikerDefeatedZero",
+      "npc": "Riker Maloney, Midnight Tinkerer",
+      "category": "Betrayal",
+      "type": "Fight",
+      "arguments": {
+        "target": "Riker",
+        "action": "defeated"
+      }
+    },
+    "Do not... seek... the source...": {
+      "id": "RikerDefeatedOne",
+      "npc": "Riker Maloney, Midnight Tinkerer",
+      "category": "Betrayal",
+      "type": "Fight",
+      "arguments": {
+        "target": "Riker",
+        "action": "defeated"
+      }
+    },
+    "Not in this place of filth!": {
+      "id": "RikerDefeatedTwo",
+      "npc": "Riker Maloney, Midnight Tinkerer",
+      "category": "Betrayal",
+      "type": "Fight",
+      "arguments": {
+        "target": "Riker",
+        "action": "defeated"
+      }
+    },
+    "I should have known better.": {
+      "id": "RikerDefeatedThree",
+      "npc": "Riker Maloney, Midnight Tinkerer",
+      "category": "Betrayal",
+      "type": "Fight",
+      "arguments": {
+        "target": "Riker",
+        "action": "defeated"
+      }
+    },
+    "Back to the silence, I take it.": {
+      "id": "RikerDefeatedFour",
+      "npc": "Riker Maloney, Midnight Tinkerer",
+      "category": "Betrayal",
+      "type": "Fight",
+      "arguments": {
+        "target": "Riker",
+        "action": "defeated"
+      }
+    },
+    "Wait... again, we can arrive at an accord...": {
+      "id": "RikerDefeatedFive",
+      "npc": "Riker Maloney, Midnight Tinkerer",
+      "category": "Betrayal",
+      "type": "Fight",
+      "arguments": {
+        "target": "Riker",
+        "action": "defeated"
+      }
+    },
+    "I'll not become known as Riker the Betrayer.": {
+      "id": "RikerDefeatedSix",
+      "npc": "Riker Maloney, Midnight Tinkerer",
+      "category": "Betrayal",
+      "type": "Fight",
+      "arguments": {
+        "target": "Riker",
+        "action": "defeated"
+      }
+    },
+    "Every time you kill me I just come back stronger.": {
+      "id": "RikerDefeatedSeven",
+      "npc": "Riker Maloney, Midnight Tinkerer",
+      "category": "Betrayal",
+      "type": "Fight",
+      "arguments": {
+        "target": "Riker",
+        "action": "defeated"
+      }
+    },
+    "A leap of progress, unpredicted...": {
+      "id": "RikerDefeatedEight",
+      "npc": "Riker Maloney, Midnight Tinkerer",
+      "category": "Betrayal",
+      "type": "Fight",
+      "arguments": {
+        "target": "Riker",
+        "action": "defeated"
+      }
+    },
+    "It is possible to commit no mistakes and still lose.": {
+      "id": "RikerDefeatedNine",
+      "npc": "Riker Maloney, Midnight Tinkerer",
+      "category": "Betrayal",
+      "type": "Fight",
+      "arguments": {
+        "target": "Riker",
+        "action": "defeated"
+      }
+    },
+    "It's not like me to make mistakes.": {
+      "id": "RikerDefeatedTen",
+      "npc": "Riker Maloney, Midnight Tinkerer",
+      "category": "Betrayal",
+      "type": "Fight",
+      "arguments": {
+        "target": "Riker",
+        "action": "defeated"
+      }
+    },
+    "This... was not in the plan...!": {
+      "id": "RikerSafehouseLeaderDefeatedZero",
+      "npc": "Riker Maloney, Midnight Tinkerer",
+      "category": "Betrayal",
+      "type": "Fight",
+      "arguments": {
+        "target": "Riker",
+        "action": "defeated"
+      }
+    },
+    "Leave the mask on. I don't care who he is.": {
+      "id": "RikerDefeatedEleven",
+      "npc": "Jun, Veiled Master",
+      "category": "Betrayal",
+      "type": "Fight",
+      "arguments": {
+        "target": "Riker",
+        "action": "defeated"
+      }
+    },
+    "Like I said, only a fool braves a Redblade's encampment.": {
+      "id": "KorellKillPlayerZero",
+      "npc": "Korell Goya, Son of Stone",
+      "category": "Betrayal",
+      "type": "Fight",
+      "arguments": {
+        "target": "Korell",
+        "action": "killedPlayer"
+      }
+    },
+    "Keep moving, there might be others!": {
+      "id": "KorellKillPlayerOne",
+      "npc": "Korell Goya, Son of Stone",
+      "category": "Betrayal",
+      "type": "Fight",
+      "arguments": {
+        "target": "Korell",
+        "action": "killedPlayer"
+      }
+    },
+    "Keep cleaning! There may be others.": {
+      "id": "KorellKillPlayerTwo",
+      "npc": "Korell Goya, Son of Stone",
+      "category": "Betrayal",
+      "type": "Fight",
+      "arguments": {
+        "target": "Korell",
+        "action": "killedPlayer"
+      }
+    },
+    "I will incinerate the carcass. No traces.": {
+      "id": "KorellKillPlayerThree",
+      "npc": "Korell Goya, Son of Stone",
+      "category": "Betrayal",
+      "type": "Fight",
+      "arguments": {
+        "target": "Korell",
+        "action": "killedPlayer"
+      }
+    },
+    "Perhaps... I... was the fool... today...": {
+      "id": "KorellDefeatedZero",
+      "npc": "Korell Goya, Son of Stone",
+      "category": "Betrayal",
+      "type": "Fight",
+      "arguments": {
+        "target": "Korell",
+        "action": "defeated"
+      }
+    },
+    "Some things... do not burn...": {
+      "id": "KorellDefeatedOne",
+      "npc": "Korell Goya, Son of Stone",
+      "category": "Betrayal",
+      "type": "Fight",
+      "arguments": {
+        "target": "Korell",
+        "action": "defeated"
+      }
+    },
+    "Up... in... smoke...": {
+      "id": "KorellDefeatedTwo",
+      "npc": "Korell Goya, Son of Stone",
+      "category": "Betrayal",
+      "type": "Fight",
+      "arguments": {
+        "target": "Korell",
+        "action": "defeated"
+      }
+    },
+    "Extinguished...": {
+      "id": "KorellDefeatedThree",
+      "npc": "Korell Goya, Son of Stone",
+      "category": "Betrayal",
+      "type": "Fight",
+      "arguments": {
+        "target": "Korell",
+        "action": "defeated"
+      }
+    },
+    "Don't... cage this flame... again.": {
+      "id": "KorellDefeatedFour",
+      "npc": "Korell Goya, Son of Stone",
+      "category": "Betrayal",
+      "type": "Fight",
+      "arguments": {
+        "target": "Korell",
+        "action": "defeated"
+      }
+    },
+    "Felled... by the bargainer!": {
+      "id": "KorellDefeatedFive",
+      "npc": "Korell Goya, Son of Stone",
+      "category": "Betrayal",
+      "type": "Fight",
+      "arguments": {
+        "target": "Korell",
+        "action": "defeated"
+      }
+    },
+    "This is what I get... for betraying my fellows...": {
+      "id": "KorellDefeatedSix",
+      "npc": "Korell Goya, Son of Stone",
+      "category": "Betrayal",
+      "type": "Fight",
+      "arguments": {
+        "target": "Korell",
+        "action": "defeated"
+      }
+    },
+    "Extinguish me again... and I will still burn...": {
+      "id": "KorellDefeatedSeven",
+      "npc": "Korell Goya, Son of Stone",
+      "category": "Betrayal",
+      "type": "Fight",
+      "arguments": {
+        "target": "Korell",
+        "action": "defeated"
+      }
+    },
+    "Our flames... ebb and flow, Exile.": {
+      "id": "KorellDefeatedEight",
+      "npc": "Korell Goya, Son of Stone",
+      "category": "Betrayal",
+      "type": "Fight",
+      "arguments": {
+        "target": "Korell",
+        "action": "defeated"
+      }
+    },
+    "This... was over before I even arrived. Foolish!": {
+      "id": "KorellDefeatedNine",
+      "npc": "Korell Goya, Son of Stone",
+      "category": "Betrayal",
+      "type": "Fight",
+      "arguments": {
+        "target": "Korell",
+        "action": "defeated"
+      }
+    },
+    "Hot-headed, I made an error.": {
+      "id": "KorellDefeatedTen",
+      "npc": "Korell Goya, Son of Stone",
+      "category": "Betrayal",
+      "type": "Fight",
+      "arguments": {
+        "target": "Korell",
+        "action": "defeated"
+      }
+    },
+    "The flames... they don't burn you... what manner of beast are you?": {
+      "id": "KorellSafehouseLeaderDefeatedZero",
+      "npc": "Korell Goya, Son of Stone",
+      "category": "Betrayal",
+      "type": "Fight",
+      "arguments": {
+        "target": "Korell",
+        "action": "defeated"
+      }
+    },
+    "Don't try anything stupid, Korell.": {
+      "id": "KorellDefeatedEleven",
+      "npc": "Jun, Veiled Master",
+      "category": "Betrayal",
+      "type": "Fight",
+      "arguments": {
+        "target": "Korell",
+        "action": "defeated"
+      }
+    },
+    "Your fight's done, Redblade. Information. Now.": {
+      "id": "KorellDefeatedTwelve",
+      "npc": "Jun, Veiled Master",
+      "category": "Betrayal",
+      "type": "Fight",
+      "arguments": {
+        "target": "Korell",
+        "action": "defeated"
+      }
+    },
+    "Good riddance.": {
+      "id": "RinKillPlayerZero",
+      "npc": "Rin Yuushu",
+      "category": "Betrayal",
+      "type": "Fight",
+      "arguments": {
+        "target": "Rin",
+        "action": "killedPlayer"
+      }
+    },
+    "Lowlife. Keep moving!": {
+      "id": "RinKillPlayerOne",
+      "npc": "Rin Yuushu",
+      "category": "Betrayal",
+      "type": "Fight",
+      "arguments": {
+        "target": "Rin",
+        "action": "killedPlayer"
+      }
+    },
+    "Just another body, now.": {
+      "id": "RinKillPlayerTwo",
+      "npc": "Rin Yuushu",
+      "category": "Betrayal",
+      "type": "Fight",
+      "arguments": {
+        "target": "Rin",
+        "action": "killedPlayer"
+      }
+    },
+    "Good. What's next?": {
+      "id": "RinKillPlayerThree",
+      "npc": "Rin Yuushu",
+      "category": "Betrayal",
+      "type": "Fight",
+      "arguments": {
+        "target": "Rin",
+        "action": "killedPlayer"
+      }
+    },
+    "How humiliating...!": {
+      "id": "RinDefeatedZero",
+      "npc": "Rin Yuushu",
+      "category": "Betrayal",
+      "type": "Fight",
+      "arguments": {
+        "target": "Rin",
+        "action": "defeated"
+      }
+    },
+    "All is lost.": {
+      "id": "RinDefeatedOne",
+      "npc": "Rin Yuushu",
+      "category": "Betrayal",
+      "type": "Fight",
+      "arguments": {
+        "target": "Rin",
+        "action": "defeated"
+      }
+    },
+    "Unfathomable!": {
+      "id": "RinDefeatedTwo",
+      "npc": "Rin Yuushu",
+      "category": "Betrayal",
+      "type": "Fight",
+      "arguments": {
+        "target": "Rin",
+        "action": "defeated"
+      }
+    },
+    "Our chance... squandered...": {
+      "id": "RinDefeatedThree",
+      "npc": "Rin Yuushu",
+      "category": "Betrayal",
+      "type": "Fight",
+      "arguments": {
+        "target": "Rin",
+        "action": "defeated"
+      }
+    },
+    "No, no more prison!": {
+      "id": "RinDefeatedFour",
+      "npc": "Rin Yuushu",
+      "category": "Betrayal",
+      "type": "Fight",
+      "arguments": {
+        "target": "Rin",
+        "action": "defeated"
+      }
+    },
+    "Gods... not again!": {
+      "id": "RinDefeatedFive",
+      "npc": "Rin Yuushu",
+      "category": "Betrayal",
+      "type": "Fight",
+      "arguments": {
+        "target": "Rin",
+        "action": "defeated"
+      }
+    },
+    "I'm better than this!": {
+      "id": "RinDefeatedSix",
+      "npc": "Rin Yuushu",
+      "category": "Betrayal",
+      "type": "Fight",
+      "arguments": {
+        "target": "Rin",
+        "action": "defeated"
+      }
+    },
+    "I face death... again...": {
+      "id": "RinDefeatedSeven",
+      "npc": "Rin Yuushu",
+      "category": "Betrayal",
+      "type": "Fight",
+      "arguments": {
+        "target": "Rin",
+        "action": "defeated"
+      }
+    },
+    "Thought it'd be as easy as last time...": {
+      "id": "RinDefeatedEight",
+      "npc": "Rin Yuushu",
+      "category": "Betrayal",
+      "type": "Fight",
+      "arguments": {
+        "target": "Rin",
+        "action": "defeated"
+      }
+    },
+    "Damn. Miscalculated.": {
+      "id": "RinDefeatedNine",
+      "npc": "Rin Yuushu",
+      "category": "Betrayal",
+      "type": "Fight",
+      "arguments": {
+        "target": "Rin",
+        "action": "defeated"
+      }
+    },
+    "I was blinded by fury...": {
+      "id": "RinDefeatedTen",
+      "npc": "Rin Yuushu",
+      "category": "Betrayal",
+      "type": "Fight",
+      "arguments": {
+        "target": "Rin",
+        "action": "defeated"
+      }
+    },
+    "I had it all planned out. How could I lose? I... I must have been sabotaged! But by who?": {
+      "id": "RinSafehouseLeaderDefeatedZero",
+      "npc": "Rin Yuushu",
+      "category": "Betrayal",
+      "type": "Fight",
+      "arguments": {
+        "target": "Rin",
+        "action": "defeated"
+      }
+    },
+    "Pathetic. Stay, dog.": {
+      "id": "RinDefeatedEleven",
+      "npc": "Jun, Veiled Master",
+      "category": "Betrayal",
+      "type": "Fight",
+      "arguments": {
+        "target": "Rin",
+        "action": "defeated"
+      }
+    },
+    "Don't do this, Exile. You can still join us. It's your chance to bring back anyone you've ever loved or cared about.": {
+      "id": "CatarinaDowned",
+      "npc": "Catarina, Master of Undeath",
+      "category": "Betrayal",
+      "type": "BossFight",
+      "arguments": {
+        "action": "defeated",
+        "phase": 4,
+        "firstFight": false
+      }
+    },
+    "You found me at last... Very resourceful, Jun. I too am resourceful. Witness.": {
+      "id": "CatarinaVaultIntro",
+      "npc": "Catarina, Master of Undeath",
+      "category": "Betrayal",
+      "type": "BossFight",
+      "arguments": {
+        "action": "started",
+        "phase": 1,
+        "firstFight": true
+      }
+    },
+    "There's nothing that makes you feel so alive as death, is there...? Now, come to me Jun. Let us see what your soul is made of.": {
+      "id": "CatarinaVaultFleeing",
+      "npc": "Catarina, Master of Undeath",
+      "category": "Betrayal",
+      "type": "BossFight",
+      "arguments": {
+        "action": "defeated",
+        "phase": 1,
+        "firstFight": true
+      }
+    },
+    "You try and try and try to break us, and yet the Syndicate is immortal. Do you think this will end any differently?": {
+      "id": "CatarinaPhaseZero",
+      "npc": "Catarina, Master of Undeath",
+      "category": "Betrayal",
+      "type": "BossFight",
+      "arguments": {
+        "action": "started",
+        "phase": 1,
+        "firstFight": false
+      }
+    },
+    "Death will never come for an immortal.": {
+      "id": "CatarinaPhaseOne",
+      "npc": "Catarina, Master of Undeath",
+      "category": "Betrayal",
+      "type": "BossFight",
+      "arguments": {
+        "action": "started",
+        "phase": 2,
+        "firstFight": false
+      }
+    },
+    "Submit... Let our souls become entwined.": {
+      "id": "CatarinaPhaseTwo",
+      "npc": "Catarina, Master of Undeath",
+      "category": "Betrayal",
+      "type": "BossFight",
+      "arguments": {
+        "action": "started",
+        "phase": 3,
+        "firstFight": false
+      }
+    },
+    "Your hopeless cause will destroy you!": {
+      "id": "CatarinaPhaseThree",
+      "npc": "Catarina, Master of Undeath",
+      "category": "Betrayal",
+      "type": "BossFight",
+      "arguments": {
+        "action": "started",
+        "phase": 4,
+        "firstFight": false
+      }
+    },
+    "I will imprison your soul forever!": {
+      "id": "CatarinaPhaseFour",
+      "npc": "Catarina, Master of Undeath",
+      "category": "Betrayal",
+      "type": "BossFight",
+      "arguments": {
+        "action": "started",
+        "phase": 5,
+        "firstFight": false
+      }
+    },
+    "Remember me? When we're through here, you won't.": {
+      "id": "VenariusBossFightIntroduction1",
+      "npc": "Venarius",
+      "category": "Synthesis",
+      "type": "Event",
+      "arguments": {
+        "synthesis": true
+      }
+    },
+    "What secrets are you hiding in that murderous mind of yours? Let's find out.": {
+      "id": "VenariusBossFightIntroduction2",
+      "npc": "Venarius",
+      "category": "Synthesis",
+      "type": "Event",
+      "arguments": {
+        "synthesis": true
+      }
+    },
+    "Valdo had some ingenious designs hidden in his memories... observe!": {
+      "id": "VenariusBossFightGolemOne",
+      "npc": "Venarius",
+      "category": "Synthesis",
+      "type": "Event",
+      "arguments": {
+        "synthesis": true
+      }
+    },
+    "Valdo's designs were flawed.": {
+      "id": "VenariusBossFightGolemOneDefeat",
+      "npc": "Venarius",
+      "category": "Synthesis",
+      "type": "Event",
+      "arguments": {
+        "synthesis": true
+      }
+    },
+    "Do you remember dying here? You will.": {
+      "id": "VenariusBossFightHumanoidOne",
+      "npc": "Venarius",
+      "category": "Synthesis",
+      "type": "Event",
+      "arguments": {
+        "synthesis": true
+      }
+    },
+    "What are you?": {
+      "id": "VenariusBossFightHumanoidOneDefeat",
+      "npc": "Venarius",
+      "category": "Synthesis",
+      "type": "Event",
+      "arguments": {
+        "synthesis": true
+      }
+    },
+    "In this, the realm of the past, I am King, and you will bow!": {
+      "id": "VenariusBossFightMapDevice",
+      "npc": "Venarius",
+      "category": "Synthesis",
+      "type": "Event",
+      "arguments": {
+        "synthesis": true
+      }
+    },
+    "This one is my own creation!": {
+      "id": "VenariusBossFightGolemTwo",
+      "npc": "Venarius",
+      "category": "Synthesis",
+      "type": "Event",
+      "arguments": {
+        "synthesis": true
+      }
+    },
+    "Plenty more where that came from.": {
+      "id": "VenariusBossFightGolemTwoDefeat",
+      "npc": "Venarius",
+      "category": "Synthesis",
+      "type": "Event",
+      "arguments": {
+        "synthesis": true
+      }
+    },
+    "Face your destruction!": {
+      "id": "VenariusBossFightHumanoidTwo",
+      "npc": "Venarius",
+      "category": "Synthesis",
+      "type": "Event",
+      "arguments": {
+        "synthesis": true
+      }
+    },
+    "No! Impossible! How!?": {
+      "id": "VenariusBossFightHumanoidTwoDefeat",
+      "npc": "Venarius",
+      "category": "Synthesis",
+      "type": "Event",
+      "arguments": {
+        "synthesis": true
+      }
+    },
+    "This isn't over. This will never be over! I will unify humanity!": {
+      "id": "VenariusBossFightDepart",
+      "npc": "Venarius",
+      "category": "Synthesis",
+      "type": "Event",
+      "arguments": {
+        "synthesis": true
+      }
+    },
+    "Feel the pull of the void!": {
+      "id": "VenariusBossFightWormholeStart",
+      "npc": "Venarius",
+      "category": "Synthesis",
+      "type": "Event",
+      "arguments": {
+        "synthesis": true
+      }
+    },
+    "Yes, that's it! Death sweeps in.": {
+      "id": "VenariusBossFightWormholeGotcha",
+      "npc": "Venarius",
+      "category": "Synthesis",
+      "type": "Event",
+      "arguments": {
+        "synthesis": true
+      }
+    },
+    "I will crush you!": {
+      "id": "VenariusBossFightWormholeDidntGotcha",
+      "npc": "Venarius",
+      "category": "Synthesis",
+      "type": "Event",
+      "arguments": {
+        "synthesis": true
+      }
+    },
+    "Sin surrounds you!": {
+      "id": "VenariusBossFightCameraLens",
+      "npc": "Venarius",
+      "category": "Synthesis",
+      "type": "Event",
+      "arguments": {
+        "synthesis": true
+      }
+    },
+    "Faith empowers!": {
+      "id": "VenariusBossFightMassTeleport",
+      "npc": "Venarius",
+      "category": "Synthesis",
+      "type": "Event",
+      "arguments": {
+        "synthesis": true
+      }
+    },
+    "Belief overwhelms!": {
+      "id": "VenariusBossFightMassTeleportCollapse",
+      "npc": "Venarius",
+      "category": "Synthesis",
+      "type": "Event",
+      "arguments": {
+        "synthesis": true
+      }
+    },
+    "Bow!": {
+      "id": "VenariusBossFightRotatingOrbs",
+      "npc": "Venarius",
+      "category": "Synthesis",
+      "type": "Event",
+      "arguments": {
+        "synthesis": true
+      }
+    },
+    "Haha! Yes! Feed!": {
+      "id": "VenariusBossFightGolemNuke",
+      "npc": "Venarius",
+      "category": "Synthesis",
+      "type": "Event",
+      "arguments": {
+        "synthesis": true
+      }
+    },
+    "Obliterate sin!": {
+      "id": "VenariusBossFightGolemNukeSlam",
+      "npc": "Venarius",
+      "category": "Synthesis",
+      "type": "Event",
+      "arguments": {
+        "synthesis": true
+      }
+    },
+    "Cleansing flames!": {
+      "id": "VenariusBossFightSpinningLaserNuke",
+      "npc": "Venarius",
+      "category": "Synthesis",
+      "type": "Event",
+      "arguments": {
+        "synthesis": true
+      }
+    },
+    "Repent!": {
+      "id": "VenariusGuardian1SequentialArcs",
+      "npc": "Venarius",
+      "category": "Synthesis",
+      "type": "Event",
+      "arguments": {
+        "synthesis": true
+      }
+    },
+    "Be no more.": {
+      "id": "VenariusBossFightLaserBarrage",
+      "npc": "Venarius",
+      "category": "Synthesis",
+      "type": "Event",
+      "arguments": {
+        "synthesis": true
+      }
+    },
+    "Burn away sin!": {
+      "id": "VenariusBossFightConcentratedLaser",
+      "npc": "Venarius",
+      "category": "Synthesis",
+      "type": "Event",
+      "arguments": {
+        "synthesis": true
+      }
+    },
+    "Reveal your past!": {
+      "id": "VenariusBossFightGolemShockRifle",
+      "npc": "Venarius",
+      "category": "Synthesis",
+      "type": "Event",
+      "arguments": {
+        "synthesis": true
+      }
+    },
+    "Open your mind to me!": {
+      "id": "VenariusBossFightGolemMassShockRifle",
+      "npc": "Venarius",
+      "category": "Synthesis",
+      "type": "Event",
+      "arguments": {
+        "synthesis": true
+      }
+    },
+    "If I must destroy you before uniting mankind, I will.": {
+      "id": "VenariusGuardian1Intro",
+      "npc": "Venarius",
+      "category": "Synthesis",
+      "type": "Event",
+      "arguments": {
+        "synthesis": true
+      }
+    },
+    "You and I were allies once, even friends. A pity.": {
+      "id": "VenariusGuardian2Intro",
+      "npc": "Venarius",
+      "category": "Synthesis",
+      "type": "Event",
+      "arguments": {
+        "synthesis": true
+      }
+    },
+    "I owe you my renewed existence, but that debt only extends so far.": {
+      "id": "VenariusGuardian3Intro",
+      "npc": "Venarius",
+      "category": "Synthesis",
+      "type": "Event",
+      "arguments": {
+        "synthesis": true
+      }
+    },
+    "I cannot allow you to impede the cause.": {
+      "id": "VenariusGuardian4Intro",
+      "npc": "Venarius",
+      "category": "Synthesis",
+      "type": "Event",
+      "arguments": {
+        "synthesis": true
+      }
+    },
+    "With each new murder you make mankind more vulnerable!": {
+      "id": "VenariusGuardian1Defeat",
+      "npc": "Venarius",
+      "category": "Synthesis",
+      "type": "Event",
+      "arguments": {
+        "synthesis": true
+      }
+    },
+    "Every friendship becomes a betrayal, given enough time.": {
+      "id": "VenariusGuardian2Defeat",
+      "npc": "Venarius",
+      "category": "Synthesis",
+      "type": "Event",
+      "arguments": {
+        "synthesis": true
+      }
+    },
+    "Keep pushing me, and I'll be forced to pursue those close to you.": {
+      "id": "VenariusGuardian3Defeat",
+      "npc": "Venarius",
+      "category": "Synthesis",
+      "type": "Event",
+      "arguments": {
+        "synthesis": true
+      }
+    },
+    "I will sacrifice everything for the cause. Can you say the same?": {
+      "id": "VenariusGuardian4Defeat",
+      "npc": "Venarius",
+      "category": "Synthesis",
+      "type": "Event",
+      "arguments": {
+        "synthesis": true
+      }
+    },
+    "What morality do you have to stand in my way?": {
+      "id": "VenariusGuardian1MinionPhase",
+      "npc": "Venarius",
+      "category": "Synthesis",
+      "type": "Event",
+      "arguments": {
+        "synthesis": true
+      }
+    },
+    "To think, I trusted you!": {
+      "id": "VenariusGuardian2MinionPhase",
+      "npc": "Venarius",
+      "category": "Synthesis",
+      "type": "Event",
+      "arguments": {
+        "synthesis": true
+      }
+    },
+    "I wish I didn't know what I know now.": {
+      "id": "VenariusGuardian3MinionPhase",
+      "npc": "Venarius",
+      "category": "Synthesis",
+      "type": "Event",
+      "arguments": {
+        "synthesis": true
+      }
+    },
+    "I will resist you to the last, because I must!": {
+      "id": "VenariusGuardian4MinionPhase",
+      "npc": "Venarius",
+      "category": "Synthesis",
+      "type": "Event",
+      "arguments": {
+        "synthesis": true
+      }
+    },
+    "Begone!": {
+      "id": "VenariusGuardian1LeftToRightWave",
+      "npc": "Venarius",
+      "category": "Synthesis",
+      "type": "Event",
+      "arguments": {
+        "synthesis": true
+      }
+    },
+    "I do this for all mankind.": {
+      "id": "VenariusGuardian1MassWaveSpiral",
+      "npc": "Venarius",
+      "category": "Synthesis",
+      "type": "Event",
+      "arguments": {
+        "synthesis": true
+      }
+    },
+    "Cower!": {
+      "id": "VenariusGuardian1TriangleSlam",
+      "npc": "Venarius",
+      "category": "Synthesis",
+      "type": "Event",
+      "arguments": {
+        "synthesis": true
+      }
+    },
+    "Open your mind...": {
+      "id": "VenariusGuardian2MassProjectile",
+      "npc": "Venarius",
+      "category": "Synthesis",
+      "type": "Event",
+      "arguments": {
+        "synthesis": true
+      }
+    },
+    "...and be erased!": {
+      "id": "VenariusGuardian2MassProjectileExplode",
+      "npc": "Venarius",
+      "category": "Synthesis",
+      "type": "Event",
+      "arguments": {
+        "synthesis": true
+      }
+    },
+    "I am everywhere.": {
+      "id": "VenariusGuardian2DoubleDash",
+      "npc": "Venarius",
+      "category": "Synthesis",
+      "type": "Event",
+      "arguments": {
+        "synthesis": true
+      }
+    },
+    "Annihilate!": {
+      "id": "VenariusGuardian2SpinSlam",
+      "npc": "Venarius",
+      "category": "Synthesis",
+      "type": "Event",
+      "arguments": {
+        "synthesis": true
+      }
+    },
+    "Wraeclast will serve...": {
+      "id": "VenariusGuardian2EpicSlash",
+      "npc": "Venarius",
+      "category": "Synthesis",
+      "type": "Event",
+      "arguments": {
+        "synthesis": true
+      }
+    },
+    "And so will you!": {
+      "id": "VenariusGuardian2EpicSlashBlast",
+      "npc": "Venarius",
+      "category": "Synthesis",
+      "type": "Event",
+      "arguments": {
+        "synthesis": true
+      }
+    },
+    "Necessary!": {
+      "id": "VenariusGuardian3QuadMortar",
+      "npc": "Venarius",
+      "category": "Synthesis",
+      "type": "Event",
+      "arguments": {
+        "synthesis": true
+      }
+    },
+    "Justified!": {
+      "id": "VenariusGuardian3QuadMortarReturn",
+      "npc": "Venarius",
+      "category": "Synthesis",
+      "type": "Event",
+      "arguments": {
+        "synthesis": true
+      }
+    },
+    "Obliteration!": {
+      "id": "VenariusGuardian3MassMortar",
+      "npc": "Venarius",
+      "category": "Synthesis",
+      "type": "Event",
+      "arguments": {
+        "synthesis": true
+      }
+    },
+    "Return!": {
+      "id": "VenariusGuardian3MassMortarReturn",
+      "npc": "Venarius",
+      "category": "Synthesis",
+      "type": "Event",
+      "arguments": {
+        "synthesis": true
+      }
+    },
+    "Only a matter of time.": {
+      "id": "VenariusGuardian3SpinningBeams",
+      "npc": "Venarius",
+      "category": "Synthesis",
+      "type": "Event",
+      "arguments": {
+        "synthesis": true
+      }
+    },
+    "Be still!": {
+      "id": "VenariusGuardian3VoidZone",
+      "npc": "Venarius",
+      "category": "Synthesis",
+      "type": "Event",
+      "arguments": {
+        "synthesis": true
+      }
+    },
+    "Erasure!": {
+      "id": "VenariusGuardian3RefractionBeam",
+      "npc": "Venarius",
+      "category": "Synthesis",
+      "type": "Event",
+      "arguments": {
+        "synthesis": true
+      }
+    },
+    "Wraeclast needs me!": {
+      "id": "VenariusGuardian4VSlam",
+      "npc": "Venarius",
+      "category": "Synthesis",
+      "type": "Event",
+      "arguments": {
+        "synthesis": true
+      }
+    },
+    "Light of salvation!": {
+      "id": "VenariusGuardian4LaserGun",
+      "npc": "Venarius",
+      "category": "Synthesis",
+      "type": "Event",
+      "arguments": {
+        "synthesis": true
+      }
+    },
+    "Darkness surrounds us!": {
+      "id": "VenariusGuardian4RotatingGun",
+      "npc": "Venarius",
+      "category": "Synthesis",
+      "type": "Event",
+      "arguments": {
+        "synthesis": true
+      }
+    },
+    "Into the hills!": {
+      "id": "LegionHyrriFleeing1",
+      "npc": "Queen Hyrri Ngamaku",
+      "category": "Legion",
+      "type": "BossFight",
+      "arguments": {
+        "action": "end",
+        "boss": "Queen Hyrri Ngamaku"
+      }
+    },
+    "Retreat! Draw them out!": {
+      "id": "LegionHyrriFleeing2",
+      "npc": "Queen Hyrri Ngamaku",
+      "category": "Legion",
+      "type": "BossFight",
+      "arguments": {
+        "action": "end",
+        "boss": "Queen Hyrri Ngamaku"
+      }
+    },
+    "Back! Regroup!": {
+      "id": "LegionHyrriFleeing3",
+      "npc": "Queen Hyrri Ngamaku",
+      "category": "Legion",
+      "type": "BossFight",
+      "arguments": {
+        "action": "end",
+        "boss": "Queen Hyrri Ngamaku"
+      }
+    },
+    "Fall back!": {
+      "id": "LegionLioneyeFleeing1",
+      "npc": "General Marceus Lioneye",
+      "category": "Legion",
+      "type": "BossFight",
+      "arguments": {
+        "action": "end",
+        "boss": "General Marceus Lioneye"
+      }
+    },
+    "To the gates!": {
+      "id": "LegionLioneyeFleeing2",
+      "npc": "General Marceus Lioneye",
+      "category": "Legion",
+      "type": "BossFight",
+      "arguments": {
+        "action": "end",
+        "boss": "General Marceus Lioneye"
+      }
+    },
+    "To safety! Protect the Emperor!": {
+      "id": "LegionLioneyeFleeing3",
+      "npc": "General Marceus Lioneye",
+      "category": "Legion",
+      "type": "BossFight",
+      "arguments": {
+        "action": "end",
+        "boss": "General Marceus Lioneye"
+      }
+    },
+    "Back, everyone! Back!": {
+      "id": "LegionAukunaFleeing1",
+      "npc": "Aukuna, the Black Sekhema",
+      "category": "Legion",
+      "type": "BossFight",
+      "arguments": {
+        "action": "end",
+        "boss": "Aukuna, the Black Sekhema"
+      }
+    },
+    "Break formation!": {
+      "id": "LegionAukunaFleeing2",
+      "npc": "Aukuna, the Black Sekhema",
+      "category": "Legion",
+      "type": "BossFight",
+      "arguments": {
+        "action": "end",
+        "boss": "Aukuna, the Black Sekhema"
+      }
+    },
+    "To the high ground!": {
+      "id": "LegionAukunaFleeing3",
+      "npc": "Aukuna, the Black Sekhema",
+      "category": "Legion",
+      "type": "BossFight",
+      "arguments": {
+        "action": "end",
+        "boss": "Aukuna, the Black Sekhema"
+      }
+    },
+    "When I return, it will be with an army of thousands.": {
+      "id": "LegionNapuatziFleeing1",
+      "npc": "Viper Napuatzi",
+      "category": "Legion",
+      "type": "BossFight",
+      "arguments": {
+        "action": "end",
+        "boss": "Viper Napuatzi"
+      }
+    },
+    "Enjoy this brief victory. You will not have another.": {
+      "id": "LegionNapuatziFleeing2",
+      "npc": "Viper Napuatzi",
+      "category": "Legion",
+      "type": "BossFight",
+      "arguments": {
+        "action": "end",
+        "boss": "Viper Napuatzi"
+      }
+    },
+    "These are Vaal lands. You only delay your destiny.": {
+      "id": "LegionNapuatziFleeing3",
+      "npc": "Viper Napuatzi",
+      "category": "Legion",
+      "type": "BossFight",
+      "arguments": {
+        "action": "end",
+        "boss": "Viper Napuatzi"
+      }
+    },
+    "Retreat! Close the gates!": {
+      "id": "LegionSanctusVoxFleeing1",
+      "npc": "Cardinal Sanctus Vox",
+      "category": "Legion",
+      "type": "BossFight",
+      "arguments": {
+        "action": "end",
+        "boss": "Cardinal Sanctus Vox"
+      }
+    },
+    "There's too many of them! Make way!": {
+      "id": "LegionSanctusVoxFleeing2",
+      "npc": "Cardinal Sanctus Vox",
+      "category": "Legion",
+      "type": "BossFight",
+      "arguments": {
+        "action": "end",
+        "boss": "Cardinal Sanctus Vox"
+      }
+    },
+    "Fall back to the supplies! We must protect the supplies!": {
+      "id": "LegionSanctusVoxFleeing3",
+      "npc": "Cardinal Sanctus Vox",
+      "category": "Legion",
+      "type": "BossFight",
+      "arguments": {
+        "action": "end",
+        "boss": "Cardinal Sanctus Vox"
+      }
+    },
+    "It's put out new mycelium! ... New roots!": {
+      "id": "CassiaNewLane3",
+      "npc": "Sister Cassia",
+      "category": "Blight",
+      "type": "Event",
+      "arguments": {
+        "blight": true,
+        "action": "newLane"
+      }
+    },
+    "The Blight is trying to spread!": {
+      "id": "CassiaNewLane6",
+      "npc": "Sister Cassia",
+      "category": "Blight",
+      "type": "Event",
+      "arguments": {
+        "blight": true,
+        "action": "newLane"
+      }
+    },
+    "It's branching, exile!": {
+      "id": "CassiaNewLane8",
+      "npc": "Sister Cassia",
+      "category": "Blight",
+      "type": "Event",
+      "arguments": {
+        "blight": true,
+        "action": "newLane"
+      }
+    },
+    "Oh!": {
+      "id": "CassiaSingInterrupt3",
+      "npc": "Sister Cassia",
+      "category": "Blight",
+      "type": "Event",
+      "arguments": {
+        "blight": true,
+        "action": "start"
+      }
+    },
+    "You can bend the law, but never break it...": {
+      "id": "DroxNoStoneFleeing",
+      "npc": "Drox, the Warlord",
+      "category": "Conquerors",
+      "type": "BossFight",
+      "arguments": {
+        "action": "end",
+        "boss": "Drox, the Warlord",
+        "stones": "No"
+      }
+    },
+    "You reject my lesson at your own peril...": {
+      "id": "DroxOneStoneFleeing",
+      "npc": "Drox, the Warlord",
+      "category": "Conquerors",
+      "type": "BossFight",
+      "arguments": {
+        "action": "end",
+        "boss": "Drox, the Warlord",
+        "stones": "One"
+      }
+    },
+    "Law and order are not enough, it seems...": {
+      "id": "DroxTwoStoneFleeing",
+      "npc": "Drox, the Warlord",
+      "category": "Conquerors",
+      "type": "BossFight",
+      "arguments": {
+        "action": "end",
+        "boss": "Drox, the Warlord",
+        "stones": "Two"
+      }
+    },
+    "You have not yet witnessed... the peak of my power...": {
+      "id": "DroxThreeStoneFleeing",
+      "npc": "Drox, the Warlord",
+      "category": "Conquerors",
+      "type": "BossFight",
+      "arguments": {
+        "action": "end",
+        "boss": "Drox, the Warlord",
+        "stones": "Three"
+      }
+    },
+    "I shall crush all who oppose my will!": {
+      "id": "DroxFourStoneFighta",
+      "npc": "Drox, the Warlord",
+      "category": "Conquerors",
+      "type": "BossFight",
+      "arguments": {
+        "action": "start",
+        "boss": "Drox, the Warlord",
+        "stones": "Four"
+      }
+    },
+    "Killing you will be utterly satisfying.": {
+      "id": "DroxFourStoneFightb",
+      "npc": "Drox, the Warlord",
+      "category": "Conquerors",
+      "type": "BossFight",
+      "arguments": {
+        "action": "start",
+        "boss": "Drox, the Warlord",
+        "stones": "Four"
+      }
+    },
+    "You've made lawless criminals of us both. Let me show you what I have learned.": {
+      "id": "DroxFourStoneFightc",
+      "npc": "Drox, the Warlord",
+      "category": "Conquerors",
+      "type": "BossFight",
+      "arguments": {
+        "action": "start",
+        "boss": "Drox, the Warlord",
+        "stones": "Four"
+      }
+    },
+    "I wasted so much time trying to enforce the law. Those rules were nothing but a cage.": {
+      "id": "DroxFourStoneFightd",
+      "npc": "Drox, the Warlord",
+      "category": "Conquerors",
+      "type": "BossFight",
+      "arguments": {
+        "action": "start",
+        "boss": "Drox, the Warlord",
+        "stones": "Four"
+      }
+    },
+    "I've killed countless thousands. What's one more?": {
+      "id": "DroxFourStoneFighte",
+      "npc": "Drox, the Warlord",
+      "category": "Conquerors",
+      "type": "BossFight",
+      "arguments": {
+        "action": "start",
+        "boss": "Drox, the Warlord",
+        "stones": "Four"
+      }
+    },
+    "Fun... for you...": {
+      "id": "AlHezminNoStoneFleeing",
+      "npc": "Al-Hezmin, the Hunter",
+      "category": "Conquerors",
+      "type": "BossFight",
+      "arguments": {
+        "action": "end",
+        "boss": "Al-Hezmin, the Hunter",
+        "stones": "No"
+      }
+    },
+    "This is no longer enjoyable...": {
+      "id": "AlHezminOneStoneFleeing",
+      "npc": "Al-Hezmin, the Hunter",
+      "category": "Conquerors",
+      "type": "BossFight",
+      "arguments": {
+        "action": "end",
+        "boss": "Al-Hezmin, the Hunter",
+        "stones": "One"
+      }
+    },
+    "This is not the wondrous land we imagined. We should have listened to Zana.": {
+      "id": "AlHezminTwoStoneFleeing",
+      "npc": "Al-Hezmin, the Hunter",
+      "category": "Conquerors",
+      "type": "BossFight",
+      "arguments": {
+        "action": "end",
+        "boss": "Al-Hezmin, the Hunter",
+        "stones": "Two"
+      }
+    },
+    "Not... possible...": {
+      "id": "AlHezminThreeStoneFleeing",
+      "npc": "Al-Hezmin, the Hunter",
+      "category": "Conquerors",
+      "type": "BossFight",
+      "arguments": {
+        "action": "end",
+        "boss": "Al-Hezmin, the Hunter",
+        "stones": "Three"
+      }
+    },
+    "There is no true safety from you, is there?": {
+      "id": "AlHezminFourStoneFighta",
+      "npc": "Al-Hezmin, the Hunter",
+      "category": "Conquerors",
+      "type": "BossFight",
+      "arguments": {
+        "action": "start",
+        "boss": "Al-Hezmin, the Hunter",
+        "stones": "Four"
+      }
+    },
+    "Come, monster. Do your worst.": {
+      "id": "AlHezminFourStoneFightb",
+      "npc": "Al-Hezmin, the Hunter",
+      "category": "Conquerors",
+      "type": "BossFight",
+      "arguments": {
+        "action": "start",
+        "boss": "Al-Hezmin, the Hunter",
+        "stones": "Four"
+      }
+    },
+    "I will never go down without a fight, beast.": {
+      "id": "AlHezminFourStoneFightc",
+      "npc": "Al-Hezmin, the Hunter",
+      "category": "Conquerors",
+      "type": "BossFight",
+      "arguments": {
+        "action": "start",
+        "boss": "Al-Hezmin, the Hunter",
+        "stones": "Four"
+      }
+    },
+    "The spectre out of the mist comes to haunt me yet again.": {
+      "id": "AlHezminFourStoneFightd",
+      "npc": "Al-Hezmin, the Hunter",
+      "category": "Conquerors",
+      "type": "BossFight",
+      "arguments": {
+        "action": "start",
+        "boss": "Al-Hezmin, the Hunter",
+        "stones": "Four"
+      }
+    },
+    "With your death, this nightmare may finally end.": {
+      "id": "AlHezminFourStoneFighte",
+      "npc": "Al-Hezmin, the Hunter",
+      "category": "Conquerors",
+      "type": "BossFight",
+      "arguments": {
+        "action": "start",
+        "boss": "Al-Hezmin, the Hunter",
+        "stones": "Four"
+      }
+    },
+    "You and I both know this isn't over.": {
+      "id": "VeritaniaNoStoneFleeing",
+      "npc": "Veritania, the Redeemer",
+      "category": "Conquerors",
+      "type": "BossFight",
+      "arguments": {
+        "action": "end",
+        "boss": "Veritania, the Redeemer",
+        "stones": "No"
+      }
+    },
+    "The roots have taken hold. We shall see each other again.": {
+      "id": "VeritaniaOneStoneFleeing",
+      "npc": "Veritania, the Redeemer",
+      "category": "Conquerors",
+      "type": "BossFight",
+      "arguments": {
+        "action": "end",
+        "boss": "Veritania, the Redeemer",
+        "stones": "One"
+      }
+    },
+    "You insist on dooming yourself...": {
+      "id": "VeritaniaTwoStoneFleeing",
+      "npc": "Veritania, the Redeemer",
+      "category": "Conquerors",
+      "type": "BossFight",
+      "arguments": {
+        "action": "end",
+        "boss": "Veritania, the Redeemer",
+        "stones": "Two"
+      }
+    },
+    "The thrill of victory shall forever be your prison...": {
+      "id": "VeritaniaThreeStoneFleeing",
+      "npc": "Veritania, the Redeemer",
+      "category": "Conquerors",
+      "type": "BossFight",
+      "arguments": {
+        "action": "end",
+        "boss": "Veritania, the Redeemer",
+        "stones": "Three"
+      }
+    },
+    "This is my punishment. Come receive yours, exile.": {
+      "id": "VeritaniaFourStoneFighta",
+      "npc": "Veritania, the Redeemer",
+      "category": "Conquerors",
+      "type": "BossFight",
+      "arguments": {
+        "action": "start",
+        "boss": "Veritania, the Redeemer",
+        "stones": "Four"
+      }
+    },
+    "This time, I may show mercy.": {
+      "id": "VeritaniaFourStoneFightb",
+      "npc": "Veritania, the Redeemer",
+      "category": "Conquerors",
+      "type": "BossFight",
+      "arguments": {
+        "action": "start",
+        "boss": "Veritania, the Redeemer",
+        "stones": "Four"
+      }
+    },
+    "The truth is cold. Let me show you.": {
+      "id": "VeritaniaFourStoneFightc",
+      "npc": "Veritania, the Redeemer",
+      "category": "Conquerors",
+      "type": "BossFight",
+      "arguments": {
+        "action": "start",
+        "boss": "Veritania, the Redeemer",
+        "stones": "Four"
+      }
+    },
+    "I think I shall torture you this time.": {
+      "id": "VeritaniaFourStoneFightd",
+      "npc": "Veritania, the Redeemer",
+      "category": "Conquerors",
+      "type": "BossFight",
+      "arguments": {
+        "action": "start",
+        "boss": "Veritania, the Redeemer",
+        "stones": "Four"
+      }
+    },
+    "Welcome! Time has no meaning here. Your pain will be endless.": {
+      "id": "VeritaniaFourStoneFighte",
+      "npc": "Veritania, the Redeemer",
+      "category": "Conquerors",
+      "type": "BossFight",
+      "arguments": {
+        "action": "start",
+        "boss": "Veritania, the Redeemer",
+        "stones": "Four"
+      }
+    },
+    "No minion of Sin could be this powerful... what are you?": {
+      "id": "BaranNoStoneFleeing",
+      "npc": "Baran, the Crusader",
+      "category": "Conquerors",
+      "type": "BossFight",
+      "arguments": {
+        "action": "end",
+        "boss": "Baran, the Crusader",
+        "stones": "No"
+      }
+    },
+    "... yours is no righteous strength. Deceiver! You are no servant of Innocence!": {
+      "id": "BaranOneStoneFleeing",
+      "npc": "Baran, the Crusader",
+      "category": "Conquerors",
+      "type": "BossFight",
+      "arguments": {
+        "action": "end",
+        "boss": "Baran, the Crusader",
+        "stones": "One"
+      }
+    },
+    "You reject... my wisdom...? Blasphemer...": {
+      "id": "BaranTwoStoneFleeing",
+      "npc": "Baran, the Crusader",
+      "category": "Conquerors",
+      "type": "BossFight",
+      "arguments": {
+        "action": "end",
+        "boss": "Baran, the Crusader",
+        "stones": "Two"
+      }
+    },
+    "I see now... what you are... even God has his opposite...": {
+      "id": "BaranThreeStoneFleeing",
+      "npc": "Baran, the Crusader",
+      "category": "Conquerors",
+      "type": "BossFight",
+      "arguments": {
+        "action": "end",
+        "boss": "Baran, the Crusader",
+        "stones": "Three"
+      }
+    },
+    "Shadow can never overtake light, demon.": {
+      "id": "BaranFourStoneFighta",
+      "npc": "Baran, the Crusader",
+      "category": "Conquerors",
+      "type": "BossFight",
+      "arguments": {
+        "action": "start",
+        "boss": "Baran, the Crusader",
+        "stones": "Four"
+      }
+    },
+    "How dare you question God?!": {
+      "id": "BaranFourStoneFightb",
+      "npc": "Baran, the Crusader",
+      "category": "Conquerors",
+      "type": "BossFight",
+      "arguments": {
+        "action": "start",
+        "boss": "Baran, the Crusader",
+        "stones": "Four"
+      }
+    },
+    "You seek Forgiveness, but you do not deserve it.": {
+      "id": "BaranFourStoneFightc",
+      "npc": "Baran, the Crusader",
+      "category": "Conquerors",
+      "type": "BossFight",
+      "arguments": {
+        "action": "start",
+        "boss": "Baran, the Crusader",
+        "stones": "Four"
+      }
+    },
+    "I am the Fire of Creation, and I shall purify your soul.": {
+      "id": "BaranFourStoneFightd",
+      "npc": "Baran, the Crusader",
+      "category": "Conquerors",
+      "type": "BossFight",
+      "arguments": {
+        "action": "start",
+        "boss": "Baran, the Crusader",
+        "stones": "Four"
+      }
+    },
+    "I shall cast you into a pit of infinite tortures.": {
+      "id": "BaranFourStoneFighte",
+      "npc": "Baran, the Crusader",
+      "category": "Conquerors",
+      "type": "BossFight",
+      "arguments": {
+        "action": "start",
+        "boss": "Baran, the Crusader",
+        "stones": "Four"
+      }
+    },
+    "What's this? A real challenge? You've finally caught my attention!": {
+      "id": "SirusDismountA",
+      "npc": "Sirus, Awakener of Worlds",
+      "category": "Sirus",
+      "type": "BossFight",
+      "arguments": {
+        "action": "start",
+        "phase": 1
+      }
+    },
+    "The others found strength in their projections. They became reliant on them. I am not so foolish.": {
+      "id": "SirusDismountB",
+      "npc": "Sirus, Awakener of Worlds",
+      "category": "Sirus",
+      "type": "BossFight",
+      "arguments": {
+        "action": "start",
+        "phase": 1
+      }
+    },
+    "You assumed I share the same weakness as my fellows. I do not.": {
+      "id": "SirusDismountC",
+      "npc": "Sirus, Awakener of Worlds",
+      "category": "Sirus",
+      "type": "BossFight",
+      "arguments": {
+        "action": "start",
+        "phase": 1
+      }
+    },
+    "Is life really interesting enough to warrant all this pain?": {
+      "id": "SirusDismountOneA",
+      "npc": "Sirus, Awakener of Worlds",
+      "category": "Sirus",
+      "type": "BossFight",
+      "arguments": {
+        "action": "start",
+        "phase": 1
+      }
+    },
+    "Do you yet see the futility of your efforts?": {
+      "id": "SirusDismountOneB",
+      "npc": "Sirus, Awakener of Worlds",
+      "category": "Sirus",
+      "type": "BossFight",
+      "arguments": {
+        "action": "start",
+        "phase": 1
+      }
+    },
+    "Why do you insist on continuing to exist?": {
+      "id": "SirusDismountTwoA",
+      "npc": "Sirus, Awakener of Worlds",
+      "category": "Sirus",
+      "type": "BossFight",
+      "arguments": {
+        "action": "start",
+        "phase": 2
+      }
+    },
+    "Everything ends. Everything crumbles. Everything.": {
+      "id": "SirusDismountTwoB",
+      "npc": "Sirus, Awakener of Worlds",
+      "category": "Sirus",
+      "type": "BossFight",
+      "arguments": {
+        "action": "start",
+        "phase": 2
+      }
+    },
+    "On the edge of death, my heart races. I <italic>{am} alive!": {
+      "id": "SirusDismountThreeA",
+      "npc": "Sirus, Awakener of Worlds",
+      "category": "Sirus",
+      "type": "BossFight",
+      "arguments": {
+        "action": "start",
+        "phase": 3
+      }
+    },
+    "Savour your excitement, your fear... they are the last things you will feel.": {
+      "id": "SirusDismountThreeB",
+      "npc": "Sirus, Awakener of Worlds",
+      "category": "Sirus",
+      "type": "BossFight",
+      "arguments": {
+        "action": "start",
+        "phase": 3
+      }
+    },
+    "At least I felt something...": {
+      "id": "SirusSimpleDeathLine",
+      "npc": "Sirus, Awakener of Worlds",
+      "category": "Sirus",
+      "type": "BossFight",
+      "arguments": {
+        "action": "defeated",
+        "phase": 3
+      }
+    },
+    "You left me there, Zana... centuries alone in the Atlas... all I wanted was to feel something again...": {
+      "id": "SirusComplexDeathLineA",
+      "npc": "Sirus, Awakener of Worlds",
+      "category": "Sirus",
+      "type": "BossFight",
+      "arguments": {
+        "action": "defeated",
+        "phase": 3
+      }
+    },
+    "Impressive... but now you will fight on <italic>{my} lands.": {
+      "id": "SirusComplexDeathLineBOne",
+      "npc": "Sirus, Awakener of Worlds",
+      "category": "Sirus",
+      "type": "BossFight",
+      "arguments": {
+        "action": "defeated",
+        "phase": 3
+      }
+    },
+    "I feel... something... at last...": {
+      "id": "SirusComplexDeathLineBTwo",
+      "npc": "Sirus, Awakener of Worlds",
+      "category": "Sirus",
+      "type": "BossFight",
+      "arguments": {
+        "action": "defeated",
+        "phase": 3
+      }
+    },
+    "The Atlas will fuel me. Behold. ...What?! No!": {
+      "id": "SirusComplexDeathLineCOne",
+      "npc": "Sirus, Awakener of Worlds",
+      "category": "Sirus",
+      "type": "BossFight",
+      "arguments": {
+        "action": "defeated",
+        "phase": 3
+      }
+    },
+    "I always knew it would be you... Zana... to make me feel something... one last... time...": {
+      "id": "SirusComplexDeathLineCTwo",
+      "npc": "Sirus, Awakener of Worlds",
+      "category": "Sirus",
+      "type": "BossFight",
+      "arguments": {
+        "action": "defeated",
+        "phase": 3
+      }
+    },
+    "Remember this ramshackle place? A second home... And yet, something seems off, does it not?": {
+      "id": "DeliriumVoiceSimulacrum1-",
+      "npc": "Strange Voice",
+      "category": "Delirium",
+      "type": "Wave",
+      "arguments": {
+        "simulacrum": true,
+        "wave": "0"
+      }
+    },
+    "You've stood against so many horrors and survived. I think it is time to at last test your limits.": {
+      "id": "DeliriumVoiceSimulacrum2-",
+      "npc": "Strange Voice",
+      "category": "Delirium",
+      "type": "Wave",
+      "arguments": {
+        "simulacrum": true,
+        "wave": "1"
+      }
+    },
+    "This is only the beginning.": {
+      "id": "DeliriumVoiceSimulacrum3-",
+      "npc": "Strange Voice",
+      "category": "Delirium",
+      "type": "Wave",
+      "arguments": {
+        "simulacrum": true,
+        "wave": "2"
+      }
+    },
+    "Let yourself be drawn into the mire!": {
+      "id": "DeliriumVoiceSimulacrum4-",
+      "npc": "Strange Voice",
+      "category": "Delirium",
+      "type": "Wave",
+      "arguments": {
+        "simulacrum": true,
+        "wave": "4"
+      }
+    },
+    "Are you trying to cleanse yourself of me?": {
+      "id": "DeliriumVoiceSimulacrum5-",
+      "npc": "Strange Voice",
+      "category": "Delirium",
+      "type": "Wave",
+      "arguments": {
+        "simulacrum": true,
+        "wave": "6"
+      }
+    },
+    "You can't get rid of me, Exile. I am you.": {
+      "id": "DeliriumVoiceSimulacrum6-",
+      "npc": "Strange Voice",
+      "category": "Delirium",
+      "type": "Wave",
+      "arguments": {
+        "simulacrum": true,
+        "wave": "8"
+      }
+    },
+    "Nothing you do matters. The dream will end, and the dreamer will pass into the next world.": {
+      "id": "DeliriumVoiceSimulacrum7-",
+      "npc": "Strange Voice",
+      "category": "Delirium",
+      "type": "Wave",
+      "arguments": {
+        "simulacrum": true,
+        "wave": "9"
+      }
+    },
+    "Do you not wonder what tugs at the strings of fate? What stands astride the abyss and beckons you to fall?": {
+      "id": "DeliriumVoiceSimulacrum8-",
+      "npc": "Strange Voice",
+      "category": "Delirium",
+      "type": "Wave",
+      "arguments": {
+        "simulacrum": true,
+        "wave": "10"
+      }
+    },
+    "Believe me, you will fall, Exile.": {
+      "id": "DeliriumVoiceSimulacrum9-",
+      "npc": "Strange Voice",
+      "category": "Delirium",
+      "type": "Wave",
+      "arguments": {
+        "simulacrum": true,
+        "wave": "11"
+      }
+    },
+    "I will break you.": {
+      "id": "DeliriumVoiceSimulacrum10-",
+      "npc": "Strange Voice",
+      "category": "Delirium",
+      "type": "Wave",
+      "arguments": {
+        "simulacrum": true,
+        "wave": "13"
+      }
+    },
+    "I will not be made the fool!": {
+      "id": "DeliriumVoiceSimulacrum11-",
+      "npc": "Strange Voice",
+      "category": "Delirium",
+      "type": "Wave",
+      "arguments": {
+        "simulacrum": true,
+        "wave": "15"
+      }
+    },
+    "So be it. Keep your precious sanity, my agent of chaos. You shall serve me, whether you like it or not. I'm not going anywhere...": {
+      "id": "DeliriumVoiceSimulacrum12-",
+      "npc": "Strange Voice",
+      "category": "Delirium",
+      "type": "Wave",
+      "arguments": {
+        "simulacrum": true,
+        "wave": "end"
+      }
+    },
+    "I am born anew!": {
+      "id": "HarvestBossIntroOne",
+      "npc": "Oshabi",
+      "category": "Harvest",
+      "type": "BossFight",
+      "arguments": {
+        "action": "start"
+      }
+    },
+    "Behold, the first daughter of Wraeclast.": {
+      "id": "HarvestBossIntroTwo",
+      "npc": "Oshabi",
+      "category": "Harvest",
+      "type": "BossFight",
+      "arguments": {
+        "action": "start"
+      }
+    },
+    "I'm... undone...": {
+      "id": "HarvestBossDeathOne",
+      "npc": "Oshabi",
+      "category": "Harvest",
+      "type": "BossFight",
+      "arguments": {
+        "action": "defeated"
+      }
+    },
+    "Un-... natural...": {
+      "id": "HarvestBossDeathTwo",
+      "npc": "Oshabi",
+      "category": "Harvest",
+      "type": "BossFight",
+      "arguments": {
+        "action": "defeated"
+      }
+    },
+    "Joy!": {
+      "id": "MavenTier1BossVictory3",
+      "npc": "The Maven",
+      "category": "MavenWitness",
+      "type": "BossFight",
+      "arguments": {
+        "action": "defeated"
+      }
+    },
+    "Death.": {
+      "id": "MavenTier1BossVictory4",
+      "npc": "The Maven",
+      "category": "MavenWitness",
+      "type": "BossFight",
+      "arguments": {
+        "action": "defeated"
+      }
+    },
+    "Death!": {
+      "id": "MavenTier1BossVictory6",
+      "npc": "The Maven",
+      "category": "MavenWitness",
+      "type": "BossFight",
+      "arguments": {
+        "action": "defeated"
+      }
+    },
+    "Carnage.": {
+      "id": "MavenTier1BossVictory7",
+      "npc": "The Maven",
+      "category": "MavenWitness",
+      "type": "BossFight",
+      "arguments": {
+        "action": "defeated"
+      }
+    },
+    "Carnage?": {
+      "id": "MavenTier1BossVictory8",
+      "npc": "The Maven",
+      "category": "MavenWitness",
+      "type": "BossFight",
+      "arguments": {
+        "action": "defeated"
+      }
+    },
+    "Carnage!": {
+      "id": "MavenTier1BossVictory9",
+      "npc": "The Maven",
+      "category": "MavenWitness",
+      "type": "BossFight",
+      "arguments": {
+        "action": "defeated"
+      }
+    },
+    "Rebirth!": {
+      "id": "MavenTier1BossVictory10",
+      "npc": "The Maven",
+      "category": "MavenWitness",
+      "type": "BossFight",
+      "arguments": {
+        "action": "defeated"
+      }
+    },
+    "Rebirth.": {
+      "id": "MavenTier1BossVictory11",
+      "npc": "The Maven",
+      "category": "MavenWitness",
+      "type": "BossFight",
+      "arguments": {
+        "action": "defeated"
+      }
+    },
+    "Rebirth?": {
+      "id": "MavenTier1BossVictory12",
+      "npc": "The Maven",
+      "category": "MavenWitness",
+      "type": "BossFight",
+      "arguments": {
+        "action": "defeated"
+      }
+    },
+    "Another! Joy.": {
+      "id": "MavenTier2BossVictory2",
+      "npc": "The Maven",
+      "category": "MavenWitness",
+      "type": "BossFight",
+      "arguments": {
+        "action": "defeated"
+      }
+    },
+    "Another. Joy!": {
+      "id": "MavenTier2BossVictory3",
+      "npc": "The Maven",
+      "category": "MavenWitness",
+      "type": "BossFight",
+      "arguments": {
+        "action": "defeated"
+      }
+    },
+    "Death... enjoy.": {
+      "id": "MavenTier2BossVictory4",
+      "npc": "The Maven",
+      "category": "MavenWitness",
+      "type": "BossFight",
+      "arguments": {
+        "action": "defeated"
+      }
+    },
+    "Death... enjoy!": {
+      "id": "MavenTier2BossVictory5",
+      "npc": "The Maven",
+      "category": "MavenWitness",
+      "type": "BossFight",
+      "arguments": {
+        "action": "defeated"
+      }
+    },
+    "Death! Enjoy!": {
+      "id": "MavenTier2BossVictory6",
+      "npc": "The Maven",
+      "category": "MavenWitness",
+      "type": "BossFight",
+      "arguments": {
+        "action": "defeated"
+      }
+    },
+    "Carnage...! Pretty.": {
+      "id": "MavenTier2BossVictory7",
+      "npc": "The Maven",
+      "category": "MavenWitness",
+      "type": "BossFight",
+      "arguments": {
+        "action": "defeated"
+      }
+    },
+    "Carnage... pretty.": {
+      "id": "MavenTier2BossVictory8",
+      "npc": "The Maven",
+      "category": "MavenWitness",
+      "type": "BossFight",
+      "arguments": {
+        "action": "defeated"
+      }
+    },
+    "Carnage. Pretty!": {
+      "id": "MavenTier2BossVictory9",
+      "npc": "The Maven",
+      "category": "MavenWitness",
+      "type": "BossFight",
+      "arguments": {
+        "action": "defeated"
+      }
+    },
+    "Mine now...": {
+      "id": "MavenTier2BossVictory10",
+      "npc": "The Maven",
+      "category": "MavenWitness",
+      "type": "BossFight",
+      "arguments": {
+        "action": "defeated"
+      }
+    },
+    "Mine now!": {
+      "id": "MavenTier2BossVictory11",
+      "npc": "The Maven",
+      "category": "MavenWitness",
+      "type": "BossFight",
+      "arguments": {
+        "action": "defeated"
+      }
+    },
+    "Mine now.": {
+      "id": "MavenTier2BossVictory12",
+      "npc": "The Maven",
+      "category": "MavenWitness",
+      "type": "BossFight",
+      "arguments": {
+        "action": "defeated"
+      }
+    },
+    "Great pleasure.": {
+      "id": "MavenTier2BossVictory13",
+      "npc": "The Maven",
+      "category": "MavenWitness",
+      "type": "BossFight",
+      "arguments": {
+        "action": "defeated"
+      }
+    },
+    "Great... pleasure.": {
+      "id": "MavenTier2BossVictory14",
+      "npc": "The Maven",
+      "category": "MavenWitness",
+      "type": "BossFight",
+      "arguments": {
+        "action": "defeated"
+      }
+    },
+    "Great pleasure!": {
+      "id": "MavenTier2BossVictory15",
+      "npc": "The Maven",
+      "category": "MavenWitness",
+      "type": "BossFight",
+      "arguments": {
+        "action": "defeated"
+      }
+    },
+    "Worthy.": {
+      "id": "MavenTier2BossVictory18",
+      "npc": "The Maven",
+      "category": "MavenWitness",
+      "type": "BossFight",
+      "arguments": {
+        "action": "defeated"
+      }
+    },
+    "Worthy!": {
+      "id": "MavenTier2BossVictory17",
+      "npc": "The Maven",
+      "category": "MavenWitness",
+      "type": "BossFight",
+      "arguments": {
+        "action": "defeated"
+      }
+    },
+    "Delicious!": {
+      "id": "MavenTier2BossVictory21",
+      "npc": "The Maven",
+      "category": "MavenWitness",
+      "type": "BossFight",
+      "arguments": {
+        "action": "defeated"
+      }
+    },
+    "Collect another.": {
+      "id": "MavenTier3BossVictory2",
+      "npc": "The Maven",
+      "category": "MavenWitness",
+      "type": "BossFight",
+      "arguments": {
+        "action": "defeated"
+      }
+    },
+    "Collect another...": {
+      "id": "MavenTier3BossVictory3",
+      "npc": "The Maven",
+      "category": "MavenWitness",
+      "type": "BossFight",
+      "arguments": {
+        "action": "defeated"
+      }
+    },
+    "Death. Brings. Joy.": {
+      "id": "MavenTier3BossVictory4",
+      "npc": "The Maven",
+      "category": "MavenWitness",
+      "type": "BossFight",
+      "arguments": {
+        "action": "defeated"
+      }
+    },
+    "Death brings joy.": {
+      "id": "MavenTier3BossVictory5",
+      "npc": "The Maven",
+      "category": "MavenWitness",
+      "type": "BossFight",
+      "arguments": {
+        "action": "defeated"
+      }
+    },
+    "Death brings joy...": {
+      "id": "MavenTier3BossVictory6",
+      "npc": "The Maven",
+      "category": "MavenWitness",
+      "type": "BossFight",
+      "arguments": {
+        "action": "defeated"
+      }
+    },
+    "Sprayed blood floats.": {
+      "id": "MavenTier3BossVictory9",
+      "npc": "The Maven",
+      "category": "MavenWitness",
+      "type": "BossFight",
+      "arguments": {
+        "action": "defeated"
+      }
+    },
+    "Sprayed blood floats...": {
+      "id": "MavenTier3BossVictory8",
+      "npc": "The Maven",
+      "category": "MavenWitness",
+      "type": "BossFight",
+      "arguments": {
+        "action": "defeated"
+      }
+    },
+    "One more new toy.": {
+      "id": "MavenTier3BossVictory12",
+      "npc": "The Maven",
+      "category": "MavenWitness",
+      "type": "BossFight",
+      "arguments": {
+        "action": "defeated"
+      }
+    },
+    "Must improve!": {
+      "id": "MavenTier3BossVictory13",
+      "npc": "The Maven",
+      "category": "MavenWitness",
+      "type": "BossFight",
+      "arguments": {
+        "action": "defeated"
+      }
+    },
+    "Must improve.": {
+      "id": "MavenTier3BossVictory14",
+      "npc": "The Maven",
+      "category": "MavenWitness",
+      "type": "BossFight",
+      "arguments": {
+        "action": "defeated"
+      }
+    },
+    "Must improve?": {
+      "id": "MavenTier3BossVictory15",
+      "npc": "The Maven",
+      "category": "MavenWitness",
+      "type": "BossFight",
+      "arguments": {
+        "action": "defeated"
+      }
+    },
+    "No challenge.": {
+      "id": "MavenTier3BossVictory16",
+      "npc": "The Maven",
+      "category": "MavenWitness",
+      "type": "BossFight",
+      "arguments": {
+        "action": "defeated"
+      }
+    },
+    "No challenge...": {
+      "id": "MavenTier3BossVictory18",
+      "npc": "The Maven",
+      "category": "MavenWitness",
+      "type": "BossFight",
+      "arguments": {
+        "action": "defeated"
+      }
+    },
+    "Delightful violence.": {
+      "id": "MavenTier3BossVictory20",
+      "npc": "The Maven",
+      "category": "MavenWitness",
+      "type": "BossFight",
+      "arguments": {
+        "action": "defeated"
+      }
+    },
+    "Delightful violence!": {
+      "id": "MavenTier3BossVictory21",
+      "npc": "The Maven",
+      "category": "MavenWitness",
+      "type": "BossFight",
+      "arguments": {
+        "action": "defeated"
+      }
+    },
+    "I want more. I want them all.": {
+      "id": "MavenTier4BossVictory3",
+      "npc": "The Maven",
+      "category": "MavenWitness",
+      "type": "BossFight",
+      "arguments": {
+        "action": "defeated"
+      }
+    },
+    "It feels good when playthings die.": {
+      "id": "MavenTier4BossVictory6",
+      "npc": "The Maven",
+      "category": "MavenWitness",
+      "type": "BossFight",
+      "arguments": {
+        "action": "defeated"
+      }
+    },
+    "I like when the red water sprays.": {
+      "id": "MavenTier4BossVictory9",
+      "npc": "The Maven",
+      "category": "MavenWitness",
+      "type": "BossFight",
+      "arguments": {
+        "action": "defeated"
+      }
+    },
+    "My collection grows.": {
+      "id": "MavenTier4BossVictory12",
+      "npc": "The Maven",
+      "category": "MavenWitness",
+      "type": "BossFight",
+      "arguments": {
+        "action": "defeated"
+      }
+    },
+    "I... need... more!": {
+      "id": "MavenTier4BossVictory14",
+      "npc": "The Maven",
+      "category": "MavenWitness",
+      "type": "BossFight",
+      "arguments": {
+        "action": "defeated"
+      }
+    },
+    "I need more.": {
+      "id": "MavenTier4BossVictory15",
+      "npc": "The Maven",
+      "category": "MavenWitness",
+      "type": "BossFight",
+      "arguments": {
+        "action": "defeated"
+      }
+    },
+    "Such pleasure, so brief.": {
+      "id": "MavenTier4BossVictory18",
+      "npc": "The Maven",
+      "category": "MavenWitness",
+      "type": "BossFight",
+      "arguments": {
+        "action": "defeated"
+      }
+    },
+    "Fleeting joy.": {
+      "id": "MavenTier4BossVictory21",
+      "npc": "The Maven",
+      "category": "MavenWitness",
+      "type": "BossFight",
+      "arguments": {
+        "action": "defeated"
+      }
+    },
+    "Over too quickly. Another!": {
+      "id": "MavenTier4BossVictory23",
+      "npc": "The Maven",
+      "category": "MavenWitness",
+      "type": "BossFight",
+      "arguments": {
+        "action": "defeated"
+      }
+    },
+    "My collection grows, and I smile.": {
+      "id": "MavenTier5BossVictory3",
+      "npc": "The Maven",
+      "category": "MavenWitness",
+      "type": "BossFight",
+      "arguments": {
+        "action": "defeated"
+      }
+    },
+    "Ahh, death is such a beautiful caress across my senses.": {
+      "id": "MavenTier5BossVictory6",
+      "npc": "The Maven",
+      "category": "MavenWitness",
+      "type": "BossFight",
+      "arguments": {
+        "action": "defeated"
+      }
+    },
+    "A delightful show. A timeless dance written in blood.": {
+      "id": "MavenTier5BossVictory8",
+      "npc": "The Maven",
+      "category": "MavenWitness",
+      "type": "BossFight",
+      "arguments": {
+        "action": "defeated"
+      }
+    },
+    "That's one more for my collection.": {
+      "id": "MavenTier5BossVictory11",
+      "npc": "The Maven",
+      "category": "MavenWitness",
+      "type": "BossFight",
+      "arguments": {
+        "action": "defeated"
+      }
+    },
+    "It will not be so simple next time.": {
+      "id": "MavenTier5BossVictory14",
+      "npc": "The Maven",
+      "category": "MavenWitness",
+      "type": "BossFight",
+      "arguments": {
+        "action": "defeated"
+      }
+    },
+    "That was... satisfactory.": {
+      "id": "MavenTier5BossVictory17",
+      "npc": "The Maven",
+      "category": "MavenWitness",
+      "type": "BossFight",
+      "arguments": {
+        "action": "defeated"
+      }
+    },
+    "A flash of pleasure, over all too quickly.": {
+      "id": "MavenTier5BossVictory20",
+      "npc": "The Maven",
+      "category": "MavenWitness",
+      "type": "BossFight",
+      "arguments": {
+        "action": "defeated"
+      }
+    },
+    "Only one leaves... with me.": {
+      "id": "MavenTier5BossVictory22",
+      "npc": "The Maven",
+      "category": "MavenWitness",
+      "type": "BossFight",
+      "arguments": {
+        "action": "defeated"
+      }
+    },
+    "Mmm.": {
+      "id": "MavenTier5BossVictory26",
+      "npc": "The Maven",
+      "category": "MavenWitness",
+      "type": "BossFight",
+      "arguments": {
+        "action": "defeated"
+      }
+    },
+    "Quite the rush.": {
+      "id": "MavenTier5BossVictory29",
+      "npc": "The Maven",
+      "category": "MavenWitness",
+      "type": "BossFight",
+      "arguments": {
+        "action": "defeated"
+      }
+    },
+    "That was worth the wait.": {
+      "id": "MavenTier5BossVictory32",
+      "npc": "The Maven",
+      "category": "MavenWitness",
+      "type": "BossFight",
+      "arguments": {
+        "action": "defeated"
+      }
+    },
+    "Sweet, sweet treat.": {
+      "id": "MavenTier5BossVictory35",
+      "npc": "The Maven",
+      "category": "MavenWitness",
+      "type": "BossFight",
+      "arguments": {
+        "action": "defeated"
+      }
+    },
+    "I will never tire of this.": {
+      "id": "MavenTier5BossVictory38",
+      "npc": "The Maven",
+      "category": "MavenWitness",
+      "type": "BossFight",
+      "arguments": {
+        "action": "defeated"
+      }
+    },
+    "One more to gather up.": {
+      "id": "MavenTier5BossVictory41",
+      "npc": "The Maven",
+      "category": "MavenWitness",
+      "type": "BossFight",
+      "arguments": {
+        "action": "defeated"
+      }
+    },
+    "This Atlas has its delights.": {
+      "id": "MavenTier5BossVictory44",
+      "npc": "The Maven",
+      "category": "MavenWitness",
+      "type": "BossFight",
+      "arguments": {
+        "action": "defeated"
+      }
+    },
+    "On to the next fight!": {
+      "id": "MavenTier5BossVictory47",
+      "npc": "The Maven",
+      "category": "MavenWitness",
+      "type": "BossFight",
+      "arguments": {
+        "action": "defeated"
+      }
+    },
+    "It was never in doubt.": {
+      "id": "MavenTier5BossVictory49",
+      "npc": "The Maven",
+      "category": "MavenWitness",
+      "type": "BossFight",
+      "arguments": {
+        "action": "defeated"
+      }
+    },
+    "My favorite outcome.": {
+      "id": "MavenTier5BossVictory52",
+      "npc": "The Maven",
+      "category": "MavenWitness",
+      "type": "BossFight",
+      "arguments": {
+        "action": "defeated"
+      }
+    },
+    "Flashy.": {
+      "id": "MavenTier5BossVictory55",
+      "npc": "The Maven",
+      "category": "MavenWitness",
+      "type": "BossFight",
+      "arguments": {
+        "action": "defeated"
+      }
+    },
+    "A mismatched contest.": {
+      "id": "MavenTier5BossVictory58",
+      "npc": "The Maven",
+      "category": "MavenWitness",
+      "type": "BossFight",
+      "arguments": {
+        "action": "defeated"
+      }
+    },
+    "Caretaker! To me!": {
+      "id": "MavenFinalFightCallsEnvoy3",
+      "npc": "The Maven",
+      "category": "Maven",
+      "type": "BossFight",
+      "arguments": {
+        "action": "defeated"
+      }
+    },
+    "I require aid!": {
+      "id": "MavenFinalFightCallsEnvoy6",
+      "npc": "The Maven",
+      "category": "Maven",
+      "type": "BossFight",
+      "arguments": {
+        "action": "defeated"
+      }
+    },
+    "I am being hurt!": {
+      "id": "MavenFinalFightCallsEnvoy9",
+      "npc": "The Maven",
+      "category": "Maven",
+      "type": "BossFight",
+      "arguments": {
+        "action": "defeated"
+      }
+    },
+    "Discover what lies within.": {
+      "id": "LabyrinthIzaroDropsAdditionalTreasureKey",
+      "npc": "Unknown",
+      "category": "Darkshrines",
+      "type": "Activation",
+      "arguments": {
+        "shrineId": "Izaro"
+      }
+    },
+    "To the worthy go the spoils.": {
+      "id": "LabyrinthIzaroDropsAdditionalUnique",
+      "npc": "Unknown",
+      "category": "Darkshrines",
+      "type": "Activation",
+      "arguments": {
+        "shrineId": "Izaro"
+      }
+    },
+    "Death doesn't wait.": {
+      "id": "RoyaleShrineAccelerating",
+      "npc": "Unknown",
+      "category": "Shrines",
+      "type": "Activation",
+      "arguments": {
+        "name": "Acceleration Shrine"
+      }
+    },
+    "Movement ceases, tension mounts.": {
+      "id": "LabyrinthBossRoomTrapsAreDisabled",
+      "npc": "Unknown",
+      "category": "Darkshrines",
+      "type": "Activation",
+      "arguments": {
+        "shrineId": "BossRoom"
+      }
+    },
+    "The heart quickens, the blood thickens.": {
+      "id": "LabyrinthPlayersTakeReducedDamageFromLabyrinthTraps",
+      "npc": "Unknown",
+      "category": "Darkshrines",
+      "type": "Activation",
+      "arguments": {
+        "shrineId": "Players"
+      }
+    },
+    "Be twice blessed.": {
+      "id": "LabyrinthDivineFontGrantsAdditionalEnchantment",
+      "npc": "Unknown",
+      "category": "Darkshrines",
+      "type": "Activation",
+      "arguments": {
+        "shrineId": "Divine"
+      }
+    },
+    "Deliver pain exquisite.": {
+      "id": "RoyaleShrineDiamond",
+      "npc": "Unknown",
+      "category": "Shrines",
+      "type": "Activation",
+      "arguments": {
+        "name": "Diamond Shrine"
+      }
+    },
+    "Hit hard. Hit once.": {
+      "id": "RoyaleShrineBrutal",
+      "npc": "Unknown",
+      "category": "Shrines",
+      "type": "Activation",
+      "arguments": {
+        "name": "Brutal Shrine"
+      }
+    },
+    "Restore that which was lost.": {
+      "id": "RoyaleShrineReplenishing",
+      "npc": "Unknown",
+      "category": "Shrines",
+      "type": "Activation",
+      "arguments": {
+        "name": "Replenishing Shrine"
+      }
+    },
+    "Courage stands tall.": {
+      "id": "RoyaleShrineMassive",
+      "npc": "Unknown",
+      "category": "Shrines",
+      "type": "Activation",
+      "arguments": {
+        "name": "Massive Shrine"
+      }
+    },
+    "None shall stop you.": {
+      "id": "RoyaleShrineImpenetrable",
+      "npc": "Unknown",
+      "category": "Shrines",
+      "type": "Activation",
+      "arguments": {
+        "name": "Impenetrable Shrine"
+      }
+    },
+    "A portal to Izaro appears.": {
+      "id": "LabyrinthPortalToNextIzaroFight",
+      "npc": "Unknown",
+      "category": "Darkshrines",
+      "type": "Activation",
+      "arguments": {
+        "shrineId": "Portal"
+      }
+    },
+    "Open the eye of the storm.": {
+      "id": "RoyaleShrineLightning",
+      "npc": "Unknown",
+      "category": "Shrines",
+      "type": "Activation",
+      "arguments": {
+        "name": "Lightning Shrine"
+      }
+    },
+    "Turn your world to ice.": {
+      "id": "RoyaleShrineFreezing",
+      "npc": "Unknown",
+      "category": "Shrines",
+      "type": "Activation",
+      "arguments": {
+        "name": "Freezing Shrine"
+      }
+    },
+    "The sky falls. The land burns.": {
+      "id": "RoyaleShrineBurning",
+      "npc": "Unknown",
+      "category": "Shrines",
+      "type": "Activation",
+      "arguments": {
+        "name": "Burning Shrine"
+      }
+    },
+    "Reach out and touch hate.": {
+      "id": "RoyaleShrineStatic",
+      "npc": "Unknown",
+      "category": "Shrines",
+      "type": "Activation",
+      "arguments": {
+        "name": "Static Shrine"
+      }
+    },
+    "Share your pain.": {
+      "id": "Thorns",
+      "npc": "Unknown",
+      "category": "Shrines",
+      "type": "Activation",
+      "arguments": {
+        "name": "Thorned Shrine"
+      }
+    },
+    "Fear not the elements.": {
+      "id": "RoyaleShrineResistance",
+      "npc": "Unknown",
+      "category": "Shrines",
+      "type": "Activation",
+      "arguments": {
+        "name": "Resistance Shrine"
+      }
+    },
+    "Become the nightmare.": {
+      "id": "GodMode",
+      "npc": "Unknown",
+      "category": "Shrines",
+      "type": "Activation",
+      "arguments": {
+        "name": "Divine Shrine"
+      }
+    },
+    "Let your rage flow freely.": {
+      "id": "RoyaleShrineEchoing",
+      "npc": "Unknown",
+      "category": "Shrines",
+      "type": "Activation",
+      "arguments": {
+        "name": "Echoing Shrine"
+      }
+    },
+    "Stay not your vile tongue.": {
+      "id": "RoyaleShrineHexing",
+      "npc": "Unknown",
+      "category": "Shrines",
+      "type": "Activation",
+      "arguments": {
+        "name": "Hexing Shrine"
+      }
+    },
+    "The past shall serve the present.": {
+      "id": "Skeletons",
+      "npc": "Unknown",
+      "category": "Shrines",
+      "type": "Activation",
+      "arguments": {
+        "name": "Skeletal Shrine"
+      }
+    },
+    "Shroud your path in the fog of war.": {
+      "id": "RoyaleShrineShrouded",
+      "npc": "Unknown",
+      "category": "Shrines",
+      "type": "Activation",
+      "arguments": {
+        "name": "Shrouded Shrine"
+      }
+    },
+    "Overpower, overrun, overcome. ": {
+      "id": "RoyaleShrineCharged",
+      "npc": "Unknown",
+      "category": "Shrines",
+      "type": "Activation",
+      "arguments": {
+        "name": "Charged Shrine"
+      }
+    },
+    "Wield your shadows.": {
+      "id": "Gloom",
+      "npc": "Unknown",
+      "category": "Shrines",
+      "type": "Activation",
+      "arguments": {
+        "name": "Gloom Shrine"
+      }
+    },
+    "Your heart's desire, drenched in blood.": {
+      "id": "Greed",
+      "npc": "Unknown",
+      "category": "Shrines",
+      "type": "Activation",
+      "arguments": {
+        "name": "Covetous Shrine"
+      }
+    },
+    "Tame the roiling oceans.": {
+      "id": "BrineKing",
+      "npc": "Unknown",
+      "category": "Shrines",
+      "type": "Activation",
+      "arguments": {
+        "name": "Tsoagoth Shrine"
+      }
+    },
+    "The moon rises for war, cresting the star-filled night.": {
+      "id": "Lunaris",
+      "npc": "Unknown",
+      "category": "Shrines",
+      "type": "Activation",
+      "arguments": {
+        "name": "Lunaris Shrine"
+      }
+    },
+    "A new dawn burns the world.": {
+      "id": "Solaris",
+      "npc": "Unknown",
+      "category": "Shrines",
+      "type": "Activation",
+      "arguments": {
+        "name": "Solaris Shrine"
+      }
+    },
+    "Lecherous delight, unto ash.": {
+      "id": "Arakaali",
+      "npc": "Unknown",
+      "category": "Shrines",
+      "type": "Activation",
+      "arguments": {
+        "name": "Arakaali Shrine"
+      }
+    },
+    "There is no Law without strength.": {
+      "id": "Warlord",
+      "npc": "Unknown",
+      "category": "Shrines",
+      "type": "Activation",
+      "arguments": {
+        "name": "Warlord's Shrine"
+      }
+    },
+    "There is no Purity without sacrifice.": {
+      "id": "Crusader",
+      "npc": "Unknown",
+      "category": "Shrines",
+      "type": "Activation",
+      "arguments": {
+        "name": "Crusader's Shrine"
+      }
+    },
+    "There is no Meaning without change.": {
+      "id": "Redeemer",
+      "npc": "Unknown",
+      "category": "Shrines",
+      "type": "Activation",
+      "arguments": {
+        "name": "Redeemer's Shrine"
+      }
+    },
+    "There is no catching you.": {
+      "id": "Hunter",
+      "npc": "Unknown",
+      "category": "Shrines",
+      "type": "Activation",
+      "arguments": {
+        "name": "Hunter's Shrine"
+      }
+    },
+    "Bring death, bring corruption.": {
+      "id": "Vaal",
+      "npc": "Unknown",
+      "category": "Shrines",
+      "type": "Activation",
+      "arguments": {
+        "name": "Vaal Shrine"
+      }
+    },
+    "Bring life, bring power.": {
+      "id": "UpgradeOnKill",
+      "npc": "Unknown",
+      "category": "Shrines",
+      "type": "Activation",
+      "arguments": {
+        "name": "Evolving Shrine"
+      }
+    },
+    "Choking vapours seek the living.": {
+      "id": "ChaosCloudDaemon1",
+      "npc": "The Trialmaster",
+      "category": "Ultimatum",
+      "type": "Activation",
+      "arguments": {
+        "name": "Choking Miasma",
+        "tier": 1,
+        "npcTextAudioId": "TrialmasterChallengeChoiceMadeChasingMiasmaRandom",
+        "description": "A cloud that deals Chaos Damage over Time will follow you"
+      }
+    },
+    "Miasma spreads.": {
+      "id": "ChaosCloudDaemon2",
+      "npc": "The Trialmaster",
+      "category": "Ultimatum",
+      "type": "Activation",
+      "arguments": {
+        "name": "Choking Miasma II",
+        "tier": 2,
+        "npcTextAudioId": "TrialmasterChallengeChoiceMadeChasingMiasmaLargerRandom",
+        "description": "A large cloud that deals Chaos Damage over Time will follow you"
+      }
+    },
+    "The vapours are inescapable.": {
+      "id": "ChaosCloudDaemon3",
+      "npc": "The Trialmaster",
+      "category": "Ultimatum",
+      "type": "Activation",
+      "arguments": {
+        "name": "Choking Miasma III",
+        "tier": 3,
+        "npcTextAudioId": "TrialmasterChallengeChoiceMadeChasingMiasmaFasterRandom",
+        "description": "A large and fast cloud that deals Chaos Damage over Time will follow you"
+      }
+    },
+    "A hateful grip will steal your breath.": {
+      "id": "ChaosCloudDaemon4",
+      "npc": "The Trialmaster",
+      "category": "Ultimatum",
+      "type": "Activation",
+      "arguments": {
+        "name": "Choking Miasma IV",
+        "tier": 4,
+        "npcTextAudioId": "TrialmasterChallengeChoiceMadeChokingMiasmaFourRandom",
+        "description": "A large and very fast cloud that slows you and deals Chaos Damage over Time will follow you"
+      }
+    },
+    "The storm approaches.": {
+      "id": "LightningRuneDaemon1Trial",
+      "npc": "The Trialmaster",
+      "category": "Ultimatum",
+      "type": "Activation",
+      "arguments": {
+        "name": "Stormcaller Runes",
+        "tier": 1,
+        "npcTextAudioId": "TrialmasterChallengeChoiceMadeStormRunesRandom",
+        "description": "Runes will appear that will call deadly Lightning storms if you remain in them"
+      }
+    },
+    "The storm comes swiftly.": {
+      "id": "LightningRuneDaemon2Trial",
+      "npc": "The Trialmaster",
+      "category": "Ultimatum",
+      "type": "Activation",
+      "arguments": {
+        "name": "Stormcaller Runes II",
+        "tier": 2,
+        "npcTextAudioId": "TrialmasterChallengeChoiceMadeStormRunesChargeFasterRandom",
+        "description": "Large runes will appear that will call deadly Lightning storms if you remain in them"
+      }
+    },
+    "Lightning always strikes twice.": {
+      "id": "LightningRuneDaemon3",
+      "npc": "The Trialmaster",
+      "category": "Ultimatum",
+      "type": "Activation",
+      "arguments": {
+        "name": "Stormcaller Runes III",
+        "tier": 3,
+        "npcTextAudioId": "TrialmasterChallengeChoiceMadeStormRunesMoreRandom",
+        "description": "Many large runes will appear that will call deadly Lightning storms if you remain in them"
+      }
+    },
+    "The tempest is nigh.": {
+      "id": "LightningRuneDaemon4",
+      "npc": "The Trialmaster",
+      "category": "Ultimatum",
+      "type": "Activation",
+      "arguments": {
+        "name": "Stormcaller Runes IV",
+        "tier": 4,
+        "npcTextAudioId": "TrialmasterChallengeChoiceMadeStormcallerRunesFourRandom",
+        "description": "Many large runes will appear that will call deadly Lightning storms if you remain in them for a short amount of time"
+      }
+    },
+    "Slay them amongst the flames.": {
+      "id": "FlamespitterDaemon1Trial",
+      "npc": "The Trialmaster",
+      "category": "Ultimatum",
+      "type": "Activation",
+      "arguments": {
+        "name": "Raging Dead",
+        "tier": 1,
+        "npcTextAudioId": "TrialmasterChallengeChoiceMadeFireCrystalsRandom",
+        "description": "Skulls will appear that spit Fire if you remain near them"
+      }
+    },
+    "The wind conspires with the flames.": {
+      "id": "FlamespitterDaemon2Trial",
+      "npc": "The Trialmaster",
+      "category": "Ultimatum",
+      "type": "Activation",
+      "arguments": {
+        "name": "Raging Dead II",
+        "tier": 2,
+        "npcTextAudioId": "TrialmasterChallengeChoiceMadeFireCrystalsFasterRandom",
+        "description": "Many skulls will appear that spit Fire if you remain near them"
+      }
+    },
+    "Flames beget more flames.": {
+      "id": "FlamespitterDaemon3Trial",
+      "npc": "The Trialmaster",
+      "category": "Ultimatum",
+      "type": "Activation",
+      "arguments": {
+        "name": "Raging Dead III",
+        "tier": 3,
+        "npcTextAudioId": "TrialmasterChallengeChoiceMadeFireCrystalsThirdRandom",
+        "description": "Many skulls will appear that pursue you and spit Fire when near you"
+      }
+    },
+    "The flames bite upon your heels. ": {
+      "id": "FlamespitterDaemon4Trial",
+      "npc": "The Trialmaster",
+      "category": "Ultimatum",
+      "type": "Activation",
+      "arguments": {
+        "name": "Raging Dead IV",
+        "tier": 4,
+        "npcTextAudioId": "TrialmasterChallengeChoiceMadeRagingDeadFourRandom",
+        "description": "Many skulls will appear that pursue you and quickly spit a large wave of Fire when near you"
+      }
+    },
+    "Vengeance is cold indeed.": {
+      "id": "FrostInfectionDaemon1",
+      "npc": "The Trialmaster",
+      "category": "Ultimatum",
+      "type": "Activation",
+      "arguments": {
+        "name": "Blistering Cold",
+        "tier": 1,
+        "npcTextAudioId": "TrialmasterChallengeChoiceMadeIceSpinesRandom",
+        "description": "Frozen pustules will periodically appear and explode when you approach"
+      }
+    },
+    "Death's cold grip is inescapable.": {
+      "id": "FrostInfectionDaemon2",
+      "npc": "The Trialmaster",
+      "category": "Ultimatum",
+      "type": "Activation",
+      "arguments": {
+        "name": "Blistering Cold II",
+        "tier": 2,
+        "npcTextAudioId": "TrialmasterChallengeChoiceMadeIceSpinesLargerRandom",
+        "description": "Many frozen pustules will periodically appear and rapidly explode when you approach"
+      }
+    },
+    "Hate begets hate.": {
+      "id": "FrostInfectionDaemon3",
+      "npc": "The Trialmaster",
+      "category": "Ultimatum",
+      "type": "Activation",
+      "arguments": {
+        "name": "Blistering Cold III",
+        "tier": 3,
+        "npcTextAudioId": "TrialmasterChallengeChoiceMadeIceSpinesMoreRandom",
+        "description": "Many frozen pustules will periodically appear, chill you, and rapidly explode when you approach"
+      }
+    },
+    "Death is swift... and cold.": {
+      "id": "FrostInfectionDaemon4",
+      "npc": "The Trialmaster",
+      "category": "Ultimatum",
+      "type": "Activation",
+      "arguments": {
+        "name": "Blistering Cold IV",
+        "tier": 4,
+        "npcTextAudioId": "TrialmasterChallengeChoiceMadeBlisteringColdFourRandom",
+        "description": "Many frozen pustules will periodically appear, chill you, and rapidly explode when you approach, freezing if they hit"
+      }
+    },
+    "Night's madness drains away all hope.": {
+      "id": "GraveyardDaemon1Trial",
+      "npc": "The Trialmaster",
+      "category": "Ultimatum",
+      "type": "Activation",
+      "arguments": {
+        "name": "Restless Ground",
+        "tier": 1,
+        "npcTextAudioId": "TrialmasterChallengeChoiceMadeUnhallowedPatchesRandom",
+        "description": "Patches of Unhallowed Ground will appear that Hinder players and cause slain Monsters to resurrect as Phantasms"
+      }
+    },
+    "Can you feel death coiling around your heart?": {
+      "id": "GraveyardDaemon2Trial",
+      "npc": "The Trialmaster",
+      "category": "Ultimatum",
+      "type": "Activation",
+      "arguments": {
+        "name": "Restless Ground II",
+        "tier": 2,
+        "npcTextAudioId": "TrialmasterChallengeChoiceMadeUnhallowedPatchesTierTwoRandom",
+        "description": "Many patches of Unhallowed Ground will appear that Hinder players and cause slain Monsters to resurrect as Phantasms"
+      }
+    },
+    "Ruin hides in every corner.": {
+      "id": "GraveyardDaemon3Trial",
+      "npc": "The Trialmaster",
+      "category": "Ultimatum",
+      "type": "Activation",
+      "arguments": {
+        "name": "Restless Ground III",
+        "tier": 3,
+        "npcTextAudioId": "TrialmasterChallengeChoiceMadeUnhallowedPatchesToRuinPhantasmsRandom",
+        "description": "Many patches of Unhallowed Ground will appear that Hinder players and cause slain Monsters to resurrect as Ruin-inflicting Phantasms\r\nFail on reaching 7 Ruin"
+      }
+    },
+    "Your world will fall to ruin.": {
+      "id": "GraveyardDaemon4Trial",
+      "npc": "The Trialmaster",
+      "category": "Ultimatum",
+      "type": "Activation",
+      "arguments": {
+        "name": "Restless Ground IV",
+        "tier": 4,
+        "npcTextAudioId": "TrialmasterChallengeChoiceMadeRestlessGroundFourRandom",
+        "description": "Many patches of Unhallowed Ground will appear that Hinder players and cause slain Monsters to resurrect as Ruin-inflicting Phantasms\r\nFail on reaching 7 Ruin"
+      }
+    },
+    "Ruin seeks you.": {
+      "id": "RevenantDaemon1",
+      "npc": "The Trialmaster",
+      "category": "Ultimatum",
+      "type": "Activation",
+      "arguments": {
+        "name": "Stalking Ruin",
+        "tier": 1,
+        "npcTextAudioId": "TrialmasterChallengeChoiceMadeRuinHunterRandom",
+        "description": "An invulnerable shade stalks you, inflicting Ruin with its Melee Attacks\r\nFail on reaching 7 Ruin"
+      }
+    },
+    "Ruin arrives suddenly.": {
+      "id": "MonstersApplyRuin2",
+      "npc": "The Trialmaster",
+      "category": "Ultimatum",
+      "type": "Activation",
+      "arguments": {
+        "name": "Ruin II",
+        "tier": 2,
+        "npcTextAudioId": "TrialmasterChallengeChoiceMadeRuinHunterSpeedRandom",
+        "description": "A Monster type will apply double Ruin with its special ability\r\nFail on reaching 7 Ruin"
+      }
+    },
+    "Mystic pain will bring ruin.": {
+      "id": "RevenantDaemon3",
+      "npc": "The Trialmaster",
+      "category": "Ultimatum",
+      "type": "Activation",
+      "arguments": {
+        "name": "Stalking Ruin III",
+        "tier": 3,
+        "npcTextAudioId": "TrialmasterChallengeChoiceMadeStalkingRuinThreeRandom",
+        "description": "An invulnerable shade stalks you, gaining further speed and inflicting Ruin with Melee Attacks and powerful Spells\r\nFail on reaching 7 Ruin"
+      }
+    },
+    "Everywhere your gaze falls, there shall be only ruin.": {
+      "id": "RevenantDaemon4",
+      "npc": "The Trialmaster",
+      "category": "Ultimatum",
+      "type": "Activation",
+      "arguments": {
+        "name": "Stalking Ruin IV",
+        "tier": 4,
+        "npcTextAudioId": "TrialmasterChallengeChoiceMadeStalkingRuinFourRandom",
+        "description": "An invulnerable shade stalks you, aggressively casting Spells that inflict Ruin while teleporting to random locations\r\nFail on reaching 7 Ruin"
+      }
+    },
+    "Shrapnel and shards abound.": {
+      "id": "SawbladeDaemon1",
+      "npc": "The Trialmaster",
+      "category": "Ultimatum",
+      "type": "Activation",
+      "arguments": {
+        "name": "Razor Dance",
+        "tier": 1,
+        "npcTextAudioId": "TrialmasterChallengeChoiceMadeShardspeakerRandom",
+        "description": "Blades will periodically appear and fly at you, applying Corrupted Blood on Hit"
+      }
+    },
+    "Relentless assault.": {
+      "id": "SawbladeDaemon2",
+      "npc": "The Trialmaster",
+      "category": "Ultimatum",
+      "type": "Activation",
+      "arguments": {
+        "name": "Razor Dance II",
+        "tier": 2,
+        "npcTextAudioId": "TrialmasterChallengeChoiceMadeBladesSecondTierRandom",
+        "description": "Many blades will periodically appear and fly at you, applying Corrupted Blood on Hit"
+      }
+    },
+    "Be torn to shreds.": {
+      "id": "SawbladeDaemon3",
+      "npc": "The Trialmaster",
+      "category": "Ultimatum",
+      "type": "Activation",
+      "arguments": {
+        "name": "Razor Dance III",
+        "tier": 3,
+        "npcTextAudioId": "TrialmasterChallengeChoiceMadeBladesThirdTierRandom",
+        "description": "Swarms of blades will periodically appear and fly at you, applying Corrupted Blood on Hit"
+      }
+    },
+    "To shreds.": {
+      "id": "SawbladeDaemon4",
+      "npc": "The Trialmaster",
+      "category": "Ultimatum",
+      "type": "Activation",
+      "arguments": {
+        "name": "Razor Dance IV",
+        "tier": 4,
+        "npcTextAudioId": "TrialmasterChallengeChoiceMadeRazorDanceFourRandom",
+        "description": "Swarms of blades will periodically appear and fly at you, applying Corrupted Blood on Hit and leaving a trail of Blood ground"
+      }
+    },
+    "Steel and pain.": {
+      "id": "PhysTotemDaemon",
+      "npc": "The Trialmaster",
+      "category": "Ultimatum",
+      "type": "Activation",
+      "arguments": {
+        "name": "Totem of Costly Might",
+        "tier": 1,
+        "npcTextAudioId": "TrialmasterChallengeChoiceMadePhysicalTotemRandom",
+        "description": "An invulnerable Totem will appear that imbues both its allies and its enemies with Speed and powerful Physical Damage benefits, but causes enemies to take 10% of their maximum Life and Energy Shield as Physical Damage per second"
+      }
+    },
+    "The fire of summer burns within.": {
+      "id": "EleTotemDaemon",
+      "npc": "The Trialmaster",
+      "category": "Ultimatum",
+      "type": "Activation",
+      "arguments": {
+        "name": "Totem of Costly Potency",
+        "tier": 1,
+        "npcTextAudioId": "TrialmasterChallengeChoiceMadeFireTotemRandom",
+        "description": "An invulnerable Totem will appear that imbues both its allies and its enemies with Speed and powerful Elemental Damage benefits, but causes enemies to take 15% of their maximum Life and Energy Shield as Fire Damage per second"
+      }
+    },
+    "Corruption starts in the blood.": {
+      "id": "AltarDaemon1",
+      "npc": "The Trialmaster",
+      "category": "Ultimatum",
+      "type": "Activation",
+      "arguments": {
+        "name": "Blood Altar",
+        "tier": 1,
+        "npcTextAudioId": "TrialmasterChallengeChoiceMadeBloodAltarOneRandom",
+        "description": "A ring of Blood surrounds the Altar, dealing heavy Physical Damage over time"
+      }
+    },
+    "A festering ring encroaches upon you.": {
+      "id": "AltarDaemon2",
+      "npc": "The Trialmaster",
+      "category": "Ultimatum",
+      "type": "Activation",
+      "arguments": {
+        "name": "Blood Altar II",
+        "tier": 2,
+        "npcTextAudioId": "TrialmasterChallengeChoiceMadeBloodAltarTwoRandom",
+        "description": "A large ring of Blood surrounds the Altar, dealing heavy Physical Damage over time"
+      }
+    },
+    "Unknown": {
+      "id": "SpookySupplementSpawner",
+      "npc": "The Trialmaster",
+      "category": "Ultimatum",
+      "type": "Activation",
+      "arguments": {
+        "name": "",
+        "tier": 1,
+        "npcTextAudioId": "Unknown",
+        "description": ""
+      }
+    },
+    "Stray too far and find pain.": {
+      "id": "Radius1",
+      "npc": "The Trialmaster",
+      "category": "Ultimatum",
+      "type": "Activation",
+      "arguments": {
+        "name": "Limited Arena",
+        "tier": 1,
+        "npcTextAudioId": "TrialmasterChallengeChoiceMadeSmallerArenaRandom",
+        "description": "The encounter area will be much smaller"
+      }
+    },
+    "You will fall to ruin.": {
+      "id": "MonstersApplyRuin1",
+      "npc": "The Trialmaster",
+      "category": "Ultimatum",
+      "type": "Activation",
+      "arguments": {
+        "name": "Ruin",
+        "tier": 1,
+        "npcTextAudioId": "TrialmasterChallengeChoiceMadeFailAtTenRuinRandom",
+        "description": "A Monster type will apply Ruin with its special ability\r\nFail on reaching 7 Ruin"
+      }
+    },
+    "Ruin surrounds you.": {
+      "id": "MonstersApplyRuin3",
+      "npc": "The Trialmaster",
+      "category": "Ultimatum",
+      "type": "Activation",
+      "arguments": {
+        "name": "Ruin III",
+        "tier": 3,
+        "npcTextAudioId": "TrialmasterChallengeChoiceMadeTwoTypesApplyRuinRandom",
+        "description": "Two Monster types will apply double Ruin with their special abilities\r\nFail on reaching 7 Ruin"
+      }
+    },
+    "A single touch may spell your ruin.": {
+      "id": "MonstersApplyRuin4",
+      "npc": "The Trialmaster",
+      "category": "Ultimatum",
+      "type": "Activation",
+      "arguments": {
+        "name": "Ruin IV",
+        "tier": 4,
+        "npcTextAudioId": "TrialmasterChallengeChoiceMadeRuinFourRandom",
+        "description": "Two Monster types will apply quadruple Ruin with their special abilities\r\nFail on reaching 7 Ruin"
+      }
+    },
+    "A weight upon the soul.": {
+      "id": "PlayerDebuffRecoveryReduction1",
+      "npc": "The Trialmaster",
+      "category": "Ultimatum",
+      "type": "Activation",
+      "arguments": {
+        "name": "Reduced Recovery",
+        "tier": 1,
+        "npcTextAudioId": "TrialmasterChallengeChoiceMadeReducedRecoveryRandom",
+        "description": "60% Reduced Life, Mana, and Energy Shield Recovery Rate"
+      }
+    },
+    "Heart and spirit, burdened.": {
+      "id": "PlayerDebuffRecoveryReduction2",
+      "npc": "The Trialmaster",
+      "category": "Ultimatum",
+      "type": "Activation",
+      "arguments": {
+        "name": "Reduced Recovery II",
+        "tier": 2,
+        "npcTextAudioId": "TrialmasterChallengeChoiceMadeReducedRecoveryTwoRandom",
+        "description": "90% Reduced Life, Mana, and Energy Shield Recovery Rate"
+      }
+    },
+    "Your reach exceeds your grasp.": {
+      "id": "PlayerDebuffAreaAndProjectileSpeed",
+      "npc": "The Trialmaster",
+      "category": "Ultimatum",
+      "type": "Activation",
+      "arguments": {
+        "name": "Lessened Reach",
+        "tier": 1,
+        "npcTextAudioId": "TrialmasterChallengeChoiceMadeLessAOELessProjSpeedRandom",
+        "description": "Players have 60% less Area of Effect and Projectile Speed"
+      }
+    },
+    "Time is your enemy.": {
+      "id": "PlayerDebuffBuffsExpireFaster",
+      "npc": "The Trialmaster",
+      "category": "Ultimatum",
+      "type": "Activation",
+      "arguments": {
+        "name": "Buffs Expire Faster",
+        "tier": 1,
+        "npcTextAudioId": "TrialmasterChallengeChoiceMadeBuffsExpireFasterRandom",
+        "description": "Buffs expire five times faster on Players"
+      }
+    },
+    "Fight the slowing of your own heart.": {
+      "id": "PlayerDebuffCooldownSpeed",
+      "npc": "The Trialmaster",
+      "category": "Ultimatum",
+      "type": "Activation",
+      "arguments": {
+        "name": "Less Cooldown Recovery",
+        "tier": 1,
+        "npcTextAudioId": "TrialmasterChallengeChoiceMadeDiminishRecoveryRandom",
+        "description": "Cooldowns take five times longer to recharge"
+      }
+    },
+    "Mortality seeks you in kind.": {
+      "id": "PlayerDebuffIncreasingVulnerability",
+      "npc": "The Trialmaster",
+      "category": "Ultimatum",
+      "type": "Activation",
+      "arguments": {
+        "name": "Escalating Damage Taken",
+        "tier": 1,
+        "npcTextAudioId": "TrialmasterChallengeChoiceMadeEscalatingVulnRandom",
+        "description": "For the remainder of the encounter, damage taken will slowly increase by 2% per second, up to 50%"
+      }
+    },
+    "Your enemies hasten.": {
+      "id": "MonsterBuffAcceleratingSpeed",
+      "npc": "The Trialmaster",
+      "category": "Ultimatum",
+      "type": "Activation",
+      "arguments": {
+        "name": "Escalating Monster Speed",
+        "tier": 1,
+        "npcTextAudioId": "TrialmasterChallengeChoiceMadeMonstersSpeedUpRandom",
+        "description": "Monsters gain 5% increased attack, cast, and movement speed per second they are alive, up to 50%"
+      }
+    },
+    "Your opponents bring night's madness.": {
+      "id": "MonsterBuffNonChaosDamageToAddAsChaosDamage",
+      "npc": "The Trialmaster",
+      "category": "Ultimatum",
+      "type": "Activation",
+      "arguments": {
+        "name": "Profane Monsters",
+        "tier": 1,
+        "npcTextAudioId": "TrialmasterChallengeChoiceMadeVoidspeakerRandom",
+        "description": "Monsters deal 80% of Physical Damage Added as Chaos Damage"
+      }
+    },
+    "Be diminished.": {
+      "id": "PlayerDebuffExtraCriticalRolls",
+      "npc": "The Trialmaster",
+      "category": "Ultimatum",
+      "type": "Activation",
+      "arguments": {
+        "name": "Unlucky Criticals",
+        "tier": 1,
+        "npcTextAudioId": "TrialmasterChallengeChoiceMadeUnluckyCritRandom",
+        "description": "Your Critical Strike Chance is Unlucky\r\nMonsters take 50% reduced Extra Damage from Critical Strikes"
+      }
+    },
+    "You shall suffer your own bile.": {
+      "id": "PlayerDebuffCursesandNonDamagingAilmentsReflectedToSelf",
+      "npc": "The Trialmaster",
+      "category": "Ultimatum",
+      "type": "Activation",
+      "arguments": {
+        "name": "Ailment and Curse Reflection",
+        "tier": 1,
+        "npcTextAudioId": "TrialmasterChallengeChoiceMadeFlasksHinderRandom",
+        "description": "Curses and Non-damaging Ailments you apply are Reflected\r\nMonsters are unaffected by Curses"
+      }
+    },
+    "Your blood betrays you.": {
+      "id": "PlayerDebuffCancelFlaskEffectOnFlaskUse",
+      "npc": "The Trialmaster",
+      "category": "Ultimatum",
+      "type": "Activation",
+      "arguments": {
+        "name": "Drought",
+        "tier": 1,
+        "npcTextAudioId": "TrialmasterChallengeChoiceMadeFlasksCancelEachOtherRandom",
+        "description": "Cannot gain Flask Charges"
+      }
+    },
+    "Your thoughts crackle with pain.": {
+      "id": "PlayerDebuffSelfLightningDamageOnSkillUseManaSpentOnCostHigh",
+      "npc": "The Trialmaster",
+      "category": "Ultimatum",
+      "type": "Activation",
+      "arguments": {
+        "name": "Lightning Damage from Mana Costs",
+        "tier": 1,
+        "npcTextAudioId": "TrialmasterChallengeChoiceMadeManaCostAsDamageRandom",
+        "description": "Take 1000% of Mana costs as Lightning Damage"
+      }
+    },
+    "Your own volleys turn against you.": {
+      "id": "PlayerDebuffRandomProjectileDirection",
+      "npc": "The Trialmaster",
+      "category": "Ultimatum",
+      "type": "Activation",
+      "arguments": {
+        "name": "Random Projectiles",
+        "tier": 1,
+        "npcTextAudioId": "TrialmasterChallengeChoiceMadeReflectProjectilesRandom",
+        "description": "Your Projectiles fly in random directions\r\nMonsters fire additional Projectiles"
+      }
+    },
+    "Confront that which you release.": {
+      "id": "PlayerDebuffAurasAffectAllies",
+      "npc": "The Trialmaster",
+      "category": "Ultimatum",
+      "type": "Activation",
+      "arguments": {
+        "name": "Treacherous Auras",
+        "tier": 1,
+        "npcTextAudioId": "TrialmasterChallengeChoiceMadeYourAurasAffectEnemiesRandom",
+        "description": "Your Auras that affect Allies also affect Enemies"
+      }
+    },
+    "Your arteries constrict.": {
+      "id": "PlayerDebuffUltimatumDealNoDamageFor2SecondEvery8Seconds",
+      "npc": "The Trialmaster",
+      "category": "Ultimatum",
+      "type": "Activation",
+      "arguments": {
+        "name": "Occasional Impotence",
+        "tier": 1,
+        "npcTextAudioId": "TrialmasterChallengeChoiceMadeDealNoDamageSometimesRandom",
+        "description": "You and your Minions deal no damage for 2 seconds every 8 seconds"
+      }
+    },
+    "The sun is setting on your success.": {
+      "id": "PlayerDebuffUltimatumLoseChargesEverySecond",
+      "npc": "The Trialmaster",
+      "category": "Ultimatum",
+      "type": "Activation",
+      "arguments": {
+        "name": "Siphoned Charges",
+        "tier": 1,
+        "npcTextAudioId": "TrialmasterChallengeChoiceMadeLoseChargesEverySecondRandom",
+        "description": "Lose a Power, Frenzy, and Endurance Charge every second\r\nMonsters gain Power, Frenzy, and Endurance Charges on hit"
+      }
+    },
+    "An unstoppable tide.": {
+      "id": "MonsterSlowProtection",
+      "npc": "The Trialmaster",
+      "category": "Ultimatum",
+      "type": "Activation",
+      "arguments": {
+        "name": "Unstoppable Monsters",
+        "tier": 1,
+        "npcTextAudioId": "TrialmasterChallengeChoiceMadeUnstoppableMonstersRandom",
+        "description": "Monsters cannot be Slowed or Stunned"
+      }
+    },
+    "You must be a glutton for punishment.": {
+      "id": "MonsterExtraRareModifiers",
+      "npc": "The Trialmaster",
+      "category": "Ultimatum",
+      "type": "Activation",
+      "arguments": {
+        "name": "Lethal Rare Monsters",
+        "tier": 1,
+        "npcTextAudioId": "TrialmasterChallengeChoiceMadeLethalRareMonstersRandom",
+        "description": "Rare Monsters have 2 additional Modifiers"
+      }
+    },
+    "A wall arises between you and victory.": {
+      "id": "MonsterBlock",
+      "npc": "The Trialmaster",
+      "category": "Ultimatum",
+      "type": "Activation",
+      "arguments": {
+        "name": "Shielding Monsters",
+        "tier": 1,
+        "npcTextAudioId": "TrialmasterChallengeChoiceMadeShieldingMonstersRandom",
+        "description": "Monsters have 50% chance to Block Attack and Spell Damage"
+      }
+    },
+    "An arrow falls, and I know where.": {
+      "id": "MonsterHitsCantBeEvaded",
+      "npc": "The Trialmaster",
+      "category": "Ultimatum",
+      "type": "Activation",
+      "arguments": {
+        "name": "Precise Monsters",
+        "tier": 1,
+        "npcTextAudioId": "TrialmasterChallengeChoiceMadePreciseMonstersRandom",
+        "description": "Monster Hits cannot be Evaded"
+      }
+    },
+    "The riddle of steel has no answer.": {
+      "id": "MonsterOverwhelm",
+      "npc": "The Trialmaster",
+      "category": "Ultimatum",
+      "type": "Activation",
+      "arguments": {
+        "name": "Overwhelming Monsters",
+        "tier": 1,
+        "npcTextAudioId": "TrialmasterChallengeChoiceMadeOverwhelmingMonstersRandom",
+        "description": "Monster Hits Overwhelm all Physical Damage Reduction"
+      }
+    },
+    "Cut straight to the heart of the matter.": {
+      "id": "MonsterHitsAreCriticalStrikes",
+      "npc": "The Trialmaster",
+      "category": "Ultimatum",
+      "type": "Activation",
+      "arguments": {
+        "name": "Deadly Monsters",
+        "tier": 1,
+        "npcTextAudioId": "TrialmasterChallengeChoiceMadeDeadlyMonstersRandom",
+        "description": "Monster Hits are always Critical Strikes"
+      }
+    },
+    "All the colours of death.": {
+      "id": "MonsterPhysAsExtraEachElement",
+      "npc": "The Trialmaster",
+      "category": "Ultimatum",
+      "type": "Activation",
+      "arguments": {
+        "name": "Prismatic Monsters",
+        "tier": 1,
+        "npcTextAudioId": "TrialmasterChallengeChoiceMadePrismaticMonstersRandom",
+        "description": "Monsters gain 50% of Physical Damage as Extra Damage of each Element"
+      }
+    },
+    "The horde adapts.": {
+      "id": "MonsterResistances",
+      "npc": "The Trialmaster",
+      "category": "Ultimatum",
+      "type": "Activation",
+      "arguments": {
+        "name": "Resistant Monsters",
+        "tier": 1,
+        "npcTextAudioId": "TrialmasterChallengeChoiceMadeResistMonstersRandom",
+        "description": "Monsters have +50% to all Resistances"
+      }
+    },
+    "Victory requires a keen eye.": {
+      "id": "MonsterSuppressionAndEvasion",
+      "npc": "The Trialmaster",
+      "category": "Ultimatum",
+      "type": "Activation",
+      "arguments": {
+        "name": "Dexterous Monsters",
+        "tier": 1,
+        "npcTextAudioId": "TrialmasterChallengeChoiceMadeDexterousMonstersRandom",
+        "description": "Monsters Suppress Spell Damage and gain 500% increased Evasion Rating"
+      }
+    },
+    "Faith and intellect burn alike.": {
+      "id": "MonsterRemoveEnergyShieldAndManaOnHit",
+      "npc": "The Trialmaster",
+      "category": "Ultimatum",
+      "type": "Activation",
+      "arguments": {
+        "name": "Siphoning Monsters",
+        "tier": 1,
+        "npcTextAudioId": "TrialmasterChallengeChoiceMadeSiphoningMonstersRandom",
+        "description": "Monster Hits remove 10% of current Energy Shield and Mana"
+      }
+    }
+  }
+}
