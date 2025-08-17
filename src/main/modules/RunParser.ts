@@ -8,6 +8,7 @@ import OldDB from '../db';
 import { globalShortcut } from 'electron';
 import Utils from './Utils';
 import minMax from 'dayjs/plugin/minMax'; // ES 2015
+import EventParser from './EventParser';
 const logger = require('electron-log');
 const EventEmitter = require('events');
 const ItemPricer = require('./ItemPricer');
@@ -633,6 +634,7 @@ const RunParser = {
           line = RunParser.getNPCLine(evt.event_text);
           break;
         default:
+          EventParser.parseEventData(run, evt);
           // ignore other event types
           continue;
       }
@@ -1227,7 +1229,7 @@ const RunParser = {
     }
   },
 
-  processRun: async (lastEventTimestamp: string) => {
+  processRun: async (lastEventTimestamp: string, runId: number | null = null) => {
     let mapStats = {
       iiq: 0,
       iir: 0,
@@ -1237,9 +1239,23 @@ const RunParser = {
 
     logger.info(`Processing map run ending at ${lastEventTimestamp}`);
 
+    let firstEvent: string | null = null;
+
     // Read latest Run ID
-    const { id: runId, first_event: firstEvent } = await DB.getLatestUncompletedRun();
-    if (!runId) {
+    if(runId) {
+      const RunData = await DB.getRunData(runId);
+      if (RunData) {
+        lastEventTimestamp = RunData.last_event;
+        firstEvent = RunData.first_event;
+      }
+    } else {
+      const RunData = await DB.getLatestUncompletedRun();
+      if (RunData) {
+        runId = RunData.id;
+        firstEvent = RunData.first_event;
+      }
+    }
+    if (!runId || !firstEvent) {
       logger.info('No uncompleted map run found');
       return false;
     }
@@ -1307,6 +1323,12 @@ const RunParser = {
       });
       RunParser.resetRunData();
     });
+  },
+
+
+  reprocessRun: async(runId: number) => {
+    // Reprocess the run
+    return RunParser.processRun('', runId);
   },
 
   /**

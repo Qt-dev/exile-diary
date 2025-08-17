@@ -675,6 +675,21 @@ const Runs = {
       return false;
     }
   },
+
+  getRunData: async (runId: number): Promise<any> => {
+    logger.info(`Getting run data for runId: ${runId}`);
+    const query = `
+      SELECT * FROM run
+      WHERE id = ?
+    `;
+    try {
+      const row = await DB.get(query, [runId]);
+      return row;
+    } catch (err) {
+      logger.error(`Error getting run data: ${JSON.stringify(err)}`);
+      return null;
+    }
+  }
 };
 
 export default Runs;

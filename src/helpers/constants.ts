@@ -22,6 +22,11 @@ type ConstantContainer = {
       [key: string]: any;
     };
   };
+  events: {
+    byQuote: {
+      [key: string]: any;
+    };
+  };
   [key: string]: any;
 };
 

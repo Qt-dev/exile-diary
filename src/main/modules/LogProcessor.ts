@@ -7,6 +7,7 @@ import SettingsManager from '../SettingsManager';
 import SkillTreeWatcher from './SkillTreeWatcher';
 import InventoryGetter from './InventoryGetter';
 import ItemParser from './ItemParser';
+import EventParser from './EventParser';
 import Constants from '../../helpers/constants';
 import Utils from './Utils';
 
@@ -63,6 +64,7 @@ class LogProcessorScheduler {
 const scheduler = new LogProcessorScheduler();
 const emitter = new EventEmitter();
 
+const textLineRegex = /^(?<NPCName>.*): (?<text>.*)$/;
 const generationRegex = /.*level\s(?<level>\d+)\sarea\s"(?<areaId>\S+)".*seed\s(?<seed>\d+)/;
 const allocationRegex =
   /Successfully (?<verb>(allocated|unallocated)).*id:\s(?<id>.*),.*name:\s(?<name>.*)$/;
@@ -76,39 +78,6 @@ const instanceServerRegex =
 function getEvent(content: string, server: string) {
   const settings = SettingsManager.getAll();
   // logger.debug(`Getting event for content: ${content}`);
-
-  const masterString = parseMaster(content);
-  if (masterString) {
-    return {
-      type: 'master',
-      text: masterString,
-      instanceServer: '',
-    };
-  }
-
-  const conquerorString = parseConqueror(content);
-  if (conquerorString) {
-    return {
-      type: 'conqueror',
-      text: conquerorString,
-    };
-  }
-
-  const npcString = parseNPC(content);
-  if (npcString) {
-    return {
-      type: 'leagueNPC',
-      text: npcString,
-    };
-  }
-
-  const mapBossString = parseMapBoss(content);
-  if (mapBossString) {
-    return {
-      type: 'mapBoss',
-      text: mapBossString,
-    };
-  }
 
   if (content.startsWith('Abnormal disconnect')) {
     return {
@@ -162,17 +131,6 @@ function getEvent(content: string, server: string) {
         type: 'level',
         text: Number.parseInt((match.groups as { level: string }).level),
       };
-    } else {
-      const cleanContent = content.substring(2).trim();
-      if (
-        Constants.shrineQuotes[cleanContent] ||
-        Constants.darkshrineQuotes.includes(cleanContent)
-      ) {
-        return {
-          type: 'shrine',
-          text: cleanContent,
-        };
-      }
     }
   } else if (content.startsWith('@') && (content.includes('@From') || content.includes('@To'))) {
     const characterName = settings.activeProfile.characterName;
@@ -208,6 +166,22 @@ function getEvent(content: string, server: string) {
       };
     }
   }
+
+  
+  const match = textLineRegex.exec(content);
+  if (match) {
+    const { NPCName, text } = match.groups as { NPCName: string; text: string };
+    const event = EventParser.getEventByQuote(NPCName, text);
+
+    logger.debug('Found event:', event, ' for NPC:', NPCName, ' and text:', text);
+    if(event) {
+      return {
+        type: event.category,
+        text: JSON.stringify({text: text, ...event})
+      }
+    }
+
+  }
 }
 
 // Parse Spectific NPC lines from the content
@@ -231,35 +205,6 @@ function parseMaster(content) {
   }
 
   // If no master or syndicate member is found, return null
-  return null;
-}
-
-function parseConqueror(content) {
-  const conquerorRegex = new RegExp(`(?<text>(${Constants.conquerors.join('|')}): .*)$`, 'i');
-  const match = conquerorRegex.exec(content);
-  if (match) {
-    return (match.groups as { text: string }).text.trim();
-  }
-  return null;
-}
-
-function parseNPC(content) {
-  const npcRegex = new RegExp(`^(?<text>(${Constants.leagueNPCs.join('|')}): .*)$`, 'i');
-  const match = npcRegex.exec(content);
-  if (match) {
-    // If a NPC is found, return the full string
-    return (match.groups as { text: string }).text.trim();
-  }
-  return null;
-}
-
-function parseMapBoss(content) {
-  const mapBossesRegex = new RegExp(`^(?<text>(${Constants.mapBosses.join('|')}): .*)$`, 'i');
-  const match = mapBossesRegex.exec(content);
-  if (match) {
-    // If a map boss is found, return the full string
-    return (match.groups as { text: string }).text.trim();
-  }
   return null;
 }
 
