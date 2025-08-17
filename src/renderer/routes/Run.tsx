@@ -73,16 +73,20 @@ const Run = ({ store }) => {
           <div className="Run__Header__Block__Value Text--Magic">{duration}</div>
         </div>
       </div>
-      <Divider className="Separator" />
-      <p className="Run__Mods">
-        {run.mods.map((mod, i) => {
-          return (
-            <div className="Text--Augmented" key={i}>
-              {mod.mod}
-            </div>
-          );
-        })}
-      </p>
+      {run.mods && run.mods.length > 0 && (
+        <>
+          <Divider className="Separator" />
+          <p className="Run__Mods">
+            {run.mods.map((mod, i) => {
+              return (
+                <div className="Text--Augmented" key={i}>
+                  {mod.mod}
+                </div>
+              );
+            })}
+          </p>
+        </>
+      )}
       <Divider className="Separator" />
       <div className="Run__XP">
         XP: <span className="Text--Rare">{run.initialxp?.toLocaleString('en')}</span>{' '}
