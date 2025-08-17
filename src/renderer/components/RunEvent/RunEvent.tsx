@@ -94,6 +94,22 @@ const textPerEventType = {
       </>
     );
   },
+  Shrines: (event) => {
+    const eventData = JSON.parse(event.event_text);
+    return (
+      <>
+        Activated <span className="Text--Rare">{eventData.arguments.name}</span> ({eventData.text})
+      </>
+    )
+  },
+  Beasts: (event) => {
+    const eventData = JSON.parse(event.event_text);
+    return (
+      <>
+      Captured a <span className={eventData.arguments.beastType === 'yellow' ? 'Text--Rare' : 'Text--Error'}>{eventData.arguments.beastType}</span> beast.
+      </>
+    );
+  }
 };
 
 const generateNode = (event, runInfo, previousEvent): ReactNode => {

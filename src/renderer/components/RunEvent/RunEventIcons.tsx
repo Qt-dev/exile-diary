@@ -15,6 +15,9 @@ import EnslaverIcon from '../../assets/img/encountericons/enslaver.png';
 import MetamorphIcon from '../../assets/img/encountericons/metamorph.png';
 import JunIcon from '../../assets/img/encountericons/jun.png';
 import ShrineIcon from '../../assets/img/encountericons/shrine.png';
+import EinharIcon from '../../assets/img/encountericons/einhar.png';
+import RedBeastIcon from '../../assets/img/redBeast.png';
+import YellowBeastIcon from '../../assets/img/yellowBeast.png';
 // import BaranIcon from , the Crusader'
 // 'Al-Hezmin, the Hunter'
 // 'Veritania, the Redeemer'
@@ -151,6 +154,19 @@ const iconMap = {
       }),
     };
   },
+  beasts: (info) => {
+    return {
+      condition: !!info.beasts,
+      icon: EinharIcon,
+      alt: `Contained ${info?.beasts?.captured.yellow + info?.beasts?.captured.red} Beasts Encounter`,
+      additionalIcons: info?.beasts ? Object.keys(info?.beasts?.captured).sort(() => -1).map((beastType) => {
+        const icon = <img className="Run-Event__Mini-Icon" src={beastType === 'yellow' ? YellowBeastIcon : RedBeastIcon} alt={beastType} />
+        const iconArray = Array(info?.beasts?.captured[beastType]).fill(icon);
+        iconArray.unshift(<span className="Run-Event__Mini-Label">({info?.beasts?.captured[beastType]}x)</span>);
+        return iconArray;
+      }).flat() : null
+    };
+  }
 };
 
 const RunEventIcons = ({ info }) => {
