@@ -71,3 +71,12 @@
 .Run__Event__Time {
   font-family: FontinSmallCaps;
 }
+
+.Run__Navigation__RefreshIcon {
+  cursor: pointer;
+  color: #888;
+  &:hover {
+    color: #fff;
+  }
+  margin: 0 10px;
+}

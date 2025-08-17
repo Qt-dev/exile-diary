@@ -1,6 +1,7 @@
 import React from 'react';
 import { useNavigate, Link as RouterLink } from 'react-router-dom';
 import { Select, MenuItem, SelectChangeEvent, Link } from '@mui/material';
+import RefreshIcon from '@mui/icons-material/Refresh';
 import { observer } from 'mobx-react-lite';
 
 const RunNavigation = ({ run, store }) => {
@@ -46,6 +47,7 @@ const RunNavigation = ({ run, store }) => {
           );
         })}
       </Select>
+      <RefreshIcon className="Run__Navigation__RefreshIcon" onClick={() => store.reprocessRun(run)} />
       <Link
         component={RouterLink}
         to={nextRun ? `/run/${nextRun.runId}` : '#'}

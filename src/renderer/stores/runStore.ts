@@ -171,4 +171,14 @@ export default class RunStore {
 
     this.csv = csv;
   }
+
+  reprocessRun(run: Run) {
+    logger.info(run);
+    logger.info(`Reprocessing run with ID: ${run.runId}`);
+    return electronService.ipcRenderer
+      .invoke('reprocess-run', { runId: run.runId })
+      .then((details) => {
+        return run.updateDetails(details);
+      });
+  }
 }
