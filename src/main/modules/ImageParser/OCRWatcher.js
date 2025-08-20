@@ -163,7 +163,7 @@ async function processImageBuffer(buffer, timestamp, type) {
     } else if (type === 'mods') {
       logger.debug('Processing map mods');
       try {
-        const mods = getModInfo(lines);
+        const mods = getModInfo(lines).filter((mod) => mod.length > 1);
         let mapModErr = null;
 
         try {
