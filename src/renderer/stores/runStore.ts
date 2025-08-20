@@ -13,10 +13,12 @@ export default class RunStore {
   maxSize = Number.MAX_SAFE_INTEGER; // This can be changed in the future
   currentRun: Run;
   csv: string = '';
+  processing: Boolean;
 
   constructor(shouldSetupFromBackend = true) {
     makeAutoObservable(this);
     this.currentRun = new Run(this, { name: 'Unknown' });
+    this.processing = false;
     if (shouldSetupFromBackend) {
       this.setupFromBackend();
     }
@@ -180,5 +182,13 @@ export default class RunStore {
       .then((details) => {
         return run.updateDetails(details);
       });
+  }
+
+  async reprocessRuns() {
+    logger.info('Reprocessing all runs');
+    this.processing = true;
+    await electronService.ipcRenderer.invoke('reprocess-runs');
+    await this.loadRuns(this.size);
+    this.processing = false;
   }
 }

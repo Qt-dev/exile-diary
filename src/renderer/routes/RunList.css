@@ -103,3 +103,29 @@
   color: #cc8888; /* Same color as Run-List__XP--Negative */
   content: '\1F480\fe0e';
 }
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+.Run-List__Header__RefreshIcon {
+  cursor: pointer;
+  color: #888;
+  &:hover {
+    color: #fff;
+  }
+  transition: color 0.3s ease;
+}
+
+.Run-List__Header__RefreshIcon.Run-List__Header__RefreshIcon--Processing {
+  animation: spin 1s linear infinite;
+  cursor: progress;
+  &:hover {
+    color: #888
+  }
+}

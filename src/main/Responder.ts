@@ -49,6 +49,13 @@ const loadRunDetails = async (e, { runId }) => {
   return run;
 };
 
+const reprocessRuns = async (e) => {
+  logger.info('Reprocessing all runs');
+  // await RunParser.reprocessRuns();
+  await new Promise((resolve) => setTimeout(resolve, 5000));
+  RendererLogger.log({ messages: [{ text: 'All runs have been reprocessed.' }] });
+};
+
 const reprocessRun = async (e, { runId }) => {
   logger.info(`Reprocessing run with id: ${runId}`);
   await RunParser.reprocessRun(runId);
@@ -219,6 +226,7 @@ const Responder = {
   'load-runs': loadRuns,
   'load-run': loadRun,
   'load-run-details': loadRunDetails,
+  'debug:reprocess-runs': reprocessRuns,
   'reprocess-run': reprocessRun,
   'get-settings': getSettings,
   'get-characters': getCharacters,

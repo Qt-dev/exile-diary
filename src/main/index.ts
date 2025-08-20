@@ -866,6 +866,7 @@ class MainProcess {
       'load-runs',
       'load-run',
       'load-run-details',
+      'debug:reprocess-runs',
       'reprocess-run',
       'get-settings',
       'get-characters',

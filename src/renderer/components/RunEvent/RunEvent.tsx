@@ -94,6 +94,7 @@ const textPerEventType = {
       </>
     );
   },
+  // New events
   Shrines: (event) => {
     const eventData = JSON.parse(event.event_text);
     return (
@@ -104,11 +105,250 @@ const textPerEventType = {
   },
   Beasts: (event) => {
     const eventData = JSON.parse(event.event_text);
+    if (eventData.type === 'Capture') {
+      return (
+        <>
+          Captured a <span className={eventData.arguments.beastType === 'yellow' ? 'Text--Rare' : 'Text--Error'}>{eventData.arguments.beastType}</span> beast.
+        </>
+      );
+    } else if (eventData.type === 'Craft') {
+      if (eventData.arguments.action === 'defeated') {
+        return (
+          <>
+            Completed a beast recipe.
+          </>
+        );
+      } else {
+        return (
+          <>
+            Started a beast recipe.
+          </>
+        );
+      }
+    }
+  },
+  Incursion: (event) => {
+    const eventData = JSON.parse(event.event_text);
+    if(eventData.type === 'TempleRoom') {
+      return (
+        <>
+          Entered a <span className="Text--Rare">{eventData.arguments.roomName}</span>{eventData.arguments.roomId ? <> (Room ID: <span className="Text--Magic">{eventData.arguments.roomId}</span>)</> : null}.
+        </>
+      );
+    } else if (eventData.type === 'Unlock') {
+      if(eventData.arguments.action === 'start') {
+        return (
+          <>
+            Started unlocking an incursion Room.
+          </>
+        );
+      } else {
+        return (
+          <>
+            Unlocked an incursion Room.
+          </>
+        );
+      }
+    }
+  },
+  Elder: (event) => {
+    const eventData = JSON.parse(event.event_text);
     return (
       <>
-      Captured a <span className={eventData.arguments.beastType === 'yellow' ? 'Text--Rare' : 'Text--Error'}>{eventData.arguments.beastType}</span> beast.
+        Defeated <span className="Text--Rare">{eventData.npc}</span> in the Elder fight.
       </>
     );
+  },
+  Conquerors: (event) => {
+    const eventData = JSON.parse(event.event_text);
+    if(eventData.arguments.action === 'start') {
+      return (
+        <>
+          Started a Conqueror fight against <span className="Text--Rare">{eventData.npc}</span>.
+        </>
+      )
+    } else {
+      return (
+        <>
+          Defeated <span className="Text--Rare">{eventData.npc}</span> in a Conqueror fight.
+        </>
+      );
+    }
+  },
+  Legion: (event) => {
+    const eventData = JSON.parse(event.event_text);
+    return (
+      <>
+        Defeated <span className="Text--Rare">{eventData.npc}</span> in a fight against the legion.
+      </>
+    )
+  },
+  Betrayal: (event) => {
+    const eventData = JSON.parse(event.event_text);
+    if(eventData.type ==='Fight') {
+      const action = eventData.arguments.action;
+      switch(action) {
+        case 'defeatedAsLeader':
+          return (
+            <>
+              Started a Betrayal fight against <span className="Text--Rare">{eventData.arguments.target}</span>.
+            </>
+          );
+        case 'defeated':
+          return (
+            <>
+              Defeated <span className="Text--Rare">{eventData.arguments.target}</span> in a Betrayal fight.
+            </>
+          );
+        case 'killedPlayer':
+          return (
+            <>
+              <span className='Text--Rare'>{eventData.arguments.target}</span> killed you in a Betrayal fight.
+            </>
+          );
+      }
+    } else if (eventData.type === 'BossFight') {
+      return (
+        <>
+          {eventData.arguments.action === 'start' ? 'Started' : 'Completed'} phase {eventData.arguments.phase} in a fight against <span className="Text--Rare">{eventData.arguments.target}</span>.
+        </>
+      );
+    }
+  },
+  Delirium: (event) => {
+    const eventData = JSON.parse(event.event_text);
+    return (
+      <>
+        Started Delirium Wave <span className="Text--Rare">{eventData.arguments.wave}</span>.
+      </>
+    );
+  },
+  Blight: (event) => {
+    const eventData = JSON.parse(event.event_text);
+    if (eventData.arguments.action === 'start') {
+      return (
+        <>
+          Started a Blight encounter.
+        </>
+      );
+    } else if (eventData.arguments.action === 'newLane') {
+      return (
+        <>
+          Blight encounter spawned a new lane.
+        </>
+      );
+    }
+  },
+  Synthesis: (event) => {
+    const eventData = JSON.parse(event.event_text);
+    if(eventData.arguments.action === 'start') {
+      return (
+        <>
+          Started a Synthesis fight against <span className="Text--Rare">{eventData.arguments.enemy}</span>.
+        </>
+      );
+    } else {
+      return (
+        <>
+          Defeated <span className="Text--Rare">{eventData.arguments.enemy}</span> in a Synthesis fight.
+        </>
+      );
+    }
+  },
+  Harvest: (event) => {
+    const eventData = JSON.parse(event.event_text);
+    if(eventData.arguments.action === 'start') {
+      return (
+        <>
+          Started a Harvest fight against <span className="Text--Rare">{eventData.npc}</span>.
+        </>
+      );
+    } else {
+      return (
+        <>
+          Defeated <span className="Text--Rare">{eventData.npc}</span> in a Harvest fight.
+        </>
+      );
+    }
+  },
+  Shaper: (event) => {
+    const eventData = JSON.parse(event.event_text);
+    switch (eventData.arguments.action) {
+      case 'entered':
+      case 'started':
+        return (
+          <>
+            Started a fight against <span className="Text--Rare">{eventData.arguments.enemy}</span> (Phase: {eventData.arguments.phase}).
+          </>
+        );
+      case 'phaseStarted':
+        return (
+          <>
+            Started phase {eventData.arguments.phase}.
+          </>
+        );
+      case 'phaseEnded':
+        return (
+          <>
+            Ended phase {eventData.arguments.phase}.
+          </>
+        );
+      case 'defeated':
+        return (
+          <>
+            Defeated <span className="Text--Rare">{eventData.arguments.enemy}</span>.
+          </>
+        );
+    }
+  },
+  Sirus: (event) => {
+    const eventData = JSON.parse(event.event_text);
+    switch (eventData.arguments.action) {
+      case 'started':
+        return (
+          <>
+            Started phase {eventData.arguments.phase} against <span className="Text--Rare">{eventData.arguments.enemy}</span>.
+          </>
+        );
+      case 'defeated':
+        return (
+          <>
+            Defeated <span className="Text--Rare">{eventData.arguments.enemy}</span>.
+          </>
+        );
+    }
+  },
+  Labyrinth: (event) => {
+    const eventData = JSON.parse(event.event_text);
+    if (eventData.arguments.action === 'start') {
+      return (
+        <>
+          Started a Boss Fight against <span className="Text--Rare">{eventData.arguments.target}</span>.
+        </>
+      );
+    } else {
+      return (
+        <>
+          Defeated <span className="Text--Rare">{eventData.arguments.target}</span>.
+        </>
+      );
+    }
+  },
+  Maven: (event) => {
+    const eventData = JSON.parse(event.event_text);
+    if(eventData.arguments.action === 'start') {
+      return (
+        <>
+          Started a Maven fight against a map Boss.
+        </>
+      );
+    } else {
+      return (
+        <>
+          Maven witnessed the map Boss dying.
+        </>
+      );
+    }
   }
 };
 

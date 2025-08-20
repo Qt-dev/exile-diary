@@ -5,7 +5,7 @@
       "id": "IzaroDeath1",
       "npc": "Izaro",
       "category": "Labyrinth",
-      "type": "BossFight",
+      "type": "Run",
       "arguments": {
         "action": "defeated",
         "phase": 4,
@@ -16,7 +16,7 @@
       "id": "IzaroDeath2",
       "npc": "Izaro",
       "category": "Labyrinth",
-      "type": "BossFight",
+      "type": "Run",
       "arguments": {
         "action": "defeated",
         "phase": 4,
@@ -27,7 +27,7 @@
       "id": "IzaroDeath3",
       "npc": "Izaro",
       "category": "Labyrinth",
-      "type": "BossFight",
+      "type": "Run",
       "arguments": {
         "action": "defeated",
         "phase": 4,
@@ -38,7 +38,7 @@
       "id": "IzaroDeath4",
       "npc": "Izaro",
       "category": "Labyrinth",
-      "type": "BossFight",
+      "type": "Run",
       "arguments": {
         "action": "defeated",
         "phase": 4,
@@ -49,7 +49,7 @@
       "id": "IzaroDeath5",
       "npc": "Izaro",
       "category": "Labyrinth",
-      "type": "BossFight",
+      "type": "Run",
       "arguments": {
         "action": "defeated",
         "phase": 4,
@@ -60,7 +60,7 @@
       "id": "IzaroDeath6",
       "npc": "Izaro",
       "category": "Labyrinth",
-      "type": "BossFight",
+      "type": "Run",
       "arguments": {
         "action": "defeated",
         "phase": 4,
@@ -71,7 +71,7 @@
       "id": "Izaro1_Prefight",
       "npc": "Izaro",
       "category": "Labyrinth",
-      "type": "BossFight",
+      "type": "Run",
       "arguments": {
         "action": "started",
         "phase": 1,
@@ -82,7 +82,7 @@
       "id": "Izaro2_Prefight",
       "npc": "Izaro",
       "category": "Labyrinth",
-      "type": "BossFight",
+      "type": "Run",
       "arguments": {
         "action": "started",
         "phase": 2,
@@ -93,7 +93,7 @@
       "id": "Izaro3_Prefight",
       "npc": "Izaro",
       "category": "Labyrinth",
-      "type": "BossFight",
+      "type": "Run",
       "arguments": {
         "action": "started",
         "phase": 3,
@@ -104,7 +104,7 @@
       "id": "IzaroGargoyleDeathRandom",
       "npc": "Izaro",
       "category": "Labyrinth",
-      "type": "BossFight",
+      "type": "Run",
       "arguments": {
         "action": "defeated",
         "phase": 1,
@@ -115,7 +115,7 @@
       "id": "IzaroGargoyleDeath2",
       "npc": "Izaro",
       "category": "Labyrinth",
-      "type": "BossFight",
+      "type": "Run",
       "arguments": {
         "action": "defeated",
         "phase": 1,
@@ -126,7 +126,7 @@
       "id": "IzaroGargoyleDeath3",
       "npc": "Izaro",
       "category": "Labyrinth",
-      "type": "BossFight",
+      "type": "Run",
       "arguments": {
         "action": "defeated",
         "phase": 1,
@@ -139,8 +139,8 @@
       "category": "Shaper",
       "type": "BossFight",
       "arguments": {
-        "action": "unknown",
-        "enemy": "Shaper",
+        "action": "defeated",
+        "enemy": "Miniboss 1",
         "phase": 1
       }
     },
@@ -150,8 +150,8 @@
       "category": "Shaper",
       "type": "BossFight",
       "arguments": {
-        "action": "unknown",
-        "enemy": "Shaper",
+        "action": "defeated",
+        "enemy": "Miniboss 2",
         "phase": 1
       }
     },
@@ -161,8 +161,8 @@
       "category": "Shaper",
       "type": "BossFight",
       "arguments": {
-        "action": "unknown",
-        "enemy": "Shaper",
+        "action": "defeated",
+        "enemy": "Miniboss 3",
         "phase": 1
       }
     },
@@ -172,9 +172,9 @@
       "category": "Shaper",
       "type": "BossFight",
       "arguments": {
-        "action": "unknown",
-        "enemy": "Shaper",
-        "phase": 1
+        "action": "defeated",
+        "enemy": "Miniboss 4",
+        "phase": 2
       }
     },
     "I see you, little mouse... you don't belong here. Run along!": {
@@ -183,18 +183,7 @@
       "category": "Shaper",
       "type": "BossFight",
       "arguments": {
-        "action": "unknown",
-        "enemy": "Shaper",
-        "phase": 1
-      }
-    },
-    "You force my hand again, little mouse... So be it. You've chosen to side with Chaos. This is my world, and you shall obey my Order!": {
-      "id": "ShaperIntro",
-      "npc": "The Shaper",
-      "category": "Shaper",
-      "type": "BossFight",
-      "arguments": {
-        "action": "unknown",
+        "action": "started",
         "enemy": "Shaper",
         "phase": 1
       }
@@ -205,20 +194,9 @@
       "category": "Shaper",
       "type": "BossFight",
       "arguments": {
-        "action": "unknown",
+        "action": "phaseStarted",
         "enemy": "Shaper",
-        "phase": 1
-      }
-    },
-    "The horror must be stopped, obstacles destroyed!": {
-      "id": "ShaperHalfHealthB",
-      "npc": "The Shaper",
-      "category": "Shaper",
-      "type": "BossFight",
-      "arguments": {
-        "action": "unknown",
-        "enemy": "Shaper",
-        "phase": 1
+        "phase": 2
       }
     },
     "These memories are mine! I cannot lose them!": {
@@ -227,86 +205,9 @@
       "category": "Shaper",
       "type": "BossFight",
       "arguments": {
-        "action": "unknown",
+        "action": "phaseStarted",
         "enemy": "Shaper",
-        "phase": 1
-      }
-    },
-    "To save the future, the past must be sacrificed!": {
-      "id": "ShaperQuarterHealthB",
-      "npc": "The Shaper",
-      "category": "Shaper",
-      "type": "BossFight",
-      "arguments": {
-        "action": "unknown",
-        "enemy": "Shaper",
-        "phase": 1
-      }
-    },
-    "Tread no further, villain.": {
-      "id": "ShaperIntroGenericRandom",
-      "npc": "The Shaper",
-      "category": "Shaper",
-      "type": "BossFight",
-      "arguments": {
-        "action": "unknown",
-        "enemy": "Shaper",
-        "phase": 1
-      }
-    },
-    "These worlds are not yours.": {
-      "id": "ShaperIntroGeneric2",
-      "npc": "The Shaper",
-      "category": "Shaper",
-      "type": "BossFight",
-      "arguments": {
-        "action": "unknown",
-        "enemy": "Shaper",
-        "phase": 1
-      }
-    },
-    "You reek of imperfection.": {
-      "id": "ShaperIntroGeneric3",
-      "npc": "The Shaper",
-      "category": "Shaper",
-      "type": "BossFight",
-      "arguments": {
-        "action": "unknown",
-        "enemy": "Shaper",
-        "phase": 1
-      }
-    },
-    "Cast yourself into oblivion.": {
-      "id": "ShaperIntroGeneric4",
-      "npc": "The Shaper",
-      "category": "Shaper",
-      "type": "BossFight",
-      "arguments": {
-        "action": "unknown",
-        "enemy": "Shaper",
-        "phase": 1
-      }
-    },
-    "Prepare to face your unmaking.": {
-      "id": "ShaperIntroGeneric5",
-      "npc": "The Shaper",
-      "category": "Shaper",
-      "type": "BossFight",
-      "arguments": {
-        "action": "unknown",
-        "enemy": "Shaper",
-        "phase": 1
-      }
-    },
-    "You do not belong here.": {
-      "id": "ShaperIntroGeneric6",
-      "npc": "The Shaper",
-      "category": "Shaper",
-      "type": "BossFight",
-      "arguments": {
-        "action": "unknown",
-        "enemy": "Shaper",
-        "phase": 1
+        "phase": 3
       }
     },
     "Imperfect!": {
@@ -315,9 +216,9 @@
       "category": "Shaper",
       "type": "BossFight",
       "arguments": {
-        "action": "unknown",
+        "action": "phaseEnded",
         "enemy": "Shaper",
-        "phase": 1
+        "phase": 2
       }
     },
     "Irrelevant!": {
@@ -326,31 +227,9 @@
       "category": "Shaper",
       "type": "BossFight",
       "arguments": {
-        "action": "unknown",
+        "action": "defeated",
         "enemy": "Shaper",
-        "phase": 1
-      }
-    },
-    "Insubstantial!": {
-      "id": "ShaperBanish4",
-      "npc": "The Shaper",
-      "category": "Shaper",
-      "type": "BossFight",
-      "arguments": {
-        "action": "unknown",
-        "enemy": "Shaper",
-        "phase": 1
-      }
-    },
-    "Insignificant!": {
-      "id": "ShaperBanish5",
-      "npc": "The Shaper",
-      "category": "Shaper",
-      "type": "BossFight",
-      "arguments": {
-        "action": "unknown",
-        "enemy": "Shaper",
-        "phase": 1
+        "phase": 3
       }
     },
     "Inconsequential!": {
@@ -359,7 +238,7 @@
       "category": "Shaper",
       "type": "BossFight",
       "arguments": {
-        "action": "unknown",
+        "action": "phaseEnded",
         "enemy": "Shaper",
         "phase": 1
       }
@@ -474,11 +353,56 @@
         "action": "defeated"
       }
     },
+    "It's time!": {
+      "id": "AlvaPortal2",
+      "npc": "Alva, Master Explorer",
+      "category": "Incursion",
+      "type": "Unlock",
+      "arguments": {
+        "action": "start"
+      }
+    },
+    "Let's go.": {
+      "id": "AlvaPortal4",
+      "npc": "Alva, Master Explorer",
+      "category": "Incursion",
+      "type": "Unlock",
+      "arguments": {
+        "action": "start"
+      }
+    },
+    "Time to go.": {
+      "id": "AlvaPortal6",
+      "npc": "Alva, Master Explorer",
+      "category": "Incursion",
+      "type": "Unlock",
+      "arguments": {
+        "action": "start"
+      }
+    },
+    "Good job.": {
+      "id": "AlvaIncursionCongratsRandom",
+      "npc": "Alva, Master Explorer",
+      "category": "Incursion",
+      "type": "Unlock",
+      "arguments": {
+        "action": "end"
+      }
+    },
+    "Good job, exile.": {
+      "id": "AlvaIncursionCongrats2",
+      "npc": "Alva, Master Explorer",
+      "category": "Incursion",
+      "type": "Unlock",
+      "arguments": {
+        "action": "end"
+      }
+    },
     "Time to fight!": {
       "id": "AlvaBossFightRandom",
       "npc": "Alva, Master Explorer",
       "category": "Incursion",
-      "type": "Unlock",
+      "type": "TempleRoom",
       "arguments": {
         "roomName": "Temple of Atzoatl"
       }
@@ -487,7 +411,7 @@
       "id": "AlvaBossFight2",
       "npc": "Alva, Master Explorer",
       "category": "Incursion",
-      "type": "Unlock",
+      "type": "TempleRoom",
       "arguments": {
         "roomName": "Temple of Atzoatl"
       }
@@ -496,7 +420,7 @@
       "id": "AlvaBossFight3",
       "npc": "Alva, Master Explorer",
       "category": "Incursion",
-      "type": "Unlock",
+      "type": "TempleRoom",
       "arguments": {
         "roomName": "Temple of Atzoatl"
       }
@@ -505,7 +429,7 @@
       "id": "AlvaBossFight4",
       "npc": "Alva, Master Explorer",
       "category": "Incursion",
-      "type": "Unlock",
+      "type": "TempleRoom",
       "arguments": {
         "roomName": "Temple of Atzoatl"
       }
@@ -514,7 +438,7 @@
       "id": "AlvaTempleFeature_PoisonRoomIII",
       "npc": "Alva, Master Explorer",
       "category": "Incursion",
-      "type": "Unlock",
+      "type": "TempleRoom",
       "arguments": {
         "roomId": "PoisonRoomIII",
         "roomName": "Toxic Grove"
@@ -524,7 +448,7 @@
       "id": "AlvaTempleFeature_SacrificeRoomIII",
       "npc": "Alva, Master Explorer",
       "category": "Incursion",
-      "type": "Unlock",
+      "type": "TempleRoom",
       "arguments": {
         "roomId": "SacrificeRoomIII",
         "roomName": "Apex of Ascension"
@@ -534,7 +458,7 @@
       "id": "AlvaTempleFeature_StormRoomIII",
       "npc": "Alva, Master Explorer",
       "category": "Incursion",
-      "type": "Unlock",
+      "type": "TempleRoom",
       "arguments": {
         "roomId": "StormRoomIII",
         "roomName": "Storm of Corruption"
@@ -544,7 +468,7 @@
       "id": "AlvaTempleFeature_TrapRoomIII",
       "npc": "Alva, Master Explorer",
       "category": "Incursion",
-      "type": "Unlock",
+      "type": "TempleRoom",
       "arguments": {
         "roomId": "TrapRoomIII",
         "roomName": "Defense Research Lab"
@@ -554,7 +478,7 @@
       "id": "AlvaTempleFeature_CartographyRoomIII",
       "npc": "Alva, Master Explorer",
       "category": "Incursion",
-      "type": "Unlock",
+      "type": "TempleRoom",
       "arguments": {
         "roomId": "CartographyRoomIII",
         "roomName": "Atlas of Worlds"
@@ -564,7 +488,7 @@
       "id": "AlvaTempleFeature_QueensChambersIII",
       "npc": "Alva, Master Explorer",
       "category": "Incursion",
-      "type": "Unlock",
+      "type": "TempleRoom",
       "arguments": {
         "roomId": "QueensChambersIII",
         "roomName": "Throne of Atziri"
@@ -574,7 +498,7 @@
       "id": "AlvaTempleFeature_ChestsIII",
       "npc": "Alva, Master Explorer",
       "category": "Incursion",
-      "type": "Unlock",
+      "type": "TempleRoom",
       "arguments": {
         "roomId": "ChestsIII",
         "roomName": "Museum of Artefacts"
@@ -584,7 +508,7 @@
       "id": "AlvaTempleFeature_CorruptionRoomIII",
       "npc": "Alva, Master Explorer",
       "category": "Incursion",
-      "type": "Unlock",
+      "type": "TempleRoom",
       "arguments": {
         "roomId": "CorruptionRoomIII",
         "roomName": "Locus of Corruption"
@@ -594,7 +518,7 @@
       "id": "AlvaTempleFeature_ExplosivesRoomIII",
       "npc": "Alva, Master Explorer",
       "category": "Incursion",
-      "type": "Unlock",
+      "type": "TempleRoom",
       "arguments": {
         "roomId": "ExplosivesRoomIII",
         "roomName": "Shrine of Unmaking"
@@ -604,7 +528,7 @@
       "id": "AlvaTempleFeature_ArmourRoomIII",
       "npc": "Alva, Master Explorer",
       "category": "Incursion",
-      "type": "Unlock",
+      "type": "TempleRoom",
       "arguments": {
         "roomId": "ArmourRoomIII",
         "roomName": "Chamber of Iron"
@@ -614,7 +538,7 @@
       "id": "AlvaTempleFeature_WeaponRoomIII",
       "npc": "Alva, Master Explorer",
       "category": "Incursion",
-      "type": "Unlock",
+      "type": "TempleRoom",
       "arguments": {
         "roomId": "WeaponRoomIII",
         "roomName": "Hall of Champions"
@@ -624,7 +548,7 @@
       "id": "AlvaTempleFeature_BreedingRoomIII",
       "npc": "Alva, Master Explorer",
       "category": "Incursion",
-      "type": "Unlock",
+      "type": "TempleRoom",
       "arguments": {
         "roomId": "BreedingRoomIII",
         "roomName": "Hall of War"
@@ -634,7 +558,7 @@
       "id": "AlvaTempleFeature_BreachRoomIII",
       "npc": "Alva, Master Explorer",
       "category": "Incursion",
-      "type": "Unlock",
+      "type": "TempleRoom",
       "arguments": {
         "roomId": "BreachRoomIII",
         "roomName": "House of the Others"
@@ -644,7 +568,7 @@
       "id": "AlvaTempleFeature_GemRoomIII",
       "npc": "Alva, Master Explorer",
       "category": "Incursion",
-      "type": "Unlock",
+      "type": "TempleRoom",
       "arguments": {
         "roomId": "GemRoomIII",
         "roomName": "Doryani's Institute"
@@ -654,7 +578,7 @@
       "id": "AlvaTempleFeature_CurrencyVaultIII",
       "npc": "Alva, Master Explorer",
       "category": "Incursion",
-      "type": "Unlock",
+      "type": "TempleRoom",
       "arguments": {
         "roomId": "CurrencyVaultIII",
         "roomName": "Wealth of the Vaal"
@@ -664,7 +588,7 @@
       "id": "AlvaTempleFeature_TrinketRoomIII",
       "npc": "Alva, Master Explorer",
       "category": "Incursion",
-      "type": "Unlock",
+      "type": "TempleRoom",
       "arguments": {
         "roomId": "TrinketRoomIII",
         "roomName": "Glittering Halls"
@@ -674,7 +598,7 @@
       "id": "AlvaTempleFeature_WorkshopIII",
       "npc": "Alva, Master Explorer",
       "category": "Incursion",
-      "type": "Unlock",
+      "type": "TempleRoom",
       "arguments": {
         "roomId": "WorkshopIII",
         "roomName": "Factory"
@@ -684,7 +608,7 @@
       "id": "AlvaTempleFeature_EmpoweringRoomIII",
       "npc": "Alva, Master Explorer",
       "category": "Incursion",
-      "type": "Unlock",
+      "type": "TempleRoom",
       "arguments": {
         "roomId": "EmpoweringRoomIII",
         "roomName": "Temple Nexus"
@@ -694,7 +618,7 @@
       "id": "AlvaTempleFeature_HealingRoomIII",
       "npc": "Alva, Master Explorer",
       "category": "Incursion",
-      "type": "Unlock",
+      "type": "TempleRoom",
       "arguments": {
         "roomId": "HealingRoomIII",
         "roomName": "Sanctum of Immortality"
@@ -704,7 +628,7 @@
       "id": "AlvaTempleFeature_BossMinionsIII",
       "npc": "Alva, Master Explorer",
       "category": "Incursion",
-      "type": "Unlock",
+      "type": "TempleRoom",
       "arguments": {
         "roomId": "BossMinionsIII",
         "roomName": "Hybridisation Chamber"
@@ -714,7 +638,7 @@
       "id": "AlvaTempleFeature_BossFireIII",
       "npc": "Alva, Master Explorer",
       "category": "Incursion",
-      "type": "Unlock",
+      "type": "TempleRoom",
       "arguments": {
         "roomId": "BossFireIII",
         "roomName": "Crucible of Flame"
@@ -724,7 +648,7 @@
       "id": "AlvaTempleFeature_BossLightningIII",
       "npc": "Alva, Master Explorer",
       "category": "Incursion",
-      "type": "Unlock",
+      "type": "TempleRoom",
       "arguments": {
         "roomId": "BossLightningIII",
         "roomName": "Conduit of Lightning"
@@ -734,7 +658,7 @@
       "id": "AlvaTempleFeature_LegionRoomIII",
       "npc": "Alva, Master Explorer",
       "category": "Incursion",
-      "type": "Unlock",
+      "type": "TempleRoom",
       "arguments": {
         "roomId": "LegionRoomIII",
         "roomName": "Unknown"
@@ -3752,7 +3676,7 @@
       "category": "Betrayal",
       "type": "BossFight",
       "arguments": {
-        "action": "started",
+        "action": "start",
         "phase": 1,
         "firstFight": true
       }
@@ -3774,7 +3698,7 @@
       "category": "Betrayal",
       "type": "BossFight",
       "arguments": {
-        "action": "started",
+        "action": "start",
         "phase": 1,
         "firstFight": false
       }
@@ -3785,7 +3709,7 @@
       "category": "Betrayal",
       "type": "BossFight",
       "arguments": {
-        "action": "started",
+        "action": "start",
         "phase": 2,
         "firstFight": false
       }
@@ -3796,7 +3720,7 @@
       "category": "Betrayal",
       "type": "BossFight",
       "arguments": {
-        "action": "started",
+        "action": "start",
         "phase": 3,
         "firstFight": false
       }
@@ -3807,7 +3731,7 @@
       "category": "Betrayal",
       "type": "BossFight",
       "arguments": {
-        "action": "started",
+        "action": "start",
         "phase": 4,
         "firstFight": false
       }
@@ -3818,7 +3742,7 @@
       "category": "Betrayal",
       "type": "BossFight",
       "arguments": {
-        "action": "started",
+        "action": "start",
         "phase": 5,
         "firstFight": false
       }
@@ -3829,7 +3753,8 @@
       "category": "Synthesis",
       "type": "Event",
       "arguments": {
-        "synthesis": true
+        "synthesis": true,
+        "action": "unknown"
       }
     },
     "What secrets are you hiding in that murderous mind of yours? Let's find out.": {
@@ -3838,7 +3763,8 @@
       "category": "Synthesis",
       "type": "Event",
       "arguments": {
-        "synthesis": true
+        "synthesis": true,
+        "action": "unknown"
       }
     },
     "Valdo had some ingenious designs hidden in his memories... observe!": {
@@ -3847,7 +3773,9 @@
       "category": "Synthesis",
       "type": "Event",
       "arguments": {
-        "synthesis": true
+        "synthesis": true,
+        "action": "start",
+        "enemy": "Fractal Gargantuan"
       }
     },
     "Valdo's designs were flawed.": {
@@ -3856,7 +3784,9 @@
       "category": "Synthesis",
       "type": "Event",
       "arguments": {
-        "synthesis": true
+        "synthesis": true,
+        "action": "start",
+        "enemy": "Fractal Gargantuan"
       }
     },
     "Do you remember dying here? You will.": {
@@ -3865,7 +3795,9 @@
       "category": "Synthesis",
       "type": "Event",
       "arguments": {
-        "synthesis": true
+        "synthesis": true,
+        "action": "start",
+        "enemy": "Synthete Masterpiece"
       }
     },
     "What are you?": {
@@ -3874,7 +3806,9 @@
       "category": "Synthesis",
       "type": "Event",
       "arguments": {
-        "synthesis": true
+        "synthesis": true,
+        "action": "start",
+        "enemy": "Synthete Masterpiece"
       }
     },
     "In this, the realm of the past, I am King, and you will bow!": {
@@ -3883,7 +3817,8 @@
       "category": "Synthesis",
       "type": "Event",
       "arguments": {
-        "synthesis": true
+        "synthesis": true,
+        "action": "unknown"
       }
     },
     "This one is my own creation!": {
@@ -3892,7 +3827,9 @@
       "category": "Synthesis",
       "type": "Event",
       "arguments": {
-        "synthesis": true
+        "synthesis": true,
+        "action": "start",
+        "enemy": "Fractal Titan"
       }
     },
     "Plenty more where that came from.": {
@@ -3901,7 +3838,9 @@
       "category": "Synthesis",
       "type": "Event",
       "arguments": {
-        "synthesis": true
+        "synthesis": true,
+        "action": "start",
+        "enemy": "Fractal Titan"
       }
     },
     "Face your destruction!": {
@@ -3910,7 +3849,9 @@
       "category": "Synthesis",
       "type": "Event",
       "arguments": {
-        "synthesis": true
+        "synthesis": true,
+        "action": "start",
+        "enemy": "Synthete Nightmare"
       }
     },
     "No! Impossible! How!?": {
@@ -3919,7 +3860,9 @@
       "category": "Synthesis",
       "type": "Event",
       "arguments": {
-        "synthesis": true
+        "synthesis": true,
+        "action": "start",
+        "enemy": "Synthete Nightmare"
       }
     },
     "This isn't over. This will never be over! I will unify humanity!": {
@@ -3928,7 +3871,9 @@
       "category": "Synthesis",
       "type": "Event",
       "arguments": {
-        "synthesis": true
+        "synthesis": true,
+        "action": "defeated",
+        "enemy": "Venarius"
       }
     },
     "Feel the pull of the void!": {
@@ -3937,7 +3882,8 @@
       "category": "Synthesis",
       "type": "Event",
       "arguments": {
-        "synthesis": true
+        "synthesis": true,
+        "action": "unknown"
       }
     },
     "Yes, that's it! Death sweeps in.": {
@@ -3946,7 +3892,8 @@
       "category": "Synthesis",
       "type": "Event",
       "arguments": {
-        "synthesis": true
+        "synthesis": true,
+        "action": "unknown"
       }
     },
     "I will crush you!": {
@@ -3955,7 +3902,8 @@
       "category": "Synthesis",
       "type": "Event",
       "arguments": {
-        "synthesis": true
+        "synthesis": true,
+        "action": "unknown"
       }
     },
     "Sin surrounds you!": {
@@ -3964,7 +3912,8 @@
       "category": "Synthesis",
       "type": "Event",
       "arguments": {
-        "synthesis": true
+        "synthesis": true,
+        "action": "unknown"
       }
     },
     "Faith empowers!": {
@@ -3973,7 +3922,8 @@
       "category": "Synthesis",
       "type": "Event",
       "arguments": {
-        "synthesis": true
+        "synthesis": true,
+        "action": "unknown"
       }
     },
     "Belief overwhelms!": {
@@ -3982,7 +3932,8 @@
       "category": "Synthesis",
       "type": "Event",
       "arguments": {
-        "synthesis": true
+        "synthesis": true,
+        "action": "unknown"
       }
     },
     "Bow!": {
@@ -3991,7 +3942,8 @@
       "category": "Synthesis",
       "type": "Event",
       "arguments": {
-        "synthesis": true
+        "synthesis": true,
+        "action": "unknown"
       }
     },
     "Haha! Yes! Feed!": {
@@ -4000,7 +3952,9 @@
       "category": "Synthesis",
       "type": "Event",
       "arguments": {
-        "synthesis": true
+        "synthesis": true,
+        "action": "start",
+        "enemy": "Fractal Titan"
       }
     },
     "Obliterate sin!": {
@@ -4009,7 +3963,9 @@
       "category": "Synthesis",
       "type": "Event",
       "arguments": {
-        "synthesis": true
+        "synthesis": true,
+        "action": "start",
+        "enemy": "Fractal Titan"
       }
     },
     "Cleansing flames!": {
@@ -4018,7 +3974,8 @@
       "category": "Synthesis",
       "type": "Event",
       "arguments": {
-        "synthesis": true
+        "synthesis": true,
+        "action": "unknown"
       }
     },
     "Repent!": {
@@ -4027,7 +3984,8 @@
       "category": "Synthesis",
       "type": "Event",
       "arguments": {
-        "synthesis": true
+        "synthesis": true,
+        "action": "unknown"
       }
     },
     "Be no more.": {
@@ -4036,7 +3994,8 @@
       "category": "Synthesis",
       "type": "Event",
       "arguments": {
-        "synthesis": true
+        "synthesis": true,
+        "action": "unknown"
       }
     },
     "Burn away sin!": {
@@ -4045,7 +4004,8 @@
       "category": "Synthesis",
       "type": "Event",
       "arguments": {
-        "synthesis": true
+        "synthesis": true,
+        "action": "unknown"
       }
     },
     "Reveal your past!": {
@@ -4054,7 +4014,9 @@
       "category": "Synthesis",
       "type": "Event",
       "arguments": {
-        "synthesis": true
+        "synthesis": true,
+        "action": "start",
+        "enemy": "Fractal Titan"
       }
     },
     "Open your mind to me!": {
@@ -4063,7 +4025,9 @@
       "category": "Synthesis",
       "type": "Event",
       "arguments": {
-        "synthesis": true
+        "synthesis": true,
+        "action": "start",
+        "enemy": "Fractal Titan"
       }
     },
     "If I must destroy you before uniting mankind, I will.": {
@@ -4072,7 +4036,8 @@
       "category": "Synthesis",
       "type": "Event",
       "arguments": {
-        "synthesis": true
+        "synthesis": true,
+        "action": "unknown"
       }
     },
     "You and I were allies once, even friends. A pity.": {
@@ -4081,7 +4046,8 @@
       "category": "Synthesis",
       "type": "Event",
       "arguments": {
-        "synthesis": true
+        "synthesis": true,
+        "action": "unknown"
       }
     },
     "I owe you my renewed existence, but that debt only extends so far.": {
@@ -4090,7 +4056,8 @@
       "category": "Synthesis",
       "type": "Event",
       "arguments": {
-        "synthesis": true
+        "synthesis": true,
+        "action": "unknown"
       }
     },
     "I cannot allow you to impede the cause.": {
@@ -4099,7 +4066,8 @@
       "category": "Synthesis",
       "type": "Event",
       "arguments": {
-        "synthesis": true
+        "synthesis": true,
+        "action": "unknown"
       }
     },
     "With each new murder you make mankind more vulnerable!": {
@@ -4108,7 +4076,9 @@
       "category": "Synthesis",
       "type": "Event",
       "arguments": {
-        "synthesis": true
+        "synthesis": true,
+        "action": "defeated",
+        "enemy": "Venarius"
       }
     },
     "Every friendship becomes a betrayal, given enough time.": {
@@ -4117,7 +4087,9 @@
       "category": "Synthesis",
       "type": "Event",
       "arguments": {
-        "synthesis": true
+        "synthesis": true,
+        "action": "defeated",
+        "enemy": "Venarius"
       }
     },
     "Keep pushing me, and I'll be forced to pursue those close to you.": {
@@ -4126,7 +4098,9 @@
       "category": "Synthesis",
       "type": "Event",
       "arguments": {
-        "synthesis": true
+        "synthesis": true,
+        "action": "defeated",
+        "enemy": "Venarius"
       }
     },
     "I will sacrifice everything for the cause. Can you say the same?": {
@@ -4135,7 +4109,9 @@
       "category": "Synthesis",
       "type": "Event",
       "arguments": {
-        "synthesis": true
+        "synthesis": true,
+        "action": "defeated",
+        "enemy": "Venarius"
       }
     },
     "What morality do you have to stand in my way?": {
@@ -4144,7 +4120,8 @@
       "category": "Synthesis",
       "type": "Event",
       "arguments": {
-        "synthesis": true
+        "synthesis": true,
+        "action": "unknown"
       }
     },
     "To think, I trusted you!": {
@@ -4153,7 +4130,8 @@
       "category": "Synthesis",
       "type": "Event",
       "arguments": {
-        "synthesis": true
+        "synthesis": true,
+        "action": "unknown"
       }
     },
     "I wish I didn't know what I know now.": {
@@ -4162,7 +4140,8 @@
       "category": "Synthesis",
       "type": "Event",
       "arguments": {
-        "synthesis": true
+        "synthesis": true,
+        "action": "unknown"
       }
     },
     "I will resist you to the last, because I must!": {
@@ -4171,7 +4150,8 @@
       "category": "Synthesis",
       "type": "Event",
       "arguments": {
-        "synthesis": true
+        "synthesis": true,
+        "action": "unknown"
       }
     },
     "Begone!": {
@@ -4180,7 +4160,8 @@
       "category": "Synthesis",
       "type": "Event",
       "arguments": {
-        "synthesis": true
+        "synthesis": true,
+        "action": "unknown"
       }
     },
     "I do this for all mankind.": {
@@ -4189,7 +4170,8 @@
       "category": "Synthesis",
       "type": "Event",
       "arguments": {
-        "synthesis": true
+        "synthesis": true,
+        "action": "unknown"
       }
     },
     "Cower!": {
@@ -4198,7 +4180,8 @@
       "category": "Synthesis",
       "type": "Event",
       "arguments": {
-        "synthesis": true
+        "synthesis": true,
+        "action": "unknown"
       }
     },
     "Open your mind...": {
@@ -4207,7 +4190,8 @@
       "category": "Synthesis",
       "type": "Event",
       "arguments": {
-        "synthesis": true
+        "synthesis": true,
+        "action": "unknown"
       }
     },
     "...and be erased!": {
@@ -4216,7 +4200,8 @@
       "category": "Synthesis",
       "type": "Event",
       "arguments": {
-        "synthesis": true
+        "synthesis": true,
+        "action": "unknown"
       }
     },
     "I am everywhere.": {
@@ -4225,7 +4210,8 @@
       "category": "Synthesis",
       "type": "Event",
       "arguments": {
-        "synthesis": true
+        "synthesis": true,
+        "action": "unknown"
       }
     },
     "Annihilate!": {
@@ -4234,7 +4220,8 @@
       "category": "Synthesis",
       "type": "Event",
       "arguments": {
-        "synthesis": true
+        "synthesis": true,
+        "action": "unknown"
       }
     },
     "Wraeclast will serve...": {
@@ -4243,7 +4230,8 @@
       "category": "Synthesis",
       "type": "Event",
       "arguments": {
-        "synthesis": true
+        "synthesis": true,
+        "action": "unknown"
       }
     },
     "And so will you!": {
@@ -4252,7 +4240,8 @@
       "category": "Synthesis",
       "type": "Event",
       "arguments": {
-        "synthesis": true
+        "synthesis": true,
+        "action": "unknown"
       }
     },
     "Necessary!": {
@@ -4261,7 +4250,8 @@
       "category": "Synthesis",
       "type": "Event",
       "arguments": {
-        "synthesis": true
+        "synthesis": true,
+        "action": "unknown"
       }
     },
     "Justified!": {
@@ -4270,7 +4260,8 @@
       "category": "Synthesis",
       "type": "Event",
       "arguments": {
-        "synthesis": true
+        "synthesis": true,
+        "action": "unknown"
       }
     },
     "Obliteration!": {
@@ -4279,7 +4270,8 @@
       "category": "Synthesis",
       "type": "Event",
       "arguments": {
-        "synthesis": true
+        "synthesis": true,
+        "action": "unknown"
       }
     },
     "Return!": {
@@ -4288,7 +4280,8 @@
       "category": "Synthesis",
       "type": "Event",
       "arguments": {
-        "synthesis": true
+        "synthesis": true,
+        "action": "unknown"
       }
     },
     "Only a matter of time.": {
@@ -4297,7 +4290,8 @@
       "category": "Synthesis",
       "type": "Event",
       "arguments": {
-        "synthesis": true
+        "synthesis": true,
+        "action": "unknown"
       }
     },
     "Be still!": {
@@ -4306,7 +4300,8 @@
       "category": "Synthesis",
       "type": "Event",
       "arguments": {
-        "synthesis": true
+        "synthesis": true,
+        "action": "unknown"
       }
     },
     "Erasure!": {
@@ -4315,7 +4310,8 @@
       "category": "Synthesis",
       "type": "Event",
       "arguments": {
-        "synthesis": true
+        "synthesis": true,
+        "action": "unknown"
       }
     },
     "Wraeclast needs me!": {
@@ -4324,7 +4320,8 @@
       "category": "Synthesis",
       "type": "Event",
       "arguments": {
-        "synthesis": true
+        "synthesis": true,
+        "action": "unknown"
       }
     },
     "Light of salvation!": {
@@ -4333,7 +4330,8 @@
       "category": "Synthesis",
       "type": "Event",
       "arguments": {
-        "synthesis": true
+        "synthesis": true,
+        "action": "unknown"
       }
     },
     "Darkness surrounds us!": {
@@ -4342,7 +4340,8 @@
       "category": "Synthesis",
       "type": "Event",
       "arguments": {
-        "synthesis": true
+        "synthesis": true,
+        "action": "unknown"
       }
     },
     "Into the hills!": {
@@ -4634,6 +4633,50 @@
         "stones": "Four"
       }
     },
+    "Your strength... is the law...": {
+      "id": "DroxFourStoneDeatha",
+      "npc": "Drox, the Warlord",
+      "category": "Conquerors",
+      "type": "BossFight",
+      "arguments": {
+        "action": "end",
+        "boss": "Drox, the Warlord",
+        "stones": "Four"
+      }
+    },
+    "My kingdom is yours... if you can keep it...": {
+      "id": "DroxFourStoneDeathb",
+      "npc": "Drox, the Warlord",
+      "category": "Conquerors",
+      "type": "BossFight",
+      "arguments": {
+        "action": "end",
+        "boss": "Drox, the Warlord",
+        "stones": "Four"
+      }
+    },
+    "Time takes even the greatest of men...": {
+      "id": "DroxFourStoneDeathc",
+      "npc": "Drox, the Warlord",
+      "category": "Conquerors",
+      "type": "BossFight",
+      "arguments": {
+        "action": "end",
+        "boss": "Drox, the Warlord",
+        "stones": "Four"
+      }
+    },
+    "Veritania... my kingdom for... Veritania...": {
+      "id": "DroxFourStoneDeathd",
+      "npc": "Drox, the Warlord",
+      "category": "Conquerors",
+      "type": "BossFight",
+      "arguments": {
+        "action": "end",
+        "boss": "Drox, the Warlord",
+        "stones": "Four"
+      }
+    },
     "Fun... for you...": {
       "id": "AlHezminNoStoneFleeing",
       "npc": "Al-Hezmin, the Hunter",
@@ -4729,6 +4772,50 @@
       "type": "BossFight",
       "arguments": {
         "action": "start",
+        "boss": "Al-Hezmin, the Hunter",
+        "stones": "Four"
+      }
+    },
+    "You've killed me a thousand times, but those were just dreams...": {
+      "id": "AlHezminFourStoneDeatha",
+      "npc": "Al-Hezmin, the Hunter",
+      "category": "Conquerors",
+      "type": "BossFight",
+      "arguments": {
+        "action": "end",
+        "boss": "Al-Hezmin, the Hunter",
+        "stones": "Four"
+      }
+    },
+    "Molten One, save me from this unending nightmare!": {
+      "id": "AlHezminFourStoneDeathb",
+      "npc": "Al-Hezmin, the Hunter",
+      "category": "Conquerors",
+      "type": "BossFight",
+      "arguments": {
+        "action": "end",
+        "boss": "Al-Hezmin, the Hunter",
+        "stones": "Four"
+      }
+    },
+    "Let me out... please, let me out...": {
+      "id": "AlHezminFourStoneDeathc",
+      "npc": "Al-Hezmin, the Hunter",
+      "category": "Conquerors",
+      "type": "BossFight",
+      "arguments": {
+        "action": "end",
+        "boss": "Al-Hezmin, the Hunter",
+        "stones": "Four"
+      }
+    },
+    "I awaken from this nightmare... at last...": {
+      "id": "AlHezminFourStoneDeathd",
+      "npc": "Al-Hezmin, the Hunter",
+      "category": "Conquerors",
+      "type": "BossFight",
+      "arguments": {
+        "action": "end",
         "boss": "Al-Hezmin, the Hunter",
         "stones": "Four"
       }
@@ -4832,6 +4919,50 @@
         "stones": "Four"
       }
     },
+    "The end of the cycle of madness... until next time...": {
+      "id": "VeritaniaFourStoneDeatha",
+      "npc": "Veritania, the Redeemer",
+      "category": "Conquerors",
+      "type": "BossFight",
+      "arguments": {
+        "action": "end",
+        "boss": "Veritania, the Redeemer",
+        "stones": "Four"
+      }
+    },
+    "I thought myself better than you... but you and I are bound to waltz together forever...": {
+      "id": "VeritaniaFourStoneDeathb",
+      "npc": "Veritania, the Redeemer",
+      "category": "Conquerors",
+      "type": "BossFight",
+      "arguments": {
+        "action": "end",
+        "boss": "Veritania, the Redeemer",
+        "stones": "Four"
+      }
+    },
+    "My only consolation... is that I am not alone in this torture... see you soon...": {
+      "id": "VeritaniaFourStoneDeathc",
+      "npc": "Veritania, the Redeemer",
+      "category": "Conquerors",
+      "type": "BossFight",
+      "arguments": {
+        "action": "end",
+        "boss": "Veritania, the Redeemer",
+        "stones": "Four"
+      }
+    },
+    "You stand victorious, your heart's desire... the Atlas provides... your addiction...": {
+      "id": "VeritaniaFourStoneDeathd",
+      "npc": "Veritania, the Redeemer",
+      "category": "Conquerors",
+      "type": "BossFight",
+      "arguments": {
+        "action": "end",
+        "boss": "Veritania, the Redeemer",
+        "stones": "Four"
+      }
+    },
     "No minion of Sin could be this powerful... what are you?": {
       "id": "BaranNoStoneFleeing",
       "npc": "Baran, the Crusader",
@@ -4927,6 +5058,50 @@
       "type": "BossFight",
       "arguments": {
         "action": "start",
+        "boss": "Baran, the Crusader",
+        "stones": "Four"
+      }
+    },
+    "Tell Zana... ... ...<italic>{demons}...": {
+      "id": "BaranFourStoneDeatha",
+      "npc": "Baran, the Crusader",
+      "category": "Conquerors",
+      "type": "BossFight",
+      "arguments": {
+        "action": "end",
+        "boss": "Baran, the Crusader",
+        "stones": "Four"
+      }
+    },
+    "... tell my brother... that I cannot be saved...": {
+      "id": "BaranFourStoneDeathb",
+      "npc": "Baran, the Crusader",
+      "category": "Conquerors",
+      "type": "BossFight",
+      "arguments": {
+        "action": "end",
+        "boss": "Baran, the Crusader",
+        "stones": "Four"
+      }
+    },
+    "Keep Kirac... out of the Atlas... at all costs...": {
+      "id": "BaranFourStoneDeathc",
+      "npc": "Baran, the Crusader",
+      "category": "Conquerors",
+      "type": "BossFight",
+      "arguments": {
+        "action": "end",
+        "boss": "Baran, the Crusader",
+        "stones": "Four"
+      }
+    },
+    "A brief moment of sanity... it never lasts...": {
+      "id": "BaranFourStoneDeathd",
+      "npc": "Baran, the Crusader",
+      "category": "Conquerors",
+      "type": "BossFight",
+      "arguments": {
+        "action": "end",
         "boss": "Baran, the Crusader",
         "stones": "Four"
       }
@@ -5237,11 +5412,29 @@
         "action": "defeated"
       }
     },
+    "Violence...": {
+      "id": "MavenFirstEncounter3",
+      "npc": "The Maven",
+      "category": "Maven",
+      "type": "Witness",
+      "arguments": {
+        "action": "start"
+      }
+    },
+    "Violence. Conflict. Pleasure.": {
+      "id": "MavenFirstEncounterVictory3",
+      "npc": "The Maven",
+      "category": "Maven",
+      "type": "Witness",
+      "arguments": {
+        "action": "start"
+      }
+    },
     "Joy!": {
       "id": "MavenTier1BossVictory3",
       "npc": "The Maven",
-      "category": "MavenWitness",
-      "type": "BossFight",
+      "category": "Maven",
+      "type": "Witness",
       "arguments": {
         "action": "defeated"
       }
@@ -5249,8 +5442,8 @@
     "Death.": {
       "id": "MavenTier1BossVictory4",
       "npc": "The Maven",
-      "category": "MavenWitness",
-      "type": "BossFight",
+      "category": "Maven",
+      "type": "Witness",
       "arguments": {
         "action": "defeated"
       }
@@ -5258,8 +5451,8 @@
     "Death!": {
       "id": "MavenTier1BossVictory6",
       "npc": "The Maven",
-      "category": "MavenWitness",
-      "type": "BossFight",
+      "category": "Maven",
+      "type": "Witness",
       "arguments": {
         "action": "defeated"
       }
@@ -5267,8 +5460,8 @@
     "Carnage.": {
       "id": "MavenTier1BossVictory7",
       "npc": "The Maven",
-      "category": "MavenWitness",
-      "type": "BossFight",
+      "category": "Maven",
+      "type": "Witness",
       "arguments": {
         "action": "defeated"
       }
@@ -5276,8 +5469,8 @@
     "Carnage?": {
       "id": "MavenTier1BossVictory8",
       "npc": "The Maven",
-      "category": "MavenWitness",
-      "type": "BossFight",
+      "category": "Maven",
+      "type": "Witness",
       "arguments": {
         "action": "defeated"
       }
@@ -5285,8 +5478,8 @@
     "Carnage!": {
       "id": "MavenTier1BossVictory9",
       "npc": "The Maven",
-      "category": "MavenWitness",
-      "type": "BossFight",
+      "category": "Maven",
+      "type": "Witness",
       "arguments": {
         "action": "defeated"
       }
@@ -5294,8 +5487,8 @@
     "Rebirth!": {
       "id": "MavenTier1BossVictory10",
       "npc": "The Maven",
-      "category": "MavenWitness",
-      "type": "BossFight",
+      "category": "Maven",
+      "type": "Witness",
       "arguments": {
         "action": "defeated"
       }
@@ -5303,8 +5496,8 @@
     "Rebirth.": {
       "id": "MavenTier1BossVictory11",
       "npc": "The Maven",
-      "category": "MavenWitness",
-      "type": "BossFight",
+      "category": "Maven",
+      "type": "Witness",
       "arguments": {
         "action": "defeated"
       }
@@ -5312,8 +5505,8 @@
     "Rebirth?": {
       "id": "MavenTier1BossVictory12",
       "npc": "The Maven",
-      "category": "MavenWitness",
-      "type": "BossFight",
+      "category": "Maven",
+      "type": "Witness",
       "arguments": {
         "action": "defeated"
       }
@@ -5321,8 +5514,8 @@
     "Another! Joy.": {
       "id": "MavenTier2BossVictory2",
       "npc": "The Maven",
-      "category": "MavenWitness",
-      "type": "BossFight",
+      "category": "Maven",
+      "type": "Witness",
       "arguments": {
         "action": "defeated"
       }
@@ -5330,8 +5523,8 @@
     "Another. Joy!": {
       "id": "MavenTier2BossVictory3",
       "npc": "The Maven",
-      "category": "MavenWitness",
-      "type": "BossFight",
+      "category": "Maven",
+      "type": "Witness",
       "arguments": {
         "action": "defeated"
       }
@@ -5339,8 +5532,8 @@
     "Death... enjoy.": {
       "id": "MavenTier2BossVictory4",
       "npc": "The Maven",
-      "category": "MavenWitness",
-      "type": "BossFight",
+      "category": "Maven",
+      "type": "Witness",
       "arguments": {
         "action": "defeated"
       }
@@ -5348,8 +5541,8 @@
     "Death... enjoy!": {
       "id": "MavenTier2BossVictory5",
       "npc": "The Maven",
-      "category": "MavenWitness",
-      "type": "BossFight",
+      "category": "Maven",
+      "type": "Witness",
       "arguments": {
         "action": "defeated"
       }
@@ -5357,8 +5550,8 @@
     "Death! Enjoy!": {
       "id": "MavenTier2BossVictory6",
       "npc": "The Maven",
-      "category": "MavenWitness",
-      "type": "BossFight",
+      "category": "Maven",
+      "type": "Witness",
       "arguments": {
         "action": "defeated"
       }
@@ -5366,8 +5559,8 @@
     "Carnage...! Pretty.": {
       "id": "MavenTier2BossVictory7",
       "npc": "The Maven",
-      "category": "MavenWitness",
-      "type": "BossFight",
+      "category": "Maven",
+      "type": "Witness",
       "arguments": {
         "action": "defeated"
       }
@@ -5375,8 +5568,8 @@
     "Carnage... pretty.": {
       "id": "MavenTier2BossVictory8",
       "npc": "The Maven",
-      "category": "MavenWitness",
-      "type": "BossFight",
+      "category": "Maven",
+      "type": "Witness",
       "arguments": {
         "action": "defeated"
       }
@@ -5384,8 +5577,8 @@
     "Carnage. Pretty!": {
       "id": "MavenTier2BossVictory9",
       "npc": "The Maven",
-      "category": "MavenWitness",
-      "type": "BossFight",
+      "category": "Maven",
+      "type": "Witness",
       "arguments": {
         "action": "defeated"
       }
@@ -5393,8 +5586,8 @@
     "Mine now...": {
       "id": "MavenTier2BossVictory10",
       "npc": "The Maven",
-      "category": "MavenWitness",
-      "type": "BossFight",
+      "category": "Maven",
+      "type": "Witness",
       "arguments": {
         "action": "defeated"
       }
@@ -5402,8 +5595,8 @@
     "Mine now!": {
       "id": "MavenTier2BossVictory11",
       "npc": "The Maven",
-      "category": "MavenWitness",
-      "type": "BossFight",
+      "category": "Maven",
+      "type": "Witness",
       "arguments": {
         "action": "defeated"
       }
@@ -5411,8 +5604,8 @@
     "Mine now.": {
       "id": "MavenTier2BossVictory12",
       "npc": "The Maven",
-      "category": "MavenWitness",
-      "type": "BossFight",
+      "category": "Maven",
+      "type": "Witness",
       "arguments": {
         "action": "defeated"
       }
@@ -5420,8 +5613,8 @@
     "Great pleasure.": {
       "id": "MavenTier2BossVictory13",
       "npc": "The Maven",
-      "category": "MavenWitness",
-      "type": "BossFight",
+      "category": "Maven",
+      "type": "Witness",
       "arguments": {
         "action": "defeated"
       }
@@ -5429,8 +5622,8 @@
     "Great... pleasure.": {
       "id": "MavenTier2BossVictory14",
       "npc": "The Maven",
-      "category": "MavenWitness",
-      "type": "BossFight",
+      "category": "Maven",
+      "type": "Witness",
       "arguments": {
         "action": "defeated"
       }
@@ -5438,8 +5631,8 @@
     "Great pleasure!": {
       "id": "MavenTier2BossVictory15",
       "npc": "The Maven",
-      "category": "MavenWitness",
-      "type": "BossFight",
+      "category": "Maven",
+      "type": "Witness",
       "arguments": {
         "action": "defeated"
       }
@@ -5447,8 +5640,8 @@
     "Worthy.": {
       "id": "MavenTier2BossVictory18",
       "npc": "The Maven",
-      "category": "MavenWitness",
-      "type": "BossFight",
+      "category": "Maven",
+      "type": "Witness",
       "arguments": {
         "action": "defeated"
       }
@@ -5456,8 +5649,8 @@
     "Worthy!": {
       "id": "MavenTier2BossVictory17",
       "npc": "The Maven",
-      "category": "MavenWitness",
-      "type": "BossFight",
+      "category": "Maven",
+      "type": "Witness",
       "arguments": {
         "action": "defeated"
       }
@@ -5465,8 +5658,8 @@
     "Delicious!": {
       "id": "MavenTier2BossVictory21",
       "npc": "The Maven",
-      "category": "MavenWitness",
-      "type": "BossFight",
+      "category": "Maven",
+      "type": "Witness",
       "arguments": {
         "action": "defeated"
       }
@@ -5474,8 +5667,8 @@
     "Collect another.": {
       "id": "MavenTier3BossVictory2",
       "npc": "The Maven",
-      "category": "MavenWitness",
-      "type": "BossFight",
+      "category": "Maven",
+      "type": "Witness",
       "arguments": {
         "action": "defeated"
       }
@@ -5483,8 +5676,8 @@
     "Collect another...": {
       "id": "MavenTier3BossVictory3",
       "npc": "The Maven",
-      "category": "MavenWitness",
-      "type": "BossFight",
+      "category": "Maven",
+      "type": "Witness",
       "arguments": {
         "action": "defeated"
       }
@@ -5492,8 +5685,8 @@
     "Death. Brings. Joy.": {
       "id": "MavenTier3BossVictory4",
       "npc": "The Maven",
-      "category": "MavenWitness",
-      "type": "BossFight",
+      "category": "Maven",
+      "type": "Witness",
       "arguments": {
         "action": "defeated"
       }
@@ -5501,8 +5694,8 @@
     "Death brings joy.": {
       "id": "MavenTier3BossVictory5",
       "npc": "The Maven",
-      "category": "MavenWitness",
-      "type": "BossFight",
+      "category": "Maven",
+      "type": "Witness",
       "arguments": {
         "action": "defeated"
       }
@@ -5510,8 +5703,8 @@
     "Death brings joy...": {
       "id": "MavenTier3BossVictory6",
       "npc": "The Maven",
-      "category": "MavenWitness",
-      "type": "BossFight",
+      "category": "Maven",
+      "type": "Witness",
       "arguments": {
         "action": "defeated"
       }
@@ -5519,8 +5712,8 @@
     "Sprayed blood floats.": {
       "id": "MavenTier3BossVictory9",
       "npc": "The Maven",
-      "category": "MavenWitness",
-      "type": "BossFight",
+      "category": "Maven",
+      "type": "Witness",
       "arguments": {
         "action": "defeated"
       }
@@ -5528,8 +5721,8 @@
     "Sprayed blood floats...": {
       "id": "MavenTier3BossVictory8",
       "npc": "The Maven",
-      "category": "MavenWitness",
-      "type": "BossFight",
+      "category": "Maven",
+      "type": "Witness",
       "arguments": {
         "action": "defeated"
       }
@@ -5537,8 +5730,8 @@
     "One more new toy.": {
       "id": "MavenTier3BossVictory12",
       "npc": "The Maven",
-      "category": "MavenWitness",
-      "type": "BossFight",
+      "category": "Maven",
+      "type": "Witness",
       "arguments": {
         "action": "defeated"
       }
@@ -5546,8 +5739,8 @@
     "Must improve!": {
       "id": "MavenTier3BossVictory13",
       "npc": "The Maven",
-      "category": "MavenWitness",
-      "type": "BossFight",
+      "category": "Maven",
+      "type": "Witness",
       "arguments": {
         "action": "defeated"
       }
@@ -5555,8 +5748,8 @@
     "Must improve.": {
       "id": "MavenTier3BossVictory14",
       "npc": "The Maven",
-      "category": "MavenWitness",
-      "type": "BossFight",
+      "category": "Maven",
+      "type": "Witness",
       "arguments": {
         "action": "defeated"
       }
@@ -5564,8 +5757,8 @@
     "Must improve?": {
       "id": "MavenTier3BossVictory15",
       "npc": "The Maven",
-      "category": "MavenWitness",
-      "type": "BossFight",
+      "category": "Maven",
+      "type": "Witness",
       "arguments": {
         "action": "defeated"
       }
@@ -5573,8 +5766,8 @@
     "No challenge.": {
       "id": "MavenTier3BossVictory16",
       "npc": "The Maven",
-      "category": "MavenWitness",
-      "type": "BossFight",
+      "category": "Maven",
+      "type": "Witness",
       "arguments": {
         "action": "defeated"
       }
@@ -5582,8 +5775,8 @@
     "No challenge...": {
       "id": "MavenTier3BossVictory18",
       "npc": "The Maven",
-      "category": "MavenWitness",
-      "type": "BossFight",
+      "category": "Maven",
+      "type": "Witness",
       "arguments": {
         "action": "defeated"
       }
@@ -5591,8 +5784,8 @@
     "Delightful violence.": {
       "id": "MavenTier3BossVictory20",
       "npc": "The Maven",
-      "category": "MavenWitness",
-      "type": "BossFight",
+      "category": "Maven",
+      "type": "Witness",
       "arguments": {
         "action": "defeated"
       }
@@ -5600,8 +5793,8 @@
     "Delightful violence!": {
       "id": "MavenTier3BossVictory21",
       "npc": "The Maven",
-      "category": "MavenWitness",
-      "type": "BossFight",
+      "category": "Maven",
+      "type": "Witness",
       "arguments": {
         "action": "defeated"
       }
@@ -5609,8 +5802,8 @@
     "I want more. I want them all.": {
       "id": "MavenTier4BossVictory3",
       "npc": "The Maven",
-      "category": "MavenWitness",
-      "type": "BossFight",
+      "category": "Maven",
+      "type": "Witness",
       "arguments": {
         "action": "defeated"
       }
@@ -5618,8 +5811,8 @@
     "It feels good when playthings die.": {
       "id": "MavenTier4BossVictory6",
       "npc": "The Maven",
-      "category": "MavenWitness",
-      "type": "BossFight",
+      "category": "Maven",
+      "type": "Witness",
       "arguments": {
         "action": "defeated"
       }
@@ -5627,8 +5820,8 @@
     "I like when the red water sprays.": {
       "id": "MavenTier4BossVictory9",
       "npc": "The Maven",
-      "category": "MavenWitness",
-      "type": "BossFight",
+      "category": "Maven",
+      "type": "Witness",
       "arguments": {
         "action": "defeated"
       }
@@ -5636,8 +5829,8 @@
     "My collection grows.": {
       "id": "MavenTier4BossVictory12",
       "npc": "The Maven",
-      "category": "MavenWitness",
-      "type": "BossFight",
+      "category": "Maven",
+      "type": "Witness",
       "arguments": {
         "action": "defeated"
       }
@@ -5645,8 +5838,8 @@
     "I... need... more!": {
       "id": "MavenTier4BossVictory14",
       "npc": "The Maven",
-      "category": "MavenWitness",
-      "type": "BossFight",
+      "category": "Maven",
+      "type": "Witness",
       "arguments": {
         "action": "defeated"
       }
@@ -5654,8 +5847,8 @@
     "I need more.": {
       "id": "MavenTier4BossVictory15",
       "npc": "The Maven",
-      "category": "MavenWitness",
-      "type": "BossFight",
+      "category": "Maven",
+      "type": "Witness",
       "arguments": {
         "action": "defeated"
       }
@@ -5663,8 +5856,8 @@
     "Such pleasure, so brief.": {
       "id": "MavenTier4BossVictory18",
       "npc": "The Maven",
-      "category": "MavenWitness",
-      "type": "BossFight",
+      "category": "Maven",
+      "type": "Witness",
       "arguments": {
         "action": "defeated"
       }
@@ -5672,8 +5865,8 @@
     "Fleeting joy.": {
       "id": "MavenTier4BossVictory21",
       "npc": "The Maven",
-      "category": "MavenWitness",
-      "type": "BossFight",
+      "category": "Maven",
+      "type": "Witness",
       "arguments": {
         "action": "defeated"
       }
@@ -5681,8 +5874,8 @@
     "Over too quickly. Another!": {
       "id": "MavenTier4BossVictory23",
       "npc": "The Maven",
-      "category": "MavenWitness",
-      "type": "BossFight",
+      "category": "Maven",
+      "type": "Witness",
       "arguments": {
         "action": "defeated"
       }
@@ -5690,8 +5883,8 @@
     "My collection grows, and I smile.": {
       "id": "MavenTier5BossVictory3",
       "npc": "The Maven",
-      "category": "MavenWitness",
-      "type": "BossFight",
+      "category": "Maven",
+      "type": "Witness",
       "arguments": {
         "action": "defeated"
       }
@@ -5699,8 +5892,8 @@
     "Ahh, death is such a beautiful caress across my senses.": {
       "id": "MavenTier5BossVictory6",
       "npc": "The Maven",
-      "category": "MavenWitness",
-      "type": "BossFight",
+      "category": "Maven",
+      "type": "Witness",
       "arguments": {
         "action": "defeated"
       }
@@ -5708,8 +5901,8 @@
     "A delightful show. A timeless dance written in blood.": {
       "id": "MavenTier5BossVictory8",
       "npc": "The Maven",
-      "category": "MavenWitness",
-      "type": "BossFight",
+      "category": "Maven",
+      "type": "Witness",
       "arguments": {
         "action": "defeated"
       }
@@ -5717,8 +5910,8 @@
     "That's one more for my collection.": {
       "id": "MavenTier5BossVictory11",
       "npc": "The Maven",
-      "category": "MavenWitness",
-      "type": "BossFight",
+      "category": "Maven",
+      "type": "Witness",
       "arguments": {
         "action": "defeated"
       }
@@ -5726,8 +5919,8 @@
     "It will not be so simple next time.": {
       "id": "MavenTier5BossVictory14",
       "npc": "The Maven",
-      "category": "MavenWitness",
-      "type": "BossFight",
+      "category": "Maven",
+      "type": "Witness",
       "arguments": {
         "action": "defeated"
       }
@@ -5735,8 +5928,8 @@
     "That was... satisfactory.": {
       "id": "MavenTier5BossVictory17",
       "npc": "The Maven",
-      "category": "MavenWitness",
-      "type": "BossFight",
+      "category": "Maven",
+      "type": "Witness",
       "arguments": {
         "action": "defeated"
       }
@@ -5744,8 +5937,8 @@
     "A flash of pleasure, over all too quickly.": {
       "id": "MavenTier5BossVictory20",
       "npc": "The Maven",
-      "category": "MavenWitness",
-      "type": "BossFight",
+      "category": "Maven",
+      "type": "Witness",
       "arguments": {
         "action": "defeated"
       }
@@ -5753,8 +5946,8 @@
     "Only one leaves... with me.": {
       "id": "MavenTier5BossVictory22",
       "npc": "The Maven",
-      "category": "MavenWitness",
-      "type": "BossFight",
+      "category": "Maven",
+      "type": "Witness",
       "arguments": {
         "action": "defeated"
       }
@@ -5762,8 +5955,8 @@
     "Mmm.": {
       "id": "MavenTier5BossVictory26",
       "npc": "The Maven",
-      "category": "MavenWitness",
-      "type": "BossFight",
+      "category": "Maven",
+      "type": "Witness",
       "arguments": {
         "action": "defeated"
       }
@@ -5771,8 +5964,8 @@
     "Quite the rush.": {
       "id": "MavenTier5BossVictory29",
       "npc": "The Maven",
-      "category": "MavenWitness",
-      "type": "BossFight",
+      "category": "Maven",
+      "type": "Witness",
       "arguments": {
         "action": "defeated"
       }
@@ -5780,8 +5973,8 @@
     "That was worth the wait.": {
       "id": "MavenTier5BossVictory32",
       "npc": "The Maven",
-      "category": "MavenWitness",
-      "type": "BossFight",
+      "category": "Maven",
+      "type": "Witness",
       "arguments": {
         "action": "defeated"
       }
@@ -5789,8 +5982,8 @@
     "Sweet, sweet treat.": {
       "id": "MavenTier5BossVictory35",
       "npc": "The Maven",
-      "category": "MavenWitness",
-      "type": "BossFight",
+      "category": "Maven",
+      "type": "Witness",
       "arguments": {
         "action": "defeated"
       }
@@ -5798,8 +5991,8 @@
     "I will never tire of this.": {
       "id": "MavenTier5BossVictory38",
       "npc": "The Maven",
-      "category": "MavenWitness",
-      "type": "BossFight",
+      "category": "Maven",
+      "type": "Witness",
       "arguments": {
         "action": "defeated"
       }
@@ -5807,8 +6000,8 @@
     "One more to gather up.": {
       "id": "MavenTier5BossVictory41",
       "npc": "The Maven",
-      "category": "MavenWitness",
-      "type": "BossFight",
+      "category": "Maven",
+      "type": "Witness",
       "arguments": {
         "action": "defeated"
       }
@@ -5816,8 +6009,8 @@
     "This Atlas has its delights.": {
       "id": "MavenTier5BossVictory44",
       "npc": "The Maven",
-      "category": "MavenWitness",
-      "type": "BossFight",
+      "category": "Maven",
+      "type": "Witness",
       "arguments": {
         "action": "defeated"
       }
@@ -5825,8 +6018,8 @@
     "On to the next fight!": {
       "id": "MavenTier5BossVictory47",
       "npc": "The Maven",
-      "category": "MavenWitness",
-      "type": "BossFight",
+      "category": "Maven",
+      "type": "Witness",
       "arguments": {
         "action": "defeated"
       }
@@ -5834,8 +6027,8 @@
     "It was never in doubt.": {
       "id": "MavenTier5BossVictory49",
       "npc": "The Maven",
-      "category": "MavenWitness",
-      "type": "BossFight",
+      "category": "Maven",
+      "type": "Witness",
       "arguments": {
         "action": "defeated"
       }
@@ -5843,8 +6036,8 @@
     "My favorite outcome.": {
       "id": "MavenTier5BossVictory52",
       "npc": "The Maven",
-      "category": "MavenWitness",
-      "type": "BossFight",
+      "category": "Maven",
+      "type": "Witness",
       "arguments": {
         "action": "defeated"
       }
@@ -5852,8 +6045,8 @@
     "Flashy.": {
       "id": "MavenTier5BossVictory55",
       "npc": "The Maven",
-      "category": "MavenWitness",
-      "type": "BossFight",
+      "category": "Maven",
+      "type": "Witness",
       "arguments": {
         "action": "defeated"
       }
@@ -5861,8 +6054,8 @@
     "A mismatched contest.": {
       "id": "MavenTier5BossVictory58",
       "npc": "The Maven",
-      "category": "MavenWitness",
-      "type": "BossFight",
+      "category": "Maven",
+      "type": "Witness",
       "arguments": {
         "action": "defeated"
       }

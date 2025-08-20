@@ -9,6 +9,7 @@ import { globalShortcut } from 'electron';
 import Utils from './Utils';
 import minMax from 'dayjs/plugin/minMax'; // ES 2015
 import EventParser from './EventParser';
+import LogProcessor from './LogProcessor';
 const logger = require('electron-log');
 const EventEmitter = require('events');
 const ItemPricer = require('./ItemPricer');
@@ -250,7 +251,7 @@ const RunParser = {
   parseItems: async (
     items: Item[]
   ): Promise<{ count: number; value: number; importantDrops: any }> => {
-    logger.debug('Parsing items', items);
+    // logger.debug('Parsing items', items);
     let count = 0;
     let totalValue = 0;
     const importantDrops = {};
@@ -269,7 +270,7 @@ const RunParser = {
         }
 
         let price = await ItemPricer.price(item);
-        logger.debug('Found price: ', price, item);
+        // logger.debug('Found price: ', price, item);
         if (price.isVendor) {
           totalValue += price.value;
           price = 0;
@@ -355,7 +356,7 @@ const RunParser = {
   },
 
   getLastInventoryTimestamp: async (): Promise<string | null> => {
-    return OldDB.get('SELECT timestamp FROM last_inventory')
+    return OldDB.get('SELECT timestamp FROM last_inventory ORDER BY id DESC LIMIT 1')
       .then((row) => {
         if (!row) {
           logger.info('No last inventory yet');
@@ -389,7 +390,8 @@ const RunParser = {
       lastInventoryTimestamp =
         (await RunParser.getLastInventoryTimestamp()) ?? dayjs.unix(0).toISOString();
       if (
-        dayjs(lasteventTimestamp).isSameOrAfter(dayjs(lastInventoryTimestamp)) // Last inventory is newer than the last event
+        dayjs().isSameOrAfter(dayjs(lasteventTimestamp)) ||
+        dayjs(lastInventoryTimestamp).isSameOrAfter(dayjs(lasteventTimestamp).subtract(5, 'seconds')) // Last inventory is newer than the last event + cache
       ) {
         break;
       } else {
@@ -400,7 +402,7 @@ const RunParser = {
           logger.error(
             `Last inventory not yet processed (${dayjs(lastInventoryTimestamp)} < ${dayjs(
               lasteventTimestamp
-            )}), waiting 3 seconds`
+            ).subtract(5, 'seconds')}), waiting 3 seconds`
           );
           await Utils.sleep(3000);
         }
@@ -696,31 +698,31 @@ const RunParser = {
             run.labyrinth[Constants.labyrinthQuotes[line.text]] = evt.id;
           }
           continue;
-        case 'Einhar, Beastmaster':
-          if (areaName === 'The Menagerie') {
-            if (Constants.beastRecipeQuotes.includes(line.text)) {
-              run.beastRecipes = ++run.beastRecipes || 1;
-            }
-          } else {
-            run.masters = run.masters || {};
-            run.masters[line.npc] = run.masters[line.npc] || { encountered: true };
-            if (Constants.beastCaptureQuotes[line.text]) {
-              run.masters[line.npc].beasts = ++run.masters[line.npc].beasts || 1;
-              switch (Constants.beastCaptureQuotes[line.text]) {
-                case 'yellow':
-                  run.masters[line.npc].yellowBeasts = ++run.masters[line.npc].yellowBeasts || 1;
-                  break;
-                case 'red':
-                  run.masters[line.npc].redBeasts = ++run.masters[line.npc].redBeasts || 1;
-                  break;
-                default:
-                  // no difference between yellow and red in Einhar's "mission complete" quote;
-                  // this means that the last beast in an area can't be identified
-                  break;
-              }
-            }
-          }
-          continue;
+        // case 'Einhar, Beastmaster':
+        //   if (areaName === 'The Menagerie') {
+        //     if (Constants.beastRecipeQuotes.includes(line.text)) {
+        //       run.beastRecipes = ++run.beastRecipes || 1;
+        //     }
+        //   } else {
+        //     run.masters = run.masters || {};
+        //     run.masters[line.npc] = run.masters[line.npc] || { encountered: true };
+        //     if (Constants.beastCaptureQuotes[line.text]) {
+        //       run.masters[line.npc].beasts = ++run.masters[line.npc].beasts || 1;
+        //       switch (Constants.beastCaptureQuotes[line.text]) {
+        //         case 'yellow':
+        //           run.masters[line.npc].yellowBeasts = ++run.masters[line.npc].yellowBeasts || 1;
+        //           break;
+        //         case 'red':
+        //           run.masters[line.npc].redBeasts = ++run.masters[line.npc].redBeasts || 1;
+        //           break;
+        //         default:
+        //           // no difference between yellow and red in Einhar's "mission complete" quote;
+        //           // this means that the last beast in an area can't be identified
+        //           break;
+        //       }
+        //     }
+        //   }
+        //   continue;
         case 'Alva, Master Explorer':
           run.masters = run.masters || {};
           run.masters[line.npc] = run.masters[line.npc] || {};
@@ -785,29 +787,29 @@ const RunParser = {
             }
           }
           continue;
-        case 'Al-Hezmin, the Hunter':
-        case 'Baran, the Crusader':
-        case 'Drox, the Warlord':
-        case 'Veritania, the Redeemer':
-          run.conqueror = run.conqueror || {};
-          run.conqueror[line.npc] = run.conqueror[line.npc] || {};
-          let battleQuotes = Constants.conquerorBattleStartQuotes[line.npc];
-          for (let j = 0; j < battleQuotes.length; j++) {
-            if (line.text.includes(battleQuotes[j])) {
-              run.conqueror[line.npc].battle = true;
-            }
-          }
-          if (run.conqueror[line.npc].battle) {
-            let deathQuotes = Constants.conquerorDeathQuotes[line.npc];
-            for (let j = 0; j < deathQuotes.length; j++) {
-              if (line.text.includes(deathQuotes[j])) {
-                run.conqueror[line.npc].defeated = true;
-              }
-            }
-          } else {
-            run.conqueror[line.npc].encounter = true;
-          }
-          continue;
+        // case 'Al-Hezmin, the Hunter':
+        // case 'Baran, the Crusader':
+        // case 'Drox, the Warlord':
+        // case 'Veritania, the Redeemer':
+        //   run.conqueror = run.conqueror || {};
+        //   run.conqueror[line.npc] = run.conqueror[line.npc] || {};
+        //   let battleQuotes = Constants.conquerorBattleStartQuotes[line.npc];
+        //   for (let j = 0; j < battleQuotes.length; j++) {
+        //     if (line.text.includes(battleQuotes[j])) {
+        //       run.conqueror[line.npc].battle = true;
+        //     }
+        //   }
+        //   if (run.conqueror[line.npc].battle) {
+        //     let deathQuotes = Constants.conquerorDeathQuotes[line.npc];
+        //     for (let j = 0; j < deathQuotes.length; j++) {
+        //       if (line.text.includes(deathQuotes[j])) {
+        //         run.conqueror[line.npc].defeated = true;
+        //       }
+        //     }
+        //   } else {
+        //     run.conqueror[line.npc].encounter = true;
+        //   }
+        //   continue;
         case 'Sirus, Awakener of Worlds':
           run.sirusBattle = run.sirusBattle || {};
           if (Constants.sirusBattleQuotes[line.text]) {
@@ -1312,22 +1314,27 @@ const RunParser = {
       true, // completed
     ];
 
-    return RunParser.updateMapRun(runId, runArguments).then(() => {
-      RunParser.emitter.emit('run-parser:run-processed', {
+    await RunParser.updateMapRun(runId, runArguments)
+    return {
         name: areaInfo.name,
         gained: items.value,
         xp: xpDiff,
         kills: killCount > -1 ? killCount : null,
         firstEvent,
         lastEvent: lastEventTimestamp,
-      });
-      RunParser.resetRunData();
-    });
+      };
   },
 
+  reprocessRuns: async () => {
+    const runIds = await DB.getAllRunIds();
+    for (const runId of runIds) {
+      await RunParser.reprocessRun(runId);
+    }
+  },
 
   reprocessRun: async(runId: number) => {
     // Reprocess the run
+    await LogProcessor.reprocessEvents(runId);
     return RunParser.processRun('', runId);
   },
 
@@ -1414,7 +1421,9 @@ const RunParser = {
 
     try {
       logger.debug(`Processing run for area: ${event.area} at ${lastEventTimestamp}`);
-      await RunParser.processRun(lastEventTimestamp);
+      const runData = await RunParser.processRun(lastEventTimestamp);
+      RunParser.emitter.emit('run-parser:run-processed', runData);
+      RunParser.resetRunData();
     } catch (e) {
       logger.error(`Error processing run: ${e}`);
       return false;

@@ -64,7 +64,7 @@ class LogProcessorScheduler {
 const scheduler = new LogProcessorScheduler();
 const emitter = new EventEmitter();
 
-const textLineRegex = /^(?<NPCName>.*): (?<text>.*)$/;
+const textLineRegex = /^(?<NPCName>.*?): (?<text>.*)$/;
 const generationRegex = /.*level\s(?<level>\d+)\sarea\s"(?<areaId>\S+)".*seed\s(?<seed>\d+)/;
 const allocationRegex =
   /Successfully (?<verb>(allocated|unallocated)).*id:\s(?<id>.*),.*name:\s(?<name>.*)$/;
@@ -184,30 +184,6 @@ function getEvent(content: string, server: string) {
   }
 }
 
-// Parse Spectific NPC lines from the content
-function parseMaster(content) {
-  const mastersRegex = new RegExp(`(?<text>(${Constants.masters.join('|')}):.*)$`, 'i');
-
-  const match = mastersRegex.exec(content);
-  if (match) {
-    return (match.groups as { text: string }).text.trim();
-  }
-
-  // 3.8.0: Jun sometimes does not talk at all during missions; scan for Syndicate member lines instead
-  const junRegex = new RegExp(
-    `(?<master>${Constants.syndicateMembers.join('|')}): (?<text>.*)$`,
-    'i'
-  );
-
-  const junMatch = junRegex.exec(content);
-  if (junMatch) {
-    return `Jun, Veiled Master: ${(junMatch.groups as { text: string }).text.trim()}`;
-  }
-
-  // If no master or syndicate member is found, return null
-  return null;
-}
-
 let parsedInstanceServerTwice = false;
 let lastInstanceServer = '';
 
@@ -310,19 +286,27 @@ const LogProcessor = {
     }
   },
 
-  processOther: async (timestamp: string, line: string) => {
+  processOther: async (timestamp: string, line: string, eventId: number | null = null) => {
     // logger.debug('LogProcessor.processOther', timestamp, line);
     const event = getEvent(line, lastInstanceServer);
 
     if (event) {
       try {
-        // Save the event to the database
-        await DB.insertEvent({
-          timestamp,
-          event_type: event.type,
-          event_text: event.text,
-          server: lastInstanceServer,
-        });
+        if(eventId) { 
+          await DB.updateEvent(eventId, {
+            timestamp,
+            event_type: event.type,
+            event_text: event.text,
+          });
+        } else {
+          // Save the event to the database
+          await DB.insertEvent({
+            timestamp,
+            event_type: event.type,
+            event_text: event.text,
+            server: lastInstanceServer,
+          });
+        }
 
         // If we just entered a new map area, try to process the previous area
         if (event.type === 'entered') {
@@ -351,6 +335,34 @@ const LogProcessor = {
       }
     }
   },
+
+  reprocessEvents: async (runId: number) => {
+    logger.info(`Reprocessing events for run ID: ${runId}`);
+    const events = await DB.getEventsForRun(runId);
+    for (const event of events) {
+      await LogProcessor.reprocessEvent(event);
+    }
+  },
+
+  reprocessEvent: async (event: any) => {
+    logger.debug('Reprocessing event:', event);
+    if(event.event_text && event.event_text.startsWith('{')) {
+      const jsonData = JSON.parse(event.event_text);
+      if(!!jsonData.text) {
+        const text = jsonData.text;
+        const npc = jsonData.npc;
+        await LogProcessor.processOther(event.timestamp, `${npc}: ${text}`, event.id);
+      }
+    } else {
+      const text = event.event_text;
+      const match = textLineRegex.exec(text);
+      if (match) {
+        logger.debug('Matched event text:', match.groups);
+        // If a match is found, process the event
+        await LogProcessor.processOther(event.timestamp, text, event.id);
+      }
+    }
+  }
 };
 
 export default LogProcessor;

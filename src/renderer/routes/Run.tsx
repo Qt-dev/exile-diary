@@ -73,6 +73,17 @@ const Run = ({ store }) => {
           <div className="Run__Header__Block__Value Text--Magic">{duration}</div>
         </div>
       </div>
+      <Divider className="Separator" />
+      <RunEventIcons info={run.runInfo} />
+      <Divider className="Separator" />
+      <div className="Run__XP">
+        XP: <span className="Text--Rare">{run.initialxp?.toLocaleString('en')}</span>{' '}
+        <span className={getXpClassname(run.xp)}>{xp}</span> -{' '}
+        <span>{run.xpPerHour.toLocaleString('en', { maximumFractionDigits: 0 })}/hr</span>
+      </div>
+      <div className="Run__Kills">
+        <span className="Text--Rare">{run.kills}</span> monsters slain
+      </div>
       {run.mods && run.mods.length > 0 && (
         <>
           <Divider className="Separator" />
@@ -87,17 +98,6 @@ const Run = ({ store }) => {
           </p>
         </>
       )}
-      <Divider className="Separator" />
-      <div className="Run__XP">
-        XP: <span className="Text--Rare">{run.initialxp?.toLocaleString('en')}</span>{' '}
-        <span className={getXpClassname(run.xp)}>{xp}</span> -{' '}
-        <span>{run.xpPerHour.toLocaleString('en', { maximumFractionDigits: 0 })}/hr</span>
-      </div>
-      <div className="Run__Kills">
-        <span className="Text--Rare">{run.kills}</span> monsters slain
-      </div>
-      <Divider className="Separator" />
-      <RunEventIcons info={run.runInfo} />
       <Divider className="Separator" />
       <div className="Run__Events">
         {run.events.map((event, i) => (

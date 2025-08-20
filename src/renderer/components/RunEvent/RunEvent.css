@@ -14,8 +14,14 @@
 .Run-Event__Main-Icon {
   border: 1px solid #444;
   padding: 3px;
-  border-radius: 50%;
-  margin: 0 5px;
+  border-radius: 15%;
+  margin: 5px;
+
+  display: flex;
+  justify-content: center;
+
+  width: 4em;
+  height: 4em;
 }
 
 .Run-Event__Icons {

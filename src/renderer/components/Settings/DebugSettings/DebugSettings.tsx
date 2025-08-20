@@ -24,6 +24,7 @@ const DebugSettings = ({ runStore }) => {
   const [isFetchingRates, setIsFetchingRates] = React.useState(false);
   const [isRecalculatingProfit, setIsRecalculatingProfit] = React.useState(false);
   const [isFetchingStashTabs, setIsFetchingStashTabs] = React.useState(false);
+  const [isReprocessing, setIsReprocessing] = React.useState(false);
   const handleReCalculateProfit = async () => {
     setIsRecalculatingProfit(true);
     await ipcRenderer.invoke('debug:recheck-gain', {
@@ -44,6 +45,12 @@ const DebugSettings = ({ runStore }) => {
     setIsFetchingStashTabs(true);
     await ipcRenderer.invoke('debug:fetch-stash-tabs');
     setIsFetchingStashTabs(false);
+  };
+
+  const handleReprocessRuns = async () => {
+    setIsReprocessing(true);
+    await ipcRenderer.invoke('debug:reprocess-runs');
+    setIsReprocessing(false);
   };
 
   const handleRefreshUI = async () => {
@@ -124,6 +131,21 @@ const DebugSettings = ({ runStore }) => {
       <Stack direction="row" gap={5} justifyContent="center">
         <ButtonGroup variant="outlined">
           <Button onClick={handleRefreshUI}>Refresh UI</Button>
+        </ButtonGroup>
+      </Stack>
+      <Divider variant="middle" sx={{ width: '50%', margin: '20px auto' }} />
+      <div className="Debug-Settings__Header">
+        <div>
+          Reprocess all runs in the database. This will re-run the run parser and update all runs.
+        </div>
+        <div className="Text--Error">Warning: This may take a while and the app may be unresponsive while it's processing.</div>
+      </div>
+      <Stack direction="row" gap={5} justifyContent="center">
+        <ButtonGroup variant="outlined">
+          <Button 
+            onClick={handleReprocessRuns} 
+            disabled={isReprocessing}
+            endIcon={isReprocessing ? <CircularProgress size="0.8rem" /> : null}>Reprocess Runs</Button>
         </ButtonGroup>
       </Stack>
     </div>

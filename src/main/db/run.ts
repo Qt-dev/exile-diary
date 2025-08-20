@@ -89,6 +89,17 @@ const getItemNameFromIcon = (iconUrl: string) => {
 };
 
 const Runs = {
+  getAllRunIds: async (): Promise<number[]> => {
+    const query = 'SELECT id FROM run';
+    try {
+      const result = await DB.all(query);
+      return result.map((row) => row.id);
+    } catch (err) {
+      logger.error(`Error getting all run IDs: ${JSON.stringify(err)}`);
+      return [];
+    }
+  },
+
   updateLastEvent: async (timestamp: string) => {
     logger.info(`Updating last event for latest run to ${timestamp}`);
     const query =
@@ -420,6 +431,22 @@ const Runs = {
     }
   },
 
+  updateEvent: async (eventId: number, event: any) => {
+    logger.info(`Updating event ${eventId}: ${JSON.stringify(event)}`);
+    const query = `
+      UPDATE event
+      SET event_type = ?, event_text = ?, timestamp = ?
+      WHERE id = ?
+    `;
+    try {
+      await DB.run(query, [event.event_type, event.event_text, event.timestamp, eventId]);
+      return true;
+    } catch (err) {
+      logger.error(`Error updating event ${eventId}: ${JSON.stringify(err)}`);
+      return false;
+    }
+  },
+
   setCurrentAreaInfo: async ({
     name,
     level,
@@ -688,6 +715,23 @@ const Runs = {
     } catch (err) {
       logger.error(`Error getting run data: ${JSON.stringify(err)}`);
       return null;
+    }
+  },
+
+  getEventsForRun: async (runId: number): Promise<any[]> => {
+    logger.info(`Getting logs for run ID: ${runId}`);
+    const query = `
+      SELECT event.*
+      FROM event, run
+      WHERE run.id = ?
+      AND DATETIME(event.timestamp) BETWEEN DATETIME(run.first_event) AND DATETIME(run.last_event)
+    `;
+    try {
+      const rows = await DB.all(query, [runId]);
+      return rows;
+    } catch (err) {
+      logger.error(`Error getting logs for run ID ${runId}: ${JSON.stringify(err)}`);
+      return [];
     }
   }
 };
