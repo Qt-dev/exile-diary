@@ -177,6 +177,46 @@
         "phase": 2
       }
     },
+    "One of my captors hid a beast within his heart. Now his true self can be seen by all.": {
+      "id": "ShaperMapChimera",
+      "npc": "The Shaper",
+      "category": "Shaper",
+      "type": "Guardian",
+      "arguments": {
+        "mapStarted": true,
+        "enemy": "Guardian of the Chimera"
+      }
+    },
+    "One of my captors wore many faces, yet kept her true face hidden. Now she cannot escape her true face.": {
+      "id": "ShaperMapHydra",
+      "npc": "The Shaper",
+      "category": "Shaper",
+      "type": "Guardian",
+      "arguments": {
+        "mapStarted": true,
+        "enemy": "Guardian of the Hydra"
+      }
+    },
+    "One of my captors felt no emotion. He did not hesitate to inflict pain. Now all he feels is intense, unstoppable agony.": {
+      "id": "ShaperMapMinotaur",
+      "npc": "The Shaper",
+      "category": "Shaper",
+      "type": "Guardian",
+      "arguments": {
+        "mapStarted": true,
+        "enemy": "Guardian of the Minotaur"
+      }
+    },
+    "One of my captors refused redemption. He did not see value in a new life. Now new life surrounds him.": {
+      "id": "ShaperMapPhoenix",
+      "npc": "The Shaper",
+      "category": "Shaper",
+      "type": "Guardian",
+      "arguments": {
+        "mapStarted": true,
+        "enemy": "Guardian of the Phoenix"
+      }
+    },
     "I see you, little mouse... you don't belong here. Run along!": {
       "id": "ShaperMapShapersRealm",
       "npc": "The Shaper",
