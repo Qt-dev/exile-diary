@@ -85,15 +85,6 @@ const textPerEventType = {
       </>
     );
   },
-  shrine: (event) => {
-    // const shrineData = JSON.parse(event.event_text);
-    const shrineName = constants.shrineQuotes[event.event_text];
-    return (
-      <>
-        Activated <span className="Text--Rare">{shrineName}</span>
-      </>
-    );
-  },
   // New events
   Shrines: (event) => {
     const eventData = JSON.parse(event.event_text);

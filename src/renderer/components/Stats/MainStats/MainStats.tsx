@@ -176,13 +176,20 @@ const MainStats = ({ stats }) => {
             <div className="Main-Stat__Text">
               <img src={BlightIcon} alt="Blight Icon" className="Main-Stat__Icon" />
               Blight encounters:{' '}
-              <span className="Main-Stat__Value">{stats.misc.blightEncounter}</span>
+              <span className="Main-Stat__Value">{stats.misc.blight.encounters}</span>
+            </div>
+          </div>
+          <div className="Main-Stat">
+            <div className="Main-Stat__Text">
+              <img src={BlightIcon} alt="Blight Icon" className="Main-Stat__Icon" />
+              Blight lanes:{' '}
+              <span className="Main-Stat__Value">{stats.misc.blight.lanes.total}</span>
             </div>
           </div>
           <div className="Main-Stat">
             <div className="Main-Stat__Text">
               <img src={BlightedMapIcon} alt="Blighted Map Icon" className="Main-Stat__Icon" />
-              Blighted Maps: <span className="Main-Stat__Value">{stats.misc.blightedMap}</span>
+              Blighted Maps: <span className="Main-Stat__Value">{stats.misc.blight.maps}</span>
             </div>
           </div>
           {/* <div className="Main-Stat">
@@ -232,8 +239,8 @@ const MainStats = ({ stats }) => {
             <div className="Main-Stat__Text">
               <img src={LegionIcon} alt="Legion Icon" className="Main-Stat__Icon" />
               Legion General Encounters:{' '}
-              <span className="Main-Stat__Value">{stats.misc.legionGenerals.encounters}</span> (
-              <span className="Main-Stat__Value">{stats.misc.legionGenerals.kills}</span> killed)
+              <span className="Main-Stat__Value">{stats.misc.legion.generals.encounters}</span> (
+              <span className="Main-Stat__Value">{stats.misc.legion.generals.kills}</span> killed)
             </div>
           </div>
           {Object.keys(stats.misc.legionGenerals.generals).map((general: string) => {
@@ -264,108 +271,72 @@ const MainStats = ({ stats }) => {
           })}
         </div>
       </div>
-      <h2 className="Main-Stats__Header">Conquerors of the Atlas</h2>
-      <div className="Main-Stats__Container Main-Stats--Two-Columns Main-Stats--Conquerors">
-        {Object.keys(stats.misc.conquerors).map((conqueror: string) => {
-          const conquerorPrefix = conqueror.replace(',', '').split(' ')[0].toLowerCase();
-          const ConquerorIcon = require(`../../../assets/img/encountericons/${conquerorPrefix}.png`);
-          return (
-            <div className="Main-Stat" key={conqueror}>
-              <div className={`Main-Stat__Header Main-Stat__Header--${conquerorPrefix}`}>
-                <img src={ConquerorIcon} alt="Conqueror Icon" className="Main-Stat__Header__Icon" />
-                {conqueror}
-              </div>
-              <div className="Main-Stat__Text">
-                Citadel Battle:{' '}
-                <span className="Main-Stat__Value">
-                  {stats.misc.conquerors[conqueror].encounters}
-                </span>{' '}
-                (
-                <span className="Main-Stat__Value">
-                  {stats.misc.conquerors[conqueror].defeated}
-                </span>{' '}
-                defeated)
-              </div>
-            </div>
-          );
-        })}
-      </div>
-      <h2 className="Main-Stats__Header">Masters</h2>
+      <h2 className="Main-Stats__Header">League Mechanics</h2>
       <div className="Main-Stats__Container Main-Stats--One-Column Main-Stats--Masters">
         <div className="Main-Stat__Section Main-Stat__Section--One-Column">
           <div className="Main-Stat__Section-Header Main-Stat__Header--alva">
             <img src={AlvaIcon} alt="Conqueror Icon" className="Main-Stat__Header__Icon" />
-            Alva, Master Explorer
+            Incursions
           </div>
           <div className="Main-Stat">
             <div className="Main-Stat__Text">
-              Encounters:{' '}
-              <span className="Main-Stat__Value">{stats.misc.masters.alva.started}</span>
+              Alva room cleared in maps:{' '}
+              <span className="Main-Stat__Value">{stats.misc.incursion.unlocks.count}</span>
             </div>
           </div>
           <div className="Main-Stat">
             <div className="Main-Stat__Text">
-              Missions Completed:{' '}
-              <span className="Main-Stat__Value">{stats.misc.masters.alva.missionMaps}</span>
+              Time Spent in Incursion rooms in maps:{' '}
+              <span className="Main-Stat__Value">{stats.misc.incursion.unlocks.time.total}</span>sec
+              (max: <span className="Main-Stat__Value">{stats.misc.incursion.unlocks.time.max}</span>sec | min: <span className="Main-Stat__Value">{stats.misc.incursion.unlocks.time.min}</span>sec)
             </div>
           </div>
           <div className="Main-Stat">
             <div className="Main-Stat__Text">
               Temple Runs:{' '}
-              <span className="Main-Stat__Value">{stats.misc.masters.alva.details.temples}</span> (
-              <span className="Main-Stat__Value">
-                {Object.keys(stats.misc.masters.alva.details.tier3Rooms).length}
-              </span>{' '}
-              t3 rooms)
-            </div>
-          </div>
-          <div className="Main-Stat">
-            <div className="Main-Stat__Text">
-              Incursions Completed:{' '}
-              <span className="Main-Stat__Value">{stats.misc.masters.alva.details.incursions}</span>
+              <span className="Main-Stat__Value">{stats.misc.incursion.rooms.temples}</span> (
+              T3 Rooms:{' '}<span className="Main-Stat__Value">
+                {stats.misc.incursion.rooms.count}
+              </span>
+              )
             </div>
           </div>
         </div>
         <div className="Main-Stat__Section Main-Stat__Section--One-Column">
           <div className="Main-Stat__Section-Header Main-Stat__Header--einhar">
             <img src={EinharIcon} alt="Einhar Icon" className="Main-Stat__Header__Icon" />
-            {stats.misc.masters.einhar.fullName}
+            Bestiary
           </div>
           <div className="Main-Stat">
             <div className="Main-Stat__Text">
-              Encounters:{' '}
-              <span className="Main-Stat__Value">{stats.misc.masters.einhar.started}</span>
+              Crafted Recipes:{' '}
+              <span className="Main-Stat__Value">{stats.misc.beasts.crafted.count}</span>
             </div>
           </div>
           <div className="Main-Stat">
             <div className="Main-Stat__Text">
-              Missions completed:{' '}
-              <span className="Main-Stat__Value">{stats.misc.masters.einhar.missionMaps}</span>
+              Time Spent Crafting:{' '}
+              <span className="Main-Stat__Value">{stats.misc.beasts.crafted.time.total}</span>sec
+              (max: <span className="Main-Stat__Value">{stats.misc.beasts.crafted.time.max}</span>sec | min: <span className="Main-Stat__Value">{stats.misc.beasts.crafted.time.min}</span>sec)
             </div>
           </div>
           <div className="Main-Stat">
             <div className="Main-Stat__Text">
               Captured Beasts:
-              <span className="Main-Stat__Value">{stats.misc.masters.einhar.details.beasts}</span>
+              <span className="Main-Stat__Value">{stats.misc.beasts.captured.red + stats.misc.beasts.captured.yellow}</span>
               <span className="Main-Stat__Value--Beasts">
                 (
                 <img
                   className="Main-Stat__Beast-Icon"
                   src={RedBeastIcon}
                   alt="Red Beast Icon"
-                />x {stats.misc.masters.einhar.details.redBeasts} |
+                />x {stats.misc.beasts.captured.red} |
                 <img
                   className="Main-Stat__Beast-Icon"
                   src={YellowBeastIcon}
                   alt="Yellow Beast Icon"
                 />
-                x {stats.misc.masters.einhar.details.yellowBeasts} |
-                <img
-                  className="Main-Stat__Beast-Icon"
-                  src={WhiteBeastIcon}
-                  alt="White Beast Icon"
-                />
-                x {whiteBeasts})
+                x {stats.misc.beasts.captured.yellow})
               </span>
             </div>
           </div>
@@ -373,63 +344,45 @@ const MainStats = ({ stats }) => {
         <div className="Main-Stat__Section Main-Stat__Section--One-Column">
           <div className="Main-Stat__Section-Header Main-Stat__Header--niko">
             <img src={NikoIcon} alt="Niko Icon" className="Main-Stat__Header__Icon" />
-            {stats.misc.masters.niko.fullName}
+            Delve
           </div>
           <div className="Main-Stat">
             <div className="Main-Stat__Text">
-              Encounters:{' '}
-              <span className="Main-Stat__Value">{stats.misc.masters.niko.started}</span>
-            </div>
-          </div>
-          <div className="Main-Stat">
-            <div className="Main-Stat__Text">
-              Missions completed:{' '}
-              <span className="Main-Stat__Value">{stats.misc.masters.niko.missionMaps}</span>
+              Niko Encounters:{' '}
+              <span className="Main-Stat__Value">{stats.misc.delve.niko}</span>
             </div>
           </div>
           <div className="Main-Stat">
             <div className="Main-Stat__Text">
               Sulphite Deposits Collected:{' '}
-              <span className="Main-Stat__Value">{stats.misc.masters.niko.details.sulphite}</span>
+              <span className="Main-Stat__Value">{stats.misc.delve.sulphiteNodes}</span>
             </div>
           </div>
         </div>
         <div className="Main-Stat__Section Main-Stat__Section--Two-Columns">
           <div className="Main-Stat__Section-Header Main-Stat__Header--jun">
             <img src={JunIcon} alt="Jun Icon" className="Main-Stat__Header__Icon" />
-            {stats.misc.masters.jun.fullName}
+            Betrayal
           </div>
           <div className="Main-Stat__Section__Column">
             <div className="Main-Stat">
               <div className="Main-Stat__Text">
                 Encounters:{' '}
-                <span className="Main-Stat__Value">{stats.misc.masters.jun.started}</span>
-              </div>
-            </div>
-            <div className="Main-Stat">
-              <div className="Main-Stat__Text">
-                Missions completed:{' '}
-                <span className="Main-Stat__Value">{stats.misc.masters.jun.missionMaps}</span>
+                <span className="Main-Stat__Value">{stats.misc.betrayal.junCounter}</span>
               </div>
             </div>
             <div className="Main-Stat">
               <div className="Main-Stat__Text">
                 Mastermind Lairs:{' '}
-                <span className="Main-Stat__Value">{stats.misc.mastermind.started}</span>(
-                <span className="Main-Stat__Value">{stats.misc.mastermind.completed}</span>{' '}
+                <span className="Main-Stat__Value">{stats.misc.betrayal.boss.started}</span>(
+                <span className="Main-Stat__Value">{stats.misc.betrayal.boss.finished}</span>{' '}
                 defeated)
               </div>
             </div>
             <div className="Main-Stat">
               <div className="Main-Stat__Text">
-                Safehouses Visited:{' '}
-                <span className="Main-Stat__Value">{stats.misc.syndicate.safehouses}</span>
-              </div>
-            </div>
-            <div className="Main-Stat">
-              <div className="Main-Stat__Text">
                 Syndicate Member encountered:{' '}
-                <span className="Main-Stat__Value">{stats.misc.syndicate.encounters}</span>
+                <span className="Main-Stat__Value">{stats.misc.betrayal.memberEncounters}</span>
               </div>
             </div>
           </div>
@@ -441,19 +394,21 @@ const MainStats = ({ stats }) => {
                   <TableCell align="center">Encounters</TableCell>
                   <TableCell align="center">Kills</TableCell>
                   <TableCell align="center">Kills as Leader</TableCell>
+                  <TableCell align="center">Killed a player</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
-                {Object.keys(stats.misc.syndicate.members)
+                {Object.keys(stats.misc.betrayal.members)
                   .sort()
                   .map((name) => {
-                    const member = stats.misc.syndicate.members[name];
+                    const member = stats.misc.betrayal.members[name];
                     return (
                       <TableRow key={name}>
                         <TableCell>{name}</TableCell>
                         <TableCell align="center">{member.encounters}</TableCell>
-                        <TableCell align="center">{member.kills}</TableCell>
-                        <TableCell align="center">{member.safehouseLeaderKills}</TableCell>
+                        <TableCell align="center">{member.defeated}</TableCell>
+                        <TableCell align="center">{member.defeatedAsLeader}</TableCell>
+                        <TableCell align="center">{member.killedPlayers}</TableCell>
                       </TableRow>
                     );
                   })}

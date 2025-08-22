@@ -174,19 +174,18 @@ const RunParser = {
     return mapStats;
   },
 
-  getMapRun: async (runId: number): Promise<{ first_event: string; last_event: string }> => {
-    const mapRun = await OldDB.get('SELECT first_event, last_event FROM run WHERE id = ?', [runId]);
-    return {
-      ...mapRun,
-    };
+  getMapRun: async (runId: number): Promise<{ first_event: string; last_event: string; completed: boolean }> => {
+    const mapRun = await OldDB.get('SELECT first_event, last_event, completed FROM run WHERE id = ?', [runId]);
+    return mapRun;
   },
 
   getXP: async (runId: number, lastEventTimestamp?: string): Promise<number | null> => {
     let first_event: string | null = null;
+    let completed: boolean = false;
     let shouldQueryAPI = false;
     let experience: number | null = null;
     try {
-      ({ first_event } = await RunParser.getMapRun(runId));
+      ({ first_event, completed } = await RunParser.getMapRun(runId));
     } catch (error) {
       logger.error(`Failed to get map run for runId ${runId}: ${error}`);
     }
@@ -206,7 +205,7 @@ const RunParser = {
       shouldQueryAPI = true;
     }
 
-    if (shouldQueryAPI) {
+    if (shouldQueryAPI && !completed) {
       try {
         const { experience: GGGExperience } = await GGGAPI.getDataForInventory();
         experience = GGGExperience;
@@ -557,7 +556,6 @@ const RunParser = {
 
     let run: any = {};
     let lastEnteredArea = '';
-    let blightCount = 0;
 
     if (Constants.atlasRegions[areaName]) {
       run.atlasRegion = Constants.atlasRegions[areaName];
@@ -581,65 +579,39 @@ const RunParser = {
           continue;
         case 'slain':
           run.deaths = ++run.deaths || 1;
+          if(
+            run.shaper?.guardians?.length >= 1 && 
+            run.maven?.witnesses?.[run.maven?.witnesses?.length - 1].started
+          ) {
+            run.shaper.guardians[run.shaper.guardians.length - 1].deaths = ++run.shaper.guardians[run.shaper.guardians.length - 1].deaths || 1;
+          }
           continue;
         case 'abnormalDisconnect':
           run.abnormalDisconnect = ++run.abnormalDisconnect || 1;
           continue;
-        // Retired, there is no favour anymore
-        // case 'favourGained':
-        //   // no need for null checking adjacent events, map runs must always start and end with an "entered" event
-        //   let master = RunParser.getMaster(events[i - 1], events[i + 1]);
-        //   run.masters = run.masters || {};
-        //   run.masters[master] = run.masters[master] || { encountered: true };
-        //   run.masters[master].favourGained =
-        //     (run.masters[master].favourGained || 0) + Number(evt.event_text);
-        //   continue;
-        case 'shrine':
-          if (Constants.darkshrineQuotes[evt.event_text]) {
-            run.labyrinth = run.labyrinth || {};
-            run.labyrinth.darkshrines = run.labyrinth.darkshrines || [];
-            run.labyrinth.darkshrines.push(evt.event_text);
-          } else {
-            run.shrines = run.shrines || [];
-            run.shrines.push(Constants.shrineQuotes[evt.event_text]);
-          }
+        // case 'shrine':
+        //   if (Constants.darkshrineQuotes[evt.event_text]) {
+        //     run.labyrinth = run.labyrinth || {};
+        //     run.labyrinth.darkshrines = run.labyrinth.darkshrines || [];
+        //     run.labyrinth.darkshrines.push(evt.event_text);
+        //   }
+          //  else {
+          //   run.shrines = run.shrines || [];
+          //   run.shrines.push(Constants.shrineQuotes[evt.event_text]);
+          // }
           continue;
-        case 'mapBoss':
-          line = RunParser.getNPCLine(evt.event_text);
-          // use lastEnteredArea instead of areaName to handle Zana map missions
-          if (
-            line &&
-            Constants.mapBossBattleStartQuotes[lastEnteredArea] &&
-            Constants.mapBossBattleStartQuotes[lastEnteredArea].includes(line.text)
-          ) {
-            run.mapBoss = run.mapBoss || {};
-            run.mapBoss[lastEnteredArea] = run.mapBoss[lastEnteredArea] || {};
-            // only take the earliest possible battle start
-            if (!run.mapBoss[lastEnteredArea].battleStart) {
-              run.mapBoss[lastEnteredArea].battleStart = evt.timestamp;
-            }
-          }
-          if (
-            line &&
-            Constants.mapBossKilledQuotes[lastEnteredArea] &&
-            Constants.mapBossKilledQuotes[lastEnteredArea].includes(line.text)
-          ) {
-            run.mapBoss = run.mapBoss || {};
-            run.mapBoss[lastEnteredArea] = run.mapBoss[lastEnteredArea] || {};
-            // cold river map has two bosses that both emit death lines - take the latest
-            run.mapBoss[lastEnteredArea].bossKilled = evt.timestamp;
-          }
-          continue;
-        case 'master':
-        case 'conqueror':
-        case 'leagueNPC':
-          line = RunParser.getNPCLine(evt.event_text);
-          break;
+        // case 'master':
+        // case 'conqueror':
+        // case 'leagueNPC':
+        //   line = RunParser.getNPCLine(evt.event_text);
+        //   break;
         default:
-          EventParser.parseEventData(run, evt);
-          // ignore other event types
-          continue;
+          const parsedEvent = EventParser.parseEventData(run, evt);
+          if(parsedEvent) continue;
       }
+
+      line = LogProcessor.readLine(evt.event_text);
+      logger.debug("READING LINE:", line);
 
       if (line === null) continue;
       switch (line.npc) {
@@ -647,409 +619,14 @@ const RunParser = {
           run.envoy = run.envoy || { words: 0 };
           run.envoy.words += line.text.split(' ').length;
           continue;
-        case 'The Maven':
-          if (!run.maven) {
-            run.maven = { firstLine: evt.id };
-          } else {
-            let eventType = Constants.mavenQuotes[line.text];
-            if (eventType) {
-              run.maven[eventType] = evt.id;
-            }
-          }
-          continue;
-        case 'Sister Cassia':
-          if (Constants.blightBranchQuotes.includes(line.text)) {
-            blightCount++;
-          }
-          continue;
         case 'Strange Voice':
-          if (Constants.areas.delirium.includes(areaName)) {
-            if (Constants.simulacrumWaveQuotes[line.text]) {
-              run.simulacrumProgress = run.simulacrumProgress || {};
-              run.simulacrumProgress[Constants.simulacrumWaveQuotes[line.text]] = evt.id;
-            }
-          } else {
-            run.strangeVoiceEncountered = true;
-          }
-          continue;
-        case 'The Shaper':
-          if (areaName === "The Shaper's Realm" && Constants.shaperBattleQuotes[line.text]) {
-            run.shaperBattle = run.shaperBattle || {};
-            run.shaperBattle[Constants.shaperBattleQuotes[line.text]] = evt.id;
-          } else if (
-            Constants.mapBossKilledQuotes[lastEnteredArea] &&
-            Constants.mapBossKilledQuotes[lastEnteredArea].includes(line.text)
-          ) {
-            // "This is the key to a crucible that stretches the sanity of the mind"
-            run.mapBoss = run.mapBoss || {};
-            run.mapBoss[lastEnteredArea] = run.mapBoss[lastEnteredArea] || {};
-            run.mapBoss[lastEnteredArea].bossKilled = evt.timestamp;
-          }
-          continue;
-        case 'Catarina, Master of Undeath':
-          if (areaName === "Mastermind's Lair" && Constants.mastermindBattleQuotes[line.text]) {
-            run.mastermindBattle = run.mastermindBattle || {};
-            run.mastermindBattle[Constants.mastermindBattleQuotes[line.text]] = evt.id;
-          }
-          continue;
-        case 'Izaro':
-          if (Constants.labyrinthQuotes[line.text]) {
-            run.labyrinth = run.labyrinth || {};
-            run.labyrinth[Constants.labyrinthQuotes[line.text]] = evt.id;
-          }
-          continue;
-        // case 'Einhar, Beastmaster':
-        //   if (areaName === 'The Menagerie') {
-        //     if (Constants.beastRecipeQuotes.includes(line.text)) {
-        //       run.beastRecipes = ++run.beastRecipes || 1;
-        //     }
-        //   } else {
-        //     run.masters = run.masters || {};
-        //     run.masters[line.npc] = run.masters[line.npc] || { encountered: true };
-        //     if (Constants.beastCaptureQuotes[line.text]) {
-        //       run.masters[line.npc].beasts = ++run.masters[line.npc].beasts || 1;
-        //       switch (Constants.beastCaptureQuotes[line.text]) {
-        //         case 'yellow':
-        //           run.masters[line.npc].yellowBeasts = ++run.masters[line.npc].yellowBeasts || 1;
-        //           break;
-        //         case 'red':
-        //           run.masters[line.npc].redBeasts = ++run.masters[line.npc].redBeasts || 1;
-        //           break;
-        //         default:
-        //           // no difference between yellow and red in Einhar's "mission complete" quote;
-        //           // this means that the last beast in an area can't be identified
-        //           break;
-        //       }
-        //     }
-        //   }
-        //   continue;
-        case 'Alva, Master Explorer':
-          run.masters = run.masters || {};
-          run.masters[line.npc] = run.masters[line.npc] || {};
-          if (areaName === 'The Temple of Atzoatl') {
-            if (Constants.templeRoomQuotes[line.text]) {
-              run.masters[line.npc].tier3Rooms = run.masters[line.npc].tier3Rooms || [];
-              run.masters[line.npc].tier3Rooms.push(Constants.templeRoomQuotes[line.text]);
-            }
-          } else {
-            run.masters[line.npc].encountered = true;
-            if (line.text.includes('Good job')) {
-              run.masters[line.npc].incursions = ++run.masters[line.npc].incursions || 1;
-            }
-          }
+          run.strangeVoiceEncountered = true;
           continue;
         case 'Niko, Master of the Depths':
-          run.masters = run.masters || {};
-          run.masters[line.npc] = run.masters[line.npc] || { encountered: true };
-          run.masters[line.npc].sulphite = ++run.masters[line.npc].sulphite || 1;
+          run.delve = run.delve || {};
+          run.delve.niko = true;
+          run.delve.sulphiteNodes = ++run.delve.sulphiteNodes || 1;
           continue;
-        case 'Zana, Master Cartographer':
-          if (areaName === 'Absence of Value and Meaning') {
-            if (Constants.elderDefeatedQuotes.includes(line.text)) {
-              run.elderDefeated = true;
-            }
-          } else {
-            if (areaName !== "The Shaper's Realm" && areaName !== 'Eye of the Storm') {
-              run.masters = run.masters || {};
-              run.masters[line.npc] = run.masters[line.npc] || { encountered: true };
-              let missionMap = RunParser.getZanaMissionMap(events);
-              if (missionMap) {
-                run.masters[line.npc].missionMap = missionMap;
-              }
-            }
-          }
-          continue;
-        case 'Jun, Veiled Master':
-          if (areaName !== 'Syndicate Hideout' && areaName !== "Mastermind's Lair") {
-            run.masters = run.masters || {};
-            run.masters[line.npc] = run.masters[line.npc] || { encountered: true };
-          }
-          if (line.text.includes('[')) {
-            let subLine = RunParser.getNPCLine(line.text.slice(1, line.text.length - 1));
-            if (!subLine) continue;
-            run.syndicate = run.syndicate || {};
-            run.syndicate[subLine.npc] = run.syndicate[subLine.npc] || { encountered: true };
-            let quote = Constants.syndicateMemberQuotes[subLine.npc];
-            if (quote.defeated.includes(subLine.text)) {
-              run.syndicate[subLine.npc].defeated = ++run.syndicate[subLine.npc].defeated || 1;
-            } else if (quote.killPlayer.includes(subLine.text)) {
-              run.syndicate[subLine.npc].killedPlayer =
-                ++run.syndicate[subLine.npc].killedPlayer || 1;
-            } else if (quote.safehouseLeaderDefeated === subLine.text) {
-              run.syndicate[subLine.npc].safehouseLeaderDefeated = true;
-            }
-          } else {
-            let member = Constants.syndicateMemberQuotes.jun[line.text];
-            if (member) {
-              run.syndicate = run.syndicate || {};
-              run.syndicate[member] = run.syndicate[member] || { encountered: true };
-              run.syndicate[member].defeated = ++run.syndicate[member].defeated || 1;
-            }
-          }
-          continue;
-        // case 'Al-Hezmin, the Hunter':
-        // case 'Baran, the Crusader':
-        // case 'Drox, the Warlord':
-        // case 'Veritania, the Redeemer':
-        //   run.conqueror = run.conqueror || {};
-        //   run.conqueror[line.npc] = run.conqueror[line.npc] || {};
-        //   let battleQuotes = Constants.conquerorBattleStartQuotes[line.npc];
-        //   for (let j = 0; j < battleQuotes.length; j++) {
-        //     if (line.text.includes(battleQuotes[j])) {
-        //       run.conqueror[line.npc].battle = true;
-        //     }
-        //   }
-        //   if (run.conqueror[line.npc].battle) {
-        //     let deathQuotes = Constants.conquerorDeathQuotes[line.npc];
-        //     for (let j = 0; j < deathQuotes.length; j++) {
-        //       if (line.text.includes(deathQuotes[j])) {
-        //         run.conqueror[line.npc].defeated = true;
-        //       }
-        //     }
-        //   } else {
-        //     run.conqueror[line.npc].encounter = true;
-        //   }
-        //   continue;
-        case 'Sirus, Awakener of Worlds':
-          run.sirusBattle = run.sirusBattle || {};
-          if (Constants.sirusBattleQuotes[line.text]) {
-            run.sirusBattle[Constants.sirusBattleQuotes[line.text]] = evt.id;
-          } else if (line.text === 'Die.') {
-            run.sirusBattle.dieBeamsFired = ++run.sirusBattle.dieBeamsFired || 1;
-            if (events[i + 1] && events[i + 1].event_type === 'slain') {
-              run.sirusBattle.dieBeamKills = ++run.sirusBattle.dieBeamKills || 1;
-            }
-          }
-          continue;
-        case 'Queen Hyrri Ngamaku':
-        case 'General Marceus Lioneye':
-        case 'Viper Napuatzi':
-        case 'Cardinal Sanctus Vox':
-        case 'Aukuna, the Black Sekhema':
-          if (areaName !== 'Domain of Timeless Conflict') {
-            run.legionGenerals = run.legionGenerals || {};
-            run.legionGenerals[line.npc] = run.legionGenerals[line.npc] || { encountered: true };
-            if (Constants.legionDeathQuotes[line.npc].includes(line.text)) {
-              run.legionGenerals[line.npc].defeated = ++run.legionGenerals[line.npc].defeated || 1;
-            }
-          }
-          continue;
-        case 'Oshabi':
-          if (Constants.oshabiBattleQuotes[line.text]) {
-            run.oshabiBattle = run.oshabiBattle || {};
-            // don't log duplicate events
-            if (!run.oshabiBattle[Constants.oshabiBattleQuotes[line.text]]) {
-              run.oshabiBattle[Constants.oshabiBattleQuotes[line.text]] = evt.id;
-            }
-          }
-          continue;
-        case 'Venarius':
-          if (Constants.venariusBattleQuotes[line.text]) {
-            run.venariusBattle = run.venariusBattle || {};
-            // don't log duplicate events
-            if (!run.venariusBattle[Constants.venariusBattleQuotes[line.text]]) {
-              run.venariusBattle[Constants.venariusBattleQuotes[line.text]] = evt.id;
-            }
-          }
-          continue;
-        case 'The Trialmaster':
-          // need an array because there can be multiple ultimatums in a map run (campaign areas, Zana missions)
-          run.ultimatum = run.ultimatum || [];
-          if (Constants.ultimatumQuotes.start.includes(line.text)) {
-            run.ultimatum.push({ start: evt.id });
-          } else {
-            let currUlt = run.ultimatum[run.ultimatum.length - 1];
-            if (!currUlt) {
-              // ????
-              logger.info(`Ultimatum event without start event: [${evt.id} ${line.text}]`);
-              continue;
-            }
-            if (Constants.ultimatumQuotes.lost.includes(line.text)) {
-              currUlt.lost = evt.id;
-            } else if (Constants.ultimatumQuotes.tookReward.includes(line.text)) {
-              currUlt.tookReward = evt.id;
-            } else if (Constants.ultimatumQuotes.won.includes(line.text)) {
-              currUlt.won = evt.id;
-            } else if (Constants.ultimatumQuotes.trialmasterDefeated.includes(line.text)) {
-              currUlt.trialmasterDefeated = evt.id;
-            } else if (Constants.ultimatumQuotes.mods[line.text]) {
-              currUlt.rounds = currUlt.rounds || {};
-              currUlt.rounds[evt.id] = Constants.ultimatumQuotes.mods[line.text];
-              if (currUlt.rounds[evt.id].includes('/') && currUlt.rounds[evt.id].includes('Ruin')) {
-                currUlt.isAmbiguous = true;
-              }
-            }
-          }
-          continue;
-      }
-    }
-
-    if (run.ultimatum) {
-      // TODO: Update this with new Ultimatum patterns
-      // We are jumping through these convoluted hoops because GGG couldn't give a unique quote to each type of mod >:\
-      // Ailment and Curse Reflection is completely indistinguishable from Hindering Flasks, but for the ones below we can at least try
-      for (let ultimatum of run.ultimatum) {
-        if (!ultimatum.isAmbiguous) continue;
-
-        delete ultimatum.isAmbiguous;
-
-        let keys = Object.keys(ultimatum.rounds);
-        let ruin = false,
-          ruin2 = false,
-          ruin3 = false,
-          sruin = false,
-          sruin2 = false,
-          sruin3 = false;
-
-        for (let i = 0; i < keys.length; i++) {
-          let mod = ultimatum.rounds[keys[i]];
-          switch (mod) {
-            case 'Ruin II':
-              ruin2 = true;
-              break;
-            case 'Ruin III':
-              ruin3 = true;
-              break;
-            case 'Stalking Ruin':
-              sruin = true;
-              break;
-            case 'Ruin / Stalking Ruin III':
-              if (i === 0 || !sruin2 || sruin3) {
-                ultimatum.rounds[keys[i]] = 'Ruin';
-                ruin = true;
-              } else if (ruin) {
-                ultimatum.rounds[keys[i]] = 'Stalking Ruin III';
-                sruin3 = true;
-              }
-              break;
-            case 'Ruin II / Stalking Ruin II':
-              if (sruin2 || (ruin && !sruin)) {
-                ultimatum.rounds[keys[i]] = 'Ruin II';
-                ruin2 = true;
-              } else if (ruin2 || (sruin && !ruin)) {
-                ultimatum.rounds[keys[i]] = 'Stalking Ruin II';
-                sruin2 = true;
-              }
-              break;
-          }
-        }
-
-        // make a second pass if needed
-        if (
-          Object.values(ultimatum.rounds).includes('Ruin / Stalking Ruin III') ||
-          Object.values(ultimatum.rounds).includes('Ruin II / Stalking Ruin II')
-        ) {
-          for (let i = 0; i < keys.length; i++) {
-            let mod = ultimatum.rounds[keys[i]];
-            switch (mod) {
-              case 'Ruin / Stalking Ruin III':
-                if (sruin3 || (ruin2 && !ruin)) {
-                  ultimatum.rounds[keys[i]] = 'Ruin';
-                  ruin = true;
-                } else if (!sruin3) {
-                  // if only sruin and sruin2 are true, this case is STILL ambiguous, but fuck it let's just assume this
-                  ultimatum.rounds[keys[i]] = 'Stalking Ruin III';
-                  sruin3 = true;
-                }
-                break;
-              case 'Ruin II / Stalking Ruin II':
-                if (ruin && ruin3 && !ruin2) {
-                  ultimatum.rounds[keys[i]] = 'Ruin II';
-                  ruin2 = true;
-                } else if (sruin && sruin3 && !sruin2) {
-                  ultimatum.rounds[keys[i]] = 'Stalking Ruin II';
-                  sruin2 = true;
-                } else if (ruin && sruin && !ruin3 && !sruin3) {
-                  // again, fuck it
-                  ultimatum.rounds[keys[i]] = Math.random() > 0.5 ? 'Ruin II' : 'Stalking Ruin II';
-                }
-                break;
-            }
-          }
-        }
-      }
-    }
-
-    if (blightCount > 0) {
-      // 3.13 update: Zana can give blighted mission maps
-      if (blightCount > 8) {
-        if (run.masters && run.masters['Zana, Master Cartographer']) {
-          run.masters['Zana, Master Cartographer'].blightedMissionMap = true;
-        } else {
-          run.blightedMap = true;
-        }
-      } else {
-        run.blightEncounter = true;
-      }
-    }
-
-    let bossBattleStart;
-    if (run.maven && run.maven.firstLine) {
-      bossBattleStart = run.maven.firstLine;
-    }
-
-    // take the earliest possible boss battle start
-    if (run.mapBoss && run.mapBoss[areaName] && run.mapBoss[areaName].battleStart) {
-      bossBattleStart = dayjs.min(
-        dayjs(!!bossBattleStart ? bossBattleStart : undefined),
-        dayjs(run.mapBoss[areaName].battleStart)
-      );
-    }
-
-    let bossBattleEnd: dayjs.Dayjs | undefined;
-    if (run.maven && run.maven.bossKilled) {
-      bossBattleEnd = run.maven.bossKilled;
-    }
-    // take the latest possible boss kill time - to handle cold river multiboss
-    if (run.mapBoss && run.mapBoss[areaName] && run.mapBoss[areaName].bossKilled) {
-      bossBattleEnd = dayjs.max(dayjs(bossBattleEnd || 0), dayjs(run.mapBoss[areaName].bossKilled));
-    }
-
-    if (bossBattleStart && bossBattleEnd) {
-      run.bossBattle = {};
-      logger.info(`Boss battle in ${areaName} timers: ${bossBattleStart} - ${bossBattleEnd}`);
-
-      run.bossBattle.time = dayjs(bossBattleStart).diff(dayjs(bossBattleEnd), 's');
-      let bossBattleDeaths = RunParser.countDeaths(
-        events,
-        dayjs(bossBattleStart).toISOString(),
-        dayjs(bossBattleEnd).toISOString()
-      );
-      if (bossBattleDeaths) {
-        run.bossBattle.deaths = bossBattleDeaths;
-      }
-    }
-
-    // handle map boss stats in sub-areas
-    if (run.mapBoss) {
-      let areas = Object.keys(run.mapBoss);
-      for (let i = 0; i < areas.length; i++) {
-        let a = areas[i];
-        if (a !== areaName && run.mapBoss[a].battleStart && run.mapBoss[a].bossKilled) {
-          run.mapBoss[a].time = Utils.getRunningTime(
-            run.mapBoss[a].battleStart,
-            run.mapBoss[a].bossKilled,
-            's',
-            { useGrouping: false }
-          );
-          let deaths = RunParser.countDeaths(
-            events,
-            run.mapBoss[a].battleStart,
-            run.mapBoss[a].bossKilled
-          );
-          if (deaths) {
-            run.mapBoss[a].deaths = deaths;
-          }
-        }
-      }
-    }
-
-    // minor manual fixing - if Einhar mission was completed in an area, and all beasts except for the last are yellow,
-    // the last remaining one must be a red beast
-    if (run.masters && run.masters['Einhar, Beastmaster']) {
-      let einharData = run.masters['Einhar, Beastmaster'];
-      if (einharData.favourGained && einharData.yellowBeasts === einharData.beasts - 1) {
-        einharData.redBeasts = 1;
       }
     }
 

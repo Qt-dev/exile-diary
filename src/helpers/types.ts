@@ -1,25 +1,50 @@
+type BossFights = {
+      bossName?: string;
+      action: string;
+      started?: string;
+      finished?: string;
+      enemy?: string;
+      phase?: number;
+    }[];
+
 type RunInfo = {
   blightedMap?: string;
+  beasts?: {
+    captured: {
+      yellow: number;
+      red: number;
+    },
+    crafted: {
+      started: string;
+      finished: string;
+    }[];
+  };
+  incursion?: {
+    unlocked: { started: string, finished: string }[];
+    rooms: { roomName: string, roomId: boolean, timestamp: string }[];
+  };
   maven?: {
     crucibleCompleted?: number;
     mavenDefeated?: number;
     firstLine: number;
+    witnesses?: {
+      started?: string;
+      finished?: string;
+    }[];
   };
-  oshabiBattle?: {
-    start: number;
-    completed: number;
+  harvest?: {
+    bossFights: BossFights;
   };
-  venariusBattle?: {
-    start: number;
-    completed: number;
+  synthesis?: {
+    bossFights: BossFights;
   };
-  shaperBattle?: {
-    phase1start: number;
-    completed: number;
-  };
-  mastermindBattle?: {
-    battle2start: number;
-    completed: number;
+  shaper?: {
+    bossFights: BossFights;
+    guardians?: {
+      guardianName: string;
+      started: string;
+      deaths: number;
+    }[]
   };
   envoy?: {
     words: number;
@@ -43,33 +68,25 @@ type RunInfo = {
       isTemple?: boolean;
     };
   };
-  syndicate?: {
-    [key: string]: {
-      defeated: boolean;
-      killedPlayer: boolean;
-      safehouseLeaderDefeated: boolean;
-    };
+  betrayal?: {
+    fights?: {
+      npc: string;
+      action: string;
+      timestamp: string;
+    }[];
+    bossfights: BossFights;
   };
-  sirusBattle?: {
-    start: number;
-    completed: number;
-    finalPhaseStart: number;
-    dieBeamsFired: number;
-    dieBeamKills: number;
-    droppedOrb: boolean;
+  sirus?: {
+    bossFights: BossFights;
   };
-  legionGenerals?: {
-    [key: string]: {
-      defeated: boolean;
-    };
+  legion?: {
+    bossFights: {
+      bossName: string;
+      finished: string;
+    }[];
   };
   conqueror: {
-    [key: string]: {
-      encountered: boolean;
-      battle: boolean;
-      defeated: boolean;
-      droppedOrb: boolean;
-    };
+    bossFights: BossFights;
   };
   metamorph?: {
     [key: string]: number;
@@ -90,6 +107,16 @@ type RunInfo = {
     deaths: number;
   };
   elderGuardian?: string;
+  delve: {
+    niko: boolean,
+    sulphiteNodes: number
+  };
+  blight: {
+    events: {
+      action: string;
+      timestamp: string;
+    }[];
+  }
 };
 
 type Run = {

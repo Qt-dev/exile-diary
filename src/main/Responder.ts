@@ -51,8 +51,7 @@ const loadRunDetails = async (e, { runId }) => {
 
 const reprocessRuns = async (e) => {
   logger.info('Reprocessing all runs');
-  // await RunParser.reprocessRuns();
-  await new Promise((resolve) => setTimeout(resolve, 5000));
+  await RunParser.reprocessRuns();
   RendererLogger.log({ messages: [{ text: 'All runs have been reprocessed.' }] });
 };
 

@@ -35,6 +35,19 @@ const shaperBattlePhases = [
   { name: 'completed', endpoint: true },
 ];
 
+
+const BossStatsConfig = [
+  { name: 'Catarina', key: 'betrayal' },
+  { name: 'Shaper', key: 'shaper', phases: 3 },
+  { name: 'Sirus', key: 'sirus' },
+  { name: 'Synthesis', key: 'synthesis' },
+  { name: 'Maven', key: 'maven' },
+  { name: 'Oshabi', key: 'harvest' },
+  { name: 'Venarius', key: 'venarius' },
+  { name: 'Conquerors', key: 'conquerors' },
+  // { name: 'Elder', key: 'elder', start: false } // No start there
+]
+
 const getAreaType = (area: string) => {
   const keys = Object.keys(areas).filter((areaType) => areas[areaType].includes(area));
   if (keys.length > 0) {
@@ -194,6 +207,62 @@ class StatsManager {
         encountered: 0,
         organs: {},
       },
+      bestiary: {
+        captured: {
+          yellow: 0,
+          red: 0,
+        },
+        crafted: {
+          time: {
+            total: 0,
+            min: 999999999,
+            max: 0,
+          },
+          count: 0,
+        },
+      },
+      incursions: {
+        unlocks: {
+          count: 0,
+          time: {
+            total: 0,
+            min: 999999999,
+            max: 0
+          }
+        },
+        rooms: {
+          count: 0,
+          types: {}
+        }
+      },
+      delve: {
+        niko: 0,
+        sulphiteNodes: 0
+      },
+      betrayal: {
+        junCounter: 0,
+        memberEncounters: 0,
+        members: {},
+        boss: {
+          started: 0,
+          finished: 0
+        }
+      },
+      blight: {
+        encounters: 0,
+        lanes: {
+          total: 0,
+          min: 9999,
+          max: 0
+        },
+        maps: 0
+      },
+      legion: {
+        generals: {
+          encounters: 0,
+          kills: 0
+        }
+      }
     },
     areas: {},
     bosses: {
@@ -223,6 +292,14 @@ class StatsManager {
       },
       conquerors: {
         name: 'Conquerors',
+        count: 0,
+        totalTime: 0,
+        fastest: Number.MAX_SAFE_INTEGER,
+        deaths: 0,
+        details: {},
+      },
+      legion: {
+        name: 'Legion Generals',
         count: 0,
         totalTime: 0,
         fastest: Number.MAX_SAFE_INTEGER,
@@ -361,40 +438,6 @@ class StatsManager {
       this.stats.misc.simulacrum.splinters += run.parsedRunInfo.simulacrumProgress.splinters;
     }
 
-    // Shaper battles
-    if (run.parsedRunInfo?.shaperBattle) {
-      this.stats.misc.shaper.started++;
-      if (run.parsedRunInfo.shaperBattle.completed) {
-        this.stats.misc.shaper.completed++;
-      }
-
-      shaperBattlePhases.forEach((phase, index) => {
-        if (phase.endpoint) {
-          const currentPhaseName = phase.name;
-          const previousPhaseName = shaperBattlePhases[index - 1]?.name;
-          if (
-            !!run.parsedRunInfo?.shaperBattle?.[previousPhaseName] &&
-            !!run.parsedRunInfo?.shaperBattle?.[currentPhaseName]
-          ) {
-            const runningTime = this.getRunningTime(
-              run.parsedRunInfo?.shaperBattle?.[previousPhaseName],
-              run.parsedRunInfo?.shaperBattle?.[currentPhaseName]
-            );
-            this.stats.misc.shaper.phases[currentPhaseName].count++;
-            this.stats.misc.shaper.phases[currentPhaseName].totalTime += Number(runningTime);
-          }
-        }
-      });
-    }
-
-    // Mastermind Battles
-    if (run.parsedRunInfo?.mastermindBattle) {
-      this.stats.misc.mastermind.started++;
-      if (run.parsedRunInfo.mastermindBattle.completed) {
-        this.stats.misc.mastermind.completed++;
-      }
-    }
-
     // Labyrinth info
     if (run.parsedRunInfo?.labyrinth) {
       this.stats.misc.labyrinth.started++;
@@ -448,104 +491,6 @@ class StatsManager {
 
         if (parsedStats.missionMap) {
           stats.details.missionMaps++;
-        }
-      }
-    }
-
-    // syndicate info
-    if (run.parsedRunInfo?.syndicate) {
-      let isSafeHouse = false;
-      for (const member in run.parsedRunInfo.syndicate) {
-        this.stats.misc.syndicate.encounters++;
-        this.stats.misc.syndicate.members[member] = this.stats.misc.syndicate.members[member] ?? {
-          encounters: 0,
-          kills: 0,
-          killedBy: 0,
-          safehouseLeaderKills: 0,
-        };
-        const stats = this.stats.misc.syndicate.members[member];
-        const parsedStats = run.parsedRunInfo.syndicate[member];
-        stats.encounters++;
-        if (parsedStats.defeated) {
-          stats.kills++;
-        }
-        if (parsedStats.killedPlayer) {
-          stats.killedBy++;
-        }
-        if (parsedStats.safehouseLeaderDefeated) {
-          isSafeHouse = true;
-          stats.safehouseLeaderKills++;
-        }
-      }
-      if (isSafeHouse) this.stats.misc.syndicate.safehouses++;
-    }
-
-    // Sirus Battle info
-    if (run.parsedRunInfo?.sirusBattle) {
-      this.stats.misc.sirus.started++;
-      if (run.parsedRunInfo.sirusBattle.completed) {
-        this.stats.misc.sirus.completed++;
-        if (run.parsedRunInfo.sirusBattle.finalPhaseStart) {
-          let lastPhaseTime = this.getRunningTime(
-            run.parsedRunInfo.sirusBattle.finalPhaseStart,
-            run.parsedRunInfo.sirusBattle.completed
-          );
-          this.stats.misc.sirus.lastPhaseTime += Number(lastPhaseTime);
-        }
-      }
-      if (run.parsedRunInfo.sirusBattle.dieBeamsFired) {
-        this.stats.misc.sirus.dieBeamsFired += run.parsedRunInfo.sirusBattle.dieBeamsFired;
-      }
-      if (run.parsedRunInfo.sirusBattle.dieBeamKills) {
-        this.stats.misc.sirus.dieBeamKills += run.parsedRunInfo.sirusBattle.dieBeamKills;
-      }
-      if (run.parsedRunInfo.sirusBattle.droppedOrb) {
-        this.stats.misc.sirus.droppedOrb++;
-      }
-    }
-
-    // Legion Generals Info
-    if (run.parsedRunInfo?.legionGenerals) {
-      for (const general in run.parsedRunInfo.legionGenerals) {
-        this.stats.misc.legionGenerals.generals[general] = this.stats.misc.legionGenerals.generals[
-          general
-        ] ?? {
-          encounters: 0,
-          kills: 0,
-        };
-        const stats = this.stats.misc.legionGenerals.generals[general];
-        const parsedStats = run.parsedRunInfo.legionGenerals[general];
-        stats.encounters++;
-        this.stats.misc.legionGenerals.encounters++;
-        if (parsedStats.defeated) {
-          stats.kills++;
-          this.stats.misc.legionGenerals.kills++;
-        }
-      }
-    }
-
-    // Conquerors Info
-    if (run.parsedRunInfo?.conqueror) {
-      for (const conqueror in run.parsedRunInfo.conqueror) {
-        if (!this.stats.misc.conquerors[conqueror]) {
-          this.stats.misc.conquerors[conqueror] = {
-            encounters: 0,
-            battles: 0,
-            defeated: 0,
-            droppedOrb: 0,
-          };
-        }
-        const stats = this.stats.misc.conquerors[conqueror];
-        const parsedStats = run.parsedRunInfo.conqueror[conqueror];
-        stats.encounters++;
-        if (parsedStats.battle) {
-          stats.battles++;
-        }
-        if (parsedStats.defeated) {
-          stats.defeated++;
-        }
-        if (parsedStats.droppedOrb) {
-          stats.droppedOrb++;
         }
       }
     }
@@ -644,145 +589,207 @@ class StatsManager {
       kills: run.kills ?? 0,
       deaths: run.parsedRunInfo?.deaths ?? 0,
     });
+
+    this.addBeastsStats(run);
+    this.addBetrayalStats(run);
+    this.addBlightStats(run);
+    this.addIncursionStats(run);
+    this.addDelveStats(run);
+    this.addLegionStats(run);
   }
 
-  addBossStats(run: Run) {
-    const detectedBosses: string[] = [];
+  addBlightStats(run: Run) {
+    if(run.parsedRunInfo?.blight) {
+      for(const event of run.parsedRunInfo.blight.events) {
+        if(event.action === 'start') {
+          this.stats.misc.blight.encounters++;
+        } else if (event.action === 'newLane') {
+          this.stats.misc.blight.lanes.total++;
+        }
+      }
+      const lanes = run.parsedRunInfo.blight.events.filter(e => e.action === 'newLane').length + 1;
+      this.stats.misc.blight.lanes.total += lanes;
+      this.stats.misc.blight.lanes.min = Math.min(this.stats.misc.blight.lanes.min, lanes);
+      this.stats.misc.blight.lanes.max = Math.max(this.stats.misc.blight.lanes.max, lanes);
+      if(lanes > 8) {
+        this.stats.misc.blight.maps++;
+      }
+    }
+  }
 
-    if (run.parsedRunInfo?.conqueror) {
-      for (let conquerorName in run.parsedRunInfo.conqueror) {
-        detectedBosses.push(conquerorName);
-        this.stats.bosses.conquerors[conquerorName] = this.stats.bosses.conquerors[
-          conquerorName
-        ] ?? {
-          name: conquerorName,
+  addBetrayalStats(run: Run) {
+    if (run.parsedRunInfo?.betrayal) {
+      this.stats.misc.betrayal = this.stats.misc.betrayal ?? {
+        junCounter: 0,
+        memberEncounters: 0,
+        members: {
+          // Map member names to their actions
+        },
+        boss: {
+          started: 0,
+          finished: 0
+        }
+      };
+
+      if(run.parsedRunInfo.betrayal.fights) {
+        this.stats.misc.betrayal.junCounter++;
+        for(const fight of run.parsedRunInfo.betrayal.fights) {
+          this.stats.misc.betrayal.memberEncounters = this.stats.misc.betrayal.memberEncounters ?? 0;
+          this.stats.misc.betrayal.memberEncounters++;
+          this.stats.misc.betrayal.members[fight.npc] = this.stats.misc.betrayal.members[fight.npc] ?? {
+            encounters: 0,
+            killedPlayers: 0,
+            defeated: 0,
+            defeatedAsLeader: 0
+          };
+          switch(fight.action) {
+            case 'killedPlayer':
+              this.stats.misc.betrayal.members[fight.npc].killedPlayers++;
+              break;
+            case 'defeated':
+              this.stats.misc.betrayal.members[fight.npc].defeated++;
+              break;
+            case 'defeatedAsLeader':
+              this.stats.misc.betrayal.members[fight.npc].defeatedAsLeader++;
+              break;
+          }
+          this.stats.misc.betrayal.members[fight.npc].encounters++;
+        }
+      }
+      if(run.parsedRunInfo.betrayal.bossfights) {
+        for(const fight of run.parsedRunInfo.betrayal.bossfights) {
+          this.stats.misc.betrayal.boss.started++;
+          if(fight.finished) {
+            this.stats.misc.betrayal.boss.finished++;
+          }
+        }
+      }
+    }
+  }
+
+  addIncursionStats(run: Run) {
+    if (run.parsedRunInfo?.incursion) {
+      this.stats.misc.incursion = this.stats.misc.incursion ?? {
+        unlocks: {
+          count: 0,
+          time: {
+            total: 0,
+            min: 999999999,
+            max: 0
+          }
+        },
+        rooms: {
+          temples: 0,
+          count: 0,
+          types: {}
+        }
+      };
+      if(run.parsedRunInfo.incursion.unlocked) {
+        this.stats.misc.incursion.unlocks.count += run.parsedRunInfo.incursion.unlocked.length;
+        for(const unlock of run.parsedRunInfo.incursion.unlocked) {
+          const runningTime = this.getRunningTime(
+            unlock.started,
+            unlock.finished
+          );
+          this.stats.misc.incursion.unlocks.time.total += runningTime;
+          this.stats.misc.incursion.unlocks.time.max = Math.max(this.stats.misc.incursion.unlocks.time.max, runningTime);
+          this.stats.misc.incursion.unlocks.time.min = Math.min(this.stats.misc.incursion.unlocks.time.min, runningTime);
+        }
+      }
+      if(run.parsedRunInfo.incursion.rooms) {
+        this.stats.misc.incursion.rooms.temples++;
+        this.stats.misc.incursion.rooms.count += run.parsedRunInfo.incursion.rooms.length;
+        for(const room of run.parsedRunInfo.incursion.rooms) {
+          this.stats.misc.incursion.rooms.types[room.roomName] = (this.stats.misc.incursion.rooms.types[room.roomName] ?? 0) + 1;
+        }
+      }
+    }
+  }
+
+  addBeastsStats(run: Run) {
+    if (run.parsedRunInfo?.beasts) {
+      this.stats.misc.beasts = this.stats.misc.beasts ?? {
+        captured: { yellow: 0, red: 0 },
+        crafted: { count: 0, time: { total: 0, min: 999999999, max: 0 } }
+      };
+      if(run.parsedRunInfo.beasts.captured) {
+        this.stats.misc.beasts.captured.yellow += run.parsedRunInfo.beasts.captured.yellow;
+        this.stats.misc.beasts.captured.red += run.parsedRunInfo.beasts.captured.red
+      }
+      if (run.parsedRunInfo.beasts.crafted) {
+        this.stats.misc.beasts.crafted.count += run.parsedRunInfo.beasts.crafted.length;
+        for(const craft of run.parsedRunInfo.beasts.crafted) {
+          const runningTime = this.getRunningTime(
+            craft.started,
+            craft.finished
+          );
+          this.stats.misc.beasts.crafted.time.total += runningTime;
+          this.stats.misc.beasts.crafted.time.max = Math.max(this.stats.misc.beasts.crafted.time.max, runningTime);
+          this.stats.misc.beasts.crafted.time.min = Math.min(this.stats.misc.beasts.crafted.time.min, runningTime);
+        }
+      }
+    }
+  }
+
+  addDelveStats(run: Run) {
+    if(run.parsedRunInfo?.delve) {
+      this.stats.misc.delve = this.stats.misc.delve ?? {
+        niko: 0,
+        sulphiteNodes: 0
+      };
+      this.stats.misc.delve.niko += run.parsedRunInfo.delve.niko ? 1 : 0;
+      this.stats.misc.delve.sulphiteNodes += run.parsedRunInfo.delve.sulphiteNodes ?? 0;
+    }
+  }
+
+  addLegionStats(run: Run) {
+    if(run.parsedRunInfo?.legion?.bossFights) {
+      this.stats.misc.legion.generals.encounters += run.parsedRunInfo.legion.bossFights.length;
+      this.stats.misc.legion.generals.kills += run.parsedRunInfo.legion.bossFights.filter((f: any) => f.finished).length;
+
+      for(const fight of run.parsedRunInfo.legion.bossFights) {
+        this.stats.bosses.legion.details[fight.bossName] = this.stats.bosses.legion.details[fight.bossName] ?? {
+          name: fight.bossName,
           count: 0,
           totalTime: 0,
           fastest: Number.MAX_SAFE_INTEGER,
           deaths: 0,
         };
-        const stats = this.stats.bosses.conquerors[conquerorName];
-
+        const stats = this.stats.bosses.legion.details[fight.bossName];
         stats.count++;
-        const battleTime = Number(run.conqueror_time ?? 0);
-        stats.totalTime += battleTime;
-        stats.fastest = Number(Math.min(stats.fastest, battleTime));
-        stats.deaths += Number(run.conqueror_deaths ?? 0);
       }
     }
+  }
 
-    if (
-      run.parsedRunInfo?.mastermindBattle &&
-      run.parsedRunInfo.mastermindBattle.battle2start &&
-      run.parsedRunInfo.mastermindBattle.completed
-    ) {
-      const boss = 'Catarina, Master of Undeath';
-      detectedBosses.push(boss);
-      const stats = this.stats.bosses.mastermind;
+  addBossStats(run: Run) {
+    const detectedBosses: string[] = [];
 
+    for(const config of BossStatsConfig) {
+      if (run.parsedRunInfo?.[config.key]?.bossFights) {
+        detectedBosses.push(config.name);
+      } else {
+        continue;
+      }
+
+      this.stats.bosses[config.key] = this.stats.bosses[config.key] ?? {
+        name: run.parsedRunInfo?.[config.key].boss,
+        count: 0,
+        totalTime: 0,
+        fastest: Number.MAX_SAFE_INTEGER,
+        deaths: 0,
+      };
+
+      const stats = this.stats.bosses[config.key];
       stats.count++;
-      const battleTime = this.getRunningTime(
-        run.parsedRunInfo.mastermindBattle.battle2start,
-        run.parsedRunInfo.mastermindBattle.completed
-      );
-      stats.totalTime += battleTime;
-      stats.fastest = Number(Math.min(stats.fastest, battleTime));
-      stats.deaths += Number(run.mastermind_deaths ?? 0);
-    }
-
-    if (
-      run.parsedRunInfo?.sirusBattle &&
-      run.parsedRunInfo.sirusBattle.start &&
-      run.parsedRunInfo.sirusBattle.completed
-    ) {
-      const boss = 'Sirus, Awakener of Worlds';
-      detectedBosses.push(boss);
-      const stats = this.stats.bosses.sirus;
-
-      stats.count++;
-      const battleTime = this.getRunningTime(
-        run.parsedRunInfo.sirusBattle.start,
-        run.parsedRunInfo.sirusBattle.completed
-      );
-      stats.totalTime += battleTime;
-      stats.fastest = Number(Math.min(stats.fastest, battleTime));
-      stats.deaths += Number(run.sirus_deaths ?? 0);
-    }
-
-    if (
-      run.parsedRunInfo?.shaperBattle &&
-      run.parsedRunInfo.shaperBattle.phase1start &&
-      run.parsedRunInfo.shaperBattle.completed
-    ) {
-      const boss = 'The Shaper';
-      detectedBosses.push(boss);
-      const stats = this.stats.bosses.shaper;
-
-      stats.count++;
-      const battleTime = this.getRunningTime(
-        run.parsedRunInfo.shaperBattle.phase1start,
-        run.parsedRunInfo.shaperBattle.completed
-      );
-      stats.totalTime += battleTime;
-      stats.fastest = Number(Math.min(stats.fastest, battleTime));
-      stats.deaths += Number(run.shaper_deaths ?? 0);
-    }
-
-    if (
-      run.parsedRunInfo?.maven &&
-      run.parsedRunInfo.maven.firstLine &&
-      run.parsedRunInfo.maven.mavenDefeated
-    ) {
-      const boss = 'The Maven';
-      detectedBosses.push(boss);
-      const stats = this.stats.bosses.maven;
-
-      stats.count++;
-      const battleTime = this.getRunningTime(
-        run.parsedRunInfo.maven.firstLine,
-        run.parsedRunInfo.maven.mavenDefeated
-      );
-      stats.totalTime += battleTime;
-      stats.fastest = Number(Math.min(stats.fastest, battleTime));
-      stats.deaths += Number(run.maven_deaths ?? 0);
-    }
-
-    if (
-      run.parsedRunInfo?.oshabiBattle &&
-      run.parsedRunInfo.oshabiBattle.start &&
-      run.parsedRunInfo.oshabiBattle.completed
-    ) {
-      const boss = 'Oshabi, Avatar of the Grove';
-      detectedBosses.push(boss);
-      const stats = this.stats.bosses.oshabi;
-
-      stats.count++;
-      const battleTime = this.getRunningTime(
-        run.parsedRunInfo.oshabiBattle.start,
-        run.parsedRunInfo.oshabiBattle.completed
-      );
-      stats.totalTime += battleTime;
-      stats.fastest = Number(Math.min(stats.fastest, battleTime));
-      stats.deaths += Number(run.oshabi_deaths ?? 0);
-    }
-
-    if (
-      run.parsedRunInfo?.venariusBattle &&
-      run.parsedRunInfo.venariusBattle.start &&
-      run.parsedRunInfo.venariusBattle.completed
-    ) {
-      const boss = 'Venarius, the Eternal';
-      detectedBosses.push(boss);
-      const stats = this.stats.bosses.venarius;
-
-      stats.count++;
-      const battleTime = this.getRunningTime(
-        run.parsedRunInfo.venariusBattle.start,
-        run.parsedRunInfo.venariusBattle.completed
-      );
-      stats.totalTime += battleTime;
-      stats.fastest = Number(Math.min(stats.fastest, battleTime));
-      stats.deaths += Number(run.venarius_deaths ?? 0);
+      if(run.parsedRunInfo?.[config.key].bossFights[0].started) {
+        const battleTime = this.getRunningTime(
+          run.parsedRunInfo?.[config.key].bossFights[0].started,
+          run.parsedRunInfo?.[config.key].bossFights[run.parsedRunInfo?.[config.key].bossFights.length - 1].finished
+        );
+        stats.totalTime += battleTime;
+        stats.fastest = Number(Math.min(stats.fastest, battleTime));
+        stats.deaths += Number(run.parsedRunInfo?.deaths ?? 0);
+      }
     }
 
     // Special handling for elder guardian bosses
@@ -808,6 +815,39 @@ class StatsManager {
       totalStats.totalTime += battleTime;
       totalStats.fastest = Math.min(totalStats.fastest, battleTime);
       totalStats.deaths += Number(run.parsedRunInfo?.bossBattle.deaths ?? 0);
+    }
+
+    if (run.parsedRunInfo?.maven?.witnesses && run.parsedRunInfo?.shaper?.guardians) {
+      for(const bossData of run.parsedRunInfo.shaper.guardians) {
+        const boss = bossData.guardianName;
+        let statKey = 'shaperGuardians';
+        this.stats.bosses[statKey].details[boss] = this.stats.bosses[statKey].details[boss] ?? {
+          name: boss,
+          count: 0,
+          totalTime: 0,
+          fastest: Number.MAX_SAFE_INTEGER,
+          deaths: 0,
+        };
+        const stats = this.stats.bosses[statKey].details[boss];
+        const totalStats = this.stats.bosses[statKey];
+
+
+        const battleTime =  this.getRunningTime(
+          run.parsedRunInfo?.maven.witnesses[0].started || run.first_event,
+          run.parsedRunInfo?.maven.witnesses[run.parsedRunInfo?.maven.witnesses.length - 1].finished || run.last_event
+        );
+        stats.count++;
+        stats.totalTime += battleTime;
+        stats.fastest =
+          battleTime > 0 ? Number(Math.min(stats.fastest, battleTime)) : stats.fastest;
+        stats.deaths += bossData.deaths ?? 0;
+
+        totalStats.count++;
+        totalStats.totalTime += battleTime;
+        totalStats.fastest =
+          battleTime > 0 ? Number(Math.min(stats.fastest, battleTime)) : stats.fastest;
+        totalStats.deaths += bossData.deaths ?? 0;
+      }
     }
 
     // Manually detected Bosses

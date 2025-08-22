@@ -52,84 +52,6 @@ const ElderGuardiansMap = {
 
 // React component that displays the icons for the run events
 const iconMap = {
-  blight: (info) => {
-    return {
-      condition: !!info.blight?.events,
-      icon: BlightIcon,
-      alt: `Contained a Blight Encounter with at least ${info.blight?.events ? info.blight.events.filter((event) => event.type === 'newLane').length + 1 : 1} lanes`,
-    };
-  },
-  blightedMap: (info) => {
-    return {
-      condition: !!info.blightedMap,
-      icon: BlightedMapIcon,
-      alt: 'Blighted Map',
-    };
-  },
-  delirium: (info) => {
-    return {
-      condition: !!info.strangeVoiceEncountered,
-      icon: DeliriumIcon,
-      alt: 'Contained a Delirium Encounter',
-    };
-  },
-  envoy: (info) => {
-    return {
-      condition: !!info.envoy,
-      icon: MavenIcon,
-      alt: 'Contained an Envoy Encounter',
-    };
-  },
-  conquerors: (info) => {
-    return {
-      condition: !!info.conquerors?.bossFights,
-      icon: KillsIcon,
-      alt: `Contained ${info.conquerors?.bossFights.length} Conquerors Encounter(s)`,
-      additionalIcons: info.conquerors?.bossFights.map((fight) => {
-        const Icon = ConquerorsMap[fight.bossName];
-        return (
-          <Tooltip title={`Defeated ${fight.bossName} in ${dayjs(fight.finished).diff(dayjs(fight.started), 'seconds')} seconds`}>
-            <img className="Run-Event__Mini-Icon" src={Icon} alt={fight.bossName} />
-          </Tooltip>
-        );
-      }),
-    };
-  },
-  elderGuardian: (info) => {
-    const guardianKey = info.elderGuardian;
-    return {
-      condition: !!info.elderGuardian,
-      icon: ElderGuardiansMap[guardianKey],
-      alt: `Contained a ${guardianKey?.replace('The ', '')} Encounter`,
-    };
-  },
-  maven: (info) => {
-    return {
-      condition:
-        info.maven?.witnesses &&
-        info.name !== "The Maven's Crucible" &&
-        info.name !== 'Absence of Mercy and Empathy',
-      icon: MavenIcon,
-      alt: 'Boss Battle witnessed by the Maven',
-    };
-  },
-  metamorph: (info) => {
-    return {
-      condition: !!info.metamorph,
-      icon: MetamorphIcon,
-      alt: 'Contained a Metamorph Encounter',
-      additionalIcons: info.metamorph
-        ? Object.keys(info?.metamorph).map((organ) => {
-            const Icon = require(`../../assets/img/metamorphicons/${organ}.png`);
-            return (
-              <Tooltip title={`${organ} x ${info.metamorph[organ]}`}>
-                <img className="Run-Event__Mini-Icon" src={Icon} alt={organ} />
-              </Tooltip>
-            );
-          })
-        : null,
-    };
-  },
   betrayal: (info) => {
     const tooltipText = info.betrayal?.fights ? (
       <>
@@ -162,23 +84,18 @@ const iconMap = {
       }),
     };
   },
-  shrines: (info) => {
+  blight: (info) => {
     return {
-      condition: !!info.shrines,
-      icon: ShrineIcon,
-      alt: `Contained ${info?.shrines?.length} Shrine${info?.shrines?.length > 1 ? 's' : ''}`,
-      additionalIcons: info?.shrines?.map((shrine) => {
-        if (shrine) {
-          const Icon = require(`../../assets/img/shrineicons/${shrine.replace(' Shrine', '')}.png`);
-          return (
-            <Tooltip title={shrine}>
-              <img className="Run-Event__Mini-Icon" src={Icon} alt={shrine} />
-            </Tooltip>
-          );
-        } else {
-          return null;
-        }
-      }),
+      condition: !!info.blight?.events,
+      icon: BlightIcon,
+      alt: `Contained a Blight Encounter with at least ${info.blight?.events ? info.blight.events.filter((event) => event.type === 'newLane').length + 1 : 1} lanes`,
+    };
+  },
+  blightedMap: (info) => {
+    return {
+      condition: !!info.blightedMap,
+      icon: BlightedMapIcon,
+      alt: 'Blighted Map',
     };
   },
   capturedBeasts: (info) => {
@@ -192,6 +109,21 @@ const iconMap = {
         iconArray.unshift(<span className="Run-Event__Mini-Label">({info?.beasts?.captured[beastType]}x)</span>);
         return iconArray;
       }).flat() : null
+    };
+  },
+  conquerors: (info) => {
+    return {
+      condition: !!info.conquerors?.bossFights,
+      icon: KillsIcon,
+      alt: `Contained ${info.conquerors?.bossFights.length} Conquerors Encounter(s)`,
+      additionalIcons: info.conquerors?.bossFights.map((fight) => {
+        const Icon = ConquerorsMap[fight.bossName];
+        return (
+          <Tooltip title={`Defeated ${fight.bossName} in ${dayjs(fight.finished).diff(dayjs(fight.started), 'seconds')} seconds`}>
+            <img className="Run-Event__Mini-Icon" src={Icon} alt={fight.bossName} />
+          </Tooltip>
+        );
+      }),
     };
   },
   craftedBeasts: (info) => {
@@ -208,6 +140,35 @@ const iconMap = {
         return icon;
       })
     };
+  },
+  delirium: (info) => {
+    return {
+      condition: !!info.strangeVoiceEncountered,
+      icon: DeliriumIcon,
+      alt: 'Contained a Delirium Encounter',
+    };
+  },
+  elderGuardian: (info) => {
+    const guardianKey = info.elderGuardian;
+    return {
+      condition: !!info.elderGuardian,
+      icon: ElderGuardiansMap[guardianKey],
+      alt: `Contained a ${guardianKey?.replace('The ', '')} Encounter`,
+    };
+  },
+  envoy: (info) => {
+    return {
+      condition: !!info.envoy,
+      icon: MavenIcon,
+      alt: 'Contained an Envoy Encounter',
+    };
+  },
+  harvest: (info) => {
+    return {
+      condition: !!info.harvest?.bossFights,
+      icon: OshabiIcon,
+      alt: 'Encountered a Harvest Boss',
+    }
   },
   incursionTemple: (info) => {
     return {
@@ -254,6 +215,59 @@ const iconMap = {
       })
     };
   },
+  maven: (info) => {
+    return {
+      condition:
+        info.maven?.witnesses &&
+        info.name !== "The Maven's Crucible" &&
+        info.name !== 'Absence of Mercy and Empathy',
+      icon: MavenIcon,
+      alt: 'Boss Battle witnessed by the Maven',
+    };
+  },
+  metamorph: (info) => {
+    return {
+      condition: !!info.metamorph,
+      icon: MetamorphIcon,
+      alt: 'Contained a Metamorph Encounter',
+      additionalIcons: info.metamorph
+      ? Object.keys(info?.metamorph).map((organ) => {
+        const Icon = require(`../../assets/img/metamorphicons/${organ}.png`);
+        return (
+          <Tooltip title={`${organ} x ${info.metamorph[organ]}`}>
+            <img className="Run-Event__Mini-Icon" src={Icon} alt={organ} />
+          </Tooltip>
+        );
+      })
+      : null,
+    };
+  },
+  shaper: (info) => {
+    return {
+      condition: !!info.shaper?.bossFights,
+      icon: ShaperIcon,
+      alt: `Encountered the Shaper`,
+    };
+  },
+  shrines: (info) => {
+    return {
+      condition: !!info.shrines,
+      icon: ShrineIcon,
+      alt: `Contained ${info?.shrines?.length} Shrine${info?.shrines?.length > 1 ? 's' : ''}`,
+      additionalIcons: info?.shrines?.map((shrine) => {
+        if (shrine) {
+          const Icon = require(`../../assets/img/shrineicons/${shrine.replace(' Shrine', '')}.png`);
+          return (
+            <Tooltip title={shrine}>
+              <img className="Run-Event__Mini-Icon" src={Icon} alt={shrine} />
+            </Tooltip>
+          );
+        } else {
+          return null;
+        }
+      }),
+    };
+  },
   simulacrum: (info) => {
     return {
       condition: !!info.delirium?.simulacrum,
@@ -271,33 +285,19 @@ const iconMap = {
       })
     };
   },
-  synthesis: (info) => {
-    return {
-      condition: !!info.synthesis?.bossFights,
-      icon: SynthesisIcon,
-      alt: `Encountered a Synthesis Boss`,
-    }
-  },
-  harvest: (info) => {
-    return {
-      condition: !!info.harvest?.bossFights,
-      icon: OshabiIcon,
-      alt: 'Encountered a Harvest Boss',
-    }
-  },
-  shaper: (info) => {
-    return {
-      condition: !!info.shaper?.bossFights,
-      icon: ShaperIcon,
-      alt: `Encountered the Shaper`,
-    }
-  },
   sirus: (info) => {
     return {
       condition: !!info.sirus?.bossFights,
       icon: SirusIcon,
       alt: `Encountered Sirus`,
-    }
+    };
+  },
+  synthesis: (info) => {
+    return {
+      condition: !!info.synthesis?.bossFights,
+      icon: SynthesisIcon,
+      alt: `Encountered a Synthesis Boss`,
+    };
   }
 };
 

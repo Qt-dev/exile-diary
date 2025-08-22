@@ -8,7 +8,6 @@ import SkillTreeWatcher from './SkillTreeWatcher';
 import InventoryGetter from './InventoryGetter';
 import ItemParser from './ItemParser';
 import EventParser from './EventParser';
-import Constants from '../../helpers/constants';
 import Utils from './Utils';
 
 const logger = Logger.scope('LogProcessor');
@@ -64,7 +63,7 @@ class LogProcessorScheduler {
 const scheduler = new LogProcessorScheduler();
 const emitter = new EventEmitter();
 
-const textLineRegex = /^(?<NPCName>.*?): (?<text>.*)$/;
+const textLineRegex = /^(?<npc>.*?): (?<text>.*)$/;
 const generationRegex = /.*level\s(?<level>\d+)\sarea\s"(?<areaId>\S+)".*seed\s(?<seed>\d+)/;
 const allocationRegex =
   /Successfully (?<verb>(allocated|unallocated)).*id:\s(?<id>.*),.*name:\s(?<name>.*)$/;
@@ -362,6 +361,26 @@ const LogProcessor = {
         await LogProcessor.processOther(event.timestamp, text, event.id);
       }
     }
+  },
+
+  readLine: (text: any): any | null => {
+    let fullLine = text;
+    if (typeof text !== 'string') {
+      fullLine = text.text;
+    } else if (text.startsWith('{')) {
+      fullLine = JSON.parse(text).text;
+    }
+
+    if(!fullLine) return null;
+
+    const match = fullLine.match(textLineRegex);
+    if (match) {
+      return {
+        npc: match.groups.npc,
+        text: match.groups.text
+      };
+    }
+    return null;
   }
 };
 

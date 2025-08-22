@@ -34,6 +34,7 @@ const rules = {
       const eventData = JSON.parse(event.event_text);
       run.betrayal = run.betrayal || {};
       run.betrayal.bossFights = run.betrayal.bossFights || [];
+      run.betrayal.boss = eventData.npc;
       if(eventData.arguments.action === 'start') {
         run.betrayal.bossFights.push({ bossName: eventData.npc, started: event.timestamp, phase: eventData.arguments.phase });
       } else {
@@ -54,6 +55,7 @@ const rules = {
       const eventData = JSON.parse(event.event_text);
       run.conquerors = run.conquerors || {};
       run.conquerors.bossFights = run.conquerors.bossFights || [];
+      run.conquerors.boss = eventData.npc;
       if(eventData.arguments.action === 'start') {
         run.conquerors.bossFights.push({ bossName: eventData.npc, started: event.timestamp, stones: eventData.arguments.stones });
       } else {
@@ -75,6 +77,7 @@ const rules = {
       const eventData = JSON.parse(event.event_text);
       run.elder = run.elder || {};
       run.elder.bossFights = run.elder.bossFights || [];
+      run.elder.boss = eventData.npc;
       run.elder.bossFights.push({ bossName: eventData.npc, finished: event.timestamp });
     }
   },
@@ -83,6 +86,7 @@ const rules = {
       const eventData = JSON.parse(event.event_text);
       run.harvest = run.harvest || {};
       run.harvest.bossFights = run.harvest.bossFights || [];
+      run.harvest.boss = eventData.npc;
       if(eventData.arguments.action === 'start') {
         run.harvest.bossFights.push({ bossName: eventData.npc, started: event.timestamp });
       } else {
@@ -130,6 +134,7 @@ const rules = {
       const eventData = JSON.parse(event.event_text);
       run.legion = run.legion || {};
       run.legion.bossFights = run.legion.bossFights || [];
+      run.legion.boss = eventData.npc;
       run.legion.bossFights.push({ bossName: eventData.npc, finished: event.timestamp });
     }
   },
@@ -148,14 +153,22 @@ const rules = {
       const eventData = JSON.parse(event.event_text);
       run.maven = run.maven || {};
       run.maven.bossFights = run.maven.bossFights || [];
+      run.maven.boss = eventData.npc;
       run.maven.bossFights.push({ bossName: eventData.npc, finished: event.timestamp });
     }
   },
   "Shaper": {
+    "Guardian": (run, event) => {
+      const eventData = JSON.parse(event.event_text); 
+      run.shaper = run.shaper || {};
+      run.shaper.guardians = run.shaper.guardians || [];
+      run.shaper.guardians.push({ guardianName: eventData.arguments.enemy, started: event.timestamp });
+    },
     "BossFight": (run, event) => {
       const eventData = JSON.parse(event.event_text); 
       run.shaper = run.shaper || {}; 
       run.shaper.bossFights = run.shaper.bossFights || [];
+      run.shaper.boss = eventData.npc;
       if(eventData.arguments.action === 'started' || eventData.arguments.action === 'phaseStarted') {
         run.shaper.bossFights.push({ bossName: eventData.arguments.enemy, phase: eventData.arguments.phase, started: event.timestamp });
       } else {
@@ -175,6 +188,7 @@ const rules = {
       const eventData = JSON.parse(event.event_text);
       run.sirus = run.sirus || {};
       run.sirus.bossFights = run.sirus.bossFights || [];
+      run.sirus.boss = eventData.npc;
       if(eventData.arguments.action === 'start') {
         run.sirus.bossFights.push({ bossName: eventData.npc, started: event.timestamp, phase: eventData.arguments.phase });
       } else {
@@ -187,6 +201,7 @@ const rules = {
       const eventData = JSON.parse(event.event_text);
       run.synthesis = run.synthesis || {};
       run.synthesis.bossFights = run.synthesis.bossFights || [];
+      run.synthesis.boss = eventData.npc;
       if(eventData.arguments.action === 'start') {
         run.synthesis.bossFights.push({ enemy: eventData.arguments.enemy, started: event.timestamp });
       } else {
@@ -208,8 +223,10 @@ function parseEventData(run: any, event: any) {
     // logger.debug("Getting Event Data for ", eventData);
     if(rules[eventData.category]?.[eventData.type]) {
       rules[eventData.category][eventData.type](run, event);
+      return true;
     }
   }
+  return false;
 }
 
 export default {
