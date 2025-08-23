@@ -611,7 +611,6 @@ const RunParser = {
       }
 
       line = LogProcessor.readLine(evt.event_text);
-      logger.debug("READING LINE:", line);
 
       if (line === null) continue;
       switch (line.npc) {
