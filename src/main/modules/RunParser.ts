@@ -980,6 +980,9 @@ const RunParser = {
     } else if (event.area === 'Abyssal Depths') {
       logger.debug('Entered Abyssal Depths, not processing');
       return false;
+    } else if (Utils.isLabTrial(event.area)) {
+      logger.debug('Entered a lab trial, not processing');
+      return false;
     } else if (event.area === mapFirstEvent.area) {
       // If in the mine, do not process
       // TODO: make it work?
