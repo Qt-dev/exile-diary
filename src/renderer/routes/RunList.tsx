@@ -56,14 +56,6 @@ const RunList = ({ NumbersOfMapsToShow = 10, store, isBoxed = true }) => {
     'Run-List': true,
   });
 
-  const reprocessRuns = async () => {
-    await store.reprocessRuns();
-  };
-  const refreshIconClasses = classNames({
-    'Run-List__Header__RefreshIcon--Processing': store.processing,
-    'Run-List__Header__RefreshIcon': true,
-  });
-
   return (
     <div className={mainClasses}>
       <div className="Run-List__Header">

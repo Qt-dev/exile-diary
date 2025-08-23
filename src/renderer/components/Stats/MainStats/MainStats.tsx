@@ -19,7 +19,6 @@ import AlvaIcon from '../../../assets/img/encountericons/alva.png';
 import EinharIcon from '../../../assets/img/encountericons/einhar.png';
 import RedBeastIcon from '../../../assets/img/redBeast.png';
 import YellowBeastIcon from '../../../assets/img/yellowBeast.png';
-import WhiteBeastIcon from '../../../assets/img/whiteBeast.png';
 import NikoIcon from '../../../assets/img/encountericons/niko.png';
 import JunIcon from '../../../assets/img/encountericons/jun.png';
 import ChaosIcon from '../../Pricing/ChaosIcon';
@@ -28,10 +27,6 @@ import DivineIcon from '../../Pricing/DivineIcon';
 import { Table, TableBody, TableCell, TableHead, TableRow } from '@mui/material';
 import Price from '../../Pricing/Price';
 const MainStats = ({ stats }) => {
-  const whiteBeasts =
-    stats.misc.masters.einhar.details.beasts -
-    stats.misc.masters.einhar.details.yellowBeasts -
-    stats.misc.masters.einhar.details.redBeasts;
   return (
     <div className="Main-Stats">
       <h2 className="Main-Stats__Header">Main Stats</h2>
