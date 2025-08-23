@@ -10,9 +10,6 @@ const fs = require('fs').promises;
 let tail;
 let emitter = new EventEmitter();
 
-let lastInstanceServer = null;
-let parsedInstanceServerTwice = false;
-
 // Line Parsing Regular Expressions
 const lineParseRegex = /^(?<timestamp>.{19}).*]\s(?<line>.*)$/;
 

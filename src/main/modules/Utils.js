@@ -38,6 +38,14 @@ const Utils = {
     return false;
   },
 
+  isLabTrial: (name) => {
+    const area = Utils.getArea(name);
+    if (area) {
+      return area.areaTypeTags.includes(63) && area.name.startsWith('Trial of');
+    }
+    return false;
+  },
+
   isLabArea: (name) => {
     const area = Utils.getArea(name);
     if (area) {
