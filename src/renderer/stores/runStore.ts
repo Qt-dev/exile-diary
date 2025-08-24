@@ -12,7 +12,6 @@ export default class RunStore {
   size = Number.MAX_SAFE_INTEGER;
   maxSize = Number.MAX_SAFE_INTEGER; // This can be changed in the future
   currentRun: Run;
-  csv: string = '';
   processing: Boolean;
 
   constructor(shouldSetupFromBackend = true) {
@@ -28,7 +27,6 @@ export default class RunStore {
     this.isLoading = true;
     runInAction(async () => {
       this.runs = runs.map((run) => new Run(this, run));
-      await this.generateCsv();
       this.isLoading = false;
     });
   }
@@ -167,11 +165,10 @@ export default class RunStore {
     };
   }
 
-  @computed async generateCsv(): Promise<void> {
+  @computed async generateCSV(): Promise<string> {
     const baseData = this.runs.map((run) => run.asJson);
     const csv = await json2csv(baseData, {});
-
-    this.csv = csv;
+    return csv
   }
 
   reprocessRun(run: Run) {

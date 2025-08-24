@@ -15,7 +15,6 @@ export default class ItemStore {
   ignoredStatusUpdateTimeout: NodeJS.Timeout | null = null;
   items: Item[] = [];
   isLoading = false;
-  csv: string = '';
   id: string;
 
   constructor(lootData) {
@@ -57,7 +56,6 @@ export default class ItemStore {
     runInAction(async () => {
       if (lootData) {
         this.items = lootData.map((item) => new Item(this, item));
-        await this.generateCsv();
       }
       this.isLoading = false;
     });
@@ -179,10 +177,10 @@ export default class ItemStore {
     };
   }
 
-  @computed async generateCsv(): Promise<void> {
+  @computed async generateCSV(): Promise<string> {
     const baseData = this.acceptedItems.map((item) => item.toLootTable(true));
     const csv = await json2csv(baseData, {});
-    this.csv = csv;
+    return csv;
   }
 
   @computed get value(): number {

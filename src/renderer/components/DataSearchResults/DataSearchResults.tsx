@@ -58,15 +58,16 @@ const AccordionDetails = styled(MuiAccordionDetails)(({ theme }) => ({
   borderTop: '1px solid rgba(0, 0, 0, .125)',
 }));
 
-const DownloadButton = ({ csv, name, classNames = '' }) => {
+const DownloadButton = ({ store, name, classNames = '' }) => {
   const [isDownloading, setIsDownloading] = React.useState(false);
-  const downloadCsv = (
+  const downloadCsv = async (
     event: React.MouseEvent<HTMLButtonElement, MouseEvent>,
-    csv: BlobPart,
+    store: any,
     name: string
   ) => {
     event.preventDefault();
     event.stopPropagation();
+    const csv = await store.generateCSV();
     if (!isDownloading) {
       setIsDownloading(true);
       const file = new Blob([csv], { type: 'text/csv' });
@@ -79,7 +80,7 @@ const DownloadButton = ({ csv, name, classNames = '' }) => {
   return (
     <Button
       className={`${classNames} DataSearchResults__Save-Button`}
-      onClick={(event) => downloadCsv(event, csv, name)}
+      onClick={(event) => downloadCsv(event, store, name)}
     >
       <FileDownloadIcon />
     </Button>
@@ -203,7 +204,7 @@ const DataSearchResults = ({
             <Typography className="DataSearchResults__Stat__Summary">
               Loot - <Price value={itemStore.stats.value.total} divinePrice={divinePrice} />
             </Typography>
-            <DownloadButton csv={itemStore.csv} name={'items'} />
+            <DownloadButton store={itemStore} name={'items'} />
           </Stack>
         </AccordionSummary>
         <AccordionDetails>
@@ -232,7 +233,7 @@ const DataSearchResults = ({
               {runStore.stats.time.total.format(DurationFormat)} - avg:{' '}
               {runStore.stats.time.average.format(DurationFormat)})
             </Typography>
-            <DownloadButton csv={runStore.csv} name={'runs'} />
+            <DownloadButton store={runStore} name={'runs'} />
           </Stack>
         </AccordionSummary>
         <AccordionDetails>
