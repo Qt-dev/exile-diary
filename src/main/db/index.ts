@@ -533,6 +533,26 @@ const Migrations = {
 
         `pragma user_version = 14`,
       ],
+      [
+        // Fix item event_id not being a number
+        `ALTER TABLE item ADD COLUMN new_event_id INTEGER NOT NULL DEFAULT 0`,
+        `UPDATE item SET new_event_id = CAST(event_id AS INTEGER)`,
+        `ALTER TABLE item DROP COLUMN event_id`,
+        `ALTER TABLE item RENAME COLUMN new_event_id TO event_id`,
+
+        // Add some indexes
+        `CREATE INDEX IF NOT EXISTS "item_ignored" ON "item" (
+          "ignored",
+          "event_id"
+        )`, 
+        `CREATE INDEX IF NOT EXISTS "item_value" ON "item" (
+          "event_id",
+          "ignored",
+          "value"
+        )`,
+
+        `pragma user_version = 15`,
+      ],
     ],
     maintenance: [
       `delete from incubator where timestamp < (select min(timestamp) from (select timestamp from incubator order by timestamp desc limit 25))`,

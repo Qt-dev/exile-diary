@@ -166,8 +166,8 @@ const Runs = {
     const lastRunsQuery = `
       SELECT run.id, name, level, depth, iiq, iir, pack_size, first_event, last_event, completed,
         (run.xp - (SELECT xp FROM run m WHERE m.id < run.id AND xp IS NOT null ORDER BY m.id desc limit 1)) xpgained,
-        (SELECT count(1) FROM event WHERE event_type='slain' AND DATETIME(event.timestamp) between DATETIME(first_event) AND DATETIME(last_event)) deaths,
-        (SELECT COALESCE(SUM(value),0) FROM item, event WHERE item.event_id = event.id AND DATETIME(event.timestamp) BETWEEN DATETIME(first_event) AND DATETIME(last_event) AND ignored = 0) gained,
+        (SELECT count(1) FROM event WHERE event_type='slain' AND event.timestamp between first_event AND last_event) deaths,
+        (SELECT COALESCE(SUM(value),0) FROM item, event WHERE item.event_id = event.id AND event.timestamp BETWEEN first_event AND last_event AND item.ignored = 0) gained,
         kills, run_info
       FROM area_info, run
       WHERE area_info.run_id = run.id
