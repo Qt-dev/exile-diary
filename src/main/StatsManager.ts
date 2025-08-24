@@ -221,7 +221,7 @@ class StatsManager {
           count: 0,
         },
       },
-      incursions: {
+      incursion: {
         unlocks: {
           count: 0,
           time: {
@@ -619,18 +619,6 @@ class StatsManager {
 
   addBetrayalStats(run: Run) {
     if (run.parsedRunInfo?.betrayal) {
-      this.stats.misc.betrayal = this.stats.misc.betrayal ?? {
-        junCounter: 0,
-        memberEncounters: 0,
-        members: {
-          // Map member names to their actions
-        },
-        boss: {
-          started: 0,
-          finished: 0
-        }
-      };
-
       if(run.parsedRunInfo.betrayal.fights) {
         this.stats.misc.betrayal.junCounter++;
         for(const fight of run.parsedRunInfo.betrayal.fights) {
@@ -669,21 +657,6 @@ class StatsManager {
 
   addIncursionStats(run: Run) {
     if (run.parsedRunInfo?.incursion) {
-      this.stats.misc.incursion = this.stats.misc.incursion ?? {
-        unlocks: {
-          count: 0,
-          time: {
-            total: 0,
-            min: 999999999,
-            max: 0
-          }
-        },
-        rooms: {
-          temples: 0,
-          count: 0,
-          types: {}
-        }
-      };
       if(run.parsedRunInfo.incursion.unlocked) {
         this.stats.misc.incursion.unlocks.count += run.parsedRunInfo.incursion.unlocked.length;
         for(const unlock of run.parsedRunInfo.incursion.unlocked) {
@@ -708,24 +681,20 @@ class StatsManager {
 
   addBeastsStats(run: Run) {
     if (run.parsedRunInfo?.beasts) {
-      this.stats.misc.beasts = this.stats.misc.beasts ?? {
-        captured: { yellow: 0, red: 0 },
-        crafted: { count: 0, time: { total: 0, min: 999999999, max: 0 } }
-      };
       if(run.parsedRunInfo.beasts.captured) {
-        this.stats.misc.beasts.captured.yellow += run.parsedRunInfo.beasts.captured.yellow;
-        this.stats.misc.beasts.captured.red += run.parsedRunInfo.beasts.captured.red
+        this.stats.misc.bestiary.captured.yellow += run.parsedRunInfo.beasts.captured.yellow;
+        this.stats.misc.bestiary.captured.red += run.parsedRunInfo.beasts.captured.red
       }
       if (run.parsedRunInfo.beasts.crafted) {
-        this.stats.misc.beasts.crafted.count += run.parsedRunInfo.beasts.crafted.length;
+        this.stats.misc.bestiary.crafted.count += run.parsedRunInfo.beasts.crafted.length;
         for(const craft of run.parsedRunInfo.beasts.crafted) {
           const runningTime = this.getRunningTime(
             craft.started,
             craft.finished
           );
-          this.stats.misc.beasts.crafted.time.total += runningTime;
-          this.stats.misc.beasts.crafted.time.max = Math.max(this.stats.misc.beasts.crafted.time.max, runningTime);
-          this.stats.misc.beasts.crafted.time.min = Math.min(this.stats.misc.beasts.crafted.time.min, runningTime);
+          this.stats.misc.bestiary.crafted.time.total += runningTime;
+          this.stats.misc.bestiary.crafted.time.max = Math.max(this.stats.misc.bestiary.crafted.time.max, runningTime);
+          this.stats.misc.bestiary.crafted.time.min = Math.min(this.stats.misc.bestiary.crafted.time.min, runningTime);
         }
       }
     }
@@ -733,10 +702,6 @@ class StatsManager {
 
   addDelveStats(run: Run) {
     if(run.parsedRunInfo?.delve) {
-      this.stats.misc.delve = this.stats.misc.delve ?? {
-        niko: 0,
-        sulphiteNodes: 0
-      };
       this.stats.misc.delve.niko += run.parsedRunInfo.delve.niko ? 1 : 0;
       this.stats.misc.delve.sulphiteNodes += run.parsedRunInfo.delve.sulphiteNodes ?? 0;
     }
@@ -938,14 +903,24 @@ const profitTracker = new ProfitTracker();
 
 const statsManager = {
   getAllStats: async ({ league, characterName }: GetStatsParams) => {
+    const times: {step: string, timestamp: number}[] = [];
+    times.push({step: 'start', timestamp: performance.now()});
     const runs = (await DB.getAllRuns())?.map(formatRun);
+    times.push({step: 'retrieved runs', timestamp: performance.now()});
+    logger.debug(`Successfully retrieved ${runs.length} runs in ${times[1].timestamp - times[0].timestamp} ms`);
     const items = await DB.getAllItems(league);
+    times.push({step: 'retrieved items', timestamp: performance.now()});
+    logger.debug(`Successfully retrieved ${items.length} items in ${times[2].timestamp - times[1].timestamp} ms`);
     const divinePrice = await RatesManager.getCurrencyValue(
       league,
       dayjs().format('YYYYMMDD'),
       'Divine Orb'
     );
+    times.push({step: 'retrieved divine price', timestamp: performance.now()});
+    logger.debug(`Successfully retrieved divine price of ${divinePrice} in ${times[3].timestamp - times[2].timestamp} ms`);
     const manager = new StatsManager({ runs, items, divinePrice });
+    times.push({step: 'created manager', timestamp: performance.now()});
+    logger.debug(`Successfully created manager in ${times[4].timestamp - times[3].timestamp} ms`);
     return manager.stats;
   },
   getAllMapNames: async () => {
