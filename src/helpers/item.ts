@@ -107,6 +107,9 @@ export const getCategory = (item, subcategory = false) => {
     if (type.includes(baseTypeName)) return Constants.items.baseTypes.equipments[baseTypeName];
   }
 
+  // Vaal Aspects
+  if (item.baseType === 'Vaal Aspect') return "Jewel";
+
   logger.error(`No category found for item ${item.id || '(no id)'}! JSON follows:`);
   logger.info(item);
   return 'Other';
