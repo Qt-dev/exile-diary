@@ -305,33 +305,33 @@ const MainStats = ({ stats }) => {
           <div className="Main-Stat">
             <div className="Main-Stat__Text">
               Crafted Recipes:{' '}
-              <span className="Main-Stat__Value">{stats.misc.beasts.crafted.count}</span>
+              <span className="Main-Stat__Value">{stats.misc.bestiary.crafted.count}</span>
             </div>
           </div>
           <div className="Main-Stat">
             <div className="Main-Stat__Text">
               Time Spent Crafting:{' '}
-              <span className="Main-Stat__Value">{stats.misc.beasts.crafted.time.total}</span>sec
-              (max: <span className="Main-Stat__Value">{stats.misc.beasts.crafted.time.max}</span>sec | min: <span className="Main-Stat__Value">{stats.misc.beasts.crafted.time.min}</span>sec)
+              <span className="Main-Stat__Value">{stats.misc.bestiary.crafted.time.total}</span>sec
+              (max: <span className="Main-Stat__Value">{stats.misc.bestiary.crafted.time.max}</span>sec | min: <span className="Main-Stat__Value">{stats.misc.bestiary.crafted.time.min}</span>sec)
             </div>
           </div>
           <div className="Main-Stat">
             <div className="Main-Stat__Text">
               Captured Beasts:
-              <span className="Main-Stat__Value">{stats.misc.beasts.captured.red + stats.misc.beasts.captured.yellow}</span>
+              <span className="Main-Stat__Value">{stats.misc.bestiary.captured.red + stats.misc.bestiary.captured.yellow}</span>
               <span className="Main-Stat__Value--Beasts">
                 (
                 <img
                   className="Main-Stat__Beast-Icon"
                   src={RedBeastIcon}
                   alt="Red Beast Icon"
-                />x {stats.misc.beasts.captured.red} |
+                />x {stats.misc.bestiary.captured.red} |
                 <img
                   className="Main-Stat__Beast-Icon"
                   src={YellowBeastIcon}
                   alt="Yellow Beast Icon"
                 />
-                x {stats.misc.beasts.captured.yellow})
+                x {stats.misc.bestiary.captured.yellow})
               </span>
             </div>
           </div>

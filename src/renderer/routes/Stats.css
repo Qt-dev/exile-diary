@@ -31,3 +31,15 @@
 .Stats__Screenshot.Stats__Screenshot--Ongoing {
   color: #888;
 }
+
+.Stats__Loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+}
+
+.Stats__Loading-Progress {
+  width: 70%;
+}

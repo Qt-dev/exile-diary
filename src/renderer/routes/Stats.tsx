@@ -1,15 +1,17 @@
-import React, { useCallback, useRef } from 'react';
+import React, { useCallback, useRef, useEffect } from 'react';
+import { useLoaderData } from 'react-router-dom';
 import './Stats.css';
-import { useLoaderData } from 'react-router';
 import Tab from '@mui/material/Tab';
 import Tabs from '@mui/material/Tabs';
 import ScreenshotMonitorIcon from '@mui/icons-material/ScreenshotMonitor';
+import LinearProgress from '@mui/material/LinearProgress';
 import MainStats from '../components/Stats/MainStats/MainStats';
 import AreaStats from '../components/Stats/AreaStats/AreaStats';
 import BossStats from '../components/Stats/BossStats/BossStats';
 import LootStats from '../components/Stats/LootStats/LootStats';
 import ItemStore from '../stores/itemStore';
 import { toCanvas } from 'html-to-image';
+import { ipcRenderer } from 'electron';
 import { electronService } from '../electron.service';
 import dayjs from 'dayjs';
 const { logger } = electronService;
@@ -37,18 +39,49 @@ const TabPanel = ({ children, index, value, ...other }) => {
 
 const itemStore = new ItemStore([]);
 
+const loader = async () => {
+  const stats = await ipcRenderer.invoke('get-all-stats');
+  return { stats };
+}
+
 const Stats = () => {
   const screenShotRef = useRef<HTMLDivElement>(null);
+  const isFirstRender = useRef(true);
   const [tabValue, setTabValue] = React.useState(0);
   const [isTakingScreenshot, setIsTakingScreenshot] = React.useState(false);
-  const { stats, activeProfile } = useLoaderData() as any;
+  const [isLoading, setIsLoading] = React.useState(true);
+  const [stats, setStats] = React.useState(null) as any;
+  const { activeProfile } = useLoaderData() as any;
   const { characterName, league } = activeProfile;
   const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
+    const start = performance.now();
+    logger.debug(`Switching to tab ${newValue} at ${start}ms`);
     setTabValue(newValue);
+    logger.debug(`Tab switched in ${performance.now() - start}ms`);
   };
-  itemStore.createItems(
-    stats.items.loot.map((item) => ({ ...item, ...JSON.parse(item.raw_data) }))
-  );
+
+  useEffect(() => {
+    loader()
+      .then((data) => {
+        setStats(data.stats);
+      })
+      .catch((error) => {
+        logger.error(error);
+      });
+  }, []);
+
+  useEffect(() => {
+    if(isFirstRender.current) {
+      isFirstRender.current = false;
+    } else if(stats?.items?.loot) {
+      itemStore.createItems(
+        stats.items.loot.map((item) => ({ ...item, ...JSON.parse(item.raw_data) }))
+      );
+      
+      setIsLoading(false);
+    }
+  }, [stats]);
+
   const screenshot = useCallback(async () => {
     if (screenShotRef.current === null) {
       return;
@@ -80,6 +113,15 @@ const Stats = () => {
     </div>
   );
 
+  if(isLoading) {
+    return <div className="Stats__Loading">
+      <div className="Stats__Loading-Text">Loading Stats...</div>
+      <div className="Stats__Loading-Progress">
+        <LinearProgress />
+      </div> 
+    </div>;
+  }
+
   return (
     <div className="Stats__Page Box">
       <div className="Stats__Tabs-Container">
@@ -89,14 +131,14 @@ const Stats = () => {
           className="Stats__Tabs"
           onChange={handleTabChange}
         >
-          <Tab label="Main Stats" {...a11yProps(0)} />
-          <Tab label="Area Stats" {...a11yProps(1)} />
-          <Tab label="Boss Stats" {...a11yProps(2)} />
-          <Tab label="Loot Stats" {...a11yProps(3)} />
+          <Tab label="Main Stats" disableRipple {...a11yProps(0)} />
+          <Tab label="Area Stats" disableRipple {...a11yProps(1)} />
+          <Tab label="Boss Stats" disableRipple {...a11yProps(2)} />
+          <Tab label="Loot Stats" disableRipple {...a11yProps(3)} />
         </Tabs>
         {tabValue === 0 ? screenshotIcon : null}
       </div>
-      <TabPanel value={tabValue} index={0}>
+      <TabPanel keepMounted value={tabValue} index={0}>
         <div ref={screenShotRef}>
           <h1 className="Stats__Header">
             Stats for <span className="Text--Legendary">{characterName}</span> in the{' '}
@@ -111,17 +153,18 @@ const Stats = () => {
           ) : null}
         </div>
       </TabPanel>
-      <TabPanel value={tabValue} index={1}>
+      <TabPanel keepMounted value={tabValue} index={1}>
         <AreaStats stats={stats} />
       </TabPanel>
-      <TabPanel value={tabValue} index={2}>
-        <BossStats stats={stats.bosses} />
+      <TabPanel keepMounted value={tabValue} index={2}>
+        <BossStats stats={stats?.bosses} />
       </TabPanel>
-      <TabPanel value={tabValue} index={3}>
-        <LootStats stats={stats.items} store={itemStore} />
+      <TabPanel keepMounted value={tabValue} index={3}>
+        <LootStats stats={stats?.items} store={itemStore} />
       </TabPanel>
     </div>
   );
+
 };
 
 export default Stats;

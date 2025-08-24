@@ -81,11 +81,24 @@ const router = createHashRouter([
         path: 'search',
         element: <Search store={new SearchDataStore()} />,
         loader: async () => {
+          const start = performance.now();
           const [settings, divinePrice, maps, possibleMods] = await Promise.all([
-            ipcRenderer.invoke('get-settings'),
-            ipcRenderer.invoke('get-divine-price'),
-            ipcRenderer.invoke('get-all-map-names'),
-            ipcRenderer.invoke('get-all-possible-mods'),
+            ipcRenderer.invoke('get-settings').then((settings) => {
+              logger.debug(`Settings loaded in ${performance.now() - start}ms`);
+              return Promise.resolve(settings);
+            }),
+            ipcRenderer.invoke('get-divine-price').then((divinePrice) => {
+              logger.debug(`Divine price loaded in ${performance.now() - start}ms`);
+              return Promise.resolve(divinePrice);
+            }),
+            ipcRenderer.invoke('get-all-map-names').then((maps) => {
+              logger.debug(`Map names loaded in ${performance.now() - start}ms`);
+              return Promise.resolve(maps);
+            }),
+            ipcRenderer.invoke('get-all-possible-mods').then((possibleMods) => {
+              logger.debug(`Possible mods loaded in ${performance.now() - start}ms`);
+              return Promise.resolve(possibleMods);
+            }),
           ]);
           return { activeProfile: settings.activeProfile, divinePrice, maps, possibleMods };
         },
@@ -94,11 +107,8 @@ const router = createHashRouter([
         path: 'stats',
         element: <Stats />,
         loader: async () => {
-          const [settings, stats] = await Promise.all([
-            ipcRenderer.invoke('get-settings'),
-            ipcRenderer.invoke('get-all-stats'),
-          ]);
-          return { stats, activeProfile: settings.activeProfile };
+          const settings = await ipcRenderer.invoke('get-settings');
+          return { activeProfile: settings.activeProfile };
         },
       },
       {
