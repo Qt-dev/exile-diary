@@ -22,10 +22,10 @@ const DataSearchForm = ({
   shouldDisplayCharacterName,
   handleToggleDisplayCharacterName,
 }) => {
-  const [from, setFrom] = React.useState<Dayjs | null>(
+  const [from, setFrom] = React.useState<Dayjs | undefined>(
     dayjs(defaultSearchParams?.from) ?? dayjs().subtract(1, 'days')
   );
-  const [to, setTo] = React.useState<Dayjs | null>(dayjs(defaultSearchParams?.to) ?? dayjs());
+  const [to, setTo] = React.useState<Dayjs | undefined>(dayjs(defaultSearchParams?.to) ?? dayjs());
   const [minLootValue, setMinLootValue] = React.useState(defaultSearchParams?.minLootValue ?? 0);
   const [minMapValue, setMinMapValue] = React.useState(defaultSearchParams?.minMapValue ?? 0);
   const [minIIQ, setMinIIQ] = React.useState(defaultSearchParams?.iiq?.min ?? 0);
@@ -105,7 +105,7 @@ const DataSearchForm = ({
               value={from}
               slotProps={{ textField: { size: 'small' } }}
               maxDateTime={to}
-              onChange={(newValue) => setFrom(newValue)}
+              onChange={(newValue) => setFrom(dayjs(newValue))}
             />
           </LocalizationProvider>
           <LocalizationProvider dateAdapter={AdapterDayjs}>
@@ -113,7 +113,7 @@ const DataSearchForm = ({
               label="To"
               value={to}
               slotProps={{ textField: { size: 'small' } }}
-              onChange={(newValue) => setTo(newValue)}
+              onChange={(newValue) => setTo(dayjs(newValue))}
             />
           </LocalizationProvider>
         </Stack>
