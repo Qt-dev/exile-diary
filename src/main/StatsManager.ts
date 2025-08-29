@@ -43,7 +43,6 @@ const BossStatsConfig = [
   { name: 'Synthesis', key: 'synthesis' },
   { name: 'Maven', key: 'maven' },
   { name: 'Oshabi', key: 'harvest' },
-  { name: 'Venarius', key: 'venarius' },
   { name: 'Conquerors', key: 'conquerors' },
   // { name: 'Elder', key: 'elder', start: false } // No start there
 ]
@@ -306,7 +305,7 @@ class StatsManager {
         deaths: 0,
         details: {},
       },
-      mastermind: {
+      betrayal: {
         name: 'Catarina, Master of Undeath',
         count: 0,
         totalTime: 0,
@@ -327,7 +326,7 @@ class StatsManager {
         fastest: Number.MAX_SAFE_INTEGER,
         deaths: 0,
       },
-      oshabi: {
+      harvest: {
         name: 'Oshabi, Avatar of the Grove',
         count: 0,
         totalTime: 0,
@@ -341,7 +340,7 @@ class StatsManager {
         fastest: Number.MAX_SAFE_INTEGER,
         deaths: 0,
       },
-      venarius: {
+      synthesis: {
         name: 'Venarius, the Eternal',
         count: 0,
         totalTime: 0,
@@ -746,10 +745,10 @@ class StatsManager {
 
       const stats = this.stats.bosses[config.key];
       stats.count++;
-      if(run.parsedRunInfo?.[config.key].bossFights[0].started) {
+      if(run.parsedRunInfo[config.key].bossFights[0].started) {
         const battleTime = this.getRunningTime(
-          run.parsedRunInfo?.[config.key].bossFights[0].started,
-          run.parsedRunInfo?.[config.key].bossFights[run.parsedRunInfo?.[config.key].bossFights.length - 1].finished
+          run.parsedRunInfo[config.key].bossFights[0].started,
+          run.parsedRunInfo[config.key].bossFights[run.parsedRunInfo[config.key].bossFights.length - 1].finished
         );
         stats.totalTime += battleTime;
         stats.fastest = Number(Math.min(stats.fastest, battleTime));

@@ -202,7 +202,9 @@ const rules = {
       run.synthesis = run.synthesis || {};
       run.synthesis.bossFights = run.synthesis.bossFights || [];
       run.synthesis.boss = eventData.npc;
-      if(eventData.arguments.action === 'start') {
+      if(eventData.arguments.action === 'unknown') {
+        return null;
+      } else if(eventData.arguments.action === 'start') {
         run.synthesis.bossFights.push({ enemy: eventData.arguments.enemy, started: event.timestamp });
       } else {
         run.synthesis.bossFights[run.synthesis.bossFights.length - 1].finished = event.timestamp;
