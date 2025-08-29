@@ -3791,7 +3791,7 @@
       "id": "VenariusBossFightIntroduction1",
       "npc": "Venarius",
       "category": "Synthesis",
-      "type": "Event",
+      "type": "BossFight",
       "arguments": {
         "synthesis": true,
         "action": "unknown"
@@ -3801,7 +3801,7 @@
       "id": "VenariusBossFightIntroduction2",
       "npc": "Venarius",
       "category": "Synthesis",
-      "type": "Event",
+      "type": "BossFight",
       "arguments": {
         "synthesis": true,
         "action": "unknown"
@@ -3811,7 +3811,7 @@
       "id": "VenariusBossFightGolemOne",
       "npc": "Venarius",
       "category": "Synthesis",
-      "type": "Event",
+      "type": "BossFight",
       "arguments": {
         "synthesis": true,
         "action": "start",
@@ -3822,7 +3822,7 @@
       "id": "VenariusBossFightGolemOneDefeat",
       "npc": "Venarius",
       "category": "Synthesis",
-      "type": "Event",
+      "type": "BossFight",
       "arguments": {
         "synthesis": true,
         "action": "start",
@@ -3833,7 +3833,7 @@
       "id": "VenariusBossFightHumanoidOne",
       "npc": "Venarius",
       "category": "Synthesis",
-      "type": "Event",
+      "type": "BossFight",
       "arguments": {
         "synthesis": true,
         "action": "start",
@@ -3844,7 +3844,7 @@
       "id": "VenariusBossFightHumanoidOneDefeat",
       "npc": "Venarius",
       "category": "Synthesis",
-      "type": "Event",
+      "type": "BossFight",
       "arguments": {
         "synthesis": true,
         "action": "start",
@@ -3855,7 +3855,7 @@
       "id": "VenariusBossFightMapDevice",
       "npc": "Venarius",
       "category": "Synthesis",
-      "type": "Event",
+      "type": "BossFight",
       "arguments": {
         "synthesis": true,
         "action": "unknown"
@@ -3865,7 +3865,7 @@
       "id": "VenariusBossFightGolemTwo",
       "npc": "Venarius",
       "category": "Synthesis",
-      "type": "Event",
+      "type": "BossFight",
       "arguments": {
         "synthesis": true,
         "action": "start",
@@ -3876,7 +3876,7 @@
       "id": "VenariusBossFightGolemTwoDefeat",
       "npc": "Venarius",
       "category": "Synthesis",
-      "type": "Event",
+      "type": "BossFight",
       "arguments": {
         "synthesis": true,
         "action": "start",
@@ -3887,7 +3887,7 @@
       "id": "VenariusBossFightHumanoidTwo",
       "npc": "Venarius",
       "category": "Synthesis",
-      "type": "Event",
+      "type": "BossFight",
       "arguments": {
         "synthesis": true,
         "action": "start",
@@ -3898,7 +3898,7 @@
       "id": "VenariusBossFightHumanoidTwoDefeat",
       "npc": "Venarius",
       "category": "Synthesis",
-      "type": "Event",
+      "type": "BossFight",
       "arguments": {
         "synthesis": true,
         "action": "start",
@@ -3909,7 +3909,7 @@
       "id": "VenariusBossFightDepart",
       "npc": "Venarius",
       "category": "Synthesis",
-      "type": "Event",
+      "type": "BossFight",
       "arguments": {
         "synthesis": true,
         "action": "defeated",
@@ -3920,7 +3920,7 @@
       "id": "VenariusBossFightWormholeStart",
       "npc": "Venarius",
       "category": "Synthesis",
-      "type": "Event",
+      "type": "BossFight",
       "arguments": {
         "synthesis": true,
         "action": "unknown"
@@ -3930,7 +3930,7 @@
       "id": "VenariusBossFightWormholeGotcha",
       "npc": "Venarius",
       "category": "Synthesis",
-      "type": "Event",
+      "type": "BossFight",
       "arguments": {
         "synthesis": true,
         "action": "unknown"
@@ -3940,7 +3940,7 @@
       "id": "VenariusBossFightWormholeDidntGotcha",
       "npc": "Venarius",
       "category": "Synthesis",
-      "type": "Event",
+      "type": "BossFight",
       "arguments": {
         "synthesis": true,
         "action": "unknown"
@@ -3950,7 +3950,7 @@
       "id": "VenariusBossFightCameraLens",
       "npc": "Venarius",
       "category": "Synthesis",
-      "type": "Event",
+      "type": "BossFight",
       "arguments": {
         "synthesis": true,
         "action": "unknown"
@@ -3960,7 +3960,7 @@
       "id": "VenariusBossFightMassTeleport",
       "npc": "Venarius",
       "category": "Synthesis",
-      "type": "Event",
+      "type": "BossFight",
       "arguments": {
         "synthesis": true,
         "action": "unknown"
@@ -3970,7 +3970,7 @@
       "id": "VenariusBossFightMassTeleportCollapse",
       "npc": "Venarius",
       "category": "Synthesis",
-      "type": "Event",
+      "type": "BossFight",
       "arguments": {
         "synthesis": true,
         "action": "unknown"
@@ -3980,7 +3980,7 @@
       "id": "VenariusBossFightRotatingOrbs",
       "npc": "Venarius",
       "category": "Synthesis",
-      "type": "Event",
+      "type": "BossFight",
       "arguments": {
         "synthesis": true,
         "action": "unknown"
@@ -3990,7 +3990,7 @@
       "id": "VenariusBossFightGolemNuke",
       "npc": "Venarius",
       "category": "Synthesis",
-      "type": "Event",
+      "type": "BossFight",
       "arguments": {
         "synthesis": true,
         "action": "start",
@@ -4001,7 +4001,7 @@
       "id": "VenariusBossFightGolemNukeSlam",
       "npc": "Venarius",
       "category": "Synthesis",
-      "type": "Event",
+      "type": "BossFight",
       "arguments": {
         "synthesis": true,
         "action": "start",
@@ -4012,7 +4012,7 @@
       "id": "VenariusBossFightSpinningLaserNuke",
       "npc": "Venarius",
       "category": "Synthesis",
-      "type": "Event",
+      "type": "BossFight",
       "arguments": {
         "synthesis": true,
         "action": "unknown"
@@ -4022,7 +4022,7 @@
       "id": "VenariusGuardian1SequentialArcs",
       "npc": "Venarius",
       "category": "Synthesis",
-      "type": "Event",
+      "type": "BossFight",
       "arguments": {
         "synthesis": true,
         "action": "unknown"
@@ -4032,7 +4032,7 @@
       "id": "VenariusBossFightLaserBarrage",
       "npc": "Venarius",
       "category": "Synthesis",
-      "type": "Event",
+      "type": "BossFight",
       "arguments": {
         "synthesis": true,
         "action": "unknown"
@@ -4042,7 +4042,7 @@
       "id": "VenariusBossFightConcentratedLaser",
       "npc": "Venarius",
       "category": "Synthesis",
-      "type": "Event",
+      "type": "BossFight",
       "arguments": {
         "synthesis": true,
         "action": "unknown"
@@ -4052,7 +4052,7 @@
       "id": "VenariusBossFightGolemShockRifle",
       "npc": "Venarius",
       "category": "Synthesis",
-      "type": "Event",
+      "type": "BossFight",
       "arguments": {
         "synthesis": true,
         "action": "start",
@@ -4063,7 +4063,7 @@
       "id": "VenariusBossFightGolemMassShockRifle",
       "npc": "Venarius",
       "category": "Synthesis",
-      "type": "Event",
+      "type": "BossFight",
       "arguments": {
         "synthesis": true,
         "action": "start",
@@ -4074,7 +4074,7 @@
       "id": "VenariusGuardian1Intro",
       "npc": "Venarius",
       "category": "Synthesis",
-      "type": "Event",
+      "type": "BossFight",
       "arguments": {
         "synthesis": true,
         "action": "unknown"
@@ -4084,7 +4084,7 @@
       "id": "VenariusGuardian2Intro",
       "npc": "Venarius",
       "category": "Synthesis",
-      "type": "Event",
+      "type": "BossFight",
       "arguments": {
         "synthesis": true,
         "action": "unknown"
@@ -4094,7 +4094,7 @@
       "id": "VenariusGuardian3Intro",
       "npc": "Venarius",
       "category": "Synthesis",
-      "type": "Event",
+      "type": "BossFight",
       "arguments": {
         "synthesis": true,
         "action": "unknown"
@@ -4104,7 +4104,7 @@
       "id": "VenariusGuardian4Intro",
       "npc": "Venarius",
       "category": "Synthesis",
-      "type": "Event",
+      "type": "BossFight",
       "arguments": {
         "synthesis": true,
         "action": "unknown"
@@ -4114,7 +4114,7 @@
       "id": "VenariusGuardian1Defeat",
       "npc": "Venarius",
       "category": "Synthesis",
-      "type": "Event",
+      "type": "BossFight",
       "arguments": {
         "synthesis": true,
         "action": "defeated",
@@ -4125,7 +4125,7 @@
       "id": "VenariusGuardian2Defeat",
       "npc": "Venarius",
       "category": "Synthesis",
-      "type": "Event",
+      "type": "BossFight",
       "arguments": {
         "synthesis": true,
         "action": "defeated",
@@ -4136,7 +4136,7 @@
       "id": "VenariusGuardian3Defeat",
       "npc": "Venarius",
       "category": "Synthesis",
-      "type": "Event",
+      "type": "BossFight",
       "arguments": {
         "synthesis": true,
         "action": "defeated",
@@ -4147,7 +4147,7 @@
       "id": "VenariusGuardian4Defeat",
       "npc": "Venarius",
       "category": "Synthesis",
-      "type": "Event",
+      "type": "BossFight",
       "arguments": {
         "synthesis": true,
         "action": "defeated",
@@ -4158,7 +4158,7 @@
       "id": "VenariusGuardian1MinionPhase",
       "npc": "Venarius",
       "category": "Synthesis",
-      "type": "Event",
+      "type": "BossFight",
       "arguments": {
         "synthesis": true,
         "action": "unknown"
@@ -4168,7 +4168,7 @@
       "id": "VenariusGuardian2MinionPhase",
       "npc": "Venarius",
       "category": "Synthesis",
-      "type": "Event",
+      "type": "BossFight",
       "arguments": {
         "synthesis": true,
         "action": "unknown"
@@ -4178,7 +4178,7 @@
       "id": "VenariusGuardian3MinionPhase",
       "npc": "Venarius",
       "category": "Synthesis",
-      "type": "Event",
+      "type": "BossFight",
       "arguments": {
         "synthesis": true,
         "action": "unknown"
@@ -4188,7 +4188,7 @@
       "id": "VenariusGuardian4MinionPhase",
       "npc": "Venarius",
       "category": "Synthesis",
-      "type": "Event",
+      "type": "BossFight",
       "arguments": {
         "synthesis": true,
         "action": "unknown"
@@ -4198,7 +4198,7 @@
       "id": "VenariusGuardian1LeftToRightWave",
       "npc": "Venarius",
       "category": "Synthesis",
-      "type": "Event",
+      "type": "BossFight",
       "arguments": {
         "synthesis": true,
         "action": "unknown"
@@ -4208,7 +4208,7 @@
       "id": "VenariusGuardian1MassWaveSpiral",
       "npc": "Venarius",
       "category": "Synthesis",
-      "type": "Event",
+      "type": "BossFight",
       "arguments": {
         "synthesis": true,
         "action": "unknown"
@@ -4218,7 +4218,7 @@
       "id": "VenariusGuardian1TriangleSlam",
       "npc": "Venarius",
       "category": "Synthesis",
-      "type": "Event",
+      "type": "BossFight",
       "arguments": {
         "synthesis": true,
         "action": "unknown"
@@ -4228,7 +4228,7 @@
       "id": "VenariusGuardian2MassProjectile",
       "npc": "Venarius",
       "category": "Synthesis",
-      "type": "Event",
+      "type": "BossFight",
       "arguments": {
         "synthesis": true,
         "action": "unknown"
@@ -4238,7 +4238,7 @@
       "id": "VenariusGuardian2MassProjectileExplode",
       "npc": "Venarius",
       "category": "Synthesis",
-      "type": "Event",
+      "type": "BossFight",
       "arguments": {
         "synthesis": true,
         "action": "unknown"
@@ -4248,7 +4248,7 @@
       "id": "VenariusGuardian2DoubleDash",
       "npc": "Venarius",
       "category": "Synthesis",
-      "type": "Event",
+      "type": "BossFight",
       "arguments": {
         "synthesis": true,
         "action": "unknown"
@@ -4258,7 +4258,7 @@
       "id": "VenariusGuardian2SpinSlam",
       "npc": "Venarius",
       "category": "Synthesis",
-      "type": "Event",
+      "type": "BossFight",
       "arguments": {
         "synthesis": true,
         "action": "unknown"
@@ -4268,7 +4268,7 @@
       "id": "VenariusGuardian2EpicSlash",
       "npc": "Venarius",
       "category": "Synthesis",
-      "type": "Event",
+      "type": "BossFight",
       "arguments": {
         "synthesis": true,
         "action": "unknown"
@@ -4278,7 +4278,7 @@
       "id": "VenariusGuardian2EpicSlashBlast",
       "npc": "Venarius",
       "category": "Synthesis",
-      "type": "Event",
+      "type": "BossFight",
       "arguments": {
         "synthesis": true,
         "action": "unknown"
@@ -4288,7 +4288,7 @@
       "id": "VenariusGuardian3QuadMortar",
       "npc": "Venarius",
       "category": "Synthesis",
-      "type": "Event",
+      "type": "BossFight",
       "arguments": {
         "synthesis": true,
         "action": "unknown"
@@ -4298,7 +4298,7 @@
       "id": "VenariusGuardian3QuadMortarReturn",
       "npc": "Venarius",
       "category": "Synthesis",
-      "type": "Event",
+      "type": "BossFight",
       "arguments": {
         "synthesis": true,
         "action": "unknown"
@@ -4308,7 +4308,7 @@
       "id": "VenariusGuardian3MassMortar",
       "npc": "Venarius",
       "category": "Synthesis",
-      "type": "Event",
+      "type": "BossFight",
       "arguments": {
         "synthesis": true,
         "action": "unknown"
@@ -4318,7 +4318,7 @@
       "id": "VenariusGuardian3MassMortarReturn",
       "npc": "Venarius",
       "category": "Synthesis",
-      "type": "Event",
+      "type": "BossFight",
       "arguments": {
         "synthesis": true,
         "action": "unknown"
@@ -4328,7 +4328,7 @@
       "id": "VenariusGuardian3SpinningBeams",
       "npc": "Venarius",
       "category": "Synthesis",
-      "type": "Event",
+      "type": "BossFight",
       "arguments": {
         "synthesis": true,
         "action": "unknown"
@@ -4338,7 +4338,7 @@
       "id": "VenariusGuardian3VoidZone",
       "npc": "Venarius",
       "category": "Synthesis",
-      "type": "Event",
+      "type": "BossFight",
       "arguments": {
         "synthesis": true,
         "action": "unknown"
@@ -4348,7 +4348,7 @@
       "id": "VenariusGuardian3RefractionBeam",
       "npc": "Venarius",
       "category": "Synthesis",
-      "type": "Event",
+      "type": "BossFight",
       "arguments": {
         "synthesis": true,
         "action": "unknown"
@@ -4358,7 +4358,7 @@
       "id": "VenariusGuardian4VSlam",
       "npc": "Venarius",
       "category": "Synthesis",
-      "type": "Event",
+      "type": "BossFight",
       "arguments": {
         "synthesis": true,
         "action": "unknown"
@@ -4368,7 +4368,7 @@
       "id": "VenariusGuardian4LaserGun",
       "npc": "Venarius",
       "category": "Synthesis",
-      "type": "Event",
+      "type": "BossFight",
       "arguments": {
         "synthesis": true,
         "action": "unknown"
@@ -4378,7 +4378,7 @@
       "id": "VenariusGuardian4RotatingGun",
       "npc": "Venarius",
       "category": "Synthesis",
-      "type": "Event",
+      "type": "BossFight",
       "arguments": {
         "synthesis": true,
         "action": "unknown"
