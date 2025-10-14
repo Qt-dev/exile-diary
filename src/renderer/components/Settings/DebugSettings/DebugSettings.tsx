@@ -3,6 +3,9 @@ import Divider from '@mui/material/Divider';
 import Button from '@mui/material/Button';
 import ButtonGroup from '@mui/material/ButtonGroup';
 import CircularProgress from '@mui/material/CircularProgress';
+import FormControlLabel from '@mui/material/FormControlLabel';
+import Checkbox from '@mui/material/Checkbox';
+import Box from '@mui/material/Box';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
@@ -13,7 +16,7 @@ import './DebugSettings.css';
 
 const { ipcRenderer } = electronService;
 
-const DebugSettings = ({ runStore }) => {
+const DebugSettings = ({ runStore, settings }) => {
   const now = dayjs();
   const [reCalculateProfitStart, setReCalculateProfitStart] = React.useState<Dayjs | null>(
     now.startOf('day')
@@ -25,6 +28,19 @@ const DebugSettings = ({ runStore }) => {
   const [isRecalculatingProfit, setIsRecalculatingProfit] = React.useState(false);
   const [isFetchingStashTabs, setIsFetchingStashTabs] = React.useState(false);
   const [isReprocessing, setIsReprocessing] = React.useState(false);
+  const [logToUI, setLogToUI] = React.useState(!!settings.logToUI);
+  const [isSaving, setIsSaving] = React.useState(false);
+
+  const handleLogToUIChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const newValue = event.target.checked;
+    setLogToUI(newValue);
+    setIsSaving(true);
+    await ipcRenderer.invoke('save-settings', {
+      settings: { logToUI: newValue }
+    });
+    setIsSaving(false);
+  };
+
   const handleReCalculateProfit = async () => {
     setIsRecalculatingProfit(true);
     await ipcRenderer.invoke('debug:recheck-gain', {
@@ -153,6 +169,20 @@ const DebugSettings = ({ runStore }) => {
           </Button>
         </ButtonGroup>
       </Stack>
+      <Divider sx={{ width: '50%', margin: '20px auto' }} />
+      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 1 }}>
+        <FormControlLabel
+          control={
+            <Checkbox
+              checked={logToUI}
+              onChange={handleLogToUIChange}
+              disabled={isSaving}
+            />
+          }
+          label="Log to UI (Show debug and info logs in the app)"
+        />
+        {isSaving && <CircularProgress size="1rem" />}
+      </Box>
     </div>
   );
 };

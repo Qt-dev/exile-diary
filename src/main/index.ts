@@ -63,9 +63,9 @@ function setLogTransport(debugMode) {
   logger.transports.file.level = debugMode ? 'verbose' : 'info';
 }
 
-function setupDebugLoggerHook(debugMode) {
-  // Hook logger to send debug and info logs to renderer when debug mode is enabled
-  if (debugMode) {
+function setupDebugLoggerHook(logToUI: boolean) {
+  // Hook logger to send debug and info logs to renderer when log to UI is enabled
+  if (logToUI) {
     // Hook debug logger
     if (!originalDebugLogger) {
       originalDebugLogger = logger.debug.bind(logger);
@@ -732,6 +732,12 @@ class MainProcess {
       if (newMode !== oldMode) {
         logger.debug(`Setting Debug Mode to Enabled:${newMode}`);
         setLogTransport(newMode);
+      }
+    });
+
+    SettingsManager.registerListener('logToUI', (newMode: boolean, oldMode: boolean) => {
+      if (newMode !== oldMode) {
+        logger.debug(`Setting Log to UI to Enabled:${newMode}`);
         setupDebugLoggerHook(newMode);
       }
     });
@@ -740,7 +746,7 @@ class MainProcess {
     RendererLogger.init(this.mainWindow.webContents, this.overlayWindow.webContents);
 
     // Setup debug logger hook after RendererLogger is initialized
-    setupDebugLoggerHook(SettingsManager.get('forceDebugMode'));
+    setupDebugLoggerHook(SettingsManager.get('logToUI'));
   }
 
   /**

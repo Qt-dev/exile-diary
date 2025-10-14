@@ -22,6 +22,7 @@ const DefaultSettings = {
   screenshotDir: null,
   overlayEnabled: true,
   forceDebugMode: false,
+  logToUI: false,
   screenshots: {
     allowCustomShortcut: true,
     allowFolderWatch: false,
