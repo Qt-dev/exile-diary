@@ -592,7 +592,23 @@ class MainProcess {
       this.unregisterGlobalShortcuts();
       this.registerGlobalShortcuts();
     });
-    // Shortcut updates are now handled directly via IPC
+    // Register listeners for individual shortcut changes
+    SettingsManager.registerListener('runParseShortcut', () => {
+      this.unregisterGlobalShortcuts();
+      this.registerGlobalShortcuts();
+    });
+    SettingsManager.registerListener('screenshotShortcut', () => {
+      this.unregisterGlobalShortcuts();
+      this.registerGlobalShortcuts();
+    });
+    SettingsManager.registerListener('overlayToggleShortcut', () => {
+      this.unregisterGlobalShortcuts();
+      this.registerGlobalShortcuts();
+    });
+    SettingsManager.registerListener('overlayMovementShortcut', () => {
+      this.unregisterGlobalShortcuts();
+      this.registerGlobalShortcuts();
+    });
 
     KillTracker.emitter.removeAllListeners();
     KillTracker.emitter.on('incubatorsUpdated', (incubators) => {

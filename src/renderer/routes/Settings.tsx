@@ -7,6 +7,7 @@ import StashSettings from '../components/Settings/StashSettings/StashSettings';
 import MainSettings from '../components/Settings/MainSettings/MainSettings';
 import FilterSettings from '../components/Settings/FilterSettings/FilterSettings';
 import DebugSettings from '../components/Settings/DebugSettings/DebugSettings';
+import HotkeySettings from '../components/Settings/HotkeySettings/HotkeySettings';
 import './Settings.css';
 import { observer } from 'mobx-react-lite';
 
@@ -47,8 +48,9 @@ const Settings = ({ characterStore, stashTabStore, runStore }) => {
       <Box>
         <Tabs value={tabValue} centered aria-label="Settings Tabs" onChange={handleTabChange}>
           <Tab label="Account" {...a11yProps(0)} />
-          <Tab label="Stashes" {...a11yProps(2)} />
-          <Tab label="Item Filter" {...a11yProps(3)} />
+          <Tab label="Stashes" {...a11yProps(1)} />
+          <Tab label="Item Filter" {...a11yProps(2)} />
+          <Tab label="Hotkeys" {...a11yProps(3)} />
           <Tab label="Debug" {...a11yProps(4)} />
           {/* Add new stuff here */}
         </Tabs>
@@ -63,6 +65,9 @@ const Settings = ({ characterStore, stashTabStore, runStore }) => {
         <FilterSettings settings={settings} />
       </div>
       <div hidden={tabValue !== 3}>
+        <HotkeySettings settings={settings} />
+      </div>
+      <div hidden={tabValue !== 4}>
         <DebugSettings runStore={runStore} settings={settings} />
       </div>
     </div>

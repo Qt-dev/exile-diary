@@ -115,172 +115,6 @@ const MainSettings = ({ settings, store, runStore }) => {
     settings.autoScreenshotOnMapEntry?.delay || 2
   );
 
-  // Shortcut configurations
-  const [runParseShortcut, setRunParseShortcut] = React.useState(
-    settings.runParseShortcut || 'CommandOrControl+F10'
-  );
-  const [screenshotShortcut, setScreenshotShortcut] = React.useState(
-    settings.screenshotShortcut || 'CommandOrControl+F8'
-  );
-  const [overlayToggleShortcut, setOverlayToggleShortcut] = React.useState(
-    settings.overlayToggleShortcut || 'CommandOrControl+F7'
-  );
-  const [overlayMovementShortcut, setOverlayMovementShortcut] = React.useState(
-    settings.overlayMovementShortcut || 'CommandOrControl+F9'
-  );
-
-  const [activeShortcutField, setActiveShortcutField] = React.useState<string | null>(null);
-
-  const formatKeyStroke = (event: KeyboardEvent) => {
-    const modifiers: string[] = [];
-    if (event.ctrlKey || event.metaKey) modifiers.push('CommandOrControl');
-    if (event.altKey) modifiers.push('Alt');
-    if (event.shiftKey) modifiers.push('Shift');
-
-    let key = event.key;
-
-    // Handle special keys
-    const keyMap: { [key: string]: string } = {
-      ' ': 'Space',
-      'ArrowUp': 'Up',
-      'ArrowDown': 'Down',
-      'ArrowLeft': 'Left',
-      'ArrowRight': 'Right',
-      'Enter': 'Return',
-      'Backspace': 'Backspace',
-      'Delete': 'Delete',
-      'Tab': 'Tab',
-      'Insert': 'Insert',
-      'Home': 'Home',
-      'End': 'End',
-      'PageUp': 'PageUp',
-      'PageDown': 'PageDown',
-    };
-
-    if (keyMap[key]) {
-      key = keyMap[key];
-    } else if (key.startsWith('F') && /^F[0-9]+$/.test(key)) {
-      // F1, F2, etc. - keep as is
-    } else if (key.length === 1) {
-      key = key.toUpperCase();
-    } else if (key === 'Control' || key === 'Alt' || key === 'Shift' || key === 'Meta') {
-      return null; // Don't capture modifier keys alone
-    }
-
-    // Require at least one modifier for most keys (except function keys and special keys)
-    if (modifiers.length === 0 && !key.startsWith('F') && !keyMap[event.key]) {
-      return null;
-    }
-
-    return modifiers.length > 0 ? `${modifiers.join('+')}+${key}` : key;
-  };
-
-  const handleShortcutKeyDown = (event: React.KeyboardEvent) => {
-    if (!activeShortcutField) return;
-
-    event.preventDefault();
-    event.stopPropagation();
-
-    // Handle Escape key to cancel recording
-    if (event.key === 'Escape') {
-      setActiveShortcutField(null);
-      (event.target as HTMLElement).blur();
-      return;
-    }
-
-    const formatted = formatKeyStroke(event.nativeEvent);
-    if (formatted) {
-      switch (activeShortcutField) {
-        case 'runParse':
-          setRunParseShortcut(formatted);
-          break;
-        case 'screenshot':
-          setScreenshotShortcut(formatted);
-          break;
-        case 'overlayToggle':
-          setOverlayToggleShortcut(formatted);
-          break;
-        case 'overlayMovement':
-          setOverlayMovementShortcut(formatted);
-          break;
-      }
-      setActiveShortcutField(null);
-      (event.target as HTMLElement).blur();
-    }
-  };
-
-  const handleShortcutFocus = (fieldName: string) => {
-    ipcRenderer.send('hotkeys:disable');
-    setActiveShortcutField(fieldName);
-  };
-
-  const handleShortcutBlur = () => {
-    setActiveShortcutField(null);
-    ipcRenderer.send('hotkeys:enable');
-  };
-
-  const getShortcutValue = (fieldName: string) => {
-    switch (fieldName) {
-      case 'runParse': return runParseShortcut;
-      case 'screenshot': return screenshotShortcut;
-      case 'overlayToggle': return overlayToggleShortcut;
-      case 'overlayMovement': return overlayMovementShortcut;
-      default: return '';
-    }
-  };
-
-  const setShortcutValue = (fieldName: string, value: string) => {
-    switch (fieldName) {
-      case 'runParse': setRunParseShortcut(value); break;
-      case 'screenshot': setScreenshotShortcut(value); break;
-      case 'overlayToggle': setOverlayToggleShortcut(value); break;
-      case 'overlayMovement': setOverlayMovementShortcut(value); break;
-    }
-  };
-
-  const ShortcutTextField = ({ fieldName, label, helperText }: {
-    fieldName: string;
-    label: string;
-    helperText: string;
-  }) => {
-    const isActiveField = activeShortcutField === fieldName;
-    const currentValue = getShortcutValue(fieldName);
-    const inputRef = React.useRef<HTMLInputElement>(null);
-
-    React.useEffect(() => {
-      if (isActiveField) {
-        inputRef.current?.focus();
-      }
-    }, [isActiveField]);
-
-    return (
-      <TextField
-        inputRef={inputRef}
-        fullWidth
-        label={isActiveField ? "Press your desired key combination..." : label}
-        name={`${fieldName}_shortcut`}
-        variant="filled"
-        size="small"
-        value={isActiveField ? "Recording..." : currentValue}
-        onKeyDown={handleShortcutKeyDown}
-        onFocus={() => handleShortcutFocus(fieldName)}
-        onBlur={handleShortcutBlur}
-        helperText={
-          isActiveField
-            ? "Press any key combination (e.g., Ctrl+F10, Alt+R). Press Escape to cancel."
-            : helperText
-        }
-        InputProps={{
-          readOnly: true,
-          style: {
-            backgroundColor: isActiveField ? '#ffebee' : undefined,
-            color: isActiveField ? '#d32f2f' : undefined
-          }
-        }}
-      />
-    );
-  };
-
   const handleRedirectToLogin = () => {
     navigate('/login');
   };
@@ -336,10 +170,6 @@ const MainSettings = ({ settings, store, runStore }) => {
         enabled: e.target.enable_auto_screenshot_on_map_entry.checked,
         delay: autoScreenshotDelay,
       },
-      runParseShortcut: runParseShortcut,
-      screenshotShortcut: screenshotShortcut,
-      overlayToggleShortcut: overlayToggleShortcut,
-      overlayMovementShortcut: overlayMovementShortcut,
     };
 
     // Save settings
@@ -348,13 +178,6 @@ const MainSettings = ({ settings, store, runStore }) => {
 
   const handleRefreshCharacters = () => {
     store.fetchCharacters();
-  };
-
-  const handleResetShortcuts = () => {
-    setRunParseShortcut('CommandOrControl+F10');
-    setScreenshotShortcut('CommandOrControl+F8');
-    setOverlayToggleShortcut('CommandOrControl+F7');
-    setOverlayMovementShortcut('CommandOrControl+F9');
   };
 
   useEffect(() => {
@@ -512,80 +335,44 @@ const MainSettings = ({ settings, store, runStore }) => {
             }
             label="Enable Screenshot Folder Monitoring"
           />
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, justifyContent: 'space-between' }}>
-            <FormControlLabel
-              control={
-                <Checkbox
-                  id="overlay_enabled"
-                  checked={overlayEnabled}
-                  onChange={(e) => setOverlayEnabled(e.target.checked)}
-                />
-              }
-              label="Enable Overlay Popup Messages"
-            />
-            <Box sx={{ width: '30%' }}>
-              <ShortcutTextField
-                fieldName="overlayMovement"
-                label="Toggle overlay movement mode"
-                helperText=""
+          <FormControlLabel
+            control={
+              <Checkbox
+                id="overlay_enabled"
+                checked={overlayEnabled}
+                onChange={(e) => setOverlayEnabled(e.target.checked)}
               />
-            </Box>
-          </Box>
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, justifyContent: 'space-between' }}>
-            <FormControlLabel
-              control={
-                <Checkbox
-                  id="overlay_persistence_enabled"
-                  checked={overlayPersistenceEnabled}
-                  onChange={(e) => setOverlayPersistenceEnabled(e.target.checked)}
-                />
-              }
-              label="Enable Overlay Persistence"
-            />
-            <Box sx={{ width: '30%' }}>
-              <ShortcutTextField
-                fieldName="overlayToggle"
-                label="Toggle overlay visibility"
-                helperText=""
+            }
+            label="Enable Overlay Popup Messages"
+          />
+          <FormControlLabel
+            control={
+              <Checkbox
+                id="overlay_persistence_enabled"
+                checked={overlayPersistenceEnabled}
+                onChange={(e) => setOverlayPersistenceEnabled(e.target.checked)}
               />
-            </Box>
-          </Box>
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, justifyContent: 'space-between' }}>
-            <FormControlLabel
-              control={
-                <Checkbox
-                  id="enable_screenshot_custom_shortcut"
-                  defaultChecked={enableScreenshotCustomShortcut}
-                />
-              }
-              label="Enable Custom Screenshot Shortcut"
-            />
-            <Box sx={{ width: '30%' }}>
-              <ShortcutTextField
-                fieldName="screenshot"
-                label="Take screenshot"
-                helperText=""
+            }
+            label="Enable Overlay Persistence"
+          />
+          <FormControlLabel
+            control={
+              <Checkbox
+                id="enable_screenshot_custom_shortcut"
+                defaultChecked={enableScreenshotCustomShortcut}
               />
-            </Box>
-          </Box>
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, justifyContent: 'space-between' }}>
-            <FormControlLabel
-              control={
-                <Checkbox
-                  id="enable_run_parse_screenshot"
-                  defaultChecked={runParseScreenshotEnabled}
-                />
-              }
-              label="Enable shortcut to finish a run"
-            />
-            <Box sx={{ width: '30%' }}>
-              <ShortcutTextField
-                fieldName="runParse"
-                label="Finish current run"
-                helperText=""
+            }
+            label="Enable Custom Screenshot Shortcut"
+          />
+          <FormControlLabel
+            control={
+              <Checkbox
+                id="enable_run_parse_screenshot"
+                defaultChecked={runParseScreenshotEnabled}
               />
-            </Box>
-          </Box>
+            }
+            label="Enable shortcut to finish a run"
+          />
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, justifyContent: 'space-between' }}>
             <FormControlLabel
               control={
@@ -638,16 +425,6 @@ const MainSettings = ({ settings, store, runStore }) => {
           <FormControlLabel control={<Checkbox disabled />} label="Disable Gear Tracking" />
         </div> */}
         <Divider className="Settings__Separator" />
-        <Box sx={{ mb: 2 }}>
-          <Button
-            variant="outlined"
-            color="secondary"
-            onClick={handleResetShortcuts}
-            fullWidth
-          >
-            Reset Shortcuts to Defaults
-          </Button>
-        </Box>
         <ButtonGroup variant="outlined" fullWidth aria-label="Settings Control Buttons">
           <Button type="submit">Save</Button>
           <Button onClick={handleBack}>Cancel</Button>

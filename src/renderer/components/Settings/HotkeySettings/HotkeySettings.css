@@ -1,0 +1,9 @@
+/* HotkeySettings styles */
+.Hotkey-Settings {
+  padding: 20px;
+}
+
+.Hotkey-Settings__Header {
+  text-align: center;
+  margin-bottom: 20px;
+}
