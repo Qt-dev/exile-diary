@@ -944,7 +944,12 @@ class MainProcess {
       SettingsManager.set('overlayPosition', { x, y });
     });
 
-
+    app.on('will-quit', () => {
+      logger.info('Exile Diary Reborn is closing');
+      clearTimeout(this.saveBoundsCallback);
+      clearTimeout(this.autoUpdaterInterval);
+      this.unregisterGlobalShortcuts();
+    });
   }
 
   refreshWindows() {
