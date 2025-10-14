@@ -6,13 +6,12 @@ import ButtonGroup from '@mui/material/ButtonGroup';
 import Divider from '@mui/material/Divider';
 import Stack from '@mui/material/Stack';
 import { electronService } from '../../../electron.service';
-import { useNavigate } from 'react-router-dom';
 import './HotkeySettings.css';
+import '../SettingsCommon.css';
 
 const { ipcRenderer } = electronService;
 
 const HotkeySettings = ({ settings }) => {
-  const navigate = useNavigate();
 
   // Shortcut configurations
   const [runParseShortcut, setRunParseShortcut] = React.useState(
@@ -34,6 +33,16 @@ const HotkeySettings = ({ settings }) => {
   const enableScreenshotCustomShortcut =
     settings.screenshots && !!settings.screenshots.allowCustomShortcut;
   const runParseScreenshotEnabled = !!settings.runParseScreenshotEnabled;
+
+  // Track if there are unsaved changes
+  const hasUnsavedChanges = React.useMemo(() => {
+    return (
+      runParseShortcut !== (settings.runParseShortcut || 'CommandOrControl+F10') ||
+      screenshotShortcut !== (settings.screenshotShortcut || 'CommandOrControl+F8') ||
+      overlayToggleShortcut !== (settings.overlayToggleShortcut || 'CommandOrControl+F7') ||
+      overlayMovementShortcut !== (settings.overlayMovementShortcut || 'CommandOrControl+F9')
+    );
+  }, [runParseShortcut, screenshotShortcut, overlayToggleShortcut, overlayMovementShortcut, settings]);
 
   const formatKeyStroke = (event: KeyboardEvent) => {
     const modifiers: string[] = [];
@@ -185,8 +194,12 @@ const HotkeySettings = ({ settings }) => {
     setOverlayMovementShortcut('CommandOrControl+F9');
   };
 
-  const handleBack = () => {
-    navigate('/');
+  const handleCancel = () => {
+    // Reset all shortcuts to original settings values
+    setRunParseShortcut(settings.runParseShortcut || 'CommandOrControl+F10');
+    setScreenshotShortcut(settings.screenshotShortcut || 'CommandOrControl+F8');
+    setOverlayToggleShortcut(settings.overlayToggleShortcut || 'CommandOrControl+F7');
+    setOverlayMovementShortcut(settings.overlayMovementShortcut || 'CommandOrControl+F9');
   };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -279,8 +292,14 @@ const HotkeySettings = ({ settings }) => {
 
           {/* Save/Cancel Buttons */}
           <ButtonGroup variant="outlined" fullWidth aria-label="Settings Control Buttons">
-            <Button type="submit">Save</Button>
-            <Button onClick={handleBack}>Cancel</Button>
+            <Button
+              type="submit"
+              variant={hasUnsavedChanges ? "contained" : "outlined"}
+              className={hasUnsavedChanges ? 'Settings__Save-Button--unsaved' : ''}
+            >
+              {hasUnsavedChanges ? 'Save Changes' : 'Save'}
+            </Button>
+            <Button onClick={handleCancel}>Cancel</Button>
           </ButtonGroup>
         </Stack>
       </Box>

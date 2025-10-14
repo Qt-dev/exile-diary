@@ -1,0 +1,14 @@
+/* Shared styles for Settings components */
+
+/* Save button with unsaved changes - filled state with lilac color */
+.Settings__Save-Button--unsaved {
+  background-color: #8888ff !important;
+  border-color: #8888ff !important;
+  color: #ffffff !important;
+}
+
+.Settings__Save-Button--unsaved:hover {
+  background-color: #ffffff !important;
+  border-color: #8888ff !important;
+  color: #8888ff !important;
+}
