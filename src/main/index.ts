@@ -31,6 +31,8 @@ import AuthManager from './AuthManager';
 import IgnoreManager from '../helpers/ignoreManager';
 import LogProcessor from './modules/LogProcessor';
 
+let splashWindow: BrowserWindow | null;
+
 // Old stuff
 import RateGetterV2 from './modules/RateGetterV2';
 import Utils from './modules/Utils';
@@ -810,6 +812,10 @@ class MainProcess {
 
     // Main Window listeners
     this.mainWindow.once('ready-to-show', () => {
+      if (splashWindow) {
+        splashWindow.destroy();
+        splashWindow = null;
+      }
       this.mainWindow.show();
       logger.info('App is ready to show');
       RendererLogger.log({
@@ -1146,6 +1152,47 @@ app.on('ready', () => {
     logger.error('Exile Diary is already started, closing the new instance.');
     app.quit();
   } else {
+    splashWindow = new BrowserWindow({
+      width: 300,
+      height: 300,
+      transparent: true,
+      frame: false,
+      alwaysOnTop: true,
+    });
+    const splashHtml = `
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <title>Loading...</title>
+                <style>
+                  body {
+                    background-color: #111;
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+                    height: 100vh;
+                    margin: 0;
+                    overflow: hidden;
+                  }
+                  .spinner {
+                    width: 50px;
+                    height: 50px;
+                    border: 5px solid #333;
+                    border-top: 5px solid #8888ff;
+                    border-radius: 50%;
+                    animation: spin 1s linear infinite;
+                  }
+                  @keyframes spin {
+                    0% { transform: rotate(0deg); }
+                    100% { transform: rotate(360deg); }
+                  }
+                </style>    </head>
+    <body>
+      <div class="spinner"></div>
+    </body>
+    </html>
+    `;
+    splashWindow.loadURL(`data:text/html;charset=UTF-8,${encodeURIComponent(splashHtml)}`);
     const mainProcess = new MainProcess();
     mainProcess.startWindows();
   }
