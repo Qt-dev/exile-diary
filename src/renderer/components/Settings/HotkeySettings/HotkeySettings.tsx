@@ -11,7 +11,7 @@ import '../SettingsCommon.css';
 
 const { ipcRenderer } = electronService;
 
-const HotkeySettings = ({ settings }) => {
+const HotkeySettings = ({ settings, revalidate }) => {
 
   // Shortcut configurations
   const [runParseShortcut, setRunParseShortcut] = React.useState(
@@ -214,6 +214,7 @@ const HotkeySettings = ({ settings }) => {
 
     // Save settings
     await ipcRenderer.invoke('save-settings', { settings: data });
+    revalidate();
   };
 
   return (

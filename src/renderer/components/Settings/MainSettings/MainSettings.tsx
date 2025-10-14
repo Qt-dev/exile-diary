@@ -24,7 +24,7 @@ declare module 'react' {
   }
 }
 
-const MainSettings = ({ settings, store, runStore }) => {
+const MainSettings = ({ settings, store, runStore, revalidate }) => {
   const navigate = useNavigate();
 
   // Character
@@ -164,7 +164,6 @@ const MainSettings = ({ settings, store, runStore }) => {
       clientFileLocation !== (settings.clientTxt || '') ||
       screenshotLocation !== (settings.screenshotDir || '') ||
       overlayEnabled !== !!settings.overlayEnabled ||
-      overlayPersistenceEnabled !== !!settings.overlayPersistenceEnabled ||
       autoScreenshotDelay !== (settings.autoScreenshotOnMapEntry?.delay || 2) ||
       alternateSplinterPricingState !== !!settings.alternateSplinterPricing ||
       enableIncubatorAlertState !== !!settings.enableIncubatorAlert ||
@@ -181,7 +180,6 @@ const MainSettings = ({ settings, store, runStore }) => {
     clientFileLocation,
     screenshotLocation,
     overlayEnabled,
-    overlayPersistenceEnabled,
     autoScreenshotDelay,
     alternateSplinterPricingState,
     enableIncubatorAlertState,
@@ -244,6 +242,7 @@ const MainSettings = ({ settings, store, runStore }) => {
 
     // Save settings
     await ipcRenderer.invoke('save-settings', { settings: data });
+    revalidate();
   };
 
   const handleRefreshCharacters = () => {
@@ -434,7 +433,7 @@ const MainSettings = ({ settings, store, runStore }) => {
                 onChange={(e) => setOverlayPersistenceEnabled(e.target.checked)}
               />
             }
-            label="Enable Overlay Persistence"
+            label={`Enable Overlay Persistence (${settings.overlayToggleShortcut || 'CommandOrControl+F7'})`}
           />
           <FormControlLabel
             control={
@@ -444,7 +443,7 @@ const MainSettings = ({ settings, store, runStore }) => {
                 onChange={(e) => setEnableScreenshotCustomShortcutState(e.target.checked)}
               />
             }
-            label="Enable Custom Screenshot Shortcut"
+            label={`Enable Custom Screenshot Shortcut (${settings.screenshotShortcut || 'CommandOrControl+F8'})`}
           />
           <FormControlLabel
             control={
@@ -454,7 +453,7 @@ const MainSettings = ({ settings, store, runStore }) => {
                 onChange={(e) => setRunParseScreenshotEnabledState(e.target.checked)}
               />
             }
-            label="Enable Shortcut to Finish a Run"
+            label={`Enable Shortcut to Finish a Run (${settings.runParseShortcut || 'CommandOrControl+F10'})`}
           />
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, justifyContent: 'space-between' }}>
             <FormControlLabel

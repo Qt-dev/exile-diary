@@ -8,7 +8,7 @@ import './FilterSettings.css';
 import '../SettingsCommon.css';
 const { logger, ipcRenderer } = electronService;
 
-const FilterSettings = ({ settings }) => {
+const FilterSettings = ({ settings, revalidate }) => {
   const [filters, setFilter] = React.useState(settings.filters);
 
   // Track if there are unsaved changes
@@ -19,6 +19,7 @@ const FilterSettings = ({ settings }) => {
   const handleSaveSettings = async () => {
     logger.debug('Saving filters settings from UI');
     ipcRenderer.invoke('save-settings:filters', filters);
+    revalidate();
   };
 
   const handleCancel = () => {
