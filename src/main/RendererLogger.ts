@@ -1,5 +1,6 @@
 import logger from 'electron-log';
 import dayjs, { Dayjs } from 'dayjs';
+import SettingsManager from './SettingsManager';
 let Renderer: any = null;
 let OverlayRenderer: any = null;
 
@@ -34,6 +35,9 @@ const RendererLogger = {
       return;
     }
     Renderer.send('add-log', { messages });
+    if (SettingsManager.get('enableAutoscroll')) {
+      Renderer.send('log-autoscroll');
+    }
     if (onOverlay && !OverlayRenderer) {
       logger.error('OverlayRenderer does not seem to be initialized');
       logger.error(OverlayRenderer);

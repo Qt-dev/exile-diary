@@ -33,8 +33,6 @@ import IgnoreManager from '../helpers/ignoreManager';
 import LogProcessor from './modules/LogProcessor';
 import DB from './db/index';
 
-let splashWindow: BrowserWindow | null;
-
 // Old stuff
 import RateGetterV2 from './modules/RateGetterV2';
 import Utils from './modules/Utils';
@@ -68,49 +66,37 @@ function setLogTransport(debugMode) {
 }
 
 function setupDebugLoggerHook(logToUI: boolean) {
+  function createHookedLoggerFn(originalFn: ((...params: any[]) => void) | null, level: string) {
+    return function(...args: any[]) {
+      if (originalFn) {
+        originalFn(...args);
+      }
+      if (!isLoggingToRenderer) {
+        isLoggingToRenderer = true;
+        try {
+          const message = args.map(arg => typeof arg === 'object' ? JSON.stringify(arg) : String(arg)).join(' ');
+          RendererLogger.log({ messages: [{ text: `[${level}] ${message}` }], onOverlay: false });
+        } catch (e) {
+          // Silently fail if RendererLogger isn't ready yet
+        }
+        isLoggingToRenderer = false;
+      }
+    };
+  }
+
   // Hook logger to send debug and info logs to renderer when log to UI is enabled
   if (logToUI) {
     // Hook debug logger
     if (!originalDebugLogger) {
       originalDebugLogger = logger.debug.bind(logger);
     }
-    const originalDebugFn = originalDebugLogger;
-    logger.debug = function(...args) {
-      if (originalDebugFn) {
-        originalDebugFn(...args);
-      }
-      if (!isLoggingToRenderer) {
-        isLoggingToRenderer = true;
-        try {
-          const message = args.map(arg => typeof arg === 'object' ? JSON.stringify(arg) : String(arg)).join(' ');
-          RendererLogger.log({ messages: [{ text: `[DEBUG] ${message}` }], onOverlay: false });
-        } catch (e) {
-          // Silently fail if RendererLogger isn't ready yet
-        }
-        isLoggingToRenderer = false;
-      }
-    };
+    logger.debug = createHookedLoggerFn(originalDebugLogger, 'DEBUG');
 
     // Hook info logger
     if (!originalInfoLogger) {
       originalInfoLogger = logger.info.bind(logger);
     }
-    const originalInfoFn = originalInfoLogger;
-    logger.info = function(...args) {
-      if (originalInfoFn) {
-        originalInfoFn(...args);
-      }
-      if (!isLoggingToRenderer) {
-        isLoggingToRenderer = true;
-        try {
-          const message = args.map(arg => typeof arg === 'object' ? JSON.stringify(arg) : String(arg)).join(' ');
-          RendererLogger.log({ messages: [{ text: `[INFO] ${message}` }], onOverlay: false });
-        } catch (e) {
-          // Silently fail if RendererLogger isn't ready yet
-        }
-        isLoggingToRenderer = false;
-      }
-    };
+    logger.info = createHookedLoggerFn(originalInfoLogger, 'INFO');
   } else {
     // Restore original functions when debug mode is disabled
     if (originalDebugLogger) {
@@ -250,6 +236,11 @@ class MainProcess {
   unregisterGlobalShortcuts() {
     logger.info('Unregistering all global shortcuts');
     globalShortcut.unregisterAll();
+  }
+
+  reRegisterGlobalShortcuts() {
+    this.unregisterGlobalShortcuts();
+    this.registerGlobalShortcuts();
   }
 
   async init() {
@@ -588,31 +579,12 @@ class MainProcess {
       RunParser.refreshTracking();
       StatsManager.triggerProfitPerHourAnnouncer();
     });
-    SettingsManager.registerListener('runParseScreenshotEnabled', (enabled) => {
-      this.unregisterGlobalShortcuts();
-      this.registerGlobalShortcuts();
-    });
-    SettingsManager.registerListener('screenshots', (value) => {
-      this.unregisterGlobalShortcuts();
-      this.registerGlobalShortcuts();
-    });
-    // Register listeners for individual shortcut changes
-    SettingsManager.registerListener('runParseShortcut', () => {
-      this.unregisterGlobalShortcuts();
-      this.registerGlobalShortcuts();
-    });
-    SettingsManager.registerListener('screenshotShortcut', () => {
-      this.unregisterGlobalShortcuts();
-      this.registerGlobalShortcuts();
-    });
-    SettingsManager.registerListener('overlayToggleShortcut', () => {
-      this.unregisterGlobalShortcuts();
-      this.registerGlobalShortcuts();
-    });
-    SettingsManager.registerListener('overlayMovementShortcut', () => {
-      this.unregisterGlobalShortcuts();
-      this.registerGlobalShortcuts();
-    });
+    SettingsManager.registerListener('runParseScreenshotEnabled', () => this.reRegisterGlobalShortcuts());
+    SettingsManager.registerListener('screenshots', () => this.reRegisterGlobalShortcuts());
+    SettingsManager.registerListener('runParseShortcut', () => this.reRegisterGlobalShortcuts());
+    SettingsManager.registerListener('screenshotShortcut', () => this.reRegisterGlobalShortcuts());
+    SettingsManager.registerListener('overlayToggleShortcut', () => this.reRegisterGlobalShortcuts());
+    SettingsManager.registerListener('overlayMovementShortcut', () => this.reRegisterGlobalShortcuts());
 
     KillTracker.emitter.removeAllListeners();
     KillTracker.emitter.on('incubatorsUpdated', (incubators) => {
@@ -814,10 +786,6 @@ class MainProcess {
 
     // Main Window listeners
     this.mainWindow.once('ready-to-show', () => {
-      if (splashWindow) {
-        splashWindow.destroy();
-        splashWindow = null;
-      }
       this.mainWindow.show();
       logger.info('App is ready to show');
       RendererLogger.log({
@@ -1168,47 +1136,6 @@ app.on('ready', () => {
     logger.error('Exile Diary is already started, closing the new instance.');
     app.quit();
   } else {
-    splashWindow = new BrowserWindow({
-      width: 300,
-      height: 300,
-      transparent: true,
-      frame: false,
-      alwaysOnTop: true,
-    });
-    const splashHtml = `
-    <!DOCTYPE html>
-    <html>
-    <head>
-      <title>Loading...</title>
-                <style>
-                  body {
-                    background-color: #111;
-                    display: flex;
-                    justify-content: center;
-                    align-items: center;
-                    height: 100vh;
-                    margin: 0;
-                    overflow: hidden;
-                  }
-                  .spinner {
-                    width: 50px;
-                    height: 50px;
-                    border: 5px solid #333;
-                    border-top: 5px solid #8888ff;
-                    border-radius: 50%;
-                    animation: spin 1s linear infinite;
-                  }
-                  @keyframes spin {
-                    0% { transform: rotate(0deg); }
-                    100% { transform: rotate(360deg); }
-                  }
-                </style>    </head>
-    <body>
-      <div class="spinner"></div>
-    </body>
-    </html>
-    `;
-    splashWindow.loadURL(`data:text/html;charset=UTF-8,${encodeURIComponent(splashHtml)}`);
     const mainProcess = new MainProcess();
     mainProcess.startWindows();
   }

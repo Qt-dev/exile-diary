@@ -170,8 +170,6 @@ const saveFilterSettings = async (e, params) => {
   RendererLogger.log({ messages: [{ text: 'Filter settings saved' }] });
 };
 
-
-
 const triggerSearch = async (e, params) => {
   logger.info('Triggering search from the renderer process');
   SearchManager.search(params);

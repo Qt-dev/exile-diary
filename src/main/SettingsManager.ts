@@ -1,7 +1,7 @@
 import logger from 'electron-log';
 import * as path from 'path';
 import * as fs from 'fs/promises';
-import { app } from 'electron';
+import { app, ipcMain } from 'electron';
 import DB from './db';
 import GGGAPI from './GGGAPI';
 import RateGetterV2 from './modules/RateGetterV2';
@@ -23,6 +23,7 @@ const DefaultSettings = {
   overlayEnabled: true,
   forceDebugMode: false,
   logToUI: false,
+  enableAutoscroll: true,
   screenshots: {
     allowCustomShortcut: true,
     allowFolderWatch: false,
@@ -138,6 +139,10 @@ class SettingsManager {
     this.eventEmitter.emit('change', key, value);
     this.settings[key] = value;
     this.scheduleSave();
+
+    if (key === 'enableAutoscroll') {
+      ipcMain.emit('settings:autoscroll:updated', null, value);
+    }
   }
 
   scheduleSave() {

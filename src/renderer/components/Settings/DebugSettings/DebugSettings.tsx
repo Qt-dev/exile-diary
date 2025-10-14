@@ -30,6 +30,9 @@ const DebugSettings = ({ runStore, settings }) => {
   const [isReprocessing, setIsReprocessing] = React.useState(false);
   const [logToUI, setLogToUI] = React.useState(!!settings.logToUI);
   const [isSaving, setIsSaving] = React.useState(false);
+  const [enableAutoscrollState, setEnableAutoscrollState] = React.useState(
+    !!settings.enableAutoscroll
+  );
 
   const handleLogToUIChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const newValue = event.target.checked;
@@ -37,6 +40,16 @@ const DebugSettings = ({ runStore, settings }) => {
     setIsSaving(true);
     await ipcRenderer.invoke('save-settings', {
       settings: { logToUI: newValue }
+    });
+    setIsSaving(false);
+  };
+
+  const handleAutoscrollChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const newValue = event.target.checked;
+    setEnableAutoscrollState(newValue);
+    setIsSaving(true);
+    await ipcRenderer.invoke('save-settings', {
+      settings: { enableAutoscroll: newValue }
     });
     setIsSaving(false);
   };
@@ -182,6 +195,16 @@ const DebugSettings = ({ runStore, settings }) => {
           label="Log to UI (Show debug and info logs in the app)"
         />
         {isSaving && <CircularProgress size="1rem" />}
+        <FormControlLabel
+            control={
+              <Checkbox
+                checked={enableAutoscrollState}
+                onChange={handleAutoscrollChange}
+                disabled={isSaving}
+              />
+            }
+            label="Autoscroll Logs"
+          />
       </Box>
     </div>
   );

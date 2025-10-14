@@ -58,7 +58,7 @@ const Line = ({ messages, timestamp }) => {
   );
 };
 
-const LogBox = ({ store }) => {
+const LogBox = ({ store, enableAutoscroll }) => {
   const messages =
     (store.logs && store.logs.length) > 0
       ? store.logs.map(({ id, messages, timestamp }) => (
@@ -74,12 +74,24 @@ const LogBox = ({ store }) => {
   const linesContainerRef = useRef<HTMLDivElement>(null);
   const scrollbarAreaRef = useRef<HTMLDivElement>(null);
 
-  // Auto-scroll to bottom when new messages arrive and the log is open
-  useEffect(() => {
-    if (isOpen && linesContainerRef.current) {
+  const scrollToBottom = () => {
+    if (isOpen && enableAutoscroll && linesContainerRef.current) {
       linesContainerRef.current.scrollTop = linesContainerRef.current.scrollHeight;
     }
-  }, [store.logs.length, isOpen]);
+  };
+
+  // Listen for log-autoscroll event from main process
+  useEffect(() => {
+    const handleAutoscroll = () => {
+      scrollToBottom();
+    };
+
+    ipcRenderer.on('log-autoscroll', handleAutoscroll);
+
+    return () => {
+      ipcRenderer.removeListener('log-autoscroll', handleAutoscroll);
+    };
+  }, [isOpen]);
 
   // Update scrollbar position
   const updateScrollbar = () => {
