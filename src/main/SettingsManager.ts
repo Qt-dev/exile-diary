@@ -21,6 +21,7 @@ const DefaultSettings = {
   clientTxt: null,
   screenshotDir: null,
   overlayEnabled: true,
+  overlayPersistenceEnabled: true,
   forceDebugMode: false,
   logToUI: false,
   enableAutoscroll: true,
@@ -44,6 +45,13 @@ const DefaultSettings = {
   },
   runParseScreenshotEnabled: true,
   runParseShortcut: 'CommandOrControl+F10',
+  screenshotShortcut: 'CommandOrControl+F8',
+  overlayToggleShortcut: 'CommandOrControl+F7',
+  overlayMovementShortcut: 'CommandOrControl+F9',
+  autoScreenshotOnMapEntry: {
+    enabled: false,
+    delay: 2,
+  },
 };
 
 class SettingsManager {
