@@ -57,7 +57,7 @@ export const handler = async (event, context) => {
       window.onload = function() {
         const redirectUrl = "${location}";
         // 1. Attempt the automatic redirect to the application.
-        //window.location.href = redirectUrl;
+        window.location.href = redirectUrl;
 
         // 2. After a delay, update the page to show the success message and a manual fallback button.
         setTimeout(function() {
@@ -66,7 +66,7 @@ export const handler = async (event, context) => {
           successMessage.classList.remove("hidden");
           
           // 3. Set the href for the fallback button.
-          // document.getElementById("fallback-link").href = redirectUrl;
+          document.getElementById("fallback-link").href = redirectUrl;
         }, 1500);
       };
     </script>
