@@ -333,6 +333,15 @@ const MainSettings = ({ settings, store, runStore, revalidate }) => {
           <Button component="label" disabled={store.isLoading} onClick={handleRefreshCharacters}>
             Refresh List
           </Button>
+          {settings.forceDebugMode && (
+            <Button
+              component="label"
+              disabled={store.isLoading || !character || !league}
+              onClick={async () => await ipcRenderer.invoke('show-character-db-file')}
+            >
+              Show DB File
+            </Button>
+          )}
         </div>
         <Divider className="Settings__Separator" />
         <div className="Settings__Row">

@@ -8,6 +8,7 @@ import {
   globalShortcut,
   nativeImage,
   screen,
+  shell,
 } from 'electron';
 import chokidar from 'chokidar';
 import { spawn } from 'child_process';
@@ -30,6 +31,7 @@ import isSameOrAfter from 'dayjs/plugin/isSameOrAfter';
 import AuthManager from './AuthManager';
 import IgnoreManager from '../helpers/ignoreManager';
 import LogProcessor from './modules/LogProcessor';
+import DB from './db/index';
 
 let splashWindow: BrowserWindow | null;
 
@@ -954,6 +956,20 @@ class MainProcess {
     ipcMain.handle('open-file-dialog', async (event, options) => {
       const result = await dialog.showOpenDialog(this.mainWindow, options);
       return result;
+    });
+
+    ipcMain.handle('show-character-db-file', async (event) => {
+      const activeProfile = SettingsManager.get('activeProfile');
+      if (activeProfile && activeProfile.characterName && activeProfile.league) {
+        const dbPath = DB.getCharacterDbPath(activeProfile.characterName, activeProfile.league);
+        if (dbPath) {
+          shell.showItemInFolder(dbPath);
+        } else {
+          logger.warn('Could not determine DB path for active character.');
+        }
+      } else {
+        logger.warn('No active profile or character/league information available.');
+      }
     });
 
     ipcMain.on('overlay:set-position', (event, { x, y }) => {
