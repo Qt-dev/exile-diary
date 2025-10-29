@@ -91,7 +91,7 @@ const LogBox = ({ store, enableAutoscroll }) => {
     return () => {
       ipcRenderer.removeListener('log-autoscroll', handleAutoscroll);
     };
-  }, [isOpen]);
+  }, [isOpen]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Update scrollbar position
   const updateScrollbar = () => {
@@ -172,7 +172,7 @@ const LogBox = ({ store, enableAutoscroll }) => {
       document.removeEventListener('mousemove', handleMouseMove);
       document.removeEventListener('mouseup', handleMouseUp);
     };
-  }, [isDragging, thumbHeight, dragStartY, dragStartScrollTop]);
+  }, [isDragging, thumbHeight, dragStartY, dragStartScrollTop]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Watch for scroll and resize events
   useEffect(() => {
