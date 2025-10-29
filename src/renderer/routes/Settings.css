@@ -14,3 +14,11 @@
 .Settings {
   margin-bottom: 20px;
 }
+
+.Settings__Header {
+  margin: 20px 0;
+  color: white;
+  text-align: center;
+  width: 100%;
+  gap: 20px;
+}

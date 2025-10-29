@@ -7,7 +7,7 @@ const { logger, ipcRenderer } = electronService;
 export default class ItemStore {
   logs: Log[] = [];
   isLoading = true;
-  maxSize = 100; // This can be changed in the future
+  maxSize = 1000; // Maximum number of logs to keep in memory
 
   constructor(logData) {
     makeAutoObservable(this);
@@ -18,13 +18,14 @@ export default class ItemStore {
   }
 
   createLogs(logData: LogData) {
-    logger.info(`Creating frontend log messages. Logs: ${this.logs.length}/${this.maxSize}`);
+    logger.verbose(`Creating frontend log messages. Logs: ${this.logs.length}/${this.maxSize}`);
     this.isLoading = true;
     runInAction(() => {
       const log = new Log(this, logData);
       this.logs.push(log);
       if (this.logs.length > this.maxSize) {
-        this.logs.splice(this.maxSize, this.logs.length - this.maxSize);
+        // Remove oldest logs from the beginning of the array
+        this.logs.splice(0, this.logs.length - this.maxSize);
       }
       this.isLoading = false;
     });

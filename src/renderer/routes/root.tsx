@@ -22,12 +22,21 @@ const firstFiltersUpdate = async () => {
 function Root() {
   const [isNewVersion, setIsNewVersion] = useState(true); // Change this to make it save
   const [version, setVersion] = useState('');
+  const [enableAutoscroll, setEnableAutoscroll] = useState(true);
   const navigate = useNavigate();
   useEffect(() => {
     electronService.refreshGlobals().then(() => {
       const newVersion = electronService.getAppVersion();
       if (version !== newVersion) setVersion(newVersion);
     });
+
+    const loadAutoscrollSetting = async () => {
+      const settings = await ipcRenderer.invoke('get-settings');
+      if (settings && typeof settings.enableAutoscroll === 'boolean') {
+        setEnableAutoscroll(settings.enableAutoscroll);
+      }
+    };
+    loadAutoscrollSetting();
 
     ipcRenderer.on('oauth:logged-out', () => {
       logger.info('User logged out, redirecting to the login page');
@@ -41,12 +50,17 @@ function Root() {
       logger.debug('Settings filters updated, updating the Renderer Ignore Manager');
       IgnoreManager.updateSettings(settings);
     });
+    ipcRenderer.on('settings:autoscroll:updated', (event, value) => {
+      logger.debug('Autoscroll setting updated, updating the Renderer');
+      setEnableAutoscroll(value);
+    });
     firstFiltersUpdate();
 
     return () => {
       ipcRenderer.removeAllListeners('oauth:logged-out');
       ipcRenderer.removeAllListeners('oauth:expired-token');
       ipcRenderer.removeAllListeners('settings:filters:updated');
+      ipcRenderer.removeAllListeners('settings:autoscroll:updated');
     };
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
   const turnNewVersionOff = () => {
@@ -67,7 +81,7 @@ function Root() {
         <Outlet />
       </div>
       <div className="Log-Box__Overlay">
-        <LogBox store={logStore} />
+        <LogBox store={logStore} enableAutoscroll={enableAutoscroll} />
       </div>
     </div>
   );

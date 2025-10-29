@@ -3,6 +3,9 @@ import Divider from '@mui/material/Divider';
 import Button from '@mui/material/Button';
 import ButtonGroup from '@mui/material/ButtonGroup';
 import CircularProgress from '@mui/material/CircularProgress';
+import FormControlLabel from '@mui/material/FormControlLabel';
+import Checkbox from '@mui/material/Checkbox';
+import Box from '@mui/material/Box';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
@@ -13,7 +16,7 @@ import './DebugSettings.css';
 
 const { ipcRenderer } = electronService;
 
-const DebugSettings = ({ runStore }) => {
+const DebugSettings = ({ runStore, settings }) => {
   const now = dayjs();
   const [reCalculateProfitStart, setReCalculateProfitStart] = React.useState<Dayjs | null>(
     now.startOf('day')
@@ -25,6 +28,32 @@ const DebugSettings = ({ runStore }) => {
   const [isRecalculatingProfit, setIsRecalculatingProfit] = React.useState(false);
   const [isFetchingStashTabs, setIsFetchingStashTabs] = React.useState(false);
   const [isReprocessing, setIsReprocessing] = React.useState(false);
+  const [logToUI, setLogToUI] = React.useState(!!settings.logToUI);
+  const [isSaving, setIsSaving] = React.useState(false);
+  const [enableAutoscrollState, setEnableAutoscrollState] = React.useState(
+    !!settings.enableAutoscroll
+  );
+
+  const handleLogToUIChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const newValue = event.target.checked;
+    setLogToUI(newValue);
+    setIsSaving(true);
+    await ipcRenderer.invoke('save-settings', {
+      settings: { logToUI: newValue }
+    });
+    setIsSaving(false);
+  };
+
+  const handleAutoscrollChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const newValue = event.target.checked;
+    setEnableAutoscrollState(newValue);
+    setIsSaving(true);
+    await ipcRenderer.invoke('save-settings', {
+      settings: { enableAutoscroll: newValue }
+    });
+    setIsSaving(false);
+  };
+
   const handleReCalculateProfit = async () => {
     setIsRecalculatingProfit(true);
     await ipcRenderer.invoke('debug:recheck-gain', {
@@ -59,9 +88,9 @@ const DebugSettings = ({ runStore }) => {
 
   return (
     <div className="Debug-Settings">
-      <h3 className="Debug-Settings__Header">Pricing and Debugging options.</h3>
+      <h3 className="Debug-Settings__Header Settings__Header">Pricing and Debugging options.</h3>
       <Divider sx={{ width: '50%', margin: '20px auto' }} />
-      <div className="Debug-Settings__Header">
+      <div className="Debug-Settings__Section-Header">
         Recalculate Loot Price and Map Profit using rates for that day
       </div>
       <Stack direction="row" gap={5} justifyContent="center">
@@ -94,7 +123,7 @@ const DebugSettings = ({ runStore }) => {
         </ButtonGroup>
       </Stack>
       <Divider variant="middle" sx={{ width: '50%', margin: '20px auto' }} />
-      <div className="Debug-Settings__Header">Fetch Today's poe.ninja rates again</div>
+      <div className="Debug-Settings__Section-Header">Fetch Today's poe.ninja rates again</div>
       <Stack direction="row" gap={5} justifyContent="center">
         <ButtonGroup variant="outlined">
           <Button
@@ -107,7 +136,7 @@ const DebugSettings = ({ runStore }) => {
         </ButtonGroup>
       </Stack>
       <Divider variant="middle" sx={{ width: '50%', margin: '20px auto' }} />
-      <div className="Debug-Settings__Header">
+      <div className="Debug-Settings__Section-Header">
         Fetch all stash tabs from the GGG API. This takes a while, and is rate limited.
         <br />
         Do not trigger this too fast or you will get rate limited and will not be able to fetch
@@ -125,7 +154,7 @@ const DebugSettings = ({ runStore }) => {
         </ButtonGroup>
       </Stack>
       <Divider variant="middle" sx={{ width: '50%', margin: '20px auto' }} />
-      <div className="Debug-Settings__Header">
+      <div className="Debug-Settings__Section-Header">
         Refresh the UI. Useful if you some items are not ignored when they should be.
       </div>
       <Stack direction="row" gap={5} justifyContent="center">
@@ -134,7 +163,7 @@ const DebugSettings = ({ runStore }) => {
         </ButtonGroup>
       </Stack>
       <Divider variant="middle" sx={{ width: '50%', margin: '20px auto' }} />
-      <div className="Debug-Settings__Header">
+      <div className="Debug-Settings__Section-Header">
         <div>
           Reprocess all runs in the database. This will re-run the run parser and update all runs.
         </div>
@@ -153,6 +182,30 @@ const DebugSettings = ({ runStore }) => {
           </Button>
         </ButtonGroup>
       </Stack>
+      <Divider sx={{ width: '50%', margin: '20px auto' }} />
+      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 1 }}>
+        <FormControlLabel
+          control={
+            <Checkbox
+              checked={logToUI}
+              onChange={handleLogToUIChange}
+              disabled={isSaving}
+            />
+          }
+          label="Log to UI (Show debug and info logs in the app)"
+        />
+        {isSaving && <CircularProgress size="1rem" />}
+        <FormControlLabel
+            control={
+              <Checkbox
+                checked={enableAutoscrollState}
+                onChange={handleAutoscrollChange}
+                disabled={isSaving}
+              />
+            }
+            label="Autoscroll Logs"
+          />
+      </Box>
     </div>
   );
 };

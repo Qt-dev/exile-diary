@@ -15,7 +15,7 @@ const EventEmitter = require('events');
 const ItemPricer = require('./ItemPricer');
 const XPTracker = require('./XPTracker');
 const Constants = require('../../helpers/constants').default;
-const ParseShortcut = 'CommandOrControl+F10';
+ 
 dayjs.extend(minMax);
 
 type ParsedEvent = {
@@ -949,7 +949,18 @@ const RunParser = {
     // = The last map area event, the one that triggers this processing
     const latestGeneratedEvent = await DB.getLastMapGeneratedEvent();
     logger.debug('Latest generated event:', latestGeneratedEvent);
-    event.area = event.area ?? latestGeneratedEvent.event_text.areaName;
+
+    if (latestGeneratedEvent && latestGeneratedEvent.event_text) {
+      try {
+        const eventData = typeof latestGeneratedEvent.event_text === 'string'
+          ? JSON.parse(latestGeneratedEvent.event_text)
+          : latestGeneratedEvent.event_text;
+        event.area = event.area ?? eventData.areaName;
+      } catch (e) {
+        logger.error('Failed to parse latest generated event:', e);
+      }
+    }
+
     if (!event.area) {
       logger.debug('No area found in event, cannot process run');
       return false;
@@ -1085,26 +1096,7 @@ const RunParser = {
     });
   },
 
-  ParseShortcut, // Exposed for testing
 
-  registerRunParseShortcut: () => {
-    globalShortcut.register(RunParser.ParseShortcut, () => {
-      logger.debug('Run parse shortcut triggered');
-      RunParser.tryProcess({ event: { timestamp: dayjs().toISOString() } });
-    });
-  },
-
-  unregisterRunParseShortcut: () => {
-    globalShortcut.unregister(RunParser.ParseShortcut);
-  },
-
-  toggleRunParseShortcut: (state) => {
-    if (state) {
-      RunParser.registerRunParseShortcut();
-    } else {
-      RunParser.unregisterRunParseShortcut();
-    }
-  },
 
   getAreaFromId: (areaId: string): any => {
     logger.info(`Getting area name for ID: ${areaId}`);

@@ -22,7 +22,7 @@ const ProcessingTimeout = 15000;
 
 // const SCREENSHOT_DIRECTORY_SIZE_LIMIT = 400;
 const sizeMultiplier = 3; // We read pixels from a screenshot that is in 1920x1080 * this multiplier
-const customShortcutTrigger = 'CommandOrControl+F8';
+
 let watcher: FSWatcher | null;
 const emitter = new EventEmitter();
 
@@ -442,40 +442,22 @@ function unregisterWatcher() {
   }
 }
 
-function registerCustomShortcut() {
-  logger.info('Registering custom screenshot shortcut');
 
-  globalShortcut.register(customShortcutTrigger, async () => {
-    emitter.emit('screenshot:capture');
-  });
-}
-
-function unregisterCustomShortcut() {
-  logger.info('Unregistering custom screenshot shortcut');
-  globalShortcut.unregister(customShortcutTrigger);
-}
 
 function registerListener() {
   SettingsManager.registerListener('screenshots', (value) => {
-    const { allowCustomShortcut, allowFolderWatch, screenshotDir } = value;
+    const { allowFolderWatch, screenshotDir } = value;
 
     if (allowFolderWatch && screenshotDir) {
       registerWatcher(screenshotDir);
     } else {
       unregisterWatcher();
     }
-
-    if (allowCustomShortcut) {
-      registerCustomShortcut();
-    } else {
-      unregisterCustomShortcut();
-    }
   });
 }
 
 function start() {
   unregisterWatcher();
-  unregisterCustomShortcut();
   registerListener();
 
   const settings = SettingsManager.getAll();
@@ -499,11 +481,6 @@ function start() {
     registerWatcher(screenshotsSettings.screenshotDir);
   } else {
     logger.info('Screenshot directory is disabled');
-  }
-
-  if (screenshotsSettings.allowCustomShortcut) {
-    registerCustomShortcut();
-    logger.info('Custom shortcut is enabled');
   }
 }
 

@@ -1,5 +1,6 @@
 import logger from 'electron-log';
 import dayjs, { Dayjs } from 'dayjs';
+import SettingsManager from './SettingsManager';
 let Renderer: any = null;
 let OverlayRenderer: any = null;
 
@@ -12,11 +13,11 @@ type Message = {
   divinePrice?: number;
 };
 
-const maxHistory = 100;
+const maxHistory = 1000;
 const messagesHistory: { timestamp: Dayjs; messages: Message[] }[] = [];
 
 function addToHistory(messages: Message[]) {
-  if (messagesHistory.length > maxHistory - 1) {
+  if (messagesHistory.length >= maxHistory) {
     messagesHistory.shift();
   }
   messagesHistory.push({ timestamp: dayjs(), messages });
@@ -34,6 +35,9 @@ const RendererLogger = {
       return;
     }
     Renderer.send('add-log', { messages });
+    if (SettingsManager.get('enableAutoscroll')) {
+      Renderer.send('log-autoscroll');
+    }
     if (onOverlay && !OverlayRenderer) {
       logger.error('OverlayRenderer does not seem to be initialized');
       logger.error(OverlayRenderer);

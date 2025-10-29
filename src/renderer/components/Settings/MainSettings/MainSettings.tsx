@@ -12,6 +12,7 @@ import { useNavigate } from 'react-router-dom';
 import MenuItem from '@mui/material/MenuItem';
 import FormHelperText from '@mui/material/FormHelperText';
 import { observer } from 'mobx-react-lite';
+import '../SettingsCommon.css';
 const { ipcRenderer } = electronService;
 
 // Fix to allow for directory selection in inputs
@@ -23,7 +24,7 @@ declare module 'react' {
   }
 }
 
-const MainSettings = ({ settings, store, runStore }) => {
+const MainSettings = ({ settings, store, runStore, revalidate }) => {
   const navigate = useNavigate();
 
   // Character
@@ -115,6 +116,30 @@ const MainSettings = ({ settings, store, runStore }) => {
     settings.autoScreenshotOnMapEntry?.delay || 2
   );
 
+  // Checkbox states
+  const [alternateSplinterPricingState, setAlternateSplinterPricingState] = React.useState(
+    !!settings.alternateSplinterPricing
+  );
+  const [enableIncubatorAlertState, setEnableIncubatorAlertState] = React.useState(
+    !!settings.enableIncubatorAlert
+  );
+  const [enableScreenshotFolderWatchState, setEnableScreenshotFolderWatchState] = React.useState(
+    settings.screenshots && !!settings.screenshots.allowFolderWatch
+  );
+  const [enableScreenshotCustomShortcutState, setEnableScreenshotCustomShortcutState] = React.useState(
+    settings.screenshots && !!settings.screenshots.allowCustomShortcut
+  );
+  const [runParseScreenshotEnabledState, setRunParseScreenshotEnabledState] = React.useState(
+    !!settings.runParseScreenshotEnabled
+  );
+  const [autoScreenshotOnMapEntryState, setAutoScreenshotOnMapEntryState] = React.useState(
+    !!settings.autoScreenshotOnMapEntry?.enabled
+  );
+  const [forceDebugModeState, setForceDebugModeState] = React.useState(
+    !!settings.forceDebugMode
+  );
+
+
   const handleRedirectToLogin = () => {
     navigate('/login');
   };
@@ -123,49 +148,102 @@ const MainSettings = ({ settings, store, runStore }) => {
   };
 
   const username = settings.username ? settings.username : '';
-  // const league = settings.activeProfile.league ? settings.activeProfile.league : 'Unknown';
-  const alternateSplinterPricing = !!settings.alternateSplinterPricing;
-  const overlayEnabled = !!settings.overlayEnabled;
-  const enableIncubatorAlert = !!settings.enableIncubatorAlert;
-  const enableScreenshotCustomShortcut =
-    settings.screenshots && !!settings.screenshots.allowCustomShortcut;
-  const enableScreenshotFolderWatch =
-    settings.screenshots && !!settings.screenshots.allowFolderWatch;
-  const overlayPersistenceEnabled = !!settings.overlayPersistenceEnabled;
-  const runParseScreenshotEnabled = !!settings.runParseScreenshotEnabled;
-  const forceDebugMode = !!settings.forceDebugMode;
 
-  const handleBack = () => {
-    navigate('/');
+  // Overlay settings with state management
+  const [overlayEnabled, setOverlayEnabled] = React.useState(!!settings.overlayEnabled);
+  const [overlayPersistenceEnabled, setOverlayPersistenceEnabled] = React.useState(
+    !!settings.overlayPersistenceEnabled
+  );
+
+  // Track if there are unsaved changes
+  const hasUnsavedChanges = React.useMemo(() => {
+    const selectedChar = store.characters.find((char: any) => char.name === character);
+    return (
+      character !== (settings.activeProfile.characterName || '') ||
+      (selectedChar ? selectedChar.league : league) !== (settings.activeProfile.league || '') ||
+      leagueOverride !== (settings.activeProfile.leagueOverride || '') ||
+      clientFileLocation !== (settings.clientTxt || '') ||
+      screenshotLocation !== (settings.screenshotDir || '') ||
+      overlayEnabled !== !!settings.overlayEnabled ||
+      autoScreenshotDelay !== (settings.autoScreenshotOnMapEntry?.delay || 2) ||
+      alternateSplinterPricingState !== !!settings.alternateSplinterPricing ||
+      enableIncubatorAlertState !== !!settings.enableIncubatorAlert ||
+      enableScreenshotFolderWatchState !== !!(settings.screenshots && settings.screenshots.allowFolderWatch) ||
+      enableScreenshotCustomShortcutState !== !!(settings.screenshots && settings.screenshots.allowCustomShortcut) ||
+      runParseScreenshotEnabledState !== !!settings.runParseScreenshotEnabled ||
+      autoScreenshotOnMapEntryState !== !!(settings.autoScreenshotOnMapEntry?.enabled) ||
+      forceDebugModeState !== !!settings.forceDebugMode
+    );
+  }, [
+    character,
+    league,
+    leagueOverride,
+    clientFileLocation,
+    screenshotLocation,
+    overlayEnabled,
+    autoScreenshotDelay,
+    alternateSplinterPricingState,
+    enableIncubatorAlertState,
+    enableScreenshotFolderWatchState,
+    enableScreenshotCustomShortcutState,
+    runParseScreenshotEnabledState,
+    autoScreenshotOnMapEntryState,
+    forceDebugModeState,
+    settings,
+    store.characters
+  ]);
+
+  const handleCancel = () => {
+    // Reset all form fields to original settings values
+    setCharacter(settings.activeProfile.characterName ? settings.activeProfile.characterName : '');
+    setLeague(settings.activeProfile.league ? settings.activeProfile.league : '');
+    setLeagueOverride(settings.activeProfile.leagueOverride ? settings.activeProfile.leagueOverride : '');
+    setClientFileLocation(settings.clientTxt);
+    setScreenshotLocation(settings.screenshotDir);
+    setAutoScreenshotDelay(settings.autoScreenshotOnMapEntry?.delay || 2);
+    setAlternateSplinterPricingState(!!settings.alternateSplinterPricing);
+    setEnableIncubatorAlertState(!!settings.enableIncubatorAlert);
+    setEnableScreenshotFolderWatchState(settings.screenshots && !!settings.screenshots.allowFolderWatch);
+    setEnableScreenshotCustomShortcutState(settings.screenshots && !!settings.screenshots.allowCustomShortcut);
+    setRunParseScreenshotEnabledState(!!settings.runParseScreenshotEnabled);
+    setAutoScreenshotOnMapEntryState(!!settings.autoScreenshotOnMapEntry?.enabled);
+    setForceDebugModeState(!!settings.forceDebugMode);
+    setOverlayEnabled(!!settings.overlayEnabled);
+    setOverlayPersistenceEnabled(!!settings.overlayPersistenceEnabled);
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    const selectedChar = store.characters.find((char: any) => char.name === character);
     const data = {
       activeProfile: {
         characterName: character,
-        league: store.characters.find((char: any) => char.name === character).league,
+        league: selectedChar ? selectedChar.league : league,
         leagueOverride: leagueOverride,
         valid: true,
       },
-      clientTxt: e.target.log_location.value,
-      screenshotDir: e.target.screenshot_location.value,
-      alternateSplinterPricing: e.target.alternate_splinter_pricing.checked,
-      overlayEnabled: e.target.overlay_enabled.checked,
-      enableIncubatorAlert: e.target.enable_incubator_alert.checked,
-      runParseScreenshotEnabled: e.target.enable_run_parse_screenshot.checked,
-      forceDebugMode: e.target.force_debug_mode.checked,
+      clientTxt: clientFileLocation,
+      screenshotDir: screenshotLocation,
+      alternateSplinterPricing: alternateSplinterPricingState,
+      overlayEnabled: overlayEnabled,
+      overlayPersistenceEnabled: overlayPersistenceEnabled,
+      enableIncubatorAlert: enableIncubatorAlertState,
+      runParseScreenshotEnabled: runParseScreenshotEnabledState,
+      forceDebugMode: forceDebugModeState,
       screenshots: {
-        allowCustomShortcut: e.target.enable_screenshot_custom_shortcut.checked,
-        allowFolderWatch: e.target.enable_screenshot_folder_watch.checked,
-        screenshotDir: e.target.screenshot_location.value,
+        allowCustomShortcut: enableScreenshotCustomShortcutState,
+        allowFolderWatch: enableScreenshotFolderWatchState,
+        screenshotDir: screenshotLocation,
       },
       autoScreenshotOnMapEntry: {
-        enabled: e.target.enable_auto_screenshot_on_map_entry.checked,
+        enabled: autoScreenshotOnMapEntryState,
         delay: autoScreenshotDelay,
       },
     };
-    ipcRenderer.invoke('save-settings', { settings: data });
+
+    // Save settings
+    await ipcRenderer.invoke('save-settings', { settings: data });
+    revalidate();
   };
 
   const handleRefreshCharacters = () => {
@@ -175,6 +253,19 @@ const MainSettings = ({ settings, store, runStore }) => {
   useEffect(() => {
     store.fetchCharacters();
   }, [store]);
+
+  // Listen for overlay persistence changes from the main process (e.g., when hotkey is pressed)
+  useEffect(() => {
+    const handlePersistenceChanged = (event, isEnabled) => {
+      setOverlayPersistenceEnabled(isEnabled);
+    };
+
+    ipcRenderer.on('settings:overlay-persistence-changed', handlePersistenceChanged);
+
+    return () => {
+      ipcRenderer.removeListener('settings:overlay-persistence-changed', handlePersistenceChanged);
+    };
+  }, []);
 
   return (
     <form onSubmit={handleSubmit} role="tabpanel">
@@ -243,6 +334,15 @@ const MainSettings = ({ settings, store, runStore }) => {
           <Button component="label" disabled={store.isLoading} onClick={handleRefreshCharacters}>
             Refresh List
           </Button>
+          {settings.forceDebugMode && (
+            <Button
+              component="label"
+              disabled={store.isLoading || !character || !league}
+              onClick={async () => await ipcRenderer.invoke('show-character-db-file')}
+            >
+              Show DB File
+            </Button>
+          )}
         </div>
         <Divider className="Settings__Separator" />
         <div className="Settings__Row">
@@ -294,102 +394,114 @@ const MainSettings = ({ settings, store, runStore }) => {
           />
         </div>
         <Divider className="Settings__Separator" />
-        <div className="Settings__Checkbox__Row">
+        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
           <FormControlLabel
             control={
-              <Checkbox id="alternate_splinter_pricing" defaultChecked={alternateSplinterPricing} />
+              <Checkbox
+                id="alternate_splinter_pricing"
+                checked={alternateSplinterPricingState}
+                onChange={(e) => setAlternateSplinterPricingState(e.target.checked)}
+              />
             }
             label="Enable Alternate Splinter Pricing"
           />
-        </div>
-        <div className="Settings__Checkbox__Row">
-          <FormControlLabel
-            control={<Checkbox id="overlay_enabled" defaultChecked={overlayEnabled} />}
-            label="Enable Overlay Popup Messages"
-          />
-        </div>
-        <div className="Settings__Checkbox__Row">
           <FormControlLabel
             control={
               <Checkbox
-                id="overlay_persistence_disabled"
-                disabled
-                defaultChecked={!overlayPersistenceEnabled}
+                id="enable_incubator_alert"
+                checked={enableIncubatorAlertState}
+                onChange={(e) => setEnableIncubatorAlertState(e.target.checked)}
               />
             }
-            label="Enable Overlay Persistence (Toggle this setting by pressing CTRL+F7)"
-          />
-        </div>
-        <div className="Settings__Checkbox__Row">
-          <FormControlLabel
-            control={<Checkbox id="enable_incubator_alert" defaultChecked={enableIncubatorAlert} />}
             label="Enable Incubator Running Out Alert"
           />
-        </div>
-        <div className="Settings__Checkbox__Row">
-          <FormControlLabel
-            control={
-              <Checkbox
-                id="enable_screenshot_custom_shortcut"
-                defaultChecked={enableScreenshotCustomShortcut}
-              />
-            }
-            label="Enable Custom Screenshot Shortcut (CTRL+F8)"
-          />
-        </div>
-        <div className="Settings__Checkbox__Row">
           <FormControlLabel
             control={
               <Checkbox
                 id="enable_screenshot_folder_watch"
-                defaultChecked={enableScreenshotFolderWatch}
+                checked={enableScreenshotFolderWatchState}
+                onChange={(e) => setEnableScreenshotFolderWatchState(e.target.checked)}
               />
             }
             label="Enable Screenshot Folder Monitoring"
           />
-        </div>
-        <div className="Settings__Checkbox__Row">
+          <FormControlLabel
+            control={
+              <Checkbox
+                id="overlay_enabled"
+                checked={overlayEnabled}
+                onChange={(e) => setOverlayEnabled(e.target.checked)}
+              />
+            }
+            label="Enable Overlay Popup Messages"
+          />
+          <FormControlLabel
+            control={
+              <Checkbox
+                id="overlay_persistence_enabled"
+                checked={overlayPersistenceEnabled}
+                onChange={(e) => setOverlayPersistenceEnabled(e.target.checked)}
+              />
+            }
+            label={`Enable Overlay Persistence (${settings.overlayToggleShortcut || 'CommandOrControl+F7'})`}
+          />
+          <FormControlLabel
+            control={
+              <Checkbox
+                id="enable_screenshot_custom_shortcut"
+                checked={enableScreenshotCustomShortcutState}
+                onChange={(e) => setEnableScreenshotCustomShortcutState(e.target.checked)}
+              />
+            }
+            label={`Enable Custom Screenshot Shortcut (${settings.screenshotShortcut || 'CommandOrControl+F8'})`}
+          />
           <FormControlLabel
             control={
               <Checkbox
                 id="enable_run_parse_screenshot"
-                defaultChecked={runParseScreenshotEnabled}
+                checked={runParseScreenshotEnabledState}
+                onChange={(e) => setRunParseScreenshotEnabledState(e.target.checked)}
               />
             }
-            label="Enable shortcut to finish a run (CTRL+F10)"
+            label={`Enable Shortcut to Finish a Run (${settings.runParseShortcut || 'CommandOrControl+F10'})`}
           />
-        </div>
-        <div className="Settings__Checkbox__Row">
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, justifyContent: 'space-between' }}>
+            <FormControlLabel
+              control={
+                <Checkbox
+                  id="enable_auto_screenshot_on_map_entry"
+                  checked={autoScreenshotOnMapEntryState}
+                  onChange={(e) => setAutoScreenshotOnMapEntryState(e.target.checked)}
+                />
+              }
+              label="Enable auto-screenshot when entering maps"
+            />
+            <Box sx={{ width: '30%' }}>
+              <TextField
+                fullWidth
+                label="Delay after entering map (0-30s)"
+                id="auto_screenshot_delay"
+                variant="filled"
+                size="small"
+                type="number"
+                inputProps={{ min: 0, max: 30, step: 0.5 }}
+                value={autoScreenshotDelay}
+                onChange={(e) => setAutoScreenshotDelay(parseFloat(e.target.value) || 0)}
+                helperText=""
+              />
+            </Box>
+          </Box>
           <FormControlLabel
             control={
               <Checkbox
-                id="enable_auto_screenshot_on_map_entry"
-                defaultChecked={!!settings.autoScreenshotOnMapEntry?.enabled}
+                id="force_debug_mode"
+                checked={forceDebugModeState}
+                onChange={(e) => setForceDebugModeState(e.target.checked)}
               />
             }
-            label="Enable auto-screenshot when entering maps"
-          />
-        </div>
-        <div className="Settings__Row">
-          <TextField
-            fullWidth
-            label="Auto-screenshot delay (seconds) - time to wait after entering map"
-            id="auto_screenshot_delay"
-            variant="filled"
-            size="small"
-            type="number"
-            inputProps={{ min: 0, max: 30, step: 0.5 }}
-            value={autoScreenshotDelay}
-            onChange={(e) => setAutoScreenshotDelay(parseFloat(e.target.value) || 0)}
-            helperText="Delay in seconds to account for loading times (0-30 seconds)"
-          />
-        </div>
-        <div className="Settings__Checkbox__Row">
-          <FormControlLabel
-            control={<Checkbox id="force_debug_mode" defaultChecked={forceDebugMode} />}
             label="Force Debug Mode"
           />
-        </div>
+        </Box>
         {/* TODO: Add these settings if needed */}
         {/* <Divider className="Settings__Separator" />
         <div>This section is not plugged in yet</div>
@@ -413,8 +525,14 @@ const MainSettings = ({ settings, store, runStore }) => {
         </div> */}
         <Divider className="Settings__Separator" />
         <ButtonGroup variant="outlined" fullWidth aria-label="Settings Control Buttons">
-          <Button type="submit">Save</Button>
-          <Button onClick={handleBack}>Cancel</Button>
+          <Button
+            type="submit"
+            variant={hasUnsavedChanges ? "contained" : "outlined"}
+            className={hasUnsavedChanges ? 'Settings__Save-Button--unsaved' : ''}
+          >
+            {hasUnsavedChanges ? 'Save Changes' : 'Save'}
+          </Button>
+          <Button onClick={handleCancel}>Cancel</Button>
         </ButtonGroup>
       </Box>
     </form>
