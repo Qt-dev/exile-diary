@@ -139,6 +139,7 @@ const MainSettings = ({ settings, store, runStore, revalidate }) => {
     !!settings.forceDebugMode
   );
 
+
   const handleRedirectToLogin = () => {
     navigate('/login');
   };
