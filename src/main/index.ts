@@ -562,6 +562,18 @@ class MainProcess {
       if (hasStarted) {
         RunParser.refreshTracking();
       }
+
+      // Handle auto-screenshot on map entry
+      const settings = SettingsManager.getAll();
+      if (settings.autoScreenshotOnMapEntry?.enabled && hasStarted) {
+        const delay = (settings.autoScreenshotOnMapEntry.delay || 2) * 1000; // Convert to milliseconds
+        logger.info(`Auto-screenshot scheduled for ${area} in ${delay}ms`);
+        
+        setTimeout(() => {
+          logger.info(`Triggering auto-screenshot for ${area}`);
+          ScreenshotWatcher.emitter.emit('screenshot:capture');
+        }, delay);
+      }
     });
 
     StashGetter.removeAllListeners();

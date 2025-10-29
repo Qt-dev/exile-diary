@@ -110,6 +110,11 @@ const MainSettings = ({ settings, store, runStore }) => {
     settings.activeProfile.leagueOverride ? settings.activeProfile.leagueOverride : ''
   );
 
+  // Auto-screenshot delay
+  const [autoScreenshotDelay, setAutoScreenshotDelay] = React.useState(
+    settings.autoScreenshotOnMapEntry?.delay || 2
+  );
+
   const handleRedirectToLogin = () => {
     navigate('/login');
   };
@@ -154,6 +159,10 @@ const MainSettings = ({ settings, store, runStore }) => {
         allowCustomShortcut: e.target.enable_screenshot_custom_shortcut.checked,
         allowFolderWatch: e.target.enable_screenshot_folder_watch.checked,
         screenshotDir: e.target.screenshot_location.value,
+      },
+      autoScreenshotOnMapEntry: {
+        enabled: e.target.enable_auto_screenshot_on_map_entry.checked,
+        delay: autoScreenshotDelay,
       },
     };
     ipcRenderer.invoke('save-settings', { settings: data });
@@ -348,6 +357,31 @@ const MainSettings = ({ settings, store, runStore }) => {
               />
             }
             label="Enable shortcut to finish a run (CTRL+F10)"
+          />
+        </div>
+        <div className="Settings__Checkbox__Row">
+          <FormControlLabel
+            control={
+              <Checkbox
+                id="enable_auto_screenshot_on_map_entry"
+                defaultChecked={!!settings.autoScreenshotOnMapEntry?.enabled}
+              />
+            }
+            label="Enable auto-screenshot when entering maps"
+          />
+        </div>
+        <div className="Settings__Row">
+          <TextField
+            fullWidth
+            label="Auto-screenshot delay (seconds) - time to wait after entering map"
+            id="auto_screenshot_delay"
+            variant="filled"
+            size="small"
+            type="number"
+            inputProps={{ min: 0, max: 30, step: 0.5 }}
+            value={autoScreenshotDelay}
+            onChange={(e) => setAutoScreenshotDelay(parseFloat(e.target.value) || 0)}
+            helperText="Delay in seconds to account for loading times (0-30 seconds)"
           />
         </div>
         <div className="Settings__Checkbox__Row">
