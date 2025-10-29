@@ -165,7 +165,7 @@ const ItemFilterSettings = ({ settings, updateCallback }) => {
   return (
     <Accordion className="ItemFilter-Settings">
       <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-        <h4 className="ItemFilter-Settings__Header">Ignore items per category</h4>
+        <h4 className="ItemFilter-Settings__Sub-Header">Ignore items per category</h4>
       </AccordionSummary>
       <AccordionDetails>
         <List className="ItemFilter-Settings__List">

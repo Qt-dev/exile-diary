@@ -36,7 +36,7 @@ const FilterSettings = ({ settings, revalidate }) => {
   return (
     <div className="Filter-Settings">
       <div className="Filter-Settings__Header">
-        <h3>Item Filter Settings</h3>
+        <h3 className="Settings__Header">Item Filter Settings</h3>
         <p>
           Configure items you want the app to ignore. Ignored items will still be logged but will
           apparate separately and their values will not count.

@@ -88,9 +88,9 @@ const DebugSettings = ({ runStore, settings }) => {
 
   return (
     <div className="Debug-Settings">
-      <h3 className="Debug-Settings__Header">Pricing and Debugging options.</h3>
+      <h3 className="Debug-Settings__Header Settings__Header">Pricing and Debugging options.</h3>
       <Divider sx={{ width: '50%', margin: '20px auto' }} />
-      <div className="Debug-Settings__Header">
+      <div className="Debug-Settings__Section-Header">
         Recalculate Loot Price and Map Profit using rates for that day
       </div>
       <Stack direction="row" gap={5} justifyContent="center">
@@ -123,7 +123,7 @@ const DebugSettings = ({ runStore, settings }) => {
         </ButtonGroup>
       </Stack>
       <Divider variant="middle" sx={{ width: '50%', margin: '20px auto' }} />
-      <div className="Debug-Settings__Header">Fetch Today's poe.ninja rates again</div>
+      <div className="Debug-Settings__Section-Header">Fetch Today's poe.ninja rates again</div>
       <Stack direction="row" gap={5} justifyContent="center">
         <ButtonGroup variant="outlined">
           <Button
@@ -136,7 +136,7 @@ const DebugSettings = ({ runStore, settings }) => {
         </ButtonGroup>
       </Stack>
       <Divider variant="middle" sx={{ width: '50%', margin: '20px auto' }} />
-      <div className="Debug-Settings__Header">
+      <div className="Debug-Settings__Section-Header">
         Fetch all stash tabs from the GGG API. This takes a while, and is rate limited.
         <br />
         Do not trigger this too fast or you will get rate limited and will not be able to fetch
@@ -154,7 +154,7 @@ const DebugSettings = ({ runStore, settings }) => {
         </ButtonGroup>
       </Stack>
       <Divider variant="middle" sx={{ width: '50%', margin: '20px auto' }} />
-      <div className="Debug-Settings__Header">
+      <div className="Debug-Settings__Section-Header">
         Refresh the UI. Useful if you some items are not ignored when they should be.
       </div>
       <Stack direction="row" gap={5} justifyContent="center">
@@ -163,7 +163,7 @@ const DebugSettings = ({ runStore, settings }) => {
         </ButtonGroup>
       </Stack>
       <Divider variant="middle" sx={{ width: '50%', margin: '20px auto' }} />
-      <div className="Debug-Settings__Header">
+      <div className="Debug-Settings__Section-Header">
         <div>
           Reprocess all runs in the database. This will re-run the run parser and update all runs.
         </div>

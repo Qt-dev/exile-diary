@@ -219,91 +219,89 @@ const HotkeySettings = ({ settings, revalidate }) => {
 
   return (
     <form onSubmit={handleSubmit} role="tabpanel">
-      <Box sx={{ p: 3 }}>
-        <h3 style={{ textAlign: 'center', margin: '0 0 20px 0' }}>Hotkey Configuration</h3>
-        <Divider sx={{ mb: 3 }} />
+      <h3 className="Settings__Header">Hotkey Configuration</h3>
+      <Divider sx={{ mb: 3 }} />
 
-        <Stack spacing={3}>
-          {/* Overlay Controls */}
-          <Box>
-            <h4 style={{ marginBottom: '10px' }}>Overlay Controls</h4>
-            <Stack spacing={2}>
-              <ShortcutTextField
-                fieldName="overlayToggle"
-                label="Toggle Overlay Visibility"
-                helperText="Hotkey to show/hide the overlay"
-              />
-              <ShortcutTextField
-                fieldName="overlayMovement"
-                label="Toggle Overlay Movement Mode"
-                helperText="Hotkey to enable/disable moving the overlay"
-              />
-            </Stack>
-          </Box>
-
-          <Divider />
-
-          {/* Screenshot */}
-          <Box>
-            <h4 style={{ marginBottom: '10px' }}>Screenshot</h4>
-            {!enableScreenshotCustomShortcut && (
-              <Box sx={{ mb: 2, p: 2, bgcolor: '#fff3cd', borderRadius: 1 }}>
-                <em>Note: Custom screenshot shortcut is disabled. Enable it in the Account tab to configure.</em>
-              </Box>
-            )}
+      <Stack spacing={3}>
+        {/* Overlay Controls */}
+        <Box>
+          <h4 style={{ marginBottom: '10px' }}>Overlay Controls</h4>
+          <Stack spacing={2}>
             <ShortcutTextField
-              fieldName="screenshot"
-              label="Take Screenshot"
-              helperText={enableScreenshotCustomShortcut ? "Hotkey to capture a screenshot" : "Enable custom shortcut in Account tab first"}
-              enabled={enableScreenshotCustomShortcut}
+              fieldName="overlayToggle"
+              label="Toggle Overlay Visibility"
+              helperText="Hotkey to show/hide the overlay"
             />
-          </Box>
-
-          <Divider />
-
-          {/* Run Completion */}
-          <Box>
-            <h4 style={{ marginBottom: '10px' }}>Run Completion</h4>
-            {!runParseScreenshotEnabled && (
-              <Box sx={{ mb: 2, p: 2, bgcolor: '#fff3cd', borderRadius: 1 }}>
-                <em>Note: Run completion shortcut is disabled. Enable it in the Account tab to configure.</em>
-              </Box>
-            )}
             <ShortcutTextField
-              fieldName="runParse"
-              label="Finish Current Run"
-              helperText={runParseScreenshotEnabled ? "Hotkey to manually end the current map run" : "Enable run completion shortcut in Account tab first"}
-              enabled={runParseScreenshotEnabled}
+              fieldName="overlayMovement"
+              label="Toggle Overlay Movement Mode"
+              helperText="Hotkey to enable/disable moving the overlay"
             />
-          </Box>
+          </Stack>
+        </Box>
 
-          <Divider />
+        <Divider />
 
-          {/* Reset Button */}
-          <Box>
-            <Button
-              variant="outlined"
-              color="secondary"
-              onClick={handleResetShortcuts}
-              fullWidth
-            >
-              Reset All Shortcuts to Defaults
-            </Button>
-          </Box>
+        {/* Screenshot */}
+        <Box>
+          <h4 style={{ marginBottom: '10px' }}>Screenshot</h4>
+          {!enableScreenshotCustomShortcut && (
+            <Box sx={{ mb: 2, p: 2, bgcolor: '#fff3cd', borderRadius: 1 }}>
+              <em>Note: Custom screenshot shortcut is disabled. Enable it in the Account tab to configure.</em>
+            </Box>
+          )}
+          <ShortcutTextField
+            fieldName="screenshot"
+            label="Take Screenshot"
+            helperText={enableScreenshotCustomShortcut ? "Hotkey to capture a screenshot" : "Enable custom shortcut in Account tab first"}
+            enabled={enableScreenshotCustomShortcut}
+          />
+        </Box>
 
-          {/* Save/Cancel Buttons */}
-          <ButtonGroup variant="outlined" fullWidth aria-label="Settings Control Buttons">
-            <Button
-              type="submit"
-              variant={hasUnsavedChanges ? "contained" : "outlined"}
-              className={hasUnsavedChanges ? 'Settings__Save-Button--unsaved' : ''}
-            >
-              {hasUnsavedChanges ? 'Save Changes' : 'Save'}
-            </Button>
-            <Button onClick={handleCancel}>Cancel</Button>
-          </ButtonGroup>
-        </Stack>
-      </Box>
+        <Divider />
+
+        {/* Run Completion */}
+        <Box>
+          <h4 style={{ marginBottom: '10px' }}>Run Completion</h4>
+          {!runParseScreenshotEnabled && (
+            <Box sx={{ mb: 2, p: 2, bgcolor: '#fff3cd', borderRadius: 1 }}>
+              <em>Note: Run completion shortcut is disabled. Enable it in the Account tab to configure.</em>
+            </Box>
+          )}
+          <ShortcutTextField
+            fieldName="runParse"
+            label="Finish Current Run"
+            helperText={runParseScreenshotEnabled ? "Hotkey to manually end the current map run" : "Enable run completion shortcut in Account tab first"}
+            enabled={runParseScreenshotEnabled}
+          />
+        </Box>
+
+        <Divider />
+
+        {/* Reset Button */}
+        <Box>
+          <Button
+            variant="outlined"
+            color="secondary"
+            onClick={handleResetShortcuts}
+            fullWidth
+          >
+            Reset All Shortcuts to Defaults
+          </Button>
+        </Box>
+
+        {/* Save/Cancel Buttons */}
+        <ButtonGroup variant="outlined" fullWidth aria-label="Settings Control Buttons">
+          <Button
+            type="submit"
+            variant={hasUnsavedChanges ? "contained" : "outlined"}
+            className={hasUnsavedChanges ? 'Settings__Save-Button--unsaved' : ''}
+          >
+            {hasUnsavedChanges ? 'Save Changes' : 'Save'}
+          </Button>
+          <Button onClick={handleCancel}>Cancel</Button>
+        </ButtonGroup>
+      </Stack>
     </form>
   );
 };
