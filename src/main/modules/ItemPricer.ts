@@ -90,6 +90,7 @@ class PriceMatcher {
     { id: 20, name: 'Necropolis' },
     { id: 21, name: 'Settlers' },
     { id: 22, name: 'Mercenaries' },
+    { id: 23, name: 'Keepers' },
   ];
 
   DefaultGemFormat = {
