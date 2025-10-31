@@ -119,6 +119,7 @@ class StashGetter {
       return this.waitForUpdate();
     }
     try {
+      this.isFetching = true;
       const settings = SettingsManager.getAll();
       if (!RatesGetterV2.ratesReady) {
         if (interval > 60) {
