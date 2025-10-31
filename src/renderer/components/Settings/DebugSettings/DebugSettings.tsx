@@ -39,7 +39,7 @@ const DebugSettings = ({ runStore, settings }) => {
     setLogToUI(newValue);
     setIsSaving(true);
     await ipcRenderer.invoke('save-settings', {
-      settings: { logToUI: newValue }
+      settings: { logToUI: newValue },
     });
     setIsSaving(false);
   };
@@ -49,7 +49,7 @@ const DebugSettings = ({ runStore, settings }) => {
     setEnableAutoscrollState(newValue);
     setIsSaving(true);
     await ipcRenderer.invoke('save-settings', {
-      settings: { enableAutoscroll: newValue }
+      settings: { enableAutoscroll: newValue },
     });
     setIsSaving(false);
   };
@@ -186,25 +186,21 @@ const DebugSettings = ({ runStore, settings }) => {
       <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 1 }}>
         <FormControlLabel
           control={
-            <Checkbox
-              checked={logToUI}
-              onChange={handleLogToUIChange}
-              disabled={isSaving}
-            />
+            <Checkbox checked={logToUI} onChange={handleLogToUIChange} disabled={isSaving} />
           }
           label="Log to UI (Show debug and info logs in the app)"
         />
         {isSaving && <CircularProgress size="1rem" />}
         <FormControlLabel
-            control={
-              <Checkbox
-                checked={enableAutoscrollState}
-                onChange={handleAutoscrollChange}
-                disabled={isSaving}
-              />
-            }
-            label="Autoscroll Logs"
-          />
+          control={
+            <Checkbox
+              checked={enableAutoscrollState}
+              onChange={handleAutoscrollChange}
+              disabled={isSaving}
+            />
+          }
+          label="Autoscroll Logs"
+        />
       </Box>
     </div>
   );

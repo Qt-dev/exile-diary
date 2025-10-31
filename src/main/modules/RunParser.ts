@@ -15,7 +15,7 @@ const EventEmitter = require('events');
 const ItemPricer = require('./ItemPricer');
 const XPTracker = require('./XPTracker');
 const Constants = require('../../helpers/constants').default;
- 
+
 dayjs.extend(minMax);
 
 type ParsedEvent = {
@@ -952,9 +952,10 @@ const RunParser = {
 
     if (latestGeneratedEvent && latestGeneratedEvent.event_text) {
       try {
-        const eventData = typeof latestGeneratedEvent.event_text === 'string'
-          ? JSON.parse(latestGeneratedEvent.event_text)
-          : latestGeneratedEvent.event_text;
+        const eventData =
+          typeof latestGeneratedEvent.event_text === 'string'
+            ? JSON.parse(latestGeneratedEvent.event_text)
+            : latestGeneratedEvent.event_text;
         event.area = event.area ?? eventData.areaName;
       } catch (e) {
         logger.error('Failed to parse latest generated event:', e);
@@ -1095,8 +1096,6 @@ const RunParser = {
       });
     });
   },
-
-
 
   getAreaFromId: (areaId: string): any => {
     logger.info(`Getting area name for ID: ${areaId}`);

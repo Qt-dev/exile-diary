@@ -12,7 +12,6 @@ import '../SettingsCommon.css';
 const { ipcRenderer } = electronService;
 
 const HotkeySettings = ({ settings, revalidate }) => {
-
   // Shortcut configurations
   const [runParseShortcut, setRunParseShortcut] = React.useState(
     settings.runParseShortcut || 'CommandOrControl+F10'
@@ -42,7 +41,13 @@ const HotkeySettings = ({ settings, revalidate }) => {
       overlayToggleShortcut !== (settings.overlayToggleShortcut || 'CommandOrControl+F7') ||
       overlayMovementShortcut !== (settings.overlayMovementShortcut || 'CommandOrControl+F9')
     );
-  }, [runParseShortcut, screenshotShortcut, overlayToggleShortcut, overlayMovementShortcut, settings]);
+  }, [
+    runParseShortcut,
+    screenshotShortcut,
+    overlayToggleShortcut,
+    overlayMovementShortcut,
+    settings,
+  ]);
 
   const formatKeyStroke = (event: KeyboardEvent) => {
     const modifiers: string[] = [];
@@ -55,19 +60,19 @@ const HotkeySettings = ({ settings, revalidate }) => {
     // Handle special keys
     const keyMap: { [key: string]: string } = {
       ' ': 'Space',
-      'ArrowUp': 'Up',
-      'ArrowDown': 'Down',
-      'ArrowLeft': 'Left',
-      'ArrowRight': 'Right',
-      'Enter': 'Return',
-      'Backspace': 'Backspace',
-      'Delete': 'Delete',
-      'Tab': 'Tab',
-      'Insert': 'Insert',
-      'Home': 'Home',
-      'End': 'End',
-      'PageUp': 'PageUp',
-      'PageDown': 'PageDown',
+      ArrowUp: 'Up',
+      ArrowDown: 'Down',
+      ArrowLeft: 'Left',
+      ArrowRight: 'Right',
+      Enter: 'Return',
+      Backspace: 'Backspace',
+      Delete: 'Delete',
+      Tab: 'Tab',
+      Insert: 'Insert',
+      Home: 'Home',
+      End: 'End',
+      PageUp: 'PageUp',
+      PageDown: 'PageDown',
     };
 
     if (keyMap[key]) {
@@ -134,15 +139,25 @@ const HotkeySettings = ({ settings, revalidate }) => {
 
   const getShortcutValue = (fieldName: string) => {
     switch (fieldName) {
-      case 'runParse': return runParseShortcut;
-      case 'screenshot': return screenshotShortcut;
-      case 'overlayToggle': return overlayToggleShortcut;
-      case 'overlayMovement': return overlayMovementShortcut;
-      default: return '';
+      case 'runParse':
+        return runParseShortcut;
+      case 'screenshot':
+        return screenshotShortcut;
+      case 'overlayToggle':
+        return overlayToggleShortcut;
+      case 'overlayMovement':
+        return overlayMovementShortcut;
+      default:
+        return '';
     }
   };
 
-  const ShortcutTextField = ({ fieldName, label, helperText, enabled = true }: {
+  const ShortcutTextField = ({
+    fieldName,
+    label,
+    helperText,
+    enabled = true,
+  }: {
     fieldName: string;
     label: string;
     helperText: string;
@@ -162,26 +177,26 @@ const HotkeySettings = ({ settings, revalidate }) => {
       <TextField
         inputRef={inputRef}
         fullWidth
-        label={isActiveField ? "Press your desired key combination..." : label}
+        label={isActiveField ? 'Press your desired key combination...' : label}
         name={`${fieldName}_shortcut`}
         variant="filled"
         size="small"
-        value={isActiveField ? "Recording..." : currentValue}
+        value={isActiveField ? 'Recording...' : currentValue}
         onKeyDown={handleShortcutKeyDown}
         onFocus={() => handleShortcutFocus(fieldName)}
         onBlur={handleShortcutBlur}
         disabled={!enabled}
         helperText={
           isActiveField
-            ? "Press any key combination (e.g., Ctrl+F10, Alt+R). Press Escape to cancel."
+            ? 'Press any key combination (e.g., Ctrl+F10, Alt+R). Press Escape to cancel.'
             : helperText
         }
         InputProps={{
           readOnly: true,
           style: {
             backgroundColor: isActiveField ? '#ffebee' : undefined,
-            color: isActiveField ? '#d32f2f' : undefined
-          }
+            color: isActiveField ? '#d32f2f' : undefined,
+          },
         }}
       />
     );
@@ -247,13 +262,20 @@ const HotkeySettings = ({ settings, revalidate }) => {
           <h4 style={{ marginBottom: '10px' }}>Screenshot</h4>
           {!enableScreenshotCustomShortcut && (
             <Box sx={{ mb: 2, p: 2, bgcolor: '#fff3cd', borderRadius: 1 }}>
-              <em>Note: Custom screenshot shortcut is disabled. Enable it in the Account tab to configure.</em>
+              <em>
+                Note: Custom screenshot shortcut is disabled. Enable it in the Account tab to
+                configure.
+              </em>
             </Box>
           )}
           <ShortcutTextField
             fieldName="screenshot"
             label="Take Screenshot"
-            helperText={enableScreenshotCustomShortcut ? "Hotkey to capture a screenshot" : "Enable custom shortcut in Account tab first"}
+            helperText={
+              enableScreenshotCustomShortcut
+                ? 'Hotkey to capture a screenshot'
+                : 'Enable custom shortcut in Account tab first'
+            }
             enabled={enableScreenshotCustomShortcut}
           />
         </Box>
@@ -265,13 +287,20 @@ const HotkeySettings = ({ settings, revalidate }) => {
           <h4 style={{ marginBottom: '10px' }}>Run Completion</h4>
           {!runParseScreenshotEnabled && (
             <Box sx={{ mb: 2, p: 2, bgcolor: '#fff3cd', borderRadius: 1 }}>
-              <em>Note: Run completion shortcut is disabled. Enable it in the Account tab to configure.</em>
+              <em>
+                Note: Run completion shortcut is disabled. Enable it in the Account tab to
+                configure.
+              </em>
             </Box>
           )}
           <ShortcutTextField
             fieldName="runParse"
             label="Finish Current Run"
-            helperText={runParseScreenshotEnabled ? "Hotkey to manually end the current map run" : "Enable run completion shortcut in Account tab first"}
+            helperText={
+              runParseScreenshotEnabled
+                ? 'Hotkey to manually end the current map run'
+                : 'Enable run completion shortcut in Account tab first'
+            }
             enabled={runParseScreenshotEnabled}
           />
         </Box>
@@ -280,12 +309,7 @@ const HotkeySettings = ({ settings, revalidate }) => {
 
         {/* Reset Button */}
         <Box>
-          <Button
-            variant="outlined"
-            color="secondary"
-            onClick={handleResetShortcuts}
-            fullWidth
-          >
+          <Button variant="outlined" color="secondary" onClick={handleResetShortcuts} fullWidth>
             Reset All Shortcuts to Defaults
           </Button>
         </Box>
@@ -294,7 +318,7 @@ const HotkeySettings = ({ settings, revalidate }) => {
         <ButtonGroup variant="outlined" fullWidth aria-label="Settings Control Buttons">
           <Button
             type="submit"
-            variant={hasUnsavedChanges ? "contained" : "outlined"}
+            variant={hasUnsavedChanges ? 'contained' : 'outlined'}
             className={hasUnsavedChanges ? 'Settings__Save-Button--unsaved' : ''}
           >
             {hasUnsavedChanges ? 'Save Changes' : 'Save'}

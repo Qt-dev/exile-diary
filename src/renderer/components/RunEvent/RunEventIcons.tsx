@@ -77,10 +77,23 @@ const iconMap = {
     const hasBossFights = Array.isArray(bossFights) && bossFights.length > 0;
     let additionalIcons: JSX.Element[] = [];
     if (hasBossFights) {
-      const hasTimes = bossFights[0] && bossFights[0].started && bossFights[bossFights.length-1] && bossFights[bossFights.length-1].finished;
+      const hasTimes =
+        bossFights[0] &&
+        bossFights[0].started &&
+        bossFights[bossFights.length - 1] &&
+        bossFights[bossFights.length - 1].finished;
       additionalIcons = bossFights.map((fight) => {
         return (
-          <Tooltip title={hasTimes?`Defeated ${fight.bossName} in ${dayjs(bossFights[0].started).diff(dayjs(bossFights[bossFights.length-1].finished), 'seconds')} seconds`:`Defeated ${fight.bossName}`}>
+          <Tooltip
+            title={
+              hasTimes
+                ? `Defeated ${fight.bossName} in ${dayjs(bossFights[0].started).diff(
+                    dayjs(bossFights[bossFights.length - 1].finished),
+                    'seconds'
+                  )} seconds`
+                : `Defeated ${fight.bossName}`
+            }
+          >
             <img className="Run-Event__Mini-Icon" src={CatarinaIcon} alt={fight.bossName} />
           </Tooltip>
         );

@@ -442,8 +442,6 @@ function unregisterWatcher() {
   }
 }
 
-
-
 function registerListener() {
   SettingsManager.registerListener('screenshots', (value) => {
     const { allowFolderWatch, screenshotDir } = value;

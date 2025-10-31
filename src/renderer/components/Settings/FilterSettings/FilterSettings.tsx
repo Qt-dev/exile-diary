@@ -51,7 +51,7 @@ const FilterSettings = ({ settings, revalidate }) => {
       <div className="Filter-Settings__Button">
         <ButtonGroup variant="outlined" fullWidth aria-label="Settings Control Buttons">
           <Button
-            variant={hasUnsavedChanges ? "contained" : "outlined"}
+            variant={hasUnsavedChanges ? 'contained' : 'outlined'}
             onClick={handleSaveSettings}
             className={hasUnsavedChanges ? 'Settings__Save-Button--unsaved' : ''}
           >

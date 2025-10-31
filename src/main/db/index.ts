@@ -559,7 +559,7 @@ const Migrations = {
         SET run_info = json_remove(run_info, '$.synthesis')
         WHERE json_array_length(json_extract(run_info, '$.synthesis.bossFights')) = 0;`,
         `pragma user_version = 16`,
-      ]
+      ],
     ],
     maintenance: [
       `delete from incubator where timestamp < (select min(timestamp) from (select timestamp from incubator order by timestamp desc limit 25))`,

@@ -67,14 +67,16 @@ function setLogTransport(debugMode) {
 
 function setupDebugLoggerHook(logToUI: boolean) {
   function createHookedLoggerFn(originalFn: ((...params: any[]) => void) | null, level: string) {
-    return function(...args: any[]) {
+    return function (...args: any[]) {
       if (originalFn) {
         originalFn(...args);
       }
       if (!isLoggingToRenderer) {
         isLoggingToRenderer = true;
         try {
-          const message = args.map(arg => typeof arg === 'object' ? JSON.stringify(arg) : String(arg)).join(' ');
+          const message = args
+            .map((arg) => (typeof arg === 'object' ? JSON.stringify(arg) : String(arg)))
+            .join(' ');
           RendererLogger.log({ messages: [{ text: `[${level}] ${message}` }], onOverlay: false });
         } catch (e) {
           // Silently fail if RendererLogger isn't ready yet
@@ -198,7 +200,8 @@ class MainProcess {
     logger.info('Registering global shortcuts');
 
     // Overlay Toggle Shortcut
-    const overlayToggleShortcut = SettingsManager.get('overlayToggleShortcut') || 'CommandOrControl+F7';
+    const overlayToggleShortcut =
+      SettingsManager.get('overlayToggleShortcut') || 'CommandOrControl+F7';
     globalShortcut.register(overlayToggleShortcut, () => {
       logger.info('Toggling overlay visibility');
       const overlayPersistenceEnabled = SettingsManager.get('overlayPersistenceEnabled');
@@ -206,7 +209,8 @@ class MainProcess {
     });
 
     // Overlay Movement Shortcut
-    const overlayMovementShortcut = SettingsManager.get('overlayMovementShortcut') || 'CommandOrControl+F9';
+    const overlayMovementShortcut =
+      SettingsManager.get('overlayMovementShortcut') || 'CommandOrControl+F9';
     globalShortcut.register(overlayMovementShortcut, () => {
       logger.info(`Toggling overlay movement - ${this.isOverlayMoveable}`);
       this.isOverlayMoveable = !this.isOverlayMoveable;
@@ -579,12 +583,18 @@ class MainProcess {
       RunParser.refreshTracking();
       StatsManager.triggerProfitPerHourAnnouncer();
     });
-    SettingsManager.registerListener('runParseScreenshotEnabled', () => this.reRegisterGlobalShortcuts());
+    SettingsManager.registerListener('runParseScreenshotEnabled', () =>
+      this.reRegisterGlobalShortcuts()
+    );
     SettingsManager.registerListener('screenshots', () => this.reRegisterGlobalShortcuts());
     SettingsManager.registerListener('runParseShortcut', () => this.reRegisterGlobalShortcuts());
     SettingsManager.registerListener('screenshotShortcut', () => this.reRegisterGlobalShortcuts());
-    SettingsManager.registerListener('overlayToggleShortcut', () => this.reRegisterGlobalShortcuts());
-    SettingsManager.registerListener('overlayMovementShortcut', () => this.reRegisterGlobalShortcuts());
+    SettingsManager.registerListener('overlayToggleShortcut', () =>
+      this.reRegisterGlobalShortcuts()
+    );
+    SettingsManager.registerListener('overlayMovementShortcut', () =>
+      this.reRegisterGlobalShortcuts()
+    );
 
     KillTracker.emitter.removeAllListeners();
     KillTracker.emitter.on('incubatorsUpdated', (incubators) => {
@@ -667,7 +677,7 @@ class MainProcess {
       if (settings.autoScreenshotOnMapEntry?.enabled && hasStarted) {
         const delay = (settings.autoScreenshotOnMapEntry.delay || 2) * 1000; // Convert to milliseconds
         logger.info(`Auto-screenshot scheduled for ${area} in ${delay}ms`);
-        
+
         setTimeout(() => {
           logger.info(`Triggering auto-screenshot for ${area}`);
           ScreenshotWatcher.emitter.emit('screenshot:capture');

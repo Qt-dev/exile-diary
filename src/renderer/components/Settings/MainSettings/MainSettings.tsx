@@ -68,17 +68,17 @@ const MainSettings = ({ settings, store, runStore, revalidate }) => {
   const [clientFileLocation, setClientFileLocation] = React.useState(settings.clientTxt);
   const handleOpenClientLocation = async (e) => {
     e.preventDefault();
-    
+
     try {
       const result = await ipcRenderer.invoke('open-file-dialog', {
         title: 'Select Path of Exile Client.txt file',
         filters: [
           { name: 'Text Files', extensions: ['txt'] },
-          { name: 'All Files', extensions: ['*'] }
+          { name: 'All Files', extensions: ['*'] },
         ],
-        properties: ['openFile']
+        properties: ['openFile'],
       });
-      
+
       if (result && !result.canceled && result.filePaths.length > 0) {
         const filePath = result.filePaths[0];
         console.log('Selected file path:', filePath);
@@ -96,7 +96,7 @@ const MainSettings = ({ settings, store, runStore, revalidate }) => {
     try {
       const result = await ipcRenderer.invoke('open-file-dialog', {
         title: 'Select Screenshot Folder',
-        properties: ['openDirectory']
+        properties: ['openDirectory'],
       });
       if (result && !result.canceled && result.filePaths.length > 0) {
         setScreenshotLocation(result.filePaths[0]);
@@ -126,19 +126,15 @@ const MainSettings = ({ settings, store, runStore, revalidate }) => {
   const [enableScreenshotFolderWatchState, setEnableScreenshotFolderWatchState] = React.useState(
     settings.screenshots && !!settings.screenshots.allowFolderWatch
   );
-  const [enableScreenshotCustomShortcutState, setEnableScreenshotCustomShortcutState] = React.useState(
-    settings.screenshots && !!settings.screenshots.allowCustomShortcut
-  );
+  const [enableScreenshotCustomShortcutState, setEnableScreenshotCustomShortcutState] =
+    React.useState(settings.screenshots && !!settings.screenshots.allowCustomShortcut);
   const [runParseScreenshotEnabledState, setRunParseScreenshotEnabledState] = React.useState(
     !!settings.runParseScreenshotEnabled
   );
   const [autoScreenshotOnMapEntryState, setAutoScreenshotOnMapEntryState] = React.useState(
     !!settings.autoScreenshotOnMapEntry?.enabled
   );
-  const [forceDebugModeState, setForceDebugModeState] = React.useState(
-    !!settings.forceDebugMode
-  );
-
+  const [forceDebugModeState, setForceDebugModeState] = React.useState(!!settings.forceDebugMode);
 
   const handleRedirectToLogin = () => {
     navigate('/login');
@@ -168,10 +164,12 @@ const MainSettings = ({ settings, store, runStore, revalidate }) => {
       autoScreenshotDelay !== (settings.autoScreenshotOnMapEntry?.delay || 2) ||
       alternateSplinterPricingState !== !!settings.alternateSplinterPricing ||
       enableIncubatorAlertState !== !!settings.enableIncubatorAlert ||
-      enableScreenshotFolderWatchState !== !!(settings.screenshots && settings.screenshots.allowFolderWatch) ||
-      enableScreenshotCustomShortcutState !== !!(settings.screenshots && settings.screenshots.allowCustomShortcut) ||
+      enableScreenshotFolderWatchState !==
+        !!(settings.screenshots && settings.screenshots.allowFolderWatch) ||
+      enableScreenshotCustomShortcutState !==
+        !!(settings.screenshots && settings.screenshots.allowCustomShortcut) ||
       runParseScreenshotEnabledState !== !!settings.runParseScreenshotEnabled ||
-      autoScreenshotOnMapEntryState !== !!(settings.autoScreenshotOnMapEntry?.enabled) ||
+      autoScreenshotOnMapEntryState !== !!settings.autoScreenshotOnMapEntry?.enabled ||
       forceDebugModeState !== !!settings.forceDebugMode
     );
   }, [
@@ -190,21 +188,27 @@ const MainSettings = ({ settings, store, runStore, revalidate }) => {
     autoScreenshotOnMapEntryState,
     forceDebugModeState,
     settings,
-    store.characters
+    store.characters,
   ]);
 
   const handleCancel = () => {
     // Reset all form fields to original settings values
     setCharacter(settings.activeProfile.characterName ? settings.activeProfile.characterName : '');
     setLeague(settings.activeProfile.league ? settings.activeProfile.league : '');
-    setLeagueOverride(settings.activeProfile.leagueOverride ? settings.activeProfile.leagueOverride : '');
+    setLeagueOverride(
+      settings.activeProfile.leagueOverride ? settings.activeProfile.leagueOverride : ''
+    );
     setClientFileLocation(settings.clientTxt);
     setScreenshotLocation(settings.screenshotDir);
     setAutoScreenshotDelay(settings.autoScreenshotOnMapEntry?.delay || 2);
     setAlternateSplinterPricingState(!!settings.alternateSplinterPricing);
     setEnableIncubatorAlertState(!!settings.enableIncubatorAlert);
-    setEnableScreenshotFolderWatchState(settings.screenshots && !!settings.screenshots.allowFolderWatch);
-    setEnableScreenshotCustomShortcutState(settings.screenshots && !!settings.screenshots.allowCustomShortcut);
+    setEnableScreenshotFolderWatchState(
+      settings.screenshots && !!settings.screenshots.allowFolderWatch
+    );
+    setEnableScreenshotCustomShortcutState(
+      settings.screenshots && !!settings.screenshots.allowCustomShortcut
+    );
     setRunParseScreenshotEnabledState(!!settings.runParseScreenshotEnabled);
     setAutoScreenshotOnMapEntryState(!!settings.autoScreenshotOnMapEntry?.enabled);
     setForceDebugModeState(!!settings.forceDebugMode);
@@ -443,7 +447,9 @@ const MainSettings = ({ settings, store, runStore, revalidate }) => {
                 onChange={(e) => setOverlayPersistenceEnabled(e.target.checked)}
               />
             }
-            label={`Enable Overlay Persistence (${settings.overlayToggleShortcut || 'CommandOrControl+F7'})`}
+            label={`Enable Overlay Persistence (${
+              settings.overlayToggleShortcut || 'CommandOrControl+F7'
+            })`}
           />
           <FormControlLabel
             control={
@@ -453,7 +459,9 @@ const MainSettings = ({ settings, store, runStore, revalidate }) => {
                 onChange={(e) => setEnableScreenshotCustomShortcutState(e.target.checked)}
               />
             }
-            label={`Enable Custom Screenshot Shortcut (${settings.screenshotShortcut || 'CommandOrControl+F8'})`}
+            label={`Enable Custom Screenshot Shortcut (${
+              settings.screenshotShortcut || 'CommandOrControl+F8'
+            })`}
           />
           <FormControlLabel
             control={
@@ -463,9 +471,13 @@ const MainSettings = ({ settings, store, runStore, revalidate }) => {
                 onChange={(e) => setRunParseScreenshotEnabledState(e.target.checked)}
               />
             }
-            label={`Enable Shortcut to Finish a Run (${settings.runParseShortcut || 'CommandOrControl+F10'})`}
+            label={`Enable Shortcut to Finish a Run (${
+              settings.runParseShortcut || 'CommandOrControl+F10'
+            })`}
           />
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, justifyContent: 'space-between' }}>
+          <Box
+            sx={{ display: 'flex', alignItems: 'center', gap: 2, justifyContent: 'space-between' }}
+          >
             <FormControlLabel
               control={
                 <Checkbox
@@ -527,7 +539,7 @@ const MainSettings = ({ settings, store, runStore, revalidate }) => {
         <ButtonGroup variant="outlined" fullWidth aria-label="Settings Control Buttons">
           <Button
             type="submit"
-            variant={hasUnsavedChanges ? "contained" : "outlined"}
+            variant={hasUnsavedChanges ? 'contained' : 'outlined'}
             className={hasUnsavedChanges ? 'Settings__Save-Button--unsaved' : ''}
           >
             {hasUnsavedChanges ? 'Save Changes' : 'Save'}

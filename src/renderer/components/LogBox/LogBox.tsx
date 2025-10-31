@@ -142,7 +142,7 @@ const LogBox = ({ store, enableAutoscroll }) => {
 
       // Calculate the ratio between scrollbar movement and content scroll
       const scrollbarHeight = scrollbarRect.height;
-      const thumbHeightInPixels = scrollbarHeight * thumbHeight / 100;
+      const thumbHeightInPixels = (scrollbarHeight * thumbHeight) / 100;
       const availableTrackHeight = scrollbarHeight - thumbHeightInPixels;
       const maxScroll = scrollHeight - clientHeight;
 
@@ -150,7 +150,10 @@ const LogBox = ({ store, enableAutoscroll }) => {
       const scrollDelta = (deltaY / availableTrackHeight) * maxScroll;
 
       // Update scroll position
-      linesContainerRef.current.scrollTop = Math.max(0, Math.min(maxScroll, dragStartScrollTop + scrollDelta));
+      linesContainerRef.current.scrollTop = Math.max(
+        0,
+        Math.min(maxScroll, dragStartScrollTop + scrollDelta)
+      );
     }
   };
 
@@ -213,22 +216,24 @@ const LogBox = ({ store, enableAutoscroll }) => {
 
   return (
     <div className={classes}>
-      {isOpen && <div className="Log-Box__Sidebar">
-        {icon}
-        <div
-          className="Log-Box__Scrollbar-Area"
-          ref={scrollbarAreaRef}
-          onMouseDown={handleScrollbarMouseDown}
-        >
+      {isOpen && (
+        <div className="Log-Box__Sidebar">
+          {icon}
           <div
-            className="Log-Box__Scrollbar-Thumb"
-            style={{
-              height: `${thumbHeight}%`,
-              top: `${scrollPercentage * (100 - thumbHeight)}%`,
-            }}
-          ></div>
+            className="Log-Box__Scrollbar-Area"
+            ref={scrollbarAreaRef}
+            onMouseDown={handleScrollbarMouseDown}
+          >
+            <div
+              className="Log-Box__Scrollbar-Thumb"
+              style={{
+                height: `${thumbHeight}%`,
+                top: `${scrollPercentage * (100 - thumbHeight)}%`,
+              }}
+            ></div>
+          </div>
         </div>
-      </div>}
+      )}
       {!isOpen && icon}
       <div className="Log-Box__Lines" ref={linesContainerRef} onWheel={handleWheel}>
         <div className="Log-Box__Old_Lines">{messages.length > 1 ? messages.slice(0, -1) : ''}</div>

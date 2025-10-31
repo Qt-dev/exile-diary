@@ -57,7 +57,12 @@ const Settings = ({ characterStore, stashTabStore, runStore }) => {
         </Tabs>
       </Box>
       <div hidden={tabValue !== 0}>
-        <MainSettings store={characterStore} settings={settings} runStore={runStore} revalidate={revalidate} />
+        <MainSettings
+          store={characterStore}
+          settings={settings}
+          runStore={runStore}
+          revalidate={revalidate}
+        />
       </div>
       <div hidden={tabValue !== 1}>
         <StashSettings store={stashTabStore} settings={settings} />
