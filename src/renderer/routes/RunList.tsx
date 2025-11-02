@@ -124,6 +124,9 @@ const RunList = ({ NumbersOfMapsToShow = 10, store, isBoxed = true }) => {
               <TableCell variant="head" align="center">
                 Kills
               </TableCell>
+              <TableCell variant="head" align="center">
+                Graftblood
+              </TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -161,6 +164,11 @@ const RunList = ({ NumbersOfMapsToShow = 10, store, isBoxed = true }) => {
                   <TableCell align="center">{deaths.length > 0 ? deaths : '-'}</TableCell>
                   <TableCell align="center">
                     {run.kills && run.kills > -1 ? run.kills : '-'}
+                  </TableCell>
+                  <TableCell align="center">
+                    {run.graftblood !== null && run.graftblood !== undefined
+                      ? run.graftblood.toLocaleString('en')
+                      : '-'}
                   </TableCell>
                 </TableRow>
               );

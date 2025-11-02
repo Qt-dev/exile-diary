@@ -14,6 +14,7 @@ const logger = require('electron-log');
 const EventEmitter = require('events');
 const ItemPricer = require('./ItemPricer');
 const XPTracker = require('./XPTracker');
+const GraftbloodTracker = require('./GraftbloodTracker');
 const Constants = require('../../helpers/constants').default;
 
 dayjs.extend(minMax);
@@ -885,6 +886,15 @@ const RunParser = {
       items,
       mapMods
     );
+
+    // Get graftblood gained during this run
+    const graftbloodGained = await GraftbloodTracker.getGraftbloodGained(
+      firstEvent,
+      lastEventTimestamp
+    );
+    if (graftbloodGained !== null) {
+      extraInfo.graftblood = graftbloodGained;
+    }
 
     let runArguments: MapData = [
       firstEvent,

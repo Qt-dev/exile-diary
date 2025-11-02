@@ -560,6 +560,17 @@ const Migrations = {
         WHERE json_array_length(json_extract(run_info, '$.synthesis.bossFights')) = 0;`,
         `pragma user_version = 16`,
       ],
+      [
+        // Add graftblood tracking table
+        `CREATE TABLE IF NOT EXISTS graftblood (
+          id INTEGER NOT NULL,
+          timestamp TEXT NOT NULL,
+          value INTEGER NOT NULL,
+          PRIMARY KEY ("id" AUTOINCREMENT)
+        )`,
+        `CREATE INDEX IF NOT EXISTS "graftblood_timestamp" ON "graftblood" ("timestamp")`,
+        `pragma user_version = 17`,
+      ],
     ],
     maintenance: [
       `delete from incubator where timestamp < (select min(timestamp) from (select timestamp from incubator order by timestamp desc limit 25))`,
