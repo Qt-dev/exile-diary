@@ -28,16 +28,16 @@ function getGraftbloodFromEquipment(equipment) {
     }
 
     // Find the Graftblood property
-    const graftbloodProp = graft.properties.find(
-      (prop) => prop.name === 'Graftblood: {0}/{1}'
-    );
+    const graftbloodProp = graft.properties.find((prop) => prop.name === 'Graftblood: {0}/{1}');
 
     if (graftbloodProp && graftbloodProp.values && graftbloodProp.values.length >= 2) {
       // The first value [0] is the current graftblood amount
       const currentValue = parseInt(graftbloodProp.values[0][0], 10);
       if (!isNaN(currentValue)) {
         logger.debug(
-          `Found graftblood current value: ${currentValue} for graft: ${graft.name || graft.typeLine}`
+          `Found graftblood current value: ${currentValue} for graft: ${
+            graft.name || graft.typeLine
+          }`
         );
         totalGraftblood += currentValue;
       }
@@ -60,10 +60,10 @@ async function logGraftblood(timestamp, equipment) {
 
   // Store in database
   try {
-    await DB.run(
-      'INSERT INTO graftblood(timestamp, value) VALUES(?, ?)',
-      [dayjs(timestamp).toISOString(), graftblood]
-    );
+    await DB.run('INSERT INTO graftblood(timestamp, value) VALUES(?, ?)', [
+      dayjs(timestamp).toISOString(),
+      graftblood,
+    ]);
     logger.debug(`Stored graftblood value ${graftblood} at ${timestamp}`);
   } catch (err) {
     logger.error(`Failed to store graftblood: ${err}`);
