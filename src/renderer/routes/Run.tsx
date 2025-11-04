@@ -84,6 +84,12 @@ const Run = ({ store }) => {
       <div className="Run__Kills">
         <span className="Text--Rare">{run.kills}</span> monsters slain
       </div>
+      {run.runInfo?.graftblood !== undefined && run.runInfo.graftblood !== null && (
+        <div className="Run__Graftblood">
+          Graftblood gained:{' '}
+          <span className="Text--Rare">{run.runInfo.graftblood.toLocaleString('en')}</span>
+        </div>
+      )}
       {run.mods && run.mods.length > 0 && (
         <>
           <Divider className="Separator" />

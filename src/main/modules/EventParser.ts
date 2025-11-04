@@ -18,7 +18,9 @@ const rules = {
       if (eventData.arguments.action === 'start') {
         run.beasts.crafted.push({ started: event.timestamp });
       } else {
-        run.beasts.crafted[run.beasts.crafted.length - 1].finished = event.timestamp;
+        if (run.beasts.crafted.length > 0) {
+          run.beasts.crafted[run.beasts.crafted.length - 1].finished = event.timestamp;
+        }
       }
     },
   },
@@ -45,7 +47,9 @@ const rules = {
           phase: eventData.arguments.phase,
         });
       } else {
-        run.betrayal.bossFights[run.betrayal.bossFights.length - 1].finished = event.timestamp;
+        if (run.betrayal.bossFights.length > 0) {
+          run.betrayal.bossFights[run.betrayal.bossFights.length - 1].finished = event.timestamp;
+        }
       }
     },
   },
@@ -70,7 +74,10 @@ const rules = {
           stones: eventData.arguments.stones,
         });
       } else {
-        run.conquerors.bossFights[run.conquerors.bossFights.length - 1].finished = event.timestamp;
+        if (run.conquerors.bossFights.length > 0) {
+          run.conquerors.bossFights[run.conquerors.bossFights.length - 1].finished =
+            event.timestamp;
+        }
       }
     },
   },
@@ -104,7 +111,9 @@ const rules = {
       if (eventData.arguments.action === 'start') {
         run.harvest.bossFights.push({ bossName: eventData.npc, started: event.timestamp });
       } else {
-        run.harvest.bossFights[run.harvest.bossFights.length - 1].finished = event.timestamp;
+        if (run.harvest.bossFights.length > 0) {
+          run.harvest.bossFights[run.harvest.bossFights.length - 1].finished = event.timestamp;
+        }
       }
     },
   },
@@ -116,7 +125,9 @@ const rules = {
       if (eventData.arguments.action === 'start') {
         run.incursion.unlocked.push({ started: event.timestamp });
       } else {
-        run.incursion.unlocked[run.incursion.unlocked.length - 1].finished = event.timestamp;
+        if (run.incursion.unlocked.length > 0) {
+          run.incursion.unlocked[run.incursion.unlocked.length - 1].finished = event.timestamp;
+        }
       }
     },
     TempleRoom: (run, event) => {
@@ -135,6 +146,7 @@ const rules = {
       const eventData = JSON.parse(event.event_text);
       run.labyrinth = run.labyrinth || {};
       run.labyrinth.runs = run.labyrinth.runs || [];
+      run.labyrinth.bossFights = run.labyrinth.bossFights || [];
       if (eventData.arguments.target === 'Argus') {
         run.labyrinth.argus = run.labyrinth.argus || {};
         run.labyrinth.argus.fights = run.labyrinth.argus.fights || [];
@@ -145,7 +157,9 @@ const rules = {
           started: event.timestamp,
         });
       } else {
-        run.labyrinth.bossFights[run.labyrinth.bossFights.length - 1].finished = event.timestamp;
+        if (run.labyrinth.bossFights.length > 0) {
+          run.labyrinth.bossFights[run.labyrinth.bossFights.length - 1].finished = event.timestamp;
+        }
       }
     },
   },
@@ -167,7 +181,9 @@ const rules = {
       if (eventData.arguments.action === 'start') {
         run.maven.witnesses.push({ started: event.timestamp });
       } else {
-        run.maven.witnesses.push({ finished: event.timestamp });
+        if (run.maven.witnesses.length > 0) {
+          run.maven.witnesses[run.maven.witnesses.length - 1].finished = event.timestamp;
+        }
       }
     },
     BossFight: (run, event) => {
@@ -203,7 +219,9 @@ const rules = {
           started: event.timestamp,
         });
       } else {
-        run.shaper.bossFights[run.shaper.bossFights.length - 1].finished = event.timestamp;
+        if (run.shaper.bossFights.length > 0) {
+          run.shaper.bossFights[run.shaper.bossFights.length - 1].finished = event.timestamp;
+        }
       }
     },
   },
@@ -227,7 +245,9 @@ const rules = {
           phase: eventData.arguments.phase,
         });
       } else {
-        run.sirus.bossFights[run.sirus.bossFights.length - 1].finished = event.timestamp;
+        if (run.sirus.bossFights.length > 0) {
+          run.sirus.bossFights[run.sirus.bossFights.length - 1].finished = event.timestamp;
+        }
       }
     },
   },
@@ -246,7 +266,10 @@ const rules = {
           started: event.timestamp,
         });
       } else {
-        run.synthesis.bossFights[run.synthesis.bossFights.length - 1].finished = event.timestamp;
+        // Only set finished if there's actually a boss fight in progress
+        if (run.synthesis.bossFights.length > 0) {
+          run.synthesis.bossFights[run.synthesis.bossFights.length - 1].finished = event.timestamp;
+        }
       }
     },
   },

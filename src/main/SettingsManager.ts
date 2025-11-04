@@ -127,7 +127,9 @@ class SettingsManager {
   }
 
   get(settingKey) {
-    return this.settings[settingKey] ? JSON.parse(JSON.stringify(this.settings[settingKey])) : null;
+    return this.settings[settingKey] !== undefined
+      ? JSON.parse(JSON.stringify(this.settings[settingKey]))
+      : null;
   }
 
   async set(key: string, value: any) {

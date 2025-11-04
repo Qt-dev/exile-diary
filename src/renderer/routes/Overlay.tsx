@@ -92,10 +92,10 @@ const OverlayLine = ({
   latestMapTrackingMessage,
   invisible,
 }: OverlayLineProps) => {
-  const [open, setOpen] = React.useState((isOpen || time > 0) ?? false);
+  const [open, setOpen] = React.useState((isOpen || time > -1) ?? false);
 
   useEffect(() => {
-    setOpen((isOpen || time > 0) ?? false);
+    setOpen((isOpen || time > -1) ?? false);
   }, [isOpen, time]);
 
   const lineClassNames = classNames({
@@ -201,9 +201,9 @@ const Overlay = ({ store }) => {
       updatePosition();
     });
     ipcRenderer.removeAllListeners('overlay:set-persistence');
-    ipcRenderer.on('overlay:set-persistence', (event, isDisabled) => {
-      logger.debug('Setting persistence to', isDisabled);
-      setOpen(!isDisabled);
+    ipcRenderer.on('overlay:set-persistence', (event, isEnabled) => {
+      logger.debug('Setting persistence to', isEnabled);
+      setOpen(isEnabled);
     });
 
     ipcRenderer.removeAllListeners('overlay:toggle-movement');
@@ -227,8 +227,8 @@ const Overlay = ({ store }) => {
       setNotificationTime(defaultTimer);
       setLatestMessage(<OverlayNotificationLine messages={messages} />);
     });
-    ipcRenderer.invoke('overlay:get-persistence').then((isDisabled) => {
-      setOpen(!isDisabled);
+    ipcRenderer.invoke('overlay:get-persistence').then((isEnabled) => {
+      setOpen(isEnabled);
     });
 
     return () => {

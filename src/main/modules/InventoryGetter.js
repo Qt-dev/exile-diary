@@ -5,6 +5,7 @@ const logger = require('electron-log');
 const dayjs = require('dayjs');
 const XPTracker = require('./XPTracker');
 const GearChecker = require('./GearChecker');
+const GraftbloodTracker = require('./GraftbloodTracker');
 const EventEmitter = require('events');
 
 var settings;
@@ -98,6 +99,8 @@ class InventoryGetter extends EventEmitter {
     const inventory = this.getInventory(data.inventory);
     this.emit('xp', timestamp, data.experience);
     this.emit('equipment', timestamp, data.equipment);
+    const graftblood = GraftbloodTracker.logGraftblood(timestamp, data.equipment);
+    this.emit('graftblood', timestamp, graftblood);
     return inventory.mainInventory;
   }
 
@@ -129,7 +132,7 @@ class InventoryGetter extends EventEmitter {
     var mainInventory = {};
     var equippedItems = {};
     logger.debug(`Parsing inventory for ${inventory?.length} items`);
-    logger.debug(inventory);
+    logger.silly(inventory);
     inventory?.forEach((item) => {
       if (item.inventoryId === 'MainInventory') {
         mainInventory[item.id] = item;

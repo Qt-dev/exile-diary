@@ -40,7 +40,7 @@ export class Run {
   deaths = 0;
   profit = 0;
   kills = null;
-  runInfo = null;
+  runInfo: any = null;
 
   completed = false; // Whether the run is completed or not
 
@@ -187,5 +187,9 @@ export class Run {
 
   @computed get gainedPerHour() {
     return this.duration ? this.gained / this.duration.asHours() : 0;
+  }
+
+  @computed get graftblood() {
+    return this.runInfo?.graftblood ?? null;
   }
 }

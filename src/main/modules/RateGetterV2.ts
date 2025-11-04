@@ -382,6 +382,36 @@ function getNinjaData(path, useGzip) {
         headers: headerObject,
       },
       (response) => {
+        // Handle redirects
+        if (response.statusCode === 301 || response.statusCode === 302 || response.statusCode === 307 || response.statusCode === 308) {
+          const redirectUrl = response.headers.location;
+          if (redirectUrl) {
+            logger.info(`Following redirect from ${path} to: ${redirectUrl}`);
+            // Handle both relative and absolute redirect URLs
+            let newPath: string;
+            if (redirectUrl.startsWith('http://') || redirectUrl.startsWith('https://')) {
+              // Absolute URL - extract path
+              try {
+                const url = new URL(redirectUrl);
+                newPath = url.pathname + url.search;
+              } catch (e) {
+                logger.error(`Failed to parse absolute redirect URL: ${redirectUrl}`);
+                reject(new Error(`Invalid redirect URL: ${redirectUrl}`));
+                return;
+              }
+            } else {
+              // Relative URL - use as-is
+              newPath = redirectUrl;
+            }
+            // Retry with the new path
+            getNinjaData(newPath, useGzip).then(resolve).catch(reject);
+            return;
+          } else {
+            reject(new Error(`Received ${response.statusCode} redirect but no location header`));
+            return;
+          }
+        }
+
         var buffers: any = [];
         response.on('data', (chunk) => {
           buffers.push(chunk);
