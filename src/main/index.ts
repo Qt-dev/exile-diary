@@ -12,6 +12,17 @@ import {
 } from 'electron';
 import chokidar from 'chokidar';
 import { spawn } from 'child_process';
+import { initPortableMode } from './PortableConfig';
+
+// Initialize portable mode BEFORE app is ready, but AFTER electron modules are imported
+// This sets the userData path before any other code can access it
+// CRITICAL: This must run synchronously before importing SettingsManager, DB, etc.
+try {
+  initPortableMode();
+} catch (error) {
+  console.error('CRITICAL: Failed to initialize portable mode:', error);
+  // Continue anyway - will use default AppData
+}
 
 import { autoUpdater } from 'electron-updater';
 import * as path from 'path';
@@ -1145,7 +1156,12 @@ class MainProcess {
 }
 
 app.on('ready', () => {
-  const gotTheLock = app.requestSingleInstanceLock();
+  // Use userData path as the lock key so each portable instance can run independently
+  // This allows multiple portable installations in different folders to run simultaneously
+  // while preventing duplicate instances of the same installation
+  const gotTheLock = app.requestSingleInstanceLock({
+    key: app.getPath('userData')
+  });
 
   if (!gotTheLock) {
     logger.error('Exile Diary is already started, closing the new instance.');

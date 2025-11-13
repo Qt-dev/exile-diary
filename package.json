@@ -6,6 +6,7 @@
   "build": {
     "appId": "com.exilediary.reborn",
     "productName": "Exile Diary Reborn",
+    "afterPack": "./scripts/afterPack.js",
     "protocols": [
       {
         "name": "Exile Diary",
@@ -21,7 +22,12 @@
     ],
     "nativeRebuilder": "parallel",
     "win": {
-      "target": "nsis",
+      "target": [
+        {
+          "target": "nsis",
+          "arch": ["x64"]
+        }
+      ],
       "artifactName": "exile-diary-reborn-setup-v${version}.${ext}",
       "icon": "./src/renderer/assets/img/icons/win/ExileDiary.ico",
       "extraResources": [
@@ -87,6 +93,7 @@
     "analyze": "source-map-explorer 'build/static/js/*.js'",
     "benchmark": "tsc -p src/main && npx tsx test/ParserBenchmark.ts",
     "build": "npm run react:build && tsc -p src/main && set \"DEBUG=electron-builder\" && electron-builder -p never",
+    "build:portable": "npm run react:build && tsc -p src/main && set \"DEBUG=electron-builder\" && electron-builder --win zip -c.win.artifactName=\"exile-diary-reborn-portable-v${version}.${ext}\" -p never",
     "build:linux": "npm run react:build && tsc -p src/main && env DEBUG=\"@malept/flatpak-bundler\" electron-builder -p never",
     "dev": "concurrently \"cross-env BROWSER=none npm run react:start\" \"wait-on -s 1 http://localhost:3003 && tsc -p src/main -w --preserveWatchOutput\" \"wait-on -s 1 http://localhost:3003 && tsc -p src/main && electron .\""
   },
