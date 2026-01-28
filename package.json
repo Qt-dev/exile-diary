@@ -190,7 +190,7 @@
     "dotenv": "^17.2.1",
     "dotenv-expand": "^12.0.2",
     "electron": "^37.4.0",
-    "electron-builder": "^26.0.12",
+    "electron-builder": "^26.6.0",
     "eslint": "^8.57.1",
     "eslint-config-react-app": "^7.0.1",
     "eslint-webpack-plugin": "^3.2.0",
