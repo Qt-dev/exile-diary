@@ -133,7 +133,7 @@
     "@mui/icons-material": "^7.3.1",
     "@mui/material": "^7.3.1",
     "@mui/x-date-pickers": "^8.10.2",
-    "axios": "^1.12.2",
+    "axios": "^1.13.5",
     "axios-cache-interceptor": "^1.8.0",
     "base64url": "^3.0.1",
     "better-sqlite3": "^12.2.0",
