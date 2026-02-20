@@ -164,7 +164,8 @@ describe('Items', () => {
       const result = await Items.getMatchingItemsCount(itemIds);
 
       expect(mockDB.get).toHaveBeenCalledWith(
-        `SELECT COUNT(1) AS count FROM item WHERE ((id = 'item1') OR (id = 'item2') OR (id = 'item3'))`
+        'SELECT COUNT(1) AS count FROM item WHERE id IN (?, ?, ?)',
+        itemIds
       );
       expect(result).toEqual(mockResult);
     });
@@ -176,7 +177,7 @@ describe('Items', () => {
 
       const result = await Items.getMatchingItemsCount(itemIds);
 
-      expect(mockDB.get).toHaveBeenCalledWith('SELECT COUNT(1) AS count FROM item WHERE ()');
+      expect(mockDB.get).toHaveBeenCalledWith('SELECT COUNT(1) AS count FROM item WHERE 1 = 0');
       expect(result).toEqual(mockResult);
     });
 
@@ -188,7 +189,8 @@ describe('Items', () => {
       const result = await Items.getMatchingItemsCount(itemIds);
 
       expect(mockDB.get).toHaveBeenCalledWith(
-        `SELECT COUNT(1) AS count FROM item WHERE ((id = 'single-item'))`
+        'SELECT COUNT(1) AS count FROM item WHERE id IN (?)',
+        itemIds
       );
       expect(result).toEqual(mockResult);
     });
@@ -209,7 +211,8 @@ describe('Items', () => {
       const result = await Items.getMatchingItemsCount(itemIds);
 
       expect(mockDB.get).toHaveBeenCalledWith(
-        `SELECT COUNT(1) AS count FROM item WHERE ((id = 'item'with'quotes') OR (id = 'item-with-dashes'))`
+        'SELECT COUNT(1) AS count FROM item WHERE id IN (?, ?)',
+        itemIds
       );
       expect(result).toEqual(mockResult);
     });

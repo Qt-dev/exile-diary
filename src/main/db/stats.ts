@@ -214,6 +214,9 @@ const stats = {
     runs: Run[];
     minLootValue: number;
   }): Promise<any[]> => {
+    const runIds = runs.map((r) => r.id);
+    if (runIds.length === 0) return [];
+    const runIdPlaceholders = runIds.map(() => '?').join(',');
     const query = `
       SELECT run.id AS map_id, area_info.name AS area, item.*
       FROM item, run, area_info, event
@@ -222,11 +225,11 @@ const stats = {
       AND item.ignored = 0
       AND DATETIME(event.timestamp) BETWEEN DATETIME(run.first_event) AND DATETIME(run.last_event)
       AND map_id = area_info.run_id
-      AND run.id IN (${runs.map((r) => r.id).join(',')})
+      AND run.id IN (${runIdPlaceholders})
     `;
 
     try {
-      const items = await DB.all(query, [minLootValue]);
+      const items = await DB.all(query, [minLootValue, ...runIds]);
       return items ?? [];
     } catch (err) {
       logger.error(`Error getting loot: ${JSON.stringify(err)}`);
