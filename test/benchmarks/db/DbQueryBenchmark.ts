@@ -8,7 +8,7 @@ type BenchmarkCase = {
 function timeCase(iterations: number, benchmarkCase: BenchmarkCase) {
   for (let i = 0; i < 20; i++) benchmarkCase.run();
   const started = performance.now();
-  for (let i = 0; i < iterations; i++) benchmarkCase.run();
+  for (let i = 0; i < iterations; i++)   benchmarkCase.run();
   const elapsedMs = performance.now() - started;
   return {
     name: benchmarkCase.name,
@@ -162,18 +162,18 @@ function runBenchmarks() {
         newMatchStmt.get(...itemIds);
       },
     },
-    {
-      name: 'stats.getAllItemsForRuns old inline IN ids',
-      run: () => {
-        db.prepare(oldRunsSql).all(0);
-      },
-    },
-    {
-      name: 'stats.getAllItemsForRuns new parameterized IN ids',
-      run: () => {
-        newRunsStmt.all(0, ...runIds);
-      },
-    },
+    // {
+    //   name: 'stats.getAllItemsForRuns old inline IN ids',
+    //   run: () => {
+    //     db.prepare(oldRunsSql).all(0);
+    //   },
+    // },
+    // {
+    //   name: 'stats.getAllItemsForRuns new parameterized IN ids',
+    //   run: () => {
+    //     newRunsStmt.all(0, ...runIds);
+    //   },
+    // },
     {
       name: 'db/index old prepare every call',
       run: () => {
@@ -211,6 +211,7 @@ function runBenchmarks() {
   console.log('DB Query Benchmark');
   console.log('Iterations per case:', iterations);
   for (const benchmarkCase of cases) {
+    console.log(`Running case: ${benchmarkCase.name}...`);
     const result = timeCase(iterations, benchmarkCase);
     console.log(
       `${result.name}: total=${result.totalMs.toFixed(2)}ms avg=${result.avgMs.toFixed(4)}ms`
