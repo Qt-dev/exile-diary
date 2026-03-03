@@ -184,7 +184,7 @@
     "babel-loader": "^10.0.0",
     "babel-plugin-named-asset-import": "^0.3.8",
     "babel-preset-react-app": "^10.1.0",
-    "bfj": "^9.1.2",
+    "bfj": "^9.1.3",
     "case-sensitive-paths-webpack-plugin": "^2.4.0",
     "chai-as-promised": "^8.0.0",
     "concurrently": "^8.2.2",
