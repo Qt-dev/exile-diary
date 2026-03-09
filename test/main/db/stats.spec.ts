@@ -90,19 +90,11 @@ describe('stats', () => {
       // Verify it contains expected SQLite elements
       expect(calledQuery).toContain('SELECT');
       expect(calledQuery).toContain('FROM area_info, run');
-      expect(calledQuery).toContain('LEFT JOIN');
+      expect(calledQuery).toContain('INNER JOIN event ON event.id = item.event_id');
       expect(calledQuery).toContain('WHERE run.id = area_info.run_id');
-      expect(calledQuery).toContain('json_extract(run_info');
+      expect(calledQuery).toContain('event.timestamp BETWEEN run.first_event AND run.last_event');
       expect(calledQuery).toContain('ORDER BY run.id desc');
-
-      // Verify battle-specific death counts
-      expect(calledQuery).toContain('conqueror_deaths');
-      expect(calledQuery).toContain('mastermind_deaths');
-      expect(calledQuery).toContain('sirus_deaths');
-      expect(calledQuery).toContain('shaper_deaths');
-      expect(calledQuery).toContain('maven_deaths');
-      expect(calledQuery).toContain('oshabi_deaths');
-      expect(calledQuery).toContain('venarius_deaths');
+      expect(calledQuery).toContain('item.ignored = 0');
     });
   });
 
@@ -368,9 +360,10 @@ describe('stats', () => {
 
       const result = await stats.getAllItemsForRuns({ runs, minLootValue });
 
-      expect(mockDB.all).toHaveBeenCalledWith(expect.stringContaining('AND run.id IN (1,2,3)'), [
-        minLootValue,
-      ]);
+      expect(mockDB.all).toHaveBeenCalledWith(
+        expect.stringContaining('AND run.id IN (?,?,?)'),
+        [minLootValue, 1, 2, 3]
+      );
       expect(result).toEqual(mockItems);
     });
 
@@ -381,9 +374,7 @@ describe('stats', () => {
 
       const result = await stats.getAllItemsForRuns({ runs, minLootValue });
 
-      expect(mockDB.all).toHaveBeenCalledWith(expect.stringContaining('AND run.id IN ()'), [
-        minLootValue,
-      ]);
+      expect(mockDB.all).not.toHaveBeenCalled();
       expect(result).toEqual([]);
     });
 

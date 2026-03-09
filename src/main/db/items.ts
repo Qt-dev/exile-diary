@@ -14,11 +14,12 @@ const Items = {
     return DB.transaction(query, items);
   },
   getMatchingItemsCount: async (itemIds: string[]): Promise<number> => {
-    const itemQueries: string[] = itemIds.map((id) => `(id = '${id}')`);
-
-    const query = `SELECT COUNT(1) AS count FROM item WHERE (${itemQueries.join(' OR ')})`;
-
-    return DB.get(query);
+    if (itemIds.length === 0) {
+      return DB.get('SELECT COUNT(1) AS count FROM item WHERE 1 = 0');
+    }
+    const placeholders = itemIds.map(() => '?').join(', ');
+    const query = `SELECT COUNT(1) AS count FROM item WHERE id IN (${placeholders})`;
+    return DB.get(query, itemIds);
   },
 
   updateIgnoredItems: async (items: { id: string; status: boolean }[]) => {

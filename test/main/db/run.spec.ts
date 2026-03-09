@@ -422,22 +422,18 @@ describe('Runs', () => {
   describe('insertMapMods', () => {
     beforeEach(() => {
       mockDB.run.mockReset();
+      mockDB.transaction.mockReset();
     });
     it('should insert map mods successfully', async () => {
       const mapId = 42;
       const mods = ['Increased Monster Life', 'Added Fire Damage'];
-      mockDB.run.mockResolvedValue(undefined);
+      mockDB.transaction.mockResolvedValue(undefined);
 
       const result = await Runs.insertMapMods(mapId, mods);
 
-      expect(mockDB.run).toHaveBeenCalledTimes(2);
-      expect(mockDB.run).toHaveBeenCalledWith('INSERT INTO mapmod(run_id, mod) VALUES(?, ?)', [
-        mapId,
-        'Increased Monster Life',
-      ]);
-      expect(mockDB.run).toHaveBeenCalledWith('INSERT INTO mapmod(run_id, mod) VALUES(?, ?)', [
-        mapId,
-        'Added Fire Damage',
+      expect(mockDB.transaction).toHaveBeenCalledWith('INSERT INTO mapmod(run_id, mod) VALUES(?, ?)', [
+        [mapId, 'Increased Monster Life'],
+        [mapId, 'Added Fire Damage'],
       ]);
       expect(result).toBe(true);
     });
@@ -448,7 +444,7 @@ describe('Runs', () => {
 
       const result = await Runs.insertMapMods(mapId, mods);
 
-      expect(mockDB.run).not.toHaveBeenCalled();
+      expect(mockDB.transaction).toHaveBeenCalledWith('INSERT INTO mapmod(run_id, mod) VALUES(?, ?)', []);
       expect(result).toBe(true);
     });
 
@@ -456,7 +452,7 @@ describe('Runs', () => {
       const mapId = 42;
       const mods = ['Test Mod'];
       const mockError = new Error('Insertion failed');
-      mockDB.run.mockRejectedValue(mockError);
+      mockDB.transaction.mockRejectedValue(mockError);
 
       const result = await Runs.insertMapMods(mapId, mods);
 

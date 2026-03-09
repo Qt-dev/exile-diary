@@ -612,6 +612,7 @@ const Migrations = {
  */
 class DBManager {
   db: Database;
+  statements: Map<string, ReturnType<Database['prepare']>> = new Map();
   tasks: string[] = [];
   isBusy: boolean = true;
   eventEmitter: EventEmitter = new EventEmitter();
@@ -628,6 +629,14 @@ class DBManager {
     });
     this.isBusy = false;
     this.runTasks();
+  }
+
+  getStatement(sql: string) {
+    const cached = this.statements.get(sql);
+    if (cached) return cached;
+    const statement = this.db.prepare(sql);
+    this.statements.set(sql, statement);
+    return statement;
   }
 
   runTasks() {
@@ -759,21 +768,21 @@ const DB = {
     const manager = DB.getManager(league);
     if (!manager) return null;
 
-    return await manager.runTask(() => manager.db.prepare(sql).all(params));
+    return await manager.runTask(() => manager.getStatement(sql).all(params));
   },
 
   get: async (sql: string, params: any[] = [], league: string | undefined = undefined) => {
     const manager = DB.getManager(league);
     if (!manager) return null;
 
-    return manager.runTask(() => manager.db.prepare(sql).get(params));
+    return manager.runTask(() => manager.getStatement(sql).get(params));
   },
 
   run: async (sql: string, params: any[] = [], league: string | undefined = undefined) => {
     const manager = DB.getManager(league);
     if (!manager) return null;
 
-    return await manager.runTask(() => manager.db.prepare(sql).run(params));
+    return await manager.runTask(() => manager.getStatement(sql).run(params));
   },
 
   transaction: async (query: string, params: any[], league: string | undefined = undefined) => {
@@ -782,7 +791,7 @@ const DB = {
 
     return await manager.runTask(() => {
       const { db } = manager;
-      const statement = db.prepare(query);
+      const statement = manager.getStatement(query);
       const runMany = db.transaction((params) => {
         for (const param of params) {
           statement.run(param);

@@ -348,10 +348,9 @@ const Runs = {
   insertMapMods: async (mapId: number, mods: string[]) => {
     const query = 'INSERT INTO mapmod(run_id, mod) VALUES(?, ?)';
     try {
-      await Promise.all(
-        mods.map(async (mod) => {
-          await DB.run(query, [mapId, mod]);
-        })
+      await DB.transaction(
+        query,
+        mods.map((mod) => [mapId, mod])
       );
       return true;
     } catch (err) {
