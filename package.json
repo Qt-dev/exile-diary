@@ -25,7 +25,9 @@
       "target": [
         {
           "target": "nsis",
-          "arch": ["x64"]
+          "arch": [
+            "x64"
+          ]
         }
       ],
       "artifactName": "exile-diary-reborn-setup-v${version}.${ext}",
@@ -142,7 +144,7 @@
     "@mui/material": "^7.3.1",
     "@mui/x-date-pickers": "^8.10.2",
     "axios": "^1.13.6",
-    "axios-cache-interceptor": "^1.11.1",
+    "axios-cache-interceptor": "^1.12.0",
     "base64url": "^3.0.1",
     "better-sqlite3": "^12.2.0",
     "bottleneck": "^2.19.5",

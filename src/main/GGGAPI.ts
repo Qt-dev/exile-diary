@@ -1,13 +1,23 @@
 import logger from 'electron-log';
 import { app } from 'electron';
 import Axios from 'axios';
-import { setupCache } from 'axios-cache-interceptor';
+import { setupCache, buildMemoryStorage, buildKeyGenerator } from 'axios-cache-interceptor/dev';
 import SettingsManager from './SettingsManager';
 import AuthManager from './AuthManager';
 import Bottleneck from 'bottleneck';
-import RendererLogger from './RendererLogger';
-const axios = setupCache(Axios);
-const CACHE_TIME_IN_SECONDS = 5;
+import { v4 as uuidv4 } from 'uuid';
+const CACHE_TIME_IN_SECONDS = 10;
+const MIN_TIME_BETWEEN_REQUESTS = 333; // 1 request per second as a default, will be adjusted based on API feedback
+const instance = Axios.create();
+const storage = buildMemoryStorage();
+const axios = setupCache(instance, {
+  enabled: true,
+  ttl: 1000 * CACHE_TIME_IN_SECONDS, // DEFAULT: Cache for 10 seconds, can be overridden per request
+  storage,
+  interpretHeader: false,
+  vary: false, // No reason to break cache by Vary headers since we control the requests
+  debug: logger.info.bind(logger),
+});
 
 type Inventory = {
   inventory: any[];
@@ -17,47 +27,105 @@ type Inventory = {
 
 const limiters = new Bottleneck.Group({
   maxConcurrent: 1,
-  minTime: 333,
+  minTime: MIN_TIME_BETWEEN_REQUESTS,
 });
 
-const handleFailure = (type: string) => async (error, jobInfo) => {
-  const { retryCount } = jobInfo;
-  logger.error(
-    `Request ${jobInfo.options.id} failed (type: ${type}) with ${error.message}. Retried ${retryCount} times.`
-  );
-  if (error.status === 429) {
-    logger.error(
-      `Too many requests. Waiting ${error.getResponseHeader(
-        'Retry-After'
-      )} seconds before retrying...`
-    );
-    logger.error(`Retry-After Header: ${error.getResponseHeader('Retry-After')}`);
-    return (error.getResponseHeader('Retry-After') || 1) * 1000 + 1000;
-  }
+let currentlyRestrictedKeys = {
 
-  logger.error(error.response);
-  if (retryCount > 1) {
-    logger.error(`Request ${jobInfo.options.id} failed ${retryCount} times. No more retries.`);
-  } else {
-    logger.error(`Request ${jobInfo.options.id} failed. Retrying... in 10 second.`);
-    return 10000;
+};
+
+/**
+ * PARSER: Converts PoE's "1:5:0,10:60:0" format into an object
+ */
+const parsePoeHeader = (header) => {
+  if (!header) return [];
+  return header.split(',').map(rule => {
+    const [count, period, extra] = rule.split(':').map(Number);
+    return { count, period, extra };
+  });
+};
+
+/**
+ * FEEDBACK LOOP: Update Bottleneck based on PoE headers
+ */
+const updateLimiterFromHeaders = (limiter, headers) => {
+  logger.debug(`Updating rate limiter settings for ${limiter.id} based on API response headers`, headers);
+  const rulesHeader = headers['x-rate-limit-rules'] || ''; // e.g., "client,ip"
+  const rules = rulesHeader.split(',');
+
+  rules.forEach(ruleName => {
+    const limitHeader = headers[`x-rate-limit-${ruleName}`];
+    const stateHeader = headers[`x-rate-limit-${ruleName}-state`];
+    
+    const limits = parsePoeHeader(limitHeader);
+    const states = parsePoeHeader(stateHeader);
+
+    // If any state shows an active restriction (3rd number > 0)
+    const isRestricted = states.some(s => s.extra > 0);
+    
+    if (isRestricted) {
+      const maxWait = Math.max(...states.map(s => s.extra));
+      logger.error(`!!! API Calls Restricted for ${ruleName} for ${maxWait} seconds !!!`);
+      limiter.updateSettings({ minTime: maxWait * 1000 });
+      // Reset minTime after the ban expires
+      setTimeout(() => limiter.updateSettings({ minTime: MIN_TIME_BETWEEN_REQUESTS }), maxWait * 1000);
+    }
+    
+    // Proactive: If we are at 90% of ANY limit, slow down
+    limits.forEach((limit, i) => {
+      const state = states[i];
+      if (state.count / limit.count > 0.9) {
+        logger.warn(`Nearing limit for ${ruleName}: ${state.count}/${limit.count} (${(state.count / limit.count * 100).toFixed(2)}%). Slowing down.`);
+        limiter.updateSettings({ minTime: 2000 });
+        // Reset minTime after a cooldown period
+        setTimeout(() => limiter.updateSettings({ minTime: MIN_TIME_BETWEEN_REQUESTS }), limit.period * 1000);
+      }
+    });
+  });
+};
+
+
+const handleFailure = (type: string, limiter) => async (error, jobInfo) => {
+  logger.error(
+    `Request ${jobInfo.options.id} failed (type: ${type}) with ${error.message}.`
+  );
+
+  if (error.status === 429) {
+    currentlyRestrictedKeys[jobInfo.options.id] = true;
+    const retryAfter = parseInt(error.response.headers['retry-after'], 10) || 30;
+    logger.error(
+      `Too many requests. Waiting ${retryAfter} seconds before retrying...`
+    );
+    limiter.updateSettings({ minTime: retryAfter * 1000 });
+    // Reset minTime after the retry period
+    setTimeout(() => {
+      currentlyRestrictedKeys[jobInfo.options.id] = false;
+      limiter.updateSettings({ minTime: MIN_TIME_BETWEEN_REQUESTS });
+    }, retryAfter * 1000);
+
+    return (retryAfter) * 1000;
   }
 };
 
-limiters.on('failed', handleFailure('failed'));
-limiters.on('error', handleFailure('error'));
+limiters.on('created', (limiter, key) => {
+  logger.info(`Limiter created: ${limiter.id}. Setting up listeners for ${key} group.`);
 
-limiters.on('done', (jobInfo) => {
-  // globalLimiter.once('running', () => {
-  logger.info(jobInfo);
-  // })
+  limiter.on('failed', handleFailure('failure', limiter));
+  
+  limiter.on('done', (jobInfo) => {
+    logger.debug(`========Request ${jobInfo.options.id} done.`);
+    logger.debug(jobInfo);
+  });
+  
+  limiter.on('executing', async (jobInfo) => {
+    logger.debug(`========Request ${jobInfo.options.id} started.`);
+  });
+  
+  limiter.on('queued', (jobInfo) => {
+    logger.debug(`========Request ${jobInfo.options.id} queued.`);
+  });
 });
 
-limiters.on('executing', async (jobInfo) => {
-  logger.info(`========Request ${jobInfo.options.id} started.`);
-  logger.info(jobInfo);
-  logger.info(`========Request ${jobInfo.options.id} execution callback finished.`);
-});
 
 const Endpoints = {
   characters: () => '/character',
@@ -80,74 +148,48 @@ const getRequestParams = (url, token) => {
   };
 };
 
-const request = ({ params, group, cacheTime = CACHE_TIME_IN_SECONDS }) => {
+const request = async ({ params, group, cacheTime = CACHE_TIME_IN_SECONDS }) => {
   const limiter = limiters.key(group);
-  return limiter.schedule({}, () => {
+  const scheduledId = `${group.replace('/', '')}-${uuidv4()}`;
+
+  if (currentlyRestrictedKeys && currentlyRestrictedKeys[group]) {
+    const cached = await storage.get(group);
+    if (cached && cached.data) {
+      logger.warn("⚠️ API Restricted: Serving STALE data from cache.");
+      return cached.data;
+    }
+    // If not even in cache, we must throw or wait
+    throw new Error("API Restricted and no cached data available.");
+  }
+
+  return limiter.schedule({ id : scheduledId}, async () => {
+    logger.debug('Making request to GGG API', { url: params.url, group, params });
     if (!params.cache) {
+      logger.debug('Adding cache to request for group', group);
       params.cache = {
+        enabled: true,
         ttl: 1000 * cacheTime,
       };
     }
-    return axios(params).then(async (response) => {
-      if (response.cached) {
-        logger.info(`Response from cache for ${params.url}`);
-      } else {
-        let periods: any = [];
-        const rateLimitRules = response.headers['x-rate-limit-account']
-          .split(',')
-          .map((encodedRules) => {
-            const [maxHits, period] = encodedRules.split(':');
-            periods.push(period);
-            return {
-              maxHits,
-              period,
-            };
-          });
+    const response = await new Promise<void>((resolve) => {
+        logger.debug('Starting the Request Promise for', { url: params.url, group });
+        resolve();
+      })
+      .then(() => axios({ ...params, id: group }))
+      .then(async (response) => {
+        if (response.cached) {
+          logger.debug(`Response from cache for ${params.url}`);
+        } else {
+          logger.debug(`Response from API for ${params.url}`);
+        }
+        return response;
+      });
 
-        const status = response.headers['x-rate-limit-account-state']
-          .split(',')
-          .map((encodedStatus) => {
-            const [hits, period] = encodedStatus.split(':');
-            return {
-              hits,
-              period,
-            };
-          });
+    updateLimiterFromHeaders(limiter, response.headers);
 
-        await Promise.all(
-          periods.map(async (period) => {
-            const max = rateLimitRules.find((rule) => rule.period === period).maxHits;
-            const hits = status.find((rule) => rule.period === period).hits;
-            const remaining = max - hits;
-            if (remaining < 1) {
-              logger.info(
-                `Hit GGG Rate Limit on ${group} request: ${remaining} hits remaining for period ${period}. Waiting for ${period} seconds for next request.`
-              );
-              RendererLogger.log({
-                messages: [
-                  {
-                    text: `Hit GGG Rate Limit on ${group} request: Waiting for `,
-                  },
-                  {
-                    text: `${period} seconds`,
-                    type: 'important',
-                  },
-                  {
-                    text: ' before the next request.',
-                  },
-                ],
-              });
-              await new Promise(() =>
-                setTimeout(() => {
-                  logger.info(`We are good to go for ${group} on period ${period}!`);
-                }, period * 1000)
-              );
-            }
-          })
-        );
-      }
-      return response;
-    });
+    logger.debug('Request successfully completed for', { url: params.url, group });
+
+    return response;
   });
 };
 
@@ -172,8 +214,7 @@ const getAllCharacters = async () => {
     const { username, token } = await getSettings(false);
     const response: any = await request({
       params: getRequestParams(Endpoints.characters(), token),
-      group: '/character',
-      // cacheTime: 60 * 5,
+      group: `getAllCharacters-${username}`,
     });
     const characters = await response.data.characters;
     logger.info(`Found ${characters.length} characters from the GGG API for account: ${username}`);
@@ -190,16 +231,13 @@ const getDataForInventory = async (): Promise<Inventory> => {
     const { characterName, token } = await getSettings();
     const response: any = await request({
       params: getRequestParams(Endpoints.character({ characterName }), token),
-      group: '/character',
+      group: `getDataForInventory-${characterName}`,
     });
     const character = await response.data.character;
     const { inventory: mainInventory, equipment, experience } = character;
     const rucksack = character.rucksack ?? [];
     const inventory = [...mainInventory, ...rucksack];
     logger.info(`Found inventory for character: ${characterName}`);
-    // logger.debug(`Inventory: ${JSON.stringify(inventory)}`);
-    // logger.debug(`Equipment: ${JSON.stringify(equipment)}`);
-    // logger.debug(`Experience: ${experience}`);
     return {
       inventory,
       equipment,
@@ -217,7 +255,7 @@ const getSkillTree = async () => {
     const { characterName, token } = await getSettings();
     const response: any = await request({
       params: getRequestParams(Endpoints.character({ characterName }), token),
-      group: '/character',
+      group: `getSkillTree-${characterName}`,
     });
     const skillTree = await response.data.character.passives;
     logger.info(`Found skill tree for character: ${characterName}`);
@@ -234,7 +272,7 @@ const getStashTab = async (stashId) => {
     const { username, league, token } = await getSettings();
     const response: any = await request({
       params: getRequestParams(Endpoints.stash({ league, stashId }), token),
-      group: '/stash',
+      group: `getStashTab-${stashId}`,
     });
     const stash = await response.data.stash;
     logger.info(`Found stash ${stashId} for account: ${username}`);
@@ -251,7 +289,8 @@ const getAllStashTabs = async () => {
     const { username, league, token } = await getSettings();
     const response: any = await request({
       params: getRequestParams(Endpoints.stashes({ league }), token),
-      group: '/stash',
+      group: `getAllStashTabs-${username}`,
+
     });
     const stashes = await response.data.stashes;
     logger.info(`Found ${response.data.stashes.length} stashes for account: ${username}`);
