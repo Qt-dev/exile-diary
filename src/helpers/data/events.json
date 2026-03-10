@@ -4335,13 +4335,15 @@
       }
     },
     "Be still!": {
-      "id": "VenariusGuardian3VoidZone",
-      "npc": "Venarius",
-      "category": "Synthesis",
-      "type": "BossFight",
+      "id": "QuicksandDaemon3",
+      "npc": "The Trialmaster",
+      "category": "Ultimatum",
+      "type": "Activation",
       "arguments": {
-        "synthesis": true,
-        "action": "unknown"
+        "name": "Quicksand III",
+        "tier": 3,
+        "npcTextAudioId": "TrialmasterFinalEncounterSummonTetherSpikeCastRandom",
+        "description": "Many large pits of slowing Quicksand will periodically appear"
       }
     },
     "Erasure!": {
@@ -6236,21 +6238,21 @@
       }
     },
     "Open the eye of the storm.": {
-      "id": "RoyaleShrineLightning",
+      "id": "GreaterLightning",
       "npc": "Unknown",
       "category": "Shrines",
       "type": "Activation",
       "arguments": {
-        "name": "Lightning Shrine"
+        "name": "Greater Shocking Shrine"
       }
     },
     "Turn your world to ice.": {
-      "id": "RoyaleShrineFreezing",
+      "id": "GreaterCold",
       "npc": "Unknown",
       "category": "Shrines",
       "type": "Activation",
       "arguments": {
-        "name": "Freezing Shrine"
+        "name": "Greater Freezing Shrine"
       }
     },
     "The sky falls. The land burns.": {
@@ -6317,12 +6319,12 @@
       }
     },
     "The past shall serve the present.": {
-      "id": "Skeletons",
+      "id": "GreaterSkeletons",
       "npc": "Unknown",
       "category": "Shrines",
       "type": "Activation",
       "arguments": {
-        "name": "Skeletal Shrine"
+        "name": "Greater Skeletal Shrine"
       }
     },
     "Shroud your path in the fog of war.": {
@@ -6449,6 +6451,15 @@
       "type": "Activation",
       "arguments": {
         "name": "Evolving Shrine"
+      }
+    },
+    "The Hourglass is yours to control.": {
+      "id": "Faridun",
+      "npc": "Unknown",
+      "category": "Shrines",
+      "type": "Activation",
+      "arguments": {
+        "name": "Afarud Shrine"
       }
     },
     "Choking vapours seek the living.": {
@@ -6643,6 +6654,54 @@
         "description": "Many frozen pustules will periodically appear, chill you, and rapidly explode when you approach, freezing if they hit"
       }
     },
+    "Those you slay will seek their vengeance.": {
+      "id": "GraveyardDaemon1",
+      "npc": "The Trialmaster",
+      "category": "Ultimatum",
+      "type": "Activation",
+      "arguments": {
+        "name": "Restless Ground",
+        "tier": 1,
+        "npcTextAudioId": "TrialmasterChallengeChoiceMadeRestlessGroundFour4",
+        "description": "A patch of Unhallowed Ground will appear that Hinder players and cause slain Monsters to resurrect as Zombies"
+      }
+    },
+    "Confront that which you release.": {
+      "id": "PlayerDebuffAurasAffectAllies",
+      "npc": "The Trialmaster",
+      "category": "Ultimatum",
+      "type": "Activation",
+      "arguments": {
+        "name": "Treacherous Auras",
+        "tier": 1,
+        "npcTextAudioId": "TrialmasterChallengeChoiceMadeYourAurasAffectEnemiesRandom",
+        "description": "Your Auras that affect Allies also affect Enemies"
+      }
+    },
+    "Death is already creeping upon you.": {
+      "id": "GraveyardDaemon3",
+      "npc": "The Trialmaster",
+      "category": "Ultimatum",
+      "type": "Activation",
+      "arguments": {
+        "name": "Restless Ground III",
+        "tier": 3,
+        "npcTextAudioId": "HideoutTrialmasterVaalOrbMapVaalTemple_10",
+        "description": "Many patches of Unhallowed Ground will appear that Hinder players and cause slain Monsters to resurrect as Ruin-inflicting Zombies\r\nFail on reaching 7 Ruin"
+      }
+    },
+    "Your world will fall to ruin.": {
+      "id": "GraveyardDaemon4Trial",
+      "npc": "The Trialmaster",
+      "category": "Ultimatum",
+      "type": "Activation",
+      "arguments": {
+        "name": "Restless Ground IV",
+        "tier": 4,
+        "npcTextAudioId": "TrialmasterChallengeChoiceMadeRestlessGroundFourRandom",
+        "description": "Many patches of Unhallowed Ground will appear that Hinder players and cause slain Monsters to resurrect as Ruin-inflicting Phantasms\r\nFail on reaching 7 Ruin"
+      }
+    },
     "Night's madness drains away all hope.": {
       "id": "GraveyardDaemon1Trial",
       "npc": "The Trialmaster",
@@ -6676,18 +6735,6 @@
         "name": "Restless Ground III",
         "tier": 3,
         "npcTextAudioId": "TrialmasterChallengeChoiceMadeUnhallowedPatchesToRuinPhantasmsRandom",
-        "description": "Many patches of Unhallowed Ground will appear that Hinder players and cause slain Monsters to resurrect as Ruin-inflicting Phantasms\r\nFail on reaching 7 Ruin"
-      }
-    },
-    "Your world will fall to ruin.": {
-      "id": "GraveyardDaemon4Trial",
-      "npc": "The Trialmaster",
-      "category": "Ultimatum",
-      "type": "Activation",
-      "arguments": {
-        "name": "Restless Ground IV",
-        "tier": 4,
-        "npcTextAudioId": "TrialmasterChallengeChoiceMadeRestlessGroundFourRandom",
         "description": "Many patches of Unhallowed Ground will appear that Hinder players and cause slain Monsters to resurrect as Ruin-inflicting Phantasms\r\nFail on reaching 7 Ruin"
       }
     },
@@ -6835,8 +6882,44 @@
         "description": "A large ring of Blood surrounds the Altar, dealing heavy Physical Damage over time"
       }
     },
+    "Best be quick...": {
+      "id": "QuicksandDaemon1",
+      "npc": "The Trialmaster",
+      "category": "Ultimatum",
+      "type": "Activation",
+      "arguments": {
+        "name": "Quicksand I",
+        "tier": 1,
+        "npcTextAudioId": "TrialmasterChallengeChoiceMadeBeforeACertainTimeRandom",
+        "description": "A pit of slowing Quicksand will periodically appear"
+      }
+    },
+    "No escaping fate.": {
+      "id": "QuicksandDaemon2",
+      "npc": "The Trialmaster",
+      "category": "Ultimatum",
+      "type": "Activation",
+      "arguments": {
+        "name": "Quicksand II",
+        "tier": 2,
+        "npcTextAudioId": "TrialmasterFinalEncounterOmegaProjectileCastRandom",
+        "description": "A large pit of slowing Quicksand will periodically appear"
+      }
+    },
+    "Ruin surrounds you.": {
+      "id": "MonstersApplyRuin3",
+      "npc": "The Trialmaster",
+      "category": "Ultimatum",
+      "type": "Activation",
+      "arguments": {
+        "name": "Ruin III",
+        "tier": 3,
+        "npcTextAudioId": "TrialmasterChallengeChoiceMadeTwoTypesApplyRuinRandom",
+        "description": "Two Monster types will apply double Ruin with their special abilities\r\nFail on reaching 7 Ruin"
+      }
+    },
     "Unknown": {
-      "id": "SpookySupplementSpawner",
+      "id": "EnableFaridunModifiers",
       "npc": "The Trialmaster",
       "category": "Ultimatum",
       "type": "Activation",
@@ -6869,18 +6952,6 @@
         "tier": 1,
         "npcTextAudioId": "TrialmasterChallengeChoiceMadeFailAtTenRuinRandom",
         "description": "A Monster type will apply Ruin with its special ability\r\nFail on reaching 7 Ruin"
-      }
-    },
-    "Ruin surrounds you.": {
-      "id": "MonstersApplyRuin3",
-      "npc": "The Trialmaster",
-      "category": "Ultimatum",
-      "type": "Activation",
-      "arguments": {
-        "name": "Ruin III",
-        "tier": 3,
-        "npcTextAudioId": "TrialmasterChallengeChoiceMadeTwoTypesApplyRuinRandom",
-        "description": "Two Monster types will apply double Ruin with their special abilities\r\nFail on reaching 7 Ruin"
       }
     },
     "A single touch may spell your ruin.": {
@@ -6992,15 +7063,15 @@
       }
     },
     "Be diminished.": {
-      "id": "PlayerDebuffExtraCriticalRolls",
+      "id": "PlayerDebuffCannotBlock",
       "npc": "The Trialmaster",
       "category": "Ultimatum",
       "type": "Activation",
       "arguments": {
-        "name": "Unlucky Criticals",
+        "name": "Shattered Shield",
         "tier": 1,
         "npcTextAudioId": "TrialmasterChallengeChoiceMadeUnluckyCritRandom",
-        "description": "Your Critical Strike Chance is Unlucky\r\nMonsters take 50% reduced Extra Damage from Critical Strikes"
+        "description": "You cannot Block"
       }
     },
     "You shall suffer your own bile.": {
@@ -7051,18 +7122,6 @@
         "description": "Your Projectiles fly in random directions\r\nMonsters fire additional Projectiles"
       }
     },
-    "Confront that which you release.": {
-      "id": "PlayerDebuffAurasAffectAllies",
-      "npc": "The Trialmaster",
-      "category": "Ultimatum",
-      "type": "Activation",
-      "arguments": {
-        "name": "Treacherous Auras",
-        "tier": 1,
-        "npcTextAudioId": "TrialmasterChallengeChoiceMadeYourAurasAffectEnemiesRandom",
-        "description": "Your Auras that affect Allies also affect Enemies"
-      }
-    },
     "Your arteries constrict.": {
       "id": "PlayerDebuffUltimatumDealNoDamageFor2SecondEvery8Seconds",
       "npc": "The Trialmaster",
@@ -7085,6 +7144,18 @@
         "tier": 1,
         "npcTextAudioId": "TrialmasterChallengeChoiceMadeLoseChargesEverySecondRandom",
         "description": "Lose a Power, Frenzy, and Endurance Charge every second\r\nMonsters gain Power, Frenzy, and Endurance Charges on hit"
+      }
+    },
+    "Cling to life.": {
+      "id": "PlayerDebuffMinusMaxElementalResistances",
+      "npc": "The Trialmaster",
+      "category": "Ultimatum",
+      "type": "Activation",
+      "arguments": {
+        "name": "Impurity",
+        "tier": 1,
+        "npcTextAudioId": "TrialmasterChoiceMadeSurviveChallenge7",
+        "description": "Players have -9% to all maximum Resistances"
       }
     },
     "An unstoppable tide.": {
@@ -7112,15 +7183,15 @@
       }
     },
     "A wall arises between you and victory.": {
-      "id": "MonsterBlock",
+      "id": "MonsterResistancesCannotBePenetrated",
       "npc": "The Trialmaster",
       "category": "Ultimatum",
       "type": "Activation",
       "arguments": {
-        "name": "Shielding Monsters",
+        "name": "Impenetrable Monsters",
         "tier": 1,
-        "npcTextAudioId": "TrialmasterChallengeChoiceMadeShieldingMonstersRandom",
-        "description": "Monsters have 50% chance to Block Attack and Spell Damage"
+        "npcTextAudioId": "TrialmasterChallengeChoiceMadeShieldingMonsters2",
+        "description": "Monster Elemental Resistances cannot be Penetrated"
       }
     },
     "An arrow falls, and I know where.": {
@@ -7205,6 +7276,18 @@
         "tier": 1,
         "npcTextAudioId": "TrialmasterChallengeChoiceMadeSiphoningMonstersRandom",
         "description": "Monster Hits remove 10% of current Energy Shield and Mana"
+      }
+    },
+    "Death spreads within your veins.": {
+      "id": "MonsterAlwaysPoisonBleed",
+      "npc": "The Trialmaster",
+      "category": "Ultimatum",
+      "type": "Activation",
+      "arguments": {
+        "name": "Putrid Monsters",
+        "tier": 1,
+        "npcTextAudioId": "TrialmasterChallengeChoiceMadeDiminishRecoveryFaster4",
+        "description": "Monsters Poison and Bleed on Hit"
       }
     }
   }
