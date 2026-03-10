@@ -68,7 +68,7 @@ export function initPortableMode(): void {
         try {
           const files = fs.readdirSync(resourcesPath);
           addLog(`Files in resources directory (${files.length} total):`);
-          files.forEach(file => addLog(`  - ${file}`));
+          files.forEach((file) => addLog(`  - ${file}`));
         } catch (e) {
           addLog(`⚠ Could not list files in resources: ${e}`);
         }
@@ -160,7 +160,6 @@ export function initPortableMode(): void {
     addLog('='.repeat(60));
     addLog(`Final status: ${isPortable ? 'PORTABLE' : 'INSTALLED'}`);
     addLog('='.repeat(60));
-
   } catch (error) {
     addLog('='.repeat(60));
     addLog(`CRITICAL ERROR: ${error}`);

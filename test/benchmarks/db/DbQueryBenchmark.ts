@@ -8,7 +8,7 @@ type BenchmarkCase = {
 function timeCase(iterations: number, benchmarkCase: BenchmarkCase) {
   for (let i = 0; i < 20; i++) benchmarkCase.run();
   const started = performance.now();
-  for (let i = 0; i < iterations; i++)   benchmarkCase.run();
+  for (let i = 0; i < iterations; i++) benchmarkCase.run();
   const elapsedMs = performance.now() - started;
   return {
     name: benchmarkCase.name,

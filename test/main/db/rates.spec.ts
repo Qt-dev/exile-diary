@@ -84,7 +84,11 @@ describe('rates', () => {
 
       await rates.cleanRates('Mercenaries', '20230101');
 
-      expect(mockDB.run).toHaveBeenCalledWith('DELETE FROM fullrates WHERE date = ?', ['20230101'], 'Mercenaries');
+      expect(mockDB.run).toHaveBeenCalledWith(
+        'DELETE FROM fullrates WHERE date = ?',
+        ['20230101'],
+        'Mercenaries'
+      );
     });
 
     it('swallows sync errors from DB.run', async () => {

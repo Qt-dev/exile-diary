@@ -221,7 +221,9 @@ describe('db/index', () => {
       preparedSql.some((sql: string) => sql.includes('CREATE TABLE IF NOT EXISTS graftblood'))
     ).toBe(true);
     expect(
-      preparedSql.some((sql: string) => sql.includes('CREATE INDEX IF NOT EXISTS "graftblood_timestamp"'))
+      preparedSql.some((sql: string) =>
+        sql.includes('CREATE INDEX IF NOT EXISTS "graftblood_timestamp"')
+      )
     ).toBe(true);
     expect(preparedSql.some((sql: string) => sql.includes('pragma user_version = 17'))).toBe(true);
     expect(preparedSql.some((sql: string) => sql.includes('delete from incubator'))).toBe(true);

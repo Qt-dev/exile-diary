@@ -91,7 +91,7 @@ class PriceMatcher {
     { id: 21, name: 'Settlers' },
     { id: 22, name: 'Mercenaries' },
     { id: 23, name: 'Keepers' },
-    { id: 24, name: 'Mirage' }, 
+    { id: 24, name: 'Mirage' },
   ];
 
   DefaultGemFormat = {

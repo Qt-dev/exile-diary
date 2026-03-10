@@ -30,16 +30,14 @@ const limiters = new Bottleneck.Group({
   minTime: MIN_TIME_BETWEEN_REQUESTS,
 });
 
-let currentlyRestrictedKeys = {
-
-};
+let currentlyRestrictedKeys = {};
 
 /**
  * PARSER: Converts PoE's "1:5:0,10:60:0" format into an object
  */
 const parsePoeHeader = (header) => {
   if (!header) return [];
-  return header.split(',').map(rule => {
+  return header.split(',').map((rule) => {
     const [count, period, extra] = rule.split(':').map(Number);
     return { count, period, extra };
   });
@@ -49,53 +47,62 @@ const parsePoeHeader = (header) => {
  * FEEDBACK LOOP: Update Bottleneck based on PoE headers
  */
 const updateLimiterFromHeaders = (limiter, headers) => {
-  logger.debug(`Updating rate limiter settings for ${limiter.id} based on API response headers`, headers);
+  logger.debug(
+    `Updating rate limiter settings for ${limiter.id} based on API response headers`,
+    headers
+  );
   const rulesHeader = headers['x-rate-limit-rules'] || ''; // e.g., "client,ip"
   const rules = rulesHeader.split(',');
 
-  rules.forEach(ruleName => {
+  rules.forEach((ruleName) => {
     const limitHeader = headers[`x-rate-limit-${ruleName}`];
     const stateHeader = headers[`x-rate-limit-${ruleName}-state`];
-    
+
     const limits = parsePoeHeader(limitHeader);
     const states = parsePoeHeader(stateHeader);
 
     // If any state shows an active restriction (3rd number > 0)
-    const isRestricted = states.some(s => s.extra > 0);
-    
+    const isRestricted = states.some((s) => s.extra > 0);
+
     if (isRestricted) {
-      const maxWait = Math.max(...states.map(s => s.extra));
+      const maxWait = Math.max(...states.map((s) => s.extra));
       logger.error(`!!! API Calls Restricted for ${ruleName} for ${maxWait} seconds !!!`);
       limiter.updateSettings({ minTime: maxWait * 1000 });
       // Reset minTime after the ban expires
-      setTimeout(() => limiter.updateSettings({ minTime: MIN_TIME_BETWEEN_REQUESTS }), maxWait * 1000);
+      setTimeout(
+        () => limiter.updateSettings({ minTime: MIN_TIME_BETWEEN_REQUESTS }),
+        maxWait * 1000
+      );
     }
-    
+
     // Proactive: If we are at 90% of ANY limit, slow down
     limits.forEach((limit, i) => {
       const state = states[i];
       if (state.count / limit.count > 0.9) {
-        logger.warn(`Nearing limit for ${ruleName}: ${state.count}/${limit.count} (${(state.count / limit.count * 100).toFixed(2)}%). Slowing down.`);
+        logger.warn(
+          `Nearing limit for ${ruleName}: ${state.count}/${limit.count} (${(
+            (state.count / limit.count) *
+            100
+          ).toFixed(2)}%). Slowing down.`
+        );
         limiter.updateSettings({ minTime: 2000 });
         // Reset minTime after a cooldown period
-        setTimeout(() => limiter.updateSettings({ minTime: MIN_TIME_BETWEEN_REQUESTS }), limit.period * 1000);
+        setTimeout(
+          () => limiter.updateSettings({ minTime: MIN_TIME_BETWEEN_REQUESTS }),
+          limit.period * 1000
+        );
       }
     });
   });
 };
 
-
 const handleFailure = (type: string, limiter) => async (error, jobInfo) => {
-  logger.error(
-    `Request ${jobInfo.options.id} failed (type: ${type}) with ${error.message}.`
-  );
+  logger.error(`Request ${jobInfo.options.id} failed (type: ${type}) with ${error.message}.`);
 
   if (error.status === 429) {
     currentlyRestrictedKeys[jobInfo.options.id] = true;
     const retryAfter = parseInt(error.response.headers['retry-after'], 10) || 30;
-    logger.error(
-      `Too many requests. Waiting ${retryAfter} seconds before retrying...`
-    );
+    logger.error(`Too many requests. Waiting ${retryAfter} seconds before retrying...`);
     limiter.updateSettings({ minTime: retryAfter * 1000 });
     // Reset minTime after the retry period
     setTimeout(() => {
@@ -103,7 +110,7 @@ const handleFailure = (type: string, limiter) => async (error, jobInfo) => {
       limiter.updateSettings({ minTime: MIN_TIME_BETWEEN_REQUESTS });
     }, retryAfter * 1000);
 
-    return (retryAfter) * 1000;
+    return retryAfter * 1000;
   }
 };
 
@@ -111,21 +118,20 @@ limiters.on('created', (limiter, key) => {
   logger.info(`Limiter created: ${limiter.id}. Setting up listeners for ${key} group.`);
 
   limiter.on('failed', handleFailure('failure', limiter));
-  
+
   limiter.on('done', (jobInfo) => {
     logger.debug(`========Request ${jobInfo.options.id} done.`);
     logger.debug(jobInfo);
   });
-  
+
   limiter.on('executing', async (jobInfo) => {
     logger.debug(`========Request ${jobInfo.options.id} started.`);
   });
-  
+
   limiter.on('queued', (jobInfo) => {
     logger.debug(`========Request ${jobInfo.options.id} queued.`);
   });
 });
-
 
 const Endpoints = {
   characters: () => '/character',
@@ -155,14 +161,14 @@ const request = async ({ params, group, cacheTime = CACHE_TIME_IN_SECONDS }) => 
   if (currentlyRestrictedKeys && currentlyRestrictedKeys[group]) {
     const cached = await storage.get(group);
     if (cached && cached.data) {
-      logger.warn("⚠️ API Restricted: Serving STALE data from cache.");
+      logger.warn('⚠️ API Restricted: Serving STALE data from cache.');
       return cached.data;
     }
     // If not even in cache, we must throw or wait
-    throw new Error("API Restricted and no cached data available.");
+    throw new Error('API Restricted and no cached data available.');
   }
 
-  return limiter.schedule({ id : scheduledId}, async () => {
+  return limiter.schedule({ id: scheduledId }, async () => {
     logger.debug('Making request to GGG API', { url: params.url, group, params });
     if (!params.cache) {
       logger.debug('Adding cache to request for group', group);
@@ -172,9 +178,9 @@ const request = async ({ params, group, cacheTime = CACHE_TIME_IN_SECONDS }) => 
       };
     }
     const response = await new Promise<void>((resolve) => {
-        logger.debug('Starting the Request Promise for', { url: params.url, group });
-        resolve();
-      })
+      logger.debug('Starting the Request Promise for', { url: params.url, group });
+      resolve();
+    })
       .then(() => axios({ ...params, id: group }))
       .then(async (response) => {
         if (response.cached) {
@@ -290,7 +296,6 @@ const getAllStashTabs = async () => {
     const response: any = await request({
       params: getRequestParams(Endpoints.stashes({ league }), token),
       group: `getAllStashTabs-${username}`,
-
     });
     const stashes = await response.data.stashes;
     logger.info(`Found ${response.data.stashes.length} stashes for account: ${username}`);

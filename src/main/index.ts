@@ -1160,7 +1160,7 @@ app.on('ready', () => {
   // This allows multiple portable installations in different folders to run simultaneously
   // while preventing duplicate instances of the same installation
   const gotTheLock = app.requestSingleInstanceLock({
-    key: app.getPath('userData')
+    key: app.getPath('userData'),
   });
 
   if (!gotTheLock) {

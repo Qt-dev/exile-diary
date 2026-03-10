@@ -360,10 +360,12 @@ describe('stats', () => {
 
       const result = await stats.getAllItemsForRuns({ runs, minLootValue });
 
-      expect(mockDB.all).toHaveBeenCalledWith(
-        expect.stringContaining('AND run.id IN (?,?,?)'),
-        [minLootValue, 1, 2, 3]
-      );
+      expect(mockDB.all).toHaveBeenCalledWith(expect.stringContaining('AND run.id IN (?,?,?)'), [
+        minLootValue,
+        1,
+        2,
+        3,
+      ]);
       expect(result).toEqual(mockItems);
     });
 

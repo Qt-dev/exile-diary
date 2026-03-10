@@ -431,10 +431,13 @@ describe('Runs', () => {
 
       const result = await Runs.insertMapMods(mapId, mods);
 
-      expect(mockDB.transaction).toHaveBeenCalledWith('INSERT INTO mapmod(run_id, mod) VALUES(?, ?)', [
-        [mapId, 'Increased Monster Life'],
-        [mapId, 'Added Fire Damage'],
-      ]);
+      expect(mockDB.transaction).toHaveBeenCalledWith(
+        'INSERT INTO mapmod(run_id, mod) VALUES(?, ?)',
+        [
+          [mapId, 'Increased Monster Life'],
+          [mapId, 'Added Fire Damage'],
+        ]
+      );
       expect(result).toBe(true);
     });
 
@@ -444,7 +447,10 @@ describe('Runs', () => {
 
       const result = await Runs.insertMapMods(mapId, mods);
 
-      expect(mockDB.transaction).toHaveBeenCalledWith('INSERT INTO mapmod(run_id, mod) VALUES(?, ?)', []);
+      expect(mockDB.transaction).toHaveBeenCalledWith(
+        'INSERT INTO mapmod(run_id, mod) VALUES(?, ?)',
+        []
+      );
       expect(result).toBe(true);
     });
 
