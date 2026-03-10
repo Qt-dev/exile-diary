@@ -1024,6 +1024,9 @@ const RunParser = {
         logger.debug(`Still in same area ${event.area}, not processing`);
         return false;
       }
+
+      logger.debug('Same Area, this is probably a mirage');
+      return false;
     }
 
     // Check for the run's last town event?
