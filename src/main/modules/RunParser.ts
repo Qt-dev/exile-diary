@@ -1025,8 +1025,11 @@ const RunParser = {
         return false;
       }
 
-      logger.debug('Same Area, this is probably a mirage');
-      return false;
+      // Check if the area is the same as the last one entered, but not the same server (since the case above it handles it)
+      else if (wasGivenEvent && event.area === [...mapEvents].reverse()[0].area) {
+        logger.debug('Same Area, this is probably a mirage');
+        return false;
+      }
     }
 
     // Check for the run's last town event?
