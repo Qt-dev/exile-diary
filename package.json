@@ -58,6 +58,13 @@
       "icon": "./src/renderer/assets/img/icons/png",
       "category": "Utility",
       "maintainer": "qt-dev",
+      "extraResources": [
+        "eng.traineddata",
+        {
+          "from": "./src/main/db/extensions",
+          "to": "db/extensions"
+        }
+      ],
       "asarUnpack": [
         "node_modules/sharp/**",
         "node_modules/@img/sharp-libvips-linux-x64/lib/**"
@@ -67,6 +74,17 @@
       "useWaylandFlags": true,
       "runtimeVersion": "24.08",
       "baseVersion": "24.08",
+      "finishArgs": [
+        "--share=ipc",
+        "--socket=x11",
+        "--socket=wayland",
+        "--share=network",
+        "--filesystem=host:ro",
+        "--filesystem=home",
+        "--talk-name=org.gnome.Screenshot",
+        "--talk-name=org.freedesktop.portal.Screenshot",
+        "--talk-name=org.freedesktop.portal.Desktop"
+      ],
       "files": [
         [
           "./eng.traineddata",
