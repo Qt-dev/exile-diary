@@ -154,8 +154,8 @@ const getRequestParams = (url, token) => {
   };
 };
 
-const request = async ({ params, group, cacheTime = CACHE_TIME_IN_SECONDS }) => {
-  const limiter = limiters.key(group);
+const request = async ({ params, group, cacheTime = CACHE_TIME_IN_SECONDS, limiterId = group }) => {
+  const limiter = limiters.key(limiterId);
   const scheduledId = `${group.replace('/', '')}-${uuidv4()}`;
 
   if (currentlyRestrictedKeys && currentlyRestrictedKeys[group]) {
@@ -279,6 +279,7 @@ const getStashTab = async (stashId) => {
     const response: any = await request({
       params: getRequestParams(Endpoints.stash({ league, stashId }), token),
       group: `getStashTab-${stashId}`,
+      limiterId: `getAllStashTabs-${username}`, // Use the same limiter as getAllStashTabs to avoid hitting rate limits when fetching multiple tabs
     });
     const stash = await response.data.stash;
     logger.info(`Found stash ${stashId} for account: ${username}`);
