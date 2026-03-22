@@ -1,14 +1,49 @@
 import RendererLogger from '../RendererLogger';
 import SettingsManager from '../SettingsManager';
 import Logger from 'electron-log';
+import Axios from 'axios';
+import { buildMemoryStorage, setupCache } from 'axios-cache-interceptor/dev';
+import Bottleneck from 'bottleneck';
 import Utils from './Utils';
 import DB from '../db/rates';
 
 const EventEmitter = require('events');
 const dayjs = require('dayjs');
-const https = require('https');
-const zlib = require('zlib');
 const logger = Logger.scope('RateGetter');
+const NINJA_CACHE_TIME_IN_SECONDS = 10;
+const NINJA_MIN_TIME_BETWEEN_REQUESTS = 350;
+const ninjaInstance = Axios.create({
+  baseURL: 'https://poe.ninja',
+});
+const ninjaStorage = buildMemoryStorage();
+const ninjaAxios = setupCache(ninjaInstance, {
+  enabled: true,
+  ttl: 1000 * NINJA_CACHE_TIME_IN_SECONDS,
+  storage: ninjaStorage,
+  interpretHeader: false,
+  vary: false,
+  debug: logger.debug.bind(logger),
+});
+const ninjaLimiters = new Bottleneck.Group({
+  maxConcurrent: 1,
+  minTime: NINJA_MIN_TIME_BETWEEN_REQUESTS,
+});
+
+ninjaLimiters.on('created', (limiter, key) => {
+  logger.info(`Limiter created: ${limiter.id}. Setting up listeners for ${key} group.`);
+
+  limiter.on('done', (jobInfo) => {
+    logger.debug(`poe.ninja request ${jobInfo.options.id} done.`);
+  });
+
+  limiter.on('executing', (jobInfo) => {
+    logger.debug(`poe.ninja request ${jobInfo.options.id} started.`);
+  });
+
+  limiter.on('queued', (jobInfo) => {
+    logger.debug(`poe.ninja request ${jobInfo.options.id} queued.`);
+  });
+});
 
 const rateTypes = {
   Currency: cleanCurrency,
@@ -188,7 +223,7 @@ class RateGetterV2 {
         text: `Getting new ${activeProfile.league} rates for today (${today})`,
       };
       RendererLogger.log({ messages: [message] });
-      await this.getRates(today);
+      await this.getRates(today, !isForced);
       RendererLogger.log({
         messages: [
           { text: 'Finished getting rates for the' },
@@ -222,20 +257,20 @@ class RateGetterV2 {
     }, interval);
   }
 
-  async getRates(date) {
+  async getRates(date, useCache = true) {
     const tempRates = {};
     const { useGzip = true, getLowConfidence = false } = SettingsManager.getAll();
 
     try {
       for (const rateType in rateTypes) {
         let data;
-        for (let i = 1; i <= 10; i++) {
-          logger.info(`Getting prices for item type ${rateType}, attempt ${i} of 10`);
-          try {
-            data = await getNinjaData(this.getNinjaURL(rateType), useGzip);
-            break;
-          } catch (err) {
-            if (i === 10) {
+          for (let i = 1; i <= 10; i++) {
+            logger.info(`Getting prices for item type ${rateType}, attempt ${i} of 10`);
+            try {
+              data = await getNinjaData(this.getNinjaURL(rateType), useGzip, useCache);
+              break;
+            } catch (err) {
+              if (i === 10) {
               logger.error(`Error in getting POE data for ${rateType}`);
               logger.error(err);
             }
@@ -369,97 +404,33 @@ class RateGetterV2 {
   }
 }
 
-function getNinjaData(path, useGzip) {
-  return new Promise((resolve, reject) => {
-    const headerObject = useGzip ? { 'Accept-Encoding': 'gzip' } : {};
-    const timeout = useGzip ? 10000 : 30000;
+async function getNinjaData(path, useGzip, useCache = true) {
+  const limiter = ninjaLimiters.key('poe.ninja-rates');
+  const requestId = path.replace(/[^a-zA-Z0-9]/g, '-');
 
-    const request = https.request(
-      {
-        hostname: 'poe.ninja',
-        path: path,
-        method: 'GET',
-        headers: headerObject,
+  return limiter.schedule({ id: requestId }, async () => {
+    logger.info(`Requesting poe.ninja data from ${path}`);
+
+    const response: any = await ninjaAxios({
+      url: path,
+      method: 'GET',
+      timeout: useGzip ? 10000 : 30000,
+      headers: {
+        'Accept-Encoding': useGzip ? 'gzip' : 'identity',
       },
-      (response) => {
-        // Handle redirects
-        if (
-          response.statusCode === 301 ||
-          response.statusCode === 302 ||
-          response.statusCode === 307 ||
-          response.statusCode === 308
-        ) {
-          const redirectUrl = response.headers.location;
-          if (redirectUrl) {
-            logger.info(`Following redirect from ${path} to: ${redirectUrl}`);
-            // Handle both relative and absolute redirect URLs
-            let newPath: string;
-            if (redirectUrl.startsWith('http://') || redirectUrl.startsWith('https://')) {
-              // Absolute URL - extract path
-              try {
-                const url = new URL(redirectUrl);
-                newPath = url.pathname + url.search;
-              } catch (e) {
-                logger.error(`Failed to parse absolute redirect URL: ${redirectUrl}`);
-                reject(new Error(`Invalid redirect URL: ${redirectUrl}`));
-                return;
-              }
-            } else {
-              // Relative URL - use as-is
-              newPath = redirectUrl;
-            }
-            // Retry with the new path
-            getNinjaData(newPath, useGzip).then(resolve).catch(reject);
-            return;
-          } else {
-            reject(new Error(`Received ${response.statusCode} redirect but no location header`));
-            return;
+      cache: useCache
+        ? {
+            enabled: true,
+            ttl: 1000 * NINJA_CACHE_TIME_IN_SECONDS,
           }
-        }
+        : false,
+    });
 
-        var buffers: any = [];
-        response.on('data', (chunk) => {
-          buffers.push(chunk);
-        });
-        response.on('end', () => {
-          try {
-            var data;
-            var body = Buffer.concat(buffers);
-            try {
-              data = useGzip ? zlib.gunzipSync(body) : body.toString();
-            } catch (e) {
-              logger.info('Error unzipping received data: ' + e);
-            }
-            logger.info(
-              `Got data from ${path}, length ${body.length} ${
-                useGzip ? `(${data.length} uncompressed)` : ''
-              }`
-            );
-            resolve(JSON.parse(data));
-          } catch (e) {
-            logger.info(`Failed to get data from [${path}]: ${e}`);
-            reject(e);
-          }
-        });
-        response.on('error', (e) => {
-          logger.info(`Failed to get data from [${path}]: ${e}`);
-          reject(e);
-        });
-        response.on('aborted', (e) => {
-          logger.info(`Failed to get data from [${path}]: response aborted!`);
-          reject(e);
-        });
-      }
+    logger.info(
+      `${response.cached ? 'Using cached' : 'Using fresh'} poe.ninja response for ${path}`
     );
-    request.on('error', (e) => {
-      logger.info(`Failed to get data from [${path}]: ${e}`);
-      reject(e);
-    });
-    request.on('timeout', () => {
-      request.destroy(new Error(`Timed out after ${timeout / 1000} seconds`));
-    });
-    request.setTimeout(timeout);
-    request.end();
+
+    return response.data;
   });
 }
 
