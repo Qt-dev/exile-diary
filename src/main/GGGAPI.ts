@@ -1,7 +1,7 @@
 import logger from 'electron-log';
 import { app } from 'electron';
 import Axios from 'axios';
-import { setupCache, buildMemoryStorage, buildKeyGenerator } from 'axios-cache-interceptor/dev';
+import { setupCache, buildMemoryStorage } from 'axios-cache-interceptor/dev';
 import SettingsManager from './SettingsManager';
 import AuthManager from './AuthManager';
 import Bottleneck from 'bottleneck';
