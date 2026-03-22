@@ -46,15 +46,16 @@ ninjaLimiters.on('created', (limiter, key) => {
 });
 
 const rateTypes = {
-  Currency: cleanCurrency,
-  Fragment: cleanCurrency,
+  Currency: cleanV2,
+  Fragment: cleanV2,
+  Scarab: cleanV2,
 
-  Tattoo: cleanNameValuePairs,
-  Omen: cleanNameValuePairs,
-  DivinationCard: cleanNameValuePairs,
-  Artifact: cleanNameValuePairs,
-  Oil: cleanNameValuePairs,
-  Incubator: cleanNameValuePairs,
+  Tattoo: cleanV2,
+  Omen: cleanV2,
+  DivinationCard: cleanV2,
+  Artifact: cleanV2,
+  Oil: cleanV2,
+  Incubator: cleanV2,
 
   UniqueWeapon: cleanUniqueItems,
   UniqueArmour: cleanUniqueItems,
@@ -68,18 +69,17 @@ const rateTypes = {
   BlightRavagedMap: cleanMaps,
   // ScourgedMap: cleanMaps, // No Scourged map around nowadays
   UniqueMap: cleanUniqueMaps,
-  DeliriumOrb: cleanNameValuePairs,
-  Invitation: cleanNameValuePairs,
-  Scarab: cleanNameValuePairs,
-  Memory: cleanNameValuePairs,
+  DeliriumOrb: cleanV2,
+  Invitation: cleanV2,
+  Memory: cleanV2,
 
   BaseType: cleanBaseTypes,
-  Fossil: cleanNameValuePairs,
-  Resonator: cleanNameValuePairs,
+  Fossil: cleanV2,
+  Resonator: cleanV2,
   // HelmetEnchant: cleanEnchants,
-  Beast: cleanNameValuePairs,
-  Essence: cleanNameValuePairs,
-  Vial: cleanNameValuePairs,
+  Beast: cleanV2,
+  Essence: cleanV2,
+  Vial: cleanV2,
   // KalguuranRune: cleanNameValuePairs,
   // AllflameEmber: cleanNameValuePairs,
   // Coffin: cleanByModAndLevel,
@@ -348,13 +348,23 @@ class RateGetterV2 {
     switch (category) {
       case 'Currency':
       case 'Fragment':
-        url = `/api/data/currencyoverview?type=${category}`;
-        break;
+      case 'Scarab':
+      case 'Tattoo':
       case 'Omen':
       case 'DivinationCard':
       case 'Artifact':
       case 'Oil':
       case 'Incubator':
+      case 'DeliriumOrb':
+      case 'Invitation':
+      case 'Memory': // TODO: Fix pricing
+      case 'Fossil':
+      case 'Resonator':
+      case 'Beast':
+      case 'Essence':
+      case 'Vial':
+        url = `/poe1/api/economy/exchange/current/overview?type=${category}`;
+        break;
 
       case 'UniqueWeapon':
       case 'UniqueArmour':
@@ -370,19 +380,9 @@ class RateGetterV2 {
       case 'BlightRavagedMap': // TODO: Add pricing
       case 'ScourgedMap': // TODO: Add pricing
       case 'UniqueMap':
-      case 'DeliriumOrb':
-      case 'Invitation':
-      case 'Scarab':
-      case 'Memory': // TODO: Fix pricing
       // case 'KalguuranRune':
 
       case 'BaseType':
-      case 'Fossil':
-      case 'Resonator':
-      case 'Beast':
-      case 'Essence':
-      case 'Vial':
-      case 'Tattoo':
         // RETIRED
         // case 'AllflameEmber':
         // case 'Coffin':
@@ -502,6 +502,22 @@ function cleanCurrency(arr, getLowConfidence = false) {
   });
   return a;
 }
+
+function cleanV2(arr, getLowConfidence = false) {
+  if (!arr?.lines || !arr?.items) {
+    logger.error('Unexpected data format from poe.ninja for exchange overview category');
+    logger.error('Data received: ' + JSON.stringify(arr));
+    return {};
+  }
+  const a = {};
+  arr?.lines?.forEach((item) => {
+    item.name = arr.items.find((i) => i.id === item.id)?.name || item.name;
+    if (item.count && item.count < 10 && !getLowConfidence) return; // ignore low confidence listings
+    a[item.name] = item.primaryValue;
+  });
+  return a;
+}
+
 
 function cleanNameValuePairs(arr, getLowConfidence = false) {
   const a = {};
