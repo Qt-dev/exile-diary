@@ -67,7 +67,7 @@ class MapRun extends EventEmitter {
   async getInfo(mapID) {
     return new Promise((resolve) => {
       DB.get(
-        'select name, level, depth, iiq, iir, packsize, xp, kills, runinfo from areainfo, mapruns where mapruns.id = ? and areainfo.id = ?',
+        'select name, level, depth, iiq, iir, packsize, xp, kills, runinfo from area_info, mapruns where mapruns.id = ? and area_info.id = ?',
         [mapID, mapID]
       )
         .then((row) => {
