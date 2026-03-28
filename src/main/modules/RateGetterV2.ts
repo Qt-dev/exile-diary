@@ -80,6 +80,8 @@ const rateTypes = {
   Beast: cleanV2,
   Essence: cleanV2,
   Vial: cleanV2,
+
+  Wombgift: cleanWombgift,
   // KalguuranRune: cleanNameValuePairs,
   // AllflameEmber: cleanNameValuePairs,
   // Coffin: cleanByModAndLevel,
@@ -304,8 +306,9 @@ class RateGetterV2 {
       tempRates['Resonator'],
       tempRates['Essence'],
       tempRates['Vial'],
-      tempRates['Artifact']
+      tempRates['Artifact'], 
     );
+    rates['Wombgift'] = tempRates['Wombgift'];
     rates['Fragment'] = Object.assign(tempRates['Fragment'], tempRates['Scarab']);
     rates['DivinationCard'] = tempRates['DivinationCard'];
     rates['SkillGem'] = tempRates['SkillGem'];
@@ -342,7 +345,7 @@ class RateGetterV2 {
       this.scheduleNextUpdate();
     }
   }
-
+  
   getNinjaURL(category) {
     var url = '';
     switch (category) {
@@ -364,6 +367,9 @@ class RateGetterV2 {
       case 'Essence':
       case 'Vial':
         url = `/poe1/api/economy/exchange/current/overview?type=${category}`;
+        break;
+      case 'Wombgift':
+        url = `/poe1/api/economy/stash/current/item/overview?type=${category}`;
         break;
 
       case 'UniqueWeapon':
@@ -518,6 +524,14 @@ function cleanV2(arr, getLowConfidence = false) {
   return a;
 }
 
+function cleanWombgift(arr, getLowConfidence = false) {
+  const a = {};
+  arr?.lines?.forEach((item) => {
+    const name = `${item.name} L${item.levelRequired}`;
+    a[name] = item.chaosValue;
+  });
+  return a;
+}
 
 function cleanNameValuePairs(arr, getLowConfidence = false) {
   const a = {};

@@ -175,6 +175,13 @@ class PriceMatcher {
         this.getCurrencyShardStackValue(minItemValue, item, item.typeline),
     },
     {
+      name: 'Wombgift',
+      test: (item: any) => item.typeline.endsWith('Wombgift'),
+      calculateValue: (item: any, minItemValue: number = 0) =>
+        this.getWombgiftValue(minItemValue, item),
+
+    },
+    {
       name: 'Splinters',
       test: (item: any) =>
         !!SettingsManager.get('alternateSplinterPricing') && Constants.fragmentTypes[item.typeline],
@@ -633,6 +640,39 @@ class PriceMatcher {
     }
     return shardValue >= minItemValue ? stackValue : 0;
   }
+
+
+  getWombgiftValue(minItemValue: number, item: any): number {
+    // Find all the LVL range of the specific gift we're looking at
+    const levelThresholds = Object.keys(this.ratesCache['Wombgift'])
+      .filter((name) => name.includes(item.typeline))
+      .map((name) => {
+        const match = name.match(/L(\d+)$/);
+        return match ? parseInt(match[1]) : 0;
+      })
+      .sort((a, b) => a - b);
+
+    // Find the higest closest level to the item level of the gift
+    let itemLevel = 0;
+    levelThresholds.every((level) => {
+      if (level === item.parsedItem.ilvl) {
+        itemLevel = level;
+        return false;
+      } else if (level < item.parsedItem.ilvl) {
+        itemLevel = level;
+      }
+
+      return true;
+    });
+
+    const identifier = `${item.typeline} L${itemLevel}`;
+    logger.info(`Getting Wombgift value for ${identifier}`);
+    logger.info(item);
+
+
+    return this.getValue(item, 'Wombgift', identifier, minItemValue);
+  }
+
 
   /**
    * Get the value of Splinters based on the result item of a stack. Takes minItemValue into account by itself, to output 0 if the value of one splinter is below the value.
