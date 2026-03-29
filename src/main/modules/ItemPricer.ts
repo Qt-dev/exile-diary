@@ -247,7 +247,7 @@ class PriceMatcher {
     },
     {
       name: 'Unique Maps',
-      test: (item: any) => item.category === 'Maps' && item.rarity === 'Unique',
+      test: (item: any) => item.category === 'Map' && item.rarity === 'Unique',
       calculateValue: (item: any, minItemValue: number = 0) =>
         this.getUniqueMapValue(item, minItemValue),
     },
@@ -752,11 +752,7 @@ class PriceMatcher {
    * @returns {number}  Value of the unique map
    */
   getUniqueMapValue(item: any, minItemValue: number): number {
-    const name = item.name || Utils.getItemName(item.icon);
-    const tier = ItemData.getMapTier(item.parsedItem);
-    const typeline = item.typeline.replace('Superior ', '');
-
-    const identifier = `${name} T${tier} ${typeline}`;
+    const identifier = item.name;
 
     return this.getValue(item, 'UniqueMap', identifier, minItemValue);
   }
@@ -901,20 +897,29 @@ class PriceMatcher {
    * @returns {number} Value of the map
    */
   getMapValue(item: any, minItemValue: number): number {
-    let name = item.typeline.replace('Superior ', '');
-    const tier = ItemData.getMapTier(item.parsedItem);
+    let name = item.typeline;
     const { gen } = this.getMapSeries(item.parsedItem.icon);
+    let identifier = '';
 
-    if (item.rarity === 'Magic' && item.identified) {
-      // Strip affixes from magic item name
-      name = Utils.getBaseFromMagicMap(name);
-      // Special handling for name collision for Corrupted Temple maps below t16
-      if (name === 'Vaal Temple Map' && tier < 16) {
-        name = 'Temple Map';
+    // Find boss name if possible
+    if(item.implicitMods && item.implicitMods.length > 0) {
+
+      // Look for citadels
+      for(const mod of item.implicitMods) {
+        if(mod.includes('Citadel')) {
+          const bossName = mod.match(/Map contains (?<boss>.+)'s Citadel/i)?.groups?.boss;
+          identifier += `${bossName} `;
+          break;
+        } else if(mod.includes('Map is occupied by')) {
+          const bossName = mod.match(/Map is occupied by (?<boss>.+)/i)?.groups?.boss;
+          identifier += `${bossName} `;
+          break;
+        }
       }
     }
 
-    const identifier = `${name} T${tier} , Gen-${gen}`;
+    identifier += `${name} Gen-${gen}`;
+    
     return this.getValue(item, 'Map', identifier, minItemValue);
   }
 

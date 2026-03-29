@@ -53,16 +53,16 @@ ninjaLimiters.on('created', (limiter, key) => {
 });
 
 const rateTypes = {
-  Currency: cleanV2,
-  Fragment: cleanV2,
-  Scarab: cleanV2,
+  Currency: cleanCurrencyData,
+  Fragment: cleanCurrencyData,
+  Scarab: cleanCurrencyData,
 
-  Tattoo: cleanV2,
-  Omen: cleanV2,
-  DivinationCard: cleanV2,
-  Artifact: cleanV2,
-  Oil: cleanV2,
-  Incubator: cleanV2,
+  Tattoo: cleanCurrencyData,
+  Omen: cleanCurrencyData,
+  DivinationCard: cleanCurrencyData,
+  Artifact: cleanCurrencyData,
+  Oil: cleanCurrencyData,
+  Incubator: cleanCurrencyData,
 
   UniqueWeapon: cleanItemData,
   UniqueArmour: cleanItemData,
@@ -79,17 +79,17 @@ const rateTypes = {
   BlightRavagedMap: cleanMaps,
   // ScourgedMap: cleanMaps, // No Scourged map around nowadays
   UniqueMap: cleanUniqueMaps,
-  DeliriumOrb: cleanV2,
-  Invitation: cleanV2,
-  Memory: cleanV2,
+  DeliriumOrb: cleanCurrencyData,
+  Invitation: cleanCurrencyData,
+  Memory: cleanCurrencyData,
 
-  BaseType: cleanBaseTypes,
-  Fossil: cleanV2,
-  Resonator: cleanV2,
+  BaseType: cleanBaseTypesData,
+  Fossil: cleanCurrencyData,
+  Resonator: cleanCurrencyData,
   // HelmetEnchant: cleanEnchants,
-  Beast: cleanV2,
-  Essence: cleanV2,
-  Vial: cleanV2,
+  Beast: cleanCurrencyData,
+  Essence: cleanCurrencyData,
+  Vial: cleanCurrencyData,
 
   Wombgift: cleanWombgift,
   // KalguuranRune: cleanNameValuePairs,
@@ -286,6 +286,7 @@ class RateGetterV2 {
           logger.error(err);
         }
       }
+      // require('fs/promises').writeFile('./tempRates.json', JSON.stringify(tempRates, null, 2), 'utf8');
       logger.info('Finished getting prices from poe.ninja, processing now');
     } catch (e) {
       logger.info('Error getting rates: ' + e);
@@ -339,6 +340,7 @@ class RateGetterV2 {
     // rates['Watchstone'] = tempRates['Watchstone'];
     // rates['Seed'] = tempRates['Seed'];
     // rates['Prophecy'] = tempRates['Prophecy'];
+    // require('fs/promises').writeFile('./rates.json', JSON.stringify(rates, null, 2), 'utf8');
 
     const ratesWereUpdated = await DB.insertRates(this.getLeagueName(false), date, rates);
     if (!ratesWereUpdated) {
@@ -382,19 +384,18 @@ class RateGetterV2 {
       case 'UniqueRelic':
       case 'SkillGem':
       case 'ClusterJewel':
+      case 'Map':
+      case 'BlightedMap':
+      case 'BlightRavagedMap':
+      case 'UniqueMap':
+      case 'BaseType':
         url = `/poe1/api/economy/stash/current/item/overview?type=${category}`;
         break;
 
-      // case 'UniqueWeapon':
-
-      case 'Map':
-      case 'BlightedMap': // TODO: Add pricing
-      case 'BlightRavagedMap': // TODO: Add pricing
+      // Old stuff using old APIs
       case 'ScourgedMap': // TODO: Add pricing
-      case 'UniqueMap':
       // case 'KalguuranRune':
 
-      case 'BaseType':
         // RETIRED
         // case 'AllflameEmber':
         // case 'Coffin':
@@ -446,76 +447,18 @@ async function getNinjaData(path, useGzip, useCache = true) {
   });
 }
 
-function cleanBaseTypes(arr, getLowConfidence = false) {
+function cleanBaseTypesData(arr, getLowConfidence = false) {
   const a = {};
   arr?.lines?.forEach((item) => {
-    if (item.count && item.count < 10 && !getLowConfidence) return; // ignore low confidence listings
-    var identifier = item.name;
-    if (item.levelRequired) identifier += ` L${item.levelRequired}`;
-    if (item.variant) identifier += ` ${item.variant}`;
-    a[identifier] = item.chaosValue;
+    let name = item.name;
+    name += ` L${item.levelRequired}`;
+    name += ` ${item.variant}`;
+    a[name] = item.chaosValue;
   });
   return a;
 }
 
-function cleanUniqueItems(arr, getLowConfidence = false) {
-  const a = {};
-  arr?.lines?.forEach((item) => {
-    if (item.count && item.count < 10 && !getLowConfidence) return; // ignore low confidence listings
-    var identifier = item.name;
-    if (item.name === 'Grand Spectrum' || item.name === 'Combat Focus')
-      identifier += ` ${item.baseType}`;
-    if (item.links) identifier += ` ${item.links}L`;
-    if (item.variant) identifier += ` (${item.variant})`;
-    if (item.itemClass === 9) identifier += ` (Relic)`;
-    a[identifier] = item.chaosValue;
-  });
-  return a;
-}
-
-function cleanByModAndLevel(arr, getLowConfidence = false) {
-  const a = {};
-  arr?.lines?.forEach((item) => {
-    const { name, chaosValue } = item;
-    const { ilvl } = item.tradeFilter.query.filters.misc_filters.filters;
-    a[`${name} L${ilvl.min}-${ilvl.max}`] = chaosValue;
-  });
-
-  return a;
-}
-
-function cleanGems(arr, getLowConfidence = false) {
-  const a = {};
-  arr?.lines?.forEach((item) => {
-    if (item.count && item.count < 10 && !getLowConfidence) return; // ignore low confidence listings
-    var identifier = item.name;
-    if (item.gemLevel !== 1) identifier += ` L${item.gemLevel}`;
-    if (item.gemQuality >= 20) {
-      if (!specialGems.includes(item.name)) {
-        identifier += ` Q${item.gemQuality}`;
-      }
-    }
-    if (item.corrupted) {
-      identifier += ' (Corrupted)';
-    }
-    a[identifier] = item.chaosValue;
-  });
-  return a;
-}
-
-function cleanCurrency(arr, getLowConfidence = false) {
-  const a = {};
-  arr?.lines?.forEach((item) => {
-    if (item.currencyTypeName === "Rogue's Marker") {
-      return;
-    }
-    if (item.count && item.count < 10 && !getLowConfidence) return; // ignore low confidence listings
-    a[item.currencyTypeName] = item.chaosEquivalent;
-  });
-  return a;
-}
-
-function cleanV2(arr, getLowConfidence = false) {
+function cleanCurrencyData(arr, getLowConfidence = false) {
   if (!arr?.lines || !arr?.items) {
     logger.error('Unexpected data format from poe.ninja for exchange overview category');
     logger.error('Data received: ' + JSON.stringify(arr));
@@ -569,32 +512,11 @@ function cleanItemData(arr, getLowConfidence = false) {
   return a;
 }
 
-function cleanNameValuePairs(arr, getLowConfidence = false) {
-  const a = {};
-  arr?.lines?.forEach((item) => {
-    if (item.count && item.count < 10 && !getLowConfidence) return; // ignore low confidence listings
-    a[item.name] = item.chaosValue;
-  });
-  return a;
-}
-
-function cleanEnchants(arr, getLowConfidence = false) {
-  const a = {};
-  arr?.lines?.forEach((item) => {
-    if (item.count && item.count < 10 && !getLowConfidence) return; // ignore low confidence listings
-    if (item.icon) {
-      a[item.name] = item.chaosValue;
-    }
-  });
-  return a;
-}
-
 function cleanUniqueMaps(arr, getLowConfidence = false) {
   const a = {};
   arr?.lines?.forEach((item) => {
-    if (item.count && item.count < 10 && !getLowConfidence) return; // ignore low confidence listings
-    var identifier = `${item.name} T${item.mapTier} ${item.baseType}`;
-    a[identifier] = item.chaosValue;
+    let name = item.name;
+    a[name] = item.chaosValue;
   });
   return a;
 }
@@ -602,30 +524,9 @@ function cleanUniqueMaps(arr, getLowConfidence = false) {
 function cleanMaps(arr, getLowConfidence = false) {
   const a = {};
   arr?.lines?.forEach((item) => {
-    if (item.count && item.count < 10 && !getLowConfidence) return; // ignore low confidence listings
-    var identifier = `${item.baseType} T${item.mapTier} ${item.variant}`;
-    a[identifier] = item.chaosValue;
-  });
-  return a;
-}
-
-function cleanWatchstones(arr, getLowConfidence = false) {
-  const a = {};
-  arr?.lines?.forEach((item) => {
-    if (item.count && item.count < 10 && !getLowConfidence) return; // ignore low confidence listings
-    var identifier = `${item.name}, ${item.variant} uses remaining`;
-    a[identifier] = item.chaosValue;
-  });
-  return a;
-}
-
-function cleanSeeds(arr, getLowConfidence = false) {
-  const a = {};
-  arr?.lines?.forEach((item) => {
-    if (item.count && item.count < 10 && !getLowConfidence) return; // ignore low confidence listings
-    var identifier = item.name;
-    if (item.levelRequired >= 76) identifier += ` L76+`;
-    a[identifier] = item.chaosValue;
+    let name = item.name;
+    if(item.variant) name += ` ${item.variant.replace(', ', '')}`;
+    a[name] = item.chaosValue;
   });
   return a;
 }
