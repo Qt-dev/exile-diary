@@ -284,7 +284,12 @@ class MainProcess {
           RendererLogger.log({
             messages: [{ text: "Today's prices have been updated" }],
           });
-          const prices = (await ItemDB.getAllItemsValues()).reduce(
+          const itemsValues = await ItemDB.getAllItemsValues();
+          if (!itemsValues) {
+            logger.warn('Unable to get item values - database may not be initialized');
+            return;
+          }
+          const prices = itemsValues.reduce(
             (aggregations, { id, value }) => {
               aggregations[id] = value;
               return aggregations;
