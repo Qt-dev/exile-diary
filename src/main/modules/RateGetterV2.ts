@@ -4,7 +4,6 @@ import Logger from 'electron-log';
 import Axios from 'axios';
 import { buildMemoryStorage, setupCache } from 'axios-cache-interceptor/dev';
 import Bottleneck from 'bottleneck';
-import Utils from './Utils';
 import DB from '../db/rates';
 
 const EventEmitter = require('events');
@@ -24,6 +23,7 @@ const ninjaAxios = setupCache(ninjaInstance, {
   vary: false,
   debug: logger.debug.bind(logger),
 });
+const MAX_RETRY_ATTEMPTS = 10;
 const ninjaLimiters = new Bottleneck.Group({
   maxConcurrent: 1,
   minTime: NINJA_MIN_TIME_BETWEEN_REQUESTS,
@@ -42,6 +42,13 @@ ninjaLimiters.on('created', (limiter, key) => {
 
   limiter.on('queued', (jobInfo) => {
     logger.debug(`poe.ninja request ${jobInfo.options.id} queued.`);
+  });
+
+  limiter.on('failed', (error, jobInfo) => {
+    logger.error(`poe.ninja request ${jobInfo.options.id} failed with error: ${error}`);
+    if(jobInfo.retryCount < MAX_RETRY_ATTEMPTS) {
+      logger.info(`Retrying poe.ninja request ${jobInfo.options.id}. Retry count: ${jobInfo.retryCount + 1}`);
+    }
   });
 });
 
@@ -266,26 +273,20 @@ class RateGetterV2 {
     try {
       for (const rateType in rateTypes) {
         let data;
-          for (let i = 1; i <= 10; i++) {
-            logger.info(`Getting prices for item type ${rateType}, attempt ${i} of 10`);
-            try {
-              data = await getNinjaData(this.getNinjaURL(rateType), useGzip, useCache);
-              break;
-            } catch (err) {
-              if (i === 10) {
-              logger.error(`Error in getting POE data for ${rateType}`);
-              logger.error(err);
-            }
-          }
+        logger.info(`Getting prices for item type ${rateType}`);
+        try {
+          data = await getNinjaData(this.getNinjaURL(rateType), useGzip, useCache);
+          const processRateType = rateTypes[rateType];
+          tempRates[rateType] = processRateType(data, getLowConfidence);
+        } catch (err) {
+          logger.error(`Error in getting POE data for ${rateType}`);
+          logger.error(err);
         }
-        const processRateType = rateTypes[rateType];
-        tempRates[rateType] = processRateType(data, getLowConfidence);
       }
-      // require('fs/promises').writeFile('./rates.json', JSON.stringify(tempRates, null, 2), 'utf8');
       logger.info('Finished getting prices from poe.ninja, processing now');
     } catch (e) {
-      emitter.emit('gettingPricesFailed');
       logger.info('Error getting rates: ' + e);
+      emitter.emit('gettingPricesFailed');
       return;
     }
 
