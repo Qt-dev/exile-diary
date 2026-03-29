@@ -46,8 +46,10 @@ ninjaLimiters.on('created', (limiter, key) => {
 
   limiter.on('failed', (error, jobInfo) => {
     logger.error(`poe.ninja request ${jobInfo.options.id} failed with error: ${error}`);
-    if(jobInfo.retryCount < MAX_RETRY_ATTEMPTS) {
-      logger.info(`Retrying poe.ninja request ${jobInfo.options.id}. Retry count: ${jobInfo.retryCount + 1}`);
+    if (jobInfo.retryCount < MAX_RETRY_ATTEMPTS) {
+      logger.info(
+        `Retrying poe.ninja request ${jobInfo.options.id}. Retry count: ${jobInfo.retryCount + 1}`
+      );
     }
   });
 });
@@ -311,7 +313,7 @@ class RateGetterV2 {
       tempRates['Resonator'],
       tempRates['Essence'],
       tempRates['Vial'],
-      tempRates['Artifact'], 
+      tempRates['Artifact']
     );
     rates['Wombgift'] = tempRates['Wombgift'];
     rates['ClusterJewel'] = tempRates['ClusterJewel'];
@@ -352,7 +354,7 @@ class RateGetterV2 {
       this.scheduleNextUpdate();
     }
   }
-  
+
   getNinjaURL(category) {
     var url = '';
     switch (category) {
@@ -394,7 +396,7 @@ class RateGetterV2 {
 
       // Old stuff using old APIs
       case 'ScourgedMap': // TODO: Add pricing
-      // case 'KalguuranRune':
+        // case 'KalguuranRune':
 
         // RETIRED
         // case 'AllflameEmber':
@@ -496,7 +498,7 @@ function cleanItemData(arr, getLowConfidence = false) {
       name += ` L${item.gemLevel}`;
       if (item.gemQuality) {
         name += ` Q${item.gemQuality}`;
-      } 
+      }
     }
 
     // Handle Cluster Jewels
@@ -525,7 +527,7 @@ function cleanMaps(arr, getLowConfidence = false) {
   const a = {};
   arr?.lines?.forEach((item) => {
     let name = item.name;
-    if(item.variant) name += ` ${item.variant.replace(', ', '')}`;
+    if (item.variant) name += ` ${item.variant.replace(', ', '')}`;
     a[name] = item.chaosValue;
   });
   return a;

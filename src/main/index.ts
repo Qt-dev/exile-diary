@@ -289,13 +289,10 @@ class MainProcess {
             logger.warn('Unable to get item values - database may not be initialized');
             return;
           }
-          const prices = itemsValues.reduce(
-            (aggregations, { id, value }) => {
-              aggregations[id] = value;
-              return aggregations;
-            },
-            {}
-          );
+          const prices = itemsValues.reduce((aggregations, { id, value }) => {
+            aggregations[id] = value;
+            return aggregations;
+          }, {});
           this.sendToMain('prices:updated', { prices });
         },
       });
