@@ -1,50 +1,97 @@
 import RendererLogger from '../RendererLogger';
 import SettingsManager from '../SettingsManager';
 import Logger from 'electron-log';
-import Utils from './Utils';
+import Axios from 'axios';
+import { buildMemoryStorage, setupCache } from 'axios-cache-interceptor/dev';
+import Bottleneck from 'bottleneck';
 import DB from '../db/rates';
 
 const EventEmitter = require('events');
 const dayjs = require('dayjs');
-const https = require('https');
-const zlib = require('zlib');
 const logger = Logger.scope('RateGetter');
+const NINJA_CACHE_TIME_IN_SECONDS = 10;
+const NINJA_MIN_TIME_BETWEEN_REQUESTS = 350;
+const ninjaInstance = Axios.create({
+  baseURL: 'https://poe.ninja',
+});
+const ninjaStorage = buildMemoryStorage();
+const ninjaAxios = setupCache(ninjaInstance, {
+  enabled: true,
+  ttl: 1000 * NINJA_CACHE_TIME_IN_SECONDS,
+  storage: ninjaStorage,
+  interpretHeader: false,
+  vary: false,
+  debug: logger.debug.bind(logger),
+});
+const MAX_RETRY_ATTEMPTS = 10;
+const ninjaLimiters = new Bottleneck.Group({
+  maxConcurrent: 1,
+  minTime: NINJA_MIN_TIME_BETWEEN_REQUESTS,
+});
+
+ninjaLimiters.on('created', (limiter, key) => {
+  logger.info(`Limiter created: ${limiter.id}. Setting up listeners for ${key} group.`);
+
+  limiter.on('done', (jobInfo) => {
+    logger.debug(`poe.ninja request ${jobInfo.options.id} done.`);
+  });
+
+  limiter.on('executing', (jobInfo) => {
+    logger.debug(`poe.ninja request ${jobInfo.options.id} started.`);
+  });
+
+  limiter.on('queued', (jobInfo) => {
+    logger.debug(`poe.ninja request ${jobInfo.options.id} queued.`);
+  });
+
+  limiter.on('failed', (error, jobInfo) => {
+    logger.error(`poe.ninja request ${jobInfo.options.id} failed with error: ${error}`);
+    if(jobInfo.retryCount < MAX_RETRY_ATTEMPTS) {
+      logger.info(`Retrying poe.ninja request ${jobInfo.options.id}. Retry count: ${jobInfo.retryCount + 1}`);
+    }
+  });
+});
 
 const rateTypes = {
-  Currency: cleanCurrency,
-  Fragment: cleanCurrency,
+  Currency: cleanCurrencyData,
+  Fragment: cleanCurrencyData,
+  Scarab: cleanCurrencyData,
 
-  Tattoo: cleanNameValuePairs,
-  Omen: cleanNameValuePairs,
-  DivinationCard: cleanNameValuePairs,
-  Artifact: cleanNameValuePairs,
-  Oil: cleanNameValuePairs,
-  Incubator: cleanNameValuePairs,
+  Tattoo: cleanCurrencyData,
+  Omen: cleanCurrencyData,
+  DivinationCard: cleanCurrencyData,
+  Artifact: cleanCurrencyData,
+  Oil: cleanCurrencyData,
+  Incubator: cleanCurrencyData,
 
-  UniqueWeapon: cleanUniqueItems,
-  UniqueArmour: cleanUniqueItems,
-  UniqueAccessory: cleanUniqueItems,
-  UniqueJewel: cleanUniqueItems,
-  UniqueFlask: cleanUniqueItems,
-  SkillGem: cleanGems,
+  UniqueWeapon: cleanItemData,
+  UniqueArmour: cleanItemData,
+  UniqueAccessory: cleanItemData,
+  UniqueJewel: cleanItemData,
+  UniqueFlask: cleanItemData,
+  UniqueRelic: cleanItemData,
+  SkillGem: cleanItemData,
+
+  ClusterJewel: cleanItemData,
 
   Map: cleanMaps,
   BlightedMap: cleanMaps,
   BlightRavagedMap: cleanMaps,
   // ScourgedMap: cleanMaps, // No Scourged map around nowadays
   UniqueMap: cleanUniqueMaps,
-  DeliriumOrb: cleanNameValuePairs,
-  Invitation: cleanNameValuePairs,
-  Scarab: cleanNameValuePairs,
-  Memory: cleanNameValuePairs,
+  DeliriumOrb: cleanCurrencyData,
+  Invitation: cleanCurrencyData,
+  Memory: cleanCurrencyData,
 
-  BaseType: cleanBaseTypes,
-  Fossil: cleanNameValuePairs,
-  Resonator: cleanNameValuePairs,
+  BaseType: cleanBaseTypesData,
+  Fossil: cleanCurrencyData,
+  Resonator: cleanCurrencyData,
   // HelmetEnchant: cleanEnchants,
-  Beast: cleanNameValuePairs,
-  Essence: cleanNameValuePairs,
-  Vial: cleanNameValuePairs,
+  Beast: cleanCurrencyData,
+  Essence: cleanCurrencyData,
+  Vial: cleanCurrencyData,
+
+  Wombgift: cleanWombgift,
   // KalguuranRune: cleanNameValuePairs,
   // AllflameEmber: cleanNameValuePairs,
   // Coffin: cleanByModAndLevel,
@@ -188,7 +235,7 @@ class RateGetterV2 {
         text: `Getting new ${activeProfile.league} rates for today (${today})`,
       };
       RendererLogger.log({ messages: [message] });
-      await this.getRates(today);
+      await this.getRates(today, !isForced);
       RendererLogger.log({
         messages: [
           { text: 'Finished getting rates for the' },
@@ -222,33 +269,28 @@ class RateGetterV2 {
     }, interval);
   }
 
-  async getRates(date) {
+  async getRates(date, useCache = true) {
     const tempRates = {};
     const { useGzip = true, getLowConfidence = false } = SettingsManager.getAll();
 
     try {
       for (const rateType in rateTypes) {
         let data;
-        for (let i = 1; i <= 10; i++) {
-          logger.info(`Getting prices for item type ${rateType}, attempt ${i} of 10`);
-          try {
-            data = await getNinjaData(this.getNinjaURL(rateType), useGzip);
-            break;
-          } catch (err) {
-            if (i === 10) {
-              logger.error(`Error in getting POE data for ${rateType}`);
-              logger.error(err);
-            }
-          }
+        logger.info(`Getting prices for item type ${rateType}`);
+        try {
+          data = await getNinjaData(this.getNinjaURL(rateType), useGzip, useCache);
+          const processRateType = rateTypes[rateType];
+          tempRates[rateType] = processRateType(data, getLowConfidence);
+        } catch (err) {
+          logger.error(`Error in getting POE data for ${rateType}`);
+          logger.error(err);
         }
-        const processRateType = rateTypes[rateType];
-        tempRates[rateType] = processRateType(data, getLowConfidence);
       }
-      // require('fs/promises').writeFile('./rates.json', JSON.stringify(tempRates, null, 2), 'utf8');
+      // require('fs/promises').writeFile('./tempRates.json', JSON.stringify(tempRates, null, 2), 'utf8');
       logger.info('Finished getting prices from poe.ninja, processing now');
     } catch (e) {
-      emitter.emit('gettingPricesFailed');
       logger.info('Error getting rates: ' + e);
+      emitter.emit('gettingPricesFailed');
       return;
     }
 
@@ -269,8 +311,10 @@ class RateGetterV2 {
       tempRates['Resonator'],
       tempRates['Essence'],
       tempRates['Vial'],
-      tempRates['Artifact']
+      tempRates['Artifact'], 
     );
+    rates['Wombgift'] = tempRates['Wombgift'];
+    rates['ClusterJewel'] = tempRates['ClusterJewel'];
     rates['Fragment'] = Object.assign(tempRates['Fragment'], tempRates['Scarab']);
     rates['DivinationCard'] = tempRates['DivinationCard'];
     rates['SkillGem'] = tempRates['SkillGem'];
@@ -296,6 +340,7 @@ class RateGetterV2 {
     // rates['Watchstone'] = tempRates['Watchstone'];
     // rates['Seed'] = tempRates['Seed'];
     // rates['Prophecy'] = tempRates['Prophecy'];
+    // require('fs/promises').writeFile('./rates.json', JSON.stringify(rates, null, 2), 'utf8');
 
     const ratesWereUpdated = await DB.insertRates(this.getLeagueName(false), date, rates);
     if (!ratesWereUpdated) {
@@ -307,20 +352,30 @@ class RateGetterV2 {
       this.scheduleNextUpdate();
     }
   }
-
+  
   getNinjaURL(category) {
     var url = '';
     switch (category) {
       case 'Currency':
       case 'Fragment':
-        url = `/api/data/currencyoverview?type=${category}`;
-        break;
+      case 'Scarab':
+      case 'Tattoo':
       case 'Omen':
       case 'DivinationCard':
       case 'Artifact':
       case 'Oil':
       case 'Incubator':
-
+      case 'DeliriumOrb':
+      case 'Invitation':
+      case 'Memory': // TODO: Fix pricing
+      case 'Fossil':
+      case 'Resonator':
+      case 'Beast':
+      case 'Essence':
+      case 'Vial':
+        url = `/poe1/api/economy/exchange/current/overview?type=${category}`;
+        break;
+      case 'Wombgift':
       case 'UniqueWeapon':
       case 'UniqueArmour':
       case 'UniqueAccessory':
@@ -329,25 +384,18 @@ class RateGetterV2 {
       case 'UniqueRelic':
       case 'SkillGem':
       case 'ClusterJewel':
-
       case 'Map':
-      case 'BlightedMap': // TODO: Add pricing
-      case 'BlightRavagedMap': // TODO: Add pricing
-      case 'ScourgedMap': // TODO: Add pricing
+      case 'BlightedMap':
+      case 'BlightRavagedMap':
       case 'UniqueMap':
-      case 'DeliriumOrb':
-      case 'Invitation':
-      case 'Scarab':
-      case 'Memory': // TODO: Fix pricing
+      case 'BaseType':
+        url = `/poe1/api/economy/stash/current/item/overview?type=${category}`;
+        break;
+
+      // Old stuff using old APIs
+      case 'ScourgedMap': // TODO: Add pricing
       // case 'KalguuranRune':
 
-      case 'BaseType':
-      case 'Fossil':
-      case 'Resonator':
-      case 'Beast':
-      case 'Essence':
-      case 'Vial':
-      case 'Tattoo':
         // RETIRED
         // case 'AllflameEmber':
         // case 'Coffin':
@@ -369,185 +417,97 @@ class RateGetterV2 {
   }
 }
 
-function getNinjaData(path, useGzip) {
-  return new Promise((resolve, reject) => {
-    const headerObject = useGzip ? { 'Accept-Encoding': 'gzip' } : {};
-    const timeout = useGzip ? 10000 : 30000;
+async function getNinjaData(path, useGzip, useCache = true) {
+  const limiter = ninjaLimiters.key('poe.ninja-rates');
+  const requestId = path.replace(/[^a-zA-Z0-9]/g, '-');
 
-    const request = https.request(
-      {
-        hostname: 'poe.ninja',
-        path: path,
-        method: 'GET',
-        headers: headerObject,
+  return limiter.schedule({ id: requestId }, async () => {
+    logger.info(`Requesting poe.ninja data from ${path}`);
+
+    const response: any = await ninjaAxios({
+      url: path,
+      method: 'GET',
+      timeout: useGzip ? 10000 : 30000,
+      headers: {
+        'Accept-Encoding': useGzip ? 'gzip' : 'identity',
       },
-      (response) => {
-        // Handle redirects
-        if (
-          response.statusCode === 301 ||
-          response.statusCode === 302 ||
-          response.statusCode === 307 ||
-          response.statusCode === 308
-        ) {
-          const redirectUrl = response.headers.location;
-          if (redirectUrl) {
-            logger.info(`Following redirect from ${path} to: ${redirectUrl}`);
-            // Handle both relative and absolute redirect URLs
-            let newPath: string;
-            if (redirectUrl.startsWith('http://') || redirectUrl.startsWith('https://')) {
-              // Absolute URL - extract path
-              try {
-                const url = new URL(redirectUrl);
-                newPath = url.pathname + url.search;
-              } catch (e) {
-                logger.error(`Failed to parse absolute redirect URL: ${redirectUrl}`);
-                reject(new Error(`Invalid redirect URL: ${redirectUrl}`));
-                return;
-              }
-            } else {
-              // Relative URL - use as-is
-              newPath = redirectUrl;
-            }
-            // Retry with the new path
-            getNinjaData(newPath, useGzip).then(resolve).catch(reject);
-            return;
-          } else {
-            reject(new Error(`Received ${response.statusCode} redirect but no location header`));
-            return;
+      cache: useCache
+        ? {
+            enabled: true,
+            ttl: 1000 * NINJA_CACHE_TIME_IN_SECONDS,
           }
-        }
+        : false,
+    });
 
-        var buffers: any = [];
-        response.on('data', (chunk) => {
-          buffers.push(chunk);
-        });
-        response.on('end', () => {
-          try {
-            var data;
-            var body = Buffer.concat(buffers);
-            try {
-              data = useGzip ? zlib.gunzipSync(body) : body.toString();
-            } catch (e) {
-              logger.info('Error unzipping received data: ' + e);
-            }
-            logger.info(
-              `Got data from ${path}, length ${body.length} ${
-                useGzip ? `(${data.length} uncompressed)` : ''
-              }`
-            );
-            resolve(JSON.parse(data));
-          } catch (e) {
-            logger.info(`Failed to get data from [${path}]: ${e}`);
-            reject(e);
-          }
-        });
-        response.on('error', (e) => {
-          logger.info(`Failed to get data from [${path}]: ${e}`);
-          reject(e);
-        });
-        response.on('aborted', (e) => {
-          logger.info(`Failed to get data from [${path}]: response aborted!`);
-          reject(e);
-        });
-      }
+    logger.info(
+      `${response.cached ? 'Using cached' : 'Using fresh'} poe.ninja response for ${path}`
     );
-    request.on('error', (e) => {
-      logger.info(`Failed to get data from [${path}]: ${e}`);
-      reject(e);
-    });
-    request.on('timeout', () => {
-      request.destroy(new Error(`Timed out after ${timeout / 1000} seconds`));
-    });
-    request.setTimeout(timeout);
-    request.end();
+
+    return response.data;
   });
 }
 
-function cleanBaseTypes(arr, getLowConfidence = false) {
+function cleanBaseTypesData(arr, getLowConfidence = false) {
   const a = {};
   arr?.lines?.forEach((item) => {
-    if (item.count && item.count < 10 && !getLowConfidence) return; // ignore low confidence listings
-    var identifier = item.name;
-    if (item.levelRequired) identifier += ` L${item.levelRequired}`;
-    if (item.variant) identifier += ` ${item.variant}`;
-    a[identifier] = item.chaosValue;
+    let name = item.name;
+    name += ` L${item.levelRequired}`;
+    name += ` ${item.variant}`;
+    a[name] = item.chaosValue;
   });
   return a;
 }
 
-function cleanUniqueItems(arr, getLowConfidence = false) {
+function cleanCurrencyData(arr, getLowConfidence = false) {
+  if (!arr?.lines || !arr?.items) {
+    logger.error('Unexpected data format from poe.ninja for exchange overview category');
+    logger.error('Data received: ' + JSON.stringify(arr));
+    return {};
+  }
   const a = {};
   arr?.lines?.forEach((item) => {
+    item.name = arr.items.find((i) => i.id === item.id)?.name || item.name;
     if (item.count && item.count < 10 && !getLowConfidence) return; // ignore low confidence listings
-    var identifier = item.name;
-    if (item.name === 'Grand Spectrum' || item.name === 'Combat Focus')
-      identifier += ` ${item.baseType}`;
-    if (item.links) identifier += ` ${item.links}L`;
-    if (item.variant) identifier += ` (${item.variant})`;
-    if (item.itemClass === 9) identifier += ` (Relic)`;
-    a[identifier] = item.chaosValue;
+    a[item.name] = item.primaryValue;
   });
   return a;
 }
 
-function cleanByModAndLevel(arr, getLowConfidence = false) {
+function cleanWombgift(arr, getLowConfidence = false) {
   const a = {};
   arr?.lines?.forEach((item) => {
-    const { name, chaosValue } = item;
-    const { ilvl } = item.tradeFilter.query.filters.misc_filters.filters;
-    a[`${name} L${ilvl.min}-${ilvl.max}`] = chaosValue;
+    const name = `${item.name} L${item.levelRequired}`;
+    a[name] = item.chaosValue;
   });
-
   return a;
 }
 
-function cleanGems(arr, getLowConfidence = false) {
+function cleanItemData(arr, getLowConfidence = false) {
   const a = {};
   arr?.lines?.forEach((item) => {
-    if (item.count && item.count < 10 && !getLowConfidence) return; // ignore low confidence listings
-    var identifier = item.name;
-    if (item.gemLevel !== 1) identifier += ` L${item.gemLevel}`;
-    if (item.gemQuality >= 20) {
-      if (!specialGems.includes(item.name)) {
-        identifier += ` Q${item.gemQuality}`;
-      }
+    let name = item.name;
+    // Handle 6L items
+    if (item.links === 6) {
+      name += ' 6L';
     }
-    if (item.corrupted) {
-      identifier += ' (Corrupted)';
-    }
-    a[identifier] = item.chaosValue;
-  });
-  return a;
-}
 
-function cleanCurrency(arr, getLowConfidence = false) {
-  const a = {};
-  arr?.lines?.forEach((item) => {
-    if (item.currencyTypeName === "Rogue's Marker") {
-      return;
+    // Handle Gem Variants
+    else if (item.gemLevel) {
+      name += ` L${item.gemLevel}`;
+      if (item.gemQuality) {
+        name += ` Q${item.gemQuality}`;
+      } 
     }
-    if (item.count && item.count < 10 && !getLowConfidence) return; // ignore low confidence listings
-    a[item.currencyTypeName] = item.chaosEquivalent;
-  });
-  return a;
-}
 
-function cleanNameValuePairs(arr, getLowConfidence = false) {
-  const a = {};
-  arr?.lines?.forEach((item) => {
-    if (item.count && item.count < 10 && !getLowConfidence) return; // ignore low confidence listings
-    a[item.name] = item.chaosValue;
-  });
-  return a;
-}
-
-function cleanEnchants(arr, getLowConfidence = false) {
-  const a = {};
-  arr?.lines?.forEach((item) => {
-    if (item.count && item.count < 10 && !getLowConfidence) return; // ignore low confidence listings
-    if (item.icon) {
-      a[item.name] = item.chaosValue;
+    // Handle Cluster Jewels
+    else if (item.baseType.includes('Cluster Jewel') && item.variant) {
+      name += ` L${item.levelRequired}`;
+      name += ` ${item.variant.split(' ')[0]}P`; // Number of passives
     }
+
+    // TODO: Handle Foulborn variants
+    // const name = `${item.name} L${item.levelRequired}`;
+    a[name] = item.chaosValue;
   });
   return a;
 }
@@ -555,9 +515,8 @@ function cleanEnchants(arr, getLowConfidence = false) {
 function cleanUniqueMaps(arr, getLowConfidence = false) {
   const a = {};
   arr?.lines?.forEach((item) => {
-    if (item.count && item.count < 10 && !getLowConfidence) return; // ignore low confidence listings
-    var identifier = `${item.name} T${item.mapTier} ${item.baseType}`;
-    a[identifier] = item.chaosValue;
+    let name = item.name;
+    a[name] = item.chaosValue;
   });
   return a;
 }
@@ -565,30 +524,9 @@ function cleanUniqueMaps(arr, getLowConfidence = false) {
 function cleanMaps(arr, getLowConfidence = false) {
   const a = {};
   arr?.lines?.forEach((item) => {
-    if (item.count && item.count < 10 && !getLowConfidence) return; // ignore low confidence listings
-    var identifier = `${item.baseType} T${item.mapTier} ${item.variant}`;
-    a[identifier] = item.chaosValue;
-  });
-  return a;
-}
-
-function cleanWatchstones(arr, getLowConfidence = false) {
-  const a = {};
-  arr?.lines?.forEach((item) => {
-    if (item.count && item.count < 10 && !getLowConfidence) return; // ignore low confidence listings
-    var identifier = `${item.name}, ${item.variant} uses remaining`;
-    a[identifier] = item.chaosValue;
-  });
-  return a;
-}
-
-function cleanSeeds(arr, getLowConfidence = false) {
-  const a = {};
-  arr?.lines?.forEach((item) => {
-    if (item.count && item.count < 10 && !getLowConfidence) return; // ignore low confidence listings
-    var identifier = item.name;
-    if (item.levelRequired >= 76) identifier += ` L76+`;
-    a[identifier] = item.chaosValue;
+    let name = item.name;
+    if(item.variant) name += ` ${item.variant.replace(', ', '')}`;
+    a[name] = item.chaosValue;
   });
   return a;
 }

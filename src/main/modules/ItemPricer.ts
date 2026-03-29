@@ -175,6 +175,13 @@ class PriceMatcher {
         this.getCurrencyShardStackValue(minItemValue, item, item.typeline),
     },
     {
+      name: 'Wombgift',
+      test: (item: any) => item.typeline.endsWith('Wombgift'),
+      calculateValue: (item: any, minItemValue: number = 0) =>
+        this.getWombgiftValue(minItemValue, item),
+
+    },
+    {
       name: 'Splinters',
       test: (item: any) =>
         !!SettingsManager.get('alternateSplinterPricing') && Constants.fragmentTypes[item.typeline],
@@ -240,7 +247,7 @@ class PriceMatcher {
     },
     {
       name: 'Unique Maps',
-      test: (item: any) => item.category === 'Maps' && item.rarity === 'Unique',
+      test: (item: any) => item.category === 'Map' && item.rarity === 'Unique',
       calculateValue: (item: any, minItemValue: number = 0) =>
         this.getUniqueMapValue(item, minItemValue),
     },
@@ -252,6 +259,11 @@ class PriceMatcher {
           this.getUniqueItemValue(item, minItemValue),
           this.getHelmetEnchantValue(item, minItemValue)
         ),
+    },
+    {
+      name: 'Cluster Jewel',
+      test: (item: any) => item.baseType.includes('Cluster Jewel'),
+      calculateValue: (item: any, minItemValue: number = 0) => this.getClusterJewelValue(minItemValue, item),
     },
     {
       name: 'Non-Unique Flasks and Jewels',
@@ -634,6 +646,39 @@ class PriceMatcher {
     return shardValue >= minItemValue ? stackValue : 0;
   }
 
+
+  getWombgiftValue(minItemValue: number, item: any): number {
+    // Find all the LVL range of the specific gift we're looking at
+    const levelThresholds = Object.keys(this.ratesCache['Wombgift'])
+      .filter((name) => name.includes(item.typeline))
+      .map((name) => {
+        const match = name.match(/L(\d+)$/);
+        return match ? parseInt(match[1]) : 0;
+      })
+      .sort((a, b) => a - b);
+
+    // Find the higest closest level to the item level of the gift
+    let itemLevel = 0;
+    levelThresholds.every((level) => {
+      if (level === item.parsedItem.ilvl) {
+        itemLevel = level;
+        return false;
+      } else if (level < item.parsedItem.ilvl) {
+        itemLevel = level;
+      }
+
+      return true;
+    });
+
+    const identifier = `${item.typeline} L${itemLevel}`;
+    logger.info(`Getting Wombgift value for ${identifier}`);
+    logger.info(item);
+
+
+    return this.getValue(item, 'Wombgift', identifier, minItemValue);
+  }
+
+
   /**
    * Get the value of Splinters based on the result item of a stack. Takes minItemValue into account by itself, to output 0 if the value of one splinter is below the value.
    * @param {number}  minItemValue  Minimum value of an item. Anything below this will make the function return 0
@@ -707,11 +752,7 @@ class PriceMatcher {
    * @returns {number}  Value of the unique map
    */
   getUniqueMapValue(item: any, minItemValue: number): number {
-    const name = item.name || Utils.getItemName(item.icon);
-    const tier = ItemData.getMapTier(item.parsedItem);
-    const typeline = item.typeline.replace('Superior ', '');
-
-    const identifier = `${name} T${tier} ${typeline}`;
+    const identifier = item.name;
 
     return this.getValue(item, 'UniqueMap', identifier, minItemValue);
   }
@@ -856,20 +897,29 @@ class PriceMatcher {
    * @returns {number} Value of the map
    */
   getMapValue(item: any, minItemValue: number): number {
-    let name = item.typeline.replace('Superior ', '');
-    const tier = ItemData.getMapTier(item.parsedItem);
+    let name = item.typeline;
     const { gen } = this.getMapSeries(item.parsedItem.icon);
+    let identifier = '';
 
-    if (item.rarity === 'Magic' && item.identified) {
-      // Strip affixes from magic item name
-      name = Utils.getBaseFromMagicMap(name);
-      // Special handling for name collision for Corrupted Temple maps below t16
-      if (name === 'Vaal Temple Map' && tier < 16) {
-        name = 'Temple Map';
+    // Find boss name if possible
+    if(item.implicitMods && item.implicitMods.length > 0) {
+
+      // Look for citadels
+      for(const mod of item.implicitMods) {
+        if(mod.includes('Citadel')) {
+          const bossName = mod.match(/Map contains (?<boss>.+)'s Citadel/i)?.groups?.boss;
+          identifier += `${bossName} `;
+          break;
+        } else if(mod.includes('Map is occupied by')) {
+          const bossName = mod.match(/Map is occupied by (?<boss>.+)/i)?.groups?.boss;
+          identifier += `${bossName} `;
+          break;
+        }
       }
     }
 
-    const identifier = `${name} T${tier} , Gen-${gen}`;
+    identifier += `${name} Gen-${gen}`;
+    
     return this.getValue(item, 'Map', identifier, minItemValue);
   }
 
@@ -899,6 +949,36 @@ class PriceMatcher {
 
     const vendorValue = this.getVendorRecipeValue(item, minItemValue);
     return Math.max(value, vendorValue);
+  }
+
+
+
+  /**
+   * Get the value of a Cluster Jewel
+   * @param {number} minItemValue Minimum value of an item. Anything below this will make the function return 0
+   * @param {any} item Item to get the value of
+   * @returns {number} Value of the item in chaos
+   */
+  getClusterJewelValue(minItemValue: number, item: any): number {
+    const ID_TRIGGER = 'Added Small Passive Skills grant:';
+    const LEVEL_RANGES = [84, 50, 75, 1];
+
+    let identifier = '';
+    for(const mod of item.enchantMods) {
+      if(!mod.includes(ID_TRIGGER)) continue;
+      identifier = mod.replace(ID_TRIGGER, '').trim();
+    }
+
+    const levelRange = LEVEL_RANGES.find((range) => item.parsedItem.ilvl >= range);
+    identifier += ` L${levelRange}`;
+
+    const passiveSkillsCount = item.enchantMods.find((mod) => mod.match(/Adds \d+ Passive Skills/))?.match(/Adds (\d+) Passive Skills/)?.[1] || '0';
+    identifier += ` ${passiveSkillsCount}P`;
+
+    const data = this.getValue(item, 'ClusterJewel', identifier, minItemValue);
+    logger.debug(`Cluster Jewel Identifier: ${identifier}, Value: ${data}`);
+
+    return data;
   }
 
   /**

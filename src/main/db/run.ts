@@ -335,7 +335,7 @@ const Runs = {
   },
 
   deleteAreaInfo: async (runId: number) => {
-    const query = 'DELETE FROM areainfo WHERE run_id = ?';
+    const query = 'DELETE FROM area_info WHERE run_id = ?';
     try {
       await DB.run(query, [runId]);
       return true;
@@ -386,11 +386,11 @@ const Runs = {
   getRunsFromDates: async (from: string, to: string) => {
     logger.info(`Getting items from date ${from} to ${to}`);
     const itemsQuery = `
-      SELECT areainfo.name, run.id, first_event, last_event,
+      SELECT area_info.name, run.id, first_event, last_event,
       (SELECT COALESCE(SUM(value),0) FROM item, event WHERE event.id = item.event_id AND DATETIME(event.timestamp) BETWEEN DATETIME(first_event) AND DATETIME(last_event) AND ignored = 0) gained
-      FROM run, areainfo
+      FROM run, area_info
       WHERE gained > -1
-      AND areainfo.run_id = run.id
+      AND area_info.run_id = run.id
       AND DATETIME(run.first_event) BETWEEN DATETIME(?) AND DATETIME(?);
     `;
 

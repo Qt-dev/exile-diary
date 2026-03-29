@@ -1061,7 +1061,7 @@ const RunParser = {
       ],
     });
     const startTime = dayjs();
-    const runs = await DB.getRunsFromDates(from, to);
+    const runs = await DB.getRunsFromDates(dayjs(from).toISOString(), dayjs(to).toISOString());
     for (const run of runs) {
       await ItemPricer.getRatesFor(run.first_event);
     }

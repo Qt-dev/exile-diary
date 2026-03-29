@@ -3,6 +3,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { ItemData } from '../../../helpers/types';
 import { getCategory } from '../../../helpers/item';
 import IgnoreManager from '../../../helpers/ignoreManager';
+import dayjs from 'dayjs';
 
 type LootTableData = {
   id: string;
@@ -193,6 +194,7 @@ export class Item {
   stashTabId?: string;
   originalValue: number;
   isIgnored: boolean;
+  drop_timestamp?: dayjs.Dayjs;
 
   constructor(store, itemdata: ItemData) {
     makeAutoObservable(this, {
@@ -203,6 +205,7 @@ export class Item {
     this.store = store;
     this.area = itemdata.area;
     this.map_id = itemdata.map_id;
+    this.drop_timestamp = itemdata.drop_timestamp ? dayjs(itemdata.drop_timestamp) : undefined;
 
     this.rawData = itemdata;
     this.styleModifiers = itemdata.styleModifiers || {};

@@ -61,7 +61,7 @@ const stats = {
   },
   getAllItems: async (league: string): Promise<any[]> => {
     const query = `
-      SELECT run.id AS map_id, area_info.name AS area, item.*
+      SELECT run.id AS map_id, area_info.name AS area, item.*, event.timestamp AS drop_timestamp
       FROM item, run, area_info, event
       WHERE event.id = item.event_id
       AND DATETIME(event.timestamp) BETWEEN DATETIME(run.first_event) AND DATETIME(run.last_event)
