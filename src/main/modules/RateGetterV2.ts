@@ -64,12 +64,15 @@ const rateTypes = {
   Oil: cleanV2,
   Incubator: cleanV2,
 
-  UniqueWeapon: cleanUniqueItems,
-  UniqueArmour: cleanUniqueItems,
-  UniqueAccessory: cleanUniqueItems,
-  UniqueJewel: cleanUniqueItems,
-  UniqueFlask: cleanUniqueItems,
-  SkillGem: cleanGems,
+  UniqueWeapon: cleanItemData,
+  UniqueArmour: cleanItemData,
+  UniqueAccessory: cleanItemData,
+  UniqueJewel: cleanItemData,
+  UniqueFlask: cleanItemData,
+  UniqueRelic: cleanItemData,
+  SkillGem: cleanItemData,
+
+  ClusterJewel: cleanItemData,
 
   Map: cleanMaps,
   BlightedMap: cleanMaps,
@@ -310,6 +313,7 @@ class RateGetterV2 {
       tempRates['Artifact'], 
     );
     rates['Wombgift'] = tempRates['Wombgift'];
+    rates['ClusterJewel'] = tempRates['ClusterJewel'];
     rates['Fragment'] = Object.assign(tempRates['Fragment'], tempRates['Scarab']);
     rates['DivinationCard'] = tempRates['DivinationCard'];
     rates['SkillGem'] = tempRates['SkillGem'];
@@ -370,9 +374,6 @@ class RateGetterV2 {
         url = `/poe1/api/economy/exchange/current/overview?type=${category}`;
         break;
       case 'Wombgift':
-        url = `/poe1/api/economy/stash/current/item/overview?type=${category}`;
-        break;
-
       case 'UniqueWeapon':
       case 'UniqueArmour':
       case 'UniqueAccessory':
@@ -381,6 +382,10 @@ class RateGetterV2 {
       case 'UniqueRelic':
       case 'SkillGem':
       case 'ClusterJewel':
+        url = `/poe1/api/economy/stash/current/item/overview?type=${category}`;
+        break;
+
+      // case 'UniqueWeapon':
 
       case 'Map':
       case 'BlightedMap': // TODO: Add pricing
@@ -529,6 +534,36 @@ function cleanWombgift(arr, getLowConfidence = false) {
   const a = {};
   arr?.lines?.forEach((item) => {
     const name = `${item.name} L${item.levelRequired}`;
+    a[name] = item.chaosValue;
+  });
+  return a;
+}
+
+function cleanItemData(arr, getLowConfidence = false) {
+  const a = {};
+  arr?.lines?.forEach((item) => {
+    let name = item.name;
+    // Handle 6L items
+    if (item.links === 6) {
+      name += ' 6L';
+    }
+
+    // Handle Gem Variants
+    else if (item.gemLevel) {
+      name += ` L${item.gemLevel}`;
+      if (item.gemQuality) {
+        name += ` Q${item.gemQuality}`;
+      } 
+    }
+
+    // Handle Cluster Jewels
+    else if (item.baseType.includes('Cluster Jewel') && item.variant) {
+      name += ` L${item.levelRequired}`;
+      name += ` ${item.variant.split(' ')[0]}P`; // Number of passives
+    }
+
+    // TODO: Handle Foulborn variants
+    // const name = `${item.name} L${item.levelRequired}`;
     a[name] = item.chaosValue;
   });
   return a;

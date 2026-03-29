@@ -261,6 +261,11 @@ class PriceMatcher {
         ),
     },
     {
+      name: 'Cluster Jewel',
+      test: (item: any) => item.baseType.includes('Cluster Jewel'),
+      calculateValue: (item: any, minItemValue: number = 0) => this.getClusterJewelValue(minItemValue, item),
+    },
+    {
       name: 'Non-Unique Flasks and Jewels',
       test: (item: any) =>
         item.typeline &&
@@ -939,6 +944,36 @@ class PriceMatcher {
 
     const vendorValue = this.getVendorRecipeValue(item, minItemValue);
     return Math.max(value, vendorValue);
+  }
+
+
+
+  /**
+   * Get the value of a Cluster Jewel
+   * @param {number} minItemValue Minimum value of an item. Anything below this will make the function return 0
+   * @param {any} item Item to get the value of
+   * @returns {number} Value of the item in chaos
+   */
+  getClusterJewelValue(minItemValue: number, item: any): number {
+    const ID_TRIGGER = 'Added Small Passive Skills grant:';
+    const LEVEL_RANGES = [84, 50, 75, 1];
+
+    let identifier = '';
+    for(const mod of item.enchantMods) {
+      if(!mod.includes(ID_TRIGGER)) continue;
+      identifier = mod.replace(ID_TRIGGER, '').trim();
+    }
+
+    const levelRange = LEVEL_RANGES.find((range) => item.parsedItem.ilvl >= range);
+    identifier += ` L${levelRange}`;
+
+    const passiveSkillsCount = item.enchantMods.find((mod) => mod.match(/Adds \d+ Passive Skills/))?.match(/Adds (\d+) Passive Skills/)?.[1] || '0';
+    identifier += ` ${passiveSkillsCount}P`;
+
+    const data = this.getValue(item, 'ClusterJewel', identifier, minItemValue);
+    logger.debug(`Cluster Jewel Identifier: ${identifier}, Value: ${data}`);
+
+    return data;
   }
 
   /**
