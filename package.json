@@ -186,7 +186,7 @@
     "sharp": "^0.34.2",
     "tail": "^2.2.6",
     "tesseract.js": "^6.0.1",
-    "uuid": "^9.0.1"
+    "uuid": "^14.0.0"
   },
   "devDependencies": {
     "@babel/core": "^7.28.0",
