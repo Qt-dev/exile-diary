@@ -1,7 +1,9 @@
-import DB from '../db/skilltree';
-import API from '../GGGAPI';
-import logger from 'electron-log';
-import EventEmitter from 'events';
+const DBModule = require('../db/skilltree');
+const GGGAPIModule = require('../GGGAPI');
+const DB = DBModule.default ?? DBModule;
+const API = GGGAPIModule.default ?? GGGAPIModule;
+const logger = require('electron-log');
+const EventEmitter = require('events');
 const emitter = new EventEmitter();
 
 const SkillTreeWatcher = {
@@ -24,4 +26,3 @@ const SkillTreeWatcher = {
 
 module.exports = SkillTreeWatcher;
 module.exports.emitter = emitter;
-export default SkillTreeWatcher;

@@ -1,0 +1,12 @@
+[
+  {
+    "typeline": "Chaos Orb",
+    "rarity": "Currency",
+    "stack_size": 30
+  },
+  {
+    "typeline": "Divine Orb",
+    "rarity": "Currency",
+    "stack_size": 2
+  }
+]

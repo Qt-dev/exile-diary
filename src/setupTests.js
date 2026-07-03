@@ -40,6 +40,27 @@ jest.mock('electron', () => ({
   })),
 }));
 
+// Mock electron-log
+jest.mock('electron-log', () => {
+  const scopedLogger = {
+    info: jest.fn(),
+    debug: jest.fn(),
+    error: jest.fn(),
+    warn: jest.fn(),
+    silly: jest.fn(),
+  };
+
+  return {
+    __esModule: true,
+    default: {
+      ...scopedLogger,
+      scope: jest.fn(() => ({ ...scopedLogger })),
+    },
+    ...scopedLogger,
+    scope: jest.fn(() => ({ ...scopedLogger })),
+  };
+});
+
 // Mock electron-store
 jest.mock('electron-store', () => {
   return jest.fn().mockImplementation(() => ({

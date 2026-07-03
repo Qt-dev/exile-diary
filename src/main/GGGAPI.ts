@@ -10,13 +10,14 @@ const CACHE_TIME_IN_SECONDS = 10;
 const MIN_TIME_BETWEEN_REQUESTS = 333; // 1 request per second as a default, will be adjusted based on API feedback
 const instance = Axios.create();
 const storage = buildMemoryStorage();
+const debugLogger = typeof logger.info === 'function' ? logger.info.bind(logger) : undefined;
 const axios = setupCache(instance, {
   enabled: true,
   ttl: 1000 * CACHE_TIME_IN_SECONDS, // DEFAULT: Cache for 10 seconds, can be overridden per request
   storage,
   interpretHeader: false,
   vary: false, // No reason to break cache by Vary headers since we control the requests
-  debug: logger.info.bind(logger),
+  debug: debugLogger,
 });
 
 type Inventory = {

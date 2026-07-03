@@ -70,6 +70,24 @@ let modReadingTimer: Dayjs | null = null;
 let originalDebugLogger: ((...params: any[]) => void) | null = null;
 let originalInfoLogger: ((...params: any[]) => void) | null = null;
 let isLoggingToRenderer = false;
+const benchmarkMode = process.env.EXILE_DIARY_BENCHMARK_MODE as
+  | 'startup'
+  | 'idle-memory'
+  | undefined;
+const benchmarkStartedAt = Number(process.env.EXILE_DIARY_BENCHMARK_STARTED_AT ?? Date.now());
+
+function emitBenchmarkResult(name: string, data: Record<string, unknown>) {
+  if (!benchmarkMode) {
+    return;
+  }
+
+  const payload = {
+    benchmark: name,
+    timestamp: new Date().toISOString(),
+    ...data,
+  };
+  process.stdout.write(`__EXILE_DIARY_BENCHMARK__${JSON.stringify(payload)}\n`);
+}
 
 function setLogTransport(debugMode) {
   logger.transports.console.level = debugMode ? 'verbose' : 'info';
@@ -277,7 +295,11 @@ class MainProcess {
       }
     }
 
-    if (SettingsManager.get('activeProfile') && SettingsManager.get('activeProfile').valid) {
+    if (
+      !benchmarkMode &&
+      SettingsManager.get('activeProfile') &&
+      SettingsManager.get('activeProfile').valid
+    ) {
       logger.info('Starting components');
       RateGetterV2.initialize({
         postUpdateCallback: async () => {
@@ -848,6 +870,28 @@ class MainProcess {
         ],
       });
       AuthManager.setLogoutTimer();
+
+      if (benchmarkMode === 'startup') {
+        emitBenchmarkResult('app-startup', {
+          mode: benchmarkMode,
+          startupMs: Date.now() - benchmarkStartedAt,
+        });
+        app.quit();
+      } else if (benchmarkMode === 'idle-memory') {
+        setTimeout(async () => {
+          const memoryInfo =
+            typeof process.getProcessMemoryInfo === 'function'
+              ? await process.getProcessMemoryInfo()
+              : null;
+          emitBenchmarkResult('app-idle-memory', {
+            mode: benchmarkMode,
+            startupMs: Date.now() - benchmarkStartedAt,
+            processMemory: memoryInfo,
+            appMetrics: app.getAppMetrics(),
+          });
+          app.quit();
+        }, 1500);
+      }
     });
 
     this.mainWindow.on('close', () => {
@@ -1047,11 +1091,15 @@ class MainProcess {
       ipcMain.handle(event, Responder[event]);
     }
 
-    this.handleAutoUpdater();
+    if (!benchmarkMode) {
+      this.handleAutoUpdater();
+    }
     this.setupListeners();
     this.setupResizer();
 
-    this.registerGlobalShortcuts();
+    if (!benchmarkMode) {
+      this.registerGlobalShortcuts();
+    }
 
     ipcMain.on('hotkeys:disable', () => {
       this.unregisterGlobalShortcuts();
@@ -1063,7 +1111,7 @@ class MainProcess {
     const test = 2;
 
     // Restarter for development
-    if (isDev) {
+    if (isDev && !benchmarkMode) {
       const spawnApp = () => {
         const child = spawn(
           path.join(

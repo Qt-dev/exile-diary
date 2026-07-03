@@ -1,0 +1,1776 @@
+{
+  "benchmarkSuite": "migration-0-core",
+  "generatedAt": "2026-07-03T02:31:25.892Z",
+  "repeatCount": 5,
+  "includesAppLifecycle": false,
+  "db": {
+    "rawRuns": [
+      {
+        "benchmark": "db-query",
+        "iterations": 400,
+        "status": "error",
+        "cases": [],
+        "error": "Unable to initialize better-sqlite3 in this runtime. The module '\\\\?\\D:\\Dev\\exile-diary\\node_modules\\better-sqlite3\\build\\Release\\better_sqlite3.node'\nwas compiled against a different Node.js version using\nNODE_MODULE_VERSION 136. This version of Node.js requires\nNODE_MODULE_VERSION 127. Please try re-compiling or re-installing\nthe module (for instance, using `npm rebuild` or `npm install`).\nRun `npm rebuild better-sqlite3` (or reinstall dependencies with a matching Node version) and try again."
+      },
+      {
+        "benchmark": "db-query",
+        "iterations": 400,
+        "status": "error",
+        "cases": [],
+        "error": "Unable to initialize better-sqlite3 in this runtime. The module '\\\\?\\D:\\Dev\\exile-diary\\node_modules\\better-sqlite3\\build\\Release\\better_sqlite3.node'\nwas compiled against a different Node.js version using\nNODE_MODULE_VERSION 136. This version of Node.js requires\nNODE_MODULE_VERSION 127. Please try re-compiling or re-installing\nthe module (for instance, using `npm rebuild` or `npm install`).\nRun `npm rebuild better-sqlite3` (or reinstall dependencies with a matching Node version) and try again."
+      },
+      {
+        "benchmark": "db-query",
+        "iterations": 400,
+        "status": "error",
+        "cases": [],
+        "error": "Unable to initialize better-sqlite3 in this runtime. The module '\\\\?\\D:\\Dev\\exile-diary\\node_modules\\better-sqlite3\\build\\Release\\better_sqlite3.node'\nwas compiled against a different Node.js version using\nNODE_MODULE_VERSION 136. This version of Node.js requires\nNODE_MODULE_VERSION 127. Please try re-compiling or re-installing\nthe module (for instance, using `npm rebuild` or `npm install`).\nRun `npm rebuild better-sqlite3` (or reinstall dependencies with a matching Node version) and try again."
+      },
+      {
+        "benchmark": "db-query",
+        "iterations": 400,
+        "status": "error",
+        "cases": [],
+        "error": "Unable to initialize better-sqlite3 in this runtime. The module '\\\\?\\D:\\Dev\\exile-diary\\node_modules\\better-sqlite3\\build\\Release\\better_sqlite3.node'\nwas compiled against a different Node.js version using\nNODE_MODULE_VERSION 136. This version of Node.js requires\nNODE_MODULE_VERSION 127. Please try re-compiling or re-installing\nthe module (for instance, using `npm rebuild` or `npm install`).\nRun `npm rebuild better-sqlite3` (or reinstall dependencies with a matching Node version) and try again."
+      },
+      {
+        "benchmark": "db-query",
+        "iterations": 400,
+        "status": "error",
+        "cases": [],
+        "error": "Unable to initialize better-sqlite3 in this runtime. The module '\\\\?\\D:\\Dev\\exile-diary\\node_modules\\better-sqlite3\\build\\Release\\better_sqlite3.node'\nwas compiled against a different Node.js version using\nNODE_MODULE_VERSION 136. This version of Node.js requires\nNODE_MODULE_VERSION 127. Please try re-compiling or re-installing\nthe module (for instance, using `npm rebuild` or `npm install`).\nRun `npm rebuild better-sqlite3` (or reinstall dependencies with a matching Node version) and try again."
+      }
+    ],
+    "metrics": []
+  },
+  "stringMatch": {
+    "rawRuns": [
+      {
+        "benchmark": "string-match",
+        "mapModCount": 1822,
+        "datasets": [
+          {
+            "datasetName": "Small Dataset 1",
+            "corruptionRate": 50,
+            "results": [
+              {
+                "testName": "Small Dataset 1",
+                "implementation": "StringParser.GetMod",
+                "arraySize": 10,
+                "totalTime": 8.378199999999993,
+                "averageTime": 0.8378199999999992,
+                "fastestTime": 0.015899999999987813,
+                "slowestTime": 3.3366000000000327,
+                "correctMatches": 9,
+                "totalStrings": 10,
+                "accuracy": 90,
+                "errors": [
+                  "Expected: \"Scarabs dropped in Area have 25% increased chance to be Divination Scarabs\", Got: \"Scarabs dropped in Area have 3% increased chance to be Divination Scarabs\", Input: \"Scara´bz drop3d in Area have 25% increase›d chance to b¸e Divination Scaiabs\""
+                ]
+              },
+              {
+                "testName": "Small Dataset 1",
+                "implementation": "StringParser.GetMods",
+                "arraySize": 10,
+                "totalTime": 5.564199999999971,
+                "averageTime": 0.5564199999999971,
+                "fastestTime": 0.5564199999999971,
+                "slowestTime": 0.5564199999999971,
+                "correctMatches": 9,
+                "totalStrings": 10,
+                "accuracy": 90,
+                "errors": [
+                  "Expected: \"Scarabs dropped in Area have 25% increased chance to be Divination Scarabs\", Got: \"Scarabs dropped in Area have 3% increased chance to be Divination Scarabs\", Input: \"Scara´bz drop3d in Area have 25% increase›d chance to b¸e Divination Scaiabs\""
+                ]
+              }
+            ]
+          },
+          {
+            "datasetName": "Small Dataset 2",
+            "corruptionRate": 50,
+            "results": [
+              {
+                "testName": "Small Dataset 2",
+                "implementation": "StringParser.GetMod",
+                "arraySize": 10,
+                "totalTime": 3.288500000000056,
+                "averageTime": 0.3288500000000056,
+                "fastestTime": 0.003500000000030923,
+                "slowestTime": 1.1555999999999926,
+                "correctMatches": 10,
+                "totalStrings": 10,
+                "accuracy": 100,
+                "errors": []
+              },
+              {
+                "testName": "Small Dataset 2",
+                "implementation": "StringParser.GetMods",
+                "arraySize": 10,
+                "totalTime": 3.3220999999999776,
+                "averageTime": 0.3322099999999978,
+                "fastestTime": 0.3322099999999978,
+                "slowestTime": 0.3322099999999978,
+                "correctMatches": 10,
+                "totalStrings": 10,
+                "accuracy": 100,
+                "errors": []
+              }
+            ]
+          },
+          {
+            "datasetName": "Small Dataset 3",
+            "corruptionRate": 40,
+            "results": [
+              {
+                "testName": "Small Dataset 3",
+                "implementation": "StringParser.GetMod",
+                "arraySize": 10,
+                "totalTime": 2.5932999999999993,
+                "averageTime": 0.25932999999999995,
+                "fastestTime": 0.0030000000000427463,
+                "slowestTime": 0.9221000000000004,
+                "correctMatches": 9,
+                "totalStrings": 10,
+                "accuracy": 90,
+                "errors": [
+                  "Expected: \"Delirium Reward Type: Fossils\", Got: \"Delirium Reward Type: #\", Input: \"Deli´rium Reward Type: Fossils\""
+                ]
+              },
+              {
+                "testName": "Small Dataset 3",
+                "implementation": "StringParser.GetMods",
+                "arraySize": 10,
+                "totalTime": 2.6813000000000216,
+                "averageTime": 0.26813000000000214,
+                "fastestTime": 0.26813000000000214,
+                "slowestTime": 0.26813000000000214,
+                "correctMatches": 9,
+                "totalStrings": 10,
+                "accuracy": 90,
+                "errors": [
+                  "Expected: \"Delirium Reward Type: Fossils\", Got: \"Delirium Reward Type: #\", Input: \"Deli´rium Reward Type: Fossils\""
+                ]
+              }
+            ]
+          },
+          {
+            "datasetName": "Small Dataset 4",
+            "corruptionRate": 100,
+            "results": [
+              {
+                "testName": "Small Dataset 4",
+                "implementation": "StringParser.GetMod",
+                "arraySize": 9,
+                "totalTime": 0.25729999999998654,
+                "averageTime": 0.028588888888887394,
+                "fastestTime": 0.002900000000011005,
+                "slowestTime": 0.0795999999999708,
+                "correctMatches": 9,
+                "totalStrings": 9,
+                "accuracy": 100,
+                "errors": []
+              },
+              {
+                "testName": "Small Dataset 4",
+                "implementation": "StringParser.GetMods",
+                "arraySize": 9,
+                "totalTime": 0.42919999999998026,
+                "averageTime": 0.0476888888888867,
+                "fastestTime": 0.0476888888888867,
+                "slowestTime": 0.0476888888888867,
+                "correctMatches": 9,
+                "totalStrings": 9,
+                "accuracy": 100,
+                "errors": []
+              }
+            ]
+          },
+          {
+            "datasetName": "Medium Dataset 1",
+            "corruptionRate": 60,
+            "results": [
+              {
+                "testName": "Medium Dataset 1",
+                "implementation": "StringParser.GetMod",
+                "arraySize": 20,
+                "totalTime": 10.86020000000002,
+                "averageTime": 0.543010000000001,
+                "fastestTime": 0.002999999999985903,
+                "slowestTime": 2.476699999999994,
+                "correctMatches": 20,
+                "totalStrings": 20,
+                "accuracy": 100,
+                "errors": []
+              },
+              {
+                "testName": "Medium Dataset 1",
+                "implementation": "StringParser.GetMods",
+                "arraySize": 20,
+                "totalTime": 11.062299999999993,
+                "averageTime": 0.5531149999999997,
+                "fastestTime": 0.5531149999999997,
+                "slowestTime": 0.5531149999999997,
+                "correctMatches": 20,
+                "totalStrings": 20,
+                "accuracy": 100,
+                "errors": []
+              }
+            ]
+          },
+          {
+            "datasetName": "Medium Dataset 2",
+            "corruptionRate": 60,
+            "results": [
+              {
+                "testName": "Medium Dataset 2",
+                "implementation": "StringParser.GetMod",
+                "arraySize": 30,
+                "totalTime": 17.517999999999972,
+                "averageTime": 0.5839333333333324,
+                "fastestTime": 0.002900000000011005,
+                "slowestTime": 2.674199999999985,
+                "correctMatches": 28,
+                "totalStrings": 30,
+                "accuracy": 93.33333333333333,
+                "errors": [
+                  "Expected: \"Players fire 1 additional Projectiles\", Got: \"Players fire {1} additional Projectiles\", Input: \"Players fire 1 additional Projectiles\"",
+                  "Expected: \"Players and Monsters take 6% increased Fire Damage\", Got: \"Players and Monsters take 1% increased Fire Damage\", Input: \"Flayers and Mnsters 1ake 6% increased F!re Damage\""
+                ]
+              },
+              {
+                "testName": "Medium Dataset 2",
+                "implementation": "StringParser.GetMods",
+                "arraySize": 30,
+                "totalTime": 17.2962,
+                "averageTime": 0.5765399999999999,
+                "fastestTime": 0.5765399999999999,
+                "slowestTime": 0.5765399999999999,
+                "correctMatches": 28,
+                "totalStrings": 30,
+                "accuracy": 93.33333333333333,
+                "errors": [
+                  "Expected: \"Players fire 1 additional Projectiles\", Got: \"Players fire {1} additional Projectiles\", Input: \"Players fire 1 additional Projectiles\"",
+                  "Expected: \"Players and Monsters take 6% increased Fire Damage\", Got: \"Players and Monsters take 1% increased Fire Damage\", Input: \"Flayers and Mnsters 1ake 6% increased F!re Damage\""
+                ]
+              }
+            ]
+          },
+          {
+            "datasetName": "Large Dataset",
+            "corruptionRate": 65,
+            "results": [
+              {
+                "testName": "Large Dataset",
+                "implementation": "StringParser.GetMod",
+                "arraySize": 40,
+                "totalTime": 11.833199999999977,
+                "averageTime": 0.2958299999999994,
+                "fastestTime": 0.0024999999999977263,
+                "slowestTime": 2.0061000000000035,
+                "correctMatches": 40,
+                "totalStrings": 40,
+                "accuracy": 100,
+                "errors": []
+              },
+              {
+                "testName": "Large Dataset",
+                "implementation": "StringParser.GetMods",
+                "arraySize": 40,
+                "totalTime": 11.949900000000014,
+                "averageTime": 0.29874750000000033,
+                "fastestTime": 0.29874750000000033,
+                "slowestTime": 0.29874750000000033,
+                "correctMatches": 40,
+                "totalStrings": 40,
+                "accuracy": 100,
+                "errors": []
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "benchmark": "string-match",
+        "mapModCount": 1822,
+        "datasets": [
+          {
+            "datasetName": "Small Dataset 1",
+            "corruptionRate": 50,
+            "results": [
+              {
+                "testName": "Small Dataset 1",
+                "implementation": "StringParser.GetMod",
+                "arraySize": 10,
+                "totalTime": 5.8355999999999995,
+                "averageTime": 0.58356,
+                "fastestTime": 0.0070999999999799,
+                "slowestTime": 2.274000000000001,
+                "correctMatches": 9,
+                "totalStrings": 10,
+                "accuracy": 90,
+                "errors": [
+                  "Expected: \"Scarabs dropped in Area have 25% increased chance to be Divination Scarabs\", Got: \"Scarabs dropped in Area have 3% increased chance to be Divination Scarabs\", Input: \"Scara´bz drop3d in Area have 25% increase›d chance to b¸e Divination Scaiabs\""
+                ]
+              },
+              {
+                "testName": "Small Dataset 1",
+                "implementation": "StringParser.GetMods",
+                "arraySize": 10,
+                "totalTime": 5.805999999999983,
+                "averageTime": 0.5805999999999983,
+                "fastestTime": 0.5805999999999983,
+                "slowestTime": 0.5805999999999983,
+                "correctMatches": 9,
+                "totalStrings": 10,
+                "accuracy": 90,
+                "errors": [
+                  "Expected: \"Scarabs dropped in Area have 25% increased chance to be Divination Scarabs\", Got: \"Scarabs dropped in Area have 3% increased chance to be Divination Scarabs\", Input: \"Scara´bz drop3d in Area have 25% increase›d chance to b¸e Divination Scaiabs\""
+                ]
+              }
+            ]
+          },
+          {
+            "datasetName": "Small Dataset 2",
+            "corruptionRate": 50,
+            "results": [
+              {
+                "testName": "Small Dataset 2",
+                "implementation": "StringParser.GetMod",
+                "arraySize": 10,
+                "totalTime": 3.286900000000003,
+                "averageTime": 0.32869000000000026,
+                "fastestTime": 0.003199999999992542,
+                "slowestTime": 1.2271000000000072,
+                "correctMatches": 10,
+                "totalStrings": 10,
+                "accuracy": 100,
+                "errors": []
+              },
+              {
+                "testName": "Small Dataset 2",
+                "implementation": "StringParser.GetMods",
+                "arraySize": 10,
+                "totalTime": 3.191599999999994,
+                "averageTime": 0.3191599999999994,
+                "fastestTime": 0.3191599999999994,
+                "slowestTime": 0.3191599999999994,
+                "correctMatches": 10,
+                "totalStrings": 10,
+                "accuracy": 100,
+                "errors": []
+              }
+            ]
+          },
+          {
+            "datasetName": "Small Dataset 3",
+            "corruptionRate": 40,
+            "results": [
+              {
+                "testName": "Small Dataset 3",
+                "implementation": "StringParser.GetMod",
+                "arraySize": 10,
+                "totalTime": 3.0113999999999805,
+                "averageTime": 0.3011399999999981,
+                "fastestTime": 0.00329999999996744,
+                "slowestTime": 1.0092000000000212,
+                "correctMatches": 9,
+                "totalStrings": 10,
+                "accuracy": 90,
+                "errors": [
+                  "Expected: \"Delirium Reward Type: Fossils\", Got: \"Delirium Reward Type: #\", Input: \"Deli´rium Reward Type: Fossils\""
+                ]
+              },
+              {
+                "testName": "Small Dataset 3",
+                "implementation": "StringParser.GetMods",
+                "arraySize": 10,
+                "totalTime": 2.6182000000000016,
+                "averageTime": 0.26182000000000016,
+                "fastestTime": 0.26182000000000016,
+                "slowestTime": 0.26182000000000016,
+                "correctMatches": 9,
+                "totalStrings": 10,
+                "accuracy": 90,
+                "errors": [
+                  "Expected: \"Delirium Reward Type: Fossils\", Got: \"Delirium Reward Type: #\", Input: \"Deli´rium Reward Type: Fossils\""
+                ]
+              }
+            ]
+          },
+          {
+            "datasetName": "Small Dataset 4",
+            "corruptionRate": 100,
+            "results": [
+              {
+                "testName": "Small Dataset 4",
+                "implementation": "StringParser.GetMod",
+                "arraySize": 9,
+                "totalTime": 0.2825000000000273,
+                "averageTime": 0.03138888888889192,
+                "fastestTime": 0.0026000000000294676,
+                "slowestTime": 0.09440000000000737,
+                "correctMatches": 9,
+                "totalStrings": 9,
+                "accuracy": 100,
+                "errors": []
+              },
+              {
+                "testName": "Small Dataset 4",
+                "implementation": "StringParser.GetMods",
+                "arraySize": 9,
+                "totalTime": 0.23910000000000764,
+                "averageTime": 0.026566666666667516,
+                "fastestTime": 0.026566666666667516,
+                "slowestTime": 0.026566666666667516,
+                "correctMatches": 9,
+                "totalStrings": 9,
+                "accuracy": 100,
+                "errors": []
+              }
+            ]
+          },
+          {
+            "datasetName": "Medium Dataset 1",
+            "corruptionRate": 60,
+            "results": [
+              {
+                "testName": "Medium Dataset 1",
+                "implementation": "StringParser.GetMod",
+                "arraySize": 20,
+                "totalTime": 13.057600000000036,
+                "averageTime": 0.6528800000000018,
+                "fastestTime": 0.003500000000030923,
+                "slowestTime": 3.2515999999999963,
+                "correctMatches": 20,
+                "totalStrings": 20,
+                "accuracy": 100,
+                "errors": []
+              },
+              {
+                "testName": "Medium Dataset 1",
+                "implementation": "StringParser.GetMods",
+                "arraySize": 20,
+                "totalTime": 10.877299999999991,
+                "averageTime": 0.5438649999999996,
+                "fastestTime": 0.5438649999999996,
+                "slowestTime": 0.5438649999999996,
+                "correctMatches": 20,
+                "totalStrings": 20,
+                "accuracy": 100,
+                "errors": []
+              }
+            ]
+          },
+          {
+            "datasetName": "Medium Dataset 2",
+            "corruptionRate": 60,
+            "results": [
+              {
+                "testName": "Medium Dataset 2",
+                "implementation": "StringParser.GetMod",
+                "arraySize": 30,
+                "totalTime": 18.476900000000057,
+                "averageTime": 0.6158966666666685,
+                "fastestTime": 0.0037999999999556167,
+                "slowestTime": 2.577699999999993,
+                "correctMatches": 28,
+                "totalStrings": 30,
+                "accuracy": 93.33333333333333,
+                "errors": [
+                  "Expected: \"Players fire 1 additional Projectiles\", Got: \"Players fire {1} additional Projectiles\", Input: \"Players fire 1 additional Projectiles\"",
+                  "Expected: \"Players and Monsters take 6% increased Fire Damage\", Got: \"Players and Monsters take 1% increased Fire Damage\", Input: \"Flayers and Mnsters 1ake 6% increased F!re Damage\""
+                ]
+              },
+              {
+                "testName": "Medium Dataset 2",
+                "implementation": "StringParser.GetMods",
+                "arraySize": 30,
+                "totalTime": 18.831800000000044,
+                "averageTime": 0.6277266666666681,
+                "fastestTime": 0.6277266666666681,
+                "slowestTime": 0.6277266666666681,
+                "correctMatches": 28,
+                "totalStrings": 30,
+                "accuracy": 93.33333333333333,
+                "errors": [
+                  "Expected: \"Players fire 1 additional Projectiles\", Got: \"Players fire {1} additional Projectiles\", Input: \"Players fire 1 additional Projectiles\"",
+                  "Expected: \"Players and Monsters take 6% increased Fire Damage\", Got: \"Players and Monsters take 1% increased Fire Damage\", Input: \"Flayers and Mnsters 1ake 6% increased F!re Damage\""
+                ]
+              }
+            ]
+          },
+          {
+            "datasetName": "Large Dataset",
+            "corruptionRate": 65,
+            "results": [
+              {
+                "testName": "Large Dataset",
+                "implementation": "StringParser.GetMod",
+                "arraySize": 40,
+                "totalTime": 12.487300000000005,
+                "averageTime": 0.31218250000000014,
+                "fastestTime": 0.0030000000000427463,
+                "slowestTime": 2.0467000000001008,
+                "correctMatches": 40,
+                "totalStrings": 40,
+                "accuracy": 100,
+                "errors": []
+              },
+              {
+                "testName": "Large Dataset",
+                "implementation": "StringParser.GetMods",
+                "arraySize": 40,
+                "totalTime": 15.00120000000004,
+                "averageTime": 0.375030000000001,
+                "fastestTime": 0.375030000000001,
+                "slowestTime": 0.375030000000001,
+                "correctMatches": 40,
+                "totalStrings": 40,
+                "accuracy": 100,
+                "errors": []
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "benchmark": "string-match",
+        "mapModCount": 1822,
+        "datasets": [
+          {
+            "datasetName": "Small Dataset 1",
+            "corruptionRate": 50,
+            "results": [
+              {
+                "testName": "Small Dataset 1",
+                "implementation": "StringParser.GetMod",
+                "arraySize": 10,
+                "totalTime": 5.647199999999998,
+                "averageTime": 0.5647199999999998,
+                "fastestTime": 0.0072000000000116415,
+                "slowestTime": 2.3361999999999625,
+                "correctMatches": 9,
+                "totalStrings": 10,
+                "accuracy": 90,
+                "errors": [
+                  "Expected: \"Scarabs dropped in Area have 25% increased chance to be Divination Scarabs\", Got: \"Scarabs dropped in Area have 3% increased chance to be Divination Scarabs\", Input: \"Scara´bz drop3d in Area have 25% increase›d chance to b¸e Divination Scaiabs\""
+                ]
+              },
+              {
+                "testName": "Small Dataset 1",
+                "implementation": "StringParser.GetMods",
+                "arraySize": 10,
+                "totalTime": 5.537299999999959,
+                "averageTime": 0.553729999999996,
+                "fastestTime": 0.553729999999996,
+                "slowestTime": 0.553729999999996,
+                "correctMatches": 9,
+                "totalStrings": 10,
+                "accuracy": 90,
+                "errors": [
+                  "Expected: \"Scarabs dropped in Area have 25% increased chance to be Divination Scarabs\", Got: \"Scarabs dropped in Area have 3% increased chance to be Divination Scarabs\", Input: \"Scara´bz drop3d in Area have 25% increase›d chance to b¸e Divination Scaiabs\""
+                ]
+              }
+            ]
+          },
+          {
+            "datasetName": "Small Dataset 2",
+            "corruptionRate": 50,
+            "results": [
+              {
+                "testName": "Small Dataset 2",
+                "implementation": "StringParser.GetMod",
+                "arraySize": 10,
+                "totalTime": 3.243099999999913,
+                "averageTime": 0.3243099999999913,
+                "fastestTime": 0.0036000000000058208,
+                "slowestTime": 1.165200000000027,
+                "correctMatches": 10,
+                "totalStrings": 10,
+                "accuracy": 100,
+                "errors": []
+              },
+              {
+                "testName": "Small Dataset 2",
+                "implementation": "StringParser.GetMods",
+                "arraySize": 10,
+                "totalTime": 3.485500000000002,
+                "averageTime": 0.3485500000000002,
+                "fastestTime": 0.3485500000000002,
+                "slowestTime": 0.3485500000000002,
+                "correctMatches": 10,
+                "totalStrings": 10,
+                "accuracy": 100,
+                "errors": []
+              }
+            ]
+          },
+          {
+            "datasetName": "Small Dataset 3",
+            "corruptionRate": 40,
+            "results": [
+              {
+                "testName": "Small Dataset 3",
+                "implementation": "StringParser.GetMod",
+                "arraySize": 10,
+                "totalTime": 2.620300000000043,
+                "averageTime": 0.2620300000000043,
+                "fastestTime": 0.0030000000000427463,
+                "slowestTime": 0.93649999999991,
+                "correctMatches": 9,
+                "totalStrings": 10,
+                "accuracy": 90,
+                "errors": [
+                  "Expected: \"Delirium Reward Type: Fossils\", Got: \"Delirium Reward Type: #\", Input: \"Deli´rium Reward Type: Fossils\""
+                ]
+              },
+              {
+                "testName": "Small Dataset 3",
+                "implementation": "StringParser.GetMods",
+                "arraySize": 10,
+                "totalTime": 2.6400999999999613,
+                "averageTime": 0.26400999999999614,
+                "fastestTime": 0.26400999999999614,
+                "slowestTime": 0.26400999999999614,
+                "correctMatches": 9,
+                "totalStrings": 10,
+                "accuracy": 90,
+                "errors": [
+                  "Expected: \"Delirium Reward Type: Fossils\", Got: \"Delirium Reward Type: #\", Input: \"Deli´rium Reward Type: Fossils\""
+                ]
+              }
+            ]
+          },
+          {
+            "datasetName": "Small Dataset 4",
+            "corruptionRate": 100,
+            "results": [
+              {
+                "testName": "Small Dataset 4",
+                "implementation": "StringParser.GetMod",
+                "arraySize": 9,
+                "totalTime": 0.33379999999999654,
+                "averageTime": 0.037088888888888505,
+                "fastestTime": 0.0036000000000058208,
+                "slowestTime": 0.11189999999999145,
+                "correctMatches": 9,
+                "totalStrings": 9,
+                "accuracy": 100,
+                "errors": []
+              },
+              {
+                "testName": "Small Dataset 4",
+                "implementation": "StringParser.GetMods",
+                "arraySize": 9,
+                "totalTime": 0.30360000000007403,
+                "averageTime": 0.03373333333334156,
+                "fastestTime": 0.03373333333334156,
+                "slowestTime": 0.03373333333334156,
+                "correctMatches": 9,
+                "totalStrings": 9,
+                "accuracy": 100,
+                "errors": []
+              }
+            ]
+          },
+          {
+            "datasetName": "Medium Dataset 1",
+            "corruptionRate": 60,
+            "results": [
+              {
+                "testName": "Medium Dataset 1",
+                "implementation": "StringParser.GetMod",
+                "arraySize": 20,
+                "totalTime": 10.986899999999991,
+                "averageTime": 0.5493449999999995,
+                "fastestTime": 0.00329999999996744,
+                "slowestTime": 2.430500000000052,
+                "correctMatches": 20,
+                "totalStrings": 20,
+                "accuracy": 100,
+                "errors": []
+              },
+              {
+                "testName": "Medium Dataset 1",
+                "implementation": "StringParser.GetMods",
+                "arraySize": 20,
+                "totalTime": 11.265099999999961,
+                "averageTime": 0.5632549999999981,
+                "fastestTime": 0.5632549999999981,
+                "slowestTime": 0.5632549999999981,
+                "correctMatches": 20,
+                "totalStrings": 20,
+                "accuracy": 100,
+                "errors": []
+              }
+            ]
+          },
+          {
+            "datasetName": "Medium Dataset 2",
+            "corruptionRate": 60,
+            "results": [
+              {
+                "testName": "Medium Dataset 2",
+                "implementation": "StringParser.GetMod",
+                "arraySize": 30,
+                "totalTime": 17.39020000000005,
+                "averageTime": 0.579673333333335,
+                "fastestTime": 0.0029000000000678483,
+                "slowestTime": 2.677400000000034,
+                "correctMatches": 28,
+                "totalStrings": 30,
+                "accuracy": 93.33333333333333,
+                "errors": [
+                  "Expected: \"Players fire 1 additional Projectiles\", Got: \"Players fire {1} additional Projectiles\", Input: \"Players fire 1 additional Projectiles\"",
+                  "Expected: \"Players and Monsters take 6% increased Fire Damage\", Got: \"Players and Monsters take 1% increased Fire Damage\", Input: \"Flayers and Mnsters 1ake 6% increased F!re Damage\""
+                ]
+              },
+              {
+                "testName": "Medium Dataset 2",
+                "implementation": "StringParser.GetMods",
+                "arraySize": 30,
+                "totalTime": 17.676600000000008,
+                "averageTime": 0.5892200000000003,
+                "fastestTime": 0.5892200000000003,
+                "slowestTime": 0.5892200000000003,
+                "correctMatches": 28,
+                "totalStrings": 30,
+                "accuracy": 93.33333333333333,
+                "errors": [
+                  "Expected: \"Players fire 1 additional Projectiles\", Got: \"Players fire {1} additional Projectiles\", Input: \"Players fire 1 additional Projectiles\"",
+                  "Expected: \"Players and Monsters take 6% increased Fire Damage\", Got: \"Players and Monsters take 1% increased Fire Damage\", Input: \"Flayers and Mnsters 1ake 6% increased F!re Damage\""
+                ]
+              }
+            ]
+          },
+          {
+            "datasetName": "Large Dataset",
+            "corruptionRate": 65,
+            "results": [
+              {
+                "testName": "Large Dataset",
+                "implementation": "StringParser.GetMod",
+                "arraySize": 40,
+                "totalTime": 12.041300000000092,
+                "averageTime": 0.3010325000000023,
+                "fastestTime": 0.002499999999940883,
+                "slowestTime": 2.004299999999944,
+                "correctMatches": 40,
+                "totalStrings": 40,
+                "accuracy": 100,
+                "errors": []
+              },
+              {
+                "testName": "Large Dataset",
+                "implementation": "StringParser.GetMods",
+                "arraySize": 40,
+                "totalTime": 12.648800000000051,
+                "averageTime": 0.3162200000000013,
+                "fastestTime": 0.3162200000000013,
+                "slowestTime": 0.3162200000000013,
+                "correctMatches": 40,
+                "totalStrings": 40,
+                "accuracy": 100,
+                "errors": []
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "benchmark": "string-match",
+        "mapModCount": 1822,
+        "datasets": [
+          {
+            "datasetName": "Small Dataset 1",
+            "corruptionRate": 50,
+            "results": [
+              {
+                "testName": "Small Dataset 1",
+                "implementation": "StringParser.GetMod",
+                "arraySize": 10,
+                "totalTime": 5.578800000000001,
+                "averageTime": 0.5578800000000002,
+                "fastestTime": 0.006999999999948159,
+                "slowestTime": 2.308899999999994,
+                "correctMatches": 9,
+                "totalStrings": 10,
+                "accuracy": 90,
+                "errors": [
+                  "Expected: \"Scarabs dropped in Area have 25% increased chance to be Divination Scarabs\", Got: \"Scarabs dropped in Area have 3% increased chance to be Divination Scarabs\", Input: \"Scara´bz drop3d in Area have 25% increase›d chance to b¸e Divination Scaiabs\""
+                ]
+              },
+              {
+                "testName": "Small Dataset 1",
+                "implementation": "StringParser.GetMods",
+                "arraySize": 10,
+                "totalTime": 5.3916000000000395,
+                "averageTime": 0.539160000000004,
+                "fastestTime": 0.539160000000004,
+                "slowestTime": 0.539160000000004,
+                "correctMatches": 9,
+                "totalStrings": 10,
+                "accuracy": 90,
+                "errors": [
+                  "Expected: \"Scarabs dropped in Area have 25% increased chance to be Divination Scarabs\", Got: \"Scarabs dropped in Area have 3% increased chance to be Divination Scarabs\", Input: \"Scara´bz drop3d in Area have 25% increase›d chance to b¸e Divination Scaiabs\""
+                ]
+              }
+            ]
+          },
+          {
+            "datasetName": "Small Dataset 2",
+            "corruptionRate": 50,
+            "results": [
+              {
+                "testName": "Small Dataset 2",
+                "implementation": "StringParser.GetMod",
+                "arraySize": 10,
+                "totalTime": 3.2386000000000195,
+                "averageTime": 0.3238600000000019,
+                "fastestTime": 0.00329999999996744,
+                "slowestTime": 1.1341999999999643,
+                "correctMatches": 10,
+                "totalStrings": 10,
+                "accuracy": 100,
+                "errors": []
+              },
+              {
+                "testName": "Small Dataset 2",
+                "implementation": "StringParser.GetMods",
+                "arraySize": 10,
+                "totalTime": 3.134200000000078,
+                "averageTime": 0.3134200000000078,
+                "fastestTime": 0.3134200000000078,
+                "slowestTime": 0.3134200000000078,
+                "correctMatches": 10,
+                "totalStrings": 10,
+                "accuracy": 100,
+                "errors": []
+              }
+            ]
+          },
+          {
+            "datasetName": "Small Dataset 3",
+            "corruptionRate": 40,
+            "results": [
+              {
+                "testName": "Small Dataset 3",
+                "implementation": "StringParser.GetMod",
+                "arraySize": 10,
+                "totalTime": 2.6358999999999924,
+                "averageTime": 0.2635899999999992,
+                "fastestTime": 0.003199999999992542,
+                "slowestTime": 0.9184000000000196,
+                "correctMatches": 9,
+                "totalStrings": 10,
+                "accuracy": 90,
+                "errors": [
+                  "Expected: \"Delirium Reward Type: Fossils\", Got: \"Delirium Reward Type: #\", Input: \"Deli´rium Reward Type: Fossils\""
+                ]
+              },
+              {
+                "testName": "Small Dataset 3",
+                "implementation": "StringParser.GetMods",
+                "arraySize": 10,
+                "totalTime": 2.6604999999999563,
+                "averageTime": 0.2660499999999956,
+                "fastestTime": 0.2660499999999956,
+                "slowestTime": 0.2660499999999956,
+                "correctMatches": 9,
+                "totalStrings": 10,
+                "accuracy": 90,
+                "errors": [
+                  "Expected: \"Delirium Reward Type: Fossils\", Got: \"Delirium Reward Type: #\", Input: \"Deli´rium Reward Type: Fossils\""
+                ]
+              }
+            ]
+          },
+          {
+            "datasetName": "Small Dataset 4",
+            "corruptionRate": 100,
+            "results": [
+              {
+                "testName": "Small Dataset 4",
+                "implementation": "StringParser.GetMod",
+                "arraySize": 9,
+                "totalTime": 0.24900000000002365,
+                "averageTime": 0.027666666666669296,
+                "fastestTime": 0.002499999999940883,
+                "slowestTime": 0.07839999999998781,
+                "correctMatches": 9,
+                "totalStrings": 9,
+                "accuracy": 100,
+                "errors": []
+              },
+              {
+                "testName": "Small Dataset 4",
+                "implementation": "StringParser.GetMods",
+                "arraySize": 9,
+                "totalTime": 0.21899999999993724,
+                "averageTime": 0.02433333333332636,
+                "fastestTime": 0.02433333333332636,
+                "slowestTime": 0.02433333333332636,
+                "correctMatches": 9,
+                "totalStrings": 9,
+                "accuracy": 100,
+                "errors": []
+              }
+            ]
+          },
+          {
+            "datasetName": "Medium Dataset 1",
+            "corruptionRate": 60,
+            "results": [
+              {
+                "testName": "Medium Dataset 1",
+                "implementation": "StringParser.GetMod",
+                "arraySize": 20,
+                "totalTime": 10.943099999999959,
+                "averageTime": 0.547154999999998,
+                "fastestTime": 0.002499999999940883,
+                "slowestTime": 2.411699999999996,
+                "correctMatches": 20,
+                "totalStrings": 20,
+                "accuracy": 100,
+                "errors": []
+              },
+              {
+                "testName": "Medium Dataset 1",
+                "implementation": "StringParser.GetMods",
+                "arraySize": 20,
+                "totalTime": 10.926900000000046,
+                "averageTime": 0.5463450000000023,
+                "fastestTime": 0.5463450000000023,
+                "slowestTime": 0.5463450000000023,
+                "correctMatches": 20,
+                "totalStrings": 20,
+                "accuracy": 100,
+                "errors": []
+              }
+            ]
+          },
+          {
+            "datasetName": "Medium Dataset 2",
+            "corruptionRate": 60,
+            "results": [
+              {
+                "testName": "Medium Dataset 2",
+                "implementation": "StringParser.GetMod",
+                "arraySize": 30,
+                "totalTime": 17.925899999999956,
+                "averageTime": 0.5975299999999986,
+                "fastestTime": 0.0030000000000427463,
+                "slowestTime": 2.5985999999999194,
+                "correctMatches": 28,
+                "totalStrings": 30,
+                "accuracy": 93.33333333333333,
+                "errors": [
+                  "Expected: \"Players fire 1 additional Projectiles\", Got: \"Players fire {1} additional Projectiles\", Input: \"Players fire 1 additional Projectiles\"",
+                  "Expected: \"Players and Monsters take 6% increased Fire Damage\", Got: \"Players and Monsters take 1% increased Fire Damage\", Input: \"Flayers and Mnsters 1ake 6% increased F!re Damage\""
+                ]
+              },
+              {
+                "testName": "Medium Dataset 2",
+                "implementation": "StringParser.GetMods",
+                "arraySize": 30,
+                "totalTime": 21.367399999999975,
+                "averageTime": 0.7122466666666658,
+                "fastestTime": 0.7122466666666658,
+                "slowestTime": 0.7122466666666658,
+                "correctMatches": 28,
+                "totalStrings": 30,
+                "accuracy": 93.33333333333333,
+                "errors": [
+                  "Expected: \"Players fire 1 additional Projectiles\", Got: \"Players fire {1} additional Projectiles\", Input: \"Players fire 1 additional Projectiles\"",
+                  "Expected: \"Players and Monsters take 6% increased Fire Damage\", Got: \"Players and Monsters take 1% increased Fire Damage\", Input: \"Flayers and Mnsters 1ake 6% increased F!re Damage\""
+                ]
+              }
+            ]
+          },
+          {
+            "datasetName": "Large Dataset",
+            "corruptionRate": 65,
+            "results": [
+              {
+                "testName": "Large Dataset",
+                "implementation": "StringParser.GetMod",
+                "arraySize": 40,
+                "totalTime": 11.85329999999999,
+                "averageTime": 0.2963324999999998,
+                "fastestTime": 0.002499999999940883,
+                "slowestTime": 2.142400000000066,
+                "correctMatches": 40,
+                "totalStrings": 40,
+                "accuracy": 100,
+                "errors": []
+              },
+              {
+                "testName": "Large Dataset",
+                "implementation": "StringParser.GetMods",
+                "arraySize": 40,
+                "totalTime": 11.940500000000043,
+                "averageTime": 0.29851250000000107,
+                "fastestTime": 0.29851250000000107,
+                "slowestTime": 0.29851250000000107,
+                "correctMatches": 40,
+                "totalStrings": 40,
+                "accuracy": 100,
+                "errors": []
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "benchmark": "string-match",
+        "mapModCount": 1822,
+        "datasets": [
+          {
+            "datasetName": "Small Dataset 1",
+            "corruptionRate": 50,
+            "results": [
+              {
+                "testName": "Small Dataset 1",
+                "implementation": "StringParser.GetMod",
+                "arraySize": 10,
+                "totalTime": 5.4121000000000095,
+                "averageTime": 0.541210000000001,
+                "fastestTime": 0.0072999999999865395,
+                "slowestTime": 2.2496999999999616,
+                "correctMatches": 9,
+                "totalStrings": 10,
+                "accuracy": 90,
+                "errors": [
+                  "Expected: \"Scarabs dropped in Area have 25% increased chance to be Divination Scarabs\", Got: \"Scarabs dropped in Area have 3% increased chance to be Divination Scarabs\", Input: \"Scara´bz drop3d in Area have 25% increase›d chance to b¸e Divination Scaiabs\""
+                ]
+              },
+              {
+                "testName": "Small Dataset 1",
+                "implementation": "StringParser.GetMods",
+                "arraySize": 10,
+                "totalTime": 5.444099999999935,
+                "averageTime": 0.5444099999999935,
+                "fastestTime": 0.5444099999999935,
+                "slowestTime": 0.5444099999999935,
+                "correctMatches": 9,
+                "totalStrings": 10,
+                "accuracy": 90,
+                "errors": [
+                  "Expected: \"Scarabs dropped in Area have 25% increased chance to be Divination Scarabs\", Got: \"Scarabs dropped in Area have 3% increased chance to be Divination Scarabs\", Input: \"Scara´bz drop3d in Area have 25% increase›d chance to b¸e Divination Scaiabs\""
+                ]
+              }
+            ]
+          },
+          {
+            "datasetName": "Small Dataset 2",
+            "corruptionRate": 50,
+            "results": [
+              {
+                "testName": "Small Dataset 2",
+                "implementation": "StringParser.GetMod",
+                "arraySize": 10,
+                "totalTime": 3.5313999999999623,
+                "averageTime": 0.35313999999999623,
+                "fastestTime": 0.005300000000033833,
+                "slowestTime": 1.214900000000057,
+                "correctMatches": 10,
+                "totalStrings": 10,
+                "accuracy": 100,
+                "errors": []
+              },
+              {
+                "testName": "Small Dataset 2",
+                "implementation": "StringParser.GetMods",
+                "arraySize": 10,
+                "totalTime": 3.1878000000000384,
+                "averageTime": 0.31878000000000384,
+                "fastestTime": 0.31878000000000384,
+                "slowestTime": 0.31878000000000384,
+                "correctMatches": 10,
+                "totalStrings": 10,
+                "accuracy": 100,
+                "errors": []
+              }
+            ]
+          },
+          {
+            "datasetName": "Small Dataset 3",
+            "corruptionRate": 40,
+            "results": [
+              {
+                "testName": "Small Dataset 3",
+                "implementation": "StringParser.GetMod",
+                "arraySize": 10,
+                "totalTime": 2.8179999999999836,
+                "averageTime": 0.2817999999999984,
+                "fastestTime": 0.0030000000000427463,
+                "slowestTime": 1.0319000000000642,
+                "correctMatches": 9,
+                "totalStrings": 10,
+                "accuracy": 90,
+                "errors": [
+                  "Expected: \"Delirium Reward Type: Fossils\", Got: \"Delirium Reward Type: #\", Input: \"Deli´rium Reward Type: Fossils\""
+                ]
+              },
+              {
+                "testName": "Small Dataset 3",
+                "implementation": "StringParser.GetMods",
+                "arraySize": 10,
+                "totalTime": 2.5371000000000095,
+                "averageTime": 0.25371000000000093,
+                "fastestTime": 0.25371000000000093,
+                "slowestTime": 0.25371000000000093,
+                "correctMatches": 9,
+                "totalStrings": 10,
+                "accuracy": 90,
+                "errors": [
+                  "Expected: \"Delirium Reward Type: Fossils\", Got: \"Delirium Reward Type: #\", Input: \"Deli´rium Reward Type: Fossils\""
+                ]
+              }
+            ]
+          },
+          {
+            "datasetName": "Small Dataset 4",
+            "corruptionRate": 100,
+            "results": [
+              {
+                "testName": "Small Dataset 4",
+                "implementation": "StringParser.GetMod",
+                "arraySize": 9,
+                "totalTime": 0.24930000000006203,
+                "averageTime": 0.027700000000006893,
+                "fastestTime": 0.002499999999940883,
+                "slowestTime": 0.07889999999997599,
+                "correctMatches": 9,
+                "totalStrings": 9,
+                "accuracy": 100,
+                "errors": []
+              },
+              {
+                "testName": "Small Dataset 4",
+                "implementation": "StringParser.GetMods",
+                "arraySize": 9,
+                "totalTime": 0.2218999999998914,
+                "averageTime": 0.02465555555554349,
+                "fastestTime": 0.02465555555554349,
+                "slowestTime": 0.02465555555554349,
+                "correctMatches": 9,
+                "totalStrings": 9,
+                "accuracy": 100,
+                "errors": []
+              }
+            ]
+          },
+          {
+            "datasetName": "Medium Dataset 1",
+            "corruptionRate": 60,
+            "results": [
+              {
+                "testName": "Medium Dataset 1",
+                "implementation": "StringParser.GetMod",
+                "arraySize": 20,
+                "totalTime": 12.315800000000081,
+                "averageTime": 0.6157900000000041,
+                "fastestTime": 0.003399999999942338,
+                "slowestTime": 3.3356999999999744,
+                "correctMatches": 20,
+                "totalStrings": 20,
+                "accuracy": 100,
+                "errors": []
+              },
+              {
+                "testName": "Medium Dataset 1",
+                "implementation": "StringParser.GetMods",
+                "arraySize": 20,
+                "totalTime": 10.962699999999927,
+                "averageTime": 0.5481349999999964,
+                "fastestTime": 0.5481349999999964,
+                "slowestTime": 0.5481349999999964,
+                "correctMatches": 20,
+                "totalStrings": 20,
+                "accuracy": 100,
+                "errors": []
+              }
+            ]
+          },
+          {
+            "datasetName": "Medium Dataset 2",
+            "corruptionRate": 60,
+            "results": [
+              {
+                "testName": "Medium Dataset 2",
+                "implementation": "StringParser.GetMod",
+                "arraySize": 30,
+                "totalTime": 17.551400000000058,
+                "averageTime": 0.5850466666666686,
+                "fastestTime": 0.0027999999999792635,
+                "slowestTime": 2.538099999999986,
+                "correctMatches": 28,
+                "totalStrings": 30,
+                "accuracy": 93.33333333333333,
+                "errors": [
+                  "Expected: \"Players fire 1 additional Projectiles\", Got: \"Players fire {1} additional Projectiles\", Input: \"Players fire 1 additional Projectiles\"",
+                  "Expected: \"Players and Monsters take 6% increased Fire Damage\", Got: \"Players and Monsters take 1% increased Fire Damage\", Input: \"Flayers and Mnsters 1ake 6% increased F!re Damage\""
+                ]
+              },
+              {
+                "testName": "Medium Dataset 2",
+                "implementation": "StringParser.GetMods",
+                "arraySize": 30,
+                "totalTime": 17.67089999999996,
+                "averageTime": 0.5890299999999987,
+                "fastestTime": 0.5890299999999987,
+                "slowestTime": 0.5890299999999987,
+                "correctMatches": 28,
+                "totalStrings": 30,
+                "accuracy": 93.33333333333333,
+                "errors": [
+                  "Expected: \"Players fire 1 additional Projectiles\", Got: \"Players fire {1} additional Projectiles\", Input: \"Players fire 1 additional Projectiles\"",
+                  "Expected: \"Players and Monsters take 6% increased Fire Damage\", Got: \"Players and Monsters take 1% increased Fire Damage\", Input: \"Flayers and Mnsters 1ake 6% increased F!re Damage\""
+                ]
+              }
+            ]
+          },
+          {
+            "datasetName": "Large Dataset",
+            "corruptionRate": 65,
+            "results": [
+              {
+                "testName": "Large Dataset",
+                "implementation": "StringParser.GetMod",
+                "arraySize": 40,
+                "totalTime": 12.499400000000037,
+                "averageTime": 0.3124850000000009,
+                "fastestTime": 0.0027999999999792635,
+                "slowestTime": 2.260699999999929,
+                "correctMatches": 40,
+                "totalStrings": 40,
+                "accuracy": 100,
+                "errors": []
+              },
+              {
+                "testName": "Large Dataset",
+                "implementation": "StringParser.GetMods",
+                "arraySize": 40,
+                "totalTime": 12.449799999999982,
+                "averageTime": 0.31124499999999955,
+                "fastestTime": 0.31124499999999955,
+                "slowestTime": 0.31124499999999955,
+                "correctMatches": 40,
+                "totalStrings": 40,
+                "accuracy": 100,
+                "errors": []
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "metrics": [
+      {
+        "metric": "small-dataset-1.stringparser-getmod.totalTime",
+        "samples": [
+          8.378199999999993,
+          5.8355999999999995,
+          5.647199999999998,
+          5.578800000000001,
+          5.4121000000000095
+        ],
+        "summary": {
+          "count": 5,
+          "min": 5.4121000000000095,
+          "max": 8.378199999999993,
+          "mean": 6.17038,
+          "median": 5.647199999999998,
+          "p95": 7.869679999999994
+        }
+      },
+      {
+        "metric": "small-dataset-1.stringparser-getmod.accuracy",
+        "samples": [
+          90,
+          90,
+          90,
+          90,
+          90
+        ],
+        "summary": {
+          "count": 5,
+          "min": 90,
+          "max": 90,
+          "mean": 90,
+          "median": 90,
+          "p95": 90
+        }
+      },
+      {
+        "metric": "small-dataset-1.stringparser-getmods.totalTime",
+        "samples": [
+          5.564199999999971,
+          5.805999999999983,
+          5.537299999999959,
+          5.3916000000000395,
+          5.444099999999935
+        ],
+        "summary": {
+          "count": 5,
+          "min": 5.3916000000000395,
+          "max": 5.805999999999983,
+          "mean": 5.548639999999978,
+          "median": 5.537299999999959,
+          "p95": 5.757639999999981
+        }
+      },
+      {
+        "metric": "small-dataset-1.stringparser-getmods.accuracy",
+        "samples": [
+          90,
+          90,
+          90,
+          90,
+          90
+        ],
+        "summary": {
+          "count": 5,
+          "min": 90,
+          "max": 90,
+          "mean": 90,
+          "median": 90,
+          "p95": 90
+        }
+      },
+      {
+        "metric": "small-dataset-2.stringparser-getmod.totalTime",
+        "samples": [
+          3.288500000000056,
+          3.286900000000003,
+          3.243099999999913,
+          3.2386000000000195,
+          3.5313999999999623
+        ],
+        "summary": {
+          "count": 5,
+          "min": 3.2386000000000195,
+          "max": 3.5313999999999623,
+          "mean": 3.3176999999999905,
+          "median": 3.286900000000003,
+          "p95": 3.482819999999981
+        }
+      },
+      {
+        "metric": "small-dataset-2.stringparser-getmod.accuracy",
+        "samples": [
+          100,
+          100,
+          100,
+          100,
+          100
+        ],
+        "summary": {
+          "count": 5,
+          "min": 100,
+          "max": 100,
+          "mean": 100,
+          "median": 100,
+          "p95": 100
+        }
+      },
+      {
+        "metric": "small-dataset-2.stringparser-getmods.totalTime",
+        "samples": [
+          3.3220999999999776,
+          3.191599999999994,
+          3.485500000000002,
+          3.134200000000078,
+          3.1878000000000384
+        ],
+        "summary": {
+          "count": 5,
+          "min": 3.134200000000078,
+          "max": 3.485500000000002,
+          "mean": 3.264240000000018,
+          "median": 3.191599999999994,
+          "p95": 3.452819999999997
+        }
+      },
+      {
+        "metric": "small-dataset-2.stringparser-getmods.accuracy",
+        "samples": [
+          100,
+          100,
+          100,
+          100,
+          100
+        ],
+        "summary": {
+          "count": 5,
+          "min": 100,
+          "max": 100,
+          "mean": 100,
+          "median": 100,
+          "p95": 100
+        }
+      },
+      {
+        "metric": "small-dataset-3.stringparser-getmod.totalTime",
+        "samples": [
+          2.5932999999999993,
+          3.0113999999999805,
+          2.620300000000043,
+          2.6358999999999924,
+          2.8179999999999836
+        ],
+        "summary": {
+          "count": 5,
+          "min": 2.5932999999999993,
+          "max": 3.0113999999999805,
+          "mean": 2.7357799999999997,
+          "median": 2.6358999999999924,
+          "p95": 2.972719999999981
+        }
+      },
+      {
+        "metric": "small-dataset-3.stringparser-getmod.accuracy",
+        "samples": [
+          90,
+          90,
+          90,
+          90,
+          90
+        ],
+        "summary": {
+          "count": 5,
+          "min": 90,
+          "max": 90,
+          "mean": 90,
+          "median": 90,
+          "p95": 90
+        }
+      },
+      {
+        "metric": "small-dataset-3.stringparser-getmods.totalTime",
+        "samples": [
+          2.6813000000000216,
+          2.6182000000000016,
+          2.6400999999999613,
+          2.6604999999999563,
+          2.5371000000000095
+        ],
+        "summary": {
+          "count": 5,
+          "min": 2.5371000000000095,
+          "max": 2.6813000000000216,
+          "mean": 2.6274399999999902,
+          "median": 2.6400999999999613,
+          "p95": 2.6771400000000085
+        }
+      },
+      {
+        "metric": "small-dataset-3.stringparser-getmods.accuracy",
+        "samples": [
+          90,
+          90,
+          90,
+          90,
+          90
+        ],
+        "summary": {
+          "count": 5,
+          "min": 90,
+          "max": 90,
+          "mean": 90,
+          "median": 90,
+          "p95": 90
+        }
+      },
+      {
+        "metric": "small-dataset-4.stringparser-getmod.totalTime",
+        "samples": [
+          0.25729999999998654,
+          0.2825000000000273,
+          0.33379999999999654,
+          0.24900000000002365,
+          0.24930000000006203
+        ],
+        "summary": {
+          "count": 5,
+          "min": 0.24900000000002365,
+          "max": 0.33379999999999654,
+          "mean": 0.2743800000000192,
+          "median": 0.25729999999998654,
+          "p95": 0.32354000000000266
+        }
+      },
+      {
+        "metric": "small-dataset-4.stringparser-getmod.accuracy",
+        "samples": [
+          100,
+          100,
+          100,
+          100,
+          100
+        ],
+        "summary": {
+          "count": 5,
+          "min": 100,
+          "max": 100,
+          "mean": 100,
+          "median": 100,
+          "p95": 100
+        }
+      },
+      {
+        "metric": "small-dataset-4.stringparser-getmods.totalTime",
+        "samples": [
+          0.42919999999998026,
+          0.23910000000000764,
+          0.30360000000007403,
+          0.21899999999993724,
+          0.2218999999998914
+        ],
+        "summary": {
+          "count": 5,
+          "min": 0.21899999999993724,
+          "max": 0.42919999999998026,
+          "mean": 0.2825599999999781,
+          "median": 0.23910000000000764,
+          "p95": 0.404079999999999
+        }
+      },
+      {
+        "metric": "small-dataset-4.stringparser-getmods.accuracy",
+        "samples": [
+          100,
+          100,
+          100,
+          100,
+          100
+        ],
+        "summary": {
+          "count": 5,
+          "min": 100,
+          "max": 100,
+          "mean": 100,
+          "median": 100,
+          "p95": 100
+        }
+      },
+      {
+        "metric": "medium-dataset-1.stringparser-getmod.totalTime",
+        "samples": [
+          10.86020000000002,
+          13.057600000000036,
+          10.986899999999991,
+          10.943099999999959,
+          12.315800000000081
+        ],
+        "summary": {
+          "count": 5,
+          "min": 10.86020000000002,
+          "max": 13.057600000000036,
+          "mean": 11.632720000000017,
+          "median": 10.986899999999991,
+          "p95": 12.909240000000045
+        }
+      },
+      {
+        "metric": "medium-dataset-1.stringparser-getmod.accuracy",
+        "samples": [
+          100,
+          100,
+          100,
+          100,
+          100
+        ],
+        "summary": {
+          "count": 5,
+          "min": 100,
+          "max": 100,
+          "mean": 100,
+          "median": 100,
+          "p95": 100
+        }
+      },
+      {
+        "metric": "medium-dataset-1.stringparser-getmods.totalTime",
+        "samples": [
+          11.062299999999993,
+          10.877299999999991,
+          11.265099999999961,
+          10.926900000000046,
+          10.962699999999927
+        ],
+        "summary": {
+          "count": 5,
+          "min": 10.877299999999991,
+          "max": 11.265099999999961,
+          "mean": 11.018859999999984,
+          "median": 10.962699999999927,
+          "p95": 11.224539999999967
+        }
+      },
+      {
+        "metric": "medium-dataset-1.stringparser-getmods.accuracy",
+        "samples": [
+          100,
+          100,
+          100,
+          100,
+          100
+        ],
+        "summary": {
+          "count": 5,
+          "min": 100,
+          "max": 100,
+          "mean": 100,
+          "median": 100,
+          "p95": 100
+        }
+      },
+      {
+        "metric": "medium-dataset-2.stringparser-getmod.totalTime",
+        "samples": [
+          17.517999999999972,
+          18.476900000000057,
+          17.39020000000005,
+          17.925899999999956,
+          17.551400000000058
+        ],
+        "summary": {
+          "count": 5,
+          "min": 17.39020000000005,
+          "max": 18.476900000000057,
+          "mean": 17.77248000000002,
+          "median": 17.551400000000058,
+          "p95": 18.366700000000037
+        }
+      },
+      {
+        "metric": "medium-dataset-2.stringparser-getmod.accuracy",
+        "samples": [
+          93.33333333333333,
+          93.33333333333333,
+          93.33333333333333,
+          93.33333333333333,
+          93.33333333333333
+        ],
+        "summary": {
+          "count": 5,
+          "min": 93.33333333333333,
+          "max": 93.33333333333333,
+          "mean": 93.33333333333333,
+          "median": 93.33333333333333,
+          "p95": 93.33333333333333
+        }
+      },
+      {
+        "metric": "medium-dataset-2.stringparser-getmods.totalTime",
+        "samples": [
+          17.2962,
+          18.831800000000044,
+          17.676600000000008,
+          21.367399999999975,
+          17.67089999999996
+        ],
+        "summary": {
+          "count": 5,
+          "min": 17.2962,
+          "max": 21.367399999999975,
+          "mean": 18.568579999999997,
+          "median": 17.676600000000008,
+          "p95": 20.86027999999999
+        }
+      },
+      {
+        "metric": "medium-dataset-2.stringparser-getmods.accuracy",
+        "samples": [
+          93.33333333333333,
+          93.33333333333333,
+          93.33333333333333,
+          93.33333333333333,
+          93.33333333333333
+        ],
+        "summary": {
+          "count": 5,
+          "min": 93.33333333333333,
+          "max": 93.33333333333333,
+          "mean": 93.33333333333333,
+          "median": 93.33333333333333,
+          "p95": 93.33333333333333
+        }
+      },
+      {
+        "metric": "large-dataset.stringparser-getmod.totalTime",
+        "samples": [
+          11.833199999999977,
+          12.487300000000005,
+          12.041300000000092,
+          11.85329999999999,
+          12.499400000000037
+        ],
+        "summary": {
+          "count": 5,
+          "min": 11.833199999999977,
+          "max": 12.499400000000037,
+          "mean": 12.14290000000002,
+          "median": 12.041300000000092,
+          "p95": 12.49698000000003
+        }
+      },
+      {
+        "metric": "large-dataset.stringparser-getmod.accuracy",
+        "samples": [
+          100,
+          100,
+          100,
+          100,
+          100
+        ],
+        "summary": {
+          "count": 5,
+          "min": 100,
+          "max": 100,
+          "mean": 100,
+          "median": 100,
+          "p95": 100
+        }
+      },
+      {
+        "metric": "large-dataset.stringparser-getmods.totalTime",
+        "samples": [
+          11.949900000000014,
+          15.00120000000004,
+          12.648800000000051,
+          11.940500000000043,
+          12.449799999999982
+        ],
+        "summary": {
+          "count": 5,
+          "min": 11.940500000000043,
+          "max": 15.00120000000004,
+          "mean": 12.798040000000025,
+          "median": 12.449799999999982,
+          "p95": 14.530720000000041
+        }
+      },
+      {
+        "metric": "large-dataset.stringparser-getmods.accuracy",
+        "samples": [
+          100,
+          100,
+          100,
+          100,
+          100
+        ],
+        "summary": {
+          "count": 5,
+          "min": 100,
+          "max": 100,
+          "mean": 100,
+          "median": 100,
+          "p95": 100
+        }
+      }
+    ]
+  }
+}

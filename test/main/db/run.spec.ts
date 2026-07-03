@@ -404,7 +404,7 @@ describe('Runs', () => {
 
       const result = await Runs.deleteAreaInfo(areaId);
 
-      expect(mockDB.run).toHaveBeenCalledWith('DELETE FROM areainfo WHERE run_id = ?', [areaId]);
+      expect(mockDB.run).toHaveBeenCalledWith('DELETE FROM area_info WHERE run_id = ?', [areaId]);
       expect(result).toBe(true);
     });
 
@@ -530,7 +530,7 @@ describe('Runs', () => {
       const result = await Runs.getRunsFromDates(from, to);
 
       expect(mockDB.all).toHaveBeenCalledWith(
-        expect.stringContaining('SELECT areainfo.name, run.id'),
+        expect.stringContaining('SELECT area_info.name, run.id'),
         [from, to]
       );
       expect(result).toEqual(mockRuns);

@@ -23,6 +23,13 @@ jest.mock('../../../src/main/modules/Utils', () => ({}));
 jest.mock('../../../src/main/modules/ItemPricer', () => ({
   price: jest.fn().mockReturnValue(Promise.resolve({ value: 0, count: 0, importantDrops: {} })),
 }));
+jest.mock('../../../src/main/modules/LogProcessor', () => ({
+  __esModule: true,
+  default: {
+    readLine: jest.fn((value) => value),
+    reprocessEvents: jest.fn().mockResolvedValue(undefined),
+  },
+}));
 jest.mock('electron-log', () => ({
   scope: jest.fn(),
   debug: jest.fn(),
