@@ -785,7 +785,7 @@ const DB = {
     return await manager.runTask(() => manager.getStatement(sql).run(params));
   },
 
-  transaction: async (query: string, params: any[], league: string | undefined = undefined) => {
+  runMany: async (query: string, params: any[], league: string | undefined = undefined) => {
     const manager = DB.getManager(league);
     if (!manager) return null;
 
@@ -799,6 +799,10 @@ const DB = {
       });
       return runMany(params);
     });
+  },
+
+  transaction: async (query: string, params: any[], league: string | undefined = undefined) => {
+    return DB.runMany(query, params, league);
   },
 
   initDB: async (char: string) => {

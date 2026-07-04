@@ -1,6 +1,6 @@
 import logger from 'electron-log';
 import dayjs, { ManipulateType } from 'dayjs';
-import DB from './db/stats';
+import DB from './db/repositories/stats';
 import RatesManager from './RatesManager';
 import { Run } from '../helpers/types';
 import Constants from '../helpers/constants';

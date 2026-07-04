@@ -1,4 +1,4 @@
-import DB from './db/stashtabs';
+import DB from './db/repositories/stashtabs';
 import SettingsManager from './SettingsManager';
 import StashGetter from './modules/StashGetter';
 import RendererLogger from './RendererLogger';

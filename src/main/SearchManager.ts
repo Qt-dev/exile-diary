@@ -1,5 +1,5 @@
 import logger from 'electron-log';
-import DB from './db/stats';
+import DB from './db/repositories/stats';
 import { rendererEventChannels } from '../shared/contracts/exileDiaryApi';
 
 class SearchManager {

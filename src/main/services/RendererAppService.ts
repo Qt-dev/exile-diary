@@ -1,7 +1,7 @@
 import { app } from 'electron';
 import logger from 'electron-log';
 import dayjs from 'dayjs';
-import Runs from '../db/run';
+import Runs from '../db/repositories/run';
 import SettingsManager from '../SettingsManager';
 import GGGAPI from '../GGGAPI';
 import AuthManager from '../AuthManager';
@@ -14,7 +14,7 @@ import ItemPricer from '../modules/ItemPricer';
 import RunParser from '../modules/RunParser';
 import SearchManager from '../SearchManager';
 import RateGetterV2 from '../modules/RateGetterV2';
-import ItemsDB from '../db/items';
+import ItemsDB from '../db/repositories/items';
 
 export const RendererAppService = {
   async getAppGlobals() {

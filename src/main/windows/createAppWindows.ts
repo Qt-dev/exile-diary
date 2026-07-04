@@ -8,7 +8,8 @@ export type AppWindows = {
 };
 
 export function createAppWindows(): AppWindows {
-  const preloadPath = path.join(__dirname, 'preload.js');
+  // This module compiles into build/main/windows, while preload.js is emitted into build/main.
+  const preloadPath = path.join(__dirname, '..', 'preload.js');
 
   const mainWindow = new BrowserWindow({
     title: `Exile Diary v${app.getVersion()}`,
