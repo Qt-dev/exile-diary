@@ -1,23 +1,18 @@
 import { makeAutoObservable } from 'mobx';
 import { v4 as uuidv4 } from 'uuid';
 import dayjs, { Dayjs } from 'dayjs';
-
-type Message = {
-  text: string;
-  type: string;
-  link?: string;
-};
+import { OverlayMessage } from '../../../shared/contracts/exileDiaryApi';
 
 export type LogData = {
-  id: string;
-  timestamp: string;
-  messages: Message[];
-  link: string;
+  id?: string;
+  timestamp?: string;
+  messages: OverlayMessage[];
+  link?: string;
 };
 
 export class Log {
   id = null;
-  messages: Message[] = [];
+  messages: OverlayMessage[] = [];
   timestamp: Dayjs | null = null;
   link: string | null = null;
   store = null;
@@ -31,6 +26,6 @@ export class Log {
     this.id = uuidv4();
     this.timestamp = dayjs(logData.timestamp) ?? dayjs();
     this.messages = logData.messages;
-    this.link = logData.link;
+    this.link = logData.link ?? null;
   }
 }

@@ -14,8 +14,6 @@ import Stack from '@mui/material/Stack';
 import { electronService } from '../../../electron.service';
 import './DebugSettings.css';
 
-const { ipcRenderer } = electronService;
-
 const DebugSettings = ({ runStore, settings }) => {
   const now = dayjs();
   const [reCalculateProfitStart, setReCalculateProfitStart] = React.useState<Dayjs | null>(
@@ -38,9 +36,7 @@ const DebugSettings = ({ runStore, settings }) => {
     const newValue = event.target.checked;
     setLogToUI(newValue);
     setIsSaving(true);
-    await ipcRenderer.invoke('save-settings', {
-      settings: { logToUI: newValue },
-    });
+    await electronService.saveSettings({ logToUI: newValue });
     setIsSaving(false);
   };
 
@@ -48,42 +44,40 @@ const DebugSettings = ({ runStore, settings }) => {
     const newValue = event.target.checked;
     setEnableAutoscrollState(newValue);
     setIsSaving(true);
-    await ipcRenderer.invoke('save-settings', {
-      settings: { enableAutoscroll: newValue },
-    });
+    await electronService.saveSettings({ enableAutoscroll: newValue });
     setIsSaving(false);
   };
 
   const handleReCalculateProfit = async () => {
     setIsRecalculatingProfit(true);
-    await ipcRenderer.invoke('debug:recheck-gain', {
-      from: reCalculateProfitStart?.format('YYYYMMDDHHmmss'),
-      to: reCalculateProfitEnd?.format('YYYYMMDDHHmmss'),
-    });
+    await electronService.debugRecheckGain(
+      reCalculateProfitStart?.format('YYYYMMDDHHmmss'),
+      reCalculateProfitEnd?.format('YYYYMMDDHHmmss')
+    );
     await runStore.loadRuns();
     setIsRecalculatingProfit(false);
   };
 
   const handleFetchRates = async () => {
     setIsFetchingRates(true);
-    await ipcRenderer.invoke('debug:fetch-rates');
+    await electronService.debugFetchRates();
     setIsFetchingRates(false);
   };
 
   const handleFetchStashTabs = async () => {
     setIsFetchingStashTabs(true);
-    await ipcRenderer.invoke('debug:fetch-stash-tabs');
+    await electronService.debugFetchStashTabs();
     setIsFetchingStashTabs(false);
   };
 
   const handleReprocessRuns = async () => {
     setIsReprocessing(true);
-    await ipcRenderer.invoke('debug:reprocess-runs');
+    await electronService.reprocessRuns();
     setIsReprocessing(false);
   };
 
   const handleRefreshUI = async () => {
-    await ipcRenderer.send('ui:refresh');
+    electronService.refreshUi();
   };
 
   return (

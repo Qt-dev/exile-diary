@@ -8,7 +8,7 @@ import Logo from '../assets/img/icons/png/128x128.png';
 import { useLoaderData, useNavigate } from 'react-router-dom';
 import './CharacterSelect.css';
 import { electronService } from '../electron.service';
-const { logger, ipcRenderer } = electronService;
+const { logger } = electronService;
 
 const CharacterSelect = () => {
   const navigate = useNavigate();
@@ -32,7 +32,7 @@ const CharacterSelect = () => {
       },
     };
 
-    await ipcRenderer.invoke('save-settings', { settings: data });
+    await electronService.saveSettings(data);
 
     navigate('/settings', { replace: true });
   };

@@ -9,8 +9,6 @@ import Logo from '../../assets/img/icons/png/128x128.png';
 import Patreon from '../../assets/img/patreon.png';
 import './SideNav.css';
 import Price from '../Pricing/Price';
-const { ipcRenderer } = electronService;
-
 const ProfitPerHour = ({ hourly, daily, divinePrice }) => {
   return (
     <div className="Profit-Per-Hour">
@@ -63,7 +61,7 @@ const SideNav = ({ version, isNewVersion, turnNewVersionOff }) => {
   //   turnNewVersionOff();
   // };
   const openPatreon = () => {
-    electronService.shell.openExternal('https://patreon.com/MrTinED');
+    electronService.openExternal('https://patreon.com/MrTinED');
   };
 
   const menuData = [
@@ -76,22 +74,30 @@ const SideNav = ({ version, isNewVersion, turnNewVersionOff }) => {
   ];
 
   useEffect(() => {
-    ipcRenderer.on('update-net-worth', (event, { value, change, divinePrice }) => {
-      setNetWorth(<NetWorth value={value} change={change} divinePrice={divinePrice} />);
-    });
-    ipcRenderer.on('update-profit-per-hour', (event, { profitPerHour, divinePrice }) => {
-      setProfitPerHour(
-        <ProfitPerHour
-          hourly={profitPerHour.hourly}
-          daily={profitPerHour.daily}
-          divinePrice={divinePrice}
-        />
-      );
-    });
-    ipcRenderer.invoke('refresh-profit-per-hour');
-    ipcRenderer.send('get-net-worth');
+    const unsubscribeNetWorth = electronService.on(
+      'updateNetWorth',
+      ({ value, change, divinePrice }) => {
+        setNetWorth(<NetWorth value={value} change={change} divinePrice={divinePrice} />);
+      }
+    );
+    const unsubscribeProfitPerHour = electronService.on(
+      'updateProfitPerHour',
+      ({ profitPerHour, divinePrice }) => {
+        setProfitPerHour(
+          <ProfitPerHour
+            hourly={profitPerHour.hourly}
+            daily={profitPerHour.daily}
+            divinePrice={divinePrice}
+          />
+        );
+      }
+    );
+    electronService.refreshProfitPerHour();
+    electronService.requestNetWorthRefresh();
+
     return () => {
-      ipcRenderer.removeAllListeners('update-net-worth');
+      unsubscribeNetWorth();
+      unsubscribeProfitPerHour();
     };
   }, []);
 

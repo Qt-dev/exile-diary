@@ -1,53 +1,109 @@
-import logger from 'electron-log/renderer';
-const { webFrame, ipcRenderer, shell, BrowserWindow, clipboard } = require('electron');
-const childProcess = require('child_process');
-const fs = require('fs');
+import {
+  AppGlobals,
+  ExileDiaryApi,
+  ExileDiaryLogAction,
+  ExileDiaryRendererEventName,
+  ExileDiaryRendererEventPayloads,
+  OpenFileDialogOptions,
+  OverlayPosition,
+} from '../shared/contracts/exileDiaryApi';
 
-let appPath = '';
-let appLocale = '';
-let appVersion = '';
-const Listeners = {};
-
-const refreshGlobals = async () => {
-  await ipcRenderer.invoke('app-globals').then((params) => {
-    appPath = params.appPath;
-    appLocale = params.appLocale;
-    appVersion = params.appVersion;
-  });
+type RendererLogger = {
+  debug: (...args: unknown[]) => void;
+  error: (...args: unknown[]) => void;
+  info: (...args: unknown[]) => void;
+  log: (...args: unknown[]) => void;
+  scope: (label: string) => RendererLogger;
+  silly: (...args: unknown[]) => void;
+  verbose: (...args: unknown[]) => void;
+  warn: (...args: unknown[]) => void;
 };
 
-const registerListener = (channel, id, listener) => {
-  if (!Listeners[channel]) {
-    Listeners[channel] = {};
-    startListener(channel);
+const getApi = (): ExileDiaryApi => {
+  if (typeof window === 'undefined' || !window.exileDiary) {
+    throw new Error('Exile Diary preload API is not available in this renderer context.');
   }
-  Listeners[channel][id] = listener;
+
+  return window.exileDiary;
 };
 
-const startListener = (channel) => {
-  logger.debug(`Starting listener for ${channel}`);
-  ipcRenderer.on(channel, (event, ...args) => {
-    const functions = Object.keys(Listeners[channel]).map((id) => Listeners[channel][id]);
-    logger.debug(`Received event ${channel}`);
-    functions.forEach((func) => {
-      func(event, ...args);
-    });
-  });
+const formatLogArgs = (label: string, args: unknown[]) => {
+  const prefix = `[${label}]`;
+  return [prefix, ...args];
 };
+
+const createRendererLogger = (label = 'renderer'): RendererLogger => ({
+  debug: (...args) => console.debug(...formatLogArgs(label, args)),
+  error: (...args) => console.error(...formatLogArgs(label, args)),
+  info: (...args) => console.info(...formatLogArgs(label, args)),
+  log: (...args) => console.log(...formatLogArgs(label, args)),
+  scope: (nextLabel: string) => createRendererLogger(nextLabel),
+  silly: (...args) => console.debug(...formatLogArgs(label, args)),
+  verbose: (...args) => console.debug(...formatLogArgs(label, args)),
+  warn: (...args) => console.warn(...formatLogArgs(label, args)),
+});
+
+let appGlobals: AppGlobals = {
+  appLocale: '',
+  appPath: '',
+  appVersion: '',
+};
+
+const on = <K extends ExileDiaryRendererEventName>(
+  eventName: K,
+  listener: (payload: ExileDiaryRendererEventPayloads[K]) => void
+) => getApi().on(eventName, listener);
 
 export const electronService = {
-  BrowserWindow,
-  ipcRenderer,
-  webFrame,
-  childProcess,
-  fs,
-  shell,
-  appPath,
-  appLocale,
-  appVersion,
-  clipboard,
-  logger: logger.scope('renderer'),
-  refreshGlobals,
-  getAppVersion: () => appVersion,
-  registerListener,
+  logger: createRendererLogger('renderer'),
+  refreshGlobals: async () => {
+    appGlobals = await getApi().getAppGlobals();
+    return appGlobals;
+  },
+  getAppVersion: () => appGlobals.appVersion,
+  getAppLocale: () => appGlobals.appLocale,
+  getAppPath: () => appGlobals.appPath,
+  getSettings: (keys?: string[]) => getApi().getSettings(keys),
+  saveSettings: (settings: Record<string, any>) => getApi().saveSettings(settings),
+  getCharacters: () => getApi().getCharacters(),
+  isAuthenticated: () => getApi().isAuthenticated(),
+  getOAuthInfo: () => getApi().getOAuthInfo(),
+  logout: () => getApi().logout(),
+  loadRuns: (size: number) => getApi().loadRuns(size),
+  loadRun: (runId: string | number) => getApi().loadRun(runId),
+  loadRunDetails: (runId: string | number) => getApi().loadRunDetails(runId),
+  reprocessRuns: () => getApi().reprocessRuns(),
+  reprocessRun: (runId: string | number) => getApi().reprocessRun(runId),
+  getAllStats: (params?: Record<string, any>) => getApi().getAllStats(params),
+  getStashTabs: () => getApi().getStashTabs(),
+  saveStashTabs: (stashTabs: any[]) => getApi().saveStashTabs(stashTabs),
+  saveStashRefreshInterval: (interval: number) => getApi().saveStashRefreshInterval(interval),
+  saveFilterSettings: (filters: Record<string, any>) => getApi().saveFilterSettings(filters),
+  triggerSearch: (params: Record<string, any>) => getApi().triggerSearch(params),
+  getDivinePrice: () => getApi().getDivinePrice(),
+  getAllMapNames: () => getApi().getAllMapNames(),
+  getAllPossibleMods: () => getApi().getAllPossibleMods(),
+  refreshProfitPerHour: () => getApi().refreshProfitPerHour(),
+  debugRecheckGain: (from?: string, to?: string) => getApi().debugRecheckGain(from, to),
+  debugFetchRates: () => getApi().debugFetchRates(),
+  debugFetchStashTabs: () => getApi().debugFetchStashTabs(),
+  getOverlayPersistence: () => getApi().getOverlayPersistence(),
+  getOverlayPosition: async (): Promise<OverlayPosition> => {
+    const position = await getApi().getOverlayPosition();
+    return position ?? { x: 0, y: 0 };
+  },
+  setOverlayPosition: (position: OverlayPosition) => getApi().setOverlayPosition(position),
+  setOverlayClickable: (clickable: boolean) => getApi().setOverlayClickable(clickable),
+  updateItemsIgnoreStatus: (data: Array<{ id: string; status: boolean }>) =>
+    getApi().updateItemsIgnoreStatus(data),
+  openFileDialog: (options: OpenFileDialogOptions) => getApi().openFileDialog(options),
+  showCharacterDbFile: () => getApi().showCharacterDbFile(),
+  refreshUi: () => getApi().refreshUi(),
+  notifyFiltersUiUpdated: () => getApi().notifyFiltersUiUpdated(),
+  requestNetWorthRefresh: () => getApi().requestNetWorthRefresh(),
+  disableHotkeys: () => getApi().disableHotkeys(),
+  enableHotkeys: () => getApi().enableHotkeys(),
+  triggerLogAction: (action: ExileDiaryLogAction) => getApi().triggerLogAction(action),
+  openExternal: (url: string) => getApi().openExternal(url),
+  on,
 };

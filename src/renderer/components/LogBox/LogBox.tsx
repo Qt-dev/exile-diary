@@ -6,8 +6,8 @@ import MuiLink from '@mui/material/Link';
 import classNames from 'classnames';
 import OpenInFullIcon from '@mui/icons-material/OpenInFull';
 import CloseFullscreenIcon from '@mui/icons-material/CloseFullscreen';
-import { ipcRenderer } from 'electron';
 import Price from '../Pricing/Price';
+import { electronService } from '../../electron.service';
 
 const classPerType = {
   error: 'Text--Error',
@@ -31,7 +31,7 @@ const Line = ({ messages, timestamp }) => {
         );
       } else if (linkEvent) {
         const triggerEvent = () => {
-          ipcRenderer.send(linkEvent);
+          electronService.triggerLogAction(linkEvent);
         };
         return (
           <MuiLink href="#" onClick={triggerEvent} style={{ fontSize: 'inherit' }}>
@@ -86,11 +86,7 @@ const LogBox = ({ store, enableAutoscroll }) => {
       scrollToBottom();
     };
 
-    ipcRenderer.on('log-autoscroll', handleAutoscroll);
-
-    return () => {
-      ipcRenderer.removeListener('log-autoscroll', handleAutoscroll);
-    };
+    return electronService.on('logAutoscroll', handleAutoscroll);
   }, [isOpen]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Update scrollbar position

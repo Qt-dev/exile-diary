@@ -1,2 +1,7 @@
-declare module '*.jpg';
-declare module '*.png';
+declare global {
+  interface Window {
+    exileDiary: import('../shared/contracts/exileDiaryApi').ExileDiaryApi;
+  }
+}
+
+export {};

@@ -12,7 +12,7 @@ import Checkbox from '@mui/material/Checkbox';
 import ListItemText from '@mui/material/ListItemText';
 import ListItemIcon from '@mui/material/ListItemIcon';
 import Button from '@mui/material/Button';
-const { ipcRenderer, logger } = electronService;
+const { logger } = electronService;
 
 const ContainerComponent = ({ children, isFolder, disabled, callback }) => {
   if (isFolder) {
@@ -118,7 +118,7 @@ const StashSettings = ({ store, settings }) => {
     // We delay the settings save in case the user is still typingF
     if (refreshIntervalUpdateTimeout) clearTimeout(refreshIntervalUpdateTimeout);
     refreshIntervalUpdateTimeout = setTimeout(() => {
-      ipcRenderer.invoke('save-settings:stash-refresh-interval', { interval: newInterval });
+      electronService.saveStashRefreshInterval(newInterval);
     }, 3000);
   };
   return (

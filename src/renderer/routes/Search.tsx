@@ -17,7 +17,7 @@ import { useLoaderData } from 'react-router';
 import { saveAs } from 'file-saver';
 import Price from '../components/Pricing/Price';
 
-const { logger, ipcRenderer } = electronService;
+const { logger } = electronService;
 
 const SearchResultsHeader = ({
   activeProfile,
@@ -175,7 +175,7 @@ const Search = ({ store }) => {
 
   const handleSearch = async (searchParams) => {
     setIsSearching(true);
-    await ipcRenderer.invoke('search:trigger', searchParams);
+    await electronService.triggerSearch(searchParams);
     window.localStorage.setItem('searchParams', JSON.stringify(searchParams));
     setSearchParams(searchParams);
     setIsSearching(false);

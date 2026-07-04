@@ -21,10 +21,24 @@ jest.mock('electron', () => ({
     removeListener: jest.fn(),
     removeAllListeners: jest.fn(),
   },
+  ipcRenderer: {
+    invoke: jest.fn(),
+    send: jest.fn(),
+    on: jest.fn(),
+    removeListener: jest.fn(),
+    removeAllListeners: jest.fn(),
+  },
+  contextBridge: {
+    exposeInMainWorld: jest.fn(),
+  },
   dialog: {
     showOpenDialog: jest.fn(),
     showSaveDialog: jest.fn(),
     showMessageBox: jest.fn(),
+  },
+  shell: {
+    openExternal: jest.fn(),
+    showItemInFolder: jest.fn(),
   },
   BrowserWindow: jest.fn(() => ({
     loadFile: jest.fn(),

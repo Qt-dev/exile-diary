@@ -12,7 +12,6 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faDiscord, faGithub } from '@fortawesome/free-brands-svg-icons';
 import { electronService } from '../electron.service';
 import './Help.css';
-const { shell } = electronService;
 
 const DiscordUrl = 'https://discord.gg/fpdsmENfvw';
 const gitHubUrl = 'https://github.com/Qt-dev/exile-diary/releases';
@@ -48,14 +47,14 @@ const Help = () => {
           aria-label="outlined primary button group"
         >
           <Button
-            onClick={() => shell.openExternal(DiscordUrl)}
+            onClick={() => electronService.openExternal(DiscordUrl)}
             startIcon={<FontAwesomeIcon icon={faDiscord}></FontAwesomeIcon>}
             variant="contained"
           >
             Discord Server
           </Button>
           <GithubButton
-            onClick={() => shell.openExternal(gitHubUrl)}
+            onClick={() => electronService.openExternal(gitHubUrl)}
             startIcon={<FontAwesomeIcon icon={faGithub}></FontAwesomeIcon>}
             variant="contained"
           >

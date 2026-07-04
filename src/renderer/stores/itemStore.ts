@@ -4,9 +4,7 @@ import { Item } from './domain/item';
 import { json2csv } from 'json-2-csv';
 import { electronService } from '../electron.service';
 import { v4 as uuidv4 } from 'uuid';
-import Logger from 'electron-log/renderer';
-const { registerListener, ipcRenderer } = electronService;
-const logger = Logger.scope('renderer/item-store');
+const logger = electronService.logger.scope('renderer/item-store');
 
 // Mobx store for Items
 export default class ItemStore {
@@ -21,11 +19,11 @@ export default class ItemStore {
     this.id = uuidv4();
     makeAutoObservable(this);
     this.createItems(lootData);
-    registerListener('items:filters:update', this.id, () => {
+    electronService.on('itemsFiltersUpdate', () => {
       logger.debug(`Updating filters for items of store ${this.id}`);
       this.items.forEach((item) => item.updateIgnoredStatus());
     });
-    registerListener('prices:updated', this.id, (e, { prices }) => {
+    electronService.on('pricesUpdated', ({ prices }) => {
       logger.debug(`Updating prices for items of store ${this.id}`);
       this.items.forEach((item) => item.itemId && item.updateValue(prices[item.itemId]));
     });
@@ -40,7 +38,7 @@ export default class ItemStore {
           const itemsToSend = JSON.parse(JSON.stringify(this.itemsWaitingUpdate));
           if (itemsToSend.length === 0) return;
           logger.debug(`Updating ${itemsToSend.length} items ignore status`);
-          await ipcRenderer.invoke('items:filters:db-update', { data: itemsToSend });
+          await electronService.updateItemsIgnoreStatus(itemsToSend);
           this.itemsWaitingUpdate = [];
           if (this.ignoredStatusUpdateTimeout) {
             clearTimeout(this.ignoredStatusUpdateTimeout);

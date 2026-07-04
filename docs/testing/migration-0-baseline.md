@@ -22,6 +22,23 @@ Run this checklist manually when verifying the current app or a milestone branch
 - confirm overlay visibility and movement still work
 - confirm OCR map-mod reading completes and produces matched mods
 
+## Practical Smoke Path
+
+Use two layers so routine checks stay fast:
+
+- `npm run test:ui:smoke`
+- `npm run test:app:smoke`
+
+What each layer covers:
+
+- `test:ui:smoke` runs a renderer-only smoke suite in `jsdom`. It verifies the shared route tree, auth redirect, and main shell rendering without starting Electron.
+- `test:app:smoke` reuses the lifecycle startup harness to launch the compiled Electron app once and confirm the main process still boots cleanly.
+
+Suggested workflow:
+
+- use `test:ui:smoke` while iterating on renderer routes, preload-driven UI wiring, or shell layout
+- use `test:app:smoke` after touching startup, preload registration, window creation, or before release verification
+
 ## Fixture Matrix
 
 Fixtures live under `test/Fixtures/migration-0`.

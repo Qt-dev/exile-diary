@@ -3,13 +3,14 @@ import dayjs from 'dayjs';
 import constants from '../../../helpers/constants';
 import ItemStore from '../../stores/itemStore';
 import ItemList from '../ItemList/ItemList';
-import Logger from 'electron-log/renderer';
+import { electronService } from '../../electron.service';
 import './RunEvent.css';
+const logger = electronService.logger.scope('renderer/run-event');
 
 const ignoredEventTypes = ['master', 'leagueNPC'];
 
 const formatLine = (event, text): ReactNode => {
-  Logger.info('Formatting event line:', event);
+  logger.info('Formatting event line:', event);
   const time = dayjs(event.timestamp).format('HH:mm:ss');
   if (ignoredEventTypes.includes(event.event_type)) {
     return null;
@@ -65,7 +66,7 @@ const textPerEventType = {
   },
   loot: (event) => {
     const lootData = JSON.parse(event.event_text).map((loot) => JSON.parse(loot));
-    Logger.info('Loot data:', lootData);
+    logger.info('Loot data:', lootData);
     return (
       <>
         <span>Picked Up:</span>

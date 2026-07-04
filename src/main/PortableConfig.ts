@@ -48,6 +48,20 @@ export function initPortableMode(): void {
     const exeDir = path.dirname(process.execPath);
     addLog(`Executable directory: ${exeDir}`);
 
+    const overriddenUserDataPath = process.env.EXILE_DIARY_USER_DATA_PATH;
+    if (overriddenUserDataPath) {
+      const resolvedUserDataPath = path.resolve(overriddenUserDataPath);
+      addLog(`Using EXILE_DIARY_USER_DATA_PATH override: ${resolvedUserDataPath}`);
+      fs.mkdirSync(resolvedUserDataPath, { recursive: true });
+      app.setPath('userData', resolvedUserDataPath);
+      addLog(`userData path overridden to: ${app.getPath('userData')}`);
+      addLog('Skipping portable detection because a userData override was provided');
+      addLog('='.repeat(60));
+      addLog('Final status: USERDATA OVERRIDE');
+      addLog('='.repeat(60));
+      return;
+    }
+
     // Check if explicitly set via environment variable (for development testing)
     if (process.env.PORTABLE === 'true') {
       isPortable = true;

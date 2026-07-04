@@ -1,6 +1,7 @@
 import logger from 'electron-log';
 import dayjs, { Dayjs } from 'dayjs';
 import SettingsManager from './SettingsManager';
+import { rendererEventChannels } from '../shared/contracts/exileDiaryApi';
 let Renderer: any = null;
 let OverlayRenderer: any = null;
 
@@ -34,18 +35,18 @@ const RendererLogger = {
       logger.error('Renderer not initialized');
       return;
     }
-    Renderer.send('add-log', { messages });
+    Renderer.send(rendererEventChannels.addLog, { messages });
     if (SettingsManager.get('enableAutoscroll')) {
-      Renderer.send('log-autoscroll');
+      Renderer.send(rendererEventChannels.logAutoscroll);
     }
     if (onOverlay && !OverlayRenderer) {
       logger.error('OverlayRenderer does not seem to be initialized');
       logger.error(OverlayRenderer);
     } else if (onOverlay) {
       try {
-        OverlayRenderer.send('overlay:message', { messages });
+        OverlayRenderer.send(rendererEventChannels.overlayMessage, { messages });
       } catch (e) {
-        Renderer.send('add-log', {
+        Renderer.send(rendererEventChannels.addLog, {
           messages: [
             {
               text: 'OverlayRenderer errored while sending a message. Is it disconnected?',
@@ -71,8 +72,8 @@ const RendererLogger = {
       i++
     ) {
       const { messages, timestamp } = messagesHistory[i];
-      Renderer.send('add-log', { messages, timestamp: timestamp.toISOString() });
-      OverlayRenderer.send('overlay:message', { messages });
+      Renderer.send(rendererEventChannels.addLog, { messages, timestamp: timestamp.toISOString() });
+      OverlayRenderer.send(rendererEventChannels.overlayMessage, { messages });
     }
   },
 };

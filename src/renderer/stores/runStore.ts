@@ -38,13 +38,9 @@ export default class RunStore {
   setupFromBackend() {
     this.loadRuns(this.size);
     this.currentRun = new Run(this, { name: 'Unknown' });
-    electronService.ipcRenderer.on('refresh-runs', async () => await this.loadRuns(this.size));
-    electronService.ipcRenderer.on('current-run:started', (event, json) =>
-      this.registerCurrentRun(json)
-    );
-    electronService.ipcRenderer.on('current-run:info', (event, json) =>
-      this.updateCurrentRun(json)
-    );
+    electronService.on('refreshRuns', async () => await this.loadRuns(this.size));
+    electronService.on('currentRunStarted', (json) => this.registerCurrentRun(json));
+    electronService.on('currentRunInfo', (json) => this.updateCurrentRun(json));
   }
 
   async loadRuns(size = this.maxSize) {
@@ -54,7 +50,7 @@ export default class RunStore {
       logger.info(`Loading runs from the server with size: ${size}`);
     }
     this.isLoading = true;
-    await electronService.ipcRenderer.invoke('load-runs', { size }).then((runs) => {
+    await electronService.loadRuns(size).then((runs) => {
       runInAction(() => {
         logger.info(`Runs fetched from the server. Found ${runs.length} runs.`);
         const ids = this.runs
@@ -76,7 +72,7 @@ export default class RunStore {
   }
 
   async loadRun(runId: string) {
-    return electronService.ipcRenderer.invoke('load-run', { runId }).then((json) => {
+    return electronService.loadRun(runId).then((json) => {
       return runInAction(() => {
         this.updateRunFromServer(json);
       });
@@ -84,11 +80,9 @@ export default class RunStore {
   }
 
   loadDetails(run: Run) {
-    return electronService.ipcRenderer
-      .invoke('load-run-details', { runId: run.runId })
-      .then((details) => {
-        return run.updateDetails(details);
-      });
+    return electronService.loadRunDetails(run.runId).then((details) => {
+      return run.updateDetails(details);
+    });
   }
 
   getSortedRuns(size = this.runs.length, page = 0) {
@@ -174,17 +168,15 @@ export default class RunStore {
   reprocessRun(run: Run) {
     logger.info(run);
     logger.info(`Reprocessing run with ID: ${run.runId}`);
-    return electronService.ipcRenderer
-      .invoke('reprocess-run', { runId: run.runId })
-      .then((details) => {
-        return run.updateDetails(details);
-      });
+    return electronService.reprocessRun(run.runId).then((details) => {
+      return run.updateDetails(details);
+    });
   }
 
   async reprocessRuns() {
     logger.info('Reprocessing all runs');
     this.processing = true;
-    await electronService.ipcRenderer.invoke('reprocess-runs');
+    await electronService.reprocessRuns();
     await this.loadRuns(this.size);
     this.processing = false;
   }

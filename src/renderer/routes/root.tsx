@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import Logger from 'electron-log/renderer';
 import { Outlet, useNavigate } from 'react-router-dom';
 import SideNav from '../components/SideNav/SideNav';
 import Box from '@mui/material/Box';
@@ -8,14 +7,13 @@ import IgnoreManager from '../../helpers/ignoreManager';
 import LogBox from '../components/LogBox/LogBox';
 import LogStore from '../stores/logStore';
 const logStore = new LogStore([]);
-IgnoreManager.initialize(Logger.scope('renderer/IgnoreManager'), () =>
-  ipcRenderer.send('settings:filters:ui-updated')
+IgnoreManager.initialize(electronService.logger.scope('renderer/IgnoreManager'), () =>
+  electronService.notifyFiltersUiUpdated()
 );
-const { ipcRenderer } = electronService;
-const logger = Logger.scope('renderer/Root');
+const logger = electronService.logger.scope('renderer/Root');
 
 const firstFiltersUpdate = async () => {
-  const settings = await ipcRenderer.invoke('get-settings');
+  const settings = await electronService.getSettings();
   IgnoreManager.updateSettings(settings.filters);
 };
 
@@ -31,36 +29,36 @@ function Root() {
     });
 
     const loadAutoscrollSetting = async () => {
-      const settings = await ipcRenderer.invoke('get-settings');
+      const settings = await electronService.getSettings();
       if (settings && typeof settings.enableAutoscroll === 'boolean') {
         setEnableAutoscroll(settings.enableAutoscroll);
       }
     };
     loadAutoscrollSetting();
 
-    ipcRenderer.on('oauth:logged-out', () => {
+    const unsubscribeLoggedOut = electronService.on('oauthLoggedOut', () => {
       logger.info('User logged out, redirecting to the login page');
       navigate('/login');
     });
-    ipcRenderer.on('oauth:expired-token', () => {
+    const unsubscribeExpiredToken = electronService.on('oauthExpiredToken', () => {
       logger.info('User Token expired, redirecting to the login page');
       navigate('/login');
     });
-    ipcRenderer.on('settings:filters:updated', (event, settings) => {
+    const unsubscribeFilters = electronService.on('settingsFiltersUpdated', (settings) => {
       logger.debug('Settings filters updated, updating the Renderer Ignore Manager');
       IgnoreManager.updateSettings(settings);
     });
-    ipcRenderer.on('settings:autoscroll:updated', (event, value) => {
+    const unsubscribeAutoscroll = electronService.on('settingsAutoscrollUpdated', (value) => {
       logger.debug('Autoscroll setting updated, updating the Renderer');
       setEnableAutoscroll(value);
     });
     firstFiltersUpdate();
 
     return () => {
-      ipcRenderer.removeAllListeners('oauth:logged-out');
-      ipcRenderer.removeAllListeners('oauth:expired-token');
-      ipcRenderer.removeAllListeners('settings:filters:updated');
-      ipcRenderer.removeAllListeners('settings:autoscroll:updated');
+      unsubscribeLoggedOut();
+      unsubscribeExpiredToken();
+      unsubscribeFilters();
+      unsubscribeAutoscroll();
     };
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
   const turnNewVersionOff = () => {

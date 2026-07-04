@@ -1,7 +1,7 @@
 import { makeAutoObservable, runInAction } from 'mobx';
 import { Character, CharacterData } from './domain/character';
 import { electronService } from '../electron.service';
-const { logger, ipcRenderer } = electronService;
+const { logger } = electronService;
 
 // Mobx store for Items
 export default class CharacterStore {
@@ -15,7 +15,7 @@ export default class CharacterStore {
   async fetchCharacters() {
     logger.info('Fetching characters for CharacterStore');
     this.isLoading = true;
-    const characters = await ipcRenderer.invoke('get-characters');
+    const characters = await electronService.getCharacters();
     logger.info(`Found ${characters.length} characters in the backend.`);
     this.createCharacters(characters);
   }

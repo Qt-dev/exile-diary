@@ -19,5 +19,5 @@
     "strict": true,
     "useDefineForClassFields": true
   },
-  "include": ["src/renderer", "typings", "helpers"]
+  "include": ["src/renderer", "src/shared", "typings", "helpers"]
 }

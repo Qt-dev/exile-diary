@@ -100,6 +100,8 @@
   "scripts": {
     "start": "electron .",
     "test": "jest --config jest.config.js --runInBand",
+    "test:app:smoke": "npm run benchmark:app:start",
+    "test:ui:smoke": "jest --config jest.config.js --selectProjects renderer --runInBand",
     "test:watch": "jest --config jest.config.js --runInBand --watch",
     "postinstall": "electron-builder install-app-deps",
     "pack": "electron-builder --dir",

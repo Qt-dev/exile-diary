@@ -1,4 +1,5 @@
 import { spawn } from 'node:child_process';
+import fs from 'node:fs';
 import path from 'node:path';
 
 export type AppLifecycleMode = 'startup' | 'idle-memory';
@@ -12,8 +13,11 @@ export type AppLifecycleBenchmarkReport = {
 };
 
 function getElectronBinary() {
-  const executable = process.platform === 'win32' ? 'electron.cmd' : 'electron';
-  return path.join(process.cwd(), 'node_modules', '.bin', executable);
+  if (process.platform === 'win32') {
+    return path.join(process.cwd(), 'node_modules', 'electron', 'dist', 'electron.exe');
+  }
+
+  return path.join(process.cwd(), 'node_modules', '.bin', 'electron');
 }
 
 export async function runAppLifecycleBenchmark(
@@ -21,21 +25,54 @@ export async function runAppLifecycleBenchmark(
 ): Promise<AppLifecycleBenchmarkReport> {
   const startedAt = Date.now();
   const electronBinary = getElectronBinary();
+  const timeoutMs = mode === 'startup' ? 30000 : 45000;
+  const benchmarkUserDataPath = path.join(
+    process.cwd(),
+    '.tmp',
+    'app-benchmarks',
+    `${mode}-${process.pid}-${startedAt}`
+  );
+
+  fs.mkdirSync(benchmarkUserDataPath, { recursive: true });
 
   return new Promise((resolve, reject) => {
-    const child = spawn(electronBinary, ['.'], {
+    const child = spawn(electronBinary, ['--use-angle=swiftshader', '.', '--disable-gpu-sandbox'], {
       cwd: process.cwd(),
       env: {
         ...process.env,
         EXILE_DIARY_BENCHMARK_MODE: mode,
         EXILE_DIARY_BENCHMARK_STARTED_AT: String(startedAt),
+        EXILE_DIARY_USER_DATA_PATH: benchmarkUserDataPath,
       },
       stdio: ['ignore', 'pipe', 'pipe'],
-      shell: process.platform === 'win32',
+      shell: false,
     });
 
     let stdout = '';
     let stderr = '';
+    let settled = false;
+
+    const finalize = (report: AppLifecycleBenchmarkReport) => {
+      if (settled) {
+        return;
+      }
+
+      settled = true;
+      clearTimeout(timeoutId);
+      resolve(report);
+    };
+
+    const timeoutId = setTimeout(() => {
+      child.kill();
+      finalize({
+        benchmark: 'app-lifecycle',
+        mode,
+        status: 'error',
+        error:
+          `Timed out after ${timeoutMs}ms while waiting for the Electron app to report "${mode}".\n` +
+          `This usually means the renderer never finished loading in the current environment.\nSTDERR:\n${stderr}\nSTDOUT:\n${stdout}`,
+      });
+    }, timeoutMs);
 
     child.stdout.on('data', (chunk) => {
       stdout += chunk.toString();
@@ -48,12 +85,16 @@ export async function runAppLifecycleBenchmark(
     child.on('error', reject);
 
     child.on('close', (code) => {
+      if (settled) {
+        return;
+      }
+
       const markerLine = stdout
         .split(/\r?\n/)
         .find((line) => line.startsWith('__EXILE_DIARY_BENCHMARK__'));
 
       if (!markerLine) {
-        resolve({
+        finalize({
           benchmark: 'app-lifecycle',
           mode,
           status: 'error',
@@ -65,7 +106,7 @@ export async function runAppLifecycleBenchmark(
       }
 
       const payload = JSON.parse(markerLine.replace('__EXILE_DIARY_BENCHMARK__', ''));
-      resolve({
+      finalize({
         benchmark: 'app-lifecycle',
         mode,
         status: 'ok',

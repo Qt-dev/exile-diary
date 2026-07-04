@@ -11,7 +11,6 @@ import BossStats from '../components/Stats/BossStats/BossStats';
 import LootStats from '../components/Stats/LootStats/LootStats';
 import ItemStore from '../stores/itemStore';
 import { toCanvas } from 'html-to-image';
-import { ipcRenderer } from 'electron';
 import { electronService } from '../electron.service';
 import dayjs from 'dayjs';
 const { logger } = electronService;
@@ -40,7 +39,7 @@ const TabPanel = ({ children, index, value, ...other }) => {
 const itemStore = new ItemStore([]);
 
 const loader = async () => {
-  const stats = await ipcRenderer.invoke('get-all-stats');
+  const stats = await electronService.getAllStats();
   return { stats };
 };
 

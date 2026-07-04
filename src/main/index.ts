@@ -55,6 +55,7 @@ import RunParser from './modules/RunParser';
 import KillTracker from './modules/KillTracker';
 import StatsManager from './StatsManager';
 import ItemPricer from './modules/ItemPricer';
+import { invokeChannels, rendererEventChannels, sendChannels } from '../shared/contracts/exileDiaryApi';
 
 dayjs.extend(duration);
 dayjs.extend(isSameOrAfter);
@@ -75,6 +76,11 @@ const benchmarkMode = process.env.EXILE_DIARY_BENCHMARK_MODE as
   | 'idle-memory'
   | undefined;
 const benchmarkStartedAt = Number(process.env.EXILE_DIARY_BENCHMARK_STARTED_AT ?? Date.now());
+
+if (benchmarkMode) {
+  app.commandLine.appendSwitch('use-angle', 'swiftshader');
+  app.commandLine.appendSwitch('ignore-gpu-blocklist');
+}
 
 function emitBenchmarkResult(name: string, data: Record<string, unknown>) {
   if (!benchmarkMode) {
@@ -200,12 +206,15 @@ class MainProcess {
   isOverlayMoveable: boolean;
 
   constructor() {
+    const preloadPath = path.join(__dirname, 'preload.js');
+
     this.mainWindow = new BrowserWindow({
       title: `Exile Diary v${app.getVersion()}`,
       webPreferences: {
-        nodeIntegration: true,
-        nodeIntegrationInWorker: true,
-        contextIsolation: false,
+        contextIsolation: true,
+        nodeIntegration: false,
+        sandbox: false,
+        preload: preloadPath,
         webSecurity: false,
       },
       show: false,
@@ -215,8 +224,10 @@ class MainProcess {
       x: 0,
       y: 100,
       webPreferences: {
-        nodeIntegration: true,
-        contextIsolation: false,
+        contextIsolation: true,
+        nodeIntegration: false,
+        sandbox: false,
+        preload: preloadPath,
       },
       focusable: false,
       ...OVERLAY_WINDOW_OPTS,
@@ -315,14 +326,14 @@ class MainProcess {
             aggregations[id] = value;
             return aggregations;
           }, {});
-          this.sendToMain('prices:updated', { prices });
+          this.sendToMain(rendererEventChannels.pricesUpdated, { prices });
         },
       });
       ClientTxtWatcher.start();
 
       SettingsManager.unregisterListener('filters');
       SettingsManager.registerListener('filters', async (settings) => {
-        this.sendToMain('settings:filters:updated', settings);
+        this.sendToMain(rendererEventChannels.settingsFiltersUpdated, settings);
       });
       ScreenshotWatcher.start();
       OCRWatcher.start();
@@ -356,7 +367,7 @@ class MainProcess {
       logger.info('Closing the overlay for the update restart');
       this.overlayWindow.destroy();
     });
-    ipcMain.on('download-update', (event) => {
+    ipcMain.on(sendChannels.downloadUpdate, (event) => {
       if (!this.isDownloadingUpdate) {
         this.isDownloadingUpdate = true;
         RendererLogger.log({
@@ -366,7 +377,7 @@ class MainProcess {
         autoUpdater.downloadUpdate();
       }
     });
-    ipcMain.on('apply-update', (event) => {
+    ipcMain.on(sendChannels.applyUpdate, (event) => {
       logger.info('Restarting to apply update');
       autoUpdater.quitAndInstall();
     });
@@ -381,7 +392,7 @@ class MainProcess {
         messages: [
           {
             text: `An update to version ${info.version} is available, click here to download`,
-            linkEvent: 'download-update',
+            linkEvent: sendChannels.downloadUpdate,
           },
         ],
       });
@@ -391,7 +402,7 @@ class MainProcess {
         messages: [
           {
             text: `Update to version ${info.version} has been downloaded, click here to install it now (requires restart)`,
-            linkEvent: 'apply-update',
+            linkEvent: sendChannels.applyUpdate,
           },
         ],
       });
@@ -426,15 +437,15 @@ class MainProcess {
   setupListeners() {
     const settings = SettingsManager.getAll();
 
-    ipcMain.on('reload-app', () => {
+    ipcMain.on(sendChannels.reloadApp, () => {
       app.relaunch();
       app.exit();
     });
 
-    ipcMain.on('settings:filters:ui-updated', () => {
-      this.sendToMain('items:filters:update');
+    ipcMain.on(sendChannels.notifyFiltersUiUpdated, () => {
+      this.sendToMain(rendererEventChannels.itemsFiltersUpdate);
     });
-    ipcMain.on('ui:refresh', () => {
+    ipcMain.on(sendChannels.refreshUi, () => {
       this.refreshWindows();
     });
 
@@ -551,28 +562,28 @@ class MainProcess {
     });
 
     StatsManager.registerProfitPerHourAnnouncer((profitPerHour, divinePrice) => {
-      this.sendToMain('update-profit-per-hour', { profitPerHour, divinePrice });
+      this.sendToMain(rendererEventChannels.updateProfitPerHour, { profitPerHour, divinePrice });
     });
 
     RunParser.emitter.removeAllListeners();
     RunParser.refreshTracking();
     RunParser.emitter.on('run-parser:latest-area-updated', (area) => {
       logger.info('Latest area updated:', area);
-      this.sendToMain('current-run:started', {
+      this.sendToMain(rendererEventChannels.currentRunStarted, {
         area: area.name,
         level: area.level,
         iir: area.iir > 0 ? area.iir : null,
         pack_size: area.pack_size > 0 ? area.pack_size : null,
         iiq: area.iiq > 0 ? area.iiq : null,
       });
-      this.sendToOverlay('current-run:started', {
+      this.sendToOverlay(rendererEventChannels.currentRunStarted, {
         area: area.name,
         level: area.level,
         iir: area.iir > 0 ? area.iir : null,
         pack_size: area.pack_size > 0 ? area.pack_size : null,
         iiq: area.iiq > 0 ? area.iiq : null,
       });
-      this.sendToMain('refresh-runs');
+      this.sendToMain(rendererEventChannels.refreshRuns);
     });
     RunParser.emitter.on('run-parser:run-processed', async (run) => {
       const f = new Intl.NumberFormat();
@@ -724,19 +735,19 @@ class MainProcess {
     StashGetter.initialize();
     StashGetter.on('stashTabs:updated:full', (data) => {
       logger.info(`Updated stash tabs (League: ${data.league} - Change: ${data.change})`);
-      this.sendToMain('stashTabs:frontend:update', data);
+      this.sendToMain(rendererEventChannels.stashTabsUpdated, data);
     });
     StashGetter.on('netWorthUpdated', async (data) => {
       const divinePrice = await ItemPricer.getCurrencyByName('Divine Orb');
-      this.sendToMain('update-net-worth', { divinePrice, ...data });
+      this.sendToMain(rendererEventChannels.updateNetWorth, { divinePrice, ...data });
     });
-    ipcMain.on('get-net-worth', () => {
+    ipcMain.on(sendChannels.requestNetWorthRefresh, () => {
       StashGetter.getNetWorth();
     });
     SettingsManager.registerListener('overlayPersistenceEnabled', (isOverlayEnabled) => {
       logger.debug(`Setting Overlay Persistence to Enabled:${isOverlayEnabled}`);
-      this.sendToOverlay('overlay:set-persistence', isOverlayEnabled);
-      this.sendToMain('settings:overlay-persistence-changed', isOverlayEnabled);
+      this.sendToOverlay(rendererEventChannels.overlaySetPersistence, isOverlayEnabled);
+      this.sendToMain(rendererEventChannels.settingsOverlayPersistenceChanged, isOverlayEnabled);
     });
     SettingsManager.registerListener('activeProfile', (newProfile, oldProfile) => {
       if (
@@ -828,6 +839,47 @@ class MainProcess {
 
   setWindowListeners() {
     let isOverlayInitialized = false;
+    let benchmarkReported = false;
+
+    const completeBenchmark = async () => {
+      if (!benchmarkMode || benchmarkReported) {
+        return;
+      }
+
+      benchmarkReported = true;
+
+      if (benchmarkMode === 'startup') {
+        emitBenchmarkResult('app-startup', {
+          mode: benchmarkMode,
+          startupMs: Date.now() - benchmarkStartedAt,
+        });
+        app.quit();
+        return;
+      }
+
+      if (benchmarkMode === 'idle-memory') {
+        setTimeout(async () => {
+          const memoryInfo =
+            typeof process.getProcessMemoryInfo === 'function'
+              ? await process.getProcessMemoryInfo()
+              : null;
+          emitBenchmarkResult('app-idle-memory', {
+            mode: benchmarkMode,
+            startupMs: Date.now() - benchmarkStartedAt,
+            processMemory: memoryInfo,
+            appMetrics: app.getAppMetrics(),
+          });
+          app.quit();
+        }, 1500);
+      }
+    };
+
+    if (benchmarkMode) {
+      this.mainWindow.webContents.once('did-finish-load', () => {
+        logger.info('Benchmark window finished loading');
+        void completeBenchmark();
+      });
+    }
 
     // Main Window listeners
     this.mainWindow.once('ready-to-show', () => {
@@ -870,28 +922,6 @@ class MainProcess {
         ],
       });
       AuthManager.setLogoutTimer();
-
-      if (benchmarkMode === 'startup') {
-        emitBenchmarkResult('app-startup', {
-          mode: benchmarkMode,
-          startupMs: Date.now() - benchmarkStartedAt,
-        });
-        app.quit();
-      } else if (benchmarkMode === 'idle-memory') {
-        setTimeout(async () => {
-          const memoryInfo =
-            typeof process.getProcessMemoryInfo === 'function'
-              ? await process.getProcessMemoryInfo()
-              : null;
-          emitBenchmarkResult('app-idle-memory', {
-            mode: benchmarkMode,
-            startupMs: Date.now() - benchmarkStartedAt,
-            processMemory: memoryInfo,
-            appMetrics: app.getAppMetrics(),
-          });
-          app.quit();
-        }, 1500);
-      }
     });
 
     this.mainWindow.on('close', () => {
@@ -906,13 +936,13 @@ class MainProcess {
       logger.info('Overlay attached to Path of Exile process');
       RunParser.refreshTracking();
       this.overlayWindow.setBounds(OverlayController.targetBounds);
-      this.sendToOverlay('overlay:trigger-reposition');
+      this.sendToOverlay(rendererEventChannels.overlayTriggerReposition);
     });
 
     OverlayController.events.on('moveresize', (event) => {
       // OverlayController resizes the overlay window when the target changes. So we tell our app to reset the size to what it should be.
       this.overlayWindow.setBounds(OverlayController.targetBounds);
-      this.sendToOverlay('overlay:trigger-reposition');
+      this.sendToOverlay(rendererEventChannels.overlayTriggerReposition);
     });
 
     OverlayController.events.on('blur', () => {
@@ -935,7 +965,7 @@ class MainProcess {
     OverlayController.events.on('moveresize', (event) => {
       // OverlayController resizes the overlay window when the target changes. So we tell our app to reset the size to what it should be.
       // https://github.com/SnosMe/electron-overlay-window/blob/28261ce92633292c9accd8e185174489311f0b1f/src/index.ts#L109
-      this.sendToOverlay('overlay:trigger-reposition');
+      this.sendToOverlay(rendererEventChannels.overlayTriggerReposition);
     });
 
     // OverlayWindow listeners
@@ -946,7 +976,7 @@ class MainProcess {
     });
 
     this.overlayWindow.on('show', () => {
-      this.sendToOverlay('overlay:trigger-reposition');
+      this.sendToOverlay(rendererEventChannels.overlayTriggerReposition);
     });
 
     this.overlayWindow.on('close', (event) => {
@@ -964,7 +994,7 @@ class MainProcess {
           {
             text: 'Click here to restart.',
             type: 'error',
-            linkEvent: 'reload-app',
+            linkEvent: sendChannels.reloadApp,
           },
         ],
       });
@@ -980,20 +1010,20 @@ class MainProcess {
       }
     });
 
-    ipcMain.on('overlay:make-clickable', (event, { clickable }) => {
+    ipcMain.on(sendChannels.setOverlayClickable, (event, { clickable }) => {
       this.overlayWindow.setIgnoreMouseEvents(!clickable);
     });
 
-    ipcMain.handle('overlay:get-position', (event) => {
+    ipcMain.handle(invokeChannels.getOverlayPosition, (event) => {
       return SettingsManager.get('overlayPosition');
     });
 
-    ipcMain.handle('open-file-dialog', async (event, options) => {
+    ipcMain.handle(invokeChannels.openFileDialog, async (event, options) => {
       const result = await dialog.showOpenDialog(this.mainWindow, options);
       return result;
     });
 
-    ipcMain.handle('show-character-db-file', async (event) => {
+    ipcMain.handle(invokeChannels.showCharacterDbFile, async (event) => {
       const activeProfile = SettingsManager.get('activeProfile');
       if (activeProfile && activeProfile.characterName && activeProfile.league) {
         const dbPath = DB.getCharacterDbPath(activeProfile.characterName, activeProfile.league);
@@ -1007,7 +1037,7 @@ class MainProcess {
       }
     });
 
-    ipcMain.on('overlay:set-position', (event, { x, y }) => {
+    ipcMain.on(sendChannels.setOverlayPosition, (event, { x, y }) => {
       SettingsManager.set('overlayPosition', { x, y });
     });
 
@@ -1058,37 +1088,37 @@ class MainProcess {
       app.setAsDefaultProtocolClient('exile-diary');
     }
 
-    const events = [
-      'app-globals',
-      'load-runs',
-      'load-run',
-      'load-run-details',
-      'debug:reprocess-runs',
-      'reprocess-run',
-      'get-settings',
-      'get-characters',
-      'save-settings',
-      'oauth:get-info',
-      'oauth:is-authenticated',
-      'oauth:logout',
-      'get-all-stats',
-      'get-stash-tabs',
-      'save-settings:stashtabs',
-      'save-settings:stash-refresh-interval',
-      'save-settings:filters',
-      'search:trigger',
-      'get-divine-price',
-      'get-all-map-names',
-      'get-all-possible-mods',
-      'refresh-profit-per-hour',
-      'debug:recheck-gain',
-      'debug:fetch-rates',
-      'debug:fetch-stash-tabs',
-      'overlay:get-persistence',
-      'items:filters:db-update',
-    ];
-    for (const event of events) {
-      ipcMain.handle(event, Responder[event]);
+    const responderEvents = [
+      'getAppGlobals',
+      'loadRuns',
+      'loadRun',
+      'loadRunDetails',
+      'reprocessRuns',
+      'reprocessRun',
+      'getSettings',
+      'getCharacters',
+      'saveSettings',
+      'getOAuthInfo',
+      'isAuthenticated',
+      'logout',
+      'getAllStats',
+      'getStashTabs',
+      'saveStashTabs',
+      'saveStashRefreshInterval',
+      'saveFilterSettings',
+      'triggerSearch',
+      'getDivinePrice',
+      'getAllMapNames',
+      'getAllPossibleMods',
+      'refreshProfitPerHour',
+      'debugRecheckGain',
+      'debugFetchRates',
+      'debugFetchStashTabs',
+      'getOverlayPersistence',
+      'updateItemsIgnoreStatus',
+    ] as const;
+    for (const event of responderEvents) {
+      ipcMain.handle(invokeChannels[event], Responder[event]);
     }
 
     if (!benchmarkMode) {
@@ -1101,10 +1131,10 @@ class MainProcess {
       this.registerGlobalShortcuts();
     }
 
-    ipcMain.on('hotkeys:disable', () => {
+    ipcMain.on(sendChannels.disableHotkeys, () => {
       this.unregisterGlobalShortcuts();
     });
-    ipcMain.on('hotkeys:enable', () => {
+    ipcMain.on(sendChannels.enableHotkeys, () => {
       this.registerGlobalShortcuts();
     });
 
