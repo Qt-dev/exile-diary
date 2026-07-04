@@ -5,10 +5,8 @@ import {
   dialog,
   Menu,
   session,
-  globalShortcut,
   nativeImage,
   screen,
-  shell,
 } from 'electron';
 import chokidar from 'chokidar';
 import { spawn } from 'child_process';
@@ -27,9 +25,7 @@ try {
 import { autoUpdater } from 'electron-updater';
 import * as path from 'path';
 import logger from 'electron-log';
-import Responder from './Responder';
 import SettingsManager from './SettingsManager';
-import SearchManager from './SearchManager';
 import GGGAPI from './GGGAPI';
 import League from './db/league';
 import ItemDB from './db/items';
@@ -42,20 +38,24 @@ import isSameOrAfter from 'dayjs/plugin/isSameOrAfter';
 import AuthManager from './AuthManager';
 import IgnoreManager from '../helpers/ignoreManager';
 import LogProcessor from './modules/LogProcessor';
-import DB from './db/index';
 
 // Old stuff
 import RateGetterV2 from './modules/RateGetterV2';
-import Utils from './modules/Utils';
 import ScreenshotWatcher from './modules/ImageParser/ScreenshotWatcher';
 import * as ClientTxtWatcher from './modules/ClientTxtWatcher';
 import * as OCRWatcher from './modules/ImageParser/OCRWatcher';
 import StashGetter from './modules/StashGetter';
 import RunParser from './modules/RunParser';
-import KillTracker from './modules/KillTracker';
 import StatsManager from './StatsManager';
 import ItemPricer from './modules/ItemPricer';
 import { invokeChannels, rendererEventChannels, sendChannels } from '../shared/contracts/exileDiaryApi';
+import { createAppWindows } from './windows/createAppWindows';
+import { createWindowMessenger, WindowMessenger } from './windows/windowMessaging';
+import { GlobalShortcutController } from './shortcuts/GlobalShortcutController';
+import { registerResponderHandlers } from './ipc/registerResponderHandlers';
+import { registerShellHandlers } from './ipc/registerShellHandlers';
+import { registerRuntimeListeners } from './runtime/registerRuntimeListeners';
+import { registerAutoUpdater } from './updater/registerAutoUpdater';
 
 dayjs.extend(duration);
 dayjs.extend(isSameOrAfter);
@@ -202,89 +202,58 @@ class MainProcess {
   autoUpdaterInterval?: NodeJS.Timeout;
   saveBoundsCallback?: NodeJS.Timeout;
   awaitingMapEntering: boolean = false;
-  screenshotLock: boolean = false;
   isOverlayMoveable: boolean;
+  messenger: WindowMessenger;
+  shortcutController: GlobalShortcutController;
 
   constructor() {
-    const preloadPath = path.join(__dirname, 'preload.js');
-
-    this.mainWindow = new BrowserWindow({
-      title: `Exile Diary v${app.getVersion()}`,
-      webPreferences: {
-        contextIsolation: true,
-        nodeIntegration: false,
-        sandbox: false,
-        preload: preloadPath,
-        webSecurity: false,
-      },
-      show: false,
-    });
-
-    this.overlayWindow = new BrowserWindow({
-      x: 0,
-      y: 100,
-      webPreferences: {
-        contextIsolation: true,
-        nodeIntegration: false,
-        sandbox: false,
-        preload: preloadPath,
-      },
-      focusable: false,
-      ...OVERLAY_WINDOW_OPTS,
-    });
+    const windows = createAppWindows();
+    this.mainWindow = windows.mainWindow;
+    this.overlayWindow = windows.overlayWindow;
     this.isDownloadingUpdate = false;
     this.isOverlayMoveable = false;
+    this.messenger = createWindowMessenger(windows);
+    this.shortcutController = new GlobalShortcutController({
+      getShortcut: (key) => SettingsManager.get(key),
+      isRunParseScreenshotEnabled: () => !!SettingsManager.get('runParseScreenshotEnabled'),
+      areCustomScreenshotsEnabled: () => !!SettingsManager.get('screenshots')?.allowCustomShortcut,
+      toggleOverlayPersistence: () => {
+        logger.info('Toggling overlay visibility');
+        const overlayPersistenceEnabled = SettingsManager.get('overlayPersistenceEnabled');
+        SettingsManager.set('overlayPersistenceEnabled', !overlayPersistenceEnabled);
+      },
+      toggleOverlayMovement: () => {
+        logger.info(`Toggling overlay movement - ${this.isOverlayMoveable}`);
+        this.isOverlayMoveable = !this.isOverlayMoveable;
+        this.sendToOverlay(rendererEventChannels.overlayToggleMovement, {
+          isOverlayMoveable: this.isOverlayMoveable,
+        });
+        return this.isOverlayMoveable;
+      },
+      triggerRunParse: () => {
+        logger.info('Run parse shortcut pressed');
+        const event = { timestamp: dayjs().toISOString() };
+        RunParser.tryProcess({ event });
+      },
+      triggerScreenshot: () => {
+        logger.info('Screenshot shortcut pressed');
+        ScreenshotWatcher.emitter.emit('screenshot:capture');
+      },
+    });
   }
 
   registerGlobalShortcuts() {
     logger.info('Registering global shortcuts');
-
-    // Overlay Toggle Shortcut
-    const overlayToggleShortcut =
-      SettingsManager.get('overlayToggleShortcut') || 'CommandOrControl+F7';
-    globalShortcut.register(overlayToggleShortcut, () => {
-      logger.info('Toggling overlay visibility');
-      const overlayPersistenceEnabled = SettingsManager.get('overlayPersistenceEnabled');
-      SettingsManager.set('overlayPersistenceEnabled', !overlayPersistenceEnabled);
-    });
-
-    // Overlay Movement Shortcut
-    const overlayMovementShortcut =
-      SettingsManager.get('overlayMovementShortcut') || 'CommandOrControl+F9';
-    globalShortcut.register(overlayMovementShortcut, () => {
-      logger.info(`Toggling overlay movement - ${this.isOverlayMoveable}`);
-      this.isOverlayMoveable = !this.isOverlayMoveable;
-      this.sendToOverlay('overlay:toggle-movement', { isOverlayMoveable: this.isOverlayMoveable });
-    });
-
-    // Run Parse Shortcut
-    const runParseShortcut = SettingsManager.get('runParseShortcut') || 'CommandOrControl+F10';
-    if (SettingsManager.get('runParseScreenshotEnabled')) {
-      globalShortcut.register(runParseShortcut, () => {
-        logger.info('Run parse shortcut pressed');
-        const event = { timestamp: dayjs().toISOString() };
-        RunParser.tryProcess({ event });
-      });
-    }
-
-    // Screenshot Shortcut
-    const screenshotShortcut = SettingsManager.get('screenshotShortcut') || 'CommandOrControl+F8';
-    if (SettingsManager.get('screenshots')?.allowCustomShortcut) {
-      globalShortcut.register(screenshotShortcut, () => {
-        logger.info('Screenshot shortcut pressed');
-        ScreenshotWatcher.emitter.emit('screenshot:capture');
-      });
-    }
+    this.shortcutController.registerAll();
   }
 
   unregisterGlobalShortcuts() {
     logger.info('Unregistering all global shortcuts');
-    globalShortcut.unregisterAll();
+    this.shortcutController.unregisterAll();
   }
 
   reRegisterGlobalShortcuts() {
-    this.unregisterGlobalShortcuts();
-    this.registerGlobalShortcuts();
+    this.shortcutController.reregisterAll();
   }
 
   async init() {
@@ -346,455 +315,52 @@ class MainProcess {
   }
 
   sendToOverlay(event: string, data?: any) {
-    if (this.overlayWindow.isDestroyed()) {
-      logger.error('Overlay window is destroyed, cannot send message');
-    } else {
-      this.overlayWindow.webContents.send(event, data);
-    }
+    this.messenger.sendToOverlay(event, data);
   }
 
   sendToMain(event: string, data?: any) {
-    if (this.mainWindow) {
-      this.mainWindow.webContents.send(event, data);
-    }
+    this.messenger.sendToMain(event, data);
   }
 
   /**
    * Handles the auto updater process (checking for updates, downloading and installing them)
    */
   handleAutoUpdater() {
-    ipcMain.on('before-quit-for-update', (event) => {
-      logger.info('Closing the overlay for the update restart');
-      this.overlayWindow.destroy();
+    registerAutoUpdater({
+      overlayWindow: this.overlayWindow,
+      getIsDownloadingUpdate: () => this.isDownloadingUpdate,
+      setIsDownloadingUpdate: (value) => {
+        this.isDownloadingUpdate = value;
+      },
+      setAutoUpdaterInterval: (interval) => {
+        this.autoUpdaterInterval = interval;
+      },
     });
-    ipcMain.on(sendChannels.downloadUpdate, (event) => {
-      if (!this.isDownloadingUpdate) {
-        this.isDownloadingUpdate = true;
-        RendererLogger.log({
-          messages: [{ text: 'Downloading update...' }],
-        });
-        logger.info('Now downloading update');
-        autoUpdater.downloadUpdate();
-      }
-    });
-    ipcMain.on(sendChannels.applyUpdate, (event) => {
-      logger.info('Restarting to apply update');
-      autoUpdater.quitAndInstall();
-    });
-
-    autoUpdater.channel = 'latest';
-    autoUpdater.logger = logger;
-    autoUpdater.autoDownload = false;
-    autoUpdater.on('update-available', (info) => {
-      global.updateInfo = info;
-      logger.info('Fetched Update Info:', JSON.stringify(info));
-      RendererLogger.log({
-        messages: [
-          {
-            text: `An update to version ${info.version} is available, click here to download`,
-            linkEvent: sendChannels.downloadUpdate,
-          },
-        ],
-      });
-    });
-    autoUpdater.on('update-downloaded', (info) => {
-      RendererLogger.log({
-        messages: [
-          {
-            text: `Update to version ${info.version} has been downloaded, click here to install it now (requires restart)`,
-            linkEvent: sendChannels.applyUpdate,
-          },
-        ],
-      });
-    });
-
-    autoUpdater
-      .checkForUpdates()
-      .then((result) => {
-        const msg = `Update check done. ${
-          !!result ? `Update ${result.updateInfo.releaseName} is available` : 'No Update available'
-        }:`;
-        logger.info(msg);
-        this.autoUpdaterInterval = setInterval(() => {
-          autoUpdater
-            .checkForUpdates()
-            .then((result) => {
-              logger.info(msg);
-            })
-            .catch((err) => {
-              logger.error('Error checking for updates', err);
-            });
-        }, autoUpdaterIntervalTime);
-      })
-      .catch((err) => {
-        logger.error('Error checking for updates', err);
-      });
   }
 
   /**
    * Sets up the listeners for the all the old modules
    */
   setupListeners() {
-    const settings = SettingsManager.getAll();
-
-    ipcMain.on(sendChannels.reloadApp, () => {
-      app.relaunch();
-      app.exit();
+    registerShellHandlers({
+      windows: {
+        mainWindow: this.mainWindow,
+        overlayWindow: this.overlayWindow,
+      },
+      sendToMain: (event, data) => this.sendToMain(event, data),
+      refreshWindows: () => this.refreshWindows(),
+      registerHotkeys: () => this.registerGlobalShortcuts(),
+      unregisterHotkeys: () => this.unregisterGlobalShortcuts(),
     });
-
-    ipcMain.on(sendChannels.notifyFiltersUiUpdated, () => {
-      this.sendToMain(rendererEventChannels.itemsFiltersUpdate);
+    registerRuntimeListeners({
+      mainWindow: this.mainWindow,
+      overlayWindow: this.overlayWindow,
+      sendToMain: (event, data) => this.sendToMain(event, data),
+      sendToOverlay: (event, data) => this.sendToOverlay(event, data),
+      reregisterShortcuts: () => this.reRegisterGlobalShortcuts(),
+      setLogTransport,
+      setupDebugLoggerHook,
     });
-    ipcMain.on(sendChannels.refreshUi, () => {
-      this.refreshWindows();
-    });
-
-    SearchManager.registerMessageHandler((event, data) => {
-      this.sendToMain(event, data);
-    });
-
-    OCRWatcher.emitter.removeAllListeners();
-    OCRWatcher.emitter.on('OCRError', () => {
-      logger.info('Error getting area info from screenshot. Please try again');
-    });
-    OCRWatcher.emitter.on('ocr:completed-job', async (info) => {
-      logger.info('Got area info from OCR', info);
-      const { level, name, depth } = RunParser.latestGeneratedArea;
-      const tier = getMapTierString({ level });
-      let stats = `IIR: ${info.mapStats.iir} / IIQ: ${info.mapStats.iiq}`;
-      if (info.mapStats.pack_size && info.mapStats.pack_size > 0)
-        stats += ` / Pack Size: ${info.mapStats.pack_size}`;
-      const modReadingDuration = dayjs().diff(modReadingTimer);
-      await RunParser.setCurrentMapStats({
-        name,
-        level,
-        depth,
-        ...info.mapStats,
-      });
-      logger.info(`Got area info for ${name} (${tier} - ${stats}) in ${modReadingDuration}ms`);
-      RendererLogger.log({
-        messages: [
-          {
-            text: 'Got area info for ',
-          },
-          {
-            text: name,
-            type: 'important',
-          },
-          {
-            text: ` (${tier} - ${stats})`,
-          },
-        ],
-      });
-      RunParser.refreshTracking();
-      // this.sendToOverlay('current-run:info', {
-      //   name,
-      //   level,
-      //   ...info.mapStats,
-      // });
-    });
-
-    ScreenshotWatcher.emitter.removeAllListeners();
-    ScreenshotWatcher.emitter.on('OCRStart', (stats) => {
-      logger.info('Reading mods from screenshot');
-      modReadingTimer = dayjs(stats.birthtime);
-      logger.info(dayjs().diff(modReadingTimer));
-    });
-    ScreenshotWatcher.emitter.on('OCRError', () => {
-      logger.info('Error getting area info from screenshot. Please try again');
-    });
-    ScreenshotWatcher.emitter.on('tooMuchScreenshotClutter', (totalSize) => {
-      const dir = settings.screenshotDir.replace(/\\/g, '\\\\');
-      logger.info(
-        `Screenshot folder contains <span class='eventText'>${totalSize}</span> screenshots. Click <span class='eventText' style='cursor:pointer;' onclick='openShell("${dir}")'>here</span> to open it for cleanup`
-      );
-    });
-    ScreenshotWatcher.emitter.on('screenshot:capture', async (info) => {
-      if (this.screenshotLock) {
-        logger.info('Not accepting new screenshot orders while this screenshot is being parsed');
-        return;
-      } else {
-        modReadingTimer = dayjs();
-        this.screenshotLock = true;
-        logger.info('Map Info : Reading from screenshot');
-        RendererLogger.log({
-          messages: [
-            {
-              text: 'Map Info : Reading from screenshot',
-            },
-          ],
-        });
-        this.overlayWindow.hide();
-        const screenshot = OverlayController.screenshot();
-        this.overlayWindow.show();
-        const { width, height } = OverlayController.targetBounds;
-        const nativeScreenshot = nativeImage
-          .createFromBitmap(screenshot, { width: width, height: height })
-          .toJPEG(100);
-        try {
-          await ScreenshotWatcher.process(nativeScreenshot);
-        } catch (e) {
-          logger.error('Error in screenshot processing', e);
-          RendererLogger.log({
-            messages: [
-              {
-                text: 'Error in screenshot processing. Check logs for more info.',
-                type: 'error',
-              },
-            ],
-          });
-        }
-        logger.info('Map info : Reading done');
-        this.screenshotLock = false;
-      }
-    });
-    ScreenshotWatcher.emitter.on('screenshot:timeout', async () => {
-      logger.info('Map Info : Reading from screenshot timed out');
-      RendererLogger.log({
-        messages: [
-          {
-            text: 'Map Info : Reading from screenshot timed out',
-            type: 'error',
-          },
-        ],
-      });
-      this.screenshotLock = false;
-    });
-
-    StatsManager.registerProfitPerHourAnnouncer((profitPerHour, divinePrice) => {
-      this.sendToMain(rendererEventChannels.updateProfitPerHour, { profitPerHour, divinePrice });
-    });
-
-    RunParser.emitter.removeAllListeners();
-    RunParser.refreshTracking();
-    RunParser.emitter.on('run-parser:latest-area-updated', (area) => {
-      logger.info('Latest area updated:', area);
-      this.sendToMain(rendererEventChannels.currentRunStarted, {
-        area: area.name,
-        level: area.level,
-        iir: area.iir > 0 ? area.iir : null,
-        pack_size: area.pack_size > 0 ? area.pack_size : null,
-        iiq: area.iiq > 0 ? area.iiq : null,
-      });
-      this.sendToOverlay(rendererEventChannels.currentRunStarted, {
-        area: area.name,
-        level: area.level,
-        iir: area.iir > 0 ? area.iir : null,
-        pack_size: area.pack_size > 0 ? area.pack_size : null,
-        iiq: area.iiq > 0 ? area.iiq : null,
-      });
-      this.sendToMain(rendererEventChannels.refreshRuns);
-    });
-    RunParser.emitter.on('run-parser:run-processed', async (run) => {
-      const f = new Intl.NumberFormat();
-      const divinePrice = await ItemPricer.getCurrencyByName('Divine Orb');
-      logger.info(
-        `Completed run in ${run.name} ` +
-          `(${(Utils.getRunningTime(run.firstEvent, run.lastEvent), 'mm:ss')}` +
-          (run.gained ? `, ${run.gained} chaos orbs` : '') +
-          (run.kills ? `, ${f.format(run.kills)} kills` : '') +
-          (run.xp ? `, ${f.format(run.xp)} XP` : '') +
-          `)`
-      );
-      RendererLogger.log({
-        messages: [
-          {
-            text: 'Completed run in ',
-          },
-          {
-            text: run.name,
-            type: 'important',
-            link: `run/${run.id}`,
-          },
-          {
-            text: ` (${Utils.getRunningTime(run.firstEvent, run.lastEvent)}, `,
-          },
-          {
-            text: '',
-            price: run.gained,
-            divinePrice,
-            type: 'currency',
-          },
-          {
-            text: run.kills ? `, ${f.format(run.kills)} kills` : '',
-          },
-          {
-            text: run.xp ? `, ${f.format(run.xp)} XP` : '',
-          },
-          {
-            text: ')',
-          },
-        ],
-      });
-      RunParser.refreshTracking();
-      StatsManager.triggerProfitPerHourAnnouncer();
-    });
-    SettingsManager.registerListener('runParseScreenshotEnabled', () =>
-      this.reRegisterGlobalShortcuts()
-    );
-    SettingsManager.registerListener('screenshots', () => this.reRegisterGlobalShortcuts());
-    SettingsManager.registerListener('runParseShortcut', () => this.reRegisterGlobalShortcuts());
-    SettingsManager.registerListener('screenshotShortcut', () => this.reRegisterGlobalShortcuts());
-    SettingsManager.registerListener('overlayToggleShortcut', () =>
-      this.reRegisterGlobalShortcuts()
-    );
-    SettingsManager.registerListener('overlayMovementShortcut', () =>
-      this.reRegisterGlobalShortcuts()
-    );
-
-    KillTracker.emitter.removeAllListeners();
-    KillTracker.emitter.on('incubatorsUpdated', (incubators) => {
-      this.sendToMain('incubatorsUpdated', incubators);
-      this.sendToOverlay('incubatorsUpdated', incubators);
-    });
-    KillTracker.emitter.on('incubatorsMissing', (equipments) => {
-      if (equipments.length) {
-        RendererLogger.log({
-          messages: [
-            {
-              text: `Following equipment has incubator missing: `,
-            },
-            ...equipments.map(([name, icon]) => ({
-              text: name,
-              type: 'important',
-              icon: icon,
-            })),
-          ],
-        });
-      }
-    });
-
-    RateGetterV2.removeAllListeners();
-    RateGetterV2.on('gettingPrices', () => {
-      logger.info("<span class='eventText'>Getting item prices from poe.ninja...</span>");
-    });
-    RateGetterV2.on('doneGettingPrices', () => {
-      ItemPricer.updateRates();
-      logger.info("<span class='eventText'>Finished getting item prices from poe.ninja</span>");
-    });
-    RateGetterV2.on('gettingPricesFailed', () => {
-      logger.info(
-        "<span class='eventText removeRow' onclick='rateGetterRetry(this);'>Error getting item prices from poe.ninja, <span class='retry'>click on this message to try again</span></span>"
-      );
-    });
-
-    ClientTxtWatcher.emitter.removeAllListeners();
-    ClientTxtWatcher.emitter.on('switchedCharacter', async (c) => {
-      // this.sendToMain('refresh-settings');
-    });
-    ClientTxtWatcher.emitter.on('clientTxtFileError', (path) => {
-      logger.info(`Error reading ${path}. Please check if the file exists.`);
-      RendererLogger.log({
-        messages: [
-          {
-            text: `Error reading ${path}. Please check if the file exists.`,
-          },
-        ],
-      });
-    });
-    ClientTxtWatcher.emitter.on('clientTxtNotUpdated', (path) => {
-      logger.info(
-        `<span class='eventText'>${path} has not been updated recently even though the game is running. Please check if PoE is using a different Client.txt file.</span>`
-      );
-    });
-
-    LogProcessor.emitter.removeAllListeners();
-    LogProcessor.emitter.on('client-logs:error:local-chat-disabled', () => {
-      logger.info('Unable to track area changes. Please check if local chat is enabled.');
-    });
-    LogProcessor.emitter.on(
-      'client-logs:generated-run',
-      async ({ areaId, areaName, level, seed, runId }) => {
-        logger.info(
-          `Generated run ${areaName} (${areaId}) (lvl${level}) (${seed}) - Latest: ${RunParser.latestGeneratedArea.seed}`
-        );
-        RunParser.refreshTracking();
-      }
-    );
-    LogProcessor.emitter.on('client-logs:entered-map', async ({ area }) => {
-      logger.info('Entered map ' + area);
-      const hasStarted = await RunParser.tryUpdateCurrentArea();
-      if (hasStarted) {
-        RunParser.refreshTracking();
-      }
-
-      // Handle auto-screenshot on map entry
-      const settings = SettingsManager.getAll();
-      if (settings.autoScreenshotOnMapEntry?.enabled && hasStarted) {
-        const delay = (settings.autoScreenshotOnMapEntry.delay || 2) * 1000; // Convert to milliseconds
-        logger.info(`Auto-screenshot scheduled for ${area} in ${delay}ms`);
-
-        setTimeout(() => {
-          logger.info(`Triggering auto-screenshot for ${area}`);
-          ScreenshotWatcher.emitter.emit('screenshot:capture');
-        }, delay);
-      }
-    });
-
-    StashGetter.removeAllListeners();
-    StashGetter.initialize();
-    StashGetter.on('stashTabs:updated:full', (data) => {
-      logger.info(`Updated stash tabs (League: ${data.league} - Change: ${data.change})`);
-      this.sendToMain(rendererEventChannels.stashTabsUpdated, data);
-    });
-    StashGetter.on('netWorthUpdated', async (data) => {
-      const divinePrice = await ItemPricer.getCurrencyByName('Divine Orb');
-      this.sendToMain(rendererEventChannels.updateNetWorth, { divinePrice, ...data });
-    });
-    ipcMain.on(sendChannels.requestNetWorthRefresh, () => {
-      StashGetter.getNetWorth();
-    });
-    SettingsManager.registerListener('overlayPersistenceEnabled', (isOverlayEnabled) => {
-      logger.debug(`Setting Overlay Persistence to Enabled:${isOverlayEnabled}`);
-      this.sendToOverlay(rendererEventChannels.overlaySetPersistence, isOverlayEnabled);
-      this.sendToMain(rendererEventChannels.settingsOverlayPersistenceChanged, isOverlayEnabled);
-    });
-    SettingsManager.registerListener('activeProfile', (newProfile, oldProfile) => {
-      if (
-        newProfile.characterName !== oldProfile.characterName ||
-        newProfile.league !== oldProfile.league
-      ) {
-        logger.debug('Active profile changed, relaunching the app');
-        // We are delaying the message to make sure it shows above the Settings saved message
-        setTimeout(() => {
-          RendererLogger.log({
-            messages: [
-              {
-                text: 'Active profile changed, relaunching the app to load data for the new profile when the settings finish saving in a few seconds...',
-              },
-            ],
-          });
-        }, 1000);
-        SettingsManager.waitForSave()
-          .then(() => {
-            app.relaunch();
-            app.quit();
-          })
-          .catch((e) => {
-            logger.error('Error waiting for settings save', e);
-          });
-      }
-    });
-
-    SettingsManager.registerListener('forceDebugMode', (newMode: boolean, oldMode: boolean) => {
-      if (newMode !== oldMode) {
-        logger.debug(`Setting Debug Mode to Enabled:${newMode}`);
-        setLogTransport(newMode);
-      }
-    });
-
-    SettingsManager.registerListener('logToUI', (newMode: boolean, oldMode: boolean) => {
-      if (newMode !== oldMode) {
-        logger.debug(`Setting Log to UI to Enabled:${newMode}`);
-        setupDebugLoggerHook(newMode);
-      }
-    });
-
-    AuthManager.setMessenger(this.mainWindow.webContents);
-    RendererLogger.init(this.mainWindow.webContents, this.overlayWindow.webContents);
-
-    // Setup debug logger hook after RendererLogger is initialized
-    setupDebugLoggerHook(SettingsManager.get('logToUI'));
   }
 
   /**
@@ -1010,37 +576,6 @@ class MainProcess {
       }
     });
 
-    ipcMain.on(sendChannels.setOverlayClickable, (event, { clickable }) => {
-      this.overlayWindow.setIgnoreMouseEvents(!clickable);
-    });
-
-    ipcMain.handle(invokeChannels.getOverlayPosition, (event) => {
-      return SettingsManager.get('overlayPosition');
-    });
-
-    ipcMain.handle(invokeChannels.openFileDialog, async (event, options) => {
-      const result = await dialog.showOpenDialog(this.mainWindow, options);
-      return result;
-    });
-
-    ipcMain.handle(invokeChannels.showCharacterDbFile, async (event) => {
-      const activeProfile = SettingsManager.get('activeProfile');
-      if (activeProfile && activeProfile.characterName && activeProfile.league) {
-        const dbPath = DB.getCharacterDbPath(activeProfile.characterName, activeProfile.league);
-        if (dbPath) {
-          shell.showItemInFolder(dbPath);
-        } else {
-          logger.warn('Could not determine DB path for active character.');
-        }
-      } else {
-        logger.warn('No active profile or character/league information available.');
-      }
-    });
-
-    ipcMain.on(sendChannels.setOverlayPosition, (event, { x, y }) => {
-      SettingsManager.set('overlayPosition', { x, y });
-    });
-
     app.on('will-quit', () => {
       logger.info('Exile Diary Reborn is closing');
       clearTimeout(this.saveBoundsCallback);
@@ -1088,38 +623,7 @@ class MainProcess {
       app.setAsDefaultProtocolClient('exile-diary');
     }
 
-    const responderEvents = [
-      'getAppGlobals',
-      'loadRuns',
-      'loadRun',
-      'loadRunDetails',
-      'reprocessRuns',
-      'reprocessRun',
-      'getSettings',
-      'getCharacters',
-      'saveSettings',
-      'getOAuthInfo',
-      'isAuthenticated',
-      'logout',
-      'getAllStats',
-      'getStashTabs',
-      'saveStashTabs',
-      'saveStashRefreshInterval',
-      'saveFilterSettings',
-      'triggerSearch',
-      'getDivinePrice',
-      'getAllMapNames',
-      'getAllPossibleMods',
-      'refreshProfitPerHour',
-      'debugRecheckGain',
-      'debugFetchRates',
-      'debugFetchStashTabs',
-      'getOverlayPersistence',
-      'updateItemsIgnoreStatus',
-    ] as const;
-    for (const event of responderEvents) {
-      ipcMain.handle(invokeChannels[event], Responder[event]);
-    }
+    registerResponderHandlers();
 
     if (!benchmarkMode) {
       this.handleAutoUpdater();
@@ -1130,13 +634,6 @@ class MainProcess {
     if (!benchmarkMode) {
       this.registerGlobalShortcuts();
     }
-
-    ipcMain.on(sendChannels.disableHotkeys, () => {
-      this.unregisterGlobalShortcuts();
-    });
-    ipcMain.on(sendChannels.enableHotkeys, () => {
-      this.registerGlobalShortcuts();
-    });
 
     const test = 2;
 

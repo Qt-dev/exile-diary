@@ -12,7 +12,15 @@ jest.mock('electron', () => ({
       }
     }),
     getName: jest.fn(() => 'exile-diary'),
+    getLocale: jest.fn(() => 'en-US'),
     getVersion: jest.fn(() => '1.0.0'),
+    relaunch: jest.fn(),
+    exit: jest.fn(),
+    quit: jest.fn(),
+  },
+  globalShortcut: {
+    register: jest.fn(),
+    unregisterAll: jest.fn(),
   },
   ipcMain: {
     handle: jest.fn(),
