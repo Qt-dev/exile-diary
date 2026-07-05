@@ -1,19 +1,26 @@
 import { cp, copyFile, mkdir } from 'node:fs/promises';
 import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 
-const rootDir = process.cwd();
-const extensionSourceDir = path.join(rootDir, 'src', 'main', 'db', 'extensions');
-const extensionOutDir = path.join(rootDir, 'out', 'electron', 'db', 'extensions');
-const mainOutDir = path.join(rootDir, 'out', 'electron', 'main');
-const workerFiles = ['workerWrapper.js', 'ImageSaverWorker.js'];
+export const workerFiles = ['workerWrapper.js', 'ImageSaverWorker.js'];
 
-await mkdir(extensionOutDir, { recursive: true });
-await cp(extensionSourceDir, extensionOutDir, { recursive: true });
-await mkdir(mainOutDir, { recursive: true });
+export async function syncElectronAssets(rootDir = process.cwd()) {
+  const extensionSourceDir = path.join(rootDir, 'src', 'main', 'db', 'extensions');
+  const extensionOutDir = path.join(rootDir, 'out', 'electron', 'db', 'extensions');
+  const mainOutDir = path.join(rootDir, 'out', 'electron', 'main');
 
-for (const workerFile of workerFiles) {
-  await copyFile(
-    path.join(rootDir, 'src', 'main', 'modules', 'ImageParser', workerFile),
-    path.join(mainOutDir, workerFile)
-  );
+  await mkdir(extensionOutDir, { recursive: true });
+  await cp(extensionSourceDir, extensionOutDir, { recursive: true });
+  await mkdir(mainOutDir, { recursive: true });
+
+  for (const workerFile of workerFiles) {
+    await copyFile(
+      path.join(rootDir, 'src', 'main', 'modules', 'ImageParser', workerFile),
+      path.join(mainOutDir, workerFile)
+    );
+  }
+}
+
+if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
+  await syncElectronAssets();
 }

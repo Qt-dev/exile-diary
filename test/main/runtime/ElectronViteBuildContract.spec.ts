@@ -14,6 +14,7 @@ describe('electron-vite build contract', () => {
 
     expect(packageJson.main).toBe('./out/electron/main/index.js');
     expect(packageJson.scripts.start).toBe('electron-vite preview');
+    expect(packageJson.scripts.dev).toContain('watch-electron-assets.mjs');
     expect(packageJson.scripts.dev).toContain('electron-vite dev');
     expect(packageJson.scripts).not.toHaveProperty('build');
     expect(packageJson.scripts).not.toHaveProperty('build_app');
@@ -37,10 +38,18 @@ describe('electron-vite build contract', () => {
       path.join(rootDir, 'scripts', 'sync-electron-assets.mjs'),
       'utf8'
     );
+    const watchScript = fs.readFileSync(
+      path.join(rootDir, 'scripts', 'watch-electron-assets.mjs'),
+      'utf8'
+    );
 
     expect(syncScript).toContain("'out', 'electron', 'db', 'extensions'");
     expect(syncScript).toContain("'out', 'electron', 'main'");
     expect(syncScript).toContain("'workerWrapper.js'");
     expect(syncScript).toContain("'ImageSaverWorker.js'");
+    expect(watchScript).toContain('syncElectronAssets');
+    expect(watchScript).toContain('watch-electron-assets');
+    expect(watchScript).toContain("'src', 'main', 'db', 'extensions'");
+    expect(watchScript).toContain("'src', 'main', 'modules', 'ImageParser'");
   });
 });

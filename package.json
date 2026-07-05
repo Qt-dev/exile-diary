@@ -115,7 +115,7 @@
     "benchmark:app:idle": "npx tsx test/benchmarks/app/AppLifecycleBenchmark.ts --mode=idle-memory --json",
     "baseline:collect": "cross-env EXILE_DIARY_SILENCE_BENCHMARK_LOGS=1 npx tsx test/benchmarks/collectBaselines.ts",
     "sync:electron-assets": "node ./scripts/sync-electron-assets.mjs",
-    "dev": "npm run sync:electron-assets && electron-vite dev",
+    "dev": "concurrently -k \"node ./scripts/watch-electron-assets.mjs\" \"electron-vite dev\"",
     "build:app": "electron-vite build && npm run sync:electron-assets",
     "package:win": "npm run build:app && cross-env DEBUG=electron-builder electron-builder -p never",
     "package:portable": "npm run build:app && cross-env DEBUG=electron-builder electron-builder --win zip -c.win.artifactName=\"exile-diary-reborn-portable-v${version}.${ext}\" -p never",
