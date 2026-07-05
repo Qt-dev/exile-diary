@@ -8,6 +8,7 @@ export function valueFixtureStash(items: FixtureItem[], rateSnapshot: FixtureRat
   const pricing = priceFixtureItems(items, rateSnapshot);
 
   return {
+    snapshotId: pricing.snapshotId,
     currencyTotalChaos: pricing.totalChaosValue,
     itemsPriced: pricing.itemsPriced,
   };

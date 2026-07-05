@@ -34,6 +34,14 @@ export type ScanMapModsResult = {
   diagnostics?: {
     averageConfidence: number;
     matchedLineRatio: number;
+    retryRecommended?: boolean;
+    retryReason?: 'no-text' | 'no-matches' | 'low-average-confidence' | 'low-line-ratio' | 'none';
+    thresholds?: {
+      minimumAverageConfidence: number;
+      minimumMatchedLineRatio: number;
+      retryAverageConfidenceThreshold: number;
+      retryMatchedLineRatioThreshold: number;
+    };
     debugArtifactDir?: string;
     error?: string;
   };

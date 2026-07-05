@@ -128,7 +128,9 @@ function registerOcrListeners(
           {
             text: `OCR matched map mods with low confidence (${Math.round(
               (ocrResult.diagnostics?.averageConfidence ?? 0) * 100
-            )}%).`,
+            )}%). ${
+              ocrResult.diagnostics?.retryRecommended ? 'Retrying the read is recommended.' : ''
+            }`,
             type: 'error',
           },
         ],

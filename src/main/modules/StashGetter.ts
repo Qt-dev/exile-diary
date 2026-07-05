@@ -315,6 +315,7 @@ class StashGetter {
       let price = {
         isVendor: false,
         value: 0,
+        explanation: null,
       };
       try {
         price = await ItemPricer.price(parsedItem, settings.activeProfile.league);
@@ -329,6 +330,7 @@ class StashGetter {
         stashTabId: stashTab.id,
         stashTabName: stashTab.name,
         value: price.value,
+        valuation: price.explanation,
       });
     }
 

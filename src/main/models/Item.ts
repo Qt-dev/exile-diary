@@ -1,6 +1,7 @@
 import { getCategory } from '../../helpers/item';
 import Utils from '../modules/Utils';
 import Logger from 'electron-log';
+import type { ItemValuationExplanation } from '../modules/ItemPricer';
 
 const logger = Logger.scope('Item');
 
@@ -112,6 +113,7 @@ class Item {
   category: any;
   sockets: string | null;
   drop_item?: number;
+  valuation?: ItemValuationExplanation | null;
 
   /* Getters for properties calling in the db format */
   get event_id() {
@@ -193,6 +195,7 @@ class Item {
       sockets,
       value = 0,
       originalValue = 0,
+      valuation = null,
     } = this;
 
     const stack_size = this.stackSize || null;
@@ -211,6 +214,7 @@ class Item {
       rawData,
       value,
       originalValue,
+      valuation ? JSON.stringify(valuation) : null,
     ];
   }
 
@@ -224,6 +228,10 @@ class Item {
     if (!this.originalValue && this.originalValue !== 0) {
       this.originalValue = parsedValue;
     }
+  }
+
+  setValuation(valuation: ItemValuationExplanation | null) {
+    this.valuation = valuation;
   }
 }
 

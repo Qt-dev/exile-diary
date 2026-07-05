@@ -1,0 +1,6 @@
+{
+  "status": "low-confidence",
+  "expectedMatchedMod": "Players are Cursed with Elemental Weakness",
+  "retryRecommended": true,
+  "retryReason": "low-line-ratio"
+}

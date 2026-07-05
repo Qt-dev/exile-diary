@@ -9,8 +9,8 @@ const Items = {
     logger.debug(items);
     const query = `
       INSERT INTO item
-      (item_id, event_id, icon, name, rarity, category, identified, typeline, sockets, stack_size, raw_data, value, original_value)
-      values(?, (SELECT id FROM event WHERE event.timestamp = ?), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      (item_id, event_id, icon, name, rarity, category, identified, typeline, sockets, stack_size, raw_data, value, original_value, valuation)
+      values(?, (SELECT id FROM event WHERE event.timestamp = ?), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
       `;
     return DB.transaction(query, items);
   },

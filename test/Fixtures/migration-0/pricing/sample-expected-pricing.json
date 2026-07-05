@@ -1,4 +1,49 @@
 {
+  "snapshotId": "Standard:20260102",
+  "itemsPriced": 3,
   "totalChaosValue": 205,
-  "itemsPriced": 3
+  "pricedItems": [
+    {
+      "typeline": "Chaos Orb",
+      "stackSize": 12,
+      "category": "Currency",
+      "unitChaosValue": 1,
+      "totalChaosValue": 12,
+      "snapshotId": "Standard:20260102",
+      "valuationExplanation": {
+        "matchedRule": "Currency",
+        "sourceTable": "Currency",
+        "sourceIdentifier": "Chaos Orb",
+        "matched": true
+      }
+    },
+    {
+      "typeline": "Divine Orb",
+      "stackSize": 1,
+      "category": "Currency",
+      "unitChaosValue": 175,
+      "totalChaosValue": 175,
+      "snapshotId": "Standard:20260102",
+      "valuationExplanation": {
+        "matchedRule": "Currency",
+        "sourceTable": "Currency",
+        "sourceIdentifier": "Divine Orb",
+        "matched": true
+      }
+    },
+    {
+      "typeline": "Mortal Grief",
+      "stackSize": 2,
+      "category": "Fragment",
+      "unitChaosValue": 9,
+      "totalChaosValue": 18,
+      "snapshotId": "Standard:20260102",
+      "valuationExplanation": {
+        "matchedRule": "Fragment",
+        "sourceTable": "Fragment",
+        "sourceIdentifier": "Mortal Grief",
+        "matched": true
+      }
+    }
+  ]
 }

@@ -36,6 +36,7 @@ describe('Items', () => {
           '{"raw":"data"}',
           100,
           90,
+          null,
         ],
         [
           'item2',
@@ -51,6 +52,7 @@ describe('Items', () => {
           '{"raw":"data2"}',
           50,
           45,
+          null,
         ],
       ];
       mockDB.transaction.mockResolvedValue(undefined);
@@ -60,8 +62,8 @@ describe('Items', () => {
       expect(mockDB.transaction).toHaveBeenCalledWith(
         `
       INSERT INTO item
-      (item_id, event_id, icon, name, rarity, category, identified, typeline, sockets, stack_size, raw_data, value, original_value)
-      values(?, (SELECT id FROM event WHERE event.timestamp = ?), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      (item_id, event_id, icon, name, rarity, category, identified, typeline, sockets, stack_size, raw_data, value, original_value, valuation)
+      values(?, (SELECT id FROM event WHERE event.timestamp = ?), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
       `,
         mockItems
       );
@@ -95,6 +97,7 @@ describe('Items', () => {
           '{"raw":"data"}',
           100,
           90,
+          null,
         ],
       ];
       const mockError = new Error('Transaction failed');
@@ -123,6 +126,7 @@ describe('Items', () => {
           '{"raw":"data"}',
           100,
           90,
+          null,
         ],
       ];
       mockDB.transaction.mockResolvedValue(undefined);
@@ -131,8 +135,8 @@ describe('Items', () => {
 
       const expectedQuery = `
       INSERT INTO item
-      (item_id, event_id, icon, name, rarity, category, identified, typeline, sockets, stack_size, raw_data, value, original_value)
-      values(?, (SELECT id FROM event WHERE event.timestamp = ?), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      (item_id, event_id, icon, name, rarity, category, identified, typeline, sockets, stack_size, raw_data, value, original_value, valuation)
+      values(?, (SELECT id FROM event WHERE event.timestamp = ?), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
       `;
 
       expect(mockDB.transaction).toHaveBeenCalledWith(expectedQuery, mockItems);
@@ -152,6 +156,7 @@ describe('Items', () => {
       expect(expectedQuery).toContain('raw_data');
       expect(expectedQuery).toContain('value');
       expect(expectedQuery).toContain('original_value');
+      expect(expectedQuery).toContain('valuation');
     });
   });
 

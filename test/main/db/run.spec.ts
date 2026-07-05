@@ -289,18 +289,18 @@ describe('Runs', () => {
   describe('updateItemValues', () => {
     it('should update item values successfully', async () => {
       const items = [
-        { id: 'item1', eventId: 'event1', value: 100 },
-        { id: 'item2', eventId: 'event2', value: 200 },
+        { id: 'item1', eventId: 'event1', value: 100, valuation: { snapshotId: 'a' } },
+        { id: 'item2', eventId: 'event2', value: 200, valuation: null },
       ];
       mockDB.transaction.mockResolvedValue(undefined);
 
       const result = await Runs.updateItemValues(items);
 
       expect(mockDB.transaction).toHaveBeenCalledWith(
-        'UPDATE item SET value = ? WHERE id = ? AND event_id = ?',
+        'UPDATE item SET value = ?, valuation = ? WHERE id = ? AND event_id = ?',
         [
-          [100, 'item1', 'event1'],
-          [200, 'item2', 'event2'],
+          [100, JSON.stringify({ snapshotId: 'a' }), 'item1', 'event1'],
+          [200, null, 'item2', 'event2'],
         ]
       );
       expect(result).toBe(true);

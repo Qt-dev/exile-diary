@@ -28,12 +28,7 @@ describe('RuntimeCore fixture regressions', () => {
       fs.readFileSync(path.join(fixtureRoot, fixture.expected), 'utf8')
     );
 
-    const pricing = priceFixtureItems(items, rates);
-
-    expect({
-      totalChaosValue: pricing.totalChaosValue,
-      itemsPriced: pricing.itemsPriced,
-    }).toEqual(expected);
+    expect(priceFixtureItems(items, rates)).toEqual(expected);
   });
 
   it('values stash fixture payloads against frozen rate snapshots', () => {

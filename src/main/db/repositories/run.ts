@@ -1,6 +1,7 @@
 import DB from '../index';
 import constants from '../../../helpers/constants';
 import Logger from 'electron-log';
+import type { ItemValuationExplanation } from '../../modules/ItemPricer';
 const logger = Logger.scope('db/run');
 
 type ItemProperty = {
@@ -33,6 +34,7 @@ type ItemRawData = {
   pickupStackSize?: number;
   rarity?: string;
   isIgnored?: boolean;
+  valuation?: ItemValuationExplanation;
 };
 
 type Item = {
@@ -50,6 +52,7 @@ type Item = {
   typeline: string;
   sockets: string;
   ignored: boolean;
+  valuation?: string | null;
 };
 
 type AreaInfo = {
@@ -227,7 +230,7 @@ const Runs = {
   getItems: async (mapId: number) => {
     logger.info(`Getting items for run ${mapId}`);
     const itemsQuery = `
-      SELECT event.id, event.timestamp, item.rarity, item.icon, item.value, item.original_value, item.stack_size, item.raw_data, item.ignored
+      SELECT event.id, event.timestamp, item.rarity, item.icon, item.value, item.original_value, item.stack_size, item.raw_data, item.ignored, item.valuation
       FROM run, event, item
       WHERE run.id = ?
       AND DATETIME(event.timestamp) BETWEEN DATETIME(run.first_event) AND DATETIME(run.last_event)
@@ -258,6 +261,9 @@ const Runs = {
         if (item.original_value) rawData.originalValue = item.original_value;
         if (item.stack_size) rawData.pickupStackSize = item.stack_size;
       }
+      if (item.valuation) {
+        rawData.valuation = JSON.parse(item.valuation);
+      }
       rawData.isIgnored = !!item.ignored;
       formattedItems[item.id].push(JSON.stringify(rawData));
     }
@@ -266,8 +272,13 @@ const Runs = {
 
   updateItemValues: async (items: any) => {
     logger.info(`Updating item values for ${items.length} items`);
-    const query = 'UPDATE item SET value = ? WHERE id = ? AND event_id = ?';
-    const params = items.map((item: any) => [item.value, item.id, item.eventId]);
+    const query = 'UPDATE item SET value = ?, valuation = ? WHERE id = ? AND event_id = ?';
+    const params = items.map((item: any) => [
+      item.value,
+      item.valuation ? JSON.stringify(item.valuation) : null,
+      item.id,
+      item.eventId,
+    ]);
     try {
       await DB.transaction(query, params);
       return true;

@@ -20,7 +20,18 @@ export type FixturePricedItem = {
   category: 'Currency' | 'Fragment' | 'Unknown';
   unitChaosValue: number;
   totalChaosValue: number;
+  snapshotId: string;
+  valuationExplanation: {
+    matchedRule: string;
+    sourceTable: 'Currency' | 'Fragment' | 'Unknown';
+    sourceIdentifier: string;
+    matched: boolean;
+  };
 };
+
+function buildFixtureSnapshotId(rateSnapshot: FixtureRateSnapshot) {
+  return `${rateSnapshot.league}:${rateSnapshot.date}`;
+}
 
 function resolveFixtureItemCategory(item: FixtureItem): FixturePricedItem['category'] {
   if (item.category === 'Map Fragment') {
@@ -48,6 +59,7 @@ function resolveUnitChaosValue(item: FixtureItem, rateSnapshot: FixtureRateSnaps
 }
 
 export function priceFixtureItems(items: FixtureItem[], rateSnapshot: FixtureRateSnapshot) {
+  const snapshotId = buildFixtureSnapshotId(rateSnapshot);
   const pricedItems = items
     .map((item) => {
       const category = resolveFixtureItemCategory(item);
@@ -60,6 +72,13 @@ export function priceFixtureItems(items: FixtureItem[], rateSnapshot: FixtureRat
         category,
         unitChaosValue,
         totalChaosValue: Number((unitChaosValue * stackSize).toFixed(2)),
+        snapshotId,
+        valuationExplanation: {
+          matchedRule: category === 'Unknown' ? 'Unknown' : category,
+          sourceTable: category,
+          sourceIdentifier: item.typeline,
+          matched: unitChaosValue > 0,
+        },
       } satisfies FixturePricedItem;
     })
     .filter((item) => item.unitChaosValue > 0);
@@ -69,6 +88,7 @@ export function priceFixtureItems(items: FixtureItem[], rateSnapshot: FixtureRat
   );
 
   return {
+    snapshotId,
     itemsPriced: pricedItems.length,
     totalChaosValue,
     pricedItems,

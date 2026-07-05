@@ -241,11 +241,12 @@ const RunParser = {
   },
 
   updateItemValues: (arr): Promise<void> => {
-    return OldDB.transaction(`UPDATE item SET value = ? WHERE id = ? AND event_id = ?`, arr).catch(
-      (err) => {
-        logger.warn(`Error inserting items: ${err}`);
-      }
-    );
+    return OldDB.transaction(
+      `UPDATE item SET value = ?, valuation = ? WHERE id = ? AND event_id = ?`,
+      arr
+    ).catch((err) => {
+      logger.warn(`Error inserting items: ${err}`);
+    });
   },
 
   /**
@@ -260,7 +261,7 @@ const RunParser = {
     let count = 0;
     let totalValue = 0;
     const importantDrops = {};
-    const formattedItems: [number, number, number][] = [];
+    const formattedItems: [number, string | null, number, number][] = [];
     for (let item of items) {
       if (!item.raw_data) continue;
 
@@ -285,7 +286,12 @@ const RunParser = {
         if (!price.value) {
           logger.debug(`Found an item with price: ${price.value}`, item);
         }
-        formattedItems.push([price.value ?? 0, item.id, item.event_id]);
+        formattedItems.push([
+          price.value ?? 0,
+          price.explanation ? JSON.stringify(price.explanation) : null,
+          item.id,
+          item.event_id,
+        ]);
       }
     }
 
@@ -1070,17 +1076,17 @@ const RunParser = {
       const items = await DB.getItemsFromRun(run.id);
       let totalProfit = 0;
       let oldTotalProfit = 0;
-      let itemsToUpdate: { value: number; id: number; eventId: number }[] = [];
+      let itemsToUpdate: { value: number; valuation: any; id: number; eventId: number }[] = [];
       for (const item of items) {
-        const { value } = await ItemPricer.price(
+        const { value, explanation } = await ItemPricer.price(
           item,
           SettingsManager.get('activeProfile').league,
           true
         );
         oldTotalProfit += item.value;
         totalProfit += value;
-        if (value !== item.value) {
-          itemsToUpdate.push({ value, id: item.id, eventId: item.event_id });
+        if (value !== item.value || JSON.stringify(explanation) !== item.valuation) {
+          itemsToUpdate.push({ value, valuation: explanation, id: item.id, eventId: item.event_id });
         }
       }
       if (itemsToUpdate.length > 0) {

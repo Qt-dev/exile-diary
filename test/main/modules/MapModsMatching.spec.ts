@@ -29,5 +29,25 @@ describe('map mod matching pipeline', () => {
     expect(result.status).toBe('ok');
     expect(result.matchedMods.map((match) => match.mod)).toEqual(expected);
     expect(result.matchedMods.every((match) => match.confidence > 0.5)).toBe(true);
+    expect(result.diagnostics?.retryRecommended).toBe(false);
+    expect(result.diagnostics?.thresholds?.minimumAverageConfidence).toBe(0.6);
+  });
+
+  it('marks sparse OCR matches as low-confidence and recommends a retry', () => {
+    const input = JSON.parse(
+      fs.readFileSync(path.join(fixtureRoot, 'low-confidence-mod-lines.json'), 'utf8')
+    );
+    const expected = JSON.parse(
+      fs.readFileSync(path.join(fixtureRoot, 'low-confidence-expected.json'), 'utf8')
+    );
+
+    const result = matchMapMods(input);
+
+    expect(result.status).toBe(expected.status);
+    expect(result.diagnostics?.retryRecommended).toBe(expected.retryRecommended);
+    expect(result.diagnostics?.retryReason).toBe(expected.retryReason);
+    expect(result.matchedMods.map((match) => match.mod)).toContain(expected.expectedMatchedMod);
+    expect(result.diagnostics?.matchedLineRatio).toBeLessThan(0.5);
+    expect(result.diagnostics?.thresholds?.retryMatchedLineRatioThreshold).toBe(0.75);
   });
 });
