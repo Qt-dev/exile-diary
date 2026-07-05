@@ -1,16 +1,16 @@
 import { access, constants, writeFile, rename } from 'fs/promises';
-import { app } from 'electron';
 import Logger from 'electron-log';
+import { getUserDataPath } from '../../runtime/getUserDataPath';
 
 const path = require('path');
 const logger = Logger.scope('db/settings');
 
 function getSettingsPath() {
-  return path.join(app.getPath('userData'), 'settings.json');
+  return path.join(getUserDataPath(), 'settings.json');
 }
 
 function getTempFilePath() {
-  return path.join(app.getPath('userData'), 'settings.json.bak');
+  return path.join(getUserDataPath(), 'settings.json.bak');
 }
 
 type Settings = {

@@ -2,6 +2,7 @@ import { fork, type ChildProcess } from 'node:child_process';
 import { EventEmitter } from 'events';
 import Logger from 'electron-log';
 import { runtimeSidecarEventNames } from '../../shared/contracts/runtimeSidecar';
+import { getAppVersion, getIsPackaged, getUserDataPath } from './getUserDataPath';
 import { getRuntimeSidecarEntryPath } from './electronViteRuntimePaths';
 
 const logger = Logger.scope('runtime-sidecar-client');
@@ -290,11 +291,17 @@ function spawnSidecar() {
     lastError: null,
   });
   createStartupPromise();
+  const userDataPath = process.env.EXILE_DIARY_USER_DATA_PATH ?? getUserDataPath();
   sidecarProcess = fork(entryPath, [], {
     cwd: process.cwd(),
     env: {
       ...process.env,
       ELECTRON_RUN_AS_NODE: '1',
+      EXILE_DIARY_APP_VERSION: process.env.EXILE_DIARY_APP_VERSION ?? getAppVersion(),
+      EXILE_DIARY_IS_PACKAGED: String(
+        readBooleanEnv(process.env.EXILE_DIARY_IS_PACKAGED) ?? getIsPackaged()
+      ),
+      EXILE_DIARY_USER_DATA_PATH: userDataPath,
     },
     execArgv: isDev ? ['--require', 'tsx/cjs'] : [],
     serialization: 'advanced',
@@ -337,6 +344,18 @@ function spawnSidecar() {
   sidecarProcess.once('error', (error) => {
     logger.error('Runtime sidecar process error', error);
   });
+}
+
+function readBooleanEnv(value: string | undefined) {
+  if (value === 'true') {
+    return true;
+  }
+
+  if (value === 'false') {
+    return false;
+  }
+
+  return undefined;
 }
 
 function scheduleRestart() {

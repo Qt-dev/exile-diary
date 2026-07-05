@@ -1,18 +1,19 @@
 import logger from 'electron-log';
 import * as path from 'path';
 import * as fs from 'fs/promises';
-import { app, ipcMain } from 'electron';
+import { ipcMain } from 'electron';
 import DB from './db';
 import GGGAPI from './GGGAPI';
 import RateGetterV2 from './modules/RateGetterV2';
 import EventEmitter from 'events';
+import { getUserDataPath } from './runtime/getUserDataPath';
 
 function getSettingsPath() {
-  return path.join(app.getPath('userData'), 'settings.json');
+  return path.join(getUserDataPath(), 'settings.json');
 }
 
 function getTempSettingsPath() {
-  return path.join(app.getPath('userData'), 'settings.json.bak');
+  return path.join(getUserDataPath(), 'settings.json.bak');
 }
 
 const DefaultSettings = {

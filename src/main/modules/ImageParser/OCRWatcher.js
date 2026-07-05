@@ -2,6 +2,7 @@ const { fork } = require('node:child_process');
 const Logger = require('electron-log');
 const EventEmitter = require('events');
 const { getOcrSidecarEntryPath } = require('../../runtime/electronViteRuntimePaths');
+const { getAppVersion, getIsPackaged, getUserDataPath } = require('../../runtime/getUserDataPath');
 
 const logger = Logger.scope('ocr-watcher');
 const emitter = new EventEmitter();
@@ -220,11 +221,16 @@ function spawnSidecar() {
     lastError: null,
   });
   createStartupPromise();
+  const userDataPath = process.env.EXILE_DIARY_USER_DATA_PATH || getUserDataPath();
   sidecarProcess = fork(entryPath, [], {
     cwd: process.cwd(),
     env: {
       ...process.env,
       ELECTRON_RUN_AS_NODE: '1',
+      EXILE_DIARY_APP_VERSION: process.env.EXILE_DIARY_APP_VERSION || getAppVersion(),
+      EXILE_DIARY_IS_PACKAGED:
+        process.env.EXILE_DIARY_IS_PACKAGED || String(getIsPackaged()),
+      EXILE_DIARY_USER_DATA_PATH: userDataPath,
     },
     execArgv: isDev ? ['--require', 'tsx/cjs'] : [],
     serialization: 'advanced',

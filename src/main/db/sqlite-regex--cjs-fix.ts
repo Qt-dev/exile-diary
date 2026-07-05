@@ -1,10 +1,10 @@
 // Taken from sqlite-regex package, which is not compatible with CJS
 // Todo: Switch that back to the package once EDR is updated to support ESM dependencies
 import { join, resolve } from 'node:path';
-import { app } from 'electron';
 import { arch, platform } from 'node:process';
 import { statSync } from 'node:fs';
 import { getBundledDbExtensionsPath } from '../runtime/electronViteRuntimePaths';
+import { getIsPackaged } from '../runtime/getUserDataPath';
 
 const supportedPlatforms = [
   ['darwin', 'x64'],
@@ -31,7 +31,7 @@ export function getLoadablePath() {
     );
   }
   const extensionFileName = `regexp.${extensionSuffix(platform)}`;
-  const candidatePaths = app.isPackaged
+  const candidatePaths = getIsPackaged()
     ? [join(process.resourcesPath, 'db', 'extensions', extensionFileName)]
     : [
         join(process.cwd(), 'src', 'main', 'db', 'extensions', extensionFileName),

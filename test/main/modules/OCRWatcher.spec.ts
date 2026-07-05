@@ -81,10 +81,16 @@ describe('OCRWatcher', () => {
     jest.resetModules();
     forkMock.mockReset();
     process.env.ELECTRON_RENDERER_URL = 'http://localhost:3003';
+    process.env.EXILE_DIARY_APP_VERSION = '1.10.2-test';
+    process.env.EXILE_DIARY_IS_PACKAGED = 'false';
+    process.env.EXILE_DIARY_USER_DATA_PATH = 'D:\\mock-user-data';
   });
 
   afterEach(() => {
     delete process.env.ELECTRON_RENDERER_URL;
+    delete process.env.EXILE_DIARY_APP_VERSION;
+    delete process.env.EXILE_DIARY_IS_PACKAGED;
+    delete process.env.EXILE_DIARY_USER_DATA_PATH;
   });
 
   it('spawns the OCR sidecar and resolves scan requests through the IPC bridge', async () => {
@@ -113,6 +119,11 @@ describe('OCRWatcher', () => {
     );
     expect(forkMock.mock.calls[0][2]).toMatchObject({
       execArgv: ['--require', 'tsx/cjs'],
+      env: expect.objectContaining({
+        EXILE_DIARY_APP_VERSION: '1.10.2-test',
+        EXILE_DIARY_IS_PACKAGED: 'false',
+        EXILE_DIARY_USER_DATA_PATH: 'D:\\mock-user-data',
+      }),
       serialization: 'advanced',
     });
     expect(child.send).toHaveBeenCalledWith(

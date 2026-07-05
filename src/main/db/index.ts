@@ -2,18 +2,14 @@ import DatabaseConstructor, { Database } from 'better-sqlite3';
 import * as path from 'path';
 import { get as getSettings } from './settings';
 import Logger from 'electron-log';
-import { app } from 'electron';
 import * as sqliteRegex from './sqlite-regex--cjs-fix';
 import SettingsManager from '../SettingsManager';
 import { v4 as uuidv4 } from 'uuid';
 import EventEmitter from 'events';
 import fs from 'fs';
+import { getUserDataPath } from '../runtime/getUserDataPath';
 
 const logger = Logger.scope('db/index');
-
-function getUserDataPath() {
-  return app.getPath('userData');
-}
 
 // Migrations to run on setup and on maintenance for each type of DB
 // TODO: Move this to a separate file

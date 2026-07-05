@@ -1,11 +1,11 @@
 import logger from 'electron-log';
-import { app } from 'electron';
 import Axios from 'axios';
 import { setupCache, buildMemoryStorage } from 'axios-cache-interceptor/dev';
 import SettingsManager from './SettingsManager';
 import AuthManager from './AuthManager';
 import Bottleneck from 'bottleneck';
 import { v4 as uuidv4 } from 'uuid';
+import { getAppVersion } from './runtime/getUserDataPath';
 const CACHE_TIME_IN_SECONDS = 10;
 const MIN_TIME_BETWEEN_REQUESTS = 333; // 1 request per second as a default, will be adjusted based on API feedback
 const instance = Axios.create();
@@ -149,7 +149,7 @@ const getRequestParams = (url, token) => {
     url,
     method: 'GET',
     headers: {
-      'User-Agent': `OAuth exile-diary-reborn/${app.getVersion()} (contact: ${adminEmail})`,
+      'User-Agent': `OAuth exile-diary-reborn/${getAppVersion()} (contact: ${adminEmail})`,
       Authorization: `Bearer ${token}`,
     },
   };
