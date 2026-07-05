@@ -31,7 +31,33 @@ describe('electron-vite build contract', () => {
     expect(viteConfig).toContain("outDir: 'out/renderer'");
     expect(viteConfig).toContain('src/main/index.ts');
     expect(viteConfig).toContain('src/main/modules/ImageParser/OcrSidecar.ts');
+    expect(viteConfig).toContain('src/main/runtime/RuntimeSidecar.ts');
     expect(viteConfig).toContain('src/main/preload.ts');
+  });
+
+  it('keeps runtime sidecar client imports statically analyzable for bundling', () => {
+    const mainIndex = fs.readFileSync(path.join(rootDir, 'src', 'main', 'index.ts'), 'utf8');
+    const rendererService = fs.readFileSync(
+      path.join(rootDir, 'src', 'main', 'services', 'RendererAppService.ts'),
+      'utf8'
+    );
+    const sidecarBridge = fs.readFileSync(
+      path.join(rootDir, 'src', 'main', 'runtime', 'createRuntimeSidecarBridge.ts'),
+      'utf8'
+    );
+
+    expect(mainIndex).toContain(
+      "import * as RuntimeSidecarClient from './runtime/RuntimeSidecarClient';"
+    );
+    expect(mainIndex).not.toContain("require('./runtime/RuntimeSidecarClient')");
+    expect(rendererService).toContain(
+      "import * as RuntimeSidecarClient from '../runtime/RuntimeSidecarClient';"
+    );
+    expect(rendererService).not.toContain("require('../runtime/RuntimeSidecarClient')");
+    expect(sidecarBridge).toContain(
+      "import * as RuntimeSidecarClient from './RuntimeSidecarClient';"
+    );
+    expect(sidecarBridge).not.toContain("require('./RuntimeSidecarClient')");
   });
 
   it('keeps copied runtime assets in their expected post-build locations', () => {

@@ -1,0 +1,218 @@
+{
+  "benchmarkSuite": "migration-6-ocr-app-path",
+  "generatedAt": "2026-07-05T21:18:58.236Z",
+  "reports": [
+    {
+      "benchmark": "ocr-app-path",
+      "fixture": "ocr/sample-mods.svg",
+      "sampleCount": 3,
+      "inProcess": {
+        "startupMs": 563.1048,
+        "sampleCount": 3,
+        "samples": [
+          {
+            "capture": 0,
+            "preprocess": 1536.9346,
+            "ocr": 610.145,
+            "match": 0.9517,
+            "stageTotal": 2148.0313,
+            "wallTotal": 2150.3938,
+            "bridgeOverhead": 2.3625
+          },
+          {
+            "capture": 0,
+            "preprocess": 1406.4403,
+            "ocr": 621.1737,
+            "match": 0.3872,
+            "stageTotal": 2028.0012,
+            "wallTotal": 2028.8619,
+            "bridgeOverhead": 0.8607
+          },
+          {
+            "capture": 0,
+            "preprocess": 1030.1207,
+            "ocr": 578.9285,
+            "match": 0.2956,
+            "stageTotal": 1609.3448,
+            "wallTotal": 1610.2746,
+            "bridgeOverhead": 0.9298
+          }
+        ],
+        "summaries": {
+          "capture": {
+            "count": 3,
+            "min": 0,
+            "max": 0,
+            "mean": 0,
+            "median": 0,
+            "p95": 0
+          },
+          "preprocess": {
+            "count": 3,
+            "min": 1030.1207,
+            "max": 1536.9346,
+            "mean": 1324.4985333333332,
+            "median": 1406.4403,
+            "p95": 1523.88517
+          },
+          "ocr": {
+            "count": 3,
+            "min": 578.9285,
+            "max": 621.1737,
+            "mean": 603.4157333333334,
+            "median": 610.145,
+            "p95": 620.0708300000001
+          },
+          "match": {
+            "count": 3,
+            "min": 0.2956,
+            "max": 0.9517,
+            "mean": 0.5448333333333334,
+            "median": 0.3872,
+            "p95": 0.8952499999999999
+          },
+          "stageTotal": {
+            "count": 3,
+            "min": 1609.3448,
+            "max": 2148.0313,
+            "mean": 1928.4591,
+            "median": 2028.0012,
+            "p95": 2136.02829
+          },
+          "wallTotal": {
+            "count": 3,
+            "min": 1610.2746,
+            "max": 2150.3938,
+            "mean": 1929.8434333333335,
+            "median": 2028.8619,
+            "p95": 2138.24061
+          },
+          "bridgeOverhead": {
+            "count": 3,
+            "min": 0.8607,
+            "max": 2.3625,
+            "mean": 1.3843333333333332,
+            "median": 0.9298,
+            "p95": 2.21923
+          }
+        },
+        "correctness": {
+          "matchesExpected": true,
+          "status": "ok",
+          "matchedMods": [
+            "Monsters reflect 18% of Elemental Damage",
+            "Players are Cursed with Elemental Weakness",
+            "36% increased Pack size"
+          ]
+        }
+      },
+      "sidecar": {
+        "startupMs": 1175.9775,
+        "sampleCount": 3,
+        "samples": [
+          {
+            "capture": 0,
+            "preprocess": 1601.6086,
+            "ocr": 644.408,
+            "match": 0.7771,
+            "stageTotal": 2246.7937,
+            "wallTotal": 2251.5581,
+            "bridgeOverhead": 4.7644
+          },
+          {
+            "capture": 0,
+            "preprocess": 1481.9357,
+            "ocr": 560.8521,
+            "match": 0.3334,
+            "stageTotal": 2043.1212,
+            "wallTotal": 2044.8085,
+            "bridgeOverhead": 1.6873
+          },
+          {
+            "capture": 0,
+            "preprocess": 936.1177,
+            "ocr": 511.8926,
+            "match": 0.4254,
+            "stageTotal": 1448.4357,
+            "wallTotal": 1450.2314,
+            "bridgeOverhead": 1.7957
+          }
+        ],
+        "summaries": {
+          "capture": {
+            "count": 3,
+            "min": 0,
+            "max": 0,
+            "mean": 0,
+            "median": 0,
+            "p95": 0
+          },
+          "preprocess": {
+            "count": 3,
+            "min": 936.1177,
+            "max": 1601.6086,
+            "mean": 1339.8873333333333,
+            "median": 1481.9357,
+            "p95": 1589.64131
+          },
+          "ocr": {
+            "count": 3,
+            "min": 511.8926,
+            "max": 644.408,
+            "mean": 572.3842333333333,
+            "median": 560.8521,
+            "p95": 636.05241
+          },
+          "match": {
+            "count": 3,
+            "min": 0.3334,
+            "max": 0.7771,
+            "mean": 0.5119666666666666,
+            "median": 0.4254,
+            "p95": 0.74193
+          },
+          "stageTotal": {
+            "count": 3,
+            "min": 1448.4357,
+            "max": 2246.7937,
+            "mean": 1912.7835333333333,
+            "median": 2043.1212,
+            "p95": 2226.42645
+          },
+          "wallTotal": {
+            "count": 3,
+            "min": 1450.2314,
+            "max": 2251.5581,
+            "mean": 1915.5326666666667,
+            "median": 2044.8085,
+            "p95": 2230.8831400000004
+          },
+          "bridgeOverhead": {
+            "count": 3,
+            "min": 1.6873,
+            "max": 4.7644,
+            "mean": 2.7491333333333334,
+            "median": 1.7957,
+            "p95": 4.46753
+          }
+        },
+        "correctness": {
+          "matchesExpected": true,
+          "status": "ok",
+          "matchedMods": [
+            "Monsters reflect 18% of Elemental Damage",
+            "Players are Cursed with Elemental Weakness",
+            "36% increased Pack size"
+          ]
+        }
+      },
+      "deltasMs": {
+        "startup": 612.8727,
+        "wallTotalMedian": 15.9466,
+        "wallTotalP95": 92.6425,
+        "bridgeOverheadMedian": 0.8659,
+        "bridgeOverheadP95": 2.2483
+      }
+    }
+  ]
+}

@@ -54,9 +54,22 @@ type OcrSidecarEvent = {
 
 const startedAt = new Date().toISOString();
 const sidecarLogger = logger.scope('ocr-sidecar');
+const isBenchmarkMode = process.env.EXILE_DIARY_OCR_BENCHMARK_MODE === '1';
 const service = createOcrScanService({
   currentMainDir: __dirname,
   isDev: Boolean(process.env.ELECTRON_RENDERER_URL),
+  persistMatchedMods: isBenchmarkMode ? async () => null : undefined,
+  getMapStatsFn: isBenchmarkMode ? () => ({ iir: 0, iiq: 0, pack_size: 0 }) : undefined,
+  settingsProvider: isBenchmarkMode
+    ? () => ({
+        activeProfile: {
+          characterName: 'benchmark-profile',
+          league: 'benchmark-league',
+        },
+        forceDebugMode: false,
+      })
+    : undefined,
+  tesseractLangPath: process.env.EXILE_DIARY_TESSDATA_PATH,
   emitCompletedJob: (payload) => {
     sendMessage({
       type: 'event',

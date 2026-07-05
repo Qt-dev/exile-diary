@@ -4,9 +4,6 @@ const dayjs = require('dayjs');
 const Piscina = require('piscina');
 const { resolve } = require('node:path');
 const { createWorker, createScheduler } = require('tesseract.js');
-const { getMapStats } = require('../RunParser').default;
-const SettingsManager = require('../../SettingsManager').default;
-const DB = require('../../db/run').default;
 const { matchMapMods } = require('./matchMapMods');
 const { getImageParserWorkerBasePath } = require('../../runtime/electronViteRuntimePaths');
 
@@ -39,12 +36,39 @@ function getDebugArtifactDir(job) {
   return path.join(getDebugArtifactsRootDir(), '.ocr-debug', job.jobId);
 }
 
+function getDefaultMapStatsFn() {
+  return require('../RunParser').default.getMapStats;
+}
+
+function getDefaultSettingsProvider() {
+  return () => {
+    const SettingsManager = require('../../SettingsManager').default;
+    return SettingsManager.getAll();
+  };
+}
+
+function getDefaultRunRepository() {
+  return require('../../db/run').default;
+}
+
+function getMapStatsProvider() {
+  if (process.env.EXILE_DIARY_OCR_DISABLE_MAP_STATS === '1') {
+    return () => ({ iir: 0, iiq: 0, pack_size: 0 });
+  }
+
+  return getDefaultMapStatsFn();
+}
+
 function createOcrScanService({
   currentMainDir = __dirname,
   cwd = process.cwd(),
   isDev = Boolean(process.env.ELECTRON_RENDERER_URL),
   emitCompletedJob = () => undefined,
   emitError = () => undefined,
+  persistMatchedMods: persistMatchedModsOverride,
+  getMapStatsFn = getMapStatsProvider(),
+  settingsProvider = getDefaultSettingsProvider(),
+  tesseractLangPath = process.env.EXILE_DIARY_TESSDATA_PATH ?? process.resourcesPath ?? cwd,
 } = {}) {
   const scheduler = createScheduler();
   const workerBasePath = getImageParserWorkerBasePath({
@@ -62,7 +86,7 @@ function createOcrScanService({
   async function setupScheduler() {
     for (let i = 0; i < numOfWorkers; i++) {
       const worker = await createWorker('eng', 1, {
-        langPath: process.resourcesPath,
+        langPath: tesseractLangPath,
         gzip: false,
       });
       await worker.setParameters({
@@ -176,11 +200,12 @@ function createOcrScanService({
     };
   }
 
-  async function persistMatchedMods(matchedMods) {
+  async function defaultPersistMatchedMods(matchedMods) {
     if (matchedMods.length === 0) {
       return null;
     }
 
+    const DB = getDefaultRunRepository();
     const latestRun = await DB.getLatestUncompletedRun();
     if (!latestRun?.id) {
       return null;
@@ -193,6 +218,12 @@ function createOcrScanService({
 
     return latestRun.id;
   }
+
+  const persistMatchedMods =
+    persistMatchedModsOverride ??
+    (process.env.EXILE_DIARY_OCR_DISABLE_PERSIST === '1'
+      ? async () => null
+      : defaultPersistMatchedMods);
 
   async function scanScreenshotBuffer(
     screenshotBuffer,
@@ -236,7 +267,7 @@ function createOcrScanService({
       const completedPayload = {
         result,
         mapMods: result.matchedMods.map((match) => match.mod),
-        mapStats: getMapStats(result.matchedMods.map((match) => match.mod)),
+        mapStats: getMapStatsFn(result.matchedMods.map((match) => match.mod)),
       };
 
       emitCompletedJob(completedPayload);
@@ -276,7 +307,7 @@ function createOcrScanService({
       return null;
     }
 
-    const settings = SettingsManager.getAll();
+    const settings = settingsProvider();
     return scanScreenshotBuffer(
       buffer,
       {

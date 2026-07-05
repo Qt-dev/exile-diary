@@ -1,8 +1,18 @@
 import { app } from 'electron';
 import logger from 'electron-log';
-import { createRendererRuntimeService } from '../runtime-core/RendererRuntimeService';
+import {
+  runtimeRendererMethodKeys,
+  type RuntimeRendererMethodKey,
+} from '../../shared/contracts/runtimeSidecar';
+import * as RuntimeSidecarClient from '../runtime/RuntimeSidecarClient';
 
-const rendererRuntime = createRendererRuntimeService();
+const rendererRuntime = runtimeRendererMethodKeys.reduce(
+  (service, method) => {
+    service[method] = (...args: any[]) => RuntimeSidecarClient.callRendererMethod(method, args);
+    return service;
+  },
+  {} as Record<RuntimeRendererMethodKey, (...args: any[]) => Promise<unknown>>
+);
 
 export const RendererAppService = {
   async getAppGlobals() {
@@ -14,5 +24,5 @@ export const RendererAppService = {
     };
   },
 
-  ...rendererRuntime,
+  ...(rendererRuntime as any),
 };

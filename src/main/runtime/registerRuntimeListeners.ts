@@ -11,6 +11,7 @@ import {
 } from '../../shared/contracts/exileDiaryApi';
 import { createRuntimeCore, RuntimeCore } from '../runtime-core/RuntimeCore';
 import { createOverlayPublisher } from '../runtime-core/services/createOverlayPublisher';
+import { createRuntimeSidecarBridge, RuntimeSidecarBridge } from './createRuntimeSidecarBridge';
 
 type RegisterRuntimeListenersDependencies = {
   mainWindow: BrowserWindow;
@@ -67,8 +68,8 @@ function registerSearchBridge({
 function registerOcrListeners(
   deps: RegisterRuntimeListenersDependencies,
   state: ListenerState,
-  settings: ReturnType<RuntimeCore['settings']['getAll']>,
-  runtime: RuntimeCore,
+  settings: ReturnType<RuntimeCore['settings']['getAll']> | ReturnType<RuntimeSidecarBridge['settings']['getAll']>,
+  runtime: RuntimeCore | RuntimeSidecarBridge,
   overlayPublisher: ReturnType<typeof createOverlayPublisher>
 ) {
   runtime.ocr.emitter.removeAllListeners();
@@ -231,7 +232,7 @@ function registerOcrListeners(
 
 function registerRunAndStatsListeners(
   deps: RegisterRuntimeListenersDependencies,
-  runtime: RuntimeCore,
+  runtime: RuntimeCore | RuntimeSidecarBridge,
   overlayPublisher: ReturnType<typeof createOverlayPublisher>
 ) {
   runtime.stats.registerProfitPerHourAnnouncer((profitPerHour, divinePrice) => {
@@ -287,7 +288,7 @@ function registerRunAndStatsListeners(
 
 function registerShortcutSensitiveSettingListeners(
   reregisterShortcuts: () => void,
-  runtime: RuntimeCore
+  runtime: RuntimeCore | RuntimeSidecarBridge
 ) {
   runtime.settings.registerListener('runParseScreenshotEnabled', () => reregisterShortcuts());
   runtime.settings.registerListener('screenshots', () => reregisterShortcuts());
@@ -299,7 +300,7 @@ function registerShortcutSensitiveSettingListeners(
 
 function registerKillTrackerListeners(
   deps: RegisterRuntimeListenersDependencies,
-  runtime: RuntimeCore,
+  runtime: RuntimeCore | RuntimeSidecarBridge,
   overlayPublisher: ReturnType<typeof createOverlayPublisher>
 ) {
   const { emitter } = runtime.killTracker;
@@ -328,7 +329,7 @@ function registerKillTrackerListeners(
 }
 
 function registerRatesAndLogWatchers(
-  runtime: RuntimeCore,
+  runtime: RuntimeCore | RuntimeSidecarBridge,
   overlayPublisher: ReturnType<typeof createOverlayPublisher>
 ) {
   runtime.rates.removeAllListeners();
@@ -343,6 +344,9 @@ function registerRatesAndLogWatchers(
     logger.info(
       "<span class='eventText removeRow' onclick='rateGetterRetry(this);'>Error getting item prices from poe.ninja, <span class='retry'>click on this message to try again</span></span>"
     );
+  });
+  runtime.rates.on('pricesUpdated', (payload) => {
+    overlayPublisher.publishToMain(rendererEventChannels.pricesUpdated, payload);
   });
 
   runtime.clientLogs.emitter.removeAllListeners();
@@ -393,7 +397,7 @@ function registerRatesAndLogWatchers(
 
 function registerStashListeners(
   deps: RegisterRuntimeListenersDependencies,
-  runtime: RuntimeCore,
+  runtime: RuntimeCore | RuntimeSidecarBridge,
   overlayPublisher: ReturnType<typeof createOverlayPublisher>
 ) {
   runtime.stash.removeAllListeners();
@@ -416,9 +420,12 @@ function registerStashListeners(
 
 function registerSettingsListeners(
   deps: RegisterRuntimeListenersDependencies,
-  runtime: RuntimeCore,
+  runtime: RuntimeCore | RuntimeSidecarBridge,
   overlayPublisher: ReturnType<typeof createOverlayPublisher>
 ) {
+  runtime.settings.registerListener('filters', (settings) => {
+    deps.sendToMain(rendererEventChannels.settingsFiltersUpdated, settings);
+  });
   runtime.settings.registerListener('overlayPersistenceEnabled', (isOverlayEnabled) => {
     logger.debug(`Setting Overlay Persistence to Enabled:${isOverlayEnabled}`);
     deps.sendToOverlay(rendererEventChannels.overlaySetPersistence, isOverlayEnabled);
@@ -465,7 +472,7 @@ function registerSettingsListeners(
 
 export function registerRuntimeListeners(
   deps: RegisterRuntimeListenersDependencies,
-  runtime: RuntimeCore = createRuntimeCore()
+  runtime: RuntimeCore | RuntimeSidecarBridge = createRuntimeSidecarBridge()
 ) {
   const settings = runtime.settings.getAll();
   const state: ListenerState = {

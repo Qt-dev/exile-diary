@@ -48,6 +48,7 @@ export default defineConfig({
         input: {
           index: path.resolve(__dirname, 'src/main/index.ts'),
           'ocr-sidecar': path.resolve(__dirname, 'src/main/modules/ImageParser/OcrSidecar.ts'),
+          'runtime-sidecar': path.resolve(__dirname, 'src/main/runtime/RuntimeSidecar.ts'),
         },
       },
     },

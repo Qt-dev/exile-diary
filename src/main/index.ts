@@ -25,26 +25,16 @@ import * as path from 'path';
 import logger from 'electron-log';
 import SettingsManager from './SettingsManager';
 import GGGAPI from './GGGAPI';
-import League from './db/repositories/league';
-import ItemDB from './db/repositories/items';
 import RendererLogger from './RendererLogger';
 import { OverlayController, OVERLAY_WINDOW_OPTS } from 'electron-overlay-window';
-import dayjs, { Dayjs } from 'dayjs';
+import dayjs from 'dayjs';
 import duration from 'dayjs/plugin/duration';
 import isSameOrAfter from 'dayjs/plugin/isSameOrAfter';
 import AuthManager from './AuthManager';
-import IgnoreManager from '../helpers/ignoreManager';
-import LogProcessor from './modules/LogProcessor';
 
 // Old stuff
-import RateGetterV2 from './modules/RateGetterV2';
 import ScreenshotWatcher from './modules/ImageParser/ScreenshotWatcher';
-import * as ClientTxtWatcher from './modules/ClientTxtWatcher';
 import * as OCRWatcher from './modules/ImageParser/OCRWatcher';
-import StashGetter from './modules/StashGetter';
-import RunParser from './modules/RunParser';
-import StatsManager from './StatsManager';
-import ItemPricer from './modules/ItemPricer';
 import { invokeChannels, rendererEventChannels, sendChannels } from '../shared/contracts/exileDiaryApi';
 import { createAppWindows } from './windows/createAppWindows';
 import { createWindowMessenger, WindowMessenger } from './windows/windowMessaging';
@@ -54,12 +44,13 @@ import { registerShellHandlers } from './ipc/registerShellHandlers';
 import { registerRuntimeListeners } from './runtime/registerRuntimeListeners';
 import { registerAutoUpdater } from './updater/registerAutoUpdater';
 import { getRendererIndexPath } from './runtime/electronViteRuntimePaths';
+import { createRuntimeSidecarBridge } from './runtime/createRuntimeSidecarBridge';
+import * as RuntimeSidecarClient from './runtime/RuntimeSidecarClient';
 
 dayjs.extend(duration);
 dayjs.extend(isSameOrAfter);
 const autoUpdaterIntervalTime = 1000 * 60 * 60; // 1 hour
 const isDev = require('electron-is-dev') || SettingsManager.get('forceDebugMode');
-let modReadingTimer: Dayjs | null = null;
 let originalDebugLogger: ((...params: any[]) => void) | null = null;
 let originalInfoLogger: ((...params: any[]) => void) | null = null;
 let isLoggingToRenderer = false;
@@ -197,6 +188,7 @@ class MainProcess {
   isOverlayMoveable: boolean;
   messenger: WindowMessenger;
   shortcutController: GlobalShortcutController;
+  runtimeBridge = createRuntimeSidecarBridge();
 
   constructor() {
     const windows = createAppWindows();
@@ -206,13 +198,16 @@ class MainProcess {
     this.isOverlayMoveable = false;
     this.messenger = createWindowMessenger(windows);
     this.shortcutController = new GlobalShortcutController({
-      getShortcut: (key) => SettingsManager.get(key),
-      isRunParseScreenshotEnabled: () => !!SettingsManager.get('runParseScreenshotEnabled'),
-      areCustomScreenshotsEnabled: () => !!SettingsManager.get('screenshots')?.allowCustomShortcut,
+      getShortcut: (key) => this.runtimeBridge.settings.get(key),
+      isRunParseScreenshotEnabled: () => !!this.runtimeBridge.settings.get('runParseScreenshotEnabled'),
+      areCustomScreenshotsEnabled: () =>
+        !!this.runtimeBridge.settings.get('screenshots')?.allowCustomShortcut,
       toggleOverlayPersistence: () => {
         logger.info('Toggling overlay visibility');
-        const overlayPersistenceEnabled = SettingsManager.get('overlayPersistenceEnabled');
-        SettingsManager.set('overlayPersistenceEnabled', !overlayPersistenceEnabled);
+        const overlayPersistenceEnabled = this.runtimeBridge.settings.get('overlayPersistenceEnabled');
+        void RuntimeSidecarClient.callRendererMethod('saveSettings', [
+          { overlayPersistenceEnabled: !overlayPersistenceEnabled },
+        ]);
       },
       toggleOverlayMovement: () => {
         logger.info(`Toggling overlay movement - ${this.isOverlayMoveable}`);
@@ -225,7 +220,7 @@ class MainProcess {
       triggerRunParse: () => {
         logger.info('Run parse shortcut pressed');
         const event = { timestamp: dayjs().toISOString() };
-        RunParser.tryProcess({ event });
+        void this.runtimeBridge.runTracking.tryProcess({ event });
       },
       triggerScreenshot: () => {
         logger.info('Screenshot shortcut pressed');
@@ -253,57 +248,9 @@ class MainProcess {
 
     // Settings
     await SettingsManager.initialize();
-    if (!SettingsManager.get('username')) {
-      logger.error('No account name set. Please set your account name in the settings.');
-    } else {
-      const character = await SettingsManager.getCharacter();
-      try {
-        await SettingsManager.initializeDB(character.name);
-        await League.addLeague(character.league);
-        logger.info(`DB initialized. Character: ${character.name}, League: ${character.league}`);
-      } catch (e) {
-        logger.error(`Could not set DB up. (Current Account: ${SettingsManager.get('username')}})`);
-        logger.error(e);
-      }
-    }
-
-    if (
-      !benchmarkMode &&
-      SettingsManager.get('activeProfile') &&
-      SettingsManager.get('activeProfile').valid
-    ) {
-      logger.info('Starting components');
-      RateGetterV2.initialize({
-        postUpdateCallback: async () => {
-          RendererLogger.log({
-            messages: [{ text: "Today's prices have been updated" }],
-          });
-          const itemsValues = await ItemDB.getAllItemsValues();
-          if (!itemsValues) {
-            logger.warn('Unable to get item values - database may not be initialized');
-            return;
-          }
-          const prices = itemsValues.reduce((aggregations, { id, value }) => {
-            aggregations[id] = value;
-            return aggregations;
-          }, {});
-          this.sendToMain(rendererEventChannels.pricesUpdated, { prices });
-        },
-      });
-      ClientTxtWatcher.start();
-
-      SettingsManager.unregisterListener('filters');
-      SettingsManager.registerListener('filters', async (settings) => {
-        this.sendToMain(rendererEventChannels.settingsFiltersUpdated, settings);
-      });
-      ScreenshotWatcher.start();
-      OCRWatcher.start();
-      // ItemFilter.load(); not working yet
-    }
-
-    IgnoreManager.initialize(logger, () => {
-      logger.debug('Backend ignore settings updated');
-    });
+    await RuntimeSidecarClient.start();
+    ScreenshotWatcher.start();
+    await OCRWatcher.start();
   }
 
   sendToOverlay(event: string, data?: any) {
@@ -352,7 +299,7 @@ class MainProcess {
       reregisterShortcuts: () => this.reRegisterGlobalShortcuts(),
       setLogTransport,
       setupDebugLoggerHook,
-    });
+    }, this.runtimeBridge);
   }
 
   /**
@@ -494,7 +441,7 @@ class MainProcess {
     // OverlayController listeners
     OverlayController.events.on('attach', (event) => {
       logger.info('Overlay attached to Path of Exile process');
-      RunParser.refreshTracking();
+      void this.runtimeBridge.runTracking.refreshTracking();
       this.overlayWindow.setBounds(OverlayController.targetBounds);
       this.sendToOverlay(rendererEventChannels.overlayTriggerReposition);
     });
@@ -512,11 +459,11 @@ class MainProcess {
 
     OverlayController.events.on('focus', () => {
       logger.info(
-        `Overlay controller focused, enabled:${SettingsManager.get(
+        `Overlay controller focused, enabled:${this.runtimeBridge.settings.get(
           'overlayEnabled'
-        )}, persistenceEnabled:${SettingsManager.get('overlayPersistenceEnabled')}`
+        )}, persistenceEnabled:${this.runtimeBridge.settings.get('overlayPersistenceEnabled')}`
       );
-      if (SettingsManager.get('overlayEnabled') === true) {
+      if (this.runtimeBridge.settings.get('overlayEnabled') === true) {
         this.overlayWindow.show();
       }
       this.overlayWindow.setIgnoreMouseEvents(!this.isOverlayMoveable);
@@ -576,6 +523,7 @@ class MainProcess {
       clearTimeout(this.autoUpdaterInterval);
       this.unregisterGlobalShortcuts();
       OCRWatcher.stop();
+      RuntimeSidecarClient.stop();
     });
   }
 
@@ -662,18 +610,22 @@ class MainProcess {
             if (isAuthenticated) {
               this.sendToMain('oauth:auth-success');
               const character = await GGGAPI.getCurrentCharacter();
-              const activeProfile = SettingsManager.get('activeProfile');
+              const activeProfile = this.runtimeBridge.settings.get('activeProfile');
               if (
                 !activeProfile ||
                 !activeProfile.valid ||
                 !activeProfile.characterName ||
                 !activeProfile.league
               ) {
-                SettingsManager.set('activeProfile', {
-                  characterName: character.name,
-                  league: character.league,
-                  valid: true,
-                });
+                await RuntimeSidecarClient.callRendererMethod('saveSettings', [
+                  {
+                    activeProfile: {
+                      characterName: character.name,
+                      league: character.league,
+                      valid: true,
+                    },
+                  },
+                ]);
               }
             }
           });

@@ -41,3 +41,15 @@ export function getOcrSidecarEntryPath({
 
   return path.resolve(currentMainDir, 'ocr-sidecar.js');
 }
+
+export function getRuntimeSidecarEntryPath({
+  currentMainDir = __dirname,
+  cwd = process.cwd(),
+  isDev = Boolean(process.env.ELECTRON_RENDERER_URL),
+}: RuntimePathOptions = {}) {
+  if (isDev) {
+    return path.resolve(cwd, 'src', 'main', 'runtime', 'RuntimeSidecar.ts');
+  }
+
+  return path.resolve(currentMainDir, 'runtime-sidecar.js');
+}

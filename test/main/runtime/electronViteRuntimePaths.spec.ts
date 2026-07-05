@@ -5,6 +5,7 @@ import {
   getOcrSidecarEntryPath,
   getPreloadBundlePath,
   getRendererIndexPath,
+  getRuntimeSidecarEntryPath,
 } from '../../../src/main/runtime/electronViteRuntimePaths';
 
 describe('electron-vite runtime paths', () => {
@@ -73,5 +74,25 @@ describe('electron-vite runtime paths', () => {
         isDev: false,
       })
     ).toContain(path.join('out', 'electron', 'main', 'ocr-sidecar.js'));
+  });
+
+  it('uses the runtime sidecar source entry during dev', () => {
+    expect(
+      getRuntimeSidecarEntryPath({
+        currentMainDir: bundledMainDir,
+        cwd: repoRoot,
+        isDev: true,
+      })
+    ).toContain(path.join('src', 'main', 'runtime', 'RuntimeSidecar.ts'));
+  });
+
+  it('uses the built runtime sidecar bundle outside dev', () => {
+    expect(
+      getRuntimeSidecarEntryPath({
+        currentMainDir: bundledMainDir,
+        cwd: repoRoot,
+        isDev: false,
+      })
+    ).toContain(path.join('out', 'electron', 'main', 'runtime-sidecar.js'));
   });
 });
