@@ -10,7 +10,7 @@ let DB = require('../../db/run').default;
 
 let watcher;
 const emitter = new EventEmitter();
-const app = require('electron').app || require('@electron/remote').app;
+const { app } = require('electron');
 let mapInfoManager;
 
 const watchPaths = [

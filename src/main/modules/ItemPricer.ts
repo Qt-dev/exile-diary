@@ -3,10 +3,10 @@ import RatesManager from '../RatesManager';
 import { writeFile } from 'fs/promises';
 import Constants from '../../helpers/constants';
 import * as ItemCategoryParser from '../../helpers/item';
+import ItemData from './ItemData';
+import Utils from './Utils';
 import dayjs, { min } from 'dayjs';
 const logger = require('electron-log');
-const ItemData = require('./ItemData');
-const Utils = require('./Utils').default;
 
 const baseTypeRarities = ['Normal', 'Magic', 'Rare'];
 const nonPricedCategories = [

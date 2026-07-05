@@ -1,12 +1,15 @@
 import GGGAPI from '../GGGAPI';
-import KillTracker from './KillTracker';
 import DB from '../db';
 const logger = require('electron-log');
 const dayjs = require('dayjs');
-const XPTracker = require('./XPTracker');
-const GearChecker = require('./GearChecker');
+const XPTrackerModule = require('./XPTracker');
+const XPTracker = XPTrackerModule.default ?? XPTrackerModule;
+const GearCheckerModule = require('./GearChecker');
+const GearChecker = GearCheckerModule.default ?? GearCheckerModule;
 const GraftbloodTracker = require('./GraftbloodTracker');
 const EventEmitter = require('events');
+const KillTrackerModule = require('./KillTracker');
+const KillTracker = KillTrackerModule.default ?? KillTrackerModule;
 
 var settings;
 var emitter = new EventEmitter();
@@ -17,9 +20,15 @@ class InventoryGetter extends EventEmitter {
 
     settings = require('./settings').get();
 
-    this.on('xp', XPTracker.logXP);
-    this.on('equipment', KillTracker.logKillCount);
-    this.on('equipment', GearChecker.check);
+    if (typeof XPTracker.logXP === 'function') {
+      this.on('xp', XPTracker.logXP);
+    }
+    if (typeof KillTracker.logKillCount === 'function') {
+      this.on('equipment', KillTracker.logKillCount);
+    }
+    if (typeof GearChecker.check === 'function') {
+      this.on('equipment', GearChecker.check);
+    }
 
     logger.info(`Inventory getter started with query path ${this.queryPath}`);
   }

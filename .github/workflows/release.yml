@@ -28,26 +28,27 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
+          cache: 'npm'
       - name: Install dependencies
-        run: npm install  
+        run: npm ci
       - name: Build app
-        run: npm run build
+        run: npm run package:win
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
         with:
           name: windows-app
           overwrite: true
           path: |
-            dist/exile-diary-reborn-setup-${{ github.ref_name }}.exe
-            dist/exile-diary-reborn-setup-${{ github.ref_name }}.exe.blockmap
+            dist/exile-diary-reborn-setup-v*.exe
+            dist/exile-diary-reborn-setup-v*.exe.blockmap
             dist/latest.yml
       - name: Update release
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ github.ref_name }}
           files: |
-            dist/exile-diary-reborn-setup-${{ github.ref_name }}.exe
-            dist/exile-diary-reborn-setup-${{ github.ref_name }}.exe.blockmap
+            dist/exile-diary-reborn-setup-v*.exe
+            dist/exile-diary-reborn-setup-v*.exe.blockmap
             dist/latest.yml
 
   # Build Linux
@@ -61,6 +62,7 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
+          cache: 'npm'
       - name: Install linux dependencies
         run: |
           sudo apt-get update
@@ -69,9 +71,9 @@ jobs:
         run: |
           flatpak remote-add -u --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
       - name: Install npm dependencies
-        run: npm install
+        run: npm ci
       - name: Build app
-        run: npm run build:linux
+        run: npm run package:linux
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
@@ -79,16 +81,16 @@ jobs:
           overwrite: true
           path: |
             dist/latest-linux.yml
-            dist/exile-diary-reborn_${{ github.ref_name }}_amd64.flatpak
-            dist/exile-diary-reborn_${{ github.ref_name }}_amd64.AppImage
+            dist/exile-diary-reborn_v*_amd64.flatpak
+            dist/exile-diary-reborn_v*_amd64.AppImage
       - name: Update release
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ github.ref_name }}
           files: |
             dist/latest-linux.yml
-            dist/exile-diary-reborn_${{ github.ref_name }}_amd64.flatpak
-            dist/exile-diary-reborn_${{ github.ref_name }}_amd64.AppImage
+            dist/exile-diary-reborn_v*_amd64.flatpak
+            dist/exile-diary-reborn_v*_amd64.AppImage
 
   # Publish Release
   publish-release:

@@ -7,7 +7,13 @@ import GGGAPI from './GGGAPI';
 import RateGetterV2 from './modules/RateGetterV2';
 import EventEmitter from 'events';
 
-const settingsPath = path.join(app.getPath('userData'), 'settings.json');
+function getSettingsPath() {
+  return path.join(app.getPath('userData'), 'settings.json');
+}
+
+function getTempSettingsPath() {
+  return path.join(app.getPath('userData'), 'settings.json.bak');
+}
 
 const DefaultSettings = {
   activeProfile: {
@@ -70,6 +76,7 @@ class SettingsManager {
 
   async initialize() {
     logger.info('Initializing Settings Manager');
+    const settingsPath = getSettingsPath();
     try {
       await fs.stat(settingsPath);
     } catch (e) {
@@ -79,7 +86,7 @@ class SettingsManager {
 
     this.settings = {
       ...DefaultSettings,
-      ...require(settingsPath),
+      ...JSON.parse(await fs.readFile(settingsPath, 'utf8')),
     };
 
     this.scheduleSave();
@@ -165,7 +172,8 @@ class SettingsManager {
   }
 
   async save() {
-    const tempFilePath = path.join(app.getPath('userData'), 'settings.json.bak');
+    const settingsPath = getSettingsPath();
+    const tempFilePath = getTempSettingsPath();
     logger.info(`Saving settings to ${tempFilePath}`);
     await fs.writeFile(tempFilePath, JSON.stringify(this.settings));
     logger.info(`Renaming ${tempFilePath} into  ${settingsPath}`);

@@ -19,7 +19,8 @@ describe('createAppWindows', () => {
     const mainWindowOptions = (electron.BrowserWindow as jest.Mock).mock.calls[0][0];
     const overlayWindowOptions = (electron.BrowserWindow as jest.Mock).mock.calls[1][0];
 
-    expect(mainWindowOptions.webPreferences.preload).toContain('preload.js');
+    expect(mainWindowOptions.webPreferences.preload).toContain('preload');
+    expect(mainWindowOptions.webPreferences.preload).toContain('index.js');
     expect(mainWindowOptions.webPreferences.preload).toContain('..');
     expect(overlayWindowOptions.webPreferences.preload).toBe(
       mainWindowOptions.webPreferences.preload

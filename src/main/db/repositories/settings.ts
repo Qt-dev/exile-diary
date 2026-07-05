@@ -3,28 +3,44 @@ import { app } from 'electron';
 import Logger from 'electron-log';
 
 const path = require('path');
-const settingsPath = path.join(app.getPath('userData'), 'settings.json');
-const tempFilePath = path.join(app.getPath('userData'), 'settings.json.bak');
 const logger = Logger.scope('db/settings');
+
+function getSettingsPath() {
+  return path.join(app.getPath('userData'), 'settings.json');
+}
+
+function getTempFilePath() {
+  return path.join(app.getPath('userData'), 'settings.json.bak');
+}
 
 type Settings = {
   [key: string]: any;
 };
 
 export function get() {
+  const settingsPath = getSettingsPath();
   let settings: Settings | null = null;
   try {
-    settings = require(path.join(app.getPath('userData'), 'settings.json')) as Settings;
+    settings = require(settingsPath) as Settings;
   } catch (err) {
-    logger.error(err);
-    logger.error('Unable to load settings.json');
+    try {
+      settings = JSON.parse(require('fs').readFileSync(settingsPath, 'utf8')) as Settings;
+    } catch (readError) {
+      logger.error(readError);
+      logger.error('Unable to load settings.json');
+    }
   }
   return settings;
 }
 
 export async function set(key: string, value: any) {
+  const settingsPath = getSettingsPath();
+  const tempFilePath = getTempFilePath();
   await access(settingsPath, constants.F_OK);
-  const settings = require(settingsPath) as Settings;
+  const settings = get();
+  if (!settings) {
+    throw new Error('Unable to load settings.json');
+  }
   settings[key] = value;
   try {
     await writeFile(tempFilePath, JSON.stringify(settings));

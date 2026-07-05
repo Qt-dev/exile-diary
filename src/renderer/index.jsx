@@ -6,20 +6,28 @@ import utc from 'dayjs/plugin/utc';
 import calendar from 'dayjs/plugin/calendar';
 import { createHashRouter, RouterProvider } from 'react-router-dom';
 import { ThemeProvider } from '@mui/material/styles';
+import { rendererBootEvent } from '../shared/contracts/exileDiaryApi';
 import './index.css';
 import reportWebVitals from './reportWebVitals';
 import RunStore from './stores/runStore';
 import CharacterStore from './stores/characterStore';
 import StashTabStore from './stores/stashTabStore';
 import { appTheme, createAppRoutes } from './app';
+import { electronService } from './electron.service';
+
+globalThis.global = globalThis;
+
 dayjs.extend(duration);
 dayjs.extend(utc);
 dayjs.extend(calendar);
+
 const runStore = new RunStore();
 const characterStore = new CharacterStore();
 const stashTabStore = new StashTabStore();
+
 characterStore.fetchCharacters();
 stashTabStore.fetchStashTabs();
+
 const router = createHashRouter(
   createAppRoutes({
     runStore,
@@ -34,14 +42,16 @@ if (documentRoot !== null) {
   root.render(
     <React.StrictMode>
       <ThemeProvider theme={appTheme}>
-        <script>var global = global || window;</script>
         <RouterProvider router={router} />
       </ThemeProvider>
     </React.StrictMode>
   );
+
+  if (window.location.hash !== '#/overlay') {
+    queueMicrotask(() => {
+      window.dispatchEvent(new Event(rendererBootEvent));
+    });
+  }
 }
 
-// If you want to start measuring performance in your app, pass a function
-// to log results (for example: reportWebVitals(console.log))
-// or send to an analytics endpoint. Learn more: https://bit.ly/CRA-vitals
 reportWebVitals();

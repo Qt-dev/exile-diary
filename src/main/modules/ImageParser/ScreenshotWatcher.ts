@@ -6,17 +6,20 @@ import dayjs from 'dayjs';
 import chokidar, { type FSWatcher } from 'chokidar';
 import Logger from 'electron-log';
 import EventEmitter from 'events';
-import OCRWatcher from './OCRWatcher';
+import * as OCRWatcher from './OCRWatcher';
 import { app, globalShortcut } from 'electron';
 import Piscina from 'piscina';
 import { resolve } from 'path';
-import { filename } from './ImageSaverWorker';
+
+const isDev = Boolean(process.env.ELECTRON_RENDERER_URL);
+const workerBasePath = isDev
+  ? resolve(process.cwd(), 'src', 'main', 'modules', 'ImageParser')
+  : __dirname;
 
 const piscina = new Piscina({
-  filename: resolve(__dirname, './workerWrapper.js'),
-  workerData: { fullpath: filename },
+  filename: resolve(workerBasePath, 'workerWrapper.js'),
+  workerData: { fullpath: resolve(workerBasePath, 'ImageSaverWorker.js') },
 });
-const isDev = true;
 const logger = Logger.scope('main-screenshot-watcher');
 const ProcessingTimeout = 15000;
 

@@ -5,6 +5,7 @@ import {
   ExileDiaryLogAction,
   ExileDiaryRendererEventName,
   invokeChannels,
+  rendererBootEvent,
   rendererEventChannels,
   sendChannels,
 } from '../shared/contracts/exileDiaryApi';
@@ -84,5 +85,13 @@ const api: ExileDiaryApi = {
   openExternal: (url) => shell.openExternal(url),
   on: onRendererEvent,
 };
+
+window.addEventListener(
+  rendererBootEvent,
+  () => {
+    ipcRenderer.send(sendChannels.appBooted);
+  },
+  { once: true }
+);
 
 contextBridge.exposeInMainWorld('exileDiary', api);

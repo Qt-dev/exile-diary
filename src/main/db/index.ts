@@ -10,7 +10,10 @@ import EventEmitter from 'events';
 import fs from 'fs';
 
 const logger = Logger.scope('db/index');
-const userDataPath = app.getPath('userData');
+
+function getUserDataPath() {
+  return app.getPath('userData');
+}
 
 // Migrations to run on setup and on maintenance for each type of DB
 // TODO: Move this to a separate file
@@ -713,7 +716,7 @@ const DBConnections = new Map<string, DBManager>();
 // External interface for DB
 const DB = {
   getLeagueDbPath: (league: string) => {
-    return path.join(userDataPath, `${league}.leaguedb`);
+    return path.join(getUserDataPath(), `${league}.leaguedb`);
   },
 
   getCharacterDbPath: (characterName?: string, league?: string, oldVersion?: true) => {
@@ -732,9 +735,9 @@ const DB = {
       league = settings.activeProfile.league;
     }
     if (oldVersion) {
-      return path.join(userDataPath, `${characterName}.db`);
+      return path.join(getUserDataPath(), `${characterName}.db`);
     } else {
-      return path.join(userDataPath, `${characterName}.${league}.db`);
+      return path.join(getUserDataPath(), `${characterName}.${league}.db`);
     }
   },
 

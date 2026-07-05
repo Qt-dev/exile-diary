@@ -5,11 +5,11 @@ import { StashTabData } from '../../helpers/types';
 import DB from '../db/stashtabs';
 import Item from '../models/Item';
 import RatesGetterV2 from './RateGetterV2';
+import ItemPricer from './ItemPricer';
 import dayjs from 'dayjs';
 import RendererLogger from '../RendererLogger';
 const EventEmitter = require('events');
 const logger = require('electron-log').scope('ShashGetter');
-const ItemPricer = require('./ItemPricer');
 
 const emitter = new EventEmitter();
 const DefaultInterval = 300;

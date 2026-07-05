@@ -4,18 +4,18 @@ import dayjs from 'dayjs';
 import RendererLogger from '../RendererLogger';
 import SettingsManager from '../SettingsManager';
 import WorldAreas from '../../helpers/data/worldAreas.json';
+import Constants from '../../helpers/constants';
 import OldDB from '../db';
 import { globalShortcut } from 'electron';
 import Utils from './Utils';
 import minMax from 'dayjs/plugin/minMax'; // ES 2015
 import EventParser from './EventParser';
 import LogProcessor from './LogProcessor';
+import ItemPricer from './ItemPricer';
+import XPTracker from './XPTracker';
+import GraftbloodTracker from './GraftbloodTracker';
 const logger = require('electron-log');
 const EventEmitter = require('events');
-const ItemPricer = require('./ItemPricer');
-const XPTracker = require('./XPTracker');
-const GraftbloodTracker = require('./GraftbloodTracker');
-const Constants = require('../../helpers/constants').default;
 
 dayjs.extend(minMax);
 

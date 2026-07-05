@@ -35,6 +35,7 @@ export const sendChannels = {
   reloadApp: 'reload-app',
   downloadUpdate: 'download-update',
   applyUpdate: 'apply-update',
+  appBooted: 'app:booted',
   notifyFiltersUiUpdated: 'settings:filters:ui-updated',
   refreshUi: 'ui:refresh',
   requestNetWorthRefresh: 'get-net-worth',
@@ -43,6 +44,8 @@ export const sendChannels = {
   disableHotkeys: 'hotkeys:disable',
   enableHotkeys: 'hotkeys:enable',
 } as const;
+
+export const rendererBootEvent = 'exile-diary:app-booted';
 
 export const rendererEventChannels = {
   refreshRuns: 'refresh-runs',

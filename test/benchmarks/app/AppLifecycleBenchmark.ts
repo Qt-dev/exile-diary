@@ -70,7 +70,7 @@ export async function runAppLifecycleBenchmark(
         status: 'error',
         error:
           `Timed out after ${timeoutMs}ms while waiting for the Electron app to report "${mode}".\n` +
-          `This usually means the renderer never finished loading in the current environment.\nSTDERR:\n${stderr}\nSTDOUT:\n${stdout}`,
+          `This usually means the main renderer never emitted its boot-ready signal in the current environment.\nSTDERR:\n${stderr}\nSTDOUT:\n${stdout}`,
       });
     }, timeoutMs);
 
@@ -99,8 +99,8 @@ export async function runAppLifecycleBenchmark(
           mode,
           status: 'error',
           error:
-            `No benchmark marker received for mode "${mode}". This usually means the compiled Electron main bundle is stale or another app instance took the single-instance lock.\n` +
-            `Rebuild the main process bundle before collecting lifecycle baselines.\nExit code: ${code ?? 'unknown'}\nSTDERR:\n${stderr}\nSTDOUT:\n${stdout}`,
+            `No benchmark marker received for mode "${mode}". This usually means the built app output is stale or another app instance took the single-instance lock.\n` +
+            `Run the full app build before collecting lifecycle baselines.\nExit code: ${code ?? 'unknown'}\nSTDERR:\n${stderr}\nSTDOUT:\n${stdout}`,
         });
         return;
       }

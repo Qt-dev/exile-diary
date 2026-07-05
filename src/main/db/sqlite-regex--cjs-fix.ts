@@ -29,12 +29,23 @@ export function getLoadablePath() {
         .join(',')}). Consult the sqlite-regex NPM package README for details. `
     );
   }
-  const prefix = app.isPackaged ? process.resourcesPath : resolve(__dirname, '..');
-  const loadablePath = join(prefix, 'db', 'extensions', `regexp.${extensionSuffix(platform)}`);
+  const extensionFileName = `regexp.${extensionSuffix(platform)}`;
+  const candidatePaths = app.isPackaged
+    ? [join(process.resourcesPath, 'db', 'extensions', extensionFileName)]
+    : [
+        join(process.cwd(), 'src', 'main', 'db', 'extensions', extensionFileName),
+        join(resolve(__dirname, '..'), 'db', 'extensions', extensionFileName),
+      ];
 
-  if (!statSync(loadablePath, { throwIfNoEntry: false })) {
+  const loadablePath = candidatePaths.find((candidatePath) =>
+    statSync(candidatePath, { throwIfNoEntry: false })
+  );
+
+  if (!loadablePath) {
     throw new Error(
-      `Loadble extension for regex not found. ${loadablePath} does not exist. Consult the sqlite-regex NPM package README for details.}`
+      `Loadble extension for regex not found. Tried: ${candidatePaths.join(
+        ', '
+      )}. Consult the sqlite-regex NPM package README for details.}`
     );
   }
 

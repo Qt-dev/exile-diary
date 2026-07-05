@@ -1,8 +1,7 @@
 {
   "name": "exile-diary",
   "version": "1.10.2",
-  "main": "./build/main/index.js",
-  "homepage": "./",
+  "main": "./out/electron/main/index.js",
   "build": {
     "appId": "com.exilediary.reborn",
     "productName": "Exile Diary Reborn",
@@ -16,9 +15,7 @@
       }
     ],
     "files": [
-      "build/**/*",
-      "public/icon.*",
-      "public/icon512x512.*"
+      "out/**/*"
     ],
     "nativeRebuilder": "parallel",
     "win": {
@@ -98,21 +95,17 @@
     }
   },
   "scripts": {
-    "start": "electron .",
+    "start": "electron-vite preview",
     "test": "jest --config jest.config.js --runInBand",
-    "test:app:smoke": "npm run benchmark:app:start",
+    "test:app:smoke": "npm run build:app && npm run benchmark:app:start",
     "test:ui:smoke": "jest --config jest.config.js --selectProjects renderer --runInBand",
     "test:watch": "jest --config jest.config.js --runInBand --watch",
     "postinstall": "electron-builder install-app-deps",
     "pack": "electron-builder --dir",
     "dist": "electron-builder",
     "pretty": "prettier --write \"{src,test}/**/*.{js,jsx,ts,tsx,json,css,scss,md}\"",
-    "react:start": "node scripts/start.js",
-    "react:build": "node scripts/build.js",
-    "react:test": "node scripts/test.js",
-    "react:eject": "node scripts/eject.js",
     "data:extract": "cd scripts/poe-extractor && npm run update && npm run generate && prettier --write \"output\" && cd output && cpy areas.json items.json mapMods.json worldAreas.json uniques.json events.json ../../../src/helpers/data/",
-    "analyze": "source-map-explorer 'build/static/js/*.js'",
+    "analyze": "source-map-explorer 'out/renderer/assets/*.js'",
     "benchmark": "npm run benchmark:string-match",
     "benchmark:db": "npx tsx test/benchmarks/db/DbQueryBenchmark.ts",
     "benchmark:db:json": "npx tsx test/benchmarks/db/DbQueryBenchmark.ts --json",
@@ -121,10 +114,12 @@
     "benchmark:app:start": "npx tsx test/benchmarks/app/AppLifecycleBenchmark.ts --mode=startup --json",
     "benchmark:app:idle": "npx tsx test/benchmarks/app/AppLifecycleBenchmark.ts --mode=idle-memory --json",
     "baseline:collect": "cross-env EXILE_DIARY_SILENCE_BENCHMARK_LOGS=1 npx tsx test/benchmarks/collectBaselines.ts",
-    "build": "npm run react:build && tsc -p src/main && set \"DEBUG=electron-builder\" && electron-builder -p never",
-    "build:portable": "npm run react:build && tsc -p src/main && set \"DEBUG=electron-builder\" && electron-builder --win zip -c.win.artifactName=\"exile-diary-reborn-portable-v${version}.${ext}\" -p never",
-    "build:linux": "npm run react:build && tsc -p src/main && env DEBUG=\"@malept/flatpak-bundler\" electron-builder -p never",
-    "dev": "concurrently \"cross-env BROWSER=none npm run react:start\" \"wait-on -s 1 http://localhost:3003 && tsc -p src/main -w --preserveWatchOutput\" \"wait-on -s 1 http://localhost:3003 && tsc -p src/main && electron .\""
+    "sync:electron-assets": "node ./scripts/sync-electron-assets.mjs",
+    "dev": "npm run sync:electron-assets && electron-vite dev",
+    "build:app": "electron-vite build && npm run sync:electron-assets",
+    "package:win": "npm run build:app && cross-env DEBUG=electron-builder electron-builder -p never",
+    "package:portable": "npm run build:app && cross-env DEBUG=electron-builder electron-builder --win zip -c.win.artifactName=\"exile-diary-reborn-portable-v${version}.${ext}\" -p never",
+    "package:linux": "npm run build:app && cross-env DEBUG=@malept/flatpak-bundler electron-builder -p never"
   },
   "eslintConfig": {
     "extends": [
@@ -210,6 +205,7 @@
     "@types/react": "^18.2.25",
     "@types/react-dom": "^18.2.10",
     "@types/sqlite3": "^3.1.8",
+    "@vitejs/plugin-react": "^4.7.0",
     "babel-loader": "^10.0.0",
     "babel-plugin-named-asset-import": "^0.3.8",
     "babel-preset-react-app": "^10.1.0",
@@ -227,6 +223,7 @@
     "dotenv-expand": "^12.0.2",
     "electron": "^41.1.1",
     "electron-builder": "^26.8.1",
+    "electron-vite": "^3.1.0",
     "eslint": "^8.57.1",
     "eslint-config-react-app": "^7.0.1",
     "eslint-webpack-plugin": "^3.2.0",

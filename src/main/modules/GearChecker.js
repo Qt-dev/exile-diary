@@ -69,7 +69,7 @@ async function check(timestamp, eqp) {
     return;
   }
   settings = require('./settings').get();
-  if (settings.activeProfile.noGearCheck) {
+  if (settings?.activeProfile?.noGearCheck) {
     logger.info('Gear checking disabled in settings');
     return;
   }

@@ -8,8 +8,6 @@ import {
   nativeImage,
   screen,
 } from 'electron';
-import chokidar from 'chokidar';
-import { spawn } from 'child_process';
 import { initPortableMode } from './PortableConfig';
 
 // Initialize portable mode BEFORE app is ready, but AFTER electron modules are imported
@@ -30,7 +28,6 @@ import GGGAPI from './GGGAPI';
 import League from './db/repositories/league';
 import ItemDB from './db/repositories/items';
 import RendererLogger from './RendererLogger';
-import * as url from 'url';
 import { OverlayController, OVERLAY_WINDOW_OPTS } from 'electron-overlay-window';
 import dayjs, { Dayjs } from 'dayjs';
 import duration from 'dayjs/plugin/duration';
@@ -59,12 +56,6 @@ import { registerAutoUpdater } from './updater/registerAutoUpdater';
 
 dayjs.extend(duration);
 dayjs.extend(isSameOrAfter);
-const devUrl = 'http://localhost:3003';
-enum SYSTEMS {
-  WINDOWS = 'win32',
-  LINUX = 'debian',
-  MACOS = 'darwin',
-}
 const autoUpdaterIntervalTime = 1000 * 60 * 60; // 1 hour
 const isDev = require('electron-is-dev') || SettingsManager.get('forceDebugMode');
 let modReadingTimer: Dayjs | null = null;
@@ -407,17 +398,19 @@ class MainProcess {
     let isOverlayInitialized = false;
     let benchmarkReported = false;
 
-    const completeBenchmark = async () => {
+    const completeBenchmark = async (source: string) => {
       if (!benchmarkMode || benchmarkReported) {
         return;
       }
 
       benchmarkReported = true;
+      logger.info(`Benchmark window reported ready via ${source}`);
 
       if (benchmarkMode === 'startup') {
         emitBenchmarkResult('app-startup', {
           mode: benchmarkMode,
           startupMs: Date.now() - benchmarkStartedAt,
+          source,
         });
         app.quit();
         return;
@@ -432,6 +425,7 @@ class MainProcess {
           emitBenchmarkResult('app-idle-memory', {
             mode: benchmarkMode,
             startupMs: Date.now() - benchmarkStartedAt,
+            source,
             processMemory: memoryInfo,
             appMetrics: app.getAppMetrics(),
           });
@@ -441,9 +435,8 @@ class MainProcess {
     };
 
     if (benchmarkMode) {
-      this.mainWindow.webContents.once('did-finish-load', () => {
-        logger.info('Benchmark window finished loading');
-        void completeBenchmark();
+      ipcMain.once(sendChannels.appBooted, () => {
+        void completeBenchmark('renderer-app-booted');
       });
     }
 
@@ -635,37 +628,6 @@ class MainProcess {
       this.registerGlobalShortcuts();
     }
 
-    const test = 2;
-
-    // Restarter for development
-    if (isDev && !benchmarkMode) {
-      const spawnApp = () => {
-        const child = spawn(
-          path.join(
-            __dirname,
-            '..',
-            '..',
-            'node_modules',
-            '.bin',
-            'electron' + (process.platform === SYSTEMS.WINDOWS ? '.cmd' : '')
-          ),
-          [app.getAppPath()],
-          {
-            detached: true,
-            stdio: 'inherit',
-            shell: true,
-          }
-        );
-        child.unref();
-        app.exit();
-      };
-
-      chokidar.watch(__dirname, {}).once('change', (filePath) => {
-        logger.info(`File changed: ${filePath}, restarting the app...`);
-        spawnApp();
-      });
-    }
-
     this.setWindowListeners();
 
     const poeAuthSession = session.fromPartition('persist:poeAuth');
@@ -720,14 +682,17 @@ class MainProcess {
       }
     });
 
-    if (isDev) {
-      this.mainWindow.loadURL(devUrl);
-      this.overlayWindow.loadURL(`${devUrl}#/overlay`);
+    const rendererUrl = process.env.ELECTRON_RENDERER_URL;
+    if (rendererUrl) {
+      this.mainWindow.loadURL(rendererUrl);
+      this.overlayWindow.loadURL(`${rendererUrl}#/overlay`);
     } else {
       Menu.setApplicationMenu(null);
-      const URL = url.pathToFileURL(path.join(__dirname, '..', 'index.html')).toString();
-      this.mainWindow.loadURL(URL);
-      this.overlayWindow.loadURL(`${URL}#/overlay`);
+      const rendererIndexHtml = path.join(__dirname, '..', '..', 'renderer', 'index.html');
+      this.mainWindow.loadFile(rendererIndexHtml);
+      this.overlayWindow.loadFile(rendererIndexHtml, {
+        hash: '/overlay',
+      });
     }
   }
 }

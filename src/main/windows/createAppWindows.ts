@@ -8,8 +8,8 @@ export type AppWindows = {
 };
 
 export function createAppWindows(): AppWindows {
-  // This module compiles into build/main/windows, while preload.js is emitted into build/main.
-  const preloadPath = path.join(__dirname, '..', 'preload.js');
+  // electron-vite bundles the main process into out/electron/main, while preload is emitted into out/electron/preload.
+  const preloadPath = path.join(__dirname, '..', 'preload', 'index.js');
 
   const mainWindow = new BrowserWindow({
     title: `Exile Diary v${app.getVersion()}`,

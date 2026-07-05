@@ -65,8 +65,8 @@ These fixtures are seeds. They should grow with real captured data as migration 
 
 Note:
 
-- app lifecycle benchmarks run the compiled Electron main bundle from `build/main`
-- rebuild the main-process bundle before trusting startup or idle-memory results
+- app lifecycle benchmarks run the built app output from `out/electron/main`
+- run `npm run build:app` before trusting startup or idle-memory results
 
 ## Outputs
 
