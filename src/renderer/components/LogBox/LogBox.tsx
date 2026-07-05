@@ -18,15 +18,19 @@ const classPerType = {
 const Line = ({ messages, timestamp }) => {
   if (!messages) return null;
   const formattedMessages = messages.map(
-    ({ type, text, link, linkEvent, icon, price, divinePrice }) => {
-      const Element = [
-        icon ? <img src={icon} alt={`icon-${icon}`} className={'Text--Icon'}></img> : null,
-        type ? <span className={classPerType[type]}>{text}</span> : <>{text}</>,
-      ];
+    ({ type, text, link, linkEvent, icon, price, divinePrice }, index) => {
+      const content = (
+        <>
+          {icon ? <img src={icon} alt={`icon-${icon}`} className="Text--Icon" /> : null}
+          {type ? <span className={classPerType[type]}>{text}</span> : <>{text}</>}
+        </>
+      );
+      const key = `message-${index}-${text ?? ''}-${link ?? linkEvent ?? price ?? 'plain'}`;
+
       if (link) {
         return (
-          <Link to={link} style={{ fontSize: 'inherit' }}>
-            {Element}
+          <Link key={key} to={link} style={{ fontSize: 'inherit' }}>
+            {content}
           </Link>
         );
       } else if (linkEvent) {
@@ -34,18 +38,18 @@ const Line = ({ messages, timestamp }) => {
           electronService.triggerLogAction(linkEvent);
         };
         return (
-          <MuiLink href="#" onClick={triggerEvent} style={{ fontSize: 'inherit' }}>
-            {Element}
+          <MuiLink key={key} href="#" onClick={triggerEvent} style={{ fontSize: 'inherit' }}>
+            {content}
           </MuiLink>
         );
       } else if (price || price === 0) {
         return (
-          <span className={classPerType['currency']}>
+          <span key={key} className={classPerType['currency']}>
             <Price value={price} divinePrice={divinePrice} />
           </span>
         );
       } else {
-        return <>{Element}</>;
+        return <React.Fragment key={key}>{content}</React.Fragment>;
       }
     }
   );

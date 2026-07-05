@@ -93,7 +93,7 @@ const Run = ({ store }) => {
       {run.mods && run.mods.length > 0 && (
         <>
           <Divider className="Separator" />
-          <p className="Run__Mods">
+          <div className="Run__Mods">
             {run.mods.map((mod, i) => {
               return (
                 <div className="Text--Augmented" key={i}>
@@ -101,7 +101,7 @@ const Run = ({ store }) => {
                 </div>
               );
             })}
-          </p>
+          </div>
         </>
       )}
       <Divider className="Separator" />
