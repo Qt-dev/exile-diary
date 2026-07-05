@@ -121,6 +121,69 @@ class StringParser {
     return results;
   }
 
+  static GetModsDetailed(
+    modStrings: string[]
+  ): Array<{
+    input: string;
+    normalized: string;
+    mod: string;
+    confidence: number;
+  }> {
+    if (!Array.isArray(modStrings) || modStrings.length === 0) {
+      return [];
+    }
+
+    if (!this.enhancedBkTree) {
+      logger.error('Enhanced BK-Tree not initialized');
+      return modStrings.map((input) => ({
+        input,
+        normalized: input.toLowerCase().trim(),
+        mod: '',
+        confidence: 0,
+      }));
+    }
+
+    return modStrings.map((input) => {
+      const normalized = input.toLowerCase().trim();
+
+      if (!normalized || normalized.length < 5) {
+        return {
+          input,
+          normalized,
+          mod: '',
+          confidence: 0,
+        };
+      }
+
+      const bestMatch = this.enhancedBkTree?.findBestMatchEnhanced(input);
+      if (!bestMatch) {
+        return {
+          input,
+          normalized,
+          mod: '',
+          confidence: 0,
+        };
+      }
+
+      const minConfidence = this.getMinConfidenceThreshold(bestMatch.matchType, bestMatch.distance);
+      if (bestMatch.confidence < minConfidence) {
+        return {
+          input,
+          normalized,
+          mod: '',
+          confidence: bestMatch.confidence,
+        };
+      }
+
+      return {
+        input,
+        normalized,
+        mod: this.replaceNumberPlaceholders(bestMatch.word, input),
+        confidence: bestMatch.confidence,
+      };
+    });
+  }
+
   /**
    * Replace # placeholders in the matched string with numbers from the original input
    * @param matchedString - The matched mod string containing # placeholders

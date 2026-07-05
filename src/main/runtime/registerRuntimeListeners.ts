@@ -76,6 +76,35 @@ function registerOcrListeners(
   });
   runtime.ocr.emitter.on('ocr:completed-job', async (info) => {
     logger.info('Got area info from OCR', info);
+    const ocrResult = info.result;
+    if (!ocrResult || ocrResult.status === 'error' || ocrResult.status === 'no-text') {
+      overlayPublisher.log({
+        messages: [
+          {
+            text:
+              ocrResult?.status === 'no-text'
+                ? 'No map mods were detected from the screenshot.'
+                : 'OCR failed while reading map mods.',
+            type: 'error',
+          },
+        ],
+      });
+      return;
+    }
+
+    if (ocrResult.status === 'low-confidence') {
+      overlayPublisher.log({
+        messages: [
+          {
+            text: `OCR matched map mods with low confidence (${Math.round(
+              (ocrResult.diagnostics?.averageConfidence ?? 0) * 100
+            )}%).`,
+            type: 'error',
+          },
+        ],
+      });
+    }
+
     const { level, name, depth } = runtime.runTracking.latestGeneratedArea;
     const tier = getMapTierString({ level });
     let stats = `IIR: ${info.mapStats.iir} / IIQ: ${info.mapStats.iiq}`;
@@ -116,7 +145,9 @@ function registerOcrListeners(
       `Screenshot folder contains <span class='eventText'>${totalSize}</span> screenshots. Click <span class='eventText' style='cursor:pointer;' onclick='openShell("${dir}")'>here</span> to open it for cleanup`
     );
   });
-  runtime.screenshots.emitter.on('screenshot:capture', async () => {
+  runtime.screenshots.emitter.on(
+    'screenshot:capture',
+    async (payload?: { trigger?: 'manual' | 'map-enter' | 'retry' }) => {
     if (state.screenshotLock) {
       logger.info('Not accepting new screenshot orders while this screenshot is being parsed');
       return;
@@ -130,15 +161,20 @@ function registerOcrListeners(
     });
 
     deps.overlayWindow.hide();
+    const captureStartedAt = performance.now();
     const screenshot = OverlayController.screenshot();
     deps.overlayWindow.show();
     const { width, height } = OverlayController.targetBounds;
     const nativeScreenshot = nativeImage
       .createFromBitmap(screenshot, { width, height })
       .toJPEG(100);
+    const captureMs = performance.now() - captureStartedAt;
 
     try {
-      await runtime.screenshots.process(nativeScreenshot);
+      await runtime.screenshots.process(nativeScreenshot, {
+        trigger: payload?.trigger ?? 'manual',
+        captureMs,
+      });
     } catch (error) {
       logger.error('Error in screenshot processing', error);
       overlayPublisher.log({
@@ -153,7 +189,8 @@ function registerOcrListeners(
 
     logger.info('Map info : Reading done');
     state.screenshotLock = false;
-  });
+    }
+  );
   runtime.screenshots.emitter.on('screenshot:timeout', async () => {
     logger.info('Map Info : Reading from screenshot timed out');
     overlayPublisher.log({
@@ -319,7 +356,7 @@ function registerRatesAndLogWatchers(
 
       setTimeout(() => {
         logger.info(`Triggering auto-screenshot for ${area}`);
-        runtime.screenshots.emitter.emit('screenshot:capture');
+        runtime.screenshots.emitter.emit('screenshot:capture', { trigger: 'map-enter' });
       }, delay);
     }
   });

@@ -47,6 +47,7 @@ describe('electron-vite build contract', () => {
     expect(syncScript).toContain("'out', 'electron', 'main'");
     expect(syncScript).toContain("'workerWrapper.js'");
     expect(syncScript).toContain("'ImageSaverWorker.js'");
+    expect(syncScript).toContain("'OcrPipelineWorker.js'");
     expect(watchScript).toContain('syncElectronAssets');
     expect(watchScript).toContain('watch-electron-assets');
     expect(watchScript).toContain("'src', 'main', 'db', 'extensions'");

@@ -23,6 +23,7 @@
     ],
     "ocrMatching": [
       {
+        "screenshot": "ocr/sample-mods.svg",
         "input": "ocr/sample-mod-lines.json",
         "expected": "ocr/sample-expected-mods.json"
       }

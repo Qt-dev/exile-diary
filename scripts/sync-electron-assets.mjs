@@ -2,7 +2,7 @@ import { cp, copyFile, mkdir } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-export const workerFiles = ['workerWrapper.js', 'ImageSaverWorker.js'];
+export const workerFiles = ['workerWrapper.js', 'ImageSaverWorker.js', 'OcrPipelineWorker.js'];
 
 export async function syncElectronAssets(rootDir = process.cwd()) {
   const extensionSourceDir = path.join(rootDir, 'src', 'main', 'db', 'extensions');

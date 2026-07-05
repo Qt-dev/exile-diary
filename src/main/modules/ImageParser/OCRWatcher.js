@@ -1,59 +1,39 @@
-const path = require('path');
-const chokidar = require('chokidar');
-const logger = require('electron-log');
+const path = require('node:path');
+const Logger = require('electron-log');
 const EventEmitter = require('events');
-const StringParser = require('../StringParser/StringParser').default;
-const { getMapStats } = require('../RunParser').default;
-const { createWorker, createScheduler } = require('tesseract.js');
 const dayjs = require('dayjs');
-let DB = require('../../db/run').default;
-
-let watcher;
-const emitter = new EventEmitter();
+const Piscina = require('piscina');
+const { resolve } = require('node:path');
 const { app } = require('electron');
-let mapInfoManager;
+const { createWorker, createScheduler } = require('tesseract.js');
+const { getMapStats } = require('../RunParser').default;
+const SettingsManager = require('../../SettingsManager').default;
+const DB = require('../../db/run').default;
+const { matchMapMods } = require('./matchMapMods');
+const { getImageParserWorkerBasePath } = require('../../runtime/electronViteRuntimePaths');
 
-const watchPaths = [
-  // path.join(app.getPath('userData'), '.temp_capture', '*_area.png'),
-  path.join(app.getPath('userData'), '.temp_capture', '*_mods.png'),
-];
-const numOfWorkers = 2;
-
-class MapInfoManager {
-  constructor() {}
-  setAreaInfo(info) {
-    this.areaInfo = info;
-  }
-  setMapMods(mods) {
-    this.mapMods = mods;
-  }
-  cleanup() {
-    this.mapMods = null;
-    this.areaInfo = null;
-  }
-  checkJobComplete() {
-    const { mapMods } = this;
-    if (!!mapMods) {
-      const mapStats = getMapStats(mapMods);
-      emitter.emit('ocr:completed-job', { mapMods, mapStats });
-      this.cleanup();
-    }
-  }
-}
-
+const logger = Logger.scope('ocr-watcher');
+const emitter = new EventEmitter();
 const scheduler = createScheduler();
+const numOfWorkers = 2;
+const isDev = Boolean(process.env.ELECTRON_RENDERER_URL);
+const workerBasePath = getImageParserWorkerBasePath({
+  currentMainDir: __dirname,
+  isDev,
+});
 
-function test(filename) {
-  DB = null;
-  processImage(filename);
-}
+const piscina = new Piscina({
+  filename: resolve(workerBasePath, 'workerWrapper.js'),
+  workerData: { fullpath: resolve(workerBasePath, 'OcrPipelineWorker.js') },
+});
+
+let startupPromise = null;
 
 async function setupScheduler() {
   for (let i = 0; i < numOfWorkers; i++) {
     const worker = await createWorker('eng', 1, {
       langPath: process.resourcesPath,
       gzip: false,
-      // logger: m => logger.info(m),
     });
     await worker.load();
     await worker.setParameters({
@@ -64,135 +44,243 @@ async function setupScheduler() {
   }
 }
 
-async function start() {
-  mapInfoManager = new MapInfoManager();
-
-  if (watcher) {
-    try {
-      watcher.close();
-      watcher.unwatch(watchPaths);
-    } catch (err) {}
+async function ensureStarted() {
+  if (!startupPromise) {
+    startupPromise = setupScheduler();
   }
 
-  watcher = chokidar.watch(watchPaths, {
-    usePolling: true,
-    awaitWriteFinish: true,
-    ignoreInitial: true,
-  });
-  watcher.on('add', async (path) => {
-    await processImage(path);
-  });
-
-  await setupScheduler();
+  await startupPromise;
 }
 
-async function cleanFailedOCR(e, timestamp) {
-  mapInfoManager.cleanup();
-  logger.info('Error processing screenshot: ' + e);
-  emitter.emit('OCRError');
-  const cleanTimestamp = dayjs(timestamp, 'YYYYMMDDHHmmss').toISOString();
-  const runId = await DB.getRunIdFromTimestamp(cleanTimestamp);
-  if (timestamp && runId) {
-    await DB.deleteAreaInfo(runId);
-    await DB.deleteMapMods(runId);
+function splitRecognizedLines(text) {
+  return text
+    .split('\n')
+    .map((line) => line.trim())
+    .filter((line) => line.length > 0);
+}
+
+function getDebugArtifactDir(job) {
+  if (!job.debugArtifacts) {
+    return undefined;
   }
+
+  return path.join(app.getPath('userData'), '.ocr-debug', job.jobId);
 }
 
-function getModInfo(lines) {
-  const mods = StringParser.GetMods(
-    lines.filter((line) => line && line.length > 0).map((line) => line.toLowerCase().trim())
+async function recognizePreprocessedMods(modsImage) {
+  const startedAt = performance.now();
+  const {
+    data: { text },
+  } = await scheduler.addJob('recognize', modsImage);
+
+  return {
+    rawLines: splitRecognizedLines(text),
+    durationMs: Number((performance.now() - startedAt).toFixed(4)),
+  };
+}
+
+async function recognizeScreenshotBuffer(screenshotBuffer) {
+  const startedAt = performance.now();
+  const {
+    data: { text },
+  } = await scheduler.addJob('recognize', screenshotBuffer);
+
+  return {
+    rawLines: splitRecognizedLines(text),
+    durationMs: Number((performance.now() - startedAt).toFixed(4)),
+  };
+}
+
+async function preprocessAndRecognize({
+  screenshotBuffer,
+  debugArtifactDir,
+}) {
+  const firstPass = await piscina.run(
+    {
+      screenshotBuffer,
+      debugArtifactDir,
+      forceFullImage: false,
+    },
+    { name: 'preprocessMapModsScreenshot' }
   );
-  return mods;
+  const firstOcr = await recognizePreprocessedMods(firstPass.modsImage);
+
+  if (firstOcr.rawLines.length > 0) {
+    return {
+      preprocessResult: firstPass,
+      ocrResult: firstOcr,
+      usedFallback: false,
+    };
+  }
+
+  const fallbackPass = await piscina.run(
+    {
+      screenshotBuffer,
+      debugArtifactDir,
+      forceFullImage: true,
+    },
+    { name: 'preprocessMapModsScreenshot' }
+  );
+  const fallbackOcr = await recognizePreprocessedMods(fallbackPass.modsImage);
+
+  if (fallbackOcr.rawLines.length > 0) {
+    return {
+      preprocessResult: {
+        ...fallbackPass,
+        timingsMs: {
+          preprocess: Number(
+            (firstPass.timingsMs.preprocess + fallbackPass.timingsMs.preprocess).toFixed(4)
+          ),
+        },
+      },
+      ocrResult: {
+        rawLines: fallbackOcr.rawLines,
+        durationMs: Number((firstOcr.durationMs + fallbackOcr.durationMs).toFixed(4)),
+      },
+      usedFallback: 'full-image',
+    };
+  }
+
+  const rawOcr = await recognizeScreenshotBuffer(screenshotBuffer);
+
+  return {
+    preprocessResult: {
+      ...fallbackPass,
+      timingsMs: {
+        preprocess: Number(
+          (firstPass.timingsMs.preprocess + fallbackPass.timingsMs.preprocess).toFixed(4)
+        ),
+      },
+    },
+    ocrResult: {
+      rawLines: rawOcr.rawLines,
+      durationMs: Number((firstOcr.durationMs + fallbackOcr.durationMs + rawOcr.durationMs).toFixed(4)),
+    },
+    usedFallback: 'raw-image',
+  };
 }
 
-async function getAreaNameFromDB(timestamp) {
-  return DB.getAreaName(timestamp).catch((e) => {
-    logger.error(`Error getting area name from db: ${e}`);
-    throw e;
-  });
+async function persistMatchedMods(matchedMods) {
+  if (matchedMods.length === 0) {
+    return null;
+  }
+
+  const latestRun = await DB.getLatestUncompletedRun();
+  if (!latestRun?.id) {
+    return null;
+  }
+
+  await DB.replaceMapMods(
+    latestRun.id,
+    matchedMods.map((match) => match.mod)
+  );
+
+  return latestRun.id;
+}
+
+async function scanScreenshotBuffer(
+  screenshotBuffer,
+  job,
+  { captureMs = 0 } = {}
+) {
+  await ensureStarted();
+
+  const debugArtifactDir = getDebugArtifactDir(job);
+
+  try {
+    const { preprocessResult, ocrResult, usedFallback } = await preprocessAndRecognize({
+      screenshotBuffer,
+      debugArtifactDir,
+    });
+    const matchStartedAt = performance.now();
+    const matchResult = matchMapMods(ocrResult.rawLines);
+    const matchMs = Number((performance.now() - matchStartedAt).toFixed(4));
+
+    await persistMatchedMods(matchResult.matchedMods);
+
+    const result = {
+      jobId: job.jobId,
+      status: matchResult.status,
+      rawLines: matchResult.rawLines,
+      normalizedLines: matchResult.normalizedLines,
+      matchedMods: matchResult.matchedMods,
+      timingsMs: {
+        capture: Number(captureMs.toFixed(4)),
+        preprocess: preprocessResult.timingsMs.preprocess,
+        ocr: ocrResult.durationMs,
+        match: matchMs,
+      },
+      diagnostics: {
+        ...matchResult.diagnostics,
+        debugArtifactDir,
+        usedFallback,
+      },
+    };
+
+    emitter.emit('ocr:completed-job', {
+      result,
+      mapMods: result.matchedMods.map((match) => match.mod),
+      mapStats: getMapStats(result.matchedMods.map((match) => match.mod)),
+    });
+
+    if (result.status === 'error') {
+      emitter.emit('OCRError');
+    }
+
+    return result;
+  } catch (error) {
+    logger.error('Error while scanning map mods', error);
+    emitter.emit('OCRError');
+    return {
+      jobId: job.jobId,
+      status: 'error',
+      rawLines: [],
+      normalizedLines: [],
+      matchedMods: [],
+      timingsMs: {
+        capture: Number(captureMs.toFixed(4)),
+        preprocess: 0,
+        ocr: 0,
+        match: 0,
+      },
+      diagnostics: {
+        averageConfidence: 0,
+        matchedLineRatio: 0,
+        debugArtifactDir,
+        error: error?.message ?? String(error),
+      },
+    };
+  }
 }
 
 async function processImageBuffer(buffer, timestamp, type) {
-  logger.info(`Performing OCR on ${type} ...`);
-
-  try {
-    const {
-      data: { text },
-    } = await scheduler.addJob('recognize', buffer);
-
-    // const filename = path.basename(file);
-    // const timestamp = filename.substring(0, filename.indexOf('_'));
-    const lines = [];
-    text.split('\n').forEach((line) => {
-      lines.push(line.trim());
-      logger.info(line.trim());
-    });
-
-    const { id: runId } = await DB.getLatestUncompletedRun();
-    // const areaId = await DB.getAreaId();
-    logger.info(`Got areaId: ${runId} for timestamp: ${timestamp}`);
-
-    if (type === 'area') {
-      logger.debug('Processing area info');
-      logger.debug('Will actually do nothing now.');
-      // const area = getAreaInfo(lines);
-      // try {
-      //   const areaName = area.name ?? (await getAreaNameFromDB(timestamp));
-      //   logger.info(`Got last entered area: ${areaName}`);
-      //   area.name = areaName;
-      // } catch (e) {
-      //   logger.info(`Got last entered area from ocr: ${area.name}`);
-      // }
-
-      // try {
-      //   if (area.name) {
-      //     await DB.insertAreaInfo({
-      //       areaId: runId,
-      //       name: area.name,
-      //       level: area.level,
-      //       depth: area.depth,
-      //     });
-      //     mapInfoManager.setAreaInfo(area);
-      //     mapInfoManager.checkJobComplete();
-      //   } else {
-      //     throw 'No area name found';
-      //   }
-      // } catch (err) {
-      //   cleanFailedOCR(err, timestamp);
-      // }
-    } else if (type === 'mods') {
-      logger.debug('Processing map mods');
-      try {
-        const mods = getModInfo(lines).filter((mod) => mod.length > 1);
-        let mapModErr = null;
-
-        try {
-          await DB.replaceMapMods(runId, mods);
-        } catch (e) {
-          mapModErr = e;
-        }
-        if (mapModErr) {
-          await cleanFailedOCR(mapModErr, timestamp);
-        } else {
-          mapInfoManager.setMapMods(mods);
-        }
-      } catch (e) {
-        await cleanFailedOCR(e, timestamp);
-      }
-    }
-  } catch (e) {
-    logger.error('Error in fetching OCR text');
-    logger.error(e);
+  if (type !== 'mods') {
+    return null;
   }
 
-  logger.info(`Completed OCR on ${type}.`);
+  const settings = SettingsManager.getAll();
+  return scanScreenshotBuffer(
+    buffer,
+    {
+      jobId: timestamp ?? dayjs().format('YYYYMMDDHHmmss'),
+      profileId: settings.activeProfile?.characterName ?? 'unknown-profile',
+      league: settings.activeProfile?.league ?? 'unknown-league',
+      trigger: 'retry',
+      debugArtifacts: Boolean(process.env.ELECTRON_RENDERER_URL || settings.forceDebugMode),
+    },
+    { captureMs: 0 }
+  );
+}
+
+async function start() {
+  await ensureStarted();
 }
 
 module.exports = {
   start,
-  test,
   emitter,
   scheduler,
   processImageBuffer,
-  checkJobComplete: () => mapInfoManager.checkJobComplete(),
+  scanScreenshotBuffer,
+  checkJobComplete: () => undefined,
 };
