@@ -575,6 +575,7 @@ class MainProcess {
       clearTimeout(this.saveBoundsCallback);
       clearTimeout(this.autoUpdaterInterval);
       this.unregisterGlobalShortcuts();
+      OCRWatcher.stop();
     });
   }
 

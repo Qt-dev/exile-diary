@@ -29,3 +29,15 @@ export function getImageParserWorkerBasePath({
 
   return currentMainDir;
 }
+
+export function getOcrSidecarEntryPath({
+  currentMainDir = __dirname,
+  cwd = process.cwd(),
+  isDev = Boolean(process.env.ELECTRON_RENDERER_URL),
+}: RuntimePathOptions = {}) {
+  if (isDev) {
+    return path.resolve(cwd, 'src', 'main', 'modules', 'ImageParser', 'OcrSidecar.ts');
+  }
+
+  return path.resolve(currentMainDir, 'ocr-sidecar.js');
+}

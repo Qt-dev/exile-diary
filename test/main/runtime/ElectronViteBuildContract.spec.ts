@@ -30,6 +30,7 @@ describe('electron-vite build contract', () => {
     expect(viteConfig).toContain("outDir: 'out/electron/preload'");
     expect(viteConfig).toContain("outDir: 'out/renderer'");
     expect(viteConfig).toContain('src/main/index.ts');
+    expect(viteConfig).toContain('src/main/modules/ImageParser/OcrSidecar.ts');
     expect(viteConfig).toContain('src/main/preload.ts');
   });
 

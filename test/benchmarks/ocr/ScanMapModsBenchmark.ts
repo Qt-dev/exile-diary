@@ -42,7 +42,6 @@ async function createSchedulerForBenchmark() {
     langPath: process.cwd(),
     gzip: false,
   });
-  await worker.load();
   await worker.setParameters({
     tessedit_char_whitelist:
       "1234567890abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ:-' ,%+",

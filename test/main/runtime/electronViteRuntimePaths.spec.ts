@@ -2,6 +2,7 @@ import path from 'node:path';
 import {
   getBundledDbExtensionsPath,
   getImageParserWorkerBasePath,
+  getOcrSidecarEntryPath,
   getPreloadBundlePath,
   getRendererIndexPath,
 } from '../../../src/main/runtime/electronViteRuntimePaths';
@@ -52,5 +53,25 @@ describe('electron-vite runtime paths', () => {
         isDev: false,
       })
     ).toBe(bundledMainDir);
+  });
+
+  it('uses the sidecar source entry during dev', () => {
+    expect(
+      getOcrSidecarEntryPath({
+        currentMainDir: bundledMainDir,
+        cwd: repoRoot,
+        isDev: true,
+      })
+    ).toContain(path.join('src', 'main', 'modules', 'ImageParser', 'OcrSidecar.ts'));
+  });
+
+  it('uses the built sidecar bundle outside dev', () => {
+    expect(
+      getOcrSidecarEntryPath({
+        currentMainDir: bundledMainDir,
+        cwd: repoRoot,
+        isDev: false,
+      })
+    ).toContain(path.join('out', 'electron', 'main', 'ocr-sidecar.js'));
   });
 });
