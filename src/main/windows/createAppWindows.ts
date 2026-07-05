@@ -1,6 +1,6 @@
 import { app, BrowserWindow } from 'electron';
 import { OVERLAY_WINDOW_OPTS } from 'electron-overlay-window';
-import * as path from 'path';
+import { getPreloadBundlePath } from '../runtime/electronViteRuntimePaths';
 
 export type AppWindows = {
   mainWindow: BrowserWindow;
@@ -8,8 +8,7 @@ export type AppWindows = {
 };
 
 export function createAppWindows(): AppWindows {
-  // electron-vite bundles the main process into out/electron/main, while preload is emitted into out/electron/preload.
-  const preloadPath = path.join(__dirname, '..', 'preload', 'index.js');
+  const preloadPath = getPreloadBundlePath(__dirname);
 
   const mainWindow = new BrowserWindow({
     title: `Exile Diary v${app.getVersion()}`,

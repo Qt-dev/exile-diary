@@ -44,6 +44,34 @@ OCR worker
 
 The shell should stop owning domain behavior. The runtime should stop knowing about windows. The renderer should stop having broad access to Electron and Node.
 
+## Build Topology
+
+This migration plan assumes `electron-vite` is the canonical build system for the current desktop app.
+
+Canonical outputs:
+
+- main bundle: `out/electron/main`
+- preload bundle: `out/electron/preload`
+- renderer bundle: `out/renderer`
+
+Canonical lifecycle commands:
+
+- `npm run dev`
+- `npm run build:app`
+- `npm run start`
+- `npm run package:win`
+- `npm run package:portable`
+- `npm run package:linux`
+
+Build rules:
+
+- treat [electron.vite.config.ts](D:/Dev/exile-diary/electron.vite.config.ts) as the source of truth for entrypoints, aliases, and output paths
+- keep `src/main/index.ts` as the single main entry unless the build graph is intentionally expanded
+- treat preload as a separate build product, not as a sibling file inside the main bundle tree
+- resolve worker files, preload paths, and copied native assets relative to the `out/electron/*` layout
+- keep `npm run sync:electron-assets` explicit as part of the build contract for DB extensions and OCR/image worker files
+- treat [src/main/tsconfig.json](D:/Dev/exile-diary/src/main/tsconfig.json) as a type-checking config only, not evidence of a runtime emit tree
+
 ## Delivery Strategy
 
 ### Core principle
@@ -412,6 +440,8 @@ Deliverables:
 - split window creation, shortcuts, tray, updater, and overlay shell into separate modules
 - move business workflows out of handlers into services
 - create app composition root
+- preserve `electron-vite` entry stability so the shell refactor does not introduce a second main-build path
+- keep preload wiring aligned with `out/electron/preload`, not a sibling artifact under the main bundle
 
 Recommended new folders:
 
@@ -440,6 +470,8 @@ Deliverables:
 Important subtask:
 
 - normalize naming drift in tables and repository methods without forcing a destructive migration all at once
+- keep extracted DB code consumable inside the existing `electron-vite` main graph through standard imports
+- preserve compatibility adapters in `src/main/db/*` until the later runtime-core migration is ready
 
 Definition of done:
 
@@ -462,6 +494,7 @@ Deliverables:
 - regression fixtures for run parsing, pricing, and stash workflows before implementation swaps over
 - repeatable benchmarks for run-finalization, pricing batches, and stash refresh against frozen inputs
 - captured baseline outputs for current and refactored runtime-core paths in a machine-readable format
+- first extract runtime code as importable modules inside the existing `electron-vite` main graph, without introducing a second executable boundary yet
 
 Recommended runtime interfaces:
 
@@ -496,6 +529,7 @@ Deliverables:
 - debug artifact capture mode
 - fixture-backed OCR benchmarks using the same screenshots and expected mod matches before and after extraction
 - machine-readable timing outputs for capture, preprocess, OCR, and matching stages
+- explicit worker delivery rules that define whether OCR helpers are bundled by Vite, copied by `sync:electron-assets`, or packaged as dedicated sidecar files before the extraction lands
 
 Recommended job shape:
 
@@ -553,6 +587,7 @@ Deliverables:
 - event bridge between shell and runtime
 - supervision and restart strategy
 - health checks
+- explicit `electron-vite` build entries or packaging rules for any new out-of-process runtime entrypoint before execution moves out of process
 
 Order:
 
@@ -621,6 +656,7 @@ Performance benchmarks:
 - pricing batch benchmark
 - stash refresh benchmark
 - run-finalization benchmark
+- build-contract verification for `out/electron/main`, `out/electron/preload`, `out/renderer`, and copied runtime assets
 
 Stability rules:
 
@@ -628,6 +664,7 @@ Stability rules:
 - report median and p95, not a single sample
 - treat major variance as a failure to investigate, even if the mean looks good
 - keep measurement outputs machine-readable so later CI gating can diff regressions automatically
+- run startup, launch-path, and packaging-sensitive checks from fresh `npm run build:app` outputs rather than a separate TypeScript emit tree
 
 ## Milestone 8: Optional Rust Introduction
 
@@ -663,6 +700,8 @@ This is the least disruptive move order from today’s tree.
 7. Move OCR worker out-of-process.
 8. Move runtime out-of-process.
 9. Decide whether Rust should replace OCR only or the full agent later.
+
+Until the build graph intentionally changes, keep one main entry, one preload entry, and one renderer build target.
 
 ## Short-Term Implementation Backlog
 
@@ -748,6 +787,7 @@ Target metrics:
 - correctness results are compared against fixed fixtures, not only live API behavior
 - no migration milestone is complete until its replacement path matches or improves baseline correctness and performance on the benchmark suite
 - measurement outputs are easy to diff between current and refactored implementations
+- startup, preload resolution, worker resolution, and packaging checks validate the built `electron-vite` outputs from `npm run build:app`, not an old `build/main` tree
 
 ## What I Would Build First
 

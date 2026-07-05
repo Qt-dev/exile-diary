@@ -41,6 +41,32 @@ Today, the app spreads core behavior across a large Electron main process and mi
 
 That means the next refactor should split the app into stable subsystems instead of letting the window shell own too much behavior.
 
+## Current Build System
+
+The current desktop app build is centered on `electron-vite`, not the old Webpack-era `build/` tree.
+
+Canonical outputs:
+
+- main bundle: `out/electron/main`
+- preload bundle: `out/electron/preload`
+- renderer bundle: `out/renderer`
+
+Canonical lifecycle commands:
+
+- `npm run dev`
+- `npm run build:app`
+- `npm run start`
+- `npm run package:win`
+- `npm run package:portable`
+- `npm run package:linux`
+
+Implications for the refactor:
+
+- treat [electron.vite.config.ts](D:/Dev/exile-diary/electron.vite.config.ts) as the source of truth for entrypoints, aliases, and output paths
+- treat preload as a first-class build product, not as a sibling file inside the main output tree
+- keep native DB extensions and OCR/image worker file delivery as an explicit post-build contract through `npm run sync:electron-assets`
+- extend the existing build graph for later runtime or OCR process splits instead of reintroducing a second parallel build system
+
 ## Shared Requirements For Both Refactors
 
 Both versions should converge on the same product model.
@@ -366,6 +392,12 @@ If the goal is the best Electron build possible, the most practical choice is:
 - Electron shell and UI
 - TypeScript runtime core
 - Rust sidecar only for capture/OCR if profiling proves JS is still too heavy
+
+Build guardrails for the Electron path:
+
+- keep [electron.vite.config.ts](D:/Dev/exile-diary/electron.vite.config.ts) as the canonical source of runtime entrypoints
+- do not assume preload or worker artifacts live beside every compiled module unless the build config or `sync:electron-assets` explicitly guarantees that layout
+- do not introduce a second executable boundary until the build config models it directly
 
 ## High-Level Electron Code Map
 

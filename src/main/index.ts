@@ -53,6 +53,7 @@ import { registerResponderHandlers } from './ipc/registerResponderHandlers';
 import { registerShellHandlers } from './ipc/registerShellHandlers';
 import { registerRuntimeListeners } from './runtime/registerRuntimeListeners';
 import { registerAutoUpdater } from './updater/registerAutoUpdater';
+import { getRendererIndexPath } from './runtime/electronViteRuntimePaths';
 
 dayjs.extend(duration);
 dayjs.extend(isSameOrAfter);
@@ -688,7 +689,7 @@ class MainProcess {
       this.overlayWindow.loadURL(`${rendererUrl}#/overlay`);
     } else {
       Menu.setApplicationMenu(null);
-      const rendererIndexHtml = path.join(__dirname, '..', '..', 'renderer', 'index.html');
+      const rendererIndexHtml = getRendererIndexPath(__dirname);
       this.mainWindow.loadFile(rendererIndexHtml);
       this.overlayWindow.loadFile(rendererIndexHtml, {
         hash: '/overlay',

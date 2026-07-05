@@ -4,6 +4,7 @@ import { join, resolve } from 'node:path';
 import { app } from 'electron';
 import { arch, platform } from 'node:process';
 import { statSync } from 'node:fs';
+import { getBundledDbExtensionsPath } from '../runtime/electronViteRuntimePaths';
 
 const supportedPlatforms = [
   ['darwin', 'x64'],
@@ -34,7 +35,7 @@ export function getLoadablePath() {
     ? [join(process.resourcesPath, 'db', 'extensions', extensionFileName)]
     : [
         join(process.cwd(), 'src', 'main', 'db', 'extensions', extensionFileName),
-        join(resolve(__dirname, '..'), 'db', 'extensions', extensionFileName),
+        join(getBundledDbExtensionsPath(resolve(__dirname, '..')), extensionFileName),
       ];
 
   const loadablePath = candidatePaths.find((candidatePath) =>

@@ -10,11 +10,13 @@ import * as OCRWatcher from './OCRWatcher';
 import { app, globalShortcut } from 'electron';
 import Piscina from 'piscina';
 import { resolve } from 'path';
+import { getImageParserWorkerBasePath } from '../../runtime/electronViteRuntimePaths';
 
 const isDev = Boolean(process.env.ELECTRON_RENDERER_URL);
-const workerBasePath = isDev
-  ? resolve(process.cwd(), 'src', 'main', 'modules', 'ImageParser')
-  : __dirname;
+const workerBasePath = getImageParserWorkerBasePath({
+  currentMainDir: __dirname,
+  isDev,
+});
 
 const piscina = new Piscina({
   filename: resolve(workerBasePath, 'workerWrapper.js'),
