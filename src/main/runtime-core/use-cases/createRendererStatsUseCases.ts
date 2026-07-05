@@ -1,7 +1,7 @@
 import logger from 'electron-log';
-import { RendererRuntimeDependencies } from '../rendererRuntimeDependencies';
+import { RendererStatsUseCaseDependencies } from '../rendererRuntimeDependencies';
 
-export function createRendererStatsUseCases(deps: RendererRuntimeDependencies) {
+export function createRendererStatsUseCases(deps: RendererStatsUseCaseDependencies) {
   return {
     async getAllStats(params?: { league?: string; characterName?: string }) {
       logger.info('Getting all stats for the renderer process');

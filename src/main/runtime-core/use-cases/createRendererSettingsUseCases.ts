@@ -1,5 +1,5 @@
 import logger from 'electron-log';
-import { RendererRuntimeDependencies } from '../rendererRuntimeDependencies';
+import { RendererSettingsUseCaseDependencies } from '../rendererRuntimeDependencies';
 
 function pickSettings(allSettings: Record<string, any>, keys: string[]) {
   if (keys.length === 0) {
@@ -13,7 +13,7 @@ function pickSettings(allSettings: Record<string, any>, keys: string[]) {
   return selectedSettings;
 }
 
-export function createRendererSettingsUseCases(deps: RendererRuntimeDependencies) {
+export function createRendererSettingsUseCases(deps: RendererSettingsUseCaseDependencies) {
   return {
     async getSettings(keys: string[] = []) {
       logger.info('Loading settings for the renderer process');

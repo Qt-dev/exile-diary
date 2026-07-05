@@ -1,5 +1,5 @@
 import logger from 'electron-log';
-import { RendererRuntimeDependencies } from '../rendererRuntimeDependencies';
+import { RendererStashUseCaseDependencies } from '../rendererRuntimeDependencies';
 
 function getTrackedStashTabIds(stashTabs: Array<{ id: string }>) {
   return [...new Set(stashTabs.map((stashTab) => stashTab.id))].sort();
@@ -16,7 +16,7 @@ function markTrackedTabs(stashTabs: any[], trackedTabIds: string[]) {
   }));
 }
 
-export function createRendererStashUseCases(deps: RendererRuntimeDependencies) {
+export function createRendererStashUseCases(deps: RendererStashUseCaseDependencies) {
   return {
     async getStashTabs() {
       logger.info('Getting all stashes for the renderer process');

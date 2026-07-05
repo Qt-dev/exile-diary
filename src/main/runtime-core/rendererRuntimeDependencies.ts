@@ -72,6 +72,26 @@ export type RendererRuntimeDependencies = {
   now: () => string;
 };
 
+export type RendererRunUseCaseDependencies = Pick<
+  RendererRuntimeDependencies,
+  'runs' | 'runParser' | 'rendererLogger' | 'itemsDb'
+>;
+
+export type RendererSettingsUseCaseDependencies = Pick<
+  RendererRuntimeDependencies,
+  'settingsManager' | 'gggApi' | 'authManager' | 'rendererLogger' | 'clientTxtWatcher'
+>;
+
+export type RendererStashUseCaseDependencies = Pick<
+  RendererRuntimeDependencies,
+  'settingsManager' | 'gggApi' | 'stashTabsManager' | 'stashGetter'
+>;
+
+export type RendererStatsUseCaseDependencies = Pick<
+  RendererRuntimeDependencies,
+  'settingsManager' | 'statsManager' | 'itemPricer' | 'searchManager' | 'rateGetter' | 'now'
+>;
+
 export function createDefaultRendererRuntimeDependencies(): RendererRuntimeDependencies {
   return {
     runs: Runs,
@@ -89,5 +109,52 @@ export function createDefaultRendererRuntimeDependencies(): RendererRuntimeDepen
     rateGetter: RateGetterV2,
     itemsDb: ItemsDB,
     now: () => dayjs().format('YYYYMMDD'),
+  };
+}
+
+export function pickRendererRunUseCaseDependencies(
+  deps: RendererRuntimeDependencies
+): RendererRunUseCaseDependencies {
+  return {
+    runs: deps.runs,
+    runParser: deps.runParser,
+    rendererLogger: deps.rendererLogger,
+    itemsDb: deps.itemsDb,
+  };
+}
+
+export function pickRendererSettingsUseCaseDependencies(
+  deps: RendererRuntimeDependencies
+): RendererSettingsUseCaseDependencies {
+  return {
+    settingsManager: deps.settingsManager,
+    gggApi: deps.gggApi,
+    authManager: deps.authManager,
+    rendererLogger: deps.rendererLogger,
+    clientTxtWatcher: deps.clientTxtWatcher,
+  };
+}
+
+export function pickRendererStashUseCaseDependencies(
+  deps: RendererRuntimeDependencies
+): RendererStashUseCaseDependencies {
+  return {
+    settingsManager: deps.settingsManager,
+    gggApi: deps.gggApi,
+    stashTabsManager: deps.stashTabsManager,
+    stashGetter: deps.stashGetter,
+  };
+}
+
+export function pickRendererStatsUseCaseDependencies(
+  deps: RendererRuntimeDependencies
+): RendererStatsUseCaseDependencies {
+  return {
+    settingsManager: deps.settingsManager,
+    statsManager: deps.statsManager,
+    itemPricer: deps.itemPricer,
+    searchManager: deps.searchManager,
+    rateGetter: deps.rateGetter,
+    now: deps.now,
   };
 }

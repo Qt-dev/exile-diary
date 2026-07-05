@@ -58,6 +58,10 @@ describe('RendererRuntimeService', () => {
       .createRendererRuntimeService;
   }
 
+  async function loadDependencyPickers() {
+    return await import('../../../src/main/runtime-core/rendererRuntimeDependencies');
+  }
+
   function createDeps() {
     return {
       runs: {
@@ -278,6 +282,44 @@ describe('RendererRuntimeService', () => {
     expect(deps.runParser.recheckGained).toHaveBeenCalledWith('2026-07-01', '2026-07-04');
     expect(deps.itemsDb.updateIgnoredItems).toHaveBeenCalledWith([
       { id: 'item-1', status: true },
+    ]);
+  });
+
+  it('scopes each use-case to a narrowed dependency contract', async () => {
+    const deps = createDeps();
+    const {
+      pickRendererRunUseCaseDependencies,
+      pickRendererSettingsUseCaseDependencies,
+      pickRendererStashUseCaseDependencies,
+      pickRendererStatsUseCaseDependencies,
+    } = await loadDependencyPickers();
+
+    expect(Object.keys(pickRendererRunUseCaseDependencies(deps as any)).sort()).toEqual([
+      'itemsDb',
+      'rendererLogger',
+      'runParser',
+      'runs',
+    ]);
+    expect(Object.keys(pickRendererSettingsUseCaseDependencies(deps as any)).sort()).toEqual([
+      'authManager',
+      'clientTxtWatcher',
+      'gggApi',
+      'rendererLogger',
+      'settingsManager',
+    ]);
+    expect(Object.keys(pickRendererStashUseCaseDependencies(deps as any)).sort()).toEqual([
+      'gggApi',
+      'settingsManager',
+      'stashGetter',
+      'stashTabsManager',
+    ]);
+    expect(Object.keys(pickRendererStatsUseCaseDependencies(deps as any)).sort()).toEqual([
+      'itemPricer',
+      'now',
+      'rateGetter',
+      'searchManager',
+      'settingsManager',
+      'statsManager',
     ]);
   });
 });

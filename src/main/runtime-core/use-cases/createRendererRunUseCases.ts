@@ -1,7 +1,7 @@
 import logger from 'electron-log';
-import { RendererRuntimeDependencies } from '../rendererRuntimeDependencies';
+import { RendererRunUseCaseDependencies } from '../rendererRuntimeDependencies';
 
-export function createRendererRunUseCases(deps: RendererRuntimeDependencies) {
+export function createRendererRunUseCases(deps: RendererRunUseCaseDependencies) {
   return {
     async loadRuns(size: number) {
       logger.info(
