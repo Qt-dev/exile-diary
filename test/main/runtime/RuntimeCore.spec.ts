@@ -6,6 +6,11 @@ const runEmitter = new EventEmitter();
 const killEmitter = new EventEmitter();
 const clientLogEmitter = new EventEmitter();
 const logIngestEmitter = new EventEmitter();
+const inventoryGetterMock = {
+  getInventoryDiffs: jest.fn(),
+  compareInventories: jest.fn(),
+  getInventory: jest.fn(),
+};
 
 const settingsManagerMock = {
   get: jest.fn(),
@@ -57,6 +62,9 @@ const stashGetterMock = {
   on: jest.fn(),
   removeAllListeners: jest.fn(),
 };
+const stashTabsManagerMock = {
+  refresh: jest.fn(),
+};
 
 jest.mock('../../../src/main/SettingsManager', () => ({
   __esModule: true,
@@ -100,11 +108,27 @@ jest.mock('../../../src/main/modules/LogProcessor', () => ({
   __esModule: true,
   default: {
     emitter: logIngestEmitter,
+    schedule: jest.fn(),
+    processGeneration: jest.fn(),
+    processEnd: jest.fn(),
+    processNewInstance: jest.fn(),
+    processOther: jest.fn(),
+    reprocessEvents: jest.fn(),
+    reprocessEvent: jest.fn(),
+    readLine: jest.fn(),
   },
 }));
 jest.mock('../../../src/main/modules/StashGetter', () => ({
   __esModule: true,
   default: stashGetterMock,
+}));
+jest.mock('../../../src/main/StashTabsManager', () => ({
+  __esModule: true,
+  default: stashTabsManagerMock,
+}));
+jest.mock('../../../src/main/modules/InventoryGetter', () => ({
+  __esModule: true,
+  default: inventoryGetterMock,
 }));
 
 describe('RuntimeCore', () => {
@@ -120,6 +144,7 @@ describe('RuntimeCore', () => {
     runtime.stats.registerProfitPerHourAnnouncer(() => undefined);
     runtime.pricing.getCurrencyByName('Divine Orb');
     runtime.pricing.updateRates();
+    runtime.inventory.getInventoryDiffs('2026-01-01T00:00:00.000Z');
     runtime.runTracking.refreshTracking();
     runtime.runTracking.setCurrentMapStats({ name: 'Mesa', level: 83 });
     runtime.runTracking.tryUpdateCurrentArea();
@@ -133,12 +158,14 @@ describe('RuntimeCore', () => {
     expect(runtime.killTracker.emitter).toBe(killEmitter);
     expect(runtime.clientLogs.emitter).toBe(clientLogEmitter);
     expect(runtime.logIngest.emitter).toBe(logIngestEmitter);
+    expect(runtime.inventory.getInventoryDiffs).toBeDefined();
     expect(runtime.runTracking.latestGeneratedArea).toBe(runParserMock.latestGeneratedArea);
 
     expect(searchManagerMock.registerMessageHandler).toHaveBeenCalledTimes(1);
     expect(statsManagerMock.registerProfitPerHourAnnouncer).toHaveBeenCalledTimes(1);
     expect(itemPricerMock.getCurrencyByName).toHaveBeenCalledWith('Divine Orb');
     expect(itemPricerMock.updateRates).toHaveBeenCalledTimes(1);
+    expect(inventoryGetterMock.getInventoryDiffs).toHaveBeenCalledWith('2026-01-01T00:00:00.000Z');
     expect(runParserMock.refreshTracking).toHaveBeenCalledTimes(1);
     expect(runParserMock.setCurrentMapStats).toHaveBeenCalledWith({ name: 'Mesa', level: 83 });
     expect(runParserMock.tryUpdateCurrentArea).toHaveBeenCalledTimes(1);

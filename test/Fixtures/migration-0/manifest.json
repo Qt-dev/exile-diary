@@ -10,12 +10,14 @@
     "pricing": [
       {
         "rates": "pricing/frozen-rates.json",
-        "items": "pricing/sample-items.json"
+        "items": "pricing/sample-items.json",
+        "expected": "pricing/sample-expected-pricing.json"
       }
     ],
     "stashValuation": [
       {
         "input": "stash/sample-stash-items.json",
+        "rates": "pricing/frozen-rates.json",
         "expected": "stash/sample-expected-valuation.json"
       }
     ],

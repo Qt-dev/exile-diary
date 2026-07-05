@@ -1,0 +1,83 @@
+{
+  "benchmarkSuite": "migration-4-runtime-core",
+  "generatedAt": "2026-07-05T16:28:01.797Z",
+  "reports": [
+    {
+      "benchmark": "runtime-core",
+      "scenario": "run-finalization",
+      "fixture": "run-reconstruction/sample-client-log.txt",
+      "iterationsPerSample": 1000,
+      "samples": [
+        2.5911,
+        2.1462,
+        1.8753,
+        1.7917,
+        1.7142
+      ],
+      "summary": {
+        "count": 5,
+        "min": 1.7142,
+        "max": 2.5911,
+        "mean": 2.0237000000000003,
+        "median": 1.8753,
+        "p95": 2.50212
+      },
+      "correctness": {
+        "matchesExpected": true,
+        "eventCount": 4
+      }
+    },
+    {
+      "benchmark": "runtime-core",
+      "scenario": "pricing-batch",
+      "fixture": "pricing/sample-items.json",
+      "iterationsPerSample": 1000,
+      "samples": [
+        1.2893,
+        1.2482,
+        1.1484,
+        1.137,
+        0.6976
+      ],
+      "summary": {
+        "count": 5,
+        "min": 0.6976,
+        "max": 1.2893,
+        "mean": 1.1041,
+        "median": 1.1484,
+        "p95": 1.28108
+      },
+      "correctness": {
+        "matchesExpected": true,
+        "totalChaosValue": 205,
+        "itemsPriced": 3
+      }
+    },
+    {
+      "benchmark": "runtime-core",
+      "scenario": "stash-refresh",
+      "fixture": "stash/sample-stash-items.json",
+      "iterationsPerSample": 1000,
+      "samples": [
+        0.7445,
+        0.6587,
+        0.7477,
+        0.8266,
+        0.6153
+      ],
+      "summary": {
+        "count": 5,
+        "min": 0.6153,
+        "max": 0.8266,
+        "mean": 0.71856,
+        "median": 0.7445,
+        "p95": 0.81082
+      },
+      "correctness": {
+        "matchesExpected": true,
+        "currencyTotalChaos": 380,
+        "itemsPriced": 2
+      }
+    }
+  ]
+}

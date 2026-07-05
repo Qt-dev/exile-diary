@@ -10,6 +10,7 @@ import {
   sendChannels,
 } from '../../shared/contracts/exileDiaryApi';
 import { createRuntimeCore, RuntimeCore } from '../runtime-core/RuntimeCore';
+import { createOverlayPublisher } from '../runtime-core/services/createOverlayPublisher';
 
 type RegisterRuntimeListenersDependencies = {
   mainWindow: BrowserWindow;
@@ -66,7 +67,8 @@ function registerOcrListeners(
   deps: RegisterRuntimeListenersDependencies,
   state: ListenerState,
   settings: ReturnType<RuntimeCore['settings']['getAll']>,
-  runtime: RuntimeCore
+  runtime: RuntimeCore,
+  overlayPublisher: ReturnType<typeof createOverlayPublisher>
 ) {
   runtime.ocr.emitter.removeAllListeners();
   runtime.ocr.emitter.on('OCRError', () => {
@@ -89,7 +91,7 @@ function registerOcrListeners(
       ...info.mapStats,
     });
     logger.info(`Got area info for ${name} (${tier} - ${stats}) in ${modReadingDuration}ms`);
-    RendererLogger.log({
+    overlayPublisher.log({
       messages: [
         { text: 'Got area info for ' },
         { text: name, type: 'important' },
@@ -123,7 +125,7 @@ function registerOcrListeners(
     state.modReadingTimer = dayjs();
     state.screenshotLock = true;
     logger.info('Map Info : Reading from screenshot');
-    RendererLogger.log({
+    overlayPublisher.log({
       messages: [{ text: 'Map Info : Reading from screenshot' }],
     });
 
@@ -139,7 +141,7 @@ function registerOcrListeners(
       await runtime.screenshots.process(nativeScreenshot);
     } catch (error) {
       logger.error('Error in screenshot processing', error);
-      RendererLogger.log({
+      overlayPublisher.log({
         messages: [
           {
             text: 'Error in screenshot processing. Check logs for more info.',
@@ -154,7 +156,7 @@ function registerOcrListeners(
   });
   runtime.screenshots.emitter.on('screenshot:timeout', async () => {
     logger.info('Map Info : Reading from screenshot timed out');
-    RendererLogger.log({
+    overlayPublisher.log({
       messages: [{ text: 'Map Info : Reading from screenshot timed out', type: 'error' }],
     });
     state.screenshotLock = false;
@@ -163,10 +165,14 @@ function registerOcrListeners(
 
 function registerRunAndStatsListeners(
   deps: RegisterRuntimeListenersDependencies,
-  runtime: RuntimeCore
+  runtime: RuntimeCore,
+  overlayPublisher: ReturnType<typeof createOverlayPublisher>
 ) {
   runtime.stats.registerProfitPerHourAnnouncer((profitPerHour, divinePrice) => {
-    deps.sendToMain(rendererEventChannels.updateProfitPerHour, { profitPerHour, divinePrice });
+    overlayPublisher.publishToMain(rendererEventChannels.updateProfitPerHour, {
+      profitPerHour,
+      divinePrice,
+    });
   });
 
   runtime.runTracking.emitter.removeAllListeners();
@@ -174,9 +180,8 @@ function registerRunAndStatsListeners(
   runtime.runTracking.emitter.on('run-parser:latest-area-updated', (area) => {
     logger.info('Latest area updated:', area);
     const runState = buildRunState(area);
-    deps.sendToMain(rendererEventChannels.currentRunStarted, runState);
-    deps.sendToOverlay(rendererEventChannels.currentRunStarted, runState);
-    deps.sendToMain(rendererEventChannels.refreshRuns);
+    overlayPublisher.publishToBoth(rendererEventChannels.currentRunStarted, runState);
+    overlayPublisher.publishToMain(rendererEventChannels.refreshRuns);
   });
   runtime.runTracking.emitter.on('run-parser:run-processed', async (run) => {
     const formatter = new Intl.NumberFormat();
@@ -189,7 +194,7 @@ function registerRunAndStatsListeners(
         (run.xp ? `, ${formatter.format(run.xp)} XP` : '') +
         `)`
     );
-    RendererLogger.log({
+    overlayPublisher.log({
       messages: [
         { text: 'Completed run in ' },
         {
@@ -228,20 +233,20 @@ function registerShortcutSensitiveSettingListeners(
 
 function registerKillTrackerListeners(
   deps: RegisterRuntimeListenersDependencies,
-  runtime: RuntimeCore
+  runtime: RuntimeCore,
+  overlayPublisher: ReturnType<typeof createOverlayPublisher>
 ) {
   const { emitter } = runtime.killTracker;
   emitter.removeAllListeners();
   emitter.on('incubatorsUpdated', (incubators) => {
-    deps.sendToMain('incubatorsUpdated', incubators);
-    deps.sendToOverlay('incubatorsUpdated', incubators);
+    overlayPublisher.publishToBoth('incubatorsUpdated', incubators);
   });
   emitter.on('incubatorsMissing', (equipments) => {
     if (!equipments.length) {
       return;
     }
 
-    RendererLogger.log({
+    overlayPublisher.log({
       messages: [
         {
           text: 'Following equipment has incubator missing: ',
@@ -257,7 +262,8 @@ function registerKillTrackerListeners(
 }
 
 function registerRatesAndLogWatchers(
-  runtime: RuntimeCore
+  runtime: RuntimeCore,
+  overlayPublisher: ReturnType<typeof createOverlayPublisher>
 ) {
   runtime.rates.removeAllListeners();
   runtime.rates.on('gettingPrices', () => {
@@ -276,7 +282,7 @@ function registerRatesAndLogWatchers(
   runtime.clientLogs.emitter.removeAllListeners();
   runtime.clientLogs.emitter.on('clientTxtFileError', (clientPath) => {
     logger.info(`Error reading ${clientPath}. Please check if the file exists.`);
-    RendererLogger.log({
+    overlayPublisher.log({
       messages: [{ text: `Error reading ${clientPath}. Please check if the file exists.` }],
     });
   });
@@ -319,16 +325,23 @@ function registerRatesAndLogWatchers(
   });
 }
 
-function registerStashListeners(deps: RegisterRuntimeListenersDependencies, runtime: RuntimeCore) {
+function registerStashListeners(
+  deps: RegisterRuntimeListenersDependencies,
+  runtime: RuntimeCore,
+  overlayPublisher: ReturnType<typeof createOverlayPublisher>
+) {
   runtime.stash.removeAllListeners();
   runtime.stash.initialize();
   runtime.stash.on('stashTabs:updated:full', (data) => {
     logger.info(`Updated stash tabs (League: ${data.league} - Change: ${data.change})`);
-    deps.sendToMain(rendererEventChannels.stashTabsUpdated, data);
+    overlayPublisher.publishToMain(rendererEventChannels.stashTabsUpdated, data);
   });
   runtime.stash.on('netWorthUpdated', async (data) => {
     const divinePrice = await runtime.pricing.getCurrencyByName('Divine Orb');
-    deps.sendToMain(rendererEventChannels.updateNetWorth, { divinePrice, ...data });
+    overlayPublisher.publishToMain(rendererEventChannels.updateNetWorth, {
+      divinePrice,
+      ...data,
+    });
   });
   ipcMain.on(sendChannels.requestNetWorthRefresh, () => {
     runtime.stash.getNetWorth();
@@ -337,7 +350,8 @@ function registerStashListeners(deps: RegisterRuntimeListenersDependencies, runt
 
 function registerSettingsListeners(
   deps: RegisterRuntimeListenersDependencies,
-  runtime: RuntimeCore
+  runtime: RuntimeCore,
+  overlayPublisher: ReturnType<typeof createOverlayPublisher>
 ) {
   runtime.settings.registerListener('overlayPersistenceEnabled', (isOverlayEnabled) => {
     logger.debug(`Setting Overlay Persistence to Enabled:${isOverlayEnabled}`);
@@ -351,7 +365,7 @@ function registerSettingsListeners(
     ) {
       logger.debug('Active profile changed, relaunching the app');
       setTimeout(() => {
-        RendererLogger.log({
+        overlayPublisher.log({
           messages: [
             {
               text: 'Active profile changed, relaunching the app to load data for the new profile when the settings finish saving in a few seconds...',
@@ -392,15 +406,20 @@ export function registerRuntimeListeners(
     modReadingTimer: null,
     screenshotLock: false,
   };
+  const overlayPublisher = createOverlayPublisher({
+    sendToMain: deps.sendToMain,
+    sendToOverlay: deps.sendToOverlay,
+    rendererLogger: RendererLogger,
+  });
 
   registerSearchBridge(deps, runtime);
-  registerOcrListeners(deps, state, settings, runtime);
-  registerRunAndStatsListeners(deps, runtime);
+  registerOcrListeners(deps, state, settings, runtime, overlayPublisher);
+  registerRunAndStatsListeners(deps, runtime, overlayPublisher);
   registerShortcutSensitiveSettingListeners(deps.reregisterShortcuts, runtime);
-  registerKillTrackerListeners(deps, runtime);
-  registerRatesAndLogWatchers(runtime);
-  registerStashListeners(deps, runtime);
-  registerSettingsListeners(deps, runtime);
+  registerKillTrackerListeners(deps, runtime, overlayPublisher);
+  registerRatesAndLogWatchers(runtime, overlayPublisher);
+  registerStashListeners(deps, runtime, overlayPublisher);
+  registerSettingsListeners(deps, runtime, overlayPublisher);
 
   AuthManager.setMessenger(deps.mainWindow.webContents);
   RendererLogger.init(deps.mainWindow.webContents, deps.overlayWindow.webContents);
