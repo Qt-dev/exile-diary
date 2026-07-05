@@ -9,15 +9,33 @@ const isDev = Boolean(process.env.ELECTRON_RENDERER_URL);
 const StartupTimeoutMs = 20000;
 const RequestTimeoutMs = 30000;
 const RestartDelayMs = 500;
+const HealthCheckIntervalMs = 15000;
+const HealthCheckTimeoutMs = 5000;
+const MaxConsecutiveHealthCheckFailures = 2;
 
 let sidecarProcess = null;
 let startupPromise = null;
 let startupResolve = null;
 let startupReject = null;
 let restartTimer = null;
+let healthCheckTimer = null;
+let healthCheckPromise = null;
 let isStopping = false;
 let requestSequence = 0;
-let latestHealth = null;
+let restartCount = 0;
+let consecutiveHealthCheckFailures = 0;
+let latestHealth = {
+  status: 'stopped',
+  pid: null,
+  startedAt: null,
+  uptimeSeconds: 0,
+  lastHeartbeatAt: null,
+  restartCount: 0,
+  consecutiveHealthCheckFailures: 0,
+  pendingRequestCount: 0,
+  lastExitReason: null,
+  lastError: null,
+};
 const pendingRequests = new Map();
 
 function createTimeoutError(action, timeoutMs) {
@@ -36,6 +54,26 @@ function clearRestartTimer() {
   }
 }
 
+function clearHealthCheckTimer() {
+  if (healthCheckTimer) {
+    clearInterval(healthCheckTimer);
+    healthCheckTimer = null;
+  }
+}
+
+function emitHealthUpdate(partial = {}) {
+  latestHealth = {
+    ...latestHealth,
+    ...partial,
+    restartCount,
+    consecutiveHealthCheckFailures,
+    pendingRequestCount: pendingRequests.size,
+  };
+
+  emitter.emit('ocr:health-updated', latestHealth);
+  return latestHealth;
+}
+
 function rejectPendingRequests(error) {
   for (const { reject, timeout } of pendingRequests.values()) {
     clearTimeout(timeout);
@@ -51,11 +89,14 @@ function handleSidecarMessage(message) {
 
   switch (message.type) {
     case 'ready':
-      latestHealth = {
+      emitHealthUpdate({
         status: 'ready',
         pid: message.pid,
         startedAt: message.startedAt,
-      };
+        lastHeartbeatAt: new Date().toISOString(),
+        uptimeSeconds: 0,
+        lastError: null,
+      });
       startupResolve?.(message);
       return;
     case 'event':
@@ -74,7 +115,13 @@ function handleSidecarMessage(message) {
 
       if (message.ok) {
         if (message.result?.status === 'ready') {
-          latestHealth = message.result;
+          consecutiveHealthCheckFailures = 0;
+          emitHealthUpdate({
+            ...message.result,
+            status: 'ready',
+            lastHeartbeatAt: new Date().toISOString(),
+            lastError: null,
+          });
         }
         pending.resolve(message.result);
       } else {
@@ -82,6 +129,22 @@ function handleSidecarMessage(message) {
       }
       return;
     }
+  }
+}
+
+function beginHealthChecks() {
+  if (healthCheckTimer) {
+    return;
+  }
+
+  healthCheckTimer = setInterval(() => {
+    refreshHealth({ allowRestartOnFailure: true }).catch((error) => {
+      logger.error('OCR sidecar health check failed', error);
+    });
+  }, HealthCheckIntervalMs);
+
+  if (typeof healthCheckTimer.unref === 'function') {
+    healthCheckTimer.unref();
   }
 }
 
@@ -148,6 +211,14 @@ function spawnSidecar() {
   });
 
   logger.info(`Starting OCR sidecar from ${entryPath}`);
+  emitHealthUpdate({
+    status: restartCount > 0 ? 'restarting' : 'starting',
+    pid: null,
+    startedAt: null,
+    uptimeSeconds: 0,
+    lastHeartbeatAt: null,
+    lastError: null,
+  });
   createStartupPromise();
   sidecarProcess = fork(entryPath, [], {
     cwd: process.cwd(),
@@ -170,16 +241,77 @@ function spawnSidecar() {
     rejectPendingRequests(error);
     sidecarProcess = null;
     startupPromise = null;
-    latestHealth = null;
+    healthCheckPromise = null;
 
     if (!isStopping) {
+      restartCount += 1;
+      emitHealthUpdate({
+        status: 'restarting',
+        pid: null,
+        uptimeSeconds: 0,
+        lastExitReason: error.message,
+        lastError: error.message,
+      });
       logger.error(error.message);
       scheduleRestart();
+    } else {
+      consecutiveHealthCheckFailures = 0;
+      emitHealthUpdate({
+        status: 'stopped',
+        pid: null,
+        uptimeSeconds: 0,
+        lastExitReason: error.message,
+      });
     }
   });
   sidecarProcess.once('error', (error) => {
     logger.error('OCR sidecar process error', error);
   });
+}
+
+async function refreshHealth({ allowRestartOnFailure = false } = {}) {
+  if (!sidecarProcess || !sidecarProcess.connected) {
+    return latestHealth;
+  }
+
+  if (healthCheckPromise) {
+    return healthCheckPromise;
+  }
+
+  healthCheckPromise = sendRequestInternal('health-check', undefined, HealthCheckTimeoutMs)
+    .then((result) => {
+      consecutiveHealthCheckFailures = 0;
+      return emitHealthUpdate({
+        ...result,
+        status: 'ready',
+        lastHeartbeatAt: new Date().toISOString(),
+        lastError: null,
+      });
+    })
+    .catch((error) => {
+      consecutiveHealthCheckFailures += 1;
+      const shouldRestart = allowRestartOnFailure &&
+        consecutiveHealthCheckFailures >= MaxConsecutiveHealthCheckFailures;
+
+      emitHealthUpdate({
+        status: shouldRestart ? 'restarting' : 'degraded',
+        lastError: error.message,
+      });
+
+      if (shouldRestart && sidecarProcess && !sidecarProcess.killed) {
+        logger.error(
+          `OCR sidecar health check failed ${consecutiveHealthCheckFailures} times, restarting`
+        );
+        sidecarProcess.kill();
+      }
+
+      throw error;
+    })
+    .finally(() => {
+      healthCheckPromise = null;
+    });
+
+  return healthCheckPromise;
 }
 
 async function ensureStarted() {
@@ -190,11 +322,16 @@ async function ensureStarted() {
   }
 
   await startupPromise;
-  await sendRequestInternal('health-check');
+  beginHealthChecks();
+  await refreshHealth();
 }
 
 async function sendRequestInternal(command, payload = undefined, timeoutMs = RequestTimeoutMs) {
   const requestId = `ocr-${++requestSequence}`;
+
+  if (!sidecarProcess || !sidecarProcess.connected) {
+    throw new Error('OCR sidecar process is not available');
+  }
 
   return new Promise((resolve, reject) => {
     const timeout = setTimeout(() => {
@@ -208,12 +345,18 @@ async function sendRequestInternal(command, payload = undefined, timeoutMs = Req
       timeout,
     });
 
-    sidecarProcess.send({
-      type: 'request',
-      requestId,
-      command,
-      payload,
-    });
+    try {
+      sidecarProcess.send({
+        type: 'request',
+        requestId,
+        command,
+        payload,
+      });
+    } catch (error) {
+      clearTimeout(timeout);
+      pendingRequests.delete(requestId);
+      reject(error);
+    }
   });
 }
 
@@ -249,11 +392,19 @@ async function processImageBuffer(buffer, timestamp, type) {
 async function stop() {
   isStopping = true;
   clearRestartTimer();
+  clearHealthCheckTimer();
+  healthCheckPromise = null;
 
   const child = sidecarProcess;
   sidecarProcess = null;
   startupPromise = null;
-  latestHealth = null;
+  consecutiveHealthCheckFailures = 0;
+  emitHealthUpdate({
+    status: 'stopped',
+    pid: null,
+    uptimeSeconds: 0,
+    lastError: null,
+  });
 
   if (!child || child.killed) {
     return;
@@ -289,5 +440,7 @@ module.exports = {
   processImageBuffer,
   scanScreenshotBuffer,
   stop,
+  refreshHealth,
+  getHealth: () => latestHealth,
   checkJobComplete: () => latestHealth,
 };

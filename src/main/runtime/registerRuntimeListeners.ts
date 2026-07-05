@@ -25,6 +25,7 @@ type RegisterRuntimeListenersDependencies = {
 type ListenerState = {
   modReadingTimer: Dayjs | null;
   screenshotLock: boolean;
+  ocrHealthStatus: string | null;
 };
 
 function getMapTierString(map: { depth?: number; level?: number }) {
@@ -71,6 +72,34 @@ function registerOcrListeners(
   overlayPublisher: ReturnType<typeof createOverlayPublisher>
 ) {
   runtime.ocr.emitter.removeAllListeners();
+  runtime.ocr.emitter.on('ocr:health-updated', (health) => {
+    if (!health || state.ocrHealthStatus === health.status) {
+      return;
+    }
+
+    state.ocrHealthStatus = health.status;
+    logger.info('OCR sidecar health updated', health);
+
+    if (health.status === 'degraded' || health.status === 'restarting') {
+      overlayPublisher.log({
+        messages: [
+          {
+            text:
+              health.status === 'restarting'
+                ? 'OCR worker is restarting after a health failure.'
+                : 'OCR worker health check failed. Monitoring recovery.',
+            type: 'error',
+          },
+        ],
+      });
+    }
+
+    if (health.status === 'ready' && health.restartCount > 0) {
+      overlayPublisher.log({
+        messages: [{ text: 'OCR worker recovered and is ready again.' }],
+      });
+    }
+  });
   runtime.ocr.emitter.on('OCRError', () => {
     logger.info('Error getting area info from screenshot. Please try again');
   });
@@ -442,6 +471,7 @@ export function registerRuntimeListeners(
   const state: ListenerState = {
     modReadingTimer: null,
     screenshotLock: false,
+    ocrHealthStatus: null,
   };
   const overlayPublisher = createOverlayPublisher({
     sendToMain: deps.sendToMain,

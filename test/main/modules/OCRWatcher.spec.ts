@@ -27,6 +27,7 @@ function createMockChildProcess(): MockChildProcess {
   const child = new EventEmitter() as MockChildProcess;
   child.connected = true;
   child.killed = false;
+  (child as any).pid = 4242;
   child.stdout = new EventEmitter();
   child.stderr = new EventEmitter();
   child.send = jest.fn((message: any) => {
@@ -167,6 +168,55 @@ describe('OCRWatcher', () => {
       result: { jobId: 'job-2' },
     });
     expect(errorListener).toHaveBeenCalledTimes(1);
+
+    await watcher.stop();
+  });
+
+  it('tracks OCR sidecar health and restart state across process exits', async () => {
+    const firstChild = createMockChildProcess();
+    const secondChild = createMockChildProcess();
+    let spawnCount = 0;
+
+    forkMock.mockImplementation(() => {
+      const child = spawnCount === 0 ? firstChild : secondChild;
+      spawnCount += 1;
+      setImmediate(() => {
+        child.emit('message', {
+          type: 'ready',
+          pid: 4242 + spawnCount,
+          startedAt: `2026-07-05T08:00:0${spawnCount}.000Z`,
+        });
+      });
+      return child;
+    });
+
+    const watcher = require('../../../src/main/modules/ImageParser/OCRWatcher');
+    const healthListener = jest.fn();
+    watcher.emitter.on('ocr:health-updated', healthListener);
+
+    await watcher.start();
+    expect(watcher.getHealth()).toMatchObject({
+      status: 'ready',
+      restartCount: 0,
+    });
+
+    firstChild.connected = false;
+    firstChild.killed = true;
+    firstChild.emit('exit', 1, null);
+
+    await new Promise((resolve) => setTimeout(resolve, 650));
+
+    expect(forkMock).toHaveBeenCalledTimes(2);
+    expect(watcher.getHealth()).toMatchObject({
+      status: 'ready',
+      restartCount: 1,
+    });
+    expect(healthListener).toHaveBeenCalledWith(
+      expect.objectContaining({
+        status: 'restarting',
+        restartCount: 1,
+      })
+    );
 
     await watcher.stop();
   });

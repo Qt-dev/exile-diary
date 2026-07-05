@@ -31,6 +31,10 @@ export function createRuntimeCore() {
     },
     ocr: {
       emitter: OCRWatcher.emitter,
+      start: OCRWatcher.start,
+      stop: OCRWatcher.stop,
+      refreshHealth: OCRWatcher.refreshHealth,
+      getHealth: OCRWatcher.getHealth,
     },
     screenshots: {
       emitter: ScreenshotWatcher.emitter,

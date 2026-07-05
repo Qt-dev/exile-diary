@@ -92,6 +92,10 @@ jest.mock('../../../src/main/modules/ImageParser/ScreenshotWatcher', () => ({
 }));
 jest.mock('../../../src/main/modules/ImageParser/OCRWatcher', () => ({
   emitter: ocrEmitter,
+  start: jest.fn(),
+  stop: jest.fn(),
+  refreshHealth: jest.fn(),
+  getHealth: jest.fn(() => ({ status: 'ready' })),
 }));
 jest.mock('../../../src/main/modules/KillTracker', () => ({
   __esModule: true,
@@ -149,6 +153,8 @@ describe('RuntimeCore', () => {
     runtime.runTracking.setCurrentMapStats({ name: 'Mesa', level: 83 });
     runtime.runTracking.tryUpdateCurrentArea();
     runtime.screenshots.process(Buffer.from('test'));
+    runtime.ocr.getHealth();
+    runtime.ocr.refreshHealth();
     runtime.stash.initialize();
     runtime.stash.getNetWorth();
 
