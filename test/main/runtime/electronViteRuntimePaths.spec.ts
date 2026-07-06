@@ -11,6 +11,7 @@ import {
 describe('electron-vite runtime paths', () => {
   const repoRoot = path.resolve('workspace', 'exile-diary');
   const bundledMainDir = path.join(repoRoot, 'out', 'electron', 'main');
+  const bundledChunkDir = path.join(bundledMainDir, 'chunks');
 
   it('resolves the preload bundle outside the main bundle directory', () => {
     const preloadPath = getPreloadBundlePath(bundledMainDir);
@@ -56,6 +57,16 @@ describe('electron-vite runtime paths', () => {
     ).toBe(bundledMainDir);
   });
 
+  it('resolves copied worker files from chunked bundle modules outside dev', () => {
+    expect(
+      getImageParserWorkerBasePath({
+        currentMainDir: bundledChunkDir,
+        cwd: repoRoot,
+        isDev: false,
+      })
+    ).toBe(bundledMainDir);
+  });
+
   it('uses the sidecar source entry during dev', () => {
     expect(
       getOcrSidecarEntryPath({
@@ -76,6 +87,16 @@ describe('electron-vite runtime paths', () => {
     ).toContain(path.join('out', 'electron', 'main', 'ocr-sidecar.js'));
   });
 
+  it('uses the built OCR sidecar bundle from chunked modules outside dev', () => {
+    expect(
+      getOcrSidecarEntryPath({
+        currentMainDir: bundledChunkDir,
+        cwd: repoRoot,
+        isDev: false,
+      })
+    ).toContain(path.join('out', 'electron', 'main', 'ocr-sidecar.js'));
+  });
+
   it('uses the runtime sidecar source entry during dev', () => {
     expect(
       getRuntimeSidecarEntryPath({
@@ -90,6 +111,16 @@ describe('electron-vite runtime paths', () => {
     expect(
       getRuntimeSidecarEntryPath({
         currentMainDir: bundledMainDir,
+        cwd: repoRoot,
+        isDev: false,
+      })
+    ).toContain(path.join('out', 'electron', 'main', 'runtime-sidecar.js'));
+  });
+
+  it('uses the built runtime sidecar bundle from chunked modules outside dev', () => {
+    expect(
+      getRuntimeSidecarEntryPath({
+        currentMainDir: bundledChunkDir,
         cwd: repoRoot,
         isDev: false,
       })

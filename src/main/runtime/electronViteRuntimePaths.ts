@@ -6,16 +6,22 @@ type RuntimePathOptions = {
   isDev?: boolean;
 };
 
+function getBundledMainRoot(currentMainDir = __dirname) {
+  return path.basename(currentMainDir) === 'chunks'
+    ? path.dirname(currentMainDir)
+    : currentMainDir;
+}
+
 export function getPreloadBundlePath(currentMainDir = __dirname) {
-  return path.resolve(currentMainDir, '..', 'preload', 'index.js');
+  return path.resolve(getBundledMainRoot(currentMainDir), '..', 'preload', 'index.js');
 }
 
 export function getRendererIndexPath(currentMainDir = __dirname) {
-  return path.resolve(currentMainDir, '..', '..', 'renderer', 'index.html');
+  return path.resolve(getBundledMainRoot(currentMainDir), '..', '..', 'renderer', 'index.html');
 }
 
 export function getBundledDbExtensionsPath(currentMainDir = __dirname) {
-  return path.resolve(currentMainDir, '..', 'db', 'extensions');
+  return path.resolve(getBundledMainRoot(currentMainDir), '..', 'db', 'extensions');
 }
 
 export function getImageParserWorkerBasePath({
@@ -27,7 +33,7 @@ export function getImageParserWorkerBasePath({
     return path.resolve(cwd, 'src', 'main', 'modules', 'ImageParser');
   }
 
-  return currentMainDir;
+  return getBundledMainRoot(currentMainDir);
 }
 
 export function getOcrSidecarEntryPath({
@@ -39,7 +45,7 @@ export function getOcrSidecarEntryPath({
     return path.resolve(cwd, 'src', 'main', 'modules', 'ImageParser', 'OcrSidecar.ts');
   }
 
-  return path.resolve(currentMainDir, 'ocr-sidecar.js');
+  return path.resolve(getBundledMainRoot(currentMainDir), 'ocr-sidecar.js');
 }
 
 export function getRuntimeSidecarEntryPath({
@@ -51,5 +57,5 @@ export function getRuntimeSidecarEntryPath({
     return path.resolve(cwd, 'src', 'main', 'runtime', 'RuntimeSidecar.ts');
   }
 
-  return path.resolve(currentMainDir, 'runtime-sidecar.js');
+  return path.resolve(getBundledMainRoot(currentMainDir), 'runtime-sidecar.js');
 }

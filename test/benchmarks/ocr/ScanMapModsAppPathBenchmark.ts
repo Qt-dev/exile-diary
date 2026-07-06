@@ -203,12 +203,21 @@ async function benchmarkSidecarPath(
   const previousPersist = process.env.EXILE_DIARY_OCR_DISABLE_PERSIST;
   const previousMapStats = process.env.EXILE_DIARY_OCR_DISABLE_MAP_STATS;
   const previousTessData = process.env.EXILE_DIARY_TESSDATA_PATH;
+  const previousUserDataPath = process.env.EXILE_DIARY_USER_DATA_PATH;
+  const benchmarkUserDataPath = path.resolve(
+    process.cwd(),
+    '.tmp',
+    'benchmarks',
+    'ocr-app-path-user-data'
+  );
 
   process.env.ELECTRON_RENDERER_URL = previousRendererUrl ?? 'http://benchmark.local';
   process.env.EXILE_DIARY_OCR_BENCHMARK_MODE = '1';
   process.env.EXILE_DIARY_OCR_DISABLE_PERSIST = '1';
   process.env.EXILE_DIARY_OCR_DISABLE_MAP_STATS = '1';
   process.env.EXILE_DIARY_TESSDATA_PATH = process.cwd();
+  process.env.EXILE_DIARY_USER_DATA_PATH = benchmarkUserDataPath;
+  fs.mkdirSync(benchmarkUserDataPath, { recursive: true });
 
   const watcher = require('../../../src/main/modules/ImageParser/OCRWatcher');
   const startupStartedAt = performance.now();
@@ -290,6 +299,12 @@ async function benchmarkSidecarPath(
       delete process.env.EXILE_DIARY_TESSDATA_PATH;
     } else {
       process.env.EXILE_DIARY_TESSDATA_PATH = previousTessData;
+    }
+
+    if (previousUserDataPath === undefined) {
+      delete process.env.EXILE_DIARY_USER_DATA_PATH;
+    } else {
+      process.env.EXILE_DIARY_USER_DATA_PATH = previousUserDataPath;
     }
   }
 }

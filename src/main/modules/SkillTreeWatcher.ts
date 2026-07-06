@@ -1,19 +1,18 @@
-const DBModule = require('../db/skilltree');
-const GGGAPIModule = require('../GGGAPI');
-const DB = DBModule.default ?? DBModule;
-const API = GGGAPIModule.default ?? GGGAPIModule;
-const logger = require('electron-log');
-const EventEmitter = require('events');
+import logger from 'electron-log';
+import EventEmitter from 'events';
+import DB from '../db/skilltree';
+import API from '../GGGAPI';
+
 const emitter = new EventEmitter();
 
 const SkillTreeWatcher = {
   insertPassiveTree: DB.insertPassiveTree,
   getPreviousTree: DB.getPreviousTree,
   getSkillTree: API.getSkillTree,
-  saveNewTree: async (timestamp) => {
+  saveNewTree: async (timestamp: string) => {
     logger.info(`Checking for new skill tree at ${timestamp}`);
     const previousTree = await SkillTreeWatcher.getPreviousTree();
-    const newTree = JSON.stringify(await SkillTreeWatcher.getSkillTree(timestamp).hashes);
+    const newTree = JSON.stringify((await SkillTreeWatcher.getSkillTree(timestamp)).hashes);
 
     if (previousTree && newTree && newTree !== previousTree) {
       logger.info(`New skill tree found at ${timestamp}`);
@@ -24,5 +23,8 @@ const SkillTreeWatcher = {
   },
 };
 
-module.exports = SkillTreeWatcher;
-module.exports.emitter = emitter;
+export { emitter };
+export default {
+  ...SkillTreeWatcher,
+  emitter,
+};

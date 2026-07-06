@@ -1,21 +1,14 @@
-const logger = require('electron-log');
-const DB = require('../db').default;
-const dayjs = require('dayjs');
+import logger from 'electron-log';
+import dayjs from 'dayjs';
+import DB from '../db';
 
-/**
- * Extracts current graftblood value from equipment
- * @param {Array} equipment - The equipment array from the GGG API
- * @returns {number} The sum of current graftblood values from both graft slots
- */
-function getGraftbloodFromEquipment(equipment) {
+export function getGraftbloodFromEquipment(equipment: any[]) {
   if (!equipment || !Array.isArray(equipment)) {
     logger.debug('No equipment found or equipment is not an array');
     return 0;
   }
 
   let totalGraftblood = 0;
-
-  // Filter items that are grafts (inventoryId contains BrequelGrafts)
   const grafts = equipment.filter(
     (item) => item.inventoryId && item.inventoryId.includes('BrequelGrafts')
   );
@@ -27,11 +20,8 @@ function getGraftbloodFromEquipment(equipment) {
       return;
     }
 
-    // Find the Graftblood property
     const graftbloodProp = graft.properties.find((prop) => prop.name === 'Graftblood: {0}/{1}');
-
     if (graftbloodProp && graftbloodProp.values && graftbloodProp.values.length >= 2) {
-      // The first value [0] is the current graftblood amount
       const currentValue = parseInt(graftbloodProp.values[0][0], 10);
       if (!isNaN(currentValue)) {
         logger.debug(
@@ -48,17 +38,10 @@ function getGraftbloodFromEquipment(equipment) {
   return totalGraftblood;
 }
 
-/**
- * Logs the graftblood data for the current timestamp to the database
- * @param {string} timestamp - The timestamp to log the data for
- * @param {Array} equipment - The equipment array from the GGG API
- * @returns {number} The total graftblood value
- */
-async function logGraftblood(timestamp, equipment) {
+export async function logGraftblood(timestamp: string, equipment: any[]) {
   const graftblood = getGraftbloodFromEquipment(equipment);
   logger.debug(`Graftblood at ${timestamp}: ${graftblood}`);
 
-  // Store in database
   try {
     await DB.run('INSERT INTO graftblood(timestamp, value) VALUES(?, ?)', [
       dayjs(timestamp).toISOString(),
@@ -72,13 +55,7 @@ async function logGraftblood(timestamp, equipment) {
   return graftblood;
 }
 
-/**
- * Gets the graftblood difference between two timestamps
- * @param {string} firstEvent - The first event timestamp
- * @param {string} lastEvent - The last event timestamp
- * @returns {Promise<number>} The graftblood gained in the run
- */
-async function getGraftbloodGained(firstEvent, lastEvent) {
+export async function getGraftbloodGained(firstEvent: string, lastEvent: string) {
   try {
     const rows = await DB.all(
       'SELECT value FROM graftblood WHERE DATETIME(timestamp) BETWEEN DATETIME(?) AND DATETIME(?) ORDER BY timestamp',
@@ -102,7 +79,7 @@ async function getGraftbloodGained(firstEvent, lastEvent) {
   }
 }
 
-module.exports = {
+export default {
   getGraftbloodFromEquipment,
   logGraftblood,
   getGraftbloodGained,
