@@ -79,9 +79,10 @@ function createMockChildProcess(): MockChildProcess {
           type: 'response',
           requestId: message.requestId,
           ok: true,
-          result: message.payload.method === 'runTracking.getLatestGeneratedArea'
-            ? { name: 'Mesa', level: 83, seed: 'abc' }
-            : true,
+          result:
+            message.payload.method === 'runTracking.getLatestGeneratedArea'
+              ? { name: 'Mesa', level: 83, seed: 'abc' }
+              : true,
         });
       });
     }

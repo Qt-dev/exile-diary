@@ -121,9 +121,7 @@ class StringParser {
     return results;
   }
 
-  static GetModsDetailed(
-    modStrings: string[]
-  ): Array<{
+  static GetModsDetailed(modStrings: string[]): Array<{
     input: string;
     normalized: string;
     mod: string;

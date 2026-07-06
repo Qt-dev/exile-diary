@@ -7,13 +7,7 @@
       "scenario": "run-finalization",
       "fixture": "run-reconstruction/sample-client-log.txt",
       "iterationsPerSample": 1000,
-      "samples": [
-        2.5911,
-        2.1462,
-        1.8753,
-        1.7917,
-        1.7142
-      ],
+      "samples": [2.5911, 2.1462, 1.8753, 1.7917, 1.7142],
       "summary": {
         "count": 5,
         "min": 1.7142,
@@ -32,13 +26,7 @@
       "scenario": "pricing-batch",
       "fixture": "pricing/sample-items.json",
       "iterationsPerSample": 1000,
-      "samples": [
-        1.2893,
-        1.2482,
-        1.1484,
-        1.137,
-        0.6976
-      ],
+      "samples": [1.2893, 1.2482, 1.1484, 1.137, 0.6976],
       "summary": {
         "count": 5,
         "min": 0.6976,
@@ -58,13 +46,7 @@
       "scenario": "stash-refresh",
       "fixture": "stash/sample-stash-items.json",
       "iterationsPerSample": 1000,
-      "samples": [
-        0.7445,
-        0.6587,
-        0.7477,
-        0.8266,
-        0.6153
-      ],
+      "samples": [0.7445, 0.6587, 0.7477, 0.8266, 0.6153],
       "summary": {
         "count": 5,
         "min": 0.6153,

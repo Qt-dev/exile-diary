@@ -100,7 +100,9 @@ export async function runAppLifecycleBenchmark(
           status: 'error',
           error:
             `No benchmark marker received for mode "${mode}". This usually means the built app output is stale or another app instance took the single-instance lock.\n` +
-            `Run the full app build before collecting lifecycle baselines.\nExit code: ${code ?? 'unknown'}\nSTDERR:\n${stderr}\nSTDOUT:\n${stdout}`,
+            `Run the full app build before collecting lifecycle baselines.\nExit code: ${
+              code ?? 'unknown'
+            }\nSTDERR:\n${stderr}\nSTDOUT:\n${stdout}`,
         });
         return;
       }

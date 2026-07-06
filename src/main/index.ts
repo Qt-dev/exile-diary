@@ -1,13 +1,4 @@
-import {
-  app,
-  BrowserWindow,
-  ipcMain,
-  dialog,
-  Menu,
-  session,
-  nativeImage,
-  screen,
-} from 'electron';
+import { app, BrowserWindow, ipcMain, dialog, Menu, session, nativeImage, screen } from 'electron';
 import { initPortableMode } from './PortableConfig';
 
 // Initialize portable mode BEFORE app is ready, but AFTER electron modules are imported
@@ -35,7 +26,11 @@ import AuthManager from './AuthManager';
 // Old stuff
 import ScreenshotWatcher from './modules/ImageParser/ScreenshotWatcher';
 import * as OCRWatcher from './modules/ImageParser/OCRWatcher';
-import { invokeChannels, rendererEventChannels, sendChannels } from '../shared/contracts/exileDiaryApi';
+import {
+  invokeChannels,
+  rendererEventChannels,
+  sendChannels,
+} from '../shared/contracts/exileDiaryApi';
 import { createAppWindows } from './windows/createAppWindows';
 import { createWindowMessenger, WindowMessenger } from './windows/windowMessaging';
 import { GlobalShortcutController } from './shortcuts/GlobalShortcutController';
@@ -199,12 +194,15 @@ class MainProcess {
     this.messenger = createWindowMessenger(windows);
     this.shortcutController = new GlobalShortcutController({
       getShortcut: (key) => this.runtimeBridge.settings.get(key),
-      isRunParseScreenshotEnabled: () => !!this.runtimeBridge.settings.get('runParseScreenshotEnabled'),
+      isRunParseScreenshotEnabled: () =>
+        !!this.runtimeBridge.settings.get('runParseScreenshotEnabled'),
       areCustomScreenshotsEnabled: () =>
         !!this.runtimeBridge.settings.get('screenshots')?.allowCustomShortcut,
       toggleOverlayPersistence: () => {
         logger.info('Toggling overlay visibility');
-        const overlayPersistenceEnabled = this.runtimeBridge.settings.get('overlayPersistenceEnabled');
+        const overlayPersistenceEnabled = this.runtimeBridge.settings.get(
+          'overlayPersistenceEnabled'
+        );
         void RuntimeSidecarClient.callRendererMethod('saveSettings', [
           { overlayPersistenceEnabled: !overlayPersistenceEnabled },
         ]);
@@ -291,15 +289,18 @@ class MainProcess {
       registerHotkeys: () => this.registerGlobalShortcuts(),
       unregisterHotkeys: () => this.unregisterGlobalShortcuts(),
     });
-    registerRuntimeListeners({
-      mainWindow: this.mainWindow,
-      overlayWindow: this.overlayWindow,
-      sendToMain: (event, data) => this.sendToMain(event, data),
-      sendToOverlay: (event, data) => this.sendToOverlay(event, data),
-      reregisterShortcuts: () => this.reRegisterGlobalShortcuts(),
-      setLogTransport,
-      setupDebugLoggerHook,
-    }, this.runtimeBridge);
+    registerRuntimeListeners(
+      {
+        mainWindow: this.mainWindow,
+        overlayWindow: this.overlayWindow,
+        sendToMain: (event, data) => this.sendToMain(event, data),
+        sendToOverlay: (event, data) => this.sendToOverlay(event, data),
+        reregisterShortcuts: () => this.reRegisterGlobalShortcuts(),
+        setLogTransport,
+        setupDebugLoggerHook,
+      },
+      this.runtimeBridge
+    );
   }
 
   /**

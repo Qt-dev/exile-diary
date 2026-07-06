@@ -56,11 +56,11 @@ const api: ExileDiaryApi = {
   getAllMapNames: () => ipcRenderer.invoke(invokeChannels.getAllMapNames),
   getAllPossibleMods: () => ipcRenderer.invoke(invokeChannels.getAllPossibleMods),
   refreshProfitPerHour: () => ipcRenderer.invoke(invokeChannels.refreshProfitPerHour),
-  debugRecheckGain: (from, to) =>
-    ipcRenderer.invoke(invokeChannels.debugRecheckGain, { from, to }),
+  debugRecheckGain: (from, to) => ipcRenderer.invoke(invokeChannels.debugRecheckGain, { from, to }),
   debugFetchRates: () => ipcRenderer.invoke(invokeChannels.debugFetchRates),
   debugFetchStashTabs: () => ipcRenderer.invoke(invokeChannels.debugFetchStashTabs),
-  getOverlayPersistence: async () => Boolean(await ipcRenderer.invoke(invokeChannels.getOverlayPersistence)),
+  getOverlayPersistence: async () =>
+    Boolean(await ipcRenderer.invoke(invokeChannels.getOverlayPersistence)),
   getOverlayPosition: async () => {
     const position = await ipcRenderer.invoke(invokeChannels.getOverlayPosition);
     return position ?? { x: 0, y: 0 };

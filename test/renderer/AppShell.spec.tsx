@@ -61,7 +61,7 @@ const createRunStore = () =>
     }),
     getPageCount: () => 1,
     getSortedRuns: () => [],
-  }) as any;
+  } as any);
 
 const renderApp = (initialEntry: string) => {
   const router = createMemoryRouter(

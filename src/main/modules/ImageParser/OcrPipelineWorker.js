@@ -9,9 +9,7 @@ function comparePixelColors(pixel1, pixel2, tolerance) {
     b: Math.abs(pixel1.b - pixel2.b),
   };
 
-  return (
-    distance.r * distance.r + distance.g * distance.g + distance.b * distance.b < tolerance
-  );
+  return distance.r * distance.r + distance.g * distance.g + distance.b * distance.b < tolerance;
 }
 
 function isBlue(pixel) {

@@ -6,19 +6,20 @@ import API from '../GGGAPI';
 const emitter = new EventEmitter();
 
 const SkillTreeWatcher = {
-  insertPassiveTree: DB.insertPassiveTree,
+  insertPassivetree: DB.insertPassivetree,
   getPreviousTree: DB.getPreviousTree,
   getSkillTree: API.getSkillTree,
   saveNewTree: async (timestamp: string) => {
     logger.info(`Checking for new skill tree at ${timestamp}`);
     const previousTree = await SkillTreeWatcher.getPreviousTree();
-    const newTree = JSON.stringify((await SkillTreeWatcher.getSkillTree(timestamp)).hashes);
+    const previousTreeData = previousTree?.data ?? null;
+    const newTree = JSON.stringify((await SkillTreeWatcher.getSkillTree()).hashes);
 
-    if (previousTree && newTree && newTree !== previousTree) {
+    if (previousTreeData && newTree && newTree !== previousTreeData) {
       logger.info(`New skill tree found at ${timestamp}`);
-      logger.info(`Previous Skill Tree: ${previousTree}`);
+      logger.info(`Previous Skill Tree: ${previousTreeData}`);
       logger.info(`New Skill Tree: ${newTree}`);
-      await SkillTreeWatcher.insertPassiveTree(timestamp, newTree);
+      await SkillTreeWatcher.insertPassivetree(Number(timestamp), newTree);
     }
   },
 };

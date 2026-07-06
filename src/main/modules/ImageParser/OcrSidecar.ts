@@ -1,5 +1,43 @@
 import logger from 'electron-log';
-import { createOcrScanService } from './OcrScanService';
+import * as OcrScanServiceModule from './OcrScanService';
+
+type OcrScanService = {
+  start: () => Promise<void>;
+  dispose: () => Promise<void>;
+  scanScreenshotBuffer: (
+    screenshotBuffer: Buffer,
+    job: Record<string, unknown>,
+    options?: {
+      captureMs?: number;
+    }
+  ) => Promise<unknown>;
+  processImageBuffer: (buffer: Buffer, timestamp?: string, type?: string) => Promise<unknown>;
+};
+
+type OcrScanServiceFactoryOptions = {
+  currentMainDir?: string;
+  isDev?: boolean;
+  persistMatchedMods?: ((matchedMods: unknown[]) => Promise<unknown>) | undefined;
+  getMapStatsFn?: (() => Record<string, unknown>) | undefined;
+  settingsProvider?:
+    | (() => {
+        activeProfile?: {
+          characterName?: string;
+          league?: string;
+        };
+        forceDebugMode?: boolean;
+      })
+    | undefined;
+  tesseractLangPath?: string | undefined;
+  emitCompletedJob?: ((payload: unknown) => void) | undefined;
+  emitError?: (() => void) | undefined;
+};
+
+const createOcrScanService = (
+  OcrScanServiceModule as {
+    createOcrScanService: (options?: OcrScanServiceFactoryOptions) => OcrScanService;
+  }
+).createOcrScanService;
 
 type OcrSidecarRequest =
   | {
@@ -55,7 +93,7 @@ type OcrSidecarEvent = {
 const startedAt = new Date().toISOString();
 const sidecarLogger = logger.scope('ocr-sidecar');
 const isBenchmarkMode = process.env.EXILE_DIARY_OCR_BENCHMARK_MODE === '1';
-const service = createOcrScanService({
+const service: OcrScanService = createOcrScanService({
   currentMainDir: __dirname,
   isDev: Boolean(process.env.ELECTRON_RENDERER_URL),
   persistMatchedMods: isBenchmarkMode ? async () => null : undefined,
@@ -85,7 +123,9 @@ const service = createOcrScanService({
   },
 });
 
-function sendMessage(message: { type: 'ready'; pid: number; startedAt: string } | OcrSidecarResponse | OcrSidecarEvent) {
+function sendMessage(
+  message: { type: 'ready'; pid: number; startedAt: string } | OcrSidecarResponse | OcrSidecarEvent
+) {
   if (typeof process.send === 'function') {
     process.send(message);
   }

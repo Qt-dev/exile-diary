@@ -35,7 +35,9 @@ const runtimeCore = createRuntimeCore();
 
 let runtimeStarted = false;
 
-function sendMessage(message: RuntimeSidecarReadyMessage | RuntimeSidecarResponse | RuntimeSidecarEvent) {
+function sendMessage(
+  message: RuntimeSidecarReadyMessage | RuntimeSidecarResponse | RuntimeSidecarEvent
+) {
   if (typeof process.send === 'function') {
     process.send(message);
   }
@@ -77,21 +79,20 @@ function createRendererRuntimeDeps(): RendererRuntimeDependencies {
 
 const rendererRuntime = createRendererRuntimeService(createRendererRuntimeDeps());
 
-const rendererMethodHandlers = runtimeRendererMethodKeys.reduce(
-  (handlers, method) => {
-    handlers[method] = (...args: any[]) => rendererRuntime[method](...args);
-    return handlers;
-  },
-  {} as Record<RuntimeRendererMethodKey, (...args: any[]) => Promise<unknown>>
-);
+const rendererMethodHandlers = runtimeRendererMethodKeys.reduce((handlers, method) => {
+  handlers[method] = (...args: any[]) => (rendererRuntime[method] as any)(...args);
+  return handlers;
+}, {} as Record<RuntimeRendererMethodKey, (...args: any[]) => Promise<unknown>>);
 
 const runtimeMethodHandlers: Record<RuntimeMethodKey, (...args: any[]) => Promise<unknown>> = {
   'runTracking.refreshTracking': async () => runtimeCore.runTracking.refreshTracking(),
-  'runTracking.setCurrentMapStats': async (stats) => runtimeCore.runTracking.setCurrentMapStats(stats),
+  'runTracking.setCurrentMapStats': async (stats) =>
+    runtimeCore.runTracking.setCurrentMapStats(stats),
   'runTracking.tryProcess': async (payload) => runtimeCore.runTracking.tryProcess(payload),
   'runTracking.tryUpdateCurrentArea': async () => runtimeCore.runTracking.tryUpdateCurrentArea(),
   'runTracking.getLatestGeneratedArea': async () => runtimeCore.runTracking.latestGeneratedArea,
-  'pricing.getCurrencyByName': async (...args) => runtimeCore.pricing.getCurrencyByName(...args),
+  'pricing.getCurrencyByName': async (...args) =>
+    runtimeCore.pricing.getCurrencyByName(...(args as [string, string?, string?])),
   'pricing.updateRates': async () => runtimeCore.pricing.updateRates(),
   'stats.triggerProfitPerHourAnnouncer': async () =>
     runtimeCore.stats.triggerProfitPerHourAnnouncer(),
@@ -244,13 +245,10 @@ async function startBackgroundRuntime() {
         return;
       }
 
-      const prices = itemsValues.reduce(
-        (aggregations, { id, value }) => {
-          aggregations[id] = value;
-          return aggregations;
-        },
-        {} as Record<string, number>
-      );
+      const prices = itemsValues.reduce((aggregations, { id, value }) => {
+        aggregations[id] = value;
+        return aggregations;
+      }, {} as Record<string, number>);
 
       sendEvent(runtimeSidecarEventNames.pricesUpdated, { prices });
     },

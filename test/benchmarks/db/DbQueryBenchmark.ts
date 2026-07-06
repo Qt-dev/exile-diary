@@ -216,7 +216,9 @@ function printHumanReadableReport(report: DbBenchmarkReport) {
   }
   for (const result of report.cases) {
     console.log(`Running case: ${result.name}...`);
-    console.log(`${result.name}: total=${result.totalMs.toFixed(2)}ms avg=${result.avgMs.toFixed(4)}ms`);
+    console.log(
+      `${result.name}: total=${result.totalMs.toFixed(2)}ms avg=${result.avgMs.toFixed(4)}ms`
+    );
   }
 }
 

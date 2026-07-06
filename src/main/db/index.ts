@@ -570,10 +570,7 @@ const Migrations = {
         `CREATE INDEX IF NOT EXISTS "graftblood_timestamp" ON "graftblood" ("timestamp")`,
         `pragma user_version = 17`,
       ],
-      [
-        `ALTER TABLE item ADD COLUMN valuation TEXT`,
-        `pragma user_version = 18`,
-      ],
+      [`ALTER TABLE item ADD COLUMN valuation TEXT`, `pragma user_version = 18`],
     ],
     maintenance: [
       `delete from incubator where timestamp < (select min(timestamp) from (select timestamp from incubator order by timestamp desc limit 25))`,

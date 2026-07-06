@@ -14,6 +14,8 @@ import SearchManager from '../SearchManager';
 import RateGetterV2 from '../modules/RateGetterV2';
 import ItemsDB from '../db/repositories/items';
 
+type Awaitable<T> = T | Promise<T>;
+
 export type RendererRuntimeDependencies = {
   runs: {
     getLastRuns: (size: number) => Promise<any[]>;
@@ -29,7 +31,7 @@ export type RendererRuntimeDependencies = {
     getAllStashTabs: () => Promise<any[]>;
   };
   authManager: {
-    getAuthInfo: () => Promise<{ code_challenge: string; state: string }>;
+    getAuthInfo: () => Awaitable<{ code_challenge: string; state: string }>;
     isAuthenticated: () => Promise<boolean>;
     logout: () => Promise<void>;
   };
@@ -37,6 +39,7 @@ export type RendererRuntimeDependencies = {
     getAllStats: (params: { league?: string; characterName?: string }) => Promise<any>;
     getAllMapNames: () => Promise<string[]>;
     getAllPossibleMods: () => Promise<string[]>;
+    registerProfitPerHourAnnouncer?: (callback: (...args: any[]) => void) => void;
     triggerProfitPerHourAnnouncer: () => void;
   };
   stashTabsManager: {
@@ -47,7 +50,7 @@ export type RendererRuntimeDependencies = {
     refreshInterval: () => void;
   };
   rendererLogger: {
-    log: (payload: { messages: Array<Record<string, any>> }) => void;
+    log: (payload: { messages: Array<Record<string, any>>; onOverlay?: boolean }) => void;
   };
   clientTxtWatcher: {
     checkValidLogfile: (path: string) => void;

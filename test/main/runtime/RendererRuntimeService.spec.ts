@@ -280,9 +280,7 @@ describe('RendererRuntimeService', () => {
     expect(deps.rateGetter.update).toHaveBeenCalledWith(true);
     expect(deps.stashTabsManager.refresh).toHaveBeenCalledTimes(1);
     expect(deps.runParser.recheckGained).toHaveBeenCalledWith('2026-07-01', '2026-07-04');
-    expect(deps.itemsDb.updateIgnoredItems).toHaveBeenCalledWith([
-      { id: 'item-1', status: true },
-    ]);
+    expect(deps.itemsDb.updateIgnoredItems).toHaveBeenCalledWith([{ id: 'item-1', status: true }]);
   });
 
   it('scopes each use-case to a narrowed dependency contract', async () => {

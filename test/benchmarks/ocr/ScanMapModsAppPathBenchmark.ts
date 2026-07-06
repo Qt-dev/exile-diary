@@ -326,7 +326,9 @@ export async function runScanMapModsAppPathBenchmark({
     sidecar,
     deltasMs: {
       startup: round(sidecar.startupMs - inProcess.startupMs),
-      wallTotalMedian: round(sidecar.summaries.wallTotal.median - inProcess.summaries.wallTotal.median),
+      wallTotalMedian: round(
+        sidecar.summaries.wallTotal.median - inProcess.summaries.wallTotal.median
+      ),
       wallTotalP95: round(sidecar.summaries.wallTotal.p95 - inProcess.summaries.wallTotal.p95),
       bridgeOverheadMedian: round(
         sidecar.summaries.bridgeOverhead.median - inProcess.summaries.bridgeOverhead.median

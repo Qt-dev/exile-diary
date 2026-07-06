@@ -153,14 +153,16 @@ class ParserBenchmark {
 
     for (const dataset of report.datasets) {
       console.log(
-        `${dataset.datasetName} (${DATASET_MAP[dataset.datasetName].length} strings, ${dataset.corruptionRate.toFixed(
-          1
-        )}% corruption)`
+        `${dataset.datasetName} (${
+          DATASET_MAP[dataset.datasetName].length
+        } strings, ${dataset.corruptionRate.toFixed(1)}% corruption)`
       );
 
       for (const result of dataset.results) {
         console.log(
-          `  ${result.implementation}: ${result.totalTime.toFixed(2)}ms total, ${result.accuracy.toFixed(1)}% accuracy`
+          `  ${result.implementation}: ${result.totalTime.toFixed(
+            2
+          )}ms total, ${result.accuracy.toFixed(1)}% accuracy`
         );
       }
       console.log('');

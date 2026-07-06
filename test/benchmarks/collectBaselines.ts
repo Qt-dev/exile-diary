@@ -2,9 +2,7 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 import { runAppLifecycleBenchmark } from './app/AppLifecycleBenchmark';
 import { runBenchmarks as runDbBenchmarks, type DbBenchmarkReport } from './db/DbQueryBenchmark';
-import ParserBenchmark, {
-  type StringParserBenchmarkReport,
-} from './string-match/ParserBenchmark';
+import ParserBenchmark, { type StringParserBenchmarkReport } from './string-match/ParserBenchmark';
 import { slugifyMetricName, summarizeSamples } from './shared/stats';
 
 type AggregatedMetric = {

@@ -129,10 +129,7 @@ function createOcrScanService({
     };
   }
 
-  async function preprocessAndRecognize({
-    screenshotBuffer,
-    debugArtifactDir,
-  }) {
+  async function preprocessAndRecognize({ screenshotBuffer, debugArtifactDir }) {
     const firstPass = await piscina.run(
       {
         screenshotBuffer,
@@ -225,11 +222,7 @@ function createOcrScanService({
       ? async () => null
       : defaultPersistMatchedMods);
 
-  async function scanScreenshotBuffer(
-    screenshotBuffer,
-    job,
-    { captureMs = 0 } = {}
-  ) {
+  async function scanScreenshotBuffer(screenshotBuffer, job, { captureMs = 0 } = {}) {
     await ensureStarted();
 
     const debugArtifactDir = getDebugArtifactDir(job);

@@ -1,10 +1,7 @@
 import StashGetter from '../../modules/StashGetter';
 import StashTabsManager from '../../StashTabsManager';
 
-export function createStashService(
-  stashGetter = StashGetter,
-  stashTabsManager = StashTabsManager
-) {
+export function createStashService(stashGetter = StashGetter, stashTabsManager = StashTabsManager) {
   return {
     initialize: stashGetter.initialize.bind(stashGetter),
     getNetWorth: stashGetter.getNetWorth.bind(stashGetter),

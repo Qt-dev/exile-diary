@@ -5,10 +5,7 @@ import AuthManager from '../AuthManager';
 import RendererLogger from '../RendererLogger';
 import Utils from '../modules/Utils';
 import { OverlayController } from 'electron-overlay-window';
-import {
-  rendererEventChannels,
-  sendChannels,
-} from '../../shared/contracts/exileDiaryApi';
+import { rendererEventChannels, sendChannels } from '../../shared/contracts/exileDiaryApi';
 import { createRuntimeCore, RuntimeCore } from '../runtime-core/RuntimeCore';
 import { createOverlayPublisher } from '../runtime-core/services/createOverlayPublisher';
 import { createRuntimeSidecarBridge, RuntimeSidecarBridge } from './createRuntimeSidecarBridge';
@@ -57,9 +54,10 @@ function buildRunState(area: {
   };
 }
 
-function registerSearchBridge({
-  sendToMain,
-}: Pick<RegisterRuntimeListenersDependencies, 'sendToMain'>, runtime: RuntimeCore) {
+function registerSearchBridge(
+  { sendToMain }: Pick<RegisterRuntimeListenersDependencies, 'sendToMain'>,
+  runtime: RuntimeCore | RuntimeSidecarBridge
+) {
   runtime.search.registerMessageHandler((event, data) => {
     sendToMain(event, data);
   });
@@ -68,7 +66,9 @@ function registerSearchBridge({
 function registerOcrListeners(
   deps: RegisterRuntimeListenersDependencies,
   state: ListenerState,
-  settings: ReturnType<RuntimeCore['settings']['getAll']> | ReturnType<RuntimeSidecarBridge['settings']['getAll']>,
+  settings:
+    | ReturnType<RuntimeCore['settings']['getAll']>
+    | ReturnType<RuntimeSidecarBridge['settings']['getAll']>,
   runtime: RuntimeCore | RuntimeSidecarBridge,
   overlayPublisher: ReturnType<typeof createOverlayPublisher>
 ) {
@@ -180,47 +180,47 @@ function registerOcrListeners(
   runtime.screenshots.emitter.on(
     'screenshot:capture',
     async (payload?: { trigger?: 'manual' | 'map-enter' | 'retry' }) => {
-    if (state.screenshotLock) {
-      logger.info('Not accepting new screenshot orders while this screenshot is being parsed');
-      return;
-    }
+      if (state.screenshotLock) {
+        logger.info('Not accepting new screenshot orders while this screenshot is being parsed');
+        return;
+      }
 
-    state.modReadingTimer = dayjs();
-    state.screenshotLock = true;
-    logger.info('Map Info : Reading from screenshot');
-    overlayPublisher.log({
-      messages: [{ text: 'Map Info : Reading from screenshot' }],
-    });
-
-    deps.overlayWindow.hide();
-    const captureStartedAt = performance.now();
-    const screenshot = OverlayController.screenshot();
-    deps.overlayWindow.show();
-    const { width, height } = OverlayController.targetBounds;
-    const nativeScreenshot = nativeImage
-      .createFromBitmap(screenshot, { width, height })
-      .toJPEG(100);
-    const captureMs = performance.now() - captureStartedAt;
-
-    try {
-      await runtime.screenshots.process(nativeScreenshot, {
-        trigger: payload?.trigger ?? 'manual',
-        captureMs,
-      });
-    } catch (error) {
-      logger.error('Error in screenshot processing', error);
+      state.modReadingTimer = dayjs();
+      state.screenshotLock = true;
+      logger.info('Map Info : Reading from screenshot');
       overlayPublisher.log({
-        messages: [
-          {
-            text: 'Error in screenshot processing. Check logs for more info.',
-            type: 'error',
-          },
-        ],
+        messages: [{ text: 'Map Info : Reading from screenshot' }],
       });
-    }
 
-    logger.info('Map info : Reading done');
-    state.screenshotLock = false;
+      deps.overlayWindow.hide();
+      const captureStartedAt = performance.now();
+      const screenshot = OverlayController.screenshot();
+      deps.overlayWindow.show();
+      const { width, height } = OverlayController.targetBounds;
+      const nativeScreenshot = nativeImage
+        .createFromBitmap(screenshot, { width, height })
+        .toJPEG(100);
+      const captureMs = performance.now() - captureStartedAt;
+
+      try {
+        await runtime.screenshots.process(nativeScreenshot, {
+          trigger: payload?.trigger ?? 'manual',
+          captureMs,
+        });
+      } catch (error) {
+        logger.error('Error in screenshot processing', error);
+        overlayPublisher.log({
+          messages: [
+            {
+              text: 'Error in screenshot processing. Check logs for more info.',
+              type: 'error',
+            },
+          ],
+        });
+      }
+
+      logger.info('Map info : Reading done');
+      state.screenshotLock = false;
     }
   );
   runtime.screenshots.emitter.on('screenshot:timeout', async () => {
@@ -448,7 +448,8 @@ function registerSettingsListeners(
           ],
         });
       }, 1000);
-      runtime.settings.waitForSave()
+      runtime.settings
+        .waitForSave()
         .then(() => {
           app.relaunch();
           app.quit();

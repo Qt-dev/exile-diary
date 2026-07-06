@@ -6,7 +6,7 @@ let Renderer: any = null;
 let OverlayRenderer: any = null;
 
 type Message = {
-  text: string;
+  text?: string;
   type?: string;
   link?: string;
   linkEvent?: string;
@@ -29,7 +29,13 @@ const RendererLogger = {
     Renderer = renderer;
     OverlayRenderer = overlayRenderer;
   },
-  log: ({ messages, onOverlay = true }: { messages: Message[]; onOverlay?: boolean }) => {
+  log: ({
+    messages,
+    onOverlay = true,
+  }: {
+    messages: Array<Record<string, any>>;
+    onOverlay?: boolean;
+  }) => {
     addToHistory(messages);
     if (!Renderer) {
       logger.error('Renderer not initialized');

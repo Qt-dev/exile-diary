@@ -228,8 +228,7 @@ function spawnSidecar() {
       ...process.env,
       ELECTRON_RUN_AS_NODE: '1',
       EXILE_DIARY_APP_VERSION: process.env.EXILE_DIARY_APP_VERSION || getAppVersion(),
-      EXILE_DIARY_IS_PACKAGED:
-        process.env.EXILE_DIARY_IS_PACKAGED || String(getIsPackaged()),
+      EXILE_DIARY_IS_PACKAGED: process.env.EXILE_DIARY_IS_PACKAGED || String(getIsPackaged()),
       EXILE_DIARY_USER_DATA_PATH: userDataPath,
     },
     execArgv: isDev ? ['--require', 'tsx/cjs'] : [],
@@ -296,7 +295,8 @@ async function refreshHealth({ allowRestartOnFailure = false } = {}) {
     })
     .catch((error) => {
       consecutiveHealthCheckFailures += 1;
-      const shouldRestart = allowRestartOnFailure &&
+      const shouldRestart =
+        allowRestartOnFailure &&
         consecutiveHealthCheckFailures >= MaxConsecutiveHealthCheckFailures;
 
       emitHealthUpdate({

@@ -7,9 +7,7 @@ type RuntimePathOptions = {
 };
 
 function getBundledMainRoot(currentMainDir = __dirname) {
-  return path.basename(currentMainDir) === 'chunks'
-    ? path.dirname(currentMainDir)
-    : currentMainDir;
+  return path.basename(currentMainDir) === 'chunks' ? path.dirname(currentMainDir) : currentMainDir;
 }
 
 export function getPreloadBundlePath(currentMainDir = __dirname) {

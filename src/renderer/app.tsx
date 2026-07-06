@@ -160,11 +160,7 @@ export const createAppRoutes = ({
   },
 ];
 
-function SearchRoute({
-  createSearchDataStore,
-}: {
-  createSearchDataStore: () => SearchDataStore;
-}) {
+function SearchRoute({ createSearchDataStore }: { createSearchDataStore: () => SearchDataStore }) {
   return <Search store={createSearchDataStore()} />;
 }
 

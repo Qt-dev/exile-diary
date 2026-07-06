@@ -64,7 +64,9 @@ describe('registerShellHandlers', () => {
     const onCalls = electron.ipcMain.on as jest.Mock;
     const handleCalls = electron.ipcMain.handle as jest.Mock;
 
-    const refreshUiHandler = onCalls.mock.calls.find(([channel]) => channel === sendChannels.refreshUi)?.[1];
+    const refreshUiHandler = onCalls.mock.calls.find(
+      ([channel]) => channel === sendChannels.refreshUi
+    )?.[1];
     const notifyFiltersHandler = onCalls.mock.calls.find(
       ([channel]) => channel === sendChannels.notifyFiltersUiUpdated
     )?.[1];

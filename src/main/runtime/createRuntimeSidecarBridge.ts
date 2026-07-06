@@ -9,7 +9,8 @@ const searchCallbackEmitter = new EventEmitter();
 export function createRuntimeSidecarBridge() {
   return {
     settings: {
-      get: (key: string) => RuntimeSidecarClient.getSettingsSnapshot()?.[key] ?? SettingsManager.get(key),
+      get: (key: string) =>
+        RuntimeSidecarClient.getSettingsSnapshot()?.[key] ?? SettingsManager.get(key),
       getAll: () => ({
         ...SettingsManager.getAll(),
         ...RuntimeSidecarClient.getSettingsSnapshot(),
@@ -24,9 +25,12 @@ export function createRuntimeSidecarBridge() {
         searchCallbackEmitter.removeAllListeners('message');
         searchCallbackEmitter.on('message', ({ event, data }) => listener(event, data));
         RuntimeSidecarClient.searchEmitter.removeAllListeners('message');
-        RuntimeSidecarClient.searchEmitter.on('message', (payload: { event: string; data: any }) => {
-          searchCallbackEmitter.emit('message', payload);
-        });
+        RuntimeSidecarClient.searchEmitter.on(
+          'message',
+          (payload: { event: string; data: any }) => {
+            searchCallbackEmitter.emit('message', payload);
+          }
+        );
       },
     },
     ocr: {
@@ -45,13 +49,14 @@ export function createRuntimeSidecarBridge() {
       get latestGeneratedArea() {
         return RuntimeSidecarClient.getLatestGeneratedArea();
       },
-      refreshTracking: () => RuntimeSidecarClient.callRuntimeMethod('runTracking.refreshTracking'),
+      refreshTracking: () =>
+        RuntimeSidecarClient.callRuntimeMethod<void>('runTracking.refreshTracking'),
       setCurrentMapStats: (stats: Record<string, any>) =>
-        RuntimeSidecarClient.callRuntimeMethod('runTracking.setCurrentMapStats', [stats]),
-      tryProcess: (payload: Record<string, any>) =>
-        RuntimeSidecarClient.callRuntimeMethod('runTracking.tryProcess', [payload]),
+        RuntimeSidecarClient.callRuntimeMethod<void>('runTracking.setCurrentMapStats', [stats]),
+      tryProcess: (payload: { event: Record<string, any> } | null) =>
+        RuntimeSidecarClient.callRuntimeMethod<boolean>('runTracking.tryProcess', [payload]),
       tryUpdateCurrentArea: () =>
-        RuntimeSidecarClient.callRuntimeMethod('runTracking.tryUpdateCurrentArea'),
+        RuntimeSidecarClient.callRuntimeMethod<boolean>('runTracking.tryUpdateCurrentArea'),
     },
     stats: {
       registerProfitPerHourAnnouncer: (listener: (...args: any[]) => void) => {
@@ -63,17 +68,20 @@ export function createRuntimeSidecarBridge() {
         );
       },
       triggerProfitPerHourAnnouncer: () =>
-        RuntimeSidecarClient.callRuntimeMethod('stats.triggerProfitPerHourAnnouncer'),
+        RuntimeSidecarClient.callRuntimeMethod<void>('stats.triggerProfitPerHourAnnouncer'),
     },
     pricing: {
       getCurrencyByName: (...args: any[]) =>
-        RuntimeSidecarClient.callRuntimeMethod('pricing.getCurrencyByName', args),
-      updateRates: () => RuntimeSidecarClient.callRuntimeMethod('pricing.updateRates'),
+        RuntimeSidecarClient.callRuntimeMethod<number>('pricing.getCurrencyByName', args),
+      updateRates: () => RuntimeSidecarClient.callRuntimeMethod<void>('pricing.updateRates'),
     },
     inventory: {
-      getInventoryDiffs: () => Promise.resolve([]),
-      compareInventories: () => Promise.resolve([]),
-      getInventory: () => Promise.resolve([]),
+      getInventoryDiffs: () => Promise.resolve({}),
+      compareInventories: () => ({}),
+      getInventory: () => ({
+        mainInventory: {},
+        equippedItems: {},
+      }),
     },
     killTracker: {
       emitter: RuntimeSidecarClient.killTrackerEmitter,
@@ -91,8 +99,8 @@ export function createRuntimeSidecarBridge() {
     },
     stash: {
       initialize: () => undefined,
-      getNetWorth: () => RuntimeSidecarClient.callRuntimeMethod('stash.getNetWorth'),
-      refresh: () => RuntimeSidecarClient.callRuntimeMethod('stash.refresh'),
+      getNetWorth: () => RuntimeSidecarClient.callRuntimeMethod<void>('stash.getNetWorth'),
+      refresh: () => RuntimeSidecarClient.callRuntimeMethod<void>('stash.refresh'),
       on: (event: string, listener: (...args: any[]) => void) =>
         RuntimeSidecarClient.stashEmitter.on(event, listener),
       removeAllListeners: () => RuntimeSidecarClient.stashEmitter.removeAllListeners(),

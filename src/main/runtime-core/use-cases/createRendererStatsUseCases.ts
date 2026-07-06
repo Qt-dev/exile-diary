@@ -9,11 +9,7 @@ export function createRendererStatsUseCases(deps: RendererStatsUseCaseDependenci
       const league = params?.league ?? profile?.league;
       const characterName = params?.characterName ?? profile?.characterName;
       const stats = await deps.statsManager.getAllStats({ league, characterName });
-      stats.divinePrice = await deps.itemPricer.getCurrencyByName(
-        'Divine Orb',
-        deps.now(),
-        league
-      );
+      stats.divinePrice = await deps.itemPricer.getCurrencyByName('Divine Orb', deps.now(), league);
       return stats;
     },
 

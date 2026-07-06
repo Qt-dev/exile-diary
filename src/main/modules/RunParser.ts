@@ -275,11 +275,10 @@ const RunParser = {
           importantDrops[item.typeline] = (importantDrops[item.typeline] || 0) + 1;
         }
 
-        let price = await ItemPricer.price(item);
+        const price = await ItemPricer.price(item);
         // logger.debug('Found price: ', price, item);
         if (price.isVendor) {
           totalValue += price.value;
-          price = 0;
         } else {
           totalValue += price.value;
         }
@@ -1086,7 +1085,12 @@ const RunParser = {
         oldTotalProfit += item.value;
         totalProfit += value;
         if (value !== item.value || JSON.stringify(explanation) !== item.valuation) {
-          itemsToUpdate.push({ value, valuation: explanation, id: item.id, eventId: item.event_id });
+          itemsToUpdate.push({
+            value,
+            valuation: explanation,
+            id: item.id,
+            eventId: item.event_id,
+          });
         }
       }
       if (itemsToUpdate.length > 0) {

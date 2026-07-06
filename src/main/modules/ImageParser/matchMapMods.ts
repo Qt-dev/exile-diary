@@ -1,7 +1,4 @@
-import type {
-  ScanMapModsMatchedMod,
-  ScanMapModsResult,
-} from './ScanMapModsContract';
+import type { ScanMapModsMatchedMod, ScanMapModsResult } from './ScanMapModsContract';
 import { OCR_PRECISION_THRESHOLDS, resolveOcrPrecision } from './ocrPrecisionPolicy';
 import StringParser from '../StringParser/StringParser';
 
@@ -25,7 +22,9 @@ function buildMatchedMods(rawLines: string[], normalizedLines: string[]): ScanMa
     }));
 }
 
-export function matchMapMods(rawLines: string[]): Pick<
+export function matchMapMods(
+  rawLines: string[]
+): Pick<
   ScanMapModsResult,
   'rawLines' | 'normalizedLines' | 'matchedMods' | 'status' | 'diagnostics'
 > {

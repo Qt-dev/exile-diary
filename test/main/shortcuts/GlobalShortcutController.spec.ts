@@ -22,7 +22,7 @@ describe('GlobalShortcutController', () => {
           overlayMovementShortcut: 'Ctrl+9',
           runParseShortcut: 'Ctrl+10',
           screenshotShortcut: 'Ctrl+8',
-        })[key] ?? null,
+        }[key] ?? null),
       isRunParseScreenshotEnabled: () => true,
       areCustomScreenshotsEnabled: () => true,
       toggleOverlayPersistence,
@@ -56,7 +56,8 @@ describe('GlobalShortcutController', () => {
     );
 
     const overlayToggleCallback = (electron.globalShortcut.register as jest.Mock).mock.calls[0][1];
-    const overlayMovementCallback = (electron.globalShortcut.register as jest.Mock).mock.calls[1][1];
+    const overlayMovementCallback = (electron.globalShortcut.register as jest.Mock).mock
+      .calls[1][1];
     const runParseCallback = (electron.globalShortcut.register as jest.Mock).mock.calls[2][1];
     const screenshotCallback = (electron.globalShortcut.register as jest.Mock).mock.calls[3][1];
 

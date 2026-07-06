@@ -1,7 +1,12 @@
 import { fork, type ChildProcess } from 'node:child_process';
 import { EventEmitter } from 'events';
 import Logger from 'electron-log';
-import { runtimeSidecarEventNames } from '../../shared/contracts/runtimeSidecar';
+import {
+  runtimeSidecarEventNames,
+  type RuntimeMethodKey,
+  type RuntimeRendererMethodKey,
+  type RuntimeSidecarRequest,
+} from '../../shared/contracts/runtimeSidecar';
 import { getAppVersion, getIsPackaged, getUserDataPath } from './getUserDataPath';
 import { getRuntimeSidecarEntryPath } from './electronViteRuntimePaths';
 
@@ -37,16 +42,16 @@ let isStopping = false;
 let requestSequence = 0;
 let restartCount = 0;
 let consecutiveHealthCheckFailures = 0;
-let settingsSnapshot = {};
+let settingsSnapshot: Record<string, any> = {};
 let latestGeneratedArea = {
   name: '',
   level: 0,
-  depth: undefined,
+  depth: 0,
   iir: 0,
   pack_size: 0,
   iiq: 0,
-  seed: '',
-  run_id: undefined,
+  seed: 0,
+  run_id: 0,
 };
 let latestHealth = {
   status: 'stopped',
@@ -64,7 +69,7 @@ let latestHealth = {
 const pendingRequests = new Map<
   string,
   {
-    resolve: (value: unknown) => void;
+    resolve: (value: any) => void;
     reject: (error: Error) => void;
     timeout: NodeJS.Timeout;
   }
@@ -185,7 +190,7 @@ function routeEvent(eventName, payload) {
   }
 }
 
-function handleSidecarMessage(message) {
+function handleSidecarMessage(message: any) {
   if (!message || typeof message !== 'object') {
     return;
   }
@@ -387,14 +392,20 @@ function beginHealthChecks() {
   }
 }
 
-async function sendRequestInternal(command, payload = undefined, timeoutMs = RequestTimeoutMs) {
+async function sendRequestInternal<T = unknown>(
+  command: RuntimeSidecarRequest['command'],
+  payload: any = undefined,
+  timeoutMs = RequestTimeoutMs
+): Promise<T> {
   const requestId = `runtime-${++requestSequence}`;
 
   if (!sidecarProcess || !sidecarProcess.connected) {
     throw new Error('Runtime sidecar process is not available');
   }
 
-  return new Promise((resolve, reject) => {
+  const child = sidecarProcess;
+
+  return new Promise<T>((resolve, reject) => {
     const timeout = setTimeout(() => {
       pendingRequests.delete(requestId);
       reject(createTimeoutError(command, timeoutMs));
@@ -407,7 +418,7 @@ async function sendRequestInternal(command, payload = undefined, timeoutMs = Req
     });
 
     try {
-      sidecarProcess.send({
+      child.send({
         type: 'request',
         requestId,
         command,
@@ -430,7 +441,11 @@ export async function refreshHealth({ allowRestartOnFailure = false } = {}) {
     return healthCheckPromise;
   }
 
-  healthCheckPromise = sendRequestInternal('health-check', undefined, HealthCheckTimeoutMs)
+  healthCheckPromise = sendRequestInternal<Record<string, any>>(
+    'health-check',
+    undefined,
+    HealthCheckTimeoutMs
+  )
     .then((result) => {
       consecutiveHealthCheckFailures = 0;
       return emitHealthUpdate({
@@ -479,28 +494,35 @@ async function ensureStarted() {
   await refreshHealth();
 
   if (!Object.keys(settingsSnapshot).length) {
-    settingsSnapshot = await sendRequestInternal('renderer-method', {
+    settingsSnapshot = await sendRequestInternal<Record<string, any>>('renderer-method', {
       method: 'getSettings',
       args: [[]],
     });
   }
 }
 
-async function sendRequest(command, payload = undefined, timeoutMs = RequestTimeoutMs) {
+async function sendRequest<T = unknown>(
+  command: RuntimeSidecarRequest['command'],
+  payload: any = undefined,
+  timeoutMs = RequestTimeoutMs
+): Promise<T> {
   await ensureStarted();
-  return sendRequestInternal(command, payload, timeoutMs);
+  return sendRequestInternal<T>(command, payload, timeoutMs);
 }
 
 export async function start() {
   await ensureStarted();
 }
 
-export async function callRendererMethod(method: string, args: any[] = []) {
-  return sendRequest('renderer-method', { method, args });
+export async function callRendererMethod<T = unknown>(
+  method: RuntimeRendererMethodKey,
+  args: any[] = []
+) {
+  return sendRequest<T>('renderer-method', { method, args });
 }
 
-export async function callRuntimeMethod(method: string, args: any[] = []) {
-  return sendRequest('runtime-method', { method, args });
+export async function callRuntimeMethod<T = unknown>(method: RuntimeMethodKey, args: any[] = []) {
+  return sendRequest<T>('runtime-method', { method, args });
 }
 
 export async function stop() {
@@ -534,7 +556,7 @@ export async function stop() {
     logger.error('Unable to send runtime sidecar shutdown request', error);
   }
 
-  await new Promise((resolve) => {
+  await new Promise<void>((resolve) => {
     const killTimer = setTimeout(() => {
       if (!child.killed) {
         child.kill();

@@ -81,7 +81,7 @@ export type ItemValuationExplanation = {
 export type PriceResult = {
   isVendor: boolean;
   value: number;
-  explanation: ItemValuationExplanation;
+  explanation: ItemValuationExplanation | null;
 };
 
 function buildSnapshotId(league: string, date: string) {

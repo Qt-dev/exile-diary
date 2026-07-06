@@ -13,9 +13,7 @@ describe('RuntimeCore fixture regressions', () => {
   it('reconstructs seeded run events from captured client log slices', () => {
     const fixture = manifest.fixtures.runReconstruction[0];
     const input = fs.readFileSync(path.join(fixtureRoot, fixture.input), 'utf8');
-    const expected = JSON.parse(
-      fs.readFileSync(path.join(fixtureRoot, fixture.expected), 'utf8')
-    );
+    const expected = JSON.parse(fs.readFileSync(path.join(fixtureRoot, fixture.expected), 'utf8'));
 
     expect(parseClientLogFixture(input)).toEqual(expected);
   });
@@ -24,9 +22,7 @@ describe('RuntimeCore fixture regressions', () => {
     const fixture = manifest.fixtures.pricing[0];
     const items = JSON.parse(fs.readFileSync(path.join(fixtureRoot, fixture.items), 'utf8'));
     const rates = JSON.parse(fs.readFileSync(path.join(fixtureRoot, fixture.rates), 'utf8'));
-    const expected = JSON.parse(
-      fs.readFileSync(path.join(fixtureRoot, fixture.expected), 'utf8')
-    );
+    const expected = JSON.parse(fs.readFileSync(path.join(fixtureRoot, fixture.expected), 'utf8'));
 
     expect(priceFixtureItems(items, rates)).toEqual(expected);
   });
@@ -35,9 +31,7 @@ describe('RuntimeCore fixture regressions', () => {
     const fixture = manifest.fixtures.stashValuation[0];
     const items = JSON.parse(fs.readFileSync(path.join(fixtureRoot, fixture.input), 'utf8'));
     const rates = JSON.parse(fs.readFileSync(path.join(fixtureRoot, fixture.rates), 'utf8'));
-    const expected = JSON.parse(
-      fs.readFileSync(path.join(fixtureRoot, fixture.expected), 'utf8')
-    );
+    const expected = JSON.parse(fs.readFileSync(path.join(fixtureRoot, fixture.expected), 'utf8'));
 
     expect(valueFixtureStash(items, rates)).toEqual(expected);
   });

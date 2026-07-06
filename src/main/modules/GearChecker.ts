@@ -1,13 +1,14 @@
+import zlib from 'node:zlib';
+import logger from 'electron-log';
+import { deepEqual } from 'fast-equals';
 import GGGAPI from '../GGGAPI';
 import DB from '../db';
-const logger = require('electron-log');
-const Utils = require('./Utils').default;
-const zlib = require('zlib');
-const { deepEqual } = require('fast-equals');
+import Utils from './Utils';
+import settingsRepository from './settings';
 
-var settings;
+let settings: any;
 
-const gearSlots = [
+export const gearSlots = [
   'Helm',
   'Amulet',
   'BodyArmour',
@@ -22,8 +23,7 @@ const gearSlots = [
   //  "Offhand2"
 ];
 
-// special handling for these - can contain more than one item
-const multiGearSlots = [
+export const multiGearSlots = [
   'Weapons',
   'AmuletSockets',
   'BeltSockets',
@@ -38,7 +38,7 @@ const multiGearSlots = [
   'TreeJewels',
 ];
 
-const equipmentSlots = [
+export const equipmentSlots = [
   'Helm',
   'Amulet',
   'BodyArmour',
@@ -63,44 +63,40 @@ const flaskIgnoreProperties = [
   'Currently has {0} Charges',
 ];
 
-async function check(timestamp, eqp) {
+export async function check(timestamp: string, eqp: Record<string, any>) {
   if (!eqp) {
     logger.error('No equipment found in inventory. Skipping Gear change Check.');
     return;
   }
-  settings = require('./settings').get();
+
+  settings = settingsRepository.get();
   if (settings?.activeProfile?.noGearCheck) {
     logger.info('Gear checking disabled in settings');
     return;
   }
 
-  let currGear = {};
+  const currGear: Record<string, any> = {};
 
-  let eqpKeys = Object.keys(eqp);
+  const eqpKeys = Object.keys(eqp);
   for (let i = 0; i < eqpKeys.length; i++) {
-    let item = eqp[eqpKeys[i]];
+    const item = eqp[eqpKeys[i]];
     if (!item.inventoryId) continue;
 
     let inv = item.inventoryId;
-    // put all weapons into one set, to avoid unnecessary change logs for weapon swaps :-\
     if (['Weapon', 'Weapon2', 'Offhand', 'Offhand2'].includes(inv)) {
       inv = 'Weapons';
     }
 
     if (item.socketedItems) {
-      // bind socketed items to gear slot instead, to avoid unnecessary change logs when changing gear but keeping the same gems
       if (inv !== 'Weapons') {
-        currGear[inv + 'Sockets'] = item.socketedItems;
+        currGear[`${inv}Sockets`] = item.socketedItems;
       } else {
-        // put all weapon gem sets into one set :-\
-        currGear['WeaponsSockets'] = currGear['WeaponsSockets'] || [];
-        currGear['WeaponsSockets'] = [...currGear['WeaponsSockets'], ...item.socketedItems];
+        currGear.WeaponsSockets = currGear.WeaponsSockets || [];
+        currGear.WeaponsSockets = [...currGear.WeaponsSockets, ...item.socketedItems];
       }
     }
 
-    // avoid unnecessary change logs when migrating to a different league
     delete item.league;
-    // ignore incubators on item
     delete item.incubatedItem;
 
     if (inv === 'Flask' || inv === 'Weapons') {
@@ -111,51 +107,54 @@ async function check(timestamp, eqp) {
     }
   }
 
-  let jewels = await getEquippedJewels();
+  const jewels = await getEquippedJewels();
   if (jewels) {
-    currGear['TreeJewels'] = [];
+    currGear.TreeJewels = [];
     for (let i = 0; i < jewels.length; i++) {
-      currGear['TreeJewels'].push(jewels[i]);
+      currGear.TreeJewels.push(jewels[i]);
     }
   } else {
     logger.info('Error getting equipped jewels, will not check diffs for now');
     return;
   }
 
-  let prevGear = await getPreviousEquipment(timestamp, currGear);
+  const prevGear = await getPreviousEquipment(timestamp);
   if (!prevGear) {
     logger.info('Error getting previous gear, will not check diffs for now');
     return;
-  } else if (prevGear === 'none') {
-    insertEquipment(timestamp, currGear);
-  } else {
-    compareEquipment(timestamp, prevGear, currGear);
   }
+
+  if (prevGear === 'none') {
+    await insertEquipment(timestamp, currGear);
+    return;
+  }
+
+  await compareEquipment(timestamp, prevGear, currGear);
 }
 
 async function getEquippedJewels() {
   const skillTree = await GGGAPI.getSkillTree();
-  const jewels = skillTree.jewel_data;
-  return jewels;
+  return skillTree.jewel_data;
 }
 
-function getPreviousEquipment(timestamp) {
-  return new Promise((resolve, reject) => {
+function getPreviousEquipment(timestamp: string) {
+  return new Promise<any | 'none' | null>((resolve) => {
     DB.get('select data from gear where timestamp < ? order by timestamp desc limit 1', [timestamp])
       .then((row) => {
         if (!row) {
-          logger.info(`No previous equipment found!`);
+          logger.info('No previous equipment found!');
           resolve('none');
-        } else {
-          zlib.inflate(row.data, (err, buffer) => {
-            if (err) {
-              // old data - compression not implemented yet, just parse directly
-              resolve(JSON.parse(row.data));
-            } else {
-              resolve(JSON.parse(buffer.toString()));
-            }
-          });
+          return;
         }
+
+        zlib.inflate(row.data, (err, buffer) => {
+          if (err) {
+            resolve(JSON.parse(row.data));
+            return;
+          }
+
+          resolve(JSON.parse(buffer.toString()));
+        });
       })
       .catch((err) => {
         logger.info(`Unable to retrieve previous equipment: ${err}`);
@@ -164,34 +163,35 @@ function getPreviousEquipment(timestamp) {
   });
 }
 
-function compareEquipment(timestamp, prev, curr) {
-  let diffs = {};
+async function compareEquipment(
+  timestamp: string,
+  prev: Record<string, any>,
+  curr: Record<string, any>
+) {
+  const diffs: Record<string, { prev: any; curr: any }> = {};
 
-  for (var slot of gearSlots) {
+  for (const slot of gearSlots) {
     if (!prev[slot] && curr[slot]) {
       addDiff(slot, null, curr[slot]);
-    } else if (!prev[slot] && curr[slot]) {
+    } else if (prev[slot] && !curr[slot]) {
       addDiff(slot, prev[slot], null);
-    } else {
-      if (!itemsEqual(prev[slot], curr[slot])) {
-        addDiff(slot, prev[slot], curr[slot]);
-      }
+    } else if (!itemsEqual(prev[slot], curr[slot])) {
+      addDiff(slot, prev[slot], curr[slot]);
     }
   }
 
-  for (var slot of multiGearSlots) {
+  for (const slot of multiGearSlots) {
     prev[slot] = prev[slot] || [];
     curr[slot] = curr[slot] || [];
 
-    let prevTemp = JSON.parse(JSON.stringify(prev[slot]));
-    let currTemp = JSON.parse(JSON.stringify(curr[slot]));
+    const prevTemp = JSON.parse(JSON.stringify(prev[slot]));
+    const currTemp = JSON.parse(JSON.stringify(curr[slot]));
 
     for (let i = prevTemp.length - 1; i >= 0; i--) {
-      let p = prevTemp[i];
+      const previousItem = prevTemp[i];
       for (let j = currTemp.length - 1; j >= 0; j--) {
-        let c = currTemp[j];
-        if (itemsEqual(p, c)) {
-          //logger.info(`Found same ${slot} in prev${i} and curr${j}`);
+        const currentItem = currTemp[j];
+        if (itemsEqual(previousItem, currentItem)) {
           prevTemp.splice(i, 1);
           currTemp.splice(j, 1);
           break;
@@ -201,40 +201,40 @@ function compareEquipment(timestamp, prev, curr) {
 
     if (prevTemp.length > 0 || currTemp.length > 0) {
       addDiff(slot, prevTemp, currTemp);
-    } else {
-      //logger.info(`No diffs found in ${slot}`);
     }
   }
 
   if (Object.keys(diffs).length > 0) {
     logger.info('Inserting equipment diff');
-    insertEquipment(timestamp, curr, diffs);
+    await insertEquipment(timestamp, curr, diffs);
   } else {
     logger.info('No diffs found in equipment, returning');
   }
 
-  function addDiff(s, p, c) {
-    logger.info(`Diffs found in ${s}`);
-    diffs[s] = { prev: p, curr: c };
+  function addDiff(slot: string, previousValue: any, currentValue: any) {
+    logger.info(`Diffs found in ${slot}`);
+    diffs[slot] = { prev: previousValue, curr: currentValue };
   }
 }
 
-function itemsEqual(a, b) {
-  if (!a || !b) return a == b;
+export function itemsEqual(a: any, b: any) {
+  if (!a || !b) {
+    return a == b;
+  }
+
   return deepEqual(getTempItem(a), getTempItem(b));
 }
 
-function getTempItem(item) {
+function getTempItem(item: any) {
   let tempItem;
   try {
     tempItem = JSON.parse(JSON.stringify(item));
-  } catch (e) {
-    logger.info(`Error parsing, item follows`);
+  } catch (error) {
+    logger.info('Error parsing, item follows');
     logger.info(JSON.stringify(item));
   }
 
   if (tempItem.inventoryId === 'Flask' && tempItem.properties) {
-    // ignore flask charges and enchantment mods
     delete tempItem.enchantMods;
     for (let i = tempItem.properties.length - 1; i >= 0; i--) {
       if (flaskIgnoreProperties.includes(tempItem.properties[i].name)) {
@@ -243,27 +243,25 @@ function getTempItem(item) {
     }
   }
 
-  // remove icon (ignore flask icon changes)
   delete tempItem.icon;
-  // remove inventory id (ignore weapon swaps)
   delete tempItem.inventoryId;
-  // remove requirements (may be changed by socketed gems)
   delete tempItem.requirements;
-  // remove additionalProperties (only contains XP on skill gems)
   delete tempItem.additionalProperties;
-  // remove socketed items
   delete tempItem.socketedItems;
-
-  // ignore jewel socket position on tree
   delete tempItem.x;
   delete tempItem.y;
 
   return tempItem;
 }
 
-async function insertEquipment(timestamp, currData, diffData = '') {
-  let data = await Utils.compress(currData);
-  let diff = JSON.stringify(diffData);
+async function insertEquipment(
+  timestamp: string,
+  currData: Record<string, any>,
+  diffData: any = ''
+) {
+  const data = await Utils.compress(currData);
+  const diff = JSON.stringify(diffData);
+
   DB.run('insert into gear(timestamp, data, diff) values(?, ?, ?)', [timestamp, data, diff])
     .then(() => {
       logger.info(
@@ -275,8 +273,10 @@ async function insertEquipment(timestamp, currData, diffData = '') {
     });
 }
 
-module.exports.check = check;
-module.exports.itemsEqual = itemsEqual;
-module.exports.gearSlots = gearSlots;
-module.exports.multiGearSlots = multiGearSlots;
-module.exports.equipmentSlots = equipmentSlots;
+export default {
+  check,
+  itemsEqual,
+  gearSlots,
+  multiGearSlots,
+  equipmentSlots,
+};

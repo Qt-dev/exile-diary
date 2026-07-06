@@ -5,21 +5,22 @@ const rootDir = path.resolve(__dirname, '../../..');
 
 describe('electron-vite build contract', () => {
   it('keeps package scripts and entry outputs aligned with electron-vite', () => {
-    const packageJson = JSON.parse(
-      fs.readFileSync(path.join(rootDir, 'package.json'), 'utf8')
-    ) as {
+    const packageJson = JSON.parse(fs.readFileSync(path.join(rootDir, 'package.json'), 'utf8')) as {
       main: string;
       scripts: Record<string, string>;
     };
 
     expect(packageJson.main).toBe('./out/electron/main/index.js');
+    expect(packageJson.scripts.build).toBe('npm run build:app');
     expect(packageJson.scripts.start).toBe('electron-vite preview');
     expect(packageJson.scripts.dev).toContain('watch-electron-assets.mjs');
     expect(packageJson.scripts.dev).toContain('electron-vite dev');
-    expect(packageJson.scripts).not.toHaveProperty('build');
     expect(packageJson.scripts).not.toHaveProperty('build_app');
+    expect(packageJson.scripts).not.toHaveProperty('pack');
+    expect(packageJson.scripts).not.toHaveProperty('dist');
     expect(packageJson.scripts['build:app']).toContain('electron-vite build');
     expect(packageJson.scripts['build:app']).toContain('sync:electron-assets');
+    expect(packageJson.scripts['package:dir']).toContain('electron-builder --dir');
     expect(packageJson.scripts['test:app:smoke']).toContain('npm run build:app');
   });
 

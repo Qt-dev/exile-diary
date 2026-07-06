@@ -78,10 +78,7 @@ describe('renderer warning regressions', () => {
               {
                 id: 'log-1',
                 timestamp: { format: () => '2026-07-05 00:00:00' },
-                messages: [
-                  { text: 'Alpha' },
-                  { text: 'Beta', type: 'important' },
-                ],
+                messages: [{ text: 'Alpha' }, { text: 'Beta', type: 'important' }],
               },
             ],
           }}
@@ -108,10 +105,7 @@ describe('renderer warning regressions', () => {
 
     render(
       <MemoryRouter>
-        <RunNavigation
-          run={{ id: '1', runId: '1' }}
-          store={store}
-        />
+        <RunNavigation run={{ id: '1', runId: '1' }} store={store} />
       </MemoryRouter>
     );
 

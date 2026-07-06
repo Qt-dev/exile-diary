@@ -19,7 +19,7 @@ type RuntimeCoreBaselineReport = {
   reports: [
     RuntimeCoreRunBenchmarkReport,
     RuntimeCorePricingBenchmarkReport,
-    RuntimeCoreStashBenchmarkReport,
+    RuntimeCoreStashBenchmarkReport
   ];
 };
 

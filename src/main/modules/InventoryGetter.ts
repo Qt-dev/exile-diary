@@ -28,7 +28,7 @@ class InventoryGetter extends EventEmitter {
       this.on('equipment', GearChecker.check);
     }
 
-    logger.info(`Inventory getter started with query path ${this.queryPath}`);
+    logger.info('Inventory getter started');
   }
 
   async getInventoryDiffs(timestamp: string) {
@@ -73,7 +73,9 @@ class InventoryGetter extends EventEmitter {
 
   async getPreviousInventory() {
     try {
-      const rows = await DB.all('SELECT timestamp, inventory FROM last_inventory ORDER BY timestamp DESC');
+      const rows = await DB.all(
+        'SELECT timestamp, inventory FROM last_inventory ORDER BY timestamp DESC'
+      );
       if (rows.length === 0) {
         return {};
       }

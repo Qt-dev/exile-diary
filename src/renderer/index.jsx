@@ -8,7 +8,6 @@ import { createHashRouter, RouterProvider } from 'react-router-dom';
 import { ThemeProvider } from '@mui/material/styles';
 import { rendererBootEvent } from '../shared/contracts/exileDiaryApi';
 import './index.css';
-import reportWebVitals from './reportWebVitals';
 import RunStore from './stores/runStore';
 import CharacterStore from './stores/characterStore';
 import StashTabStore from './stores/stashTabStore';
@@ -53,5 +52,3 @@ if (documentRoot !== null) {
     });
   }
 }
-
-reportWebVitals();

@@ -6,6 +6,7 @@ import DB from '../db/stashtabs';
 import Item from '../models/Item';
 import RatesGetterV2 from './RateGetterV2';
 import ItemPricer from './ItemPricer';
+import type { PriceResult } from './ItemPricer';
 import dayjs from 'dayjs';
 import RendererLogger from '../RendererLogger';
 const EventEmitter = require('events');
@@ -312,7 +313,7 @@ class StashGetter {
 
     for (const item of items) {
       const parsedItem = this.parseItem(item, timestamp);
-      let price = {
+      let price: PriceResult = {
         isVendor: false,
         value: 0,
         explanation: null,

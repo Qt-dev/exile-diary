@@ -6,13 +6,10 @@ import {
 } from '../../shared/contracts/runtimeSidecar';
 import * as RuntimeSidecarClient from '../runtime/RuntimeSidecarClient';
 
-const rendererRuntime = runtimeRendererMethodKeys.reduce(
-  (service, method) => {
-    service[method] = (...args: any[]) => RuntimeSidecarClient.callRendererMethod(method, args);
-    return service;
-  },
-  {} as Record<RuntimeRendererMethodKey, (...args: any[]) => Promise<unknown>>
-);
+const rendererRuntime = runtimeRendererMethodKeys.reduce((service, method) => {
+  service[method] = (...args: any[]) => RuntimeSidecarClient.callRendererMethod(method, args);
+  return service;
+}, {} as Record<RuntimeRendererMethodKey, (...args: any[]) => Promise<unknown>>);
 
 export const RendererAppService = {
   async getAppGlobals() {
