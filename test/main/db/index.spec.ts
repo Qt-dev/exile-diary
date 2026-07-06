@@ -137,6 +137,30 @@ describe('db/index', () => {
     expect(dbConstructorMock).toHaveBeenCalledTimes(1);
   });
 
+  it('continues creating the db manager when the regex extension fails to load', () => {
+    const DB = loadDbModule();
+    dbConstructorMock.mockClear();
+    const failingDb = {
+      name: 'D:\\mock-user-data\\ActiveChar.Mercenaries.db',
+      loadExtension: jest.fn(() => {
+        throw Object.assign(new Error('extension load failed'), { code: 'ERR_DLOPEN_FAILED' });
+      }),
+      pragma: jest.fn(() => 0),
+      prepare: jest.fn((sql: string) => ({
+        all: jest.fn((params?: unknown[]) => ({ sql, params, method: 'all' })),
+        get: jest.fn((params?: unknown[]) => ({ sql, params, method: 'get' })),
+        run: jest.fn((params?: unknown[]) => ({ sql, params, method: 'run' })),
+      })),
+      transaction: jest.fn((fn: (params: any[]) => void) => (params: any[]) => fn(params)),
+    };
+    dbConstructorMock.mockImplementationOnce(() => failingDb as any);
+
+    const manager = DB.getManager(undefined, 'ActiveChar');
+
+    expect(manager).toBeTruthy();
+    expect(failingDb.loadExtension).toHaveBeenCalledTimes(1);
+  });
+
   it('copies old character db naming pattern when needed', () => {
     fsMock.existsSync.mockImplementation((p: string) => p.endsWith('ActiveChar.db'));
 
@@ -249,11 +273,12 @@ describe('db/index', () => {
     await DB.initLeagueDB('Mercenaries', '');
 
     const preparedSql = leagueManager.db.prepare.mock.calls.map((call: [string]) => call[0]);
-    expect(preparedSql).toContain('insert into characters values (?)');
+    expect(preparedSql).toContain('insert or ignore into characters values (?)');
 
     const statement = leagueManager.db.prepare.mock.results.find(
       (_: unknown, idx: number) =>
-        leagueManager.db.prepare.mock.calls[idx][0] === 'insert into characters values (?)'
+        leagueManager.db.prepare.mock.calls[idx][0] ===
+        'insert or ignore into characters values (?)'
     )?.value;
     expect(statement).toBeDefined();
     expect(statement!.run).toHaveBeenCalledWith('ActiveChar');
@@ -267,7 +292,28 @@ describe('db/index', () => {
     await DB.initLeagueDB('Mercenaries', 'GivenChar');
 
     const preparedSql = leagueManager.db.prepare.mock.calls.map((call: [string]) => call[0]);
-    expect(preparedSql).not.toContain('insert into characters values (?)');
+    expect(preparedSql).not.toContain('insert or ignore into characters values (?)');
+  });
+
+  it('initLeagueDB always re-applies league schema guards for partially initialized dbs', async () => {
+    const DB = loadDbModule();
+    const leagueManager = DB.getManager('Mercenaries');
+    leagueManager.db.pragma.mockReturnValue(1);
+
+    await DB.initLeagueDB('Mercenaries', 'GivenChar');
+
+    const preparedSql = leagueManager.db.prepare.mock.calls.map((call: [string]) => call[0]);
+    expect(
+      preparedSql.filter((sql: string) => sql.includes('create table if not exists characters'))
+        .length
+    ).toBeGreaterThan(0);
+    expect(
+      preparedSql.filter((sql: string) => sql.includes('create table if not exists fullrates'))
+        .length
+    ).toBeGreaterThan(0);
+    expect(
+      preparedSql.filter((sql: string) => sql.includes('create table if not exists stashes')).length
+    ).toBeGreaterThan(0);
   });
 
   it('loads sqlite regex extension when creating a manager', () => {

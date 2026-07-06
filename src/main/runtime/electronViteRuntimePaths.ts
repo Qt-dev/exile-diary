@@ -40,7 +40,7 @@ export function getOcrSidecarEntryPath({
   isDev = Boolean(process.env.ELECTRON_RENDERER_URL),
 }: RuntimePathOptions = {}) {
   if (isDev) {
-    return path.resolve(cwd, 'src', 'main', 'modules', 'ImageParser', 'OcrSidecar.ts');
+    return path.resolve(cwd, 'src', 'main', 'modules', 'ImageParser', 'OcrSidecarBootstrap.ts');
   }
 
   return path.resolve(getBundledMainRoot(currentMainDir), 'ocr-sidecar.js');
@@ -52,7 +52,7 @@ export function getRuntimeSidecarEntryPath({
   isDev = Boolean(process.env.ELECTRON_RENDERER_URL),
 }: RuntimePathOptions = {}) {
   if (isDev) {
-    return path.resolve(cwd, 'src', 'main', 'runtime', 'RuntimeSidecar.ts');
+    return path.resolve(cwd, 'src', 'main', 'runtime', 'RuntimeSidecarBootstrap.ts');
   }
 
   return path.resolve(getBundledMainRoot(currentMainDir), 'runtime-sidecar.js');

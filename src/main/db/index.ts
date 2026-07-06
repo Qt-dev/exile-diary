@@ -579,7 +579,6 @@ const Migrations = {
   league: {
     init: [
       [
-        `pragma user_version = 1`,
         `
           create table if not exists characters (
             name text primary key not null
@@ -598,9 +597,29 @@ const Migrations = {
             value text not null
           )
         `,
+        `pragma user_version = 1`,
       ],
     ],
-    maintenance: [],
+    maintenance: [
+      `
+        create table if not exists characters (
+          name text primary key not null
+        )
+      `,
+      `
+        create table if not exists fullrates (
+          date text primary key not null,
+          data text not null
+        )
+      `,
+      `
+        create table if not exists stashes (
+          timestamp text primary key not null,
+          items text not null,
+          value text not null
+        )
+      `,
+    ],
   },
 };
 
@@ -616,11 +635,21 @@ class DBManager {
   tasks: string[] = [];
   isBusy: boolean = true;
   eventEmitter: EventEmitter = new EventEmitter();
+  hasRegexExtension: boolean = false;
 
   constructor({ dbPath }: { dbPath: string }) {
     logger.info('Starting DB:', dbPath);
     this.db = new DatabaseConstructor(dbPath);
-    this.db.loadExtension(sqliteRegex.getLoadablePath());
+    try {
+      const extensionPath = sqliteRegex.getLoadablePath();
+      this.db.loadExtension(extensionPath);
+      this.hasRegexExtension = true;
+    } catch (error) {
+      logger.warn(
+        `Failed to load sqlite regex extension for ${dbPath}. Continuing without it.`,
+        error
+      );
+    }
     this.eventEmitter.on('task:added', () => {
       this.runTasks();
     });
@@ -824,7 +853,9 @@ const DB = {
 
     if (!characterName && activeProfile.characterName) {
       await manager.runTask(() =>
-        manager.db.prepare('insert into characters values (?)').run(activeProfile.characterName)
+        manager.db
+          .prepare('insert or ignore into characters values (?)')
+          .run(activeProfile.characterName)
       );
     }
   },

@@ -303,6 +303,7 @@ function spawnSidecar() {
       ...process.env,
       ELECTRON_RUN_AS_NODE: '1',
       EXILE_DIARY_APP_VERSION: process.env.EXILE_DIARY_APP_VERSION ?? getAppVersion(),
+      EXILE_DIARY_DISABLE_FILE_LOGGING: '1',
       EXILE_DIARY_IS_PACKAGED: String(
         readBooleanEnv(process.env.EXILE_DIARY_IS_PACKAGED) ?? getIsPackaged()
       ),

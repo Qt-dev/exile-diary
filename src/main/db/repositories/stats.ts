@@ -4,6 +4,10 @@ import { Run } from '../../../helpers/types';
 import dayjs from 'dayjs';
 const logger = Logger.scope('db/stats');
 
+function normalizeModLine(mod: string) {
+  return mod.replace(/\d+/g, '#');
+}
+
 type GetAllRunsForDatesParams = {
   from: string;
   to: string;
@@ -261,14 +265,33 @@ const stats = {
     SELECT DISTINCT(REGEXP_REPLACE(mod, '\\d+', '#')) AS mod
     FROM mapmod
     ORDER BY mod ASC`;
+    const fallbackQuery = `
+    SELECT DISTINCT mod
+    FROM mapmod
+    ORDER BY mod ASC`;
 
     try {
       const mods = (await DB.all(query)) as string[];
       logger.debug(`Got ${mods.length} mods`);
       return mods ?? [];
     } catch (err) {
-      logger.error(`Error getting all mods: ${JSON.stringify(err)}`);
-      return [];
+      logger.warn(
+        `Falling back to JS mod normalization because sqlite REGEXP_REPLACE is unavailable: ${JSON.stringify(
+          err
+        )}`
+      );
+
+      try {
+        const rawMods = ((await DB.all(fallbackQuery)) as string[]) ?? [];
+        const normalizedMods = [...new Set(rawMods.map(normalizeModLine))].sort((a, b) =>
+          a.localeCompare(b)
+        );
+        logger.debug(`Got ${normalizedMods.length} normalized mods via JS fallback`);
+        return normalizedMods;
+      } catch (fallbackError) {
+        logger.error(`Error getting all mods: ${JSON.stringify(fallbackError)}`);
+        return [];
+      }
     }
   },
 
@@ -296,12 +319,26 @@ const stats = {
     logger.debug(`Getting profit per hour since ${beginningOfTracking}`);
 
     try {
+      const result = (await DB.get(query, [beginningOfTracking, beginningOfTracking])) as
+        | {
+            total_time_seconds: number;
+            total_profit: number;
+            runs: number;
+            items: number;
+          }
+        | null
+        | undefined;
+
+      if (!result) {
+        return 0;
+      }
+
       const {
         total_time_seconds: totalTime,
         total_profit: profit,
         runs,
         items,
-      } = (await DB.get(query, [beginningOfTracking, beginningOfTracking])) as {
+      } = result as {
         total_time_seconds: number;
         total_profit: number;
         runs: number;

@@ -74,7 +74,7 @@ describe('electron-vite runtime paths', () => {
         cwd: repoRoot,
         isDev: true,
       })
-    ).toContain(path.join('src', 'main', 'modules', 'ImageParser', 'OcrSidecar.ts'));
+    ).toContain(path.join('src', 'main', 'modules', 'ImageParser', 'OcrSidecarBootstrap.ts'));
   });
 
   it('uses the built sidecar bundle outside dev', () => {
@@ -104,7 +104,7 @@ describe('electron-vite runtime paths', () => {
         cwd: repoRoot,
         isDev: true,
       })
-    ).toContain(path.join('src', 'main', 'runtime', 'RuntimeSidecar.ts'));
+    ).toContain(path.join('src', 'main', 'runtime', 'RuntimeSidecarBootstrap.ts'));
   });
 
   it('uses the built runtime sidecar bundle outside dev', () => {

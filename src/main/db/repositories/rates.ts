@@ -5,6 +5,10 @@ import zlib from 'zlib';
 
 const logger = Logger.scope('db/rates');
 
+async function ensureLeagueDb(league: string) {
+  await DB.initLeagueDB(league, '');
+}
+
 const rates = {
   getFullRates: async (league: string, date: string): Promise<any> => {
     const formattedDate = dayjs(date).format('YYYYMMDD');
@@ -13,7 +17,14 @@ const rates = {
       'SELECT date, data FROM fullrates WHERE date <= ? OR date = (SELECT min(date) FROM fullrates) ORDER BY date DESC';
 
     try {
-      const [{ data }] = (await DB.all(query, [formattedDate], league)) as any[];
+      await ensureLeagueDb(league);
+      const rows = (await DB.all(query, [formattedDate], league)) as any[] | null;
+      const data = rows?.[0]?.data;
+
+      if (!data) {
+        return {};
+      }
+
       return await new Promise((resolve) => {
         zlib.inflate(data, (err, buffer) => {
           if (err) {
@@ -32,6 +43,7 @@ const rates = {
     logger.info(`Cleaning rates for ${date} (league: ${league}) from DB`);
     const query = 'DELETE FROM fullrates WHERE date = ?';
     try {
+      await ensureLeagueDb(league);
       await DB.run(query, [date], league);
     } catch (err) {
       logger.error(`Error cleaning rates for ${date} (league: ${league}): ${JSON.stringify(err)}`);
@@ -52,6 +64,7 @@ const rates = {
       });
     });
     try {
+      await ensureLeagueDb(league);
       await DB.run(query, [formattedDate, buffer], league);
       return true;
     } catch (err) {
@@ -63,6 +76,7 @@ const rates = {
     logger.info(`Checking if rates for ${date} (league: ${league}) exist in DB`);
     const query = 'SELECT COUNT(*) as count FROM fullrates WHERE date = ?';
     try {
+      await ensureLeagueDb(league);
       const [{ count }] = (await DB.all(query, [date], league)) as any[];
       return count > 0;
     } catch (err) {

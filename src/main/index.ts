@@ -1,5 +1,7 @@
 import { app, BrowserWindow, ipcMain, dialog, Menu, session, nativeImage, screen } from 'electron';
 import { initPortableMode } from './PortableConfig';
+import { createGpuRecoveryManager } from './GpuRecovery';
+import { configureElectronLog } from './configureElectronLog';
 
 // Initialize portable mode BEFORE app is ready, but AFTER electron modules are imported
 // This sets the userData path before any other code can access it
@@ -41,6 +43,24 @@ import { registerAutoUpdater } from './updater/registerAutoUpdater';
 import { getRendererIndexPath } from './runtime/electronViteRuntimePaths';
 import { createRuntimeSidecarBridge } from './runtime/createRuntimeSidecarBridge';
 import * as RuntimeSidecarClient from './runtime/RuntimeSidecarClient';
+
+const gpuRecovery = createGpuRecoveryManager();
+const gpuRecoveryState = gpuRecovery.initialize();
+configureElectronLog('main.log');
+
+app.on('child-process-gone', (event, details) => {
+  if (!gpuRecovery.handleGpuProcessGone(details)) {
+    return;
+  }
+
+  console.error(
+    '[gpu-recovery] Repeated GPU startup failures detected. Relaunching in GPU safe mode.'
+  );
+  app.relaunch({
+    args: gpuRecovery.getRelaunchArgs(),
+  });
+  app.exit(0);
+});
 
 dayjs.extend(duration);
 dayjs.extend(isSameOrAfter);
@@ -127,6 +147,11 @@ function setupDebugLoggerHook(logToUI: boolean) {
 logger.initialize({ preload: true });
 setLogTransport(isDev || SettingsManager.get('forceDebugMode'));
 logger.scope.defaultLabel = 'main';
+
+if (gpuRecoveryState.gpuSafeMode) {
+  logger.warn(`GPU safe mode active (${gpuRecoveryState.recoveryReason ?? 'unspecified-reason'}).`);
+}
+
 logger.errorHandler.startCatching({
   showDialog: false,
   onError({ createIssue, error, processType, versions }) {
@@ -391,6 +416,7 @@ class MainProcess {
 
     // Main Window listeners
     this.mainWindow.once('ready-to-show', () => {
+      gpuRecovery.markStartupSuccessful();
       this.mainWindow.show();
       logger.info('App is ready to show');
       RendererLogger.log({
