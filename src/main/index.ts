@@ -43,6 +43,7 @@ import { registerAutoUpdater } from './updater/registerAutoUpdater';
 import { getRendererIndexPath } from './runtime/electronViteRuntimePaths';
 import { createRuntimeSidecarBridge } from './runtime/createRuntimeSidecarBridge';
 import * as RuntimeSidecarClient from './runtime/RuntimeSidecarClient';
+import { findExileDiaryProtocolUrl, processAuthCallbackUrl } from './deepLinks/authCallback';
 
 const gpuRecovery = createGpuRecoveryManager();
 const gpuRecoveryState = gpuRecovery.initialize();
@@ -209,6 +210,9 @@ class MainProcess {
   messenger: WindowMessenger;
   shortcutController: GlobalShortcutController;
   runtimeBridge = createRuntimeSidecarBridge();
+  isReadyForProtocolCallbacks = false;
+  isProcessingProtocolCallback = false;
+  queuedProtocolUrls: string[] = [];
 
   constructor() {
     const windows = createAppWindows();
@@ -274,6 +278,58 @@ class MainProcess {
     await RuntimeSidecarClient.start();
     ScreenshotWatcher.start();
     await OCRWatcher.start();
+  }
+
+  async handleProtocolUrl(protocolUrl: string) {
+    this.queuedProtocolUrls.push(protocolUrl);
+    await this.flushProtocolUrls();
+  }
+
+  async flushProtocolUrls() {
+    if (!this.isReadyForProtocolCallbacks || this.isProcessingProtocolCallback) {
+      return;
+    }
+
+    const nextProtocolUrl = this.queuedProtocolUrls.shift();
+    if (!nextProtocolUrl) {
+      return;
+    }
+
+    this.isProcessingProtocolCallback = true;
+
+    try {
+      await processAuthCallbackUrl(nextProtocolUrl, {
+        getActiveProfile: () => this.runtimeBridge.settings.get('activeProfile'),
+        getCurrentCharacter: () => GGGAPI.getCurrentCharacter(),
+        getOauthToken: (code) => AuthManager.getOauthToken(code),
+        getState: () => AuthManager.getState(),
+        isAuthenticated: (isFirstTime) => AuthManager.isAuthenticated(isFirstTime),
+        saveSettings: (settings) =>
+          RuntimeSidecarClient.callRendererMethod('saveSettings', [settings]),
+        saveToken: (token) => AuthManager.saveToken(token as any),
+        sendAuthSuccess: () => this.sendToMain('oauth:auth-success'),
+        verifyState: (state) => AuthManager.verifyState(state),
+      });
+    } catch (error) {
+      logger.error(`Failed to process protocol callback: ${nextProtocolUrl}`, error);
+    } finally {
+      this.isProcessingProtocolCallback = false;
+      if (this.queuedProtocolUrls.length > 0) {
+        await this.flushProtocolUrls();
+      }
+    }
+  }
+
+  async handleSecondInstance(commandLine: string[]) {
+    if (this.mainWindow) {
+      if (this.mainWindow.isMinimized()) this.mainWindow.restore();
+      this.mainWindow.focus();
+    }
+
+    const protocolUrl = findExileDiaryProtocolUrl(commandLine);
+    if (protocolUrl) {
+      await this.handleProtocolUrl(protocolUrl);
+    }
   }
 
   sendToOverlay(event: string, data?: any) {
@@ -616,53 +672,6 @@ class MainProcess {
       expirationDate: dayjs().add(1, 'week').unix(),
     });
 
-    app.on('second-instance', (event, commandLine, workingDirectory) => {
-      // Someone tried to run a second instance, we should focus our window.
-      if (this.mainWindow) {
-        if (this.mainWindow.isMinimized()) this.mainWindow.restore();
-        this.mainWindow.focus();
-      }
-
-      const callCommand = commandLine.pop();
-      const params = new URLSearchParams(callCommand?.split('?')[1]);
-      const code = params.get('code');
-      const state = params.get('state');
-
-      if (code && state && AuthManager.verifyState(state)) {
-        logger.info('We got an access token from Lambda');
-        AuthManager.getOauthToken(code)
-          .then(AuthManager.saveToken)
-          .then(async () => {
-            const isAuthenticated = await AuthManager.isAuthenticated(true);
-            if (isAuthenticated) {
-              this.sendToMain('oauth:auth-success');
-              const character = await GGGAPI.getCurrentCharacter();
-              const activeProfile = this.runtimeBridge.settings.get('activeProfile');
-              if (
-                !activeProfile ||
-                !activeProfile.valid ||
-                !activeProfile.characterName ||
-                !activeProfile.league
-              ) {
-                await RuntimeSidecarClient.callRendererMethod('saveSettings', [
-                  {
-                    activeProfile: {
-                      characterName: character.name,
-                      league: character.league,
-                      valid: true,
-                    },
-                  },
-                ]);
-              }
-            }
-          });
-      } else {
-        logger.info('No access token from Lambda', code, state, AuthManager.getState());
-        logger.info(callCommand);
-        logger.info(commandLine);
-      }
-    });
-
     const rendererUrl = process.env.ELECTRON_RENDERER_URL;
     if (rendererUrl) {
       this.mainWindow.loadURL(rendererUrl);
@@ -675,22 +684,60 @@ class MainProcess {
         hash: '/overlay',
       });
     }
+
+    this.isReadyForProtocolCallbacks = true;
+    await this.flushProtocolUrls();
   }
 }
 
-app.on('ready', () => {
-  // Use userData path as the lock key so each portable instance can run independently
-  // This allows multiple portable installations in different folders to run simultaneously
-  // while preventing duplicate instances of the same installation
-  const gotTheLock = app.requestSingleInstanceLock({
-    key: app.getPath('userData'),
+const queuedProtocolUrls: string[] = [];
+const initialProtocolUrl = findExileDiaryProtocolUrl(process.argv);
+if (initialProtocolUrl) {
+  queuedProtocolUrls.push(initialProtocolUrl);
+}
+
+const gotTheLock = app.requestSingleInstanceLock({
+  key: app.getPath('userData'),
+});
+
+if (!gotTheLock) {
+  logger.error('Exile Diary is already started, closing the new instance.');
+  app.quit();
+} else {
+  let mainProcess: MainProcess | null = null;
+
+  app.on('second-instance', (event, commandLine) => {
+    const protocolUrl = findExileDiaryProtocolUrl(commandLine);
+    if (protocolUrl && !mainProcess) {
+      queuedProtocolUrls.push(protocolUrl);
+    }
+
+    if (!mainProcess) {
+      return;
+    }
+
+    void mainProcess.handleSecondInstance(commandLine);
   });
 
-  if (!gotTheLock) {
-    logger.error('Exile Diary is already started, closing the new instance.');
-    app.quit();
-  } else {
-    const mainProcess = new MainProcess();
-    mainProcess.startWindows();
-  }
-});
+  app.on('open-url', (event, protocolUrl) => {
+    event.preventDefault();
+    if (!mainProcess) {
+      queuedProtocolUrls.push(protocolUrl);
+    }
+
+    if (!mainProcess) {
+      return;
+    }
+
+    void mainProcess.handleProtocolUrl(protocolUrl);
+  });
+
+  app.on('ready', () => {
+    mainProcess = new MainProcess();
+    void mainProcess.startWindows().then(async () => {
+      for (const protocolUrl of queuedProtocolUrls.splice(0)) {
+        await mainProcess?.handleProtocolUrl(protocolUrl);
+      }
+    });
+  });
+}
