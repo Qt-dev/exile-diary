@@ -1,5 +1,31 @@
 import logger from 'electron-log';
 
+export const EXILE_DIARY_PROTOCOL_SCHEMES = ['exile-diary://', 'exilediary://'] as const;
+export const authCallbackFailureReasons = {
+  invalidUrl: 'invalid-url',
+  missingCode: 'missing-code',
+  missingState: 'missing-state',
+  stateMismatch: 'state-mismatch',
+  tokenExchangeFailed: 'token-exchange-failed',
+  tokenSaveFailed: 'token-save-failed',
+} as const;
+
+export type AuthCallbackFailureReason =
+  (typeof authCallbackFailureReasons)[keyof typeof authCallbackFailureReasons];
+
+export type AuthCallbackFailurePayload = {
+  reason: AuthCallbackFailureReason;
+};
+
+export type AuthCallbackResult =
+  | {
+      ok: true;
+    }
+  | {
+      ok: false;
+      reason: AuthCallbackFailureReason;
+    };
+
 type ActiveProfile = {
   characterName?: string | null;
   league?: string | null;
@@ -18,8 +44,8 @@ type AuthCallbackDeps = {
   getCurrentCharacter: () => Promise<Character>;
   getOauthToken: (code: string) => Promise<Token>;
   getState: () => string;
-  isAuthenticated: (isFirstTime: boolean) => Promise<boolean>;
   saveSettings: (settings: Record<string, unknown>) => Promise<unknown>;
+  sendAuthFailure: (payload: AuthCallbackFailurePayload) => void;
   saveToken: (token: Token) => Promise<unknown>;
   sendAuthSuccess: () => void;
   verifyState: (state: string) => boolean;
@@ -35,13 +61,15 @@ function hasValidActiveProfile(activeProfile: ActiveProfile) {
 }
 
 export function findExileDiaryProtocolUrl(values: string[]) {
-  return values.find((value) => value.startsWith('exile-diary://'));
+  return values.find((value) =>
+    EXILE_DIARY_PROTOCOL_SCHEMES.some((scheme) => value.startsWith(scheme))
+  );
 }
 
 export function parseExileDiaryProtocolUrl(rawUrl: string) {
   try {
     const parsedUrl = new URL(rawUrl);
-    if (parsedUrl.protocol !== 'exile-diary:') {
+    if (!['exile-diary:', 'exilediary:'].includes(parsedUrl.protocol)) {
       return null;
     }
 
@@ -55,41 +83,116 @@ export function parseExileDiaryProtocolUrl(rawUrl: string) {
   }
 }
 
+function failAuthCallback(
+  rawUrl: string,
+  reason: AuthCallbackFailureReason,
+  deps: Pick<AuthCallbackDeps, 'sendAuthFailure'>
+): AuthCallbackResult {
+  logger.info('OAuth callback failed', { rawUrl, reason });
+  deps.sendAuthFailure({ reason });
+  return {
+    ok: false,
+    reason,
+  };
+}
+
 export async function processAuthCallbackUrl(rawUrl: string, deps: AuthCallbackDeps) {
+  logger.info('OAuth callback received', { rawUrl });
   const parsedCallback = parseExileDiaryProtocolUrl(rawUrl);
   if (!parsedCallback) {
-    logger.info(`Ignoring non Exile Diary protocol URL: ${rawUrl}`);
-    return false;
+    return failAuthCallback(rawUrl, authCallbackFailureReasons.invalidUrl, deps);
   }
 
   const { code, state } = parsedCallback;
-  if (!code || !state || !deps.verifyState(state)) {
-    logger.info('No access token from Lambda', code, state, deps.getState());
-    logger.info(rawUrl);
-    return false;
+  logger.info('OAuth callback parsed', {
+    codePresent: !!code,
+    rawUrl,
+    statePresent: !!state,
+  });
+
+  if (!code) {
+    return failAuthCallback(rawUrl, authCallbackFailureReasons.missingCode, deps);
   }
 
-  logger.info('We got an access token from Lambda');
-  const token = await deps.getOauthToken(code);
-  await deps.saveToken(token);
+  if (!state) {
+    return failAuthCallback(rawUrl, authCallbackFailureReasons.missingState, deps);
+  }
 
-  const isAuthenticated = await deps.isAuthenticated(true);
-  if (!isAuthenticated) {
-    return false;
+  const isStateValid = deps.verifyState(state);
+  logger.info('OAuth callback state validation completed', {
+    isStateValid,
+    rawUrl,
+    statePresent: true,
+  });
+
+  if (!isStateValid) {
+    logger.info('OAuth callback state mismatch', { expectedStatePresent: !!deps.getState(), rawUrl });
+    return failAuthCallback(rawUrl, authCallbackFailureReasons.stateMismatch, deps);
+  }
+
+  logger.info('OAuth callback entering token exchange', { rawUrl });
+  let token: Token;
+  try {
+    token = await deps.getOauthToken(code);
+  } catch (error) {
+    logger.error('OAuth callback token exchange failed', {
+      error,
+      rawUrl,
+      reason: authCallbackFailureReasons.tokenExchangeFailed,
+    });
+    return failAuthCallback(rawUrl, authCallbackFailureReasons.tokenExchangeFailed, deps);
+  }
+
+  try {
+    await deps.saveToken(token);
+  } catch (error) {
+    logger.error('OAuth callback token save failed', {
+      error,
+      rawUrl,
+      reason: authCallbackFailureReasons.tokenSaveFailed,
+    });
+    return failAuthCallback(rawUrl, authCallbackFailureReasons.tokenSaveFailed, deps);
   }
 
   deps.sendAuthSuccess();
+  logger.info('OAuth callback emitted auth success', { rawUrl });
 
   if (!hasValidActiveProfile(deps.getActiveProfile())) {
-    const character = await deps.getCurrentCharacter();
-    await deps.saveSettings({
-      activeProfile: {
-        characterName: character.name,
-        league: character.league,
-        valid: true,
-      },
-    });
+    void (async () => {
+      try {
+        const character = await deps.getCurrentCharacter();
+        if (!character?.name || !character?.league) {
+          logger.warn('OAuth callback profile seed failed', {
+            hasCharacter: !!character,
+            reason: 'missing-character',
+            rawUrl,
+          });
+          return;
+        }
+
+        await deps.saveSettings({
+          activeProfile: {
+            characterName: character.name,
+            league: character.league,
+            valid: true,
+          },
+        });
+        logger.info('OAuth callback seeded active profile from current character', {
+          characterName: character.name,
+          league: character.league,
+          rawUrl,
+        });
+      } catch (error) {
+        logger.warn('OAuth callback profile seed failed', {
+          error,
+          rawUrl,
+          reason: 'profile-seed-failed',
+        });
+      }
+    })();
   }
 
-  return true;
+  return {
+    ok: true,
+  };
 }

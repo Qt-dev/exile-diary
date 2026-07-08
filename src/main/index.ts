@@ -43,7 +43,13 @@ import { registerAutoUpdater } from './updater/registerAutoUpdater';
 import { getRendererIndexPath } from './runtime/electronViteRuntimePaths';
 import { createRuntimeSidecarBridge } from './runtime/createRuntimeSidecarBridge';
 import * as RuntimeSidecarClient from './runtime/RuntimeSidecarClient';
-import { findExileDiaryProtocolUrl, processAuthCallbackUrl } from './deepLinks/authCallback';
+import {
+  EXILE_DIARY_PROTOCOL_SCHEMES,
+  findExileDiaryProtocolUrl,
+  processAuthCallbackUrl,
+} from './deepLinks/authCallback';
+import { OAuthCallbackFlowCoordinator } from './deepLinks/OAuthCallbackFlowCoordinator';
+import { syncAuthSessionReadiness } from './auth/syncAuthSessionReadiness';
 
 const gpuRecovery = createGpuRecoveryManager();
 const gpuRecoveryState = gpuRecovery.initialize();
@@ -92,6 +98,22 @@ function emitBenchmarkResult(name: string, data: Record<string, unknown>) {
     ...data,
   };
   process.stdout.write(`__EXILE_DIARY_BENCHMARK__${JSON.stringify(payload)}\n`);
+}
+
+function registerDeepLinkProtocols() {
+  const protocolSchemes = EXILE_DIARY_PROTOCOL_SCHEMES.map((scheme) => scheme.replace('://', ''));
+
+  for (const protocolScheme of protocolSchemes) {
+    if (process.defaultApp) {
+      if (process.argv.length >= 2) {
+        app.setAsDefaultProtocolClient(protocolScheme, process.execPath, [
+          path.resolve(process.argv[1]),
+        ]);
+      }
+    } else {
+      app.setAsDefaultProtocolClient(protocolScheme);
+    }
+  }
 }
 
 function setLogTransport(debugMode) {
@@ -210,9 +232,7 @@ class MainProcess {
   messenger: WindowMessenger;
   shortcutController: GlobalShortcutController;
   runtimeBridge = createRuntimeSidecarBridge();
-  isReadyForProtocolCallbacks = false;
-  isProcessingProtocolCallback = false;
-  queuedProtocolUrls: string[] = [];
+  oauthCallbackCoordinator: OAuthCallbackFlowCoordinator;
 
   constructor() {
     const windows = createAppWindows();
@@ -221,6 +241,22 @@ class MainProcess {
     this.isDownloadingUpdate = false;
     this.isOverlayMoveable = false;
     this.messenger = createWindowMessenger(windows);
+    this.oauthCallbackCoordinator = new OAuthCallbackFlowCoordinator({
+          processProtocolUrl: async (protocolUrl: string) => {
+            await processAuthCallbackUrl(protocolUrl, {
+              getActiveProfile: () => this.runtimeBridge.settings.get('activeProfile'),
+              getCurrentCharacter: () => GGGAPI.getCurrentCharacter(),
+              getOauthToken: (code) => AuthManager.getOauthToken(code),
+              getState: () => AuthManager.getState(),
+              saveSettings: (settings) =>
+                RuntimeSidecarClient.callRendererMethod('saveSettings', [settings]),
+              saveToken: (token) => AuthManager.saveToken(token as any),
+              sendAuthFailure: (payload) => this.sendToMain(rendererEventChannels.oauthAuthFailure, payload),
+          sendAuthSuccess: () => this.sendToMain(rendererEventChannels.oauthAuthSuccess),
+          verifyState: (state) => AuthManager.verifyState(state),
+        });
+      },
+    });
     this.shortcutController = new GlobalShortcutController({
       getShortcut: (key) => this.runtimeBridge.settings.get(key),
       isRunParseScreenshotEnabled: () =>
@@ -275,49 +311,14 @@ class MainProcess {
 
     // Settings
     await SettingsManager.initialize();
+    await syncAuthSessionReadiness();
     await RuntimeSidecarClient.start();
     ScreenshotWatcher.start();
     await OCRWatcher.start();
   }
 
   async handleProtocolUrl(protocolUrl: string) {
-    this.queuedProtocolUrls.push(protocolUrl);
-    await this.flushProtocolUrls();
-  }
-
-  async flushProtocolUrls() {
-    if (!this.isReadyForProtocolCallbacks || this.isProcessingProtocolCallback) {
-      return;
-    }
-
-    const nextProtocolUrl = this.queuedProtocolUrls.shift();
-    if (!nextProtocolUrl) {
-      return;
-    }
-
-    this.isProcessingProtocolCallback = true;
-
-    try {
-      await processAuthCallbackUrl(nextProtocolUrl, {
-        getActiveProfile: () => this.runtimeBridge.settings.get('activeProfile'),
-        getCurrentCharacter: () => GGGAPI.getCurrentCharacter(),
-        getOauthToken: (code) => AuthManager.getOauthToken(code),
-        getState: () => AuthManager.getState(),
-        isAuthenticated: (isFirstTime) => AuthManager.isAuthenticated(isFirstTime),
-        saveSettings: (settings) =>
-          RuntimeSidecarClient.callRendererMethod('saveSettings', [settings]),
-        saveToken: (token) => AuthManager.saveToken(token as any),
-        sendAuthSuccess: () => this.sendToMain('oauth:auth-success'),
-        verifyState: (state) => AuthManager.verifyState(state),
-      });
-    } catch (error) {
-      logger.error(`Failed to process protocol callback: ${nextProtocolUrl}`, error);
-    } finally {
-      this.isProcessingProtocolCallback = false;
-      if (this.queuedProtocolUrls.length > 0) {
-        await this.flushProtocolUrls();
-      }
-    }
+    await this.oauthCallbackCoordinator.handleProtocolUrl(protocolUrl);
   }
 
   async handleSecondInstance(commandLine: string[]) {
@@ -639,15 +640,7 @@ class MainProcess {
 
     await this.init();
 
-    if (process.defaultApp) {
-      if (process.argv.length >= 2) {
-        app.setAsDefaultProtocolClient('exile-diary', process.execPath, [
-          path.resolve(process.argv[1]),
-        ]);
-      }
-    } else {
-      app.setAsDefaultProtocolClient('exile-diary');
-    }
+    registerDeepLinkProtocols();
 
     registerResponderHandlers();
 
@@ -685,8 +678,7 @@ class MainProcess {
       });
     }
 
-    this.isReadyForProtocolCallbacks = true;
-    await this.flushProtocolUrls();
+    await this.oauthCallbackCoordinator.setReady();
   }
 }
 
@@ -696,9 +688,7 @@ if (initialProtocolUrl) {
   queuedProtocolUrls.push(initialProtocolUrl);
 }
 
-const gotTheLock = app.requestSingleInstanceLock({
-  key: app.getPath('userData'),
-});
+const gotTheLock = app.requestSingleInstanceLock();
 
 if (!gotTheLock) {
   logger.error('Exile Diary is already started, closing the new instance.');

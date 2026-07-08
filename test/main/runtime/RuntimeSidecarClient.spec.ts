@@ -141,7 +141,7 @@ describe('RuntimeSidecarClient', () => {
 
     expect(forkMock).toHaveBeenCalledTimes(1);
     expect(forkMock.mock.calls[0][0]).toContain(
-      path.join('src', 'main', 'runtime', 'RuntimeSidecar.ts')
+      path.join('src', 'main', 'runtime', 'RuntimeSidecarBootstrap.ts')
     );
     expect(forkMock.mock.calls[0][2]).toMatchObject({
       execArgv: ['--require', 'tsx/cjs'],
@@ -152,6 +152,7 @@ describe('RuntimeSidecarClient', () => {
       }),
       serialization: 'advanced',
     });
+    expect(forkMock.mock.calls[0][2].env.EXILE_DIARY_DISABLE_FILE_LOGGING).toBeUndefined();
     expect(client.getSettingsSnapshot()).toMatchObject({
       overlayEnabled: true,
       overlayPersistenceEnabled: false,

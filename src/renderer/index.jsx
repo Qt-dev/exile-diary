@@ -24,9 +24,6 @@ const runStore = new RunStore();
 const characterStore = new CharacterStore();
 const stashTabStore = new StashTabStore();
 
-characterStore.fetchCharacters();
-stashTabStore.fetchStashTabs();
-
 const router = createHashRouter(
   createAppRoutes({
     runStore,

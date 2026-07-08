@@ -16,7 +16,8 @@
       {
         "name": "Exile Diary",
         "schemes": [
-          "exile-diary"
+          "exile-diary",
+          "exilediary"
         ]
       }
     ],

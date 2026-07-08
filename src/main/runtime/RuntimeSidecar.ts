@@ -26,6 +26,8 @@ import {
   type RuntimeSidecarRequest,
   type RuntimeSidecarResponse,
 } from '../../shared/contracts/runtimeSidecar';
+import { authSessionReadiness } from '../auth/AuthSessionReadiness';
+import { syncAuthSessionReadiness } from '../auth/syncAuthSessionReadiness';
 
 const sidecarLogger = logger.scope('runtime-sidecar');
 const startedAt = new Date().toISOString();
@@ -34,6 +36,8 @@ const benchmarkMode = process.env.EXILE_DIARY_BENCHMARK_MODE as string | undefin
 const runtimeCore = createRuntimeCore();
 
 let runtimeStarted = false;
+let runtimeStateInitialized = false;
+let runtimeStateInitializationInProgress = false;
 
 function sendMessage(
   message: RuntimeSidecarReadyMessage | RuntimeSidecarResponse | RuntimeSidecarEvent
@@ -102,29 +106,62 @@ const runtimeMethodHandlers: Record<RuntimeMethodKey, (...args: any[]) => Promis
 
 async function initializeRuntimeState() {
   await SettingsManager.initialize();
+  await syncAuthSessionReadiness();
+  authSessionReadiness.subscribe((state) => {
+    if (state.profileReady) {
+      void ensureRuntimeStateInitialized();
+      void startBackgroundRuntime();
+    }
+  });
+  await ensureRuntimeStateInitialized();
+}
 
-  if (!SettingsManager.get('username')) {
-    sidecarLogger.error('No account name set. Please set your account name in the settings.');
+async function ensureRuntimeStateInitialized() {
+  if (runtimeStateInitialized || runtimeStateInitializationInProgress) {
     return;
   }
 
-  const character = await SettingsManager.getCharacter();
+  if (!authSessionReadiness.getState().profileReady) {
+    sidecarLogger.info(
+      'Runtime DB initialization is waiting for an authenticated session with an active profile'
+    );
+    return;
+  }
+
+  if (!SettingsManager.get('username')) {
+    sidecarLogger.info('Runtime DB initialization is waiting for an authenticated account name');
+    return;
+  }
+
+  runtimeStateInitializationInProgress = true;
+
   try {
+    const character = await SettingsManager.getCharacter();
+    if (!character?.name || !character?.league) {
+      sidecarLogger.warn(
+        'Runtime DB initialization did not receive a valid current character; waiting for a valid profile'
+      );
+      return;
+    }
+
     await SettingsManager.initializeDB(character.name);
     await League.addLeague(character.league);
     sidecarLogger.info(
       `Runtime DB initialized. Character: ${character.name}, League: ${character.league}`
     );
+
+    IgnoreManager.initialize(sidecarLogger, () => {
+      sidecarLogger.debug('Runtime ignore settings updated');
+    });
+    runtimeStateInitialized = true;
   } catch (error) {
     sidecarLogger.error(
       `Could not set runtime DB up. (Current Account: ${SettingsManager.get('username')})`
     );
     sidecarLogger.error(error);
+  } finally {
+    runtimeStateInitializationInProgress = false;
   }
-
-  IgnoreManager.initialize(sidecarLogger, () => {
-    sidecarLogger.debug('Runtime ignore settings updated');
-  });
 }
 
 function registerRuntimeForwarders() {
@@ -222,6 +259,11 @@ function registerRuntimeForwarders() {
 
 async function startBackgroundRuntime() {
   if (runtimeStarted || benchmarkMode) {
+    return;
+  }
+
+  if (!runtimeStateInitialized) {
+    sidecarLogger.info('Runtime background services are waiting for runtime DB initialization');
     return;
   }
 

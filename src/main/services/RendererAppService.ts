@@ -5,6 +5,8 @@ import {
   type RuntimeRendererMethodKey,
 } from '../../shared/contracts/runtimeSidecar';
 import * as RuntimeSidecarClient from '../runtime/RuntimeSidecarClient';
+import AuthManager from '../AuthManager';
+import GGGAPI from '../GGGAPI';
 
 const rendererRuntime = runtimeRendererMethodKeys.reduce((service, method) => {
   service[method] = (...args: any[]) => RuntimeSidecarClient.callRendererMethod(method, args);
@@ -22,4 +24,26 @@ export const RendererAppService = {
   },
 
   ...(rendererRuntime as any),
+
+  async getOAuthInfo() {
+    logger.info('Loading OAuth info directly from the main process AuthManager');
+    return AuthManager.getAuthInfo();
+  },
+
+  async getCharacters() {
+    logger.info('Loading characters directly from the main process GGGAPI');
+    return GGGAPI.getAllCharacters();
+  },
+
+  async isAuthenticated() {
+    logger.info('Checking authentication directly from the main process AuthManager');
+    return AuthManager.isAuthenticated(false, {
+      activeProfile: RuntimeSidecarClient.getSettingsSnapshot()?.activeProfile,
+    });
+  },
+
+  async logout() {
+    logger.info('Logging out directly from the main process AuthManager');
+    await AuthManager.logout();
+  },
 };

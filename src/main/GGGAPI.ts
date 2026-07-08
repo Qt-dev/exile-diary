@@ -6,6 +6,8 @@ import AuthManager from './AuthManager';
 import Bottleneck from 'bottleneck';
 import { v4 as uuidv4 } from 'uuid';
 import { getAppVersion } from './runtime/getUserDataPath';
+import { authSessionReadiness } from './auth/AuthSessionReadiness';
+import { poeApiResolutionGuard } from './runtime/poeApiHostResolution';
 const CACHE_TIME_IN_SECONDS = 10;
 const MIN_TIME_BETWEEN_REQUESTS = 333; // 1 request per second as a default, will be adjusted based on API feedback
 const instance = Axios.create();
@@ -156,13 +158,14 @@ const getRequestParams = (url, token) => {
 };
 
 const request = async ({ params, group, cacheTime = CACHE_TIME_IN_SECONDS, limiterId = group }) => {
+  await poeApiResolutionGuard.ensurePoeApiHostResolution();
   const limiter = limiters.key(limiterId);
   const scheduledId = `${group.replace('/', '')}-${uuidv4()}`;
 
   if (currentlyRestrictedKeys && currentlyRestrictedKeys[group]) {
     const cached = await storage.get(group);
     if (cached && cached.data) {
-      logger.warn('⚠️ API Restricted: Serving STALE data from cache.');
+      logger.warn('âš ï¸ API Restricted: Serving STALE data from cache.');
       return cached.data;
     }
     // If not even in cache, we must throw or wait
@@ -218,6 +221,7 @@ const getSettings = async (needProfile = true) => {
 const getAllCharacters = async () => {
   logger.info('Getting characters from the GGG API');
   try {
+    await authSessionReadiness.waitForAccountAccess();
     const { username, token } = await getSettings(false);
     const response: any = await request({
       params: getRequestParams(Endpoints.characters(), token),
@@ -235,6 +239,7 @@ const getAllCharacters = async () => {
 const getDataForInventory = async (): Promise<Inventory> => {
   logger.info('Getting inventory and XP data from the GGG API');
   try {
+    await authSessionReadiness.waitForProfileAccess();
     const { characterName, token } = await getSettings();
     const response: any = await request({
       params: getRequestParams(Endpoints.character({ characterName }), token),
@@ -259,6 +264,7 @@ const getDataForInventory = async (): Promise<Inventory> => {
 const getSkillTree = async () => {
   logger.info('Getting skill tree from the GGG API');
   try {
+    await authSessionReadiness.waitForProfileAccess();
     const { characterName, token } = await getSettings();
     const response: any = await request({
       params: getRequestParams(Endpoints.character({ characterName }), token),
@@ -276,6 +282,7 @@ const getSkillTree = async () => {
 const getStashTab = async (stashId) => {
   logger.info('Getting stash from the GGG API');
   try {
+    await authSessionReadiness.waitForProfileAccess();
     const { username, league, token } = await getSettings();
     const response: any = await request({
       params: getRequestParams(Endpoints.stash({ league, stashId }), token),
@@ -294,6 +301,7 @@ const getStashTab = async (stashId) => {
 const getAllStashTabs = async () => {
   logger.info('Getting stashes from the GGG API');
   try {
+    await authSessionReadiness.waitForProfileAccess();
     const { username, league, token } = await getSettings();
     const response: any = await request({
       params: getRequestParams(Endpoints.stashes({ league }), token),

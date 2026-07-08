@@ -34,6 +34,16 @@ const LoginBox = () => {
   const [isError, setIsError] = useState(false);
 
   useEffect(() => {
+    let isMounted = true;
+
+    const redirectToCharacterSelect = async () => {
+      const isAuthenticated = await electronService.isAuthenticated();
+      if (isMounted && isAuthenticated) {
+        logger.info('Auth is already complete, redirecting to the character select page');
+        navigate('/login/character-select', { replace: true });
+      }
+    };
+
     const unsubscribeAuthFailure = electronService.on('oauthAuthFailure', () => {
       logger.info('Auth Failure, redirecting to the root page');
       setIsOngoing(false);
@@ -46,15 +56,19 @@ const LoginBox = () => {
     });
 
     const unsubscribeAuthSuccess = electronService.on('oauthAuthSuccess', () => {
-      logger.info('Auth Success, redirecting to the root page');
-      navigate('/login/character-select', { replace: true });
+      logger.info('Auth Success, redirecting to the character select page');
+      if (isMounted) {
+        navigate('/login/character-select', { replace: true });
+      }
     });
 
     setIsError(false);
     setIsOngoing(false);
     setIsFetchingOauthToken(false);
+    void redirectToCharacterSelect();
 
     return () => {
+      isMounted = false;
       unsubscribeAuthFailure();
       unsubscribeReceivedCode();
       unsubscribeAuthSuccess();

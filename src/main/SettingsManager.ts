@@ -7,6 +7,7 @@ import GGGAPI from './GGGAPI';
 import RateGetterV2 from './modules/RateGetterV2';
 import EventEmitter from 'events';
 import { getUserDataPath } from './runtime/getUserDataPath';
+import { authSessionReadiness } from './auth/AuthSessionReadiness';
 
 function getSettingsPath() {
   return path.join(getUserDataPath(), 'settings.json');
@@ -14,6 +15,15 @@ function getSettingsPath() {
 
 function getTempSettingsPath() {
   return path.join(getUserDataPath(), 'settings.json.bak');
+}
+
+function hasValidActiveProfile(activeProfile: any) {
+  return !!(
+    activeProfile &&
+    activeProfile.characterName &&
+    activeProfile.league &&
+    activeProfile.valid
+  );
 }
 
 const DefaultSettings = {
@@ -64,6 +74,7 @@ const DefaultSettings = {
 class SettingsManager {
   settings: any;
   saveScheduler: NodeJS.Timeout | null = null;
+  databaseInitializationPromise: Promise<void> | null = null;
   eventEmitter = new EventEmitter();
   eventKeyMatcher: {
     [key: string]: {
@@ -89,6 +100,7 @@ class SettingsManager {
       ...DefaultSettings,
       ...JSON.parse(await fs.readFile(settingsPath, 'utf8')),
     };
+    authSessionReadiness.setProfileReady(hasValidActiveProfile(this.settings.activeProfile));
 
     this.scheduleSave();
 
@@ -99,22 +111,44 @@ class SettingsManager {
   }
 
   async initializeDB(characterName: string) {
-    logger.info(`Initializing DB for ${characterName}`);
-    const character = await this.getCharacter(characterName);
-    await DB.initDB(character.name);
-    await DB.initLeagueDB(character.league, character.name);
-    await RateGetterV2.update();
+    if (this.databaseInitializationPromise) {
+      return this.databaseInitializationPromise;
+    }
+
+    this.databaseInitializationPromise = (async () => {
+      logger.info(`Initializing DB for ${characterName}`);
+      const character = await this.getCharacter(characterName);
+      await DB.initDB(character.name);
+      await DB.initLeagueDB(character.league, character.name);
+      void RateGetterV2.update().catch((error) => {
+        logger.warn(`Background rate refresh failed after initializing ${character.name}`, error);
+      });
+    })();
+
+    try {
+      await this.databaseInitializationPromise;
+    } finally {
+      this.databaseInitializationPromise = null;
+    }
   }
 
   async getCharacter(name: string | null = null) {
     let character;
-    if (this.needsActiveProfile()) {
-      logger.info('Getting character and league info');
-      if (!name) {
-        character = await GGGAPI.getCurrentCharacter();
-      } else {
-        character = (await GGGAPI.getAllCharacters()).find((character) => character.name === name);
+    if (name) {
+      logger.info(`Getting character and league info for explicit character ${name}`);
+      character = (await GGGAPI.getAllCharacters()).find((character) => character.name === name);
+      if (!character) {
+        throw new Error(`Unable to resolve explicit character ${name}`);
       }
+      this.settings.activeProfile = {
+        characterName: character.name,
+        league: character.league,
+        valid: true,
+      };
+      authSessionReadiness.setProfileReady(true);
+    } else if (this.needsActiveProfile()) {
+      logger.info('Getting character and league info');
+      character = await GGGAPI.getCurrentCharacter();
       this.set('activeProfile', {
         characterName: character.name,
         league: character.league,
@@ -144,6 +178,11 @@ class SettingsManager {
     if (key !== 'mainWindowBounds' && key !== 'poesessid')
       logger.info(`Set "${key}" to ${JSON.stringify(value)}`);
     if (key === 'poesessid') logger.info(`Set ${key}`);
+    const previousValue = this.settings[key];
+    this.settings[key] = value;
+    if (key === 'activeProfile') {
+      authSessionReadiness.setProfileReady(hasValidActiveProfile(value));
+    }
     if (
       key === 'activeProfile' &&
       value.characterName &&
@@ -152,10 +191,11 @@ class SettingsManager {
         (this.settings.activeProfile && // New active Profile
           value.characterName !== this.settings.activeProfile.characterName)
       )
-    )
-      await this.initializeDB(value.characterName);
-    this.eventEmitter.emit('change', key, value);
-    this.settings[key] = value;
+      )
+      void this.initializeDB(value.characterName).catch((error) => {
+        logger.warn(`Background DB initialization failed for ${value.characterName}`, error);
+      });
+    this.eventEmitter.emit('change', key, value, previousValue);
     this.scheduleSave();
 
     if (key === 'enableAutoscroll') {
@@ -186,6 +226,9 @@ class SettingsManager {
   async delete(key) {
     logger.info(`Deleting ${key} from settings`);
     delete this.settings[key];
+    if (key === 'activeProfile') {
+      authSessionReadiness.setProfileReady(false);
+    }
     await this.save();
   }
 

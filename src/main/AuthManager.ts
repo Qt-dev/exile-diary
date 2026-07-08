@@ -7,6 +7,7 @@ import RendererLogger from './RendererLogger';
 import dayjs from 'dayjs';
 import Store from 'electron-store';
 import SettingsManager from './SettingsManager';
+import { authSessionReadiness } from './auth/AuthSessionReadiness';
 
 const storeKey = 'token';
 const logger = Logger.scope('Auth');
@@ -20,6 +21,14 @@ type FullToken = {
   access_token: string;
   expires_in: number;
   username: string;
+};
+
+type AuthSessionContext = {
+  activeProfile?: {
+    characterName?: string | null;
+    league?: string | null;
+    valid?: boolean;
+  } | null;
 };
 
 const TokenStore = new Store({
@@ -101,15 +110,19 @@ const AuthManager = {
       );
       SettingsManager.set('username', username);
       TokenStore.set(storeKey, access_token);
+      authSessionReadiness.setAccountReady(true);
       await AuthManager.setLogoutTimer(true);
     }
   },
-  isAuthenticated: async (isFirstTime = false) => {
+  isAuthenticated: async (isFirstTime = false, context: AuthSessionContext = {}) => {
     logger.info('Checking if the user is authenticated');
     const password = TokenStore.get(storeKey);
     const expirationDate = SettingsManager.get('tokenExpirationDate');
     const username = SettingsManager.get('username');
-    const activeProfile = SettingsManager.get('activeProfile');
+    const activeProfile =
+      context.activeProfile !== undefined
+        ? context.activeProfile
+        : SettingsManager.get('activeProfile');
     const isAuthenticated =
       !!password &&
       expirationDate !== null &&
@@ -124,12 +137,14 @@ const AuthManager = {
     logger.info(`User is ${isAuthenticated ? '' : 'not '}authenticated`, {
       password: !!password,
       expirationDate,
+      activeProfilePresent: !!activeProfile?.characterName,
     });
     return isAuthenticated;
   },
   logout: async () => {
     logger.info('Logging out');
     TokenStore.reset(storeKey);
+    authSessionReadiness.setAccountReady(false);
     SettingsManager.delete('tokenExpirationDate');
     messenger.send('oauth:logged-out');
   },

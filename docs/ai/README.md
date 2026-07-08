@@ -12,6 +12,7 @@ This folder holds the deeper guidance that should not live in `AGENTS.md`.
 - [gpu-startup-issues.md](./runbooks/gpu-startup-issues.md)
 - [stale-dev-process-or-port-conflicts.md](./runbooks/stale-dev-process-or-port-conflicts.md)
 - [sqlite-extension-runtime-path-issues.md](./runbooks/sqlite-extension-runtime-path-issues.md)
+- [ggg-api-dns-issues.md](./runbooks/ggg-api-dns-issues.md)
 
 ## Context Packs
 - [electron-startup-runtime.md](./context/electron-startup-runtime.md)

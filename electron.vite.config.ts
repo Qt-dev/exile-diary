@@ -8,16 +8,22 @@ import { defineConfig } from 'electron-vite';
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 const packageJson = JSON.parse(fs.readFileSync(path.resolve(__dirname, 'package.json'), 'utf8'));
+const tsconfigBase = JSON.parse(
+  fs.readFileSync(path.resolve(__dirname, 'tsconfig.base.json'), 'utf8')
+);
+const sharedCompilerOptions = tsconfigBase.compilerOptions ?? {};
+const aliasPaths = {
+  '@main': path.resolve(__dirname, 'src/main'),
+  '@shared': path.resolve(__dirname, 'src/shared'),
+  '@renderer': path.resolve(__dirname, 'src/renderer'),
+  '@helpers': path.resolve(__dirname, 'src/helpers'),
+};
 const electronTsconfigRaw = {
   compilerOptions: {
-    allowJs: true,
-    allowSyntheticDefaultImports: true,
-    esModuleInterop: true,
+    ...sharedCompilerOptions,
     module: 'esnext',
     moduleResolution: 'node',
-    resolveJsonModule: true,
-    target: 'esnext',
-    useDefineForClassFields: true,
+    target: 'es2022',
   },
 };
 
@@ -47,21 +53,20 @@ export default defineConfig({
         },
         input: {
           index: path.resolve(__dirname, 'src/main/index.ts'),
+          OcrSidecar: path.resolve(__dirname, 'src/main/modules/ImageParser/OcrSidecar.ts'),
+          RuntimeSidecar: path.resolve(__dirname, 'src/main/runtime/RuntimeSidecar.ts'),
           'ocr-sidecar': path.resolve(
             __dirname,
             'src/main/modules/ImageParser/OcrSidecarBootstrap.ts'
           ),
-          'runtime-sidecar': path.resolve(
-            __dirname,
-            'src/main/runtime/RuntimeSidecarBootstrap.ts'
-          ),
+          'runtime-sidecar': path.resolve(__dirname, 'src/main/runtime/RuntimeSidecarBootstrap.ts'),
         },
       },
     },
     resolve: {
       alias: {
-        '@main': path.resolve(__dirname, 'src/main'),
-        '@shared': path.resolve(__dirname, 'src/shared'),
+        '@main': aliasPaths['@main'],
+        '@shared': aliasPaths['@shared'],
       },
     },
   },
@@ -88,8 +93,8 @@ export default defineConfig({
     },
     resolve: {
       alias: {
-        '@main': path.resolve(__dirname, 'src/main'),
-        '@shared': path.resolve(__dirname, 'src/shared'),
+        '@main': aliasPaths['@main'],
+        '@shared': aliasPaths['@shared'],
       },
     },
   },
@@ -106,9 +111,9 @@ export default defineConfig({
     },
     resolve: {
       alias: {
-        '@renderer': path.resolve(__dirname, 'src/renderer'),
-        '@shared': path.resolve(__dirname, 'src/shared'),
-        '@helpers': path.resolve(__dirname, 'src/helpers'),
+        '@renderer': aliasPaths['@renderer'],
+        '@shared': aliasPaths['@shared'],
+        '@helpers': aliasPaths['@helpers'],
       },
     },
     server: {
