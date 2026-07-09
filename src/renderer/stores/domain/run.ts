@@ -22,7 +22,7 @@ type JSONRun = {
 };
 
 export class Run {
-  id = null;
+  id: string | null = null;
   lastUpdate: Dayjs;
   runId = 0;
   name = 'Unknown';

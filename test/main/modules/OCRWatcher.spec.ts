@@ -115,7 +115,7 @@ describe('OCRWatcher', () => {
 
     expect(forkMock).toHaveBeenCalledTimes(1);
     expect(forkMock.mock.calls[0][0]).toContain(
-      path.join('src', 'main', 'modules', 'ImageParser', 'OcrSidecar.ts')
+      path.join('src', 'main', 'modules', 'ImageParser', 'OcrSidecarBootstrap.ts')
     );
     expect(forkMock.mock.calls[0][2]).toMatchObject({
       execArgv: ['--require', 'tsx/cjs'],

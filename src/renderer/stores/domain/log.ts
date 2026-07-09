@@ -11,7 +11,7 @@ export type LogData = {
 };
 
 export class Log {
-  id = null;
+  id: string | null = null;
   messages: OverlayMessage[] = [];
   timestamp: Dayjs | null = null;
   link: string | null = null;

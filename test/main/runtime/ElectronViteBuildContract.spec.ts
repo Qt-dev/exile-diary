@@ -13,8 +13,9 @@ describe('electron-vite build contract', () => {
     expect(packageJson.main).toBe('./out/electron/main/index.js');
     expect(packageJson.scripts.build).toBe('npm run build:app');
     expect(packageJson.scripts.start).toBe('electron-vite preview');
-    expect(packageJson.scripts.dev).toContain('watch-electron-assets.mjs');
-    expect(packageJson.scripts.dev).toContain('electron-vite dev');
+    expect(packageJson.scripts.dev).toContain('run-dev-with-recovery.mjs');
+    expect(packageJson.scripts['dev:raw']).toContain('watch-electron-assets.mjs');
+    expect(packageJson.scripts['dev:raw']).toContain('electron-vite dev');
     expect(packageJson.scripts).not.toHaveProperty('build_app');
     expect(packageJson.scripts).not.toHaveProperty('pack');
     expect(packageJson.scripts).not.toHaveProperty('dist');
