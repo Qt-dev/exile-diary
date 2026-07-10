@@ -13,8 +13,11 @@ function getSettingsPath() {
   return path.join(getUserDataPath(), 'settings.json');
 }
 
+let tempSettingsFileCounter = 0;
+
 function getTempSettingsPath() {
-  return path.join(getUserDataPath(), 'settings.json.bak');
+  tempSettingsFileCounter += 1;
+  return path.join(getUserDataPath(), `settings.${process.pid}.${tempSettingsFileCounter}.json.tmp`);
 }
 
 function hasValidActiveProfile(activeProfile: any) {
@@ -208,19 +211,26 @@ class SettingsManager {
     if (this.saveScheduler) clearTimeout(this.saveScheduler);
 
     this.saveScheduler = setTimeout(() => {
-      this.save();
+      void this.save().catch((error) => {
+        logger.error('Error saving settings');
+        logger.error(error);
+      });
     }, 300);
   }
 
   async save() {
     const settingsPath = getSettingsPath();
     const tempFilePath = getTempSettingsPath();
-    logger.info(`Saving settings to ${tempFilePath}`);
-    await fs.writeFile(tempFilePath, JSON.stringify(this.settings));
-    logger.info(`Renaming ${tempFilePath} into  ${settingsPath}`);
-    await fs.rename(tempFilePath, settingsPath);
-    this.eventEmitter.emit('saved');
-    if (this.saveScheduler) clearTimeout(this.saveScheduler);
+    try {
+      logger.info(`Saving settings to ${tempFilePath}`);
+      await fs.writeFile(tempFilePath, JSON.stringify(this.settings));
+      logger.info(`Renaming ${tempFilePath} into  ${settingsPath}`);
+      await fs.rename(tempFilePath, settingsPath);
+      this.eventEmitter.emit('saved');
+    } finally {
+      if (this.saveScheduler) clearTimeout(this.saveScheduler);
+      this.saveScheduler = null;
+    }
   }
 
   async delete(key) {

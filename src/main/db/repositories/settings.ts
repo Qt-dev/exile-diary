@@ -9,8 +9,11 @@ function getSettingsPath() {
   return path.join(getUserDataPath(), 'settings.json');
 }
 
+let tempSettingsFileCounter = 0;
+
 function getTempFilePath() {
-  return path.join(getUserDataPath(), 'settings.json.bak');
+  tempSettingsFileCounter += 1;
+  return path.join(getUserDataPath(), `settings.${process.pid}.${tempSettingsFileCounter}.json.tmp`);
 }
 
 type Settings = {

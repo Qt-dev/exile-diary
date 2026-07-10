@@ -1,3 +1,5 @@
+import path from 'path';
+
 const getAllCharacters = jest.fn();
 const getCurrentCharacter = jest.fn();
 const setProfileReady = jest.fn();
@@ -166,5 +168,27 @@ describe('SettingsManager character bootstrap', () => {
     expect(initLeagueDB).toHaveBeenCalledTimes(1);
     await new Promise((resolve) => setTimeout(resolve, 0));
     expect(rateGetterUpdate).toHaveBeenCalledTimes(1);
+  });
+
+  it('writes through a process-specific temp file before replacing settings.json', async () => {
+    const SettingsManager = (await import('../../src/main/SettingsManager')).default as any;
+    SettingsManager.settings = {
+      activeProfile: 'Alice',
+    };
+
+    await SettingsManager.save();
+
+    const tempSettingsJsonPath = path.join(
+      '/mock-user-data',
+      `settings.${process.pid}.1.json.tmp`
+    );
+    expect(mockWriteFile).toHaveBeenCalledWith(
+      tempSettingsJsonPath,
+      JSON.stringify({ activeProfile: 'Alice' })
+    );
+    expect(mockRename).toHaveBeenCalledWith(
+      tempSettingsJsonPath,
+      path.join('/mock-user-data', 'settings.json')
+    );
   });
 });

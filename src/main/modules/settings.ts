@@ -11,6 +11,13 @@ function readSettingsFile(settingsPath: string) {
   return JSON.parse(fs.readFileSync(settingsPath, 'utf8'));
 }
 
+let tempSettingsFileCounter = 0;
+
+function getTempFilePath() {
+  tempSettingsFileCounter += 1;
+  return path.join(getUserDataPath(), `settings.${process.pid}.${tempSettingsFileCounter}.json.tmp`);
+}
+
 export function get() {
   try {
     return readSettingsFile(path.join(getUserDataPath(), 'settings.json'));
@@ -33,7 +40,7 @@ export function set(key: string, value: any) {
   }
 
   settings[key] = value;
-  const tempFilePath = path.join(getUserDataPath(), 'settings.json.bak');
+  const tempFilePath = getTempFilePath();
   fs.writeFile(tempFilePath, JSON.stringify(settings), (err) => {
     if (err) {
       logger.info(`Error writing temp settings file: ${err.message}`);

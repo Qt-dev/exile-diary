@@ -1,11 +1,42 @@
 import { spawn } from 'node:child_process';
+import fs from 'node:fs';
+import path from 'node:path';
 
 const isWindows = process.platform === 'win32';
 const npmCommand = isWindows ? 'npm.cmd' : 'npm';
 const recoveryMarker =
   '[gpu-recovery] Repeated GPU startup failures detected. Relaunching in GPU safe mode.';
+const devUserDataPath = process.env.EXILE_DIARY_USER_DATA_PATH || '.tmp/dev-user-data';
+const volatileDevProfileDirs = [
+  'Cache',
+  'Code Cache',
+  'DawnGraphiteCache',
+  'DawnWebGPUCache',
+  'GPUCache',
+  'Network',
+  'Session Storage',
+  'Shared Dictionary',
+  'blob_storage',
+];
 
 let hasRetriedWithGpuSafeMode = false;
+
+function resetVolatileDevProfileDirs() {
+  if (process.env.EXILE_DIARY_SKIP_DEV_PROFILE_CACHE_RESET === '1') {
+    return;
+  }
+
+  const userDataPath = path.resolve(devUserDataPath);
+  for (const profileDir of volatileDevProfileDirs) {
+    const targetPath = path.join(userDataPath, profileDir);
+    try {
+      fs.rmSync(targetPath, { recursive: true, force: true, maxRetries: 3, retryDelay: 100 });
+    } catch (error) {
+      console.warn(`[dev-recovery] Could not reset volatile dev profile directory ${targetPath}:`);
+      console.warn(error);
+    }
+  }
+}
 
 function forwardOutput(stream, writer, onText) {
   stream.on('data', (chunk) => {
@@ -52,6 +83,8 @@ function runDevRaw(extraEnv = {}) {
 }
 
 async function main() {
+  resetVolatileDevProfileDirs();
+
   const firstAttempt = await runDevRaw();
   if (!firstAttempt.sawRecoveryMarker) {
     process.exit(firstAttempt.code);
