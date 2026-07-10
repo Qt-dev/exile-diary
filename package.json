@@ -138,7 +138,7 @@
     "baseline:collect:ocr:app-path": "cross-env EXILE_DIARY_SILENCE_BENCHMARK_LOGS=1 npx tsx test/benchmarks/ocr/collectOcrAppPathBaselines.ts",
     "sync:electron-assets": "node ./scripts/sync-electron-assets.mjs",
     "dev": "node ./scripts/run-dev-with-recovery.mjs",
-    "dev:raw": "cross-env EXILE_DIARY_USER_DATA_PATH=.tmp/dev-user-data concurrently -k \"node ./scripts/watch-electron-assets.mjs\" \"electron-vite dev\"",
+    "dev:raw": "cross-env EXILE_DIARY_USER_DATA_PATH=.tmp/dev-user-data concurrently -k \"node ./scripts/watch-electron-assets.mjs\" \"electron-vite dev --watch\"",
     "build:app": "electron-vite build && npm run sync:electron-assets",
     "package:win": "npm run build:app && cross-env DEBUG=electron-builder electron-builder -p never",
     "package:portable": "npm run build:app && cross-env DEBUG=electron-builder electron-builder --win zip -c.win.artifactName=\"exile-diary-reborn-portable-v${version}.${ext}\" -p never",
