@@ -87,7 +87,7 @@ const DebugSettings = ({ runStore, settings }) => {
       <div className="Debug-Settings__Section-Header">
         Recalculate Loot Price and Map Profit using rates for that day
       </div>
-      <Stack direction="row" gap={5} justifyContent="center">
+      <Stack direction="row" sx={{ gap: 5, justifyContent: 'center' }}>
         <LocalizationProvider dateAdapter={AdapterDayjs}>
           <DatePicker
             label="From"
@@ -118,7 +118,7 @@ const DebugSettings = ({ runStore, settings }) => {
       </Stack>
       <Divider variant="middle" sx={{ width: '50%', margin: '20px auto' }} />
       <div className="Debug-Settings__Section-Header">Fetch Today's poe.ninja rates again</div>
-      <Stack direction="row" gap={5} justifyContent="center">
+      <Stack direction="row" sx={{ gap: 5, justifyContent: 'center' }}>
         <ButtonGroup variant="outlined">
           <Button
             disabled={isFetchingRates}
@@ -136,7 +136,7 @@ const DebugSettings = ({ runStore, settings }) => {
         Do not trigger this too fast or you will get rate limited and will not be able to fetch
         stash tabs for a while (5 minutes minimum)
       </div>
-      <Stack direction="row" gap={5} justifyContent="center">
+      <Stack direction="row" sx={{ gap: 5, justifyContent: 'center' }}>
         <ButtonGroup variant="outlined">
           <Button
             disabled={isFetchingStashTabs}
@@ -151,7 +151,7 @@ const DebugSettings = ({ runStore, settings }) => {
       <div className="Debug-Settings__Section-Header">
         Refresh the UI. Useful if you some items are not ignored when they should be.
       </div>
-      <Stack direction="row" gap={5} justifyContent="center">
+      <Stack direction="row" sx={{ gap: 5, justifyContent: 'center' }}>
         <ButtonGroup variant="outlined">
           <Button onClick={handleRefreshUI}>Refresh UI</Button>
         </ButtonGroup>
@@ -165,7 +165,7 @@ const DebugSettings = ({ runStore, settings }) => {
           Warning: This may take a while and the app may be unresponsive while it's processing.
         </div>
       </div>
-      <Stack direction="row" gap={5} justifyContent="center">
+      <Stack direction="row" sx={{ gap: 5, justifyContent: 'center' }}>
         <ButtonGroup variant="outlined">
           <Button
             onClick={handleReprocessRuns}

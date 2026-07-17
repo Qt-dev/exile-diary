@@ -491,7 +491,7 @@ const MainSettings = ({ settings, store, runStore, revalidate }) => {
                 variant="filled"
                 size="small"
                 type="number"
-                inputProps={{ min: 0, max: 30, step: 0.5 }}
+                slotProps={{ htmlInput: { min: 0, max: 30, step: 0.5 } }}
                 value={autoScreenshotDelay}
                 onChange={(e) => setAutoScreenshotDelay(parseFloat(e.target.value) || 0)}
                 helperText=""

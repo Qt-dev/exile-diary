@@ -114,7 +114,7 @@ const ItemFilterRow = ({ filterCat, settings, saveSettingsCallback }) => {
         <Stack direction="row" spacing={2}>
           <ListItemText>{filterCat.desc}</ListItemText>
         </Stack>
-        <Stack direction="row" spacing={2} alignItems={'center'}>
+        <Stack direction="row" spacing={2} sx={{ alignItems: 'center' }}>
           <ContainerComponent
             callback={toggleEnabled}
             isFolder={false}

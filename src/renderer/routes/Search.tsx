@@ -232,7 +232,7 @@ const Search = ({ store }) => {
         open={isTakingScreenshot}
         sx={{ background: 'rgba(0,0,0,0.9)', zIndex: (theme) => theme.zIndex.drawer + 1 }}
       >
-        <Stack direction="column" spacing={2} alignItems="center">
+        <Stack direction="column" spacing={2} sx={{ alignItems: 'center' }}>
           <h3>Generating Screenshot</h3>
           <CircularProgress />
         </Stack>

@@ -189,11 +189,13 @@ const HotkeySettings = ({ settings, revalidate }) => {
             ? 'Press any key combination (e.g., Ctrl+F10, Alt+R). Press Escape to cancel.'
             : helperText
         }
-        InputProps={{
-          readOnly: true,
-          style: {
-            backgroundColor: isActiveField ? '#ffebee' : undefined,
-            color: isActiveField ? '#d32f2f' : undefined,
+        slotProps={{
+          input: {
+            readOnly: true,
+            style: {
+              backgroundColor: isActiveField ? '#ffebee' : undefined,
+              color: isActiveField ? '#d32f2f' : undefined,
+            },
           },
         }}
       />
