@@ -51,6 +51,7 @@ import {
 } from './deepLinks/authCallback';
 import { OAuthCallbackFlowCoordinator } from './deepLinks/OAuthCallbackFlowCoordinator';
 import { syncAuthSessionReadiness } from './auth/syncAuthSessionReadiness';
+import { saveTokenAndSyncRuntime } from './auth/syncRuntimeAuthSession';
 
 const gpuRecovery = createGpuRecoveryManager();
 const gpuRecoveryState = gpuRecovery.initialize();
@@ -252,7 +253,7 @@ class MainProcess {
               getState: () => AuthManager.getState(),
               saveSettings: (settings) =>
                 RuntimeSidecarClient.callRendererMethod('saveSettings', [settings]),
-              saveToken: (token) => AuthManager.saveToken(token as any),
+              saveToken: (token) => saveTokenAndSyncRuntime(token as any),
               sendAuthFailure: (payload) => this.sendToMain(rendererEventChannels.oauthAuthFailure, payload),
           sendAuthSuccess: () => this.sendToMain(rendererEventChannels.oauthAuthSuccess),
           verifyState: (state) => AuthManager.verifyState(state),

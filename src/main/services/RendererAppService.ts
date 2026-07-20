@@ -7,6 +7,7 @@ import {
 import * as RuntimeSidecarClient from '../runtime/RuntimeSidecarClient';
 import AuthManager from '../AuthManager';
 import GGGAPI from '../GGGAPI';
+import { logoutAndSyncRuntime } from '../auth/syncRuntimeAuthSession';
 
 const rendererRuntime = runtimeRendererMethodKeys.reduce((service, method) => {
   service[method] = (...args: any[]) => RuntimeSidecarClient.callRendererMethod(method, args);
@@ -43,7 +44,7 @@ export const RendererAppService = {
   },
 
   async logout() {
-    logger.info('Logging out directly from the main process AuthManager');
-    await AuthManager.logout();
+    logger.info('Logging out and synchronizing the runtime sidecar session');
+    await logoutAndSyncRuntime();
   },
 };

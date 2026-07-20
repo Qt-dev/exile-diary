@@ -1,6 +1,7 @@
 const callRendererMethod = jest.fn();
 const getSettingsSnapshot = jest.fn();
 const getAllCharacters = jest.fn();
+const logoutAndSyncRuntime = jest.fn();
 
 jest.mock('../../../src/main/runtime/RuntimeSidecarClient', () => ({
   callRendererMethod: (...args: unknown[]) => callRendererMethod(...args),
@@ -23,6 +24,10 @@ jest.mock('../../../src/main/GGGAPI', () => ({
   default: {
     getAllCharacters: (...args: unknown[]) => getAllCharacters(...args),
   },
+}));
+
+jest.mock('../../../src/main/auth/syncRuntimeAuthSession', () => ({
+  logoutAndSyncRuntime: (...args: unknown[]) => logoutAndSyncRuntime(...args),
 }));
 
 describe('RendererAppService auth ownership', () => {
@@ -67,13 +72,14 @@ describe('RendererAppService auth ownership', () => {
     expect(callRendererMethod).not.toHaveBeenCalledWith('isAuthenticated', expect.anything());
   });
 
-  it('logs out through the main process AuthManager', async () => {
-    authManager.logout.mockResolvedValue(undefined);
+  it('logs out and synchronizes the runtime sidecar session', async () => {
+    logoutAndSyncRuntime.mockResolvedValue(undefined);
 
     const { RendererAppService } = await import('../../../src/main/services/RendererAppService');
     await RendererAppService.logout();
 
-    expect(authManager.logout).toHaveBeenCalledTimes(1);
+    expect(logoutAndSyncRuntime).toHaveBeenCalledTimes(1);
+    expect(authManager.logout).not.toHaveBeenCalled();
     expect(callRendererMethod).not.toHaveBeenCalledWith('logout', expect.anything());
   });
 

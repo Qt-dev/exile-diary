@@ -23,7 +23,13 @@ type MockChildProcess = EventEmitter & {
   kill: jest.Mock;
 };
 
-function createMockChildProcess(): MockChildProcess {
+function createMockChildProcess(
+  settingsSnapshot = {
+    overlayEnabled: true,
+    overlayPersistenceEnabled: false,
+    runParseShortcut: 'F8',
+  }
+): MockChildProcess {
   const child = new EventEmitter() as MockChildProcess;
   child.connected = true;
   child.killed = false;
@@ -53,11 +59,7 @@ function createMockChildProcess(): MockChildProcess {
           type: 'response',
           requestId: message.requestId,
           ok: true,
-          result: {
-            overlayEnabled: true,
-            overlayPersistenceEnabled: false,
-            runParseShortcut: 'F8',
-          },
+          result: settingsSnapshot,
         });
       });
     }
@@ -215,6 +217,39 @@ describe('RuntimeSidecarClient', () => {
       level: 84,
       seed: 'xyz',
     });
+
+    await client.stop();
+  });
+
+  it('clears and reloads the settings snapshot when restarting the sidecar', async () => {
+    const firstChild = createMockChildProcess({ username: 'OldAccount' });
+    const secondChild = createMockChildProcess({ username: 'NewAccount' });
+    const children = [firstChild, secondChild];
+
+    forkMock.mockImplementation(() => {
+      const child = children.shift();
+      if (!child) {
+        throw new Error('Unexpected runtime sidecar spawn');
+      }
+      setImmediate(() => {
+        child.emit('message', {
+          type: 'ready',
+          pid: 5150,
+          startedAt: '2026-07-05T09:00:00.000Z',
+        });
+      });
+      return child;
+    });
+
+    const client = require('../../../src/main/runtime/RuntimeSidecarClient');
+
+    await client.start();
+    expect(client.getSettingsSnapshot()).toEqual({ username: 'OldAccount' });
+
+    await client.restart();
+
+    expect(forkMock).toHaveBeenCalledTimes(2);
+    expect(client.getSettingsSnapshot()).toEqual({ username: 'NewAccount' });
 
     await client.stop();
   });

@@ -570,6 +570,12 @@ export async function stop() {
   });
 }
 
+export async function restart() {
+  await stop();
+  settingsSnapshot = {};
+  await start();
+}
+
 export function getHealth() {
   return latestHealth;
 }
