@@ -77,6 +77,14 @@ const itemFilterCategories = [
   },
 ];
 
+const itemTypeIconUrls = import.meta.glob('../../../assets/img/itemtypeicons/*.png', {
+  eager: true,
+  import: 'default',
+}) as Record<string, string>;
+
+const getItemTypeIconUrl = (categoryId: string) =>
+  itemTypeIconUrls[`../../../assets/img/itemtypeicons/${categoryId}.png`];
+
 const ItemFilterRow = ({ filterCat, settings, saveSettingsCallback }) => {
   const [ignored, setIgnored] = React.useState(settings[filterCat.id]?.ignore ?? false);
   const [minValue, setMinValue] = React.useState(settings[filterCat.id]?.minimumValue ?? 0);
@@ -85,7 +93,7 @@ const ItemFilterRow = ({ filterCat, settings, saveSettingsCallback }) => {
     'ItemFilter-Settings__List-Item': true,
     'ItemFilter-Settings__List-Item--hovered': hovered,
   });
-  const Icon = require(`../../../assets/img/itemtypeicons/${filterCat.id}.png`);
+  const Icon = getItemTypeIconUrl(filterCat.id);
   const toggleEnabled = async (e) => {
     saveSettingsCallback(filterCat.id, { ignore: !ignored, minimumValue: minValue });
     setIgnored(!ignored);

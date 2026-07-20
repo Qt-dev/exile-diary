@@ -1,10 +1,17 @@
 import React from 'react';
 import { render, screen } from '@testing-library/react';
+import { vi } from 'vitest';
 import Item from '../../src/renderer/components/Item/Item';
 
-jest.mock('../../src/renderer/components/Item/Sockets', () => () => <div>Sockets</div>);
-jest.mock('../../src/renderer/components/Item/ItemTooltip', () => () => <div>Item Tooltip</div>);
-jest.mock('../../src/renderer/components/Item/CardTooltip', () => () => <div>Card Tooltip</div>);
+vi.mock('../../src/renderer/components/Item/Sockets', () => ({
+  default: () => <div>Sockets</div>,
+}));
+vi.mock('../../src/renderer/components/Item/ItemTooltip', () => ({
+  default: () => <div>Item Tooltip</div>,
+}));
+vi.mock('../../src/renderer/components/Item/CardTooltip', () => ({
+  default: () => <div>Card Tooltip</div>,
+}));
 
 describe('Item component', () => {
   it('renders influence icons without relying on CommonJS require', () => {

@@ -2,51 +2,52 @@ import React from 'react';
 import { render, screen } from '@testing-library/react';
 import { ThemeProvider } from '@mui/material/styles';
 import { createMemoryRouter, RouterProvider } from 'react-router-dom';
+import { vi } from 'vitest';
 import { appTheme, createAppRoutes } from '../../src/renderer/app';
 
-jest.mock('../../src/renderer/electron.service', () => {
+vi.mock('../../src/renderer/electron.service', () => {
   const logger = {
-    debug: jest.fn(),
-    error: jest.fn(),
-    info: jest.fn(),
-    log: jest.fn(),
-    scope: jest.fn(),
-    silly: jest.fn(),
-    verbose: jest.fn(),
-    warn: jest.fn(),
+    debug: vi.fn(),
+    error: vi.fn(),
+    info: vi.fn(),
+    log: vi.fn(),
+    scope: vi.fn(),
+    silly: vi.fn(),
+    verbose: vi.fn(),
+    warn: vi.fn(),
   };
   logger.scope.mockImplementation(() => logger);
 
   return {
     electronService: {
       logger,
-      getAllMapNames: jest.fn(),
-      getAllPossibleMods: jest.fn(),
-      getAppVersion: jest.fn(),
-      getCharacters: jest.fn(),
-      getDivinePrice: jest.fn(),
-      getOAuthInfo: jest.fn(),
-      getSettings: jest.fn(),
-      isAuthenticated: jest.fn(),
-      notifyFiltersUiUpdated: jest.fn(),
-      on: jest.fn(),
-      openExternal: jest.fn(),
-      refreshGlobals: jest.fn(),
-      refreshProfitPerHour: jest.fn(),
-      requestNetWorthRefresh: jest.fn(),
+      getAllMapNames: vi.fn(),
+      getAllPossibleMods: vi.fn(),
+      getAppVersion: vi.fn(),
+      getCharacters: vi.fn(),
+      getDivinePrice: vi.fn(),
+      getOAuthInfo: vi.fn(),
+      getSettings: vi.fn(),
+      isAuthenticated: vi.fn(),
+      notifyFiltersUiUpdated: vi.fn(),
+      on: vi.fn(),
+      openExternal: vi.fn(),
+      refreshGlobals: vi.fn(),
+      refreshProfitPerHour: vi.fn(),
+      requestNetWorthRefresh: vi.fn(),
     },
   };
 });
 
-jest.mock('../../src/helpers/ignoreManager', () => ({
+vi.mock('../../src/helpers/ignoreManager', () => ({
   __esModule: true,
   default: {
-    initialize: jest.fn(),
-    updateSettings: jest.fn(),
+    initialize: vi.fn(),
+    updateSettings: vi.fn(),
   },
 }));
 
-const { electronService: mockElectronService } = jest.requireMock(
+const { electronService: mockElectronService } = await import(
   '../../src/renderer/electron.service'
 );
 const mockLogger = mockElectronService.logger;
@@ -54,8 +55,8 @@ const mockLogger = mockElectronService.logger;
 const createRunStore = () =>
   ({
     runs: [],
-    loadDetails: jest.fn(),
-    loadRun: jest.fn(),
+    loadDetails: vi.fn(),
+    loadRun: vi.fn(),
     getFullDuration: () => ({
       format: () => '0 days 00h 00m 00s',
     }),
@@ -88,7 +89,7 @@ const renderApp = (initialEntry: string) => {
 };
 
 beforeEach(() => {
-  jest.clearAllMocks();
+  vi.clearAllMocks();
 
   mockElectronService.getAllMapNames.mockResolvedValue([]);
   mockElectronService.getAllPossibleMods.mockResolvedValue([]);
@@ -109,7 +110,7 @@ beforeEach(() => {
     },
   });
   mockElectronService.isAuthenticated.mockResolvedValue(true);
-  mockElectronService.on.mockImplementation(() => jest.fn());
+  mockElectronService.on.mockImplementation(() => vi.fn());
   mockElectronService.refreshGlobals.mockResolvedValue({
     appLocale: 'en-US',
     appPath: 'mock-app',

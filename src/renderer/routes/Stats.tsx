@@ -139,7 +139,7 @@ const Stats = () => {
         </Tabs>
         {tabValue === 0 ? screenshotIcon : null}
       </div>
-      <TabPanel keepMounted value={tabValue} index={0}>
+      <TabPanel value={tabValue} index={0}>
         <div ref={screenShotRef}>
           <h1 className="Stats__Header">
             Stats for <span className="Text--Legendary">{characterName}</span> in the{' '}
@@ -154,13 +154,13 @@ const Stats = () => {
           ) : null}
         </div>
       </TabPanel>
-      <TabPanel keepMounted value={tabValue} index={1}>
+      <TabPanel value={tabValue} index={1}>
         <AreaStats stats={stats} />
       </TabPanel>
-      <TabPanel keepMounted value={tabValue} index={2}>
+      <TabPanel value={tabValue} index={2}>
         <BossStats stats={stats?.bosses} />
       </TabPanel>
-      <TabPanel keepMounted value={tabValue} index={3}>
+      <TabPanel value={tabValue} index={3}>
         <LootStats stats={stats?.items} store={itemStore} />
       </TabPanel>
     </div>

@@ -24,6 +24,7 @@ describe('ExileDiary preload bridge', () => {
 
     expect(typeof api.getSettings).toBe('function');
     expect(typeof api.loadRuns).toBe('function');
+    expect(typeof api.logRendererMessage).toBe('function');
     expect(typeof api.on).toBe('function');
     expect(typeof api.openExternal).toBe('function');
   });
@@ -39,6 +40,7 @@ describe('ExileDiary preload bridge', () => {
     await api.loadRuns(25);
     api.refreshUi();
     api.setOverlayPosition({ x: 12, y: 34 });
+    api.logRendererMessage({ level: 'error', message: 'render failed', source: 'global-error' });
     api.openExternal('https://example.com');
 
     const listener = jest.fn();
@@ -53,6 +55,11 @@ describe('ExileDiary preload bridge', () => {
     expect(electron.ipcRenderer.send).toHaveBeenCalledWith(sendChannels.setOverlayPosition, {
       x: 12,
       y: 34,
+    });
+    expect(electron.ipcRenderer.send).toHaveBeenCalledWith(sendChannels.rendererLog, {
+      level: 'error',
+      message: 'render failed',
+      source: 'global-error',
     });
     expect(electron.shell.openExternal).toHaveBeenCalledWith('https://example.com');
     expect(electron.ipcRenderer.on).toHaveBeenCalledWith(

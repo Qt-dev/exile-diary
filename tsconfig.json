@@ -10,5 +10,5 @@
     "noFallthroughCasesInSwitch": true,
     "types": ["node", "jest"]
   },
-  "include": ["src/renderer", "src/shared", "src/helpers", "typings"]
+  "include": ["src/renderer", "src/shared", "src/helpers", "test/ui", "typings"]
 }

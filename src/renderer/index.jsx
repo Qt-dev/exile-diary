@@ -7,6 +7,7 @@ import calendar from 'dayjs/plugin/calendar';
 import { createHashRouter, RouterProvider } from 'react-router-dom';
 import { ThemeProvider } from '@mui/material/styles';
 import { rendererBootEvent } from '../shared/contracts/exileDiaryApi';
+import { installRendererClientLogging, writeBootstrapRendererLog } from './clientLogging';
 import './index.css';
 
 globalThis.global = globalThis;
@@ -34,6 +35,7 @@ function renderBootError(error) {
 
   hasRenderedBootError = true;
   const message = getBootErrorMessage(error);
+  writeBootstrapRendererLog(error);
   console.error('[renderer/bootstrap] Failed to boot renderer', error);
 
   if (documentRoot === null) {
@@ -68,6 +70,8 @@ async function bootRenderer() {
     if (!window.exileDiary) {
       throw new Error('window.exileDiary is not available. The preload script may have failed.');
     }
+
+    installRendererClientLogging();
 
     const [{ default: RunStore }, { default: CharacterStore }, { default: StashTabStore }, app] =
       await Promise.all([

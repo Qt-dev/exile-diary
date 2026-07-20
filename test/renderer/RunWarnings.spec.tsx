@@ -1,71 +1,73 @@
 import React from 'react';
 import { render, screen } from '@testing-library/react';
-import { MemoryRouter } from 'react-router-dom';
+import { useLoaderData as routerUseLoaderData, useParams as routerUseParams } from 'react-router';
+import { MemoryRouter, useNavigate as routerUseNavigate } from 'react-router-dom';
+import { vi } from 'vitest';
 import LogBox from '../../src/renderer/components/LogBox/LogBox';
 import RunNavigation from '../../src/renderer/components/RunNavigation/RunNavigation';
 import Run from '../../src/renderer/routes/Run';
 
-jest.mock('../../src/renderer/electron.service', () => ({
+vi.mock('../../src/renderer/electron.service', () => ({
   electronService: {
-    on: jest.fn(() => jest.fn()),
-    triggerLogAction: jest.fn(),
+    on: vi.fn(() => vi.fn()),
+    triggerLogAction: vi.fn(),
   },
 }));
 
-jest.mock('../../src/renderer/components/Pricing/Price', () => ({
+vi.mock('../../src/renderer/components/Pricing/Price', () => ({
   __esModule: true,
   default: ({ value }) => <span>{value}</span>,
 }));
 
-jest.mock('../../src/renderer/components/RunEvent/RunEventIcons', () => ({
+vi.mock('../../src/renderer/components/RunEvent/RunEventIcons', () => ({
   __esModule: true,
   default: () => <div>Run Event Icons</div>,
 }));
 
-jest.mock('../../src/renderer/components/RunEvent/RunEvent', () => ({
+vi.mock('../../src/renderer/components/RunEvent/RunEvent', () => ({
   __esModule: true,
   default: () => <div>Run Event</div>,
 }));
 
-jest.mock('../../src/renderer/components/LootTable/LootTable', () => ({
+vi.mock('../../src/renderer/components/LootTable/LootTable', () => ({
   __esModule: true,
   default: () => <div>Loot Table</div>,
 }));
 
-jest.mock('react-router', () => ({
-  ...jest.requireActual('react-router'),
-  useLoaderData: jest.fn(),
-  useParams: jest.fn(),
-}));
+vi.mock('react-router', async () => {
+  const actual = await vi.importActual<typeof import('react-router')>('react-router');
+  return { ...actual, useLoaderData: vi.fn(), useParams: vi.fn() };
+});
 
-jest.mock('react-router-dom', () => ({
-  ...jest.requireActual('react-router-dom'),
-  useNavigate: jest.fn(),
-}));
+vi.mock('react-router-dom', async () => {
+  const actual = await vi.importActual<typeof import('react-router-dom')>('react-router-dom');
+  return { ...actual, useNavigate: vi.fn() };
+});
 
-const { useLoaderData, useParams } = jest.requireMock('react-router');
-const { useNavigate } = jest.requireMock('react-router-dom');
+const useLoaderData = vi.mocked(routerUseLoaderData);
+const useParams = vi.mocked(routerUseParams);
+const useNavigate = vi.mocked(routerUseNavigate);
 
-const getConsoleMessages = (spy: jest.SpyInstance, matcher: string) =>
+const getConsoleMessages = (spy: vi.SpyInstance, matcher: string) =>
   spy.mock.calls
     .flat()
     .filter((value) => typeof value === 'string')
     .filter((value: string) => value.includes(matcher));
 
 describe('renderer warning regressions', () => {
-  let consoleErrorSpy: jest.SpyInstance;
-  let consoleWarnSpy: jest.SpyInstance;
+  let consoleErrorSpy: vi.SpyInstance;
+  let consoleWarnSpy: vi.SpyInstance;
 
   beforeEach(() => {
-    consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => undefined);
-    consoleWarnSpy = jest.spyOn(console, 'warn').mockImplementation(() => undefined);
-    useNavigate.mockReturnValue(jest.fn());
+    consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => undefined);
+    consoleWarnSpy = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
+    useNavigate.mockReturnValue(vi.fn());
   });
 
   afterEach(() => {
     consoleErrorSpy.mockRestore();
     consoleWarnSpy.mockRestore();
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   it('renders log lines without key warnings', () => {
@@ -94,13 +96,13 @@ describe('renderer warning regressions', () => {
 
   it('renders run navigation options without key warnings', () => {
     const store = {
-      getNextRun: jest.fn(() => null),
-      getPreviousRun: jest.fn(() => null),
-      getSortedRuns: jest.fn(() => [
+      getNextRun: vi.fn(() => null),
+      getPreviousRun: vi.fn(() => null),
+      getSortedRuns: vi.fn(() => [
         { runId: '1', name: 'Mesa', firstEvent: { format: () => '07/05/2026 12:00:00' } },
         { runId: '2', name: 'Dunes', firstEvent: { format: () => '07/05/2026 12:05:00' } },
       ]),
-      reprocessRun: jest.fn(),
+      reprocessRun: vi.fn(),
     };
 
     render(
@@ -143,11 +145,11 @@ describe('renderer warning regressions', () => {
       <MemoryRouter>
         <Run
           store={{
-            getNextRun: jest.fn(() => null),
-            getPreviousRun: jest.fn(() => null),
-            getSortedRuns: jest.fn(() => []),
-            loadDetails: jest.fn(),
-            reprocessRun: jest.fn(),
+            getNextRun: vi.fn(() => null),
+            getPreviousRun: vi.fn(() => null),
+            getSortedRuns: vi.fn(() => []),
+            loadDetails: vi.fn(),
+            reprocessRun: vi.fn(),
           }}
         />
       </MemoryRouter>

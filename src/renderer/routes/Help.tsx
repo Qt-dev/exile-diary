@@ -81,7 +81,7 @@ const Help = () => {
             <h3 className="Help__FAQ__Title">How to tell the app that the map is complete?</h3>
           </AccordionSummary>
           <AccordionDetails>
-            <Typography>
+            <Typography component="div">
               To complete a map, you have multiple options:
               <ol>
                 <li>Travel to a different map</li>
@@ -178,7 +178,7 @@ const Help = () => {
             </h3>
           </AccordionSummary>
           <AccordionDetails>
-            <Typography>
+            <Typography component="div">
               In the Debug section of the Settings, you have a few tools to allow you to clean up
               prices.
               <ol>

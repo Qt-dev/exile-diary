@@ -1,17 +1,18 @@
 import React from 'react';
 import { act, render, screen, waitFor } from '@testing-library/react';
 import { createMemoryRouter, RouterProvider } from 'react-router-dom';
+import { vi } from 'vitest';
 
-jest.mock('../../src/renderer/electron.service', () => {
+vi.mock('../../src/renderer/electron.service', () => {
   const logger = {
-    debug: jest.fn(),
-    error: jest.fn(),
-    info: jest.fn(),
-    log: jest.fn(),
-    scope: jest.fn(),
-    silly: jest.fn(),
-    verbose: jest.fn(),
-    warn: jest.fn(),
+    debug: vi.fn(),
+    error: vi.fn(),
+    info: vi.fn(),
+    log: vi.fn(),
+    scope: vi.fn(),
+    silly: vi.fn(),
+    verbose: vi.fn(),
+    warn: vi.fn(),
   };
   logger.scope.mockImplementation(() => logger);
 
@@ -20,24 +21,24 @@ jest.mock('../../src/renderer/electron.service', () => {
   return {
     electronService: {
       logger,
-      getOAuthInfo: jest.fn().mockResolvedValue({
+      getOAuthInfo: vi.fn().mockResolvedValue({
         code_challenge: 'challenge',
         state: 'state',
       }),
-      getCharacters: jest.fn().mockResolvedValue([
+      getCharacters: vi.fn().mockResolvedValue([
         {
           current: true,
           league: 'Settlers',
           name: 'Alice',
         },
       ]),
-      isAuthenticated: jest.fn(),
-      on: jest.fn((eventName: string, listener: () => void) => {
+      isAuthenticated: vi.fn(),
+      on: vi.fn((eventName: string, listener: () => void) => {
         listeners.set(eventName, listener);
         return () => listeners.delete(eventName);
       }),
-      openExternal: jest.fn(),
-      saveSettings: jest.fn(),
+      openExternal: vi.fn(),
+      saveSettings: vi.fn(),
       __listeners: listeners,
     },
   };
@@ -54,8 +55,8 @@ const { __listeners: listeners, isAuthenticated } = electronService as typeof el
 const createRunStore = () =>
   ({
     runs: [],
-    loadDetails: jest.fn(),
-    loadRun: jest.fn(),
+    loadDetails: vi.fn(),
+    loadRun: vi.fn(),
     getFullDuration: () => ({
       format: () => '0 days 00h 00m 00s',
     }),
@@ -89,7 +90,7 @@ const renderLoginRoute = () => {
 
 describe('LoginBox', () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
     listeners.clear();
   });
 
@@ -133,9 +134,7 @@ describe('LoginBox', () => {
       listeners.get('oauthReceivedCode')?.();
     });
 
-    expect(
-      await screen.findByText(/Received Code, Fetching Oauth Token/i)
-    ).toBeInTheDocument();
+    expect(await screen.findByText(/Received Code, Fetching Oauth Token/i)).toBeInTheDocument();
   });
 
   it('shows an error state when the renderer receives oauthAuthFailure', async () => {
@@ -149,17 +148,13 @@ describe('LoginBox', () => {
     await act(async () => {
       listeners.get('oauthReceivedCode')?.();
     });
-    expect(
-      await screen.findByText(/Received Code, Fetching Oauth Token/i)
-    ).toBeInTheDocument();
+    expect(await screen.findByText(/Received Code, Fetching Oauth Token/i)).toBeInTheDocument();
 
     await act(async () => {
       listeners.get('oauthAuthFailure')?.();
     });
 
-    expect(
-      await screen.findByText(/Something went wrong, please try again/i)
-    ).toBeInTheDocument();
+    expect(await screen.findByText(/Something went wrong, please try again/i)).toBeInTheDocument();
     expect(screen.queryByText(/Received Code, Fetching Oauth Token/i)).not.toBeInTheDocument();
   });
 });

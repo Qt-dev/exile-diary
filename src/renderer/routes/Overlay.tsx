@@ -47,19 +47,24 @@ const OverlayMapInfoLine = ({ run }) => {
 
 const OverlayNotificationLine = ({ messages }) => {
   if (!messages) return null;
-  const formattedMessages = messages.map(({ type, text, icon, price, divinePrice }) => {
+  const formattedMessages = messages.map(({ type, text, icon, price, divinePrice }, index) => {
+    const key = `overlay-message-${index}-${text ?? type ?? icon ?? price ?? 'plain'}`;
     if (price || price === 0) {
-      return [
-        <span className={classPerType['currency']}>
+      return (
+        <span key={key} className={classPerType['currency']}>
           <Price value={price} divinePrice={divinePrice} />
-        </span>,
-      ];
+        </span>
+      );
     } else if (icon) {
-      return [<img src={icon} alt="icon" className={'Text--Icon'} />];
+      return <img key={key} src={icon} alt="icon" className={'Text--Icon'} />;
     } else if (type) {
-      return [<span className={classPerType[type]}>{text}</span>];
+      return (
+        <span key={key} className={classPerType[type]}>
+          {text}
+        </span>
+      );
     } else {
-      return [<>{text}</>];
+      return <React.Fragment key={key}>{text}</React.Fragment>;
     }
   });
   return <OverlayLineContent message={formattedMessages} />;

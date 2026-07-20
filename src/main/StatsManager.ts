@@ -1,5 +1,6 @@
 import logger from 'electron-log';
 import dayjs, { ManipulateType } from 'dayjs';
+import duration from 'dayjs/plugin/duration';
 import DB from './db/repositories/stats';
 import RatesManager from './RatesManager';
 import SettingsManager from './SettingsManager';
@@ -7,6 +8,8 @@ import { Run } from '../helpers/types';
 import Constants from '../helpers/constants';
 import ItemPricer from './modules/ItemPricer';
 const { areas } = Constants;
+
+dayjs.extend(duration);
 
 type GetStatsParams = {
   league?: string;

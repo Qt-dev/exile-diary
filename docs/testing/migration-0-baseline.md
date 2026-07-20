@@ -31,7 +31,9 @@ Use two layers so routine checks stay fast:
 
 What each layer covers:
 
-- `test:ui:smoke` runs a renderer-only smoke suite in `jsdom`. It verifies the shared route tree, auth redirect, and main shell rendering without starting Electron.
+- `test:renderer` runs fast renderer component and route tests in Vitest/jsdom through Vite's transform pipeline.
+- `test:ui:smoke` runs the real styled Vite renderer in Chromium against deterministic preload fixtures. It verifies auth, navigation, run details, search, settings saves, fixture mutation, preload events, and compact shell layout without starting Electron; unexpected page and console errors fail the suite.
+- `test:ui:capture` captures review screenshots for primary routes and all settings/stats tabs without enforcing pixel baselines.
 - `test:app:smoke` reuses the lifecycle startup harness to launch the compiled Electron app once and confirm the main process still boots cleanly.
 
 Suggested workflow:
@@ -70,12 +72,12 @@ Rules:
 
 Fixtures live under `test/Fixtures/migration-0`.
 
-| Area | Fixture family | Current purpose |
-| --- | --- | --- |
-| Run reconstruction | `run-reconstruction/` | sample log slices and expected event snapshots |
-| Pricing | `pricing/` | frozen rates and sample item payloads |
-| Stash valuation | `stash/` | sample stash payloads and expected totals |
-| OCR matching | `ocr/` | sample OCR line inputs and expected mod matches |
+| Area               | Fixture family        | Current purpose                                 |
+| ------------------ | --------------------- | ----------------------------------------------- |
+| Run reconstruction | `run-reconstruction/` | sample log slices and expected event snapshots  |
+| Pricing            | `pricing/`            | frozen rates and sample item payloads           |
+| Stash valuation    | `stash/`              | sample stash payloads and expected totals       |
+| OCR matching       | `ocr/`                | sample OCR line inputs and expected mod matches |
 
 These fixtures are seeds. They should grow with real captured data as migration work continues.
 

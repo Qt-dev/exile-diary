@@ -36,6 +36,7 @@ export const sendChannels = {
   downloadUpdate: 'download-update',
   applyUpdate: 'apply-update',
   appBooted: 'app:booted',
+  rendererLog: 'renderer:log',
   notifyFiltersUiUpdated: 'settings:filters:ui-updated',
   refreshUi: 'ui:refresh',
   requestNetWorthRefresh: 'get-net-worth',
@@ -114,6 +115,20 @@ export type OpenFileDialogOptions = {
 export type OpenFileDialogResult = {
   canceled: boolean;
   filePaths: string[];
+};
+
+export type MapNameOption = { name: string };
+export type MapModOption = { mod: string };
+
+export type RendererLogLevel = 'debug' | 'error' | 'info' | 'log' | 'warn';
+
+export type RendererLogPayload = {
+  level: RendererLogLevel;
+  message: string;
+  scope?: string;
+  source?: 'console' | 'global-error' | 'unhandled-rejection' | 'bootstrap';
+  stack?: string;
+  timestamp?: string;
 };
 
 export type OverlayMessage = {
@@ -227,8 +242,8 @@ export interface ExileDiaryApi {
   saveFilterSettings(filters: Record<string, any>): Promise<void>;
   triggerSearch(params: Record<string, any>): Promise<void>;
   getDivinePrice(): Promise<number>;
-  getAllMapNames(): Promise<string[]>;
-  getAllPossibleMods(): Promise<string[]>;
+  getAllMapNames(): Promise<MapNameOption[]>;
+  getAllPossibleMods(): Promise<MapModOption[]>;
   refreshProfitPerHour(): Promise<void>;
   debugRecheckGain(from?: string, to?: string): Promise<void>;
   debugFetchRates(): Promise<void>;
@@ -246,6 +261,7 @@ export interface ExileDiaryApi {
   disableHotkeys(): void;
   enableHotkeys(): void;
   triggerLogAction(action: ExileDiaryLogAction): void;
+  logRendererMessage(payload: RendererLogPayload): void;
   openExternal(url: string): Promise<void>;
   on<K extends ExileDiaryRendererEventName>(
     eventName: K,

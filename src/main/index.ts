@@ -40,6 +40,7 @@ import { registerResponderHandlers } from './ipc/registerResponderHandlers';
 import { registerShellHandlers } from './ipc/registerShellHandlers';
 import { registerRuntimeListeners } from './runtime/registerRuntimeListeners';
 import { registerAutoUpdater } from './updater/registerAutoUpdater';
+import { registerRendererClientLogHandler } from './rendererClientLogger';
 import { getRendererIndexPath } from './runtime/electronViteRuntimePaths';
 import { createRuntimeSidecarBridge } from './runtime/createRuntimeSidecarBridge';
 import * as RuntimeSidecarClient from './runtime/RuntimeSidecarClient';
@@ -170,6 +171,7 @@ function setupDebugLoggerHook(logToUI: boolean) {
 logger.initialize({ preload: true });
 setLogTransport(isDev || SettingsManager.get('forceDebugMode'));
 logger.scope.defaultLabel = 'main';
+registerRendererClientLogHandler();
 
 if (gpuRecoveryState.gpuSafeMode) {
   logger.warn(`GPU safe mode active (${gpuRecoveryState.recoveryReason ?? 'unspecified-reason'}).`);

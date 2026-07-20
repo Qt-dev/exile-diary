@@ -82,6 +82,7 @@ const api: ExileDiaryApi = {
       ipcRenderer.send(action);
     }
   },
+  logRendererMessage: (payload) => ipcRenderer.send(sendChannels.rendererLog, payload),
   openExternal: (url) => shell.openExternal(url),
   on: onRendererEvent,
 };
