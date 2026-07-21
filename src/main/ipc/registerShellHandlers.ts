@@ -1,6 +1,5 @@
 import { app, dialog, ipcMain, shell } from 'electron';
 import { AppWindows } from '../windows/createAppWindows';
-import SettingsManager from '../SettingsManager';
 import DB from '../db';
 import {
   invokeChannels,
@@ -10,6 +9,10 @@ import {
 
 type RegisterShellHandlersDependencies = {
   windows: AppWindows;
+  settings: {
+    get: (key: string) => any;
+    set: (key: string, value: any) => Promise<unknown>;
+  };
   sendToMain: (event: string, data?: any) => void;
   refreshWindows: () => void;
   registerHotkeys: () => void;
@@ -18,6 +21,7 @@ type RegisterShellHandlersDependencies = {
 
 export function registerShellHandlers({
   windows,
+  settings,
   sendToMain,
   refreshWindows,
   registerHotkeys,
@@ -48,12 +52,12 @@ export function registerShellHandlers({
     windows.overlayWindow.setIgnoreMouseEvents(!clickable);
   });
 
-  ipcMain.on(sendChannels.setOverlayPosition, (event, { x, y }) => {
-    SettingsManager.set('overlayPosition', { x, y });
+  ipcMain.on(sendChannels.setOverlayPosition, async (event, { x, y }) => {
+    await settings.set('overlayPosition', { x, y });
   });
 
   ipcMain.handle(invokeChannels.getOverlayPosition, () => {
-    return SettingsManager.get('overlayPosition');
+    return settings.get('overlayPosition');
   });
 
   ipcMain.handle(invokeChannels.openFileDialog, async (event, options) => {
@@ -61,7 +65,7 @@ export function registerShellHandlers({
   });
 
   ipcMain.handle(invokeChannels.showCharacterDbFile, async () => {
-    const activeProfile = SettingsManager.get('activeProfile');
+    const activeProfile = settings.get('activeProfile');
     if (activeProfile && activeProfile.characterName && activeProfile.league) {
       const dbPath = DB.getCharacterDbPath(activeProfile.characterName, activeProfile.league);
       if (dbPath) {

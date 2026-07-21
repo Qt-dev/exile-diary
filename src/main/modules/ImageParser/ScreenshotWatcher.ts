@@ -13,6 +13,15 @@ const ProcessingTimeout = 15000;
 let watcher: FSWatcher | null = null;
 const emitter = new EventEmitter();
 
+type ScreenshotSettingsSource = {
+  get: (key: string) => any;
+  getAll: () => Record<string, any>;
+  set: (key: string, value: any) => Promise<unknown>;
+  registerListener: (key: string, listener: (value: any) => void) => void;
+};
+
+let settingsSource: ScreenshotSettingsSource = SettingsManager;
+
 function registerWatcher(screenshotDir: string) {
   logger.info('Watching ' + screenshotDir);
   watcher = chokidar.watch(screenshotDir, {
@@ -42,15 +51,23 @@ function unregisterWatcher() {
 }
 
 function registerListener() {
-  SettingsManager.registerListener('screenshots', (value) => {
-    const { allowFolderWatch, screenshotDir } = value;
+  settingsSource.registerListener('screenshots', applyScreenshotSettings);
+}
 
-    if (allowFolderWatch && screenshotDir) {
-      registerWatcher(screenshotDir);
-    } else {
-      unregisterWatcher();
-    }
-  });
+function applyScreenshotSettings(value: any) {
+  unregisterWatcher();
+  const { allowFolderWatch, screenshotDir } = value ?? {};
+
+  if (
+    allowFolderWatch &&
+    screenshotDir &&
+    screenshotDir !== 'disabled' &&
+    screenshotDir.length > 0
+  ) {
+    registerWatcher(screenshotDir);
+  } else {
+    logger.info('Screenshot directory is disabled');
+  }
 }
 
 async function processScreenshot(
@@ -63,7 +80,7 @@ async function processScreenshot(
     captureMs?: number;
   } = {}
 ) {
-  const settings = SettingsManager.getAll();
+  const settings = settingsSource.getAll();
   const jobId = dayjs().format('YYYYMMDDHHmmss');
   const timeout = setTimeout(() => {
     logger.error('Screenshot processing timed out');
@@ -91,31 +108,24 @@ async function processScreenshot(
   }
 }
 
-function start() {
+function start(source: ScreenshotSettingsSource = SettingsManager) {
+  settingsSource = source;
   unregisterWatcher();
   registerListener();
 
-  const settings = SettingsManager.getAll();
+  const settings = settingsSource.getAll();
+  let screenshotSettings = settings.screenshots;
   if (!settings.screenshots) {
     const oldDir = settings.screenshotDir;
-    SettingsManager.set('screenshots', {
+    screenshotSettings = {
       allowCustomShortcut: true,
       allowFolderWatch: false,
       screenshotDir: oldDir ?? 'disabled',
-    });
+    };
+    void settingsSource.set('screenshots', screenshotSettings);
   }
 
-  const screenshotSettings = SettingsManager.get('screenshots');
-  if (
-    screenshotSettings.allowFolderWatch &&
-    screenshotSettings.screenshotDir &&
-    screenshotSettings.screenshotDir !== 'disabled' &&
-    screenshotSettings.screenshotDir.length > 0
-  ) {
-    registerWatcher(screenshotSettings.screenshotDir);
-  } else {
-    logger.info('Screenshot directory is disabled');
-  }
+  applyScreenshotSettings(screenshotSettings ?? settingsSource.get('screenshots'));
 }
 
 export default {

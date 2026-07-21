@@ -30,6 +30,8 @@ export const runtimeRendererMethodKeys = [
 export type RuntimeRendererMethodKey = (typeof runtimeRendererMethodKeys)[number];
 
 export const runtimeMethodKeys = [
+  'settings.set',
+  'settings.waitForSave',
   'runTracking.refreshTracking',
   'runTracking.setCurrentMapStats',
   'runTracking.tryProcess',

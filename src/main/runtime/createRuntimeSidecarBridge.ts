@@ -15,10 +15,13 @@ export function createRuntimeSidecarBridge() {
         ...SettingsManager.getAll(),
         ...RuntimeSidecarClient.getSettingsSnapshot(),
       }),
+      set: (key: string, value: any) =>
+        RuntimeSidecarClient.callRuntimeMethod<void>('settings.set', [key, value]),
       registerListener: (key: string, listener: (...args: any[]) => void) => {
         RuntimeSidecarClient.settingsEmitter.on(key, listener);
       },
-      waitForSave: () => Promise.resolve(),
+      waitForSave: () =>
+        RuntimeSidecarClient.callRuntimeMethod<void>('settings.waitForSave'),
     },
     search: {
       registerMessageHandler: (listener: (event: string, data: any) => void) => {

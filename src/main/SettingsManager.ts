@@ -99,11 +99,7 @@ class SettingsManager {
       await fs.writeFile(settingsPath, JSON.stringify(DefaultSettings));
     }
 
-    this.settings = {
-      ...DefaultSettings,
-      ...JSON.parse(await fs.readFile(settingsPath, 'utf8')),
-    };
-    authSessionReadiness.setProfileReady(hasValidActiveProfile(this.settings.activeProfile));
+    await this.reload();
 
     this.scheduleSave();
 
@@ -111,6 +107,15 @@ class SettingsManager {
       const match = this.eventKeyMatcher[changedKey];
       if (match) match.callback(value, this.settings[changedKey]);
     });
+  }
+
+  async reload() {
+    const settingsPath = getSettingsPath();
+    this.settings = {
+      ...DefaultSettings,
+      ...JSON.parse(await fs.readFile(settingsPath, 'utf8')),
+    };
+    authSessionReadiness.setProfileReady(hasValidActiveProfile(this.settings.activeProfile));
   }
 
   async initializeDB(characterName: string) {

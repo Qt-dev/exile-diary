@@ -19,13 +19,6 @@ describe('registerShellHandlers', () => {
     const overlaySetMock = jest.fn();
     const getCharacterDbPathMock = jest.fn(() => '/tmp/character.db');
 
-    jest.doMock('../../../src/main/SettingsManager', () => ({
-      __esModule: true,
-      default: {
-        get: overlayGetMock,
-        set: overlaySetMock,
-      },
-    }));
     jest.doMock('../../../src/main/db', () => ({
       __esModule: true,
       default: {
@@ -55,6 +48,10 @@ describe('registerShellHandlers', () => {
 
     registerShellHandlers({
       windows: { mainWindow, overlayWindow },
+      settings: {
+        get: overlayGetMock,
+        set: overlaySetMock,
+      },
       sendToMain,
       refreshWindows,
       registerHotkeys,

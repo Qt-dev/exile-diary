@@ -89,6 +89,8 @@ const rendererMethodHandlers = runtimeRendererMethodKeys.reduce((handlers, metho
 }, {} as Record<RuntimeRendererMethodKey, (...args: any[]) => Promise<unknown>>);
 
 const runtimeMethodHandlers: Record<RuntimeMethodKey, (...args: any[]) => Promise<unknown>> = {
+  'settings.set': async (key, value) => SettingsManager.set(key, value),
+  'settings.waitForSave': async () => SettingsManager.waitForSave(),
   'runTracking.refreshTracking': async () => runtimeCore.runTracking.refreshTracking(),
   'runTracking.setCurrentMapStats': async (stats) =>
     runtimeCore.runTracking.setCurrentMapStats(stats),
@@ -231,6 +233,8 @@ function registerRuntimeForwarders() {
   });
 
   const trackedSettingKeys = [
+    'mainWindowBounds',
+    'overlayPosition',
     'filters',
     'overlayPersistenceEnabled',
     'activeProfile',

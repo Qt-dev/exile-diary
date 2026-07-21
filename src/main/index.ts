@@ -316,7 +316,7 @@ class MainProcess {
     await SettingsManager.initialize();
     await syncAuthSessionReadiness();
     await RuntimeSidecarClient.start();
-    ScreenshotWatcher.start();
+    ScreenshotWatcher.start(this.runtimeBridge.settings);
     await OCRWatcher.start();
   }
 
@@ -369,6 +369,7 @@ class MainProcess {
         mainWindow: this.mainWindow,
         overlayWindow: this.overlayWindow,
       },
+      settings: this.runtimeBridge.settings,
       sendToMain: (event, data) => this.sendToMain(event, data),
       refreshWindows: () => this.refreshWindows(),
       registerHotkeys: () => this.registerGlobalShortcuts(),
@@ -392,7 +393,7 @@ class MainProcess {
    * Sets up the resizer for the main window
    */
   setupResizer() {
-    const settings = SettingsManager.getAll();
+    const settings = this.runtimeBridge.settings.getAll();
 
     const saveWindowBounds = () => {
       const bounds = this.mainWindow.getBounds();
@@ -401,7 +402,9 @@ class MainProcess {
       // We do not want to save the settings on every single ping, so we work with a timeout
       if (this.saveBoundsCallback) clearTimeout(this.saveBoundsCallback);
       this.saveBoundsCallback = setTimeout(() => {
-        SettingsManager.set('mainWindowBounds', bounds);
+        void this.runtimeBridge.settings.set('mainWindowBounds', bounds).catch((error) => {
+          logger.error('Unable to save main window bounds through the runtime sidecar', error);
+        });
         logger.info('saving bounds', bounds);
         // Set min width to 1100
         this.sendToMain('rescale', Math.min(width, 1100) / 1100);

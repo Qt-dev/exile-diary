@@ -9,6 +9,7 @@ const initLeagueDB = jest.fn();
 const mockAccess = jest.fn();
 const mockWriteFile = jest.fn();
 const mockRename = jest.fn();
+const mockReadFile = jest.fn();
 const mockGetPath = jest.fn(() => '/mock-user-data');
 
 jest.mock('electron-log', () => ({
@@ -21,6 +22,7 @@ jest.mock('fs/promises', () => ({
   stat: (...args: unknown[]) => mockAccess(...args),
   writeFile: (...args: unknown[]) => mockWriteFile(...args),
   rename: (...args: unknown[]) => mockRename(...args),
+  readFile: (...args: unknown[]) => mockReadFile(...args),
 }));
 
 jest.mock('electron', () => ({
@@ -68,6 +70,7 @@ describe('SettingsManager character bootstrap', () => {
     mockAccess.mockResolvedValue(undefined);
     mockWriteFile.mockResolvedValue(undefined);
     mockRename.mockResolvedValue(undefined);
+    mockReadFile.mockResolvedValue('{}');
     mockGetPath.mockReturnValue('/mock-user-data');
   });
 
@@ -190,5 +193,20 @@ describe('SettingsManager character bootstrap', () => {
       tempSettingsJsonPath,
       path.join('/mock-user-data', 'settings.json')
     );
+  });
+
+  it('reloads the latest persisted settings without scheduling a write', async () => {
+    mockReadFile.mockResolvedValue(
+      JSON.stringify({ screenshots: { allowFolderWatch: true, screenshotDir: 'D:\\Shots' } })
+    );
+    const SettingsManager = (await import('../../src/main/SettingsManager')).default as any;
+
+    await SettingsManager.reload();
+
+    expect(SettingsManager.get('screenshots')).toEqual({
+      allowFolderWatch: true,
+      screenshotDir: 'D:\\Shots',
+    });
+    expect(mockWriteFile).not.toHaveBeenCalled();
   });
 });
