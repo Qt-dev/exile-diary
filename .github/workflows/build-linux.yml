@@ -21,7 +21,7 @@ jobs:
       - name: Install linux dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y flatpak flatpak-builder elfutils
+          sudo apt-get install -y flatpak flatpak-builder elfutils libxcb1-dev
       - name: Install flathub dependencies
         run: |
           flatpak remote-add -u --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
