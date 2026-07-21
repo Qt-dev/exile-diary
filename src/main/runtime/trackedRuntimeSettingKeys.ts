@@ -1,0 +1,17 @@
+export const trackedRuntimeSettingKeys = [
+  'mainWindowBounds',
+  'overlayPosition',
+  'filters',
+  'overlayPersistenceEnabled',
+  'activeProfile',
+  'forceDebugMode',
+  'logToUI',
+  'enableAutoscroll',
+  'runParseScreenshotEnabled',
+  'screenshots',
+  'runParseShortcut',
+  'screenshotShortcut',
+  'overlayToggleShortcut',
+  'overlayMovementShortcut',
+  'overlayEnabled',
+] as const;

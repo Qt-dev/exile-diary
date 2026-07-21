@@ -2,15 +2,14 @@ import DatabaseConstructor, { Database } from 'better-sqlite3';
 import * as path from 'path';
 import { get as getSettings } from './settings';
 import Logger from 'electron-log';
-import { app } from 'electron';
 import * as sqliteRegex from './sqlite-regex--cjs-fix';
 import SettingsManager from '../SettingsManager';
 import { v4 as uuidv4 } from 'uuid';
 import EventEmitter from 'events';
 import fs from 'fs';
+import { getUserDataPath } from '../runtime/getUserDataPath';
 
 const logger = Logger.scope('db/index');
-const userDataPath = app.getPath('userData');
 
 // Migrations to run on setup and on maintenance for each type of DB
 // TODO: Move this to a separate file
@@ -571,6 +570,7 @@ const Migrations = {
         `CREATE INDEX IF NOT EXISTS "graftblood_timestamp" ON "graftblood" ("timestamp")`,
         `pragma user_version = 17`,
       ],
+      [`ALTER TABLE item ADD COLUMN valuation TEXT`, `pragma user_version = 18`],
     ],
     maintenance: [
       `delete from incubator where timestamp < (select min(timestamp) from (select timestamp from incubator order by timestamp desc limit 25))`,
@@ -579,7 +579,6 @@ const Migrations = {
   league: {
     init: [
       [
-        `pragma user_version = 1`,
         `
           create table if not exists characters (
             name text primary key not null
@@ -598,9 +597,29 @@ const Migrations = {
             value text not null
           )
         `,
+        `pragma user_version = 1`,
       ],
     ],
-    maintenance: [],
+    maintenance: [
+      `
+        create table if not exists characters (
+          name text primary key not null
+        )
+      `,
+      `
+        create table if not exists fullrates (
+          date text primary key not null,
+          data text not null
+        )
+      `,
+      `
+        create table if not exists stashes (
+          timestamp text primary key not null,
+          items text not null,
+          value text not null
+        )
+      `,
+    ],
   },
 };
 
@@ -616,11 +635,21 @@ class DBManager {
   tasks: string[] = [];
   isBusy: boolean = true;
   eventEmitter: EventEmitter = new EventEmitter();
+  hasRegexExtension: boolean = false;
 
   constructor({ dbPath }: { dbPath: string }) {
     logger.info('Starting DB:', dbPath);
     this.db = new DatabaseConstructor(dbPath);
-    this.db.loadExtension(sqliteRegex.getLoadablePath());
+    try {
+      const extensionPath = sqliteRegex.getLoadablePath();
+      this.db.loadExtension(extensionPath);
+      this.hasRegexExtension = true;
+    } catch (error) {
+      logger.warn(
+        `Failed to load sqlite regex extension for ${dbPath}. Continuing without it.`,
+        error
+      );
+    }
     this.eventEmitter.on('task:added', () => {
       this.runTasks();
     });
@@ -713,7 +742,7 @@ const DBConnections = new Map<string, DBManager>();
 // External interface for DB
 const DB = {
   getLeagueDbPath: (league: string) => {
-    return path.join(userDataPath, `${league}.leaguedb`);
+    return path.join(getUserDataPath(), `${league}.leaguedb`);
   },
 
   getCharacterDbPath: (characterName?: string, league?: string, oldVersion?: true) => {
@@ -732,9 +761,9 @@ const DB = {
       league = settings.activeProfile.league;
     }
     if (oldVersion) {
-      return path.join(userDataPath, `${characterName}.db`);
+      return path.join(getUserDataPath(), `${characterName}.db`);
     } else {
-      return path.join(userDataPath, `${characterName}.${league}.db`);
+      return path.join(getUserDataPath(), `${characterName}.${league}.db`);
     }
   },
 
@@ -785,7 +814,7 @@ const DB = {
     return await manager.runTask(() => manager.getStatement(sql).run(params));
   },
 
-  transaction: async (query: string, params: any[], league: string | undefined = undefined) => {
+  runMany: async (query: string, params: any[], league: string | undefined = undefined) => {
     const manager = DB.getManager(league);
     if (!manager) return null;
 
@@ -799,6 +828,10 @@ const DB = {
       });
       return runMany(params);
     });
+  },
+
+  transaction: async (query: string, params: any[], league: string | undefined = undefined) => {
+    return DB.runMany(query, params, league);
   },
 
   initDB: async (char: string) => {
@@ -820,7 +853,9 @@ const DB = {
 
     if (!characterName && activeProfile.characterName) {
       await manager.runTask(() =>
-        manager.db.prepare('insert into characters values (?)').run(activeProfile.characterName)
+        manager.db
+          .prepare('insert or ignore into characters values (?)')
+          .run(activeProfile.characterName)
       );
     }
   },

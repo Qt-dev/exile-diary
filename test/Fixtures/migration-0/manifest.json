@@ -1,0 +1,32 @@
+{
+  "version": 1,
+  "fixtures": {
+    "runReconstruction": [
+      {
+        "input": "run-reconstruction/sample-client-log.txt",
+        "expected": "run-reconstruction/sample-expected-events.json"
+      }
+    ],
+    "pricing": [
+      {
+        "rates": "pricing/frozen-rates.json",
+        "items": "pricing/sample-items.json",
+        "expected": "pricing/sample-expected-pricing.json"
+      }
+    ],
+    "stashValuation": [
+      {
+        "input": "stash/sample-stash-items.json",
+        "rates": "pricing/frozen-rates.json",
+        "expected": "stash/sample-expected-valuation.json"
+      }
+    ],
+    "ocrMatching": [
+      {
+        "screenshot": "ocr/sample-mods.svg",
+        "input": "ocr/sample-mod-lines.json",
+        "expected": "ocr/sample-expected-mods.json"
+      }
+    ]
+  }
+}

@@ -12,7 +12,15 @@ jest.mock('electron', () => ({
       }
     }),
     getName: jest.fn(() => 'exile-diary'),
+    getLocale: jest.fn(() => 'en-US'),
     getVersion: jest.fn(() => '1.0.0'),
+    relaunch: jest.fn(),
+    exit: jest.fn(),
+    quit: jest.fn(),
+  },
+  globalShortcut: {
+    register: jest.fn(),
+    unregisterAll: jest.fn(),
   },
   ipcMain: {
     handle: jest.fn(),
@@ -21,10 +29,24 @@ jest.mock('electron', () => ({
     removeListener: jest.fn(),
     removeAllListeners: jest.fn(),
   },
+  ipcRenderer: {
+    invoke: jest.fn(),
+    send: jest.fn(),
+    on: jest.fn(),
+    removeListener: jest.fn(),
+    removeAllListeners: jest.fn(),
+  },
+  contextBridge: {
+    exposeInMainWorld: jest.fn(),
+  },
   dialog: {
     showOpenDialog: jest.fn(),
     showSaveDialog: jest.fn(),
     showMessageBox: jest.fn(),
+  },
+  shell: {
+    openExternal: jest.fn(),
+    showItemInFolder: jest.fn(),
   },
   BrowserWindow: jest.fn(() => ({
     loadFile: jest.fn(),
@@ -39,6 +61,27 @@ jest.mock('electron', () => ({
     close: jest.fn(),
   })),
 }));
+
+// Mock electron-log
+jest.mock('electron-log', () => {
+  const scopedLogger = {
+    info: jest.fn(),
+    debug: jest.fn(),
+    error: jest.fn(),
+    warn: jest.fn(),
+    silly: jest.fn(),
+  };
+
+  return {
+    __esModule: true,
+    default: {
+      ...scopedLogger,
+      scope: jest.fn(() => ({ ...scopedLogger })),
+    },
+    ...scopedLogger,
+    scope: jest.fn(() => ({ ...scopedLogger })),
+  };
+});
 
 // Mock electron-store
 jest.mock('electron-store', () => {

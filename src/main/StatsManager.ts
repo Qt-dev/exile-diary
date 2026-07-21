@@ -1,15 +1,19 @@
 import logger from 'electron-log';
 import dayjs, { ManipulateType } from 'dayjs';
-import DB from './db/stats';
+import duration from 'dayjs/plugin/duration';
+import DB from './db/repositories/stats';
 import RatesManager from './RatesManager';
+import SettingsManager from './SettingsManager';
 import { Run } from '../helpers/types';
 import Constants from '../helpers/constants';
 import ItemPricer from './modules/ItemPricer';
 const { areas } = Constants;
 
+dayjs.extend(duration);
+
 type GetStatsParams = {
-  league: string;
-  characterName: string;
+  league?: string;
+  characterName?: string;
 };
 
 const booleanStatsKeys = [
@@ -917,13 +921,14 @@ const profitTracker = new ProfitTracker();
 const statsManager = {
   getAllStats: async ({ league, characterName }: GetStatsParams) => {
     const times: { step: string; timestamp: number }[] = [];
+    const resolvedLeague = league ?? SettingsManager.get('activeProfile')?.league ?? 'Standard';
     times.push({ step: 'start', timestamp: performance.now() });
     const runs = (await DB.getAllRuns())?.map(formatRun);
     times.push({ step: 'retrieved runs', timestamp: performance.now() });
     logger.debug(
       `Successfully retrieved ${runs.length} runs in ${times[1].timestamp - times[0].timestamp} ms`
     );
-    const items = await DB.getAllItems(league);
+    const items = await DB.getAllItems(resolvedLeague);
     times.push({ step: 'retrieved items', timestamp: performance.now() });
     logger.debug(
       `Successfully retrieved ${items.length} items in ${
@@ -931,7 +936,7 @@ const statsManager = {
       } ms`
     );
     const divinePrice = await RatesManager.getCurrencyValue(
-      league,
+      resolvedLeague,
       dayjs().format('YYYYMMDD'),
       'Divine Orb'
     );

@@ -8,7 +8,7 @@ import { classPerType } from '../components/LogBox/LogBox';
 import Logo from '../logo.png';
 import { Button } from '@mui/material';
 import Price from '../components/Pricing/Price';
-const { ipcRenderer, logger } = electronService;
+const { logger } = electronService;
 const defaultTimer = 3;
 
 const OverlayMapInfoLine = ({ run }) => {
@@ -47,19 +47,24 @@ const OverlayMapInfoLine = ({ run }) => {
 
 const OverlayNotificationLine = ({ messages }) => {
   if (!messages) return null;
-  const formattedMessages = messages.map(({ type, text, icon, price, divinePrice }) => {
+  const formattedMessages = messages.map(({ type, text, icon, price, divinePrice }, index) => {
+    const key = `overlay-message-${index}-${text ?? type ?? icon ?? price ?? 'plain'}`;
     if (price || price === 0) {
-      return [
-        <span className={classPerType['currency']}>
+      return (
+        <span key={key} className={classPerType['currency']}>
           <Price value={price} divinePrice={divinePrice} />
-        </span>,
-      ];
+        </span>
+      );
     } else if (icon) {
-      return [<img src={icon} alt="icon" className={'Text--Icon'} />];
+      return <img key={key} src={icon} alt="icon" className={'Text--Icon'} />;
     } else if (type) {
-      return [<span className={classPerType[type]}>{text}</span>];
+      return (
+        <span key={key} className={classPerType[type]}>
+          {text}
+        </span>
+      );
     } else {
-      return [<>{text}</>];
+      return <React.Fragment key={key}>{text}</React.Fragment>;
     }
   });
   return <OverlayLineContent message={formattedMessages} />;
@@ -177,7 +182,7 @@ const Overlay = ({ store }) => {
 
   useLayoutEffect(() => {
     if (isSetup.current) {
-      ipcRenderer.send('overlay:set-position', { x: position.x, y: position.y });
+      electronService.setOverlayPosition({ x: position.x, y: position.y });
     }
   }, [position.x, position.y]);
 
@@ -189,51 +194,47 @@ const Overlay = ({ store }) => {
   });
 
   const updatePosition = () => {
-    ipcRenderer.invoke('overlay:get-position').then((position) => {
+    electronService.getOverlayPosition().then((position) => {
       setPosition(position);
       isSetup.current = true;
     });
   };
 
   useLayoutEffect(() => {
-    ipcRenderer.removeAllListeners('overlay:trigger-reposition');
-    ipcRenderer.on('overlay:trigger-reposition', () => {
+    const unsubscribeReposition = electronService.on('overlayTriggerReposition', () => {
       updatePosition();
     });
-    ipcRenderer.removeAllListeners('overlay:set-persistence');
-    ipcRenderer.on('overlay:set-persistence', (event, isEnabled) => {
+    const unsubscribePersistence = electronService.on('overlaySetPersistence', (isEnabled) => {
       logger.debug('Setting persistence to', isEnabled);
       setOpen(isEnabled);
     });
 
-    ipcRenderer.removeAllListeners('overlay:toggle-movement');
-    ipcRenderer.on('overlay:toggle-movement', (event, { isOverlayMoveable }) => {
-      setMoveable(isOverlayMoveable);
-      ipcRenderer.send('overlay:make-clickable', { clickable: isOverlayMoveable });
-    });
+    const unsubscribeMovement = electronService.on(
+      'overlayToggleMovement',
+      ({ isOverlayMoveable }) => {
+        setMoveable(isOverlayMoveable);
+        electronService.setOverlayClickable(isOverlayMoveable);
+      }
+    );
 
     return () => {
-      ipcRenderer.removeAllListeners('overlay:trigger-reposition');
-      ipcRenderer.removeAllListeners('overlay:set-persistence');
-      ipcRenderer.removeAllListeners('overlay:toggle-movement');
+      unsubscribeReposition();
+      unsubscribePersistence();
+      unsubscribeMovement();
     };
   }, []);
 
   useEffect(() => {
-    ipcRenderer.removeAllListeners('overlay:toggle-visibility');
-    ipcRenderer.removeAllListeners('overlay:message');
-
-    ipcRenderer.on('overlay:message', (event, { messages }) => {
+    const unsubscribeMessage = electronService.on('overlayMessage', ({ messages }) => {
       setNotificationTime(defaultTimer);
       setLatestMessage(<OverlayNotificationLine messages={messages} />);
     });
-    ipcRenderer.invoke('overlay:get-persistence').then((isEnabled) => {
+    electronService.getOverlayPersistence().then((isEnabled) => {
       setOpen(isEnabled);
     });
 
     return () => {
-      ipcRenderer.removeAllListeners('overlay:message');
-      ipcRenderer.removeAllListeners('overlay:toggle-visibility');
+      unsubscribeMessage();
     };
   }, []);
 

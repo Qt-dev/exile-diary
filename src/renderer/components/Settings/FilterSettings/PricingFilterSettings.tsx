@@ -20,9 +20,8 @@ const PricingFilterSettings = ({ settings, updateCallback }) => {
     <div className="Pricing-Filter-Settings">
       <FormControl className="Pricing-Filter-Settings__Settings-Form" fullWidth>
         <Stack
-          gap={5}
           direction={'row'}
-          justifyContent="space-evenly"
+          sx={{ gap: 5, justifyContent: 'space-evenly' }}
           className="Pricing-Filter-Settings__Form-Fields"
         >
           <TextField

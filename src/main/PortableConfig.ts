@@ -1,6 +1,7 @@
 import { app } from 'electron';
 import * as path from 'path';
 import * as fs from 'fs';
+import { resolveBootstrapUserDataPath } from './runtime/resolveBootstrapUserDataPath';
 
 /**
  * Portable Configuration Manager
@@ -47,6 +48,29 @@ export function initPortableMode(): void {
     // Determine exe directory - ALWAYS use process.execPath (works before app.ready)
     const exeDir = path.dirname(process.execPath);
     addLog(`Executable directory: ${exeDir}`);
+
+    const resolvedBootstrapUserDataPath = resolveBootstrapUserDataPath({
+      isDefaultApp: !!process.defaultApp,
+      moduleDir: __dirname,
+      overriddenUserDataPath: process.env.EXILE_DIARY_USER_DATA_PATH,
+    });
+    if (resolvedBootstrapUserDataPath) {
+      if (process.env.EXILE_DIARY_USER_DATA_PATH) {
+        addLog(`Using EXILE_DIARY_USER_DATA_PATH override: ${resolvedBootstrapUserDataPath}`);
+      } else {
+        addLog(`Using default development userData path: ${resolvedBootstrapUserDataPath}`);
+      }
+
+      const resolvedUserDataPath = resolvedBootstrapUserDataPath;
+      fs.mkdirSync(resolvedUserDataPath, { recursive: true });
+      app.setPath('userData', resolvedUserDataPath);
+      addLog(`userData path overridden to: ${app.getPath('userData')}`);
+      addLog('Skipping portable detection because a bootstrap userData override was provided');
+      addLog('='.repeat(60));
+      addLog('Final status: USERDATA OVERRIDE');
+      addLog('='.repeat(60));
+      return;
+    }
 
     // Check if explicitly set via environment variable (for development testing)
     if (process.env.PORTABLE === 'true') {

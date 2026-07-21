@@ -5,13 +5,20 @@ function loadModule({
   osArch = 'x64',
   isPackaged = false,
   extensionExists = true,
+  envIsPackaged,
 }: {
   osPlatform?: string;
   osArch?: string;
   isPackaged?: boolean;
   extensionExists?: boolean;
+  envIsPackaged?: string;
 }) {
   jest.resetModules();
+  if (envIsPackaged === undefined) {
+    delete process.env.EXILE_DIARY_IS_PACKAGED;
+  } else {
+    process.env.EXILE_DIARY_IS_PACKAGED = envIsPackaged;
+  }
 
   const statSyncMock = jest.fn(() => (extensionExists ? ({ mode: 0o100644 } as any) : undefined));
 
@@ -67,6 +74,18 @@ describe('db/sqlite-regex--cjs-fix', () => {
     const result = mod.getLoadablePath();
 
     expect(result).toContain(path.join('db', 'extensions', 'regexp.so'));
+  });
+
+  it('uses the packaged resource path when packaging is provided through the environment', () => {
+    const { mod } = loadModule({
+      osPlatform: 'win32',
+      osArch: 'x64',
+      isPackaged: false,
+      envIsPackaged: 'true',
+    });
+
+    const result = mod.getLoadablePath();
+    expect(result).toContain(path.join('db', 'extensions', 'regexp.dll'));
   });
 
   it('still builds a path for unsupported platform-arch combinations', () => {

@@ -1,7 +1,7 @@
 import { makeAutoObservable, runInAction } from 'mobx';
 import { Log, LogData } from './domain/log';
 import { electronService } from '../electron.service';
-const { logger, ipcRenderer } = electronService;
+const { logger } = electronService;
 
 // Mobx store for Items
 export default class ItemStore {
@@ -12,7 +12,7 @@ export default class ItemStore {
   constructor(logData) {
     makeAutoObservable(this);
     this.createLogs(logData);
-    ipcRenderer.on('add-log', (event, log: LogData) => {
+    electronService.on('addLog', (log: LogData) => {
       this.createLogs(log);
     });
   }

@@ -60,12 +60,14 @@ const LootStats = ({ stats, store }) => {
           size="small"
           type="number"
           color="primary"
-          InputProps={{
-            startAdornment: (
-              <InputAdornment position="start">
-                <ChaosIcon />
-              </InputAdornment>
-            ),
+          slotProps={{
+            input: {
+              startAdornment: (
+                <InputAdornment position="start">
+                  <ChaosIcon />
+                </InputAdornment>
+              ),
+            },
           }}
         />
       </div>

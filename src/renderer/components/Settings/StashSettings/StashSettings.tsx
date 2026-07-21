@@ -12,7 +12,7 @@ import Checkbox from '@mui/material/Checkbox';
 import ListItemText from '@mui/material/ListItemText';
 import ListItemIcon from '@mui/material/ListItemIcon';
 import Button from '@mui/material/Button';
-const { ipcRenderer, logger } = electronService;
+const { logger } = electronService;
 
 const ContainerComponent = ({ children, isFolder, disabled, callback }) => {
   if (isFolder) {
@@ -32,6 +32,23 @@ const SubTitleForType = {
   UniqueStash: '(Unique Stash Tab)',
 };
 
+const stashTabIconUrls = import.meta.glob('../../../assets/img/tabicons/*.png', {
+  eager: true,
+  import: 'default',
+}) as Record<string, string>;
+
+const normalStashIcon = stashTabIconUrls['../../../assets/img/tabicons/NormalStash.png'];
+
+const getStashTabIconUrl = (stashTabType: string) => {
+  const icon = stashTabIconUrls[`../../../assets/img/tabicons/${stashTabType}.png`];
+  if (icon) {
+    return icon;
+  }
+
+  logger.error('Could not find icon for stash tab type', stashTabType);
+  return normalStashIcon;
+};
+
 const StashTabRow = ({ stashTab, indentationLevel = 0 }) => {
   const isFolder = stashTab.type === 'Folder';
   const rowClasses = classNames({
@@ -39,12 +56,7 @@ const StashTabRow = ({ stashTab, indentationLevel = 0 }) => {
     [`Stash-Settings__List-Item--${stashTab.type}`]: true,
     [`Stash-Settings__List-Item--level-${indentationLevel}`]: true,
   });
-  let Icon = require('../../../assets/img/tabicons/NormalStash.png');
-  try {
-    Icon = require(`../../../assets/img/tabicons/${stashTab.type}.png`);
-  } catch (e) {
-    logger.error('Could not find icon for stash tab type', stashTab.type);
-  }
+  const Icon = getStashTabIconUrl(stashTab.type);
   const toggleEnabled = async (e) => {
     const newCheckedValue = !stashTab.tracked;
     await stashTab.setTracking(newCheckedValue);
@@ -118,7 +130,7 @@ const StashSettings = ({ store, settings }) => {
     // We delay the settings save in case the user is still typingF
     if (refreshIntervalUpdateTimeout) clearTimeout(refreshIntervalUpdateTimeout);
     refreshIntervalUpdateTimeout = setTimeout(() => {
-      ipcRenderer.invoke('save-settings:stash-refresh-interval', { interval: newInterval });
+      electronService.saveStashRefreshInterval(newInterval);
     }, 3000);
   };
   return (

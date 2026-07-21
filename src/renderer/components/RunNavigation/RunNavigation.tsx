@@ -42,7 +42,7 @@ const RunNavigation = ({ run, store }) => {
       >
         {store.getSortedRuns().map((run) => {
           return (
-            <MenuItem value={run.runId}>
+            <MenuItem key={`run-option-${run.runId}`} value={run.runId}>
               {run.runId} - {run.firstEvent.format('L HH:mm:ss')} ({run.name})
             </MenuItem>
           );

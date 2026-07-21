@@ -32,7 +32,7 @@ jest.mock('electron-log', () => ({
 }));
 
 const settingsJsonPath = path.join('/mock-user-data', 'settings.json');
-const tempSettingsJsonPath = path.join('/mock-user-data', 'settings.json.bak');
+const tempSettingsJsonPath = path.join('/mock-user-data', `settings.${process.pid}.1.json.tmp`);
 
 function loadSettingsModule(settingsData?: Record<string, any>) {
   jest.resetModules();

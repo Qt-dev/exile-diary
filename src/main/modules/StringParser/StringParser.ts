@@ -2,6 +2,9 @@ import logger from 'electron-log';
 import Constants from '../../../helpers/constants';
 import { EnhancedBKTree } from './EnhancedBKTree';
 
+const shouldSilenceBenchmarkLogs =
+  process.env.EXILE_DIARY_SILENCE_BENCHMARK_LOGS === '1' || process.env.NODE_ENV === 'test';
+
 /**
  * StringParser - High-performance string matching for Path of Exile mod strings
  *
@@ -18,7 +21,9 @@ class StringParser {
   static {
     try {
       this.initializeEnhancedBKTree();
-      logger.info('StringParser module loaded with Enhanced BK-Tree pre-initialized');
+      if (!shouldSilenceBenchmarkLogs) {
+        logger.info('StringParser module loaded with Enhanced BK-Tree pre-initialized');
+      }
     } catch (error) {
       logger.error('Failed to initialize Enhanced BK-Tree on module load:', error);
     }
@@ -68,8 +73,10 @@ class StringParser {
    * @returns Array of matched mod strings, same length as input
    */
   static GetMods(modStrings: string[]): string[] {
-    logger.debug(`GetMods called with ${modStrings.length} strings`);
-    logger.debug(modStrings);
+    if (!shouldSilenceBenchmarkLogs) {
+      logger.debug(`GetMods called with ${modStrings.length} strings`);
+      logger.debug(modStrings);
+    }
     if (!Array.isArray(modStrings) || modStrings.length === 0) {
       return [];
     }
@@ -85,14 +92,18 @@ class StringParser {
     for (const modString of modStrings) {
       if (!modString || modString.length < 5) {
         results.push('');
-        logger.debug(`Skipping short mod string: ${modString}`);
+        if (!shouldSilenceBenchmarkLogs) {
+          logger.debug(`Skipping short mod string: ${modString}`);
+        }
         continue;
       }
 
       const bestMatch = this.enhancedBkTree.findBestMatchEnhanced(modString);
 
       if (!bestMatch) {
-        logger.debug(`No best match found for mod string: ${modString}`);
+        if (!shouldSilenceBenchmarkLogs) {
+          logger.debug(`No best match found for mod string: ${modString}`);
+        }
         results.push('');
         continue;
       }
@@ -108,6 +119,67 @@ class StringParser {
     }
 
     return results;
+  }
+
+  static GetModsDetailed(modStrings: string[]): Array<{
+    input: string;
+    normalized: string;
+    mod: string;
+    confidence: number;
+  }> {
+    if (!Array.isArray(modStrings) || modStrings.length === 0) {
+      return [];
+    }
+
+    if (!this.enhancedBkTree) {
+      logger.error('Enhanced BK-Tree not initialized');
+      return modStrings.map((input) => ({
+        input,
+        normalized: input.toLowerCase().trim(),
+        mod: '',
+        confidence: 0,
+      }));
+    }
+
+    return modStrings.map((input) => {
+      const normalized = input.toLowerCase().trim();
+
+      if (!normalized || normalized.length < 5) {
+        return {
+          input,
+          normalized,
+          mod: '',
+          confidence: 0,
+        };
+      }
+
+      const bestMatch = this.enhancedBkTree?.findBestMatchEnhanced(input);
+      if (!bestMatch) {
+        return {
+          input,
+          normalized,
+          mod: '',
+          confidence: 0,
+        };
+      }
+
+      const minConfidence = this.getMinConfidenceThreshold(bestMatch.matchType, bestMatch.distance);
+      if (bestMatch.confidence < minConfidence) {
+        return {
+          input,
+          normalized,
+          mod: '',
+          confidence: bestMatch.confidence,
+        };
+      }
+
+      return {
+        input,
+        normalized,
+        mod: this.replaceNumberPlaceholders(bestMatch.word, input),
+        confidence: bestMatch.confidence,
+      };
+    });
   }
 
   /**
@@ -187,9 +259,11 @@ class StringParser {
     this.enhancedBkTreeInitialized = true;
 
     const stats = this.enhancedBkTree.getStats();
-    logger.info(
-      `Enhanced BK-Tree initialized with ${stats.size} mod strings, ${stats.normalizedMappings} normalized mappings`
-    );
+    if (!shouldSilenceBenchmarkLogs) {
+      logger.info(
+        `Enhanced BK-Tree initialized with ${stats.size} mod strings, ${stats.normalizedMappings} normalized mappings`
+      );
+    }
   }
 
   /**

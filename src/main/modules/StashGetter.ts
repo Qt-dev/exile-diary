@@ -5,11 +5,12 @@ import { StashTabData } from '../../helpers/types';
 import DB from '../db/stashtabs';
 import Item from '../models/Item';
 import RatesGetterV2 from './RateGetterV2';
+import ItemPricer from './ItemPricer';
+import type { PriceResult } from './ItemPricer';
 import dayjs from 'dayjs';
 import RendererLogger from '../RendererLogger';
 const EventEmitter = require('events');
 const logger = require('electron-log').scope('ShashGetter');
-const ItemPricer = require('./ItemPricer');
 
 const emitter = new EventEmitter();
 const DefaultInterval = 300;
@@ -312,9 +313,10 @@ class StashGetter {
 
     for (const item of items) {
       const parsedItem = this.parseItem(item, timestamp);
-      let price = {
+      let price: PriceResult = {
         isVendor: false,
         value: 0,
+        explanation: null,
       };
       try {
         price = await ItemPricer.price(parsedItem, settings.activeProfile.league);
@@ -329,6 +331,7 @@ class StashGetter {
         stashTabId: stashTab.id,
         stashTabName: stashTab.name,
         value: price.value,
+        valuation: price.explanation,
       });
     }
 

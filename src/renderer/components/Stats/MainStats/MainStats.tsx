@@ -26,6 +26,25 @@ import DivineIcon from '../../Pricing/DivineIcon';
 
 import { Table, TableBody, TableCell, TableHead, TableRow } from '@mui/material';
 import Price from '../../Pricing/Price';
+
+const getShrineIconUrl = (shrineType: string) =>
+  new URL(
+    `../../../assets/img/shrineicons/${shrineType.replace(' Shrine', '')}.png`,
+    import.meta.url
+  ).href;
+
+const getMetamorphIconUrl = (organ: string) =>
+  new URL(
+    `../../../assets/img/metamorphicons/${organ.replace(/\s+/g, '').toLowerCase()}.png`,
+    import.meta.url
+  ).href;
+
+const getLegionGeneralIconUrl = (general: string) =>
+  new URL(
+    `../../../assets/img/legionicons/${general.replace(',', '').split(' ')[0].toLowerCase()}.png`,
+    import.meta.url
+  ).href;
+
 const MainStats = ({ stats }) => {
   return (
     <div className="Main-Stats">
@@ -122,10 +141,7 @@ const MainStats = ({ stats }) => {
                 {Object.keys(stats.misc.shrines.types)
                   .sort((a, b) => stats.misc.shrines.types[b] - stats.misc.shrines.types[a])
                   .map((shrineType: string) => {
-                    const Icon = require(`../../../assets/img/shrineicons/${shrineType.replace(
-                      ' Shrine',
-                      ''
-                    )}.png`);
+                    const Icon = getShrineIconUrl(shrineType);
                     return (
                       <TableRow className="Main-Stat" key={shrineType}>
                         <TableCell sx={{ width: '1.5em' }} align="center">
@@ -215,10 +231,7 @@ const MainStats = ({ stats }) => {
             </div>
           </div>
           {Object.keys(stats.misc.metamorph.organs).map((organ: string) => {
-            const Icon = require(`../../../assets/img/metamorphicons/${organ.replace(
-              ' ',
-              ''
-            )}.png`);
+            const Icon = getMetamorphIconUrl(organ);
             return (
               <div className="Main-Stat" key={organ}>
                 <div className="Main-Stat__Text">
@@ -239,10 +252,7 @@ const MainStats = ({ stats }) => {
             </div>
           </div>
           {Object.keys(stats.misc.legionGenerals.generals).map((general: string) => {
-            const LegionGeneralIcon = require(`../../../assets/img/legionicons/${general
-              .replace(',', '')
-              .split(' ')[0]
-              .toLowerCase()}.png`);
+            const LegionGeneralIcon = getLegionGeneralIconUrl(general);
             return (
               <div className="Main-Stat" key={general}>
                 <div className="Main-Stat__Text">

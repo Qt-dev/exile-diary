@@ -5,6 +5,15 @@ import Sockets from './Sockets';
 import './Item.css';
 import ItemTooltip from './ItemTooltip';
 import CardTooltip from './CardTooltip';
+import crusaderIcon from '../../assets/img/crusader.png';
+import elderIcon from '../../assets/img/elder.png';
+import fracturedIcon from '../../assets/img/fractured.png';
+import hunterIcon from '../../assets/img/hunter.png';
+import redeemerIcon from '../../assets/img/redeemer.png';
+import shaperIcon from '../../assets/img/shaper.png';
+import synthesisedIcon from '../../assets/img/synthesised.png';
+import veiledIcon from '../../assets/img/veiled.png';
+import warlordIcon from '../../assets/img/warlord.png';
 
 const Rarity = {
   Normal: 0,
@@ -88,6 +97,18 @@ const Colors = {
   },
 };
 
+const influenceIconMap = {
+  crusader: crusaderIcon,
+  elder: elderIcon,
+  fractured: fracturedIcon,
+  hunter: hunterIcon,
+  redeemer: redeemerIcon,
+  shaper: shaperIcon,
+  synthesised: synthesisedIcon,
+  veiled: veiledIcon,
+  warlord: warlordIcon,
+} as const;
+
 const getInfluenceIcons = (item) => {
   const icons: JSX.Element[] = [];
   const influenceIcons: any[] = [];
@@ -104,13 +125,17 @@ const getInfluenceIcons = (item) => {
   }
 
   for (const icon of influenceIcons) {
-    const Icon = require(`../../assets/img/${icon}.png`);
+    const iconSource = influenceIconMap[icon];
+    if (!iconSource) {
+      continue;
+    }
+
     icons.push(
       <img
         alt={`influence-${icon}`}
         className="Item__Influence"
         key={`influence-${icon}`}
-        src={Icon}
+        src={iconSource}
       />
     );
   }

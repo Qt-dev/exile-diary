@@ -9,8 +9,6 @@ import { electronService } from '../../../electron.service';
 import './HotkeySettings.css';
 import '../SettingsCommon.css';
 
-const { ipcRenderer } = electronService;
-
 const HotkeySettings = ({ settings, revalidate }) => {
   // Shortcut configurations
   const [runParseShortcut, setRunParseShortcut] = React.useState(
@@ -128,13 +126,13 @@ const HotkeySettings = ({ settings, revalidate }) => {
   };
 
   const handleShortcutFocus = (fieldName: string) => {
-    ipcRenderer.send('hotkeys:disable');
+    electronService.disableHotkeys();
     setActiveShortcutField(fieldName);
   };
 
   const handleShortcutBlur = () => {
     setActiveShortcutField(null);
-    ipcRenderer.send('hotkeys:enable');
+    electronService.enableHotkeys();
   };
 
   const getShortcutValue = (fieldName: string) => {
@@ -191,11 +189,13 @@ const HotkeySettings = ({ settings, revalidate }) => {
             ? 'Press any key combination (e.g., Ctrl+F10, Alt+R). Press Escape to cancel.'
             : helperText
         }
-        InputProps={{
-          readOnly: true,
-          style: {
-            backgroundColor: isActiveField ? '#ffebee' : undefined,
-            color: isActiveField ? '#d32f2f' : undefined,
+        slotProps={{
+          input: {
+            readOnly: true,
+            style: {
+              backgroundColor: isActiveField ? '#ffebee' : undefined,
+              color: isActiveField ? '#d32f2f' : undefined,
+            },
           },
         }}
       />
@@ -228,7 +228,7 @@ const HotkeySettings = ({ settings, revalidate }) => {
     };
 
     // Save settings
-    await ipcRenderer.invoke('save-settings', { settings: data });
+    await electronService.saveSettings(data);
     revalidate();
   };
 

@@ -1,0 +1,85 @@
+{
+  "benchmarkSuite": "migration-5-ocr",
+  "generatedAt": "2026-07-05T16:41:35.183Z",
+  "reports": [
+    {
+      "benchmark": "ocr-map-mods",
+      "fixture": "ocr/sample-mods.svg",
+      "sampleCount": 3,
+      "samples": [
+        {
+          "capture": 967.4556,
+          "preprocess": 1389.695,
+          "ocr": 567.5808,
+          "match": 0.7891,
+          "total": 2927.7271
+        },
+        {
+          "capture": 6.932,
+          "preprocess": 1317.4545,
+          "ocr": 582.4384,
+          "match": 0.2766,
+          "total": 1907.8385
+        },
+        {
+          "capture": 7.5501,
+          "preprocess": 1145.0556,
+          "ocr": 525.224,
+          "match": 0.4131,
+          "total": 1679.1039
+        }
+      ],
+      "summaries": {
+        "capture": {
+          "count": 3,
+          "min": 6.932,
+          "max": 967.4556,
+          "mean": 327.31256666666667,
+          "median": 7.5501,
+          "p95": 871.4650499999999
+        },
+        "preprocess": {
+          "count": 3,
+          "min": 1145.0556,
+          "max": 1389.695,
+          "mean": 1284.0683666666666,
+          "median": 1317.4545,
+          "p95": 1382.47095
+        },
+        "ocr": {
+          "count": 3,
+          "min": 525.224,
+          "max": 582.4384,
+          "mean": 558.4144,
+          "median": 567.5808,
+          "p95": 580.95264
+        },
+        "match": {
+          "count": 3,
+          "min": 0.2766,
+          "max": 0.7891,
+          "mean": 0.4929333333333334,
+          "median": 0.4131,
+          "p95": 0.7515000000000001
+        },
+        "total": {
+          "count": 3,
+          "min": 1679.1039,
+          "max": 2927.7271,
+          "mean": 2171.5565,
+          "median": 1907.8385,
+          "p95": 2825.73824
+        }
+      },
+      "correctness": {
+        "matchesExpected": true,
+        "status": "ok",
+        "matchedMods": [
+          "Monsters reflect 18% of Elemental Damage",
+          "Players are Cursed with Elemental Weakness",
+          "36% increased Pack size"
+        ]
+      }
+    }
+  ]
+}

@@ -1,4 +1,4 @@
-import DB from './db/rates';
+import DB from './db/repositories/rates';
 // TODO: Flesh this out later from RatesGetterV2
 
 class RatesManager {

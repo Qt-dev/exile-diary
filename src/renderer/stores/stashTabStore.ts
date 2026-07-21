@@ -3,7 +3,7 @@ import { StashTab, StashTabSettings } from './domain/stashTab';
 import { StashTabData } from '../../helpers/types';
 import { electronService } from '../electron.service';
 import ItemStore from './itemStore';
-const { logger, ipcRenderer } = electronService;
+const { logger } = electronService;
 
 // Mobx store for Items
 export default class StashTabStore {
@@ -19,12 +19,12 @@ export default class StashTabStore {
   async fetchStashTabs() {
     logger.info('Fetching stash tabs for StashTabStore');
     this.isLoading = true;
-    const { stashTabs, data } = await ipcRenderer.invoke('get-stash-tabs');
+    const { stashTabs, data } = await electronService.getStashTabs();
     this.createStashTabs(stashTabs);
     this.itemStore.createItems(data.items);
     this.value = data.value;
 
-    ipcRenderer.on('stashTabs:frontend:update', (event, stashTabsData) => {
+    electronService.on('stashTabsUpdated', (stashTabsData) => {
       const tabs = stashTabsData.tabs;
       logger.info(`Received stash tabs update from backend for ${tabs.length} stash tabs.`);
       this.itemStore.createItems(tabs.items);
@@ -85,6 +85,6 @@ export default class StashTabStore {
     const formattedStashTabsSettings: StashTabSettings[] = this.flattenedStashTabs
       .filter((stashTab) => stashTab.tracked)
       .map((stashTab) => stashTab.formattedForSettings());
-    ipcRenderer.invoke('save-settings:stashtabs', { stashTabs: formattedStashTabsSettings });
+    electronService.saveStashTabs(formattedStashTabsSettings);
   }
 }

@@ -1,5 +1,6 @@
 import logger from 'electron-log';
-import DB from './db/stats';
+import DB from './db/repositories/stats';
+import { rendererEventChannels } from '../shared/contracts/exileDiaryApi';
 
 class SearchManager {
   sendMessage: Function = () => {};
@@ -14,7 +15,7 @@ class SearchManager {
     const items = await DB.getAllItemsForRuns({ runs, minLootValue });
 
     logger.info(`Found ${items.length} items and ${runs.length} runs.`);
-    this.sendMessage('search:register-results', { items, runs });
+    this.sendMessage(rendererEventChannels.searchResults, { items, runs });
   }
 }
 

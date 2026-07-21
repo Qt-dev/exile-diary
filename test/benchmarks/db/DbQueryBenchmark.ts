@@ -1,11 +1,25 @@
 import { performance } from 'node:perf_hooks';
 
-type BenchmarkCase = {
+export type BenchmarkCase = {
   name: string;
   run: () => void;
 };
 
-function timeCase(iterations: number, benchmarkCase: BenchmarkCase) {
+export type DbBenchmarkCaseResult = {
+  name: string;
+  totalMs: number;
+  avgMs: number;
+};
+
+export type DbBenchmarkReport = {
+  benchmark: 'db-query';
+  iterations: number;
+  status: 'ok' | 'error';
+  cases: DbBenchmarkCaseResult[];
+  error?: string;
+};
+
+function timeCase(iterations: number, benchmarkCase: BenchmarkCase): DbBenchmarkCaseResult {
   for (let i = 0; i < 20; i++) benchmarkCase.run();
   const started = performance.now();
   for (let i = 0; i < iterations; i++) benchmarkCase.run();
@@ -100,125 +114,119 @@ function createDb() {
   return db;
 }
 
-function runBenchmarks() {
-  const db = createDb();
-  const iterations = 400;
+export function runBenchmarks(iterations = 400): DbBenchmarkReport {
+  try {
+    const db = createDb();
 
-  const itemIds = Array.from({ length: 150 }, (_, i) => String(i + 1));
-  const oldMatchSql = `SELECT COUNT(1) AS count FROM item WHERE (${itemIds
-    .map((id) => `(id = '${id}')`)
-    .join(' OR ')})`;
-  const newMatchSql = `SELECT COUNT(1) AS count FROM item WHERE id IN (${itemIds
-    .map(() => '?')
-    .join(', ')})`;
-  const newMatchStmt = db.prepare(newMatchSql);
+    const itemIds = Array.from({ length: 150 }, (_, i) => String(i + 1));
+    const oldMatchSql = `SELECT COUNT(1) AS count FROM item WHERE (${itemIds
+      .map((id) => `(id = '${id}')`)
+      .join(' OR ')})`;
+    const newMatchSql = `SELECT COUNT(1) AS count FROM item WHERE id IN (${itemIds
+      .map(() => '?')
+      .join(', ')})`;
+    const newMatchStmt = db.prepare(newMatchSql);
 
-  const runIds = Array.from({ length: 120 }, (_, i) => i + 1);
-  const oldRunsSql = `
-    SELECT run.id AS map_id, area_info.name AS area, item.*
-    FROM item, run, area_info, event
-    WHERE item.value > ?
-      AND item.event_id = event.id
-      AND item.ignored = 0
-      AND DATETIME(event.timestamp) BETWEEN DATETIME(run.first_event) AND DATETIME(run.last_event)
-      AND map_id = area_info.run_id
-      AND run.id IN (${runIds.join(',')})
-  `;
-  const newRunsSql = `
-    SELECT run.id AS map_id, area_info.name AS area, item.*
-    FROM item, run, area_info, event
-    WHERE item.value > ?
-      AND item.event_id = event.id
-      AND item.ignored = 0
-      AND DATETIME(event.timestamp) BETWEEN DATETIME(run.first_event) AND DATETIME(run.last_event)
-      AND map_id = area_info.run_id
-      AND run.id IN (${runIds.map(() => '?').join(',')})
-  `;
-  const newRunsStmt = db.prepare(newRunsSql);
+    const simpleSql = 'SELECT value FROM item WHERE id = ?';
+    const cachedSimpleStmt = db.prepare(simpleSql);
 
-  const simpleSql = 'SELECT value FROM item WHERE id = ?';
-  const cachedSimpleStmt = db.prepare(simpleSql);
+    const mods = Array.from({ length: 80 }, (_, i) => `mod-${i}`);
+    const insertModSql = 'INSERT INTO mapmod(run_id, mod) VALUES(?, ?)';
+    const oldInsertStmt = db.prepare(insertModSql);
+    const txInsertStmt = db.prepare(insertModSql);
+    const txInsert = db.transaction((rows: string[]) => {
+      for (const mod of rows) {
+        txInsertStmt.run(999, mod);
+      }
+    });
 
-  const mods = Array.from({ length: 80 }, (_, i) => `mod-${i}`);
-  const insertModSql = 'INSERT INTO mapmod(run_id, mod) VALUES(?, ?)';
-  const oldInsertStmt = db.prepare(insertModSql);
-  const txInsertStmt = db.prepare(insertModSql);
-  const txInsert = db.transaction((rows: string[]) => {
-    for (const mod of rows) {
-      txInsertStmt.run(999, mod);
-    }
-  });
+    const cases: BenchmarkCase[] = [
+      {
+        name: 'items.getMatchingItemsCount old OR-chain',
+        run: () => {
+          db.prepare(oldMatchSql).get();
+        },
+      },
+      {
+        name: 'items.getMatchingItemsCount new IN placeholders',
+        run: () => {
+          newMatchStmt.get(...itemIds);
+        },
+      },
+      {
+        name: 'db/index old prepare every call',
+        run: () => {
+          for (let i = 1; i <= 120; i++) {
+            db.prepare(simpleSql).get(i);
+          }
+        },
+      },
+      {
+        name: 'db/index new cached prepared statement',
+        run: () => {
+          for (let i = 1; i <= 120; i++) {
+            cachedSimpleStmt.get(i);
+          }
+        },
+      },
+      {
+        name: 'run.insertMapMods old per-call write',
+        run: () => {
+          db.exec('DELETE FROM mapmod WHERE run_id = 999');
+          for (const mod of mods) {
+            oldInsertStmt.run(999, mod);
+          }
+        },
+      },
+      {
+        name: 'run.insertMapMods new transaction batch',
+        run: () => {
+          db.exec('DELETE FROM mapmod WHERE run_id = 999');
+          txInsert(mods);
+        },
+      },
+    ];
 
-  const cases: BenchmarkCase[] = [
-    {
-      name: 'items.getMatchingItemsCount old OR-chain',
-      run: () => {
-        db.prepare(oldMatchSql).get();
-      },
-    },
-    {
-      name: 'items.getMatchingItemsCount new IN placeholders',
-      run: () => {
-        newMatchStmt.get(...itemIds);
-      },
-    },
-    // {
-    //   name: 'stats.getAllItemsForRuns old inline IN ids',
-    //   run: () => {
-    //     db.prepare(oldRunsSql).all(0);
-    //   },
-    // },
-    // {
-    //   name: 'stats.getAllItemsForRuns new parameterized IN ids',
-    //   run: () => {
-    //     newRunsStmt.all(0, ...runIds);
-    //   },
-    // },
-    {
-      name: 'db/index old prepare every call',
-      run: () => {
-        for (let i = 1; i <= 120; i++) {
-          db.prepare(simpleSql).get(i);
-        }
-      },
-    },
-    {
-      name: 'db/index new cached prepared statement',
-      run: () => {
-        for (let i = 1; i <= 120; i++) {
-          cachedSimpleStmt.get(i);
-        }
-      },
-    },
-    {
-      name: 'run.insertMapMods old per-call write',
-      run: () => {
-        db.exec('DELETE FROM mapmod WHERE run_id = 999');
-        for (const mod of mods) {
-          oldInsertStmt.run(999, mod);
-        }
-      },
-    },
-    {
-      name: 'run.insertMapMods new transaction batch',
-      run: () => {
-        db.exec('DELETE FROM mapmod WHERE run_id = 999');
-        txInsert(mods);
-      },
-    },
-  ];
+    const report: DbBenchmarkReport = {
+      benchmark: 'db-query',
+      iterations,
+      status: 'ok',
+      cases: cases.map((benchmarkCase) => timeCase(iterations, benchmarkCase)),
+    };
 
+    db.close();
+    return report;
+  } catch (error: any) {
+    return {
+      benchmark: 'db-query',
+      iterations,
+      status: 'error',
+      cases: [],
+      error: error?.message ?? String(error),
+    };
+  }
+}
+
+function printHumanReadableReport(report: DbBenchmarkReport) {
   console.log('DB Query Benchmark');
-  console.log('Iterations per case:', iterations);
-  for (const benchmarkCase of cases) {
-    console.log(`Running case: ${benchmarkCase.name}...`);
-    const result = timeCase(iterations, benchmarkCase);
+  console.log('Iterations per case:', report.iterations);
+  if (report.status === 'error') {
+    console.log(`Benchmark unavailable: ${report.error}`);
+    return;
+  }
+  for (const result of report.cases) {
+    console.log(`Running case: ${result.name}...`);
     console.log(
       `${result.name}: total=${result.totalMs.toFixed(2)}ms avg=${result.avgMs.toFixed(4)}ms`
     );
   }
-
-  db.close();
 }
 
-runBenchmarks();
+if (require.main === module) {
+  const report = runBenchmarks();
+  if (process.argv.includes('--json')) {
+    console.log(JSON.stringify(report, null, 2));
+  } else {
+    printHumanReadableReport(report);
+  }
+}

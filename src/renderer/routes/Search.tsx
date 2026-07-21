@@ -17,7 +17,7 @@ import { useLoaderData } from 'react-router';
 import { saveAs } from 'file-saver';
 import Price from '../components/Pricing/Price';
 
-const { logger, ipcRenderer } = electronService;
+const { logger } = electronService;
 
 const SearchResultsHeader = ({
   activeProfile,
@@ -175,7 +175,7 @@ const Search = ({ store }) => {
 
   const handleSearch = async (searchParams) => {
     setIsSearching(true);
-    await ipcRenderer.invoke('search:trigger', searchParams);
+    await electronService.triggerSearch(searchParams);
     window.localStorage.setItem('searchParams', JSON.stringify(searchParams));
     setSearchParams(searchParams);
     setIsSearching(false);
@@ -232,7 +232,7 @@ const Search = ({ store }) => {
         open={isTakingScreenshot}
         sx={{ background: 'rgba(0,0,0,0.9)', zIndex: (theme) => theme.zIndex.drawer + 1 }}
       >
-        <Stack direction="column" spacing={2} alignItems="center">
+        <Stack direction="column" spacing={2} sx={{ alignItems: 'center' }}>
           <h3>Generating Screenshot</h3>
           <CircularProgress />
         </Stack>

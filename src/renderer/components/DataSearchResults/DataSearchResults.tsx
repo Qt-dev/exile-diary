@@ -60,11 +60,7 @@ const AccordionDetails = styled(MuiAccordionDetails)(({ theme }) => ({
 
 const DownloadButton = ({ store, name, classNames = '' }) => {
   const [isDownloading, setIsDownloading] = React.useState(false);
-  const downloadCsv = async (
-    event: React.MouseEvent<HTMLButtonElement, MouseEvent>,
-    store: any,
-    name: string
-  ) => {
+  const downloadCsv = async (event: React.SyntheticEvent, store: any, name: string) => {
     event.preventDefault();
     event.stopPropagation();
     const csv = await store.generateCSV();
@@ -79,8 +75,15 @@ const DownloadButton = ({ store, name, classNames = '' }) => {
 
   return (
     <Button
+      component="span"
+      role="button"
+      tabIndex={0}
+      aria-label={`Download ${name} CSV`}
       className={`${classNames} DataSearchResults__Save-Button`}
       onClick={(event) => downloadCsv(event, store, name)}
+      onKeyDown={(event) => {
+        if (event.key === 'Enter' || event.key === ' ') void downloadCsv(event, store, name);
+      }}
     >
       <FileDownloadIcon />
     </Button>
@@ -146,7 +149,7 @@ const DataSearchResults = ({
           zIndex: (theme) => theme.zIndex.drawer + 1,
         }}
       >
-        <Stack direction="column" spacing={2} alignItems="center">
+        <Stack direction="column" spacing={2} sx={{ alignItems: 'center' }}>
           <h3>Getting data from the DB</h3>
           <CircularProgress color="secondary" />
         </Stack>
@@ -158,7 +161,11 @@ const DataSearchResults = ({
         <AccordionDetails>
           <div className="DataSearchResults__Header-Container">{header}</div>
 
-          <Stack spacing={2} direction="row" justifyContent="space-evenly" alignItems="center">
+          <Stack
+            spacing={2}
+            direction="row"
+            sx={{ justifyContent: 'space-evenly', alignItems: 'center' }}
+          >
             <div className="Main_Stat__Column">
               <div className="DataSearchResults__Stat">
                 Number of items looted: {itemStore.stats.items.count}
@@ -197,10 +204,10 @@ const DataSearchResults = ({
       <Accordion
         expanded={expanded.includes('panel 2')}
         onChange={handleTabChange('panel 2')}
-        TransitionProps={{ onEntered: handleOpenTabEnd('panel 2') }}
+        slotProps={{ transition: { onEntered: handleOpenTabEnd('panel 2') } }}
       >
         <AccordionSummary>
-          <Stack direction="row" width="100%" justifyContent="space-between">
+          <Stack direction="row" sx={{ width: '100%', justifyContent: 'space-between' }}>
             <Typography className="DataSearchResults__Stat__Summary">
               Loot - <Price value={itemStore.stats.value.total} divinePrice={divinePrice} />
             </Typography>
@@ -209,7 +216,7 @@ const DataSearchResults = ({
         </AccordionSummary>
         <AccordionDetails>
           <Box sx={{ marginBottom: 5 }}>
-            <Stack spacing={2} direction="row" justifyContent="space-evenly">
+            <Stack spacing={2} direction="row" sx={{ justifyContent: 'space-evenly' }}>
               <Box sx={{ width: '100%' }}>
                 <LootTable
                   profit={itemStore.stats.value.total}
@@ -224,10 +231,10 @@ const DataSearchResults = ({
       <Accordion
         expanded={expanded.includes('panel 3')}
         onChange={handleTabChange('panel 3')}
-        TransitionProps={{ onEntered: handleOpenTabEnd('panel 3') }}
+        slotProps={{ transition: { onEntered: handleOpenTabEnd('panel 3') } }}
       >
         <AccordionSummary>
-          <Stack direction="row" width="100%" justifyContent="space-between">
+          <Stack direction="row" sx={{ width: '100%', justifyContent: 'space-between' }}>
             <Typography className="DataSearchResults__Stat__Summary">
               Runs ({runStore.stats.count} runs in{' '}
               {runStore.stats.time.total.format(DurationFormat)} - avg:{' '}

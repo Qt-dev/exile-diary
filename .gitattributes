@@ -1,5 +1,37 @@
-# Auto detect text files and perform LF normalization
+# Keep repo text normalization explicit so Windows checkouts do not generate
+# ambiguous line-ending warnings for common source files.
 * text=auto
+
+# Default application source, config, docs, and fixtures to LF.
+.gitattributes text eol=lf
+.gitignore    text eol=lf
+*.c      text eol=lf
+*.cc     text eol=lf
+*.cpp    text eol=lf
+*.css    text eol=lf
+*.csv    text eol=lf
+*.d.ts   text eol=lf
+*.html   text eol=lf
+*.java   text eol=lf
+*.js     text eol=lf
+*.json   text eol=lf
+*.jsx    text eol=lf
+*.md     text eol=lf
+*.mjs    text eol=lf
+*.scss   text eol=lf
+*.sql    text eol=lf
+*.svg    text eol=lf
+*.ts     text eol=lf
+*.tsx    text eol=lf
+*.txt    text eol=lf
+*.xml    text eol=lf
+*.yml    text eol=lf
+*.yaml   text eol=lf
+
+# Keep Windows-native scripts on CRLF.
+*.bat    text eol=crlf
+*.cmd    text eol=crlf
+*.ps1    text eol=crlf
 
 # Custom for Visual Studio
 *.cs     diff=csharp

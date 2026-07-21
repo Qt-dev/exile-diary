@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="260" viewBox="0 0 900 260">
+  <rect width="900" height="260" fill="#0b0b10"/>
+  <text x="30" y="70" fill="#f4f4f4" font-family="Arial, sans-serif" font-size="34">
+    monsters reflect 18% of elemental damage
+  </text>
+  <text x="30" y="140" fill="#f4f4f4" font-family="Arial, sans-serif" font-size="34">
+    players are cursed with elemental weakness
+  </text>
+  <text x="30" y="210" fill="#f4f4f4" font-family="Arial, sans-serif" font-size="34">
+    36% increased pack size
+  </text>
+</svg>

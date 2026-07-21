@@ -1,70 +1,38 @@
-import { describe, test, expect } from '@jest/globals';
-import StringMatcher from '../../../src/main/modules/StringMatcher';
-import logger from 'electron-log';
-import Constants from '../../../src/helpers/constants';
+import { describe, it, expect } from '@jest/globals';
+import StringParser from '../../../src/main/modules/StringParser/StringParser';
 
-jest.mock('electron-log', () => ({
-  scope: jest.fn(),
-  info: jest.fn(),
-  debug: jest.fn(),
-  error: jest.fn(),
-}));
-
-// Example function to test
-function stringContains(baseString: string, searchString: string): boolean {
-  return baseString.includes(searchString);
-}
-
-describe('StringMatcher', () => {
-  describe('getClosest', () => {
-    it('should return the closest match for the basic mods', () => {
+describe('StringParser legacy matcher coverage', () => {
+  describe('GetMod', () => {
+    it('returns the exact clean map mods', () => {
       const mods = [
-        '20% increased pack size',
-        '30% increased rarity of items found in this area',
-        '67% increased quantity of items found in this area',
+        '20% increased Pack size',
+        '30% increased Rarity of Items found in this Area',
+        '67% increased Quantity of Items found in this Area',
       ];
 
       for (const mod of mods) {
-        const now = new Date();
-        const closest = StringMatcher.getClosest(mod, Constants.mapMods);
-        // console.log(`Found closest match: ${closest} for mod: ${mod} in ${new Date().getMilliseconds() - now.getMilliseconds()} ms`);
-        expect(closest.toLowerCase()).toBe(mod.replace(/\d+/g, '#'));
+        expect(StringParser.GetMod(mod)).toBe(mod);
       }
     });
-    it('should return the closest match for more rare mods', () => {
+
+    it('returns the clean mod string for rarer exact inputs', () => {
       const mods = [
-        'Unique boss deals 27% increased damage',
-        'Monsters have a 55% chance to avoid poison, impale, and bleeding',
-        'Unique Boss has 33% increased attack and cast Speed',
-        'Buffs on players expire 77% faster',
+        'Unique Boss deals 27% increased Damage',
+        'Monsters have a 55% chance to avoid Poison, Impale, and Bleeding',
+        'Unique Boss has 33% increased Attack and Cast Speed',
+        'Buffs on Players expire 77% faster',
       ];
 
       for (const mod of mods) {
-        const now = new Date();
-        const closest = StringMatcher.getClosest(mod, Constants.mapMods);
-        // console.log(`Found closest match: ${closest} for mod: ${mod} in ${new Date().getMilliseconds() - now.getMilliseconds()} ms`);
-        expect(closest.toLowerCase()).toBe(mod.toLowerCase().replace(/\d+/g, '#'));
-      }
-    });
-    it('should return the closest match for rare implicits', () => {
-      const mods = [
-        'Area contains 2 additional Map Bosses',
-        "Area contains an additional Smuggler's Cache",
-      ];
-
-      for (const mod of mods) {
-        const now = new Date();
-        const closest = StringMatcher.getClosest(mod, Constants.mapMods);
-        // console.log(`Found closest match: ${closest} for mod: ${mod} in ${new Date().getMilliseconds() - now.getMilliseconds()} ms`);
-        expect(closest.toLowerCase()).toBe(mod.toLowerCase().replace(/\d+/g, '#'));
+        expect(StringParser.GetMod(mod)).toBe(mod);
       }
     });
 
-    it('should return the closest match when the result is fuzzy', () => {
-      const modsData = [
+    it('keeps the original numbers when resolving fuzzy OCR-style inputs', () => {
+      const cases = [
         {
           input: 'Fr Area contains 2 additional Map Bosses',
-          expected: 'Area contains # additional Map Bosses',
+          expected: 'Area contains 2 additional Map Bosses',
         },
         {
           input: "Area contains an additional Smuggler's Cache 3",
@@ -72,15 +40,12 @@ describe('StringMatcher', () => {
         },
         {
           input: 'sa r 30% increased rarity of items found in this areas',
-          expected: '#% increased rarity of items found in this area',
+          expected: '30% increased Rarity of Items found in this Area',
         },
       ];
 
-      for (const mod of modsData) {
-        const now = new Date();
-        const closest = StringMatcher.getClosest(mod.input, Constants.mapMods);
-        // console.log(`Found closest match: ${closest} for mod: ${mod} in ${new Date().getMilliseconds() - now.getMilliseconds()} ms`);
-        expect(closest.toLowerCase()).toBe(mod.expected.toLowerCase());
+      for (const testCase of cases) {
+        expect(StringParser.GetMod(testCase.input)).toBe(testCase.expected);
       }
     });
   });

@@ -1,198 +1,452 @@
-const path = require('path');
-const chokidar = require('chokidar');
-const logger = require('electron-log');
+const { fork } = require('node:child_process');
+const Logger = require('electron-log');
 const EventEmitter = require('events');
-const StringParser = require('../StringParser/StringParser').default;
-const { getMapStats } = require('../RunParser').default;
-const { createWorker, createScheduler } = require('tesseract.js');
-const dayjs = require('dayjs');
-let DB = require('../../db/run').default;
+const { getOcrSidecarEntryPath } = require('../../runtime/electronViteRuntimePaths');
+const { getAppVersion, getIsPackaged, getUserDataPath } = require('../../runtime/getUserDataPath');
 
-let watcher;
+const logger = Logger.scope('ocr-watcher');
 const emitter = new EventEmitter();
-const app = require('electron').app || require('@electron/remote').app;
-let mapInfoManager;
+const isDev = Boolean(process.env.ELECTRON_RENDERER_URL);
+const StartupTimeoutMs = 20000;
+const RequestTimeoutMs = 30000;
+const RestartDelayMs = 500;
+const HealthCheckIntervalMs = 15000;
+const HealthCheckTimeoutMs = 5000;
+const MaxConsecutiveHealthCheckFailures = 2;
 
-const watchPaths = [
-  // path.join(app.getPath('userData'), '.temp_capture', '*_area.png'),
-  path.join(app.getPath('userData'), '.temp_capture', '*_mods.png'),
-];
-const numOfWorkers = 2;
+let sidecarProcess = null;
+let startupPromise = null;
+let startupResolve = null;
+let startupReject = null;
+let restartTimer = null;
+let healthCheckTimer = null;
+let healthCheckPromise = null;
+let isStopping = false;
+let requestSequence = 0;
+let restartCount = 0;
+let consecutiveHealthCheckFailures = 0;
+let latestHealth = {
+  status: 'stopped',
+  pid: null,
+  startedAt: null,
+  uptimeSeconds: 0,
+  lastHeartbeatAt: null,
+  restartCount: 0,
+  consecutiveHealthCheckFailures: 0,
+  pendingRequestCount: 0,
+  lastExitReason: null,
+  lastError: null,
+};
+const pendingRequests = new Map();
 
-class MapInfoManager {
-  constructor() {}
-  setAreaInfo(info) {
-    this.areaInfo = info;
+function createTimeoutError(action, timeoutMs) {
+  return new Error(`OCR sidecar timed out while waiting for ${action} after ${timeoutMs}ms`);
+}
+
+function createSidecarExitError(code, signal) {
+  const reason = signal ? `signal ${signal}` : `code ${code ?? 'unknown'}`;
+  return new Error(`OCR sidecar exited unexpectedly (${reason})`);
+}
+
+function clearRestartTimer() {
+  if (restartTimer) {
+    clearTimeout(restartTimer);
+    restartTimer = null;
   }
-  setMapMods(mods) {
-    this.mapMods = mods;
+}
+
+function clearHealthCheckTimer() {
+  if (healthCheckTimer) {
+    clearInterval(healthCheckTimer);
+    healthCheckTimer = null;
   }
-  cleanup() {
-    this.mapMods = null;
-    this.areaInfo = null;
+}
+
+function emitHealthUpdate(partial = {}) {
+  latestHealth = {
+    ...latestHealth,
+    ...partial,
+    restartCount,
+    consecutiveHealthCheckFailures,
+    pendingRequestCount: pendingRequests.size,
+  };
+
+  emitter.emit('ocr:health-updated', latestHealth);
+  return latestHealth;
+}
+
+function rejectPendingRequests(error) {
+  for (const { reject, timeout } of pendingRequests.values()) {
+    clearTimeout(timeout);
+    reject(error);
   }
-  checkJobComplete() {
-    const { mapMods } = this;
-    if (!!mapMods) {
-      const mapStats = getMapStats(mapMods);
-      emitter.emit('ocr:completed-job', { mapMods, mapStats });
-      this.cleanup();
+  pendingRequests.clear();
+}
+
+function handleSidecarMessage(message) {
+  if (!message || typeof message !== 'object') {
+    return;
+  }
+
+  switch (message.type) {
+    case 'ready':
+      emitHealthUpdate({
+        status: 'ready',
+        pid: message.pid,
+        startedAt: message.startedAt,
+        lastHeartbeatAt: new Date().toISOString(),
+        uptimeSeconds: 0,
+        lastError: null,
+      });
+      startupResolve?.(message);
+      return;
+    case 'event':
+      if (message.eventName) {
+        emitter.emit(message.eventName, message.payload);
+      }
+      return;
+    case 'response': {
+      const pending = pendingRequests.get(message.requestId);
+      if (!pending) {
+        return;
+      }
+
+      clearTimeout(pending.timeout);
+      pendingRequests.delete(message.requestId);
+
+      if (message.ok) {
+        if (message.result?.status === 'ready') {
+          consecutiveHealthCheckFailures = 0;
+          emitHealthUpdate({
+            ...message.result,
+            status: 'ready',
+            lastHeartbeatAt: new Date().toISOString(),
+            lastError: null,
+          });
+        }
+        pending.resolve(message.result);
+      } else {
+        pending.reject(new Error(message.error?.message ?? 'OCR sidecar request failed'));
+      }
+      return;
     }
   }
 }
 
-const scheduler = createScheduler();
+function beginHealthChecks() {
+  if (healthCheckTimer) {
+    return;
+  }
 
-function test(filename) {
-  DB = null;
-  processImage(filename);
+  healthCheckTimer = setInterval(() => {
+    refreshHealth({ allowRestartOnFailure: true }).catch((error) => {
+      logger.error('OCR sidecar health check failed', error);
+    });
+  }, HealthCheckIntervalMs);
+
+  if (typeof healthCheckTimer.unref === 'function') {
+    healthCheckTimer.unref();
+  }
 }
 
-async function setupScheduler() {
-  for (let i = 0; i < numOfWorkers; i++) {
-    const worker = await createWorker('eng', 1, {
-      langPath: process.resourcesPath,
-      gzip: false,
-      // logger: m => logger.info(m),
-    });
-    await worker.load();
-    await worker.setParameters({
-      tessedit_char_whitelist:
-        "1234567890abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ:-' ,%+",
-    });
-    scheduler.addWorker(worker);
+function scheduleRestart() {
+  if (isStopping || restartTimer) {
+    return;
   }
+
+  restartTimer = setTimeout(() => {
+    restartTimer = null;
+    ensureStarted().catch((error) => {
+      logger.error('Failed to restart OCR sidecar', error);
+    });
+  }, RestartDelayMs);
+}
+
+function attachSidecarLogging(child) {
+  if (child.stdout) {
+    child.stdout.on('data', (chunk) => {
+      const output = chunk.toString().trim();
+      if (output) {
+        logger.info(`[ocr-sidecar:${child.pid}] ${output}`);
+      }
+    });
+  }
+
+  if (child.stderr) {
+    child.stderr.on('data', (chunk) => {
+      const output = chunk.toString().trim();
+      if (output) {
+        logger.error(`[ocr-sidecar:${child.pid}] ${output}`);
+      }
+    });
+  }
+}
+
+function createStartupPromise() {
+  startupPromise = new Promise((resolve, reject) => {
+    const timeout = setTimeout(() => {
+      startupResolve = null;
+      startupReject = null;
+      reject(createTimeoutError('startup', StartupTimeoutMs));
+    }, StartupTimeoutMs);
+
+    startupResolve = (message) => {
+      clearTimeout(timeout);
+      startupResolve = null;
+      startupReject = null;
+      resolve(message);
+    };
+    startupReject = (error) => {
+      clearTimeout(timeout);
+      startupResolve = null;
+      startupReject = null;
+      reject(error);
+    };
+  });
+}
+
+function spawnSidecar() {
+  const entryPath = getOcrSidecarEntryPath({
+    currentMainDir: __dirname,
+    isDev,
+  });
+
+  logger.info(`Starting OCR sidecar from ${entryPath}`);
+  emitHealthUpdate({
+    status: restartCount > 0 ? 'restarting' : 'starting',
+    pid: null,
+    startedAt: null,
+    uptimeSeconds: 0,
+    lastHeartbeatAt: null,
+    lastError: null,
+  });
+  createStartupPromise();
+  const userDataPath = process.env.EXILE_DIARY_USER_DATA_PATH || getUserDataPath();
+  sidecarProcess = fork(entryPath, [], {
+    cwd: process.cwd(),
+    env: {
+      ...process.env,
+      ELECTRON_RUN_AS_NODE: '1',
+      EXILE_DIARY_APP_VERSION: process.env.EXILE_DIARY_APP_VERSION || getAppVersion(),
+      EXILE_DIARY_IS_PACKAGED: process.env.EXILE_DIARY_IS_PACKAGED || String(getIsPackaged()),
+      EXILE_DIARY_USER_DATA_PATH: userDataPath,
+    },
+    execArgv: isDev ? ['--require', 'tsx/cjs'] : [],
+    serialization: 'advanced',
+    stdio: ['inherit', 'pipe', 'pipe', 'ipc'],
+  });
+
+  attachSidecarLogging(sidecarProcess);
+  sidecarProcess.on('message', handleSidecarMessage);
+  sidecarProcess.once('exit', (code, signal) => {
+    const error = createSidecarExitError(code, signal);
+    if (startupReject) {
+      startupReject(error);
+    }
+    rejectPendingRequests(error);
+    sidecarProcess = null;
+    startupPromise = null;
+    healthCheckPromise = null;
+
+    if (!isStopping) {
+      restartCount += 1;
+      emitHealthUpdate({
+        status: 'restarting',
+        pid: null,
+        uptimeSeconds: 0,
+        lastExitReason: error.message,
+        lastError: error.message,
+      });
+      logger.error(error.message);
+      scheduleRestart();
+    } else {
+      consecutiveHealthCheckFailures = 0;
+      emitHealthUpdate({
+        status: 'stopped',
+        pid: null,
+        uptimeSeconds: 0,
+        lastExitReason: error.message,
+      });
+    }
+  });
+  sidecarProcess.once('error', (error) => {
+    logger.error('OCR sidecar process error', error);
+  });
+}
+
+async function refreshHealth({ allowRestartOnFailure = false } = {}) {
+  if (!sidecarProcess || !sidecarProcess.connected) {
+    return latestHealth;
+  }
+
+  if (healthCheckPromise) {
+    return healthCheckPromise;
+  }
+
+  healthCheckPromise = sendRequestInternal('health-check', undefined, HealthCheckTimeoutMs)
+    .then((result) => {
+      consecutiveHealthCheckFailures = 0;
+      return emitHealthUpdate({
+        ...result,
+        status: 'ready',
+        lastHeartbeatAt: new Date().toISOString(),
+        lastError: null,
+      });
+    })
+    .catch((error) => {
+      consecutiveHealthCheckFailures += 1;
+      const shouldRestart =
+        allowRestartOnFailure &&
+        consecutiveHealthCheckFailures >= MaxConsecutiveHealthCheckFailures;
+
+      emitHealthUpdate({
+        status: shouldRestart ? 'restarting' : 'degraded',
+        lastError: error.message,
+      });
+
+      if (shouldRestart && sidecarProcess && !sidecarProcess.killed) {
+        logger.error(
+          `OCR sidecar health check failed ${consecutiveHealthCheckFailures} times, restarting`
+        );
+        sidecarProcess.kill();
+      }
+
+      throw error;
+    })
+    .finally(() => {
+      healthCheckPromise = null;
+    });
+
+  return healthCheckPromise;
+}
+
+async function ensureStarted() {
+  if (!sidecarProcess || !sidecarProcess.connected) {
+    isStopping = false;
+    clearRestartTimer();
+    spawnSidecar();
+  }
+
+  await startupPromise;
+  beginHealthChecks();
+  await refreshHealth();
+}
+
+async function sendRequestInternal(command, payload = undefined, timeoutMs = RequestTimeoutMs) {
+  const requestId = `ocr-${++requestSequence}`;
+
+  if (!sidecarProcess || !sidecarProcess.connected) {
+    throw new Error('OCR sidecar process is not available');
+  }
+
+  return new Promise((resolve, reject) => {
+    const timeout = setTimeout(() => {
+      pendingRequests.delete(requestId);
+      reject(createTimeoutError(command, timeoutMs));
+    }, timeoutMs);
+
+    pendingRequests.set(requestId, {
+      resolve,
+      reject,
+      timeout,
+    });
+
+    try {
+      sidecarProcess.send({
+        type: 'request',
+        requestId,
+        command,
+        payload,
+      });
+    } catch (error) {
+      clearTimeout(timeout);
+      pendingRequests.delete(requestId);
+      reject(error);
+    }
+  });
+}
+
+async function sendRequest(command, payload = undefined, timeoutMs = RequestTimeoutMs) {
+  await ensureStarted();
+  return sendRequestInternal(command, payload, timeoutMs);
 }
 
 async function start() {
-  mapInfoManager = new MapInfoManager();
-
-  if (watcher) {
-    try {
-      watcher.close();
-      watcher.unwatch(watchPaths);
-    } catch (err) {}
-  }
-
-  watcher = chokidar.watch(watchPaths, {
-    usePolling: true,
-    awaitWriteFinish: true,
-    ignoreInitial: true,
-  });
-  watcher.on('add', async (path) => {
-    await processImage(path);
-  });
-
-  await setupScheduler();
+  await ensureStarted();
 }
 
-async function cleanFailedOCR(e, timestamp) {
-  mapInfoManager.cleanup();
-  logger.info('Error processing screenshot: ' + e);
-  emitter.emit('OCRError');
-  const cleanTimestamp = dayjs(timestamp, 'YYYYMMDDHHmmss').toISOString();
-  const runId = await DB.getRunIdFromTimestamp(cleanTimestamp);
-  if (timestamp && runId) {
-    await DB.deleteAreaInfo(runId);
-    await DB.deleteMapMods(runId);
-  }
-}
-
-function getModInfo(lines) {
-  const mods = StringParser.GetMods(
-    lines.filter((line) => line && line.length > 0).map((line) => line.toLowerCase().trim())
-  );
-  return mods;
-}
-
-async function getAreaNameFromDB(timestamp) {
-  return DB.getAreaName(timestamp).catch((e) => {
-    logger.error(`Error getting area name from db: ${e}`);
-    throw e;
+async function scanScreenshotBuffer(screenshotBuffer, job, options = {}) {
+  return sendRequest('scan-screenshot-buffer', {
+    screenshotBuffer,
+    job,
+    options,
   });
 }
 
 async function processImageBuffer(buffer, timestamp, type) {
-  logger.info(`Performing OCR on ${type} ...`);
-
-  try {
-    const {
-      data: { text },
-    } = await scheduler.addJob('recognize', buffer);
-
-    // const filename = path.basename(file);
-    // const timestamp = filename.substring(0, filename.indexOf('_'));
-    const lines = [];
-    text.split('\n').forEach((line) => {
-      lines.push(line.trim());
-      logger.info(line.trim());
-    });
-
-    const { id: runId } = await DB.getLatestUncompletedRun();
-    // const areaId = await DB.getAreaId();
-    logger.info(`Got areaId: ${runId} for timestamp: ${timestamp}`);
-
-    if (type === 'area') {
-      logger.debug('Processing area info');
-      logger.debug('Will actually do nothing now.');
-      // const area = getAreaInfo(lines);
-      // try {
-      //   const areaName = area.name ?? (await getAreaNameFromDB(timestamp));
-      //   logger.info(`Got last entered area: ${areaName}`);
-      //   area.name = areaName;
-      // } catch (e) {
-      //   logger.info(`Got last entered area from ocr: ${area.name}`);
-      // }
-
-      // try {
-      //   if (area.name) {
-      //     await DB.insertAreaInfo({
-      //       areaId: runId,
-      //       name: area.name,
-      //       level: area.level,
-      //       depth: area.depth,
-      //     });
-      //     mapInfoManager.setAreaInfo(area);
-      //     mapInfoManager.checkJobComplete();
-      //   } else {
-      //     throw 'No area name found';
-      //   }
-      // } catch (err) {
-      //   cleanFailedOCR(err, timestamp);
-      // }
-    } else if (type === 'mods') {
-      logger.debug('Processing map mods');
-      try {
-        const mods = getModInfo(lines).filter((mod) => mod.length > 1);
-        let mapModErr = null;
-
-        try {
-          await DB.replaceMapMods(runId, mods);
-        } catch (e) {
-          mapModErr = e;
-        }
-        if (mapModErr) {
-          await cleanFailedOCR(mapModErr, timestamp);
-        } else {
-          mapInfoManager.setMapMods(mods);
-        }
-      } catch (e) {
-        await cleanFailedOCR(e, timestamp);
-      }
-    }
-  } catch (e) {
-    logger.error('Error in fetching OCR text');
-    logger.error(e);
+  if (type !== 'mods') {
+    return null;
   }
 
-  logger.info(`Completed OCR on ${type}.`);
+  return sendRequest('process-image-buffer', {
+    buffer,
+    timestamp,
+    type,
+  });
+}
+
+async function stop() {
+  isStopping = true;
+  clearRestartTimer();
+  clearHealthCheckTimer();
+  healthCheckPromise = null;
+
+  const child = sidecarProcess;
+  sidecarProcess = null;
+  startupPromise = null;
+  consecutiveHealthCheckFailures = 0;
+  emitHealthUpdate({
+    status: 'stopped',
+    pid: null,
+    uptimeSeconds: 0,
+    lastError: null,
+  });
+
+  if (!child || child.killed) {
+    return;
+  }
+
+  try {
+    child.send({
+      type: 'request',
+      requestId: `ocr-stop-${Date.now()}`,
+      command: 'shutdown',
+    });
+  } catch (error) {
+    logger.error('Unable to send OCR sidecar shutdown request', error);
+  }
+
+  await new Promise((resolve) => {
+    const killTimer = setTimeout(() => {
+      if (!child.killed) {
+        child.kill();
+      }
+    }, 3000);
+
+    child.once('exit', () => {
+      clearTimeout(killTimer);
+      resolve();
+    });
+  });
 }
 
 module.exports = {
   start,
-  test,
   emitter,
-  scheduler,
   processImageBuffer,
-  checkJobComplete: () => mapInfoManager.checkJobComplete(),
+  scanScreenshotBuffer,
+  stop,
+  refreshHealth,
+  getHealth: () => latestHealth,
+  checkJobComplete: () => latestHealth,
 };

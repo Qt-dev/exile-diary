@@ -3,10 +3,10 @@ import RatesManager from '../RatesManager';
 import { writeFile } from 'fs/promises';
 import Constants from '../../helpers/constants';
 import * as ItemCategoryParser from '../../helpers/item';
+import ItemData from './ItemData';
+import Utils from './Utils';
 import dayjs, { min } from 'dayjs';
 const logger = require('electron-log');
-const ItemData = require('./ItemData');
-const Utils = require('./Utils').default;
 
 const baseTypeRarities = ['Normal', 'Magic', 'Rare'];
 const nonPricedCategories = [
@@ -45,6 +45,49 @@ type PriceMatch = {
   calculateValue: (item: any, minItemValue?: number) => number;
 };
 
+export type PriceSnapshotInfo = {
+  snapshotId: string;
+  date: string;
+  league: string;
+  source: 'poe.ninja';
+};
+
+export type PriceLookupRecord = {
+  table: string;
+  identifier: string;
+  unitChaosValue: number;
+  stackSize: number;
+  totalChaosValue: number;
+  matched: boolean;
+  passedMinValueFilter: boolean;
+};
+
+export type ItemValuationExplanation = {
+  snapshot: PriceSnapshotInfo;
+  matchedRule: string;
+  finalValue: number;
+  isVendorRecipe: boolean;
+  item: {
+    typeline: string;
+    rarity?: string;
+    category?: string;
+    stackSize: number;
+    rawItemStored: boolean;
+  };
+  lookupTrail: PriceLookupRecord[];
+  notes: string[];
+};
+
+export type PriceResult = {
+  isVendor: boolean;
+  value: number;
+  explanation: ItemValuationExplanation | null;
+};
+
+function buildSnapshotId(league: string, date: string) {
+  return `${league}:${date}`;
+}
+
 /**
  * Base function to get all of the rates for one league for one day
  * @param eventId ID of the event we are trying to get the rates for
@@ -72,6 +115,8 @@ async function updateRates(league = SettingsManager.get('activeProfile').league)
 class PriceMatcher {
   ratesCache: {};
   date: string;
+  league: string = 'Standard';
+  lookupTrail: PriceLookupRecord[] = [];
   MapSeries = [
     // Update every league to add the new series or new maps won't be priced
     { id: 1, name: 'Atlas2-3.4' },
@@ -351,11 +396,77 @@ class PriceMatcher {
   }
 
   async fetchRates(league = SettingsManager.get('activeProfile').league) {
+    this.league = league;
     this.ratesCache = await getRatesFor(this.date, league);
   }
 
   hasBrokenRates() {
     return Object.keys(this.ratesCache).length === 0;
+  }
+
+  resetLookupTrail() {
+    this.lookupTrail = [];
+  }
+
+  recordLookup({
+    table,
+    identifier,
+    unitChaosValue,
+    stackSize,
+    matched,
+    passedMinValueFilter,
+  }: Omit<PriceLookupRecord, 'totalChaosValue'>) {
+    this.lookupTrail.push({
+      table,
+      identifier,
+      unitChaosValue,
+      stackSize,
+      totalChaosValue: Number((unitChaosValue * stackSize).toFixed(2)),
+      matched,
+      passedMinValueFilter,
+    });
+  }
+
+  buildExplanation(
+    item: any,
+    pricingRule: PriceMatch,
+    finalValue: number,
+    isVendorRecipe: boolean
+  ): ItemValuationExplanation {
+    const notes: string[] = [];
+
+    if (this.lookupTrail.length === 0) {
+      notes.push('No rate-table lookup was required for this valuation rule.');
+    }
+
+    if (isVendorRecipe) {
+      notes.push('This item also matches a vendor-recipe path.');
+    }
+
+    if (finalValue === 0) {
+      notes.push('The final valuation resolved to zero chaos.');
+    }
+
+    return {
+      snapshot: {
+        snapshotId: buildSnapshotId(this.league, this.date),
+        date: this.date,
+        league: this.league,
+        source: 'poe.ninja',
+      },
+      matchedRule: pricingRule.name,
+      finalValue: Number(finalValue.toFixed(2)),
+      isVendorRecipe,
+      item: {
+        typeline: item.typeline,
+        rarity: item.rarity,
+        category: item.category,
+        stackSize: item.stack_size ?? item.stackSize ?? 1,
+        rawItemStored: Boolean(item.raw_data),
+      },
+      lookupTrail: [...this.lookupTrail],
+      notes,
+    };
   }
 
   /**
@@ -366,15 +477,34 @@ class PriceMatcher {
    * @returns {number}  Value of the item in chaos
    */
   getValue(item: any, table: string, inputIdentifier: string = '', minItemValue = 0): number {
+    const stackSize = item.stack_size ?? item.stackSize ?? 1;
     if (!this.ratesCache[table]) {
       logger.info(`No price list found for category ${table}, returning 0`);
+      this.recordLookup({
+        table,
+        identifier: inputIdentifier.length > 0 ? inputIdentifier : item.typeline,
+        unitChaosValue: 0,
+        stackSize,
+        matched: false,
+        passedMinValueFilter: false,
+      });
       return 0;
     }
 
     const identifier = inputIdentifier.length > 0 ? inputIdentifier : item.typeline;
 
     // handle items that stack - minItemValue is for exactly 1 of the item
-    const value = this.ratesCache[table][identifier];
+    const value = this.ratesCache[table][identifier] ?? 0;
+    const passedMinValueFilter = minItemValue < value * stackSize;
+
+    this.recordLookup({
+      table,
+      identifier,
+      unitChaosValue: value,
+      stackSize,
+      matched: value > 0,
+      passedMinValueFilter,
+    });
 
     if (!value) {
       if (log) {
@@ -385,7 +515,7 @@ class PriceMatcher {
     if (log) {
       logger.info(`[${table}] : ${identifier} => ${value}`);
     }
-    return minItemValue < value * (item.stack_size || 1) ? value : 0;
+    return passedMinValueFilter ? value : 0;
   }
 
   /**
@@ -1039,14 +1169,37 @@ async function price(
   item: any,
   league: string = SettingsManager.get('activeProfile').league,
   forceToday: boolean = false
-): Promise<{ isVendor: boolean; value: number }> {
+): Promise<PriceResult> {
   const date = forceToday ? dayjs().format('YYYYMMDD') : dayjs(item.drop_time).format('YYYYMMDD');
   if (!matchers[date]) matchers[date] = new PriceMatcher(date);
   const matcher: PriceMatcher = matchers[date];
   await matcher.fetchRates(league);
 
   if (matcher.hasBrokenRates()) {
-    return { isVendor: false, value: 0 };
+    return {
+      isVendor: false,
+      value: 0,
+      explanation: {
+        snapshot: {
+          snapshotId: buildSnapshotId(league, date),
+          date,
+          league,
+          source: 'poe.ninja',
+        },
+        matchedRule: 'Unavailable Rates',
+        finalValue: 0,
+        isVendorRecipe: false,
+        item: {
+          typeline: item.typeline,
+          rarity: item.rarity,
+          category: item.category,
+          stackSize: item.stack_size ?? item.stackSize ?? 1,
+          rawItemStored: Boolean(item.raw_data),
+        },
+        lookupTrail: [],
+        notes: ['No price snapshot was available for this valuation.'],
+      },
+    };
   }
 
   item.parsedItem = JSON.parse(item.raw_data);
@@ -1058,7 +1211,16 @@ async function price(
     logger.info(item);
   }
 
-  return { isVendor: matcher.isVendorRecipe(item), value: matcher.price(item, minItemValue) };
+  const pricingRule = matcher.match(item);
+  matcher.resetLookupTrail();
+  const value = pricingRule.calculateValue(item, minItemValue);
+  const isVendor = matcher.isVendorRecipe(item);
+
+  return {
+    isVendor,
+    value,
+    explanation: matcher.buildExplanation(item, pricingRule, value, isVendor),
+  };
 }
 
 async function getCurrencyByName(

@@ -97,8 +97,8 @@ const DataSearchForm = ({
   return (
     <form className="DataSearchForm Box" onSubmit={handleSearch} onReset={handleReset}>
       <h2 className="DataSearchForm__Header">Search Criteria</h2>
-      <Stack direction="column" spacing={3} margin="1em">
-        <Stack direction="row" spacing={3} justifyContent="center">
+      <Stack direction="column" spacing={3} sx={{ margin: '1em' }}>
+        <Stack direction="row" spacing={3} sx={{ justifyContent: 'center' }}>
           <LocalizationProvider dateAdapter={AdapterDayjs}>
             <DateTimePicker
               label="From"
@@ -118,7 +118,7 @@ const DataSearchForm = ({
           </LocalizationProvider>
         </Stack>
 
-        <Stack direction="row" spacing={3} sx={{ width: '100%' }} justifyContent="center">
+        <Stack direction="row" spacing={3} sx={{ width: '100%', justifyContent: 'center' }}>
           <Autocomplete
             multiple
             value={selectedMaps}
@@ -140,20 +140,22 @@ const DataSearchForm = ({
         <Stack
           direction="row"
           spacing={3}
-          justifyContent="center"
-          alignItems="center"
-          flexWrap="wrap"
           useFlexGap
-          sx={{ marginBottom: '2em' }}
+          sx={{
+            justifyContent: 'center',
+            alignItems: 'center',
+            flexWrap: 'wrap',
+            marginBottom: '2em',
+          }}
         >
           <Stack
             direction="column"
-            alignItems="center"
+            sx={{ alignItems: 'center' }}
             spacing={1}
             className="DataSearchForm__Field-Group"
           >
             <h3 className="DataSearchForm__Section-Title">IIQ</h3>
-            <Stack direction="row" alignItems="center" spacing={3}>
+            <Stack direction="row" spacing={3} sx={{ alignItems: 'center' }}>
               <FormControl variant="outlined" size="small">
                 <TextField
                   label="Above"
@@ -183,12 +185,12 @@ const DataSearchForm = ({
 
           <Stack
             direction="column"
-            alignItems="center"
+            sx={{ alignItems: 'center' }}
             spacing={1}
             className="DataSearchForm__Field-Group"
           >
             <h3 className="DataSearchForm__Section-Title">IIR</h3>
-            <Stack direction="row" alignItems="center" spacing={3}>
+            <Stack direction="row" spacing={3} sx={{ alignItems: 'center' }}>
               <FormControl variant="outlined" size="small">
                 <TextField
                   label="Above"
@@ -218,12 +220,12 @@ const DataSearchForm = ({
 
           <Stack
             direction="column"
-            alignItems="center"
+            sx={{ alignItems: 'center' }}
             spacing={1}
             className="DataSearchForm__Field-Group"
           >
             <h3 className="DataSearchForm__Section-Title">Pack Size</h3>
-            <Stack direction="row" alignItems="center" spacing={3}>
+            <Stack direction="row" spacing={3} sx={{ alignItems: 'center' }}>
               <FormControl variant="outlined" size="small">
                 <TextField
                   label="Above"
@@ -252,12 +254,12 @@ const DataSearchForm = ({
           </Stack>
           <Stack
             direction="column"
-            alignItems="center"
+            sx={{ alignItems: 'center' }}
             spacing={1}
             className="DataSearchForm__Field-Group"
           >
             <h3 className="DataSearchForm__Section-Title">Map Level</h3>
-            <Stack direction="row" alignItems="center" spacing={3}>
+            <Stack direction="row" spacing={3} sx={{ alignItems: 'center' }}>
               <FormControl variant="outlined" size="small">
                 <TextField
                   label="Above"
@@ -286,12 +288,12 @@ const DataSearchForm = ({
           </Stack>
           <Stack
             direction="column"
-            alignItems="center"
+            sx={{ alignItems: 'center' }}
             spacing={1}
             className="DataSearchForm__Field-Group"
           >
             <h3 className="DataSearchForm__Section-Title">Number of deaths</h3>
-            <Stack direction="row" alignItems="center" spacing={3}>
+            <Stack direction="row" spacing={3} sx={{ alignItems: 'center' }}>
               <FormControl variant="outlined" size="small">
                 <TextField
                   label="Above"
@@ -320,9 +322,9 @@ const DataSearchForm = ({
           </Stack>
         </Stack>
 
-        <Stack direction="column" spacing={2} alignItems="center">
+        <Stack direction="column" spacing={2} sx={{ alignItems: 'center' }}>
           <h3 className="DataSearchForm__Section-Title">Additional Filters</h3>
-          <Stack direction="row" spacing={3} justifyContent="center">
+          <Stack direction="row" spacing={3} sx={{ justifyContent: 'center' }}>
             <FormControl variant="outlined" size="small">
               <TextField
                 label="Only items worth more than"
@@ -355,7 +357,7 @@ const DataSearchForm = ({
                 id="needed-item-name"
                 size="small"
                 value={neededItemName}
-                InputLabelProps={{ shrink: true }}
+                slotProps={{ inputLabel: { shrink: true } }}
                 onChange={(e) => setNeededItemName(e.target.value)}
               />
             </FormControl>

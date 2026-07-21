@@ -1,0 +1,18 @@
+[
+  {
+    "typeline": "Chaos Orb",
+    "rarity": "Currency",
+    "stack_size": 12
+  },
+  {
+    "typeline": "Divine Orb",
+    "rarity": "Currency",
+    "stack_size": 1
+  },
+  {
+    "typeline": "Mortal Grief",
+    "category": "Map Fragment",
+    "rarity": "Currency",
+    "stack_size": 2
+  }
+]

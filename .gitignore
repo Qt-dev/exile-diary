@@ -37,6 +37,8 @@ build/Release
 
 # Built app
 build/
+out/
+.tmp/
 
 # Dependency directories
 node_modules/

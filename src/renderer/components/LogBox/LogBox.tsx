@@ -6,8 +6,8 @@ import MuiLink from '@mui/material/Link';
 import classNames from 'classnames';
 import OpenInFullIcon from '@mui/icons-material/OpenInFull';
 import CloseFullscreenIcon from '@mui/icons-material/CloseFullscreen';
-import { ipcRenderer } from 'electron';
 import Price from '../Pricing/Price';
+import { electronService } from '../../electron.service';
 
 const classPerType = {
   error: 'Text--Error',
@@ -18,34 +18,38 @@ const classPerType = {
 const Line = ({ messages, timestamp }) => {
   if (!messages) return null;
   const formattedMessages = messages.map(
-    ({ type, text, link, linkEvent, icon, price, divinePrice }) => {
-      const Element = [
-        icon ? <img src={icon} alt={`icon-${icon}`} className={'Text--Icon'}></img> : null,
-        type ? <span className={classPerType[type]}>{text}</span> : <>{text}</>,
-      ];
+    ({ type, text, link, linkEvent, icon, price, divinePrice }, index) => {
+      const content = (
+        <>
+          {icon ? <img src={icon} alt={`icon-${icon}`} className="Text--Icon" /> : null}
+          {type ? <span className={classPerType[type]}>{text}</span> : <>{text}</>}
+        </>
+      );
+      const key = `message-${index}-${text ?? ''}-${link ?? linkEvent ?? price ?? 'plain'}`;
+
       if (link) {
         return (
-          <Link to={link} style={{ fontSize: 'inherit' }}>
-            {Element}
+          <Link key={key} to={link} style={{ fontSize: 'inherit' }}>
+            {content}
           </Link>
         );
       } else if (linkEvent) {
         const triggerEvent = () => {
-          ipcRenderer.send(linkEvent);
+          electronService.triggerLogAction(linkEvent);
         };
         return (
-          <MuiLink href="#" onClick={triggerEvent} style={{ fontSize: 'inherit' }}>
-            {Element}
+          <MuiLink key={key} href="#" onClick={triggerEvent} style={{ fontSize: 'inherit' }}>
+            {content}
           </MuiLink>
         );
       } else if (price || price === 0) {
         return (
-          <span className={classPerType['currency']}>
+          <span key={key} className={classPerType['currency']}>
             <Price value={price} divinePrice={divinePrice} />
           </span>
         );
       } else {
-        return <>{Element}</>;
+        return <React.Fragment key={key}>{content}</React.Fragment>;
       }
     }
   );
@@ -86,11 +90,7 @@ const LogBox = ({ store, enableAutoscroll }) => {
       scrollToBottom();
     };
 
-    ipcRenderer.on('log-autoscroll', handleAutoscroll);
-
-    return () => {
-      ipcRenderer.removeListener('log-autoscroll', handleAutoscroll);
-    };
+    return electronService.on('logAutoscroll', handleAutoscroll);
   }, [isOpen]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Update scrollbar position

@@ -1,0 +1,14 @@
+{
+  "league": "Standard",
+  "date": "20260102",
+  "rates": {
+    "Currency": {
+      "Chaos Orb": 1,
+      "Divine Orb": 175,
+      "Orb of Alchemy": 0.25
+    },
+    "Fragment": {
+      "Mortal Grief": 9
+    }
+  }
+}

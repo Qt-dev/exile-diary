@@ -2,7 +2,6 @@ import { computed, makeAutoObservable } from 'mobx';
 import { electronService } from '../electron.service';
 import ItemStore from './itemStore';
 import RunStore from './runStore';
-const { ipcRenderer } = electronService;
 
 // Mobx store for Search Data
 export default class SearchDataStore {
@@ -14,7 +13,7 @@ export default class SearchDataStore {
 
   constructor() {
     makeAutoObservable(this);
-    ipcRenderer.on('search:register-results', async (event, data: any) => {
+    electronService.on('searchResults', async (data: any) => {
       this.itemStore.createItems(
         data.items.map((item) => ({ ...item, ...JSON.parse(item.raw_data) }))
       );

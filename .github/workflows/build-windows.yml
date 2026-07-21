@@ -17,17 +17,18 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
+          cache: 'npm'
       - name: Install dependencies
-        run: npm install  
+        run: npm ci
       - name: Build app
-        run: npm run build
+        run: npm run package:win
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
         with:
           name: app
           path: |
-            dist/exile-diary-reborn-setup-${{ inputs.version }}.exe
-            dist/exile-diary-reborn-setup-${{ inputs.version }}.exe.blockmap
+            dist/exile-diary-reborn-setup-v${{ inputs.version }}.exe
+            dist/exile-diary-reborn-setup-v${{ inputs.version }}.exe.blockmap
             dist/latest.yml
       - name: Update release
         uses: softprops/action-gh-release@v2
@@ -36,6 +37,6 @@ jobs:
           draft: false
           prerelease: false
           files: |
-            dist/exile-diary-reborn-setup-${{ inputs.version }}.exe
-            dist/exile-diary-reborn-setup-${{ inputs.version }}.exe.blockmap
+            dist/exile-diary-reborn-setup-v${{ inputs.version }}.exe
+            dist/exile-diary-reborn-setup-v${{ inputs.version }}.exe.blockmap
             dist/latest.yml

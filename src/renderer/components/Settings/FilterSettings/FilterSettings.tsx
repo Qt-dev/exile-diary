@@ -6,7 +6,7 @@ import PricingFilterSettings from './PricingFilterSettings';
 import { electronService } from '../../../electron.service';
 import './FilterSettings.css';
 import '../SettingsCommon.css';
-const { logger, ipcRenderer } = electronService;
+const { logger } = electronService;
 
 const FilterSettings = ({ settings, revalidate }) => {
   const [filters, setFilter] = React.useState(settings.filters);
@@ -18,7 +18,7 @@ const FilterSettings = ({ settings, revalidate }) => {
 
   const handleSaveSettings = async () => {
     logger.debug('Saving filters settings from UI');
-    ipcRenderer.invoke('save-settings:filters', filters);
+    electronService.saveFilterSettings(filters);
     revalidate();
   };
 

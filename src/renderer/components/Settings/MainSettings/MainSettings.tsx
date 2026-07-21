@@ -13,7 +13,6 @@ import MenuItem from '@mui/material/MenuItem';
 import FormHelperText from '@mui/material/FormHelperText';
 import { observer } from 'mobx-react-lite';
 import '../SettingsCommon.css';
-const { ipcRenderer } = electronService;
 
 // Fix to allow for directory selection in inputs
 declare module 'react' {
@@ -70,7 +69,7 @@ const MainSettings = ({ settings, store, runStore, revalidate }) => {
     e.preventDefault();
 
     try {
-      const result = await ipcRenderer.invoke('open-file-dialog', {
+      const result = await electronService.openFileDialog({
         title: 'Select Path of Exile Client.txt file',
         filters: [
           { name: 'Text Files', extensions: ['txt'] },
@@ -94,7 +93,7 @@ const MainSettings = ({ settings, store, runStore, revalidate }) => {
   const handleOpenScreenshotLocation = async (e) => {
     e.preventDefault();
     try {
-      const result = await ipcRenderer.invoke('open-file-dialog', {
+      const result = await electronService.openFileDialog({
         title: 'Select Screenshot Folder',
         properties: ['openDirectory'],
       });
@@ -140,7 +139,7 @@ const MainSettings = ({ settings, store, runStore, revalidate }) => {
     navigate('/login');
   };
   const handleLogout = () => {
-    ipcRenderer.invoke('oauth:logout');
+    electronService.logout();
   };
 
   const username = settings.username ? settings.username : '';
@@ -246,7 +245,7 @@ const MainSettings = ({ settings, store, runStore, revalidate }) => {
     };
 
     // Save settings
-    await ipcRenderer.invoke('save-settings', { settings: data });
+    await electronService.saveSettings(data);
     revalidate();
   };
 
@@ -260,15 +259,11 @@ const MainSettings = ({ settings, store, runStore, revalidate }) => {
 
   // Listen for overlay persistence changes from the main process (e.g., when hotkey is pressed)
   useEffect(() => {
-    const handlePersistenceChanged = (event, isEnabled) => {
+    const handlePersistenceChanged = (isEnabled) => {
       setOverlayPersistenceEnabled(isEnabled);
     };
 
-    ipcRenderer.on('settings:overlay-persistence-changed', handlePersistenceChanged);
-
-    return () => {
-      ipcRenderer.removeListener('settings:overlay-persistence-changed', handlePersistenceChanged);
-    };
+    return electronService.on('settingsOverlayPersistenceChanged', handlePersistenceChanged);
   }, []);
 
   return (
@@ -342,7 +337,7 @@ const MainSettings = ({ settings, store, runStore, revalidate }) => {
             <Button
               component="label"
               disabled={store.isLoading || !character || !league}
-              onClick={async () => await ipcRenderer.invoke('show-character-db-file')}
+              onClick={async () => await electronService.showCharacterDbFile()}
             >
               Show DB File
             </Button>
@@ -496,7 +491,7 @@ const MainSettings = ({ settings, store, runStore, revalidate }) => {
                 variant="filled"
                 size="small"
                 type="number"
-                inputProps={{ min: 0, max: 30, step: 0.5 }}
+                slotProps={{ htmlInput: { min: 0, max: 30, step: 0.5 } }}
                 value={autoScreenshotDelay}
                 onChange={(e) => setAutoScreenshotDelay(parseFloat(e.target.value) || 0)}
                 helperText=""

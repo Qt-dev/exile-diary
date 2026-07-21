@@ -17,8 +17,9 @@ async function insertItems(items, timestamp) {
       const item = new Item(items[itemKey]);
       item.setTimestamp(timestamp);
 
-      const { value } = await ItemPricer.price(item);
+      const { value, explanation } = await ItemPricer.price(item);
       item.setValue(value);
+      item.setValuation(explanation);
       itemsToInsert.push(item.toDbInsertFormat(timestamp));
 
       formattedItemsForIgnoreManager.push({

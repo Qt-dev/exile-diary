@@ -4,8 +4,6 @@ import { useLoaderData, useNavigate } from 'react-router';
 import { electronService } from '../electron.service';
 import Logo from '../assets/img/icons/png/128x128.png';
 import './Login.css';
-import { ipcRenderer } from 'electron';
-const { openExternal } = electronService.shell;
 const { logger } = electronService;
 
 type AuthData = {
@@ -26,7 +24,7 @@ const LoginBox = () => {
     '&code_challenge_method=S256';
 
   const openLink = () => {
-    openExternal(url);
+    electronService.openExternal(url);
     setIsError(false);
     setIsOngoing(true);
   };
@@ -36,25 +34,45 @@ const LoginBox = () => {
   const [isError, setIsError] = useState(false);
 
   useEffect(() => {
-    ipcRenderer.on('oauth:auth-failure', (event, arg) => {
+    let isMounted = true;
+
+    const redirectToCharacterSelect = async () => {
+      const isAuthenticated = await electronService.isAuthenticated();
+      if (isMounted && isAuthenticated) {
+        logger.info('Auth is already complete, redirecting to the character select page');
+        navigate('/login/character-select', { replace: true });
+      }
+    };
+
+    const unsubscribeAuthFailure = electronService.on('oauthAuthFailure', () => {
       logger.info('Auth Failure, redirecting to the root page');
       setIsOngoing(false);
       setIsFetchingOauthToken(false);
       setIsError(true);
     });
 
-    ipcRenderer.on('oauth:received-code', (event, arg) => {
+    const unsubscribeReceivedCode = electronService.on('oauthReceivedCode', () => {
       setIsFetchingOauthToken(true);
     });
 
-    ipcRenderer.on('oauth:auth-success', (event, arg) => {
-      logger.info('Auth Success, redirecting to the root page');
-      navigate('/login/character-select', { replace: true });
+    const unsubscribeAuthSuccess = electronService.on('oauthAuthSuccess', () => {
+      logger.info('Auth Success, redirecting to the character select page');
+      if (isMounted) {
+        navigate('/login/character-select', { replace: true });
+      }
     });
 
     setIsError(false);
     setIsOngoing(false);
     setIsFetchingOauthToken(false);
+    void redirectToCharacterSelect();
+
+    return () => {
+      isMounted = false;
+      unsubscribeAuthFailure();
+      unsubscribeReceivedCode();
+      unsubscribeAuthSuccess();
+    };
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   return (

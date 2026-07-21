@@ -1,5 +1,6 @@
 jest.mock('../../../src/main/db/index', () => ({
   all: jest.fn(),
+  initLeagueDB: jest.fn(),
   run: jest.fn(),
 }));
 
@@ -50,6 +51,7 @@ describe('rates', () => {
 
       const result = await rates.getFullRates('Mercenaries', '2023-01-01');
 
+      expect(mockDB.initLeagueDB).toHaveBeenCalledWith('Mercenaries', '');
       expect(mockDB.all).toHaveBeenCalledWith(
         'SELECT date, data FROM fullrates WHERE date <= ? OR date = (SELECT min(date) FROM fullrates) ORDER BY date DESC',
         ['20230101'],
@@ -66,6 +68,7 @@ describe('rates', () => {
 
       const result = await rates.getFullRates('Mercenaries', '2023-01-01');
 
+      expect(mockDB.initLeagueDB).toHaveBeenCalledWith('Mercenaries', '');
       expect(result).toEqual({ chaos: 1 });
     });
 
@@ -74,6 +77,16 @@ describe('rates', () => {
 
       const result = await rates.getFullRates('Mercenaries', '2023-01-01');
 
+      expect(mockDB.initLeagueDB).toHaveBeenCalledWith('Mercenaries', '');
+      expect(result).toEqual({});
+    });
+
+    it('returns empty object when no rate rows exist yet', async () => {
+      mockDB.all.mockResolvedValue([] as any);
+
+      const result = await rates.getFullRates('Mercenaries', '2023-01-01');
+
+      expect(mockDB.initLeagueDB).toHaveBeenCalledWith('Mercenaries', '');
       expect(result).toEqual({});
     });
   });
@@ -84,6 +97,7 @@ describe('rates', () => {
 
       await rates.cleanRates('Mercenaries', '20230101');
 
+      expect(mockDB.initLeagueDB).toHaveBeenCalledWith('Mercenaries', '');
       expect(mockDB.run).toHaveBeenCalledWith(
         'DELETE FROM fullrates WHERE date = ?',
         ['20230101'],
@@ -108,6 +122,7 @@ describe('rates', () => {
 
       const result = await rates.insertRates('Mercenaries', '2023-01-01', { divine: 200 });
 
+      expect(mockDB.initLeagueDB).toHaveBeenCalledWith('Mercenaries', '');
       expect(mockDB.run).toHaveBeenCalledWith(
         'INSERT OR REPLACE INTO fullrates (date, data) VALUES (?, ?)',
         ['20230101', compressed],
@@ -144,6 +159,7 @@ describe('rates', () => {
 
       const result = await rates.hasExistingRates('Mercenaries', '20230101');
 
+      expect(mockDB.initLeagueDB).toHaveBeenCalledWith('Mercenaries', '');
       expect(mockDB.all).toHaveBeenCalledWith(
         'SELECT COUNT(*) as count FROM fullrates WHERE date = ?',
         ['20230101'],

@@ -471,6 +471,25 @@ describe('stats', () => {
       expect(result).toEqual([]);
     });
 
+    it('should fall back to JS normalization when REGEXP_REPLACE is unavailable', async () => {
+      mockDB.all
+        .mockRejectedValueOnce(Object.assign(new Error('no such function: REGEXP_REPLACE'), {}))
+        .mockResolvedValueOnce([
+          'Increased Monster Life by 40%',
+          'Increased Monster Life by 25%',
+          'Players take 10 increased Damage',
+        ] as any);
+
+      const result = await stats.getAllPossibleMods();
+
+      expect(mockDB.all).toHaveBeenNthCalledWith(
+        1,
+        expect.stringContaining("SELECT DISTINCT(REGEXP_REPLACE(mod, '\\d+', '#')) AS mod")
+      );
+      expect(mockDB.all).toHaveBeenNthCalledWith(2, expect.stringContaining('SELECT DISTINCT mod'));
+      expect(result).toEqual(['Increased Monster Life by #%', 'Players take # increased Damage']);
+    });
+
     it('should validate mods query uses REGEXP_REPLACE correctly', async () => {
       mockDB.all.mockResolvedValue([]);
 
@@ -544,6 +563,14 @@ describe('stats', () => {
 
     it('should handle undefined result', async () => {
       mockDB.get.mockResolvedValue(undefined);
+
+      const result = await stats.getProfitPerHour();
+
+      expect(result).toBe(0);
+    });
+
+    it('should handle null result', async () => {
+      mockDB.get.mockResolvedValue(null as any);
 
       const result = await stats.getProfitPerHour();
 

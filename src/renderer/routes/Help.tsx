@@ -12,7 +12,6 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faDiscord, faGithub } from '@fortawesome/free-brands-svg-icons';
 import { electronService } from '../electron.service';
 import './Help.css';
-const { shell } = electronService;
 
 const DiscordUrl = 'https://discord.gg/fpdsmENfvw';
 const gitHubUrl = 'https://github.com/Qt-dev/exile-diary/releases';
@@ -48,14 +47,14 @@ const Help = () => {
           aria-label="outlined primary button group"
         >
           <Button
-            onClick={() => shell.openExternal(DiscordUrl)}
+            onClick={() => electronService.openExternal(DiscordUrl)}
             startIcon={<FontAwesomeIcon icon={faDiscord}></FontAwesomeIcon>}
             variant="contained"
           >
             Discord Server
           </Button>
           <GithubButton
-            onClick={() => shell.openExternal(gitHubUrl)}
+            onClick={() => electronService.openExternal(gitHubUrl)}
             startIcon={<FontAwesomeIcon icon={faGithub}></FontAwesomeIcon>}
             variant="contained"
           >
@@ -82,7 +81,7 @@ const Help = () => {
             <h3 className="Help__FAQ__Title">How to tell the app that the map is complete?</h3>
           </AccordionSummary>
           <AccordionDetails>
-            <Typography>
+            <Typography component="div">
               To complete a map, you have multiple options:
               <ol>
                 <li>Travel to a different map</li>
@@ -179,7 +178,7 @@ const Help = () => {
             </h3>
           </AccordionSummary>
           <AccordionDetails>
-            <Typography>
+            <Typography component="div">
               In the Debug section of the Settings, you have a few tools to allow you to clean up
               prices.
               <ol>
