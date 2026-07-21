@@ -29,6 +29,7 @@ import {
 import { authSessionReadiness } from '../auth/AuthSessionReadiness';
 import { syncAuthSessionReadiness } from '../auth/syncAuthSessionReadiness';
 import { initializeAndStartBackgroundRuntime } from './initializeAndStartBackgroundRuntime';
+import { trackedRuntimeSettingKeys } from './trackedRuntimeSettingKeys';
 
 const sidecarLogger = logger.scope('runtime-sidecar');
 const startedAt = new Date().toISOString();
@@ -237,24 +238,7 @@ function registerRuntimeForwarders() {
     sendEvent(runtimeSidecarEventNames.netWorthUpdated, data);
   });
 
-  const trackedSettingKeys = [
-    'mainWindowBounds',
-    'overlayPosition',
-    'filters',
-    'overlayPersistenceEnabled',
-    'activeProfile',
-    'forceDebugMode',
-    'logToUI',
-    'runParseScreenshotEnabled',
-    'screenshots',
-    'runParseShortcut',
-    'screenshotShortcut',
-    'overlayToggleShortcut',
-    'overlayMovementShortcut',
-    'overlayEnabled',
-  ] as const;
-
-  for (const key of trackedSettingKeys) {
+  for (const key of trackedRuntimeSettingKeys) {
     SettingsManager.unregisterListener(key);
     SettingsManager.registerListener(key, (value, oldValue) => {
       sendEvent(runtimeSidecarEventNames.settingsChanged, {

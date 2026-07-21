@@ -9,6 +9,7 @@ import { rendererEventChannels, sendChannels } from '../../shared/contracts/exil
 import { createRuntimeCore, RuntimeCore } from '../runtime-core/RuntimeCore';
 import { createOverlayPublisher } from '../runtime-core/services/createOverlayPublisher';
 import { createRuntimeSidecarBridge, RuntimeSidecarBridge } from './createRuntimeSidecarBridge';
+import { haveActiveProfilesChanged } from './haveActiveProfilesChanged';
 
 type RegisterRuntimeListenersDependencies = {
   mainWindow: BrowserWindow;
@@ -433,11 +434,11 @@ function registerSettingsListeners(
     deps.sendToOverlay(rendererEventChannels.overlaySetPersistence, isOverlayEnabled);
     deps.sendToMain(rendererEventChannels.settingsOverlayPersistenceChanged, isOverlayEnabled);
   });
+  runtime.settings.registerListener('enableAutoscroll', (enableAutoscroll: boolean) => {
+    deps.sendToMain(rendererEventChannels.settingsAutoscrollUpdated, enableAutoscroll);
+  });
   runtime.settings.registerListener('activeProfile', (newProfile, oldProfile) => {
-    if (
-      newProfile.characterName !== oldProfile.characterName ||
-      newProfile.league !== oldProfile.league
-    ) {
+    if (haveActiveProfilesChanged(newProfile, oldProfile)) {
       logger.debug('Active profile changed, relaunching the app');
       setTimeout(() => {
         overlayPublisher.log({
