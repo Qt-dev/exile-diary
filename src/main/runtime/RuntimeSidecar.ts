@@ -28,6 +28,7 @@ import {
 } from '../../shared/contracts/runtimeSidecar';
 import { authSessionReadiness } from '../auth/AuthSessionReadiness';
 import { syncAuthSessionReadiness } from '../auth/syncAuthSessionReadiness';
+import { initializeAndStartBackgroundRuntime } from './initializeAndStartBackgroundRuntime';
 
 const sidecarLogger = logger.scope('runtime-sidecar');
 const startedAt = new Date().toISOString();
@@ -111,8 +112,12 @@ async function initializeRuntimeState() {
   await syncAuthSessionReadiness();
   authSessionReadiness.subscribe((state) => {
     if (state.profileReady) {
-      void ensureRuntimeStateInitialized();
-      void startBackgroundRuntime();
+      void initializeAndStartBackgroundRuntime(
+        ensureRuntimeStateInitialized,
+        startBackgroundRuntime
+      ).catch((error) => {
+        sidecarLogger.error('Failed to start runtime after profile became ready', error);
+      });
     }
   });
   await ensureRuntimeStateInitialized();

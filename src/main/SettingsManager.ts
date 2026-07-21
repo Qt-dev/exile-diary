@@ -103,9 +103,9 @@ class SettingsManager {
 
     this.scheduleSave();
 
-    this.eventEmitter.on('change', (changedKey, value) => {
+    this.eventEmitter.on('change', (changedKey, value, previousValue) => {
       const match = this.eventKeyMatcher[changedKey];
-      if (match) match.callback(value, this.settings[changedKey]);
+      if (match) match.callback(value, previousValue);
     });
   }
 

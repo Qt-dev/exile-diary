@@ -209,4 +209,17 @@ describe('SettingsManager character bootstrap', () => {
     });
     expect(mockWriteFile).not.toHaveBeenCalled();
   });
+
+  it('forwards the actual previous value to setting listeners', async () => {
+    mockReadFile.mockResolvedValue(JSON.stringify({ forceDebugMode: false }));
+    const SettingsManager = (await import('../../src/main/SettingsManager')).default as any;
+    const listener = jest.fn();
+
+    await SettingsManager.initialize();
+    SettingsManager.registerListener('forceDebugMode', listener);
+    await SettingsManager.set('forceDebugMode', true);
+
+    expect(listener).toHaveBeenCalledWith(true, false);
+    await SettingsManager.save();
+  });
 });
