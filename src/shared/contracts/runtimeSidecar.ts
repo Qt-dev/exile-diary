@@ -30,6 +30,7 @@ export const runtimeRendererMethodKeys = [
 export type RuntimeRendererMethodKey = (typeof runtimeRendererMethodKeys)[number];
 
 export const runtimeMethodKeys = [
+  'auth.refreshSession',
   'settings.set',
   'settings.waitForSave',
   'runTracking.refreshTracking',
@@ -45,6 +46,26 @@ export const runtimeMethodKeys = [
 ] as const;
 
 export type RuntimeMethodKey = (typeof runtimeMethodKeys)[number];
+
+export type RuntimeLifecycleState =
+  | 'booting'
+  | 'needs-auth'
+  | 'needs-profile'
+  | 'preparing'
+  | 'ready'
+  | 'switching'
+  | 'degraded'
+  | 'failed';
+
+export type RuntimeLifecycleSnapshot = {
+  state: RuntimeLifecycleState;
+  profile?: {
+    characterName: string;
+    league: string;
+  };
+  generation: number;
+  error?: string;
+};
 
 export const runtimeSidecarEventNames = {
   rendererLog: 'renderer-log',
@@ -67,6 +88,7 @@ export const runtimeSidecarEventNames = {
   stashTabsUpdatedFull: 'stash-tabs-updated-full',
   netWorthUpdated: 'net-worth-updated',
   runtimeStarted: 'runtime-started',
+  runtimeStateChanged: 'runtime-state-changed',
 } as const;
 
 export type RuntimeSidecarEventName =

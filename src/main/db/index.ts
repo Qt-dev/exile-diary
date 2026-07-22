@@ -640,16 +640,7 @@ class DBManager {
   constructor({ dbPath }: { dbPath: string }) {
     logger.info('Starting DB:', dbPath);
     this.db = new DatabaseConstructor(dbPath);
-    try {
-      const extensionPath = sqliteRegex.getLoadablePath();
-      this.db.loadExtension(extensionPath);
-      this.hasRegexExtension = true;
-    } catch (error) {
-      logger.warn(
-        `Failed to load sqlite regex extension for ${dbPath}. Continuing without it.`,
-        error
-      );
-    }
+    this.loadRegexExtension();
     this.eventEmitter.on('task:added', () => {
       this.runTasks();
     });
@@ -658,6 +649,20 @@ class DBManager {
     });
     this.isBusy = false;
     this.runTasks();
+  }
+
+  private loadRegexExtension() {
+    this.hasRegexExtension = false;
+    try {
+      const extensionPath = sqliteRegex.getLoadablePath();
+      this.db.loadExtension(extensionPath);
+      this.hasRegexExtension = true;
+    } catch (error) {
+      logger.warn(
+        `Failed to load sqlite regex extension for ${this.db.name}. Continuing without it.`,
+        error
+      );
+    }
   }
 
   getStatement(sql: string) {
@@ -686,17 +691,125 @@ class DBManager {
 
   runTask(task: Function): Promise<any> {
     const id = uuidv4();
-    return new Promise((resolve) => {
-      this.eventEmitter.once(`task:start:${id}`, () => {
-        // logger.info(`Running task ${id}`);
-        const result = task();
-        this.eventEmitter.emit(`task:end:${id}`);
-        resolve(result);
+    return new Promise((resolve, reject) => {
+      this.eventEmitter.once(`task:start:${id}`, async () => {
+        try {
+          resolve(await task());
+        } catch (error) {
+          reject(error);
+        } finally {
+          this.eventEmitter.emit(`task:end:${id}`);
+        }
       });
-      // logger.info(`Adding task ${id}`);
       this.tasks.push(id);
       this.eventEmitter.emit(`task:added`);
     });
+  }
+
+  private getUserVersionCommand(command: string) {
+    return /^\s*pragma\s+user_version\s*=\s*(\d+)/i.exec(command);
+  }
+
+  private async runStatementsAtomically(commands: string[]) {
+    if (!commands.length) return;
+
+    await this.runTask(() => {
+      const transaction = this.db.transaction(() => {
+        for (const command of commands) {
+          logger.debug(`Running command: ${command}`);
+          this.db.prepare(command).run();
+        }
+      });
+      transaction();
+    });
+  }
+
+  async hasTable(tableName: string) {
+    return this.runTask(() =>
+      this.db
+        .prepare("SELECT name FROM sqlite_master WHERE type = 'table' AND name = ?")
+        .get(tableName)
+    );
+  }
+
+  async ensureKnownSchemaRepairs() {
+    const version = this.db.pragma('user_version', { simple: true }) as number;
+    if (version < 14 || (await this.hasTable('area_info'))) return;
+
+    logger.warn(
+      `Repairing missing area_info table in ${this.db.name}; the database reports schema version ${version}`
+    );
+    await this.runStatementsAtomically([
+      `CREATE TABLE IF NOT EXISTS area_info (
+        id INTEGER NOT NULL,
+        run_id INTEGER NOT NULL UNIQUE,
+        name TEXT,
+        level INTEGER,
+        depth INTEGER,
+        PRIMARY KEY ("id" AUTOINCREMENT)
+      )`,
+    ]);
+  }
+
+  async validateTables(requiredTables: string[]) {
+    const missing: string[] = [];
+    for (const tableName of requiredTables) {
+      if (!(await this.hasTable(tableName))) missing.push(tableName);
+    }
+
+    if (missing.length) {
+      throw new Error(
+        `DB_SCHEMA_INVALID: ${this.db.name} is missing required tables: ${missing.join(', ')}`
+      );
+    }
+  }
+
+  async hasUserData() {
+    const checks = [
+      ['run', 'SELECT 1 FROM run LIMIT 1'],
+      ['mapruns', "SELECT 1 FROM mapruns WHERE CAST(id AS TEXT) != '-1' LIMIT 1"],
+      ['event', 'SELECT 1 FROM event LIMIT 1'],
+      ['events', 'SELECT 1 FROM events LIMIT 1'],
+      ['item', 'SELECT 1 FROM item LIMIT 1'],
+      ['items', 'SELECT 1 FROM items LIMIT 1'],
+      ['area_info', 'SELECT 1 FROM area_info LIMIT 1'],
+      ['areainfo', 'SELECT 1 FROM areainfo LIMIT 1'],
+      ['gear', 'SELECT 1 FROM gear LIMIT 1'],
+      ['filter', 'SELECT 1 FROM filter LIMIT 1'],
+      ['filters', 'SELECT 1 FROM filters LIMIT 1'],
+      ['incubator', 'SELECT 1 FROM incubator LIMIT 1'],
+      ['incubators', 'SELECT 1 FROM incubators LIMIT 1'],
+      ['last_inventory', 'SELECT 1 FROM last_inventory LIMIT 1'],
+      ['lastinv', 'SELECT 1 FROM lastinv LIMIT 1'],
+      ['passives', 'SELECT 1 FROM passives LIMIT 1'],
+      ['xp', 'SELECT 1 FROM xp LIMIT 1'],
+      ['league', 'SELECT 1 FROM league LIMIT 1'],
+      ['leagues', 'SELECT 1 FROM leagues LIMIT 1'],
+      ['graftblood', 'SELECT 1 FROM graftblood LIMIT 1'],
+      ['stashes', 'SELECT 1 FROM stashes LIMIT 1'],
+      ['fullrates', 'SELECT 1 FROM fullrates LIMIT 1'],
+    ] as const;
+
+    for (const [tableName, query] of checks) {
+      if (!(await this.hasTable(tableName))) continue;
+      const row = await this.runTask(() => this.db.prepare(query).get());
+      if (row) return true;
+    }
+    return false;
+  }
+
+  async resetEmptyDatabaseWithBackup() {
+    if (!fs.existsSync(this.db.name) || (await this.hasUserData())) return false;
+
+    const dbPath = this.db.name;
+    const backupPath = `${dbPath}.incomplete-${Date.now()}.bak`;
+    logger.warn(`Backing up incomplete empty database ${dbPath} to ${backupPath}`);
+    this.db.close();
+    fs.renameSync(dbPath, backupPath);
+    this.statements.clear();
+    this.db = new DatabaseConstructor(dbPath);
+    this.loadRegexExtension();
+    return true;
   }
 
   init: Function = async (sqlList: string[][], maintSqlList: string[] = []) => {
@@ -706,31 +819,38 @@ class DBManager {
       version = this.db.pragma('user_version', { simple: true }) as number;
     } catch (err) {
       logger.error('Error reading database version: ' + err);
-      return;
+      if (err && typeof err === 'object') {
+        (err as { code?: string }).code = 'DB_VERSION_READ_FAILED';
+      }
+      throw err;
     }
 
-    let migrationCounter = 0;
+    const migrationCommands: string[] = [];
+    let targetVersion = version;
+    for (const [index, sqlPatch] of sqlList.entries()) {
+      if (version !== 0 && index <= version) continue;
 
-    for (const sqlPatch of sqlList) {
-      const index = sqlList.indexOf(sqlPatch);
-      if (version === 0 || index > version) {
-        logger.debug(`Running initialization SQL for ${this.db.name} - version ${index}`);
-        logger.debug(`SQL commands: ${JSON.stringify(sqlPatch)}`);
-        for (const command of sqlList[index]) {
-          logger.debug(`Running command: ${command}`);
-          await this.runTask(() => this.db.prepare(command).run());
-          migrationCounter++;
+      logger.debug(`Queueing initialization SQL for ${this.db.name} - version ${index}`);
+      logger.debug(`SQL commands: ${JSON.stringify(sqlPatch)}`);
+      for (const command of sqlPatch) {
+        const versionMatch = this.getUserVersionCommand(command);
+        if (versionMatch) {
+          targetVersion = Math.max(targetVersion, Number(versionMatch[1]));
+        } else {
+          migrationCommands.push(command);
         }
       }
     }
 
-    for (const command of maintSqlList) {
-      await this.runTask(() => this.db.prepare(command).run());
-      migrationCounter++;
+    if (targetVersion > version) {
+      migrationCommands.push(`pragma user_version = ${targetVersion}`);
     }
 
+    await this.runStatementsAtomically(migrationCommands);
+    await this.runStatementsAtomically(maintSqlList);
+
     logger.info(
-      `Initialization complete for ${this.db.name} - ${migrationCounter} migrations applied`
+      `Initialization complete for ${this.db.name} - ${migrationCommands.length} migration commands applied`
     );
     return null;
   };
@@ -739,6 +859,24 @@ class DBManager {
 // Map of all the DB Managers that have been instantiated, by path
 const DBConnections = new Map<string, DBManager>();
 
+const RequiredCharacterTables = [
+  'run',
+  'event',
+  'mapmod',
+  'area_info',
+  'gear',
+  'filter',
+  'incubator',
+  'item',
+  'league',
+  'last_inventory',
+  'passives',
+  'xp',
+  'graftblood',
+];
+
+const RequiredLeagueTables = ['characters', 'fullrates', 'stashes'];
+
 // External interface for DB
 const DB = {
   getLeagueDbPath: (league: string) => {
@@ -746,19 +884,11 @@ const DB = {
   },
 
   getCharacterDbPath: (characterName?: string, league?: string, oldVersion?: true) => {
+    const settings = getSettings();
+    if (!characterName) characterName = settings?.activeProfile?.characterName;
+    if (!league) league = settings?.activeProfile?.league;
     if (!characterName || !league) {
-      const settings = getSettings();
-      if (
-        !settings ||
-        !settings.activeProfile ||
-        !settings.activeProfile.characterName ||
-        !settings.activeProfile.characterName
-      ) {
-        // logger.error("No active profile selected, can't get DB");
-        return null;
-      }
-      characterName = settings.activeProfile.characterName;
-      league = settings.activeProfile.league;
+      return null;
     }
     if (oldVersion) {
       return path.join(getUserDataPath(), `${characterName}.db`);
@@ -790,6 +920,23 @@ const DB = {
     const manager: DBManager = DBConnections.get(dbPath) || new DBManager({ dbPath });
     DBConnections.set(dbPath, manager);
 
+    return manager;
+  },
+
+  getCharacterManager: (characterName?: string, league?: string) => {
+    const dbPath = DB.getCharacterDbPath(characterName, league);
+    if (!dbPath) return null;
+
+    const oldPath = characterName
+      ? DB.getCharacterDbPath(characterName, league, true)
+      : null;
+    if (oldPath && fs.existsSync(oldPath) && !fs.existsSync(dbPath)) {
+      logger.info(`Found the old pattern in db name, copying ${oldPath} to ${dbPath}`);
+      fs.copyFileSync(oldPath, dbPath);
+    }
+
+    const manager: DBManager = DBConnections.get(dbPath) || new DBManager({ dbPath });
+    DBConnections.set(dbPath, manager);
     return manager;
   },
 
@@ -834,12 +981,21 @@ const DB = {
     return DB.runMany(query, params, league);
   },
 
-  initDB: async (char: string) => {
-    const manager = DB.getManager(undefined, char);
+  initDB: async (char: string, league?: string) => {
+    const manager = DB.getCharacterManager(char, league);
     if (!manager) return null;
 
     const { init, maintenance } = Migrations.character;
-    await manager.init(init, maintenance);
+    try {
+      await manager.init(init, maintenance);
+    } catch (error) {
+      if ((error as { code?: string })?.code === 'DB_VERSION_READ_FAILED') throw error;
+      const reset = await manager.resetEmptyDatabaseWithBackup();
+      if (!reset) throw error;
+      await manager.init(init, maintenance);
+    }
+    await manager.ensureKnownSchemaRepairs();
+    await manager.validateTables(RequiredCharacterTables);
   },
 
   initLeagueDB: async (league: string, characterName: string) => {
@@ -848,6 +1004,7 @@ const DB = {
 
     const { init, maintenance } = Migrations.league;
     await manager.init(init, maintenance);
+    await manager.validateTables(RequiredLeagueTables);
 
     const activeProfile = SettingsManager.get('activeProfile');
 

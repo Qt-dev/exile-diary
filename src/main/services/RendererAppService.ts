@@ -6,7 +6,6 @@ import {
 } from '../../shared/contracts/runtimeSidecar';
 import * as RuntimeSidecarClient from '../runtime/RuntimeSidecarClient';
 import AuthManager from '../AuthManager';
-import GGGAPI from '../GGGAPI';
 import { logoutAndSyncRuntime } from '../auth/syncRuntimeAuthSession';
 
 const rendererRuntime = runtimeRendererMethodKeys.reduce((service, method) => {
@@ -32,8 +31,8 @@ export const RendererAppService = {
   },
 
   async getCharacters() {
-    logger.info('Loading characters directly from the main process GGGAPI');
-    return GGGAPI.getAllCharacters();
+    logger.info('Loading characters through the runtime sidecar GGG gateway');
+    return RuntimeSidecarClient.callRendererMethod('getCharacters');
   },
 
   async isAuthenticated() {

@@ -10,6 +10,7 @@ jest.mock('electron-log', () => ({
 const fsMock = {
   existsSync: jest.fn(),
   copyFileSync: jest.fn(),
+  renameSync: jest.fn(),
 };
 
 jest.mock('fs', () => ({
@@ -51,6 +52,7 @@ jest.mock('uuid', () => ({
 const dbConstructorMock = jest.fn((dbPath: string) => {
   const db = {
     name: dbPath,
+    close: jest.fn(),
     loadExtension: jest.fn(),
     pragma: jest.fn(() => 0),
     prepare: jest.fn((sql: string) => {
@@ -142,6 +144,7 @@ describe('db/index', () => {
     dbConstructorMock.mockClear();
     const failingDb = {
       name: 'D:\\mock-user-data\\ActiveChar.Mercenaries.db',
+      close: jest.fn(),
       loadExtension: jest.fn(() => {
         throw Object.assign(new Error('extension load failed'), { code: 'ERR_DLOPEN_FAILED' });
       }),
@@ -233,6 +236,18 @@ describe('db/index', () => {
     expect(seen).toEqual([1, 2, 3]);
   });
 
+  it('releases the task queue after a task throws', async () => {
+    const DB = loadDbModule();
+    const manager = DB.getManager(undefined, 'ActiveChar');
+
+    await expect(
+      manager.runTask(() => {
+        throw new Error('query failed');
+      })
+    ).rejects.toThrow('query failed');
+    await expect(manager.runTask(() => 42)).resolves.toBe(42);
+  });
+
   it('initDB applies only missing migrations and maintenance', async () => {
     const DB = loadDbModule();
     const manager = DB.getManager(undefined, 'ActiveChar');
@@ -249,20 +264,53 @@ describe('db/index', () => {
         sql.includes('CREATE INDEX IF NOT EXISTS "graftblood_timestamp"')
       )
     ).toBe(true);
-    expect(preparedSql.some((sql: string) => sql.includes('pragma user_version = 17'))).toBe(true);
+    expect(preparedSql.some((sql: string) => sql.includes('pragma user_version = 18'))).toBe(true);
     expect(preparedSql.some((sql: string) => sql.includes('delete from incubator'))).toBe(true);
+    expect(manager.db.transaction).toHaveBeenCalled();
   });
 
-  it('initDB exits without preparing statements when pragma read fails', async () => {
+  it('initDB rejects when the schema version cannot be read', async () => {
     const DB = loadDbModule();
     const manager = DB.getManager(undefined, 'ActiveChar');
     manager.db.pragma.mockImplementation(() => {
       throw new Error('pragma failed');
     });
 
-    await DB.initDB('ActiveChar');
+    await expect(DB.initDB('ActiveChar')).rejects.toThrow('pragma failed');
 
     expect(manager.db.prepare).not.toHaveBeenCalled();
+  });
+
+  it('backs up and rebuilds an empty database after an interrupted migration', async () => {
+    const DB = loadDbModule();
+    const manager = DB.getManager(undefined, 'ActiveChar');
+    manager.db.transaction.mockImplementationOnce(() => () => {
+      throw new Error('interrupted migration');
+    });
+    jest.spyOn(manager, 'hasUserData').mockResolvedValue(false);
+    fsMock.existsSync.mockReturnValue(true);
+
+    await expect(DB.initDB('ActiveChar', 'Mercenaries')).resolves.toBeUndefined();
+
+    expect(manager.db).not.toBe(getFirstDbInstance());
+    expect(fsMock.renameSync).toHaveBeenCalledWith(
+      expect.stringContaining('ActiveChar.Mercenaries.db'),
+      expect.stringMatching(/ActiveChar\.Mercenaries\.db\.incomplete-\d+\.bak$/)
+    );
+  });
+
+  it('preserves and reports a failed database when it contains user data', async () => {
+    const DB = loadDbModule();
+    const manager = DB.getManager(undefined, 'ActiveChar');
+    manager.db.transaction.mockImplementationOnce(() => () => {
+      throw new Error('migration failed');
+    });
+    jest.spyOn(manager, 'hasUserData').mockResolvedValue(true);
+    fsMock.existsSync.mockReturnValue(true);
+
+    await expect(DB.initDB('ActiveChar', 'Mercenaries')).rejects.toThrow('migration failed');
+
+    expect(fsMock.renameSync).not.toHaveBeenCalled();
   });
 
   it('initLeagueDB inserts active profile character when character name is not provided', async () => {

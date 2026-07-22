@@ -20,6 +20,7 @@ import {
   runtimeRendererMethodKeys,
   runtimeSidecarEventNames,
   type RuntimeMethodKey,
+  type RuntimeLifecycleSnapshot,
   type RuntimeRendererMethodKey,
   type RuntimeSidecarEvent,
   type RuntimeSidecarReadyMessage,
@@ -39,7 +40,31 @@ const runtimeCore = createRuntimeCore();
 
 let runtimeStarted = false;
 let runtimeStateInitialized = false;
-let runtimeStateInitializationInProgress = false;
+let runtimeStateInitializationPromise: Promise<void> | null = null;
+let runtimeLifecycle: RuntimeLifecycleSnapshot = {
+  state: 'booting',
+  generation: 0,
+};
+
+function isProfileIdentityChange(nextProfile: any) {
+  const currentProfile = SettingsManager.get('activeProfile');
+  return (
+    currentProfile?.characterName !== nextProfile?.characterName ||
+    currentProfile?.league !== nextProfile?.league
+  );
+}
+
+function setRuntimeLifecycle(
+  state: RuntimeLifecycleSnapshot['state'],
+  partial: Partial<Omit<RuntimeLifecycleSnapshot, 'state'>> = {}
+) {
+  runtimeLifecycle = {
+    ...runtimeLifecycle,
+    ...partial,
+    state,
+  };
+  sendEvent(runtimeSidecarEventNames.runtimeStateChanged, runtimeLifecycle);
+}
 
 function sendMessage(
   message: RuntimeSidecarReadyMessage | RuntimeSidecarResponse | RuntimeSidecarEvent
@@ -91,7 +116,24 @@ const rendererMethodHandlers = runtimeRendererMethodKeys.reduce((handlers, metho
 }, {} as Record<RuntimeRendererMethodKey, (...args: any[]) => Promise<unknown>>);
 
 const runtimeMethodHandlers: Record<RuntimeMethodKey, (...args: any[]) => Promise<unknown>> = {
-  'settings.set': async (key, value) => SettingsManager.set(key, value),
+  'auth.refreshSession': async () => {
+    await SettingsManager.reload();
+    await syncAuthSessionReadiness();
+    await initializeAndStartBackgroundRuntime(
+      ensureRuntimeStateInitialized,
+      startBackgroundRuntime
+    );
+  },
+  'settings.set': async (key, value) => {
+    const isProfileTransition = key === 'activeProfile' && isProfileIdentityChange(value);
+    if (isProfileTransition) setRuntimeLifecycle('switching');
+    try {
+      return await SettingsManager.set(key, value);
+    } catch (error) {
+      if (isProfileTransition) setRuntimeLifecycle(runtimeStateInitialized ? 'ready' : 'failed');
+      throw error;
+    }
+  },
   'settings.waitForSave': async () => SettingsManager.waitForSave(),
   'runTracking.refreshTracking': async () => runtimeCore.runTracking.refreshTracking(),
   'runTracking.setCurrentMapStats': async (stats) =>
@@ -111,8 +153,9 @@ const runtimeMethodHandlers: Record<RuntimeMethodKey, (...args: any[]) => Promis
 async function initializeRuntimeState() {
   await SettingsManager.initialize();
   await syncAuthSessionReadiness();
+  await ensureRuntimeStateInitialized();
   authSessionReadiness.subscribe((state) => {
-    if (state.profileReady) {
+    if (state.profileReady && !runtimeStateInitialized) {
       void initializeAndStartBackgroundRuntime(
         ensureRuntimeStateInitialized,
         startBackgroundRuntime
@@ -121,54 +164,75 @@ async function initializeRuntimeState() {
       });
     }
   });
-  await ensureRuntimeStateInitialized();
 }
 
 async function ensureRuntimeStateInitialized() {
-  if (runtimeStateInitialized || runtimeStateInitializationInProgress) {
+  if (runtimeStateInitialized) {
     return;
   }
+
+  if (runtimeStateInitializationPromise) return runtimeStateInitializationPromise;
 
   if (!authSessionReadiness.getState().profileReady) {
     sidecarLogger.info(
       'Runtime DB initialization is waiting for an authenticated session with an active profile'
+    );
+    setRuntimeLifecycle(
+      authSessionReadiness.getState().accountReady ? 'needs-profile' : 'needs-auth'
     );
     return;
   }
 
   if (!SettingsManager.get('username')) {
     sidecarLogger.info('Runtime DB initialization is waiting for an authenticated account name');
+    setRuntimeLifecycle('needs-auth');
     return;
   }
 
-  runtimeStateInitializationInProgress = true;
-
-  try {
+  runtimeStateInitializationPromise = (async () => {
     const character = await SettingsManager.getCharacter();
     if (!character?.name || !character?.league) {
-      sidecarLogger.warn(
-        'Runtime DB initialization did not receive a valid current character; waiting for a valid profile'
-      );
-      return;
+      setRuntimeLifecycle('needs-profile');
+      throw new Error('Runtime DB initialization requires a valid active profile');
     }
 
-    await SettingsManager.initializeDB(character.name);
-    await League.addLeague(character.league);
-    sidecarLogger.info(
-      `Runtime DB initialized. Character: ${character.name}, League: ${character.league}`
-    );
-
-    IgnoreManager.initialize(sidecarLogger, () => {
-      sidecarLogger.debug('Runtime ignore settings updated');
+    setRuntimeLifecycle('preparing', {
+      generation: runtimeLifecycle.generation + 1,
+      profile: { characterName: character.name, league: character.league },
+      error: undefined,
     });
-    runtimeStateInitialized = true;
-  } catch (error) {
-    sidecarLogger.error(
-      `Could not set runtime DB up. (Current Account: ${SettingsManager.get('username')})`
-    );
-    sidecarLogger.error(error);
+
+    try {
+      await SettingsManager.initializeDB({
+        characterName: character.name,
+        league: character.league,
+        valid: true,
+      });
+      await League.addLeague(character.league);
+      sidecarLogger.info(
+        `Runtime DB initialized. Character: ${character.name}, League: ${character.league}`
+      );
+
+      IgnoreManager.initialize(sidecarLogger, () => {
+        sidecarLogger.debug('Runtime ignore settings updated');
+      });
+      runtimeStateInitialized = true;
+      setRuntimeLifecycle('ready');
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      setRuntimeLifecycle('failed', { error: message });
+      sidecarLogger.error(
+        `Could not set runtime DB up. (Current Account: ${SettingsManager.get('username')})`
+      );
+      sidecarLogger.error(error);
+      throw error;
+    }
+  })();
+
+  try {
+    await runtimeStateInitializationPromise;
   } finally {
-    runtimeStateInitializationInProgress = false;
+    runtimeStateInitializationPromise = null;
   }
 }
 
@@ -306,15 +370,43 @@ async function handleRequest(message: RuntimeSidecarRequest) {
         startedAt,
         uptimeSeconds: Number(process.uptime().toFixed(3)),
         runtimeStarted,
+        runtimeLifecycle,
       };
     case 'shutdown':
       return {
         status: 'stopped',
       };
     case 'renderer-method':
-      return rendererMethodHandlers[message.payload.method](...message.payload.args);
-    case 'runtime-method':
+      if (
+        runtimeLifecycle.state === 'switching' &&
+        message.payload.method !== 'saveSettings'
+      ) {
+        throw new Error('Runtime profile switch is in progress; retry this request shortly');
+      }
+      const isProfileTransition =
+        message.payload.method === 'saveSettings' &&
+        message.payload.args[0]?.activeProfile &&
+        isProfileIdentityChange(message.payload.args[0].activeProfile);
+      if (isProfileTransition) {
+        setRuntimeLifecycle('switching');
+      }
+      try {
+        return await rendererMethodHandlers[message.payload.method](...message.payload.args);
+      } catch (error) {
+        if (isProfileTransition) {
+          setRuntimeLifecycle(runtimeStateInitialized ? 'ready' : 'failed');
+        }
+        throw error;
+      }
+    case 'runtime-method': {
+      const allowedDuringSwitch = ['settings.set', 'settings.waitForSave'].includes(
+        message.payload.method
+      );
+      if (runtimeLifecycle.state === 'switching' && !allowedDuringSwitch) {
+        throw new Error('Runtime profile switch is in progress; retry this request shortly');
+      }
       return runtimeMethodHandlers[message.payload.method](...message.payload.args);
+    }
   }
 }
 

@@ -89,6 +89,8 @@ describe('SettingsManager character bootstrap', () => {
 
     expect(character).toEqual({ name: 'Alice', league: 'Settlers' });
     expect(getAllCharacters).toHaveBeenCalledTimes(1);
+    expect(initDB).not.toHaveBeenCalled();
+    expect(initLeagueDB).not.toHaveBeenCalled();
     expect(getCurrentCharacter).not.toHaveBeenCalled();
     expect(setProfileReady).toHaveBeenCalledWith(true);
     expect(SettingsManager.settings.activeProfile).toEqual({
@@ -99,7 +101,7 @@ describe('SettingsManager character bootstrap', () => {
     await SettingsManager.save();
   });
 
-  it('starts the rate refresh in the background after initializing the character database', async () => {
+  it('defers the rate refresh until the replacement runtime starts', async () => {
     getAllCharacters.mockResolvedValue([
       { name: 'Alice', league: 'Settlers' },
       { name: 'Bob', league: 'Hardcore Settlers' },
@@ -117,16 +119,32 @@ describe('SettingsManager character bootstrap', () => {
       valid: true,
     })).resolves.toBeUndefined();
 
-    expect(getAllCharacters).toHaveBeenCalledTimes(1);
+    expect(getAllCharacters).not.toHaveBeenCalled();
+    expect(initDB).toHaveBeenCalledWith('Alice', 'Settlers');
+    expect(initLeagueDB).toHaveBeenCalledWith('Settlers', 'Alice');
     expect(SettingsManager.settings.activeProfile).toEqual({
       characterName: 'Alice',
       league: 'Settlers',
       valid: true,
     });
+    expect(rateGetterUpdate).not.toHaveBeenCalled();
     await SettingsManager.save();
   });
 
-  it('does not wait for DB initialization to finish before resolving activeProfile saves', async () => {
+  it('refreshes rates when the active runtime initializes an existing profile', async () => {
+    rateGetterUpdate.mockResolvedValue(undefined);
+    const SettingsManager = (await import('../../src/main/SettingsManager')).default as any;
+
+    await SettingsManager.initializeDB({
+      characterName: 'Alice',
+      league: 'Settlers',
+      valid: true,
+    });
+
+    expect(rateGetterUpdate).toHaveBeenCalledTimes(1);
+  });
+
+  it('waits for DB initialization before resolving activeProfile saves', async () => {
     getAllCharacters.mockResolvedValue([
       { name: 'Alice', league: 'Settlers' },
       { name: 'Bob', league: 'Hardcore Settlers' },
@@ -162,17 +180,111 @@ describe('SettingsManager character bootstrap', () => {
     });
 
     await new Promise((resolve) => setTimeout(resolve, 0));
-    expect(settled).toBe(true);
+    expect(settled).toBe(false);
     expect(initDB).toHaveBeenCalledTimes(1);
     expect(initLeagueDB).toHaveBeenCalledTimes(0);
 
     resolveInitDB?.();
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    expect(initLeagueDB).toHaveBeenCalledTimes(1);
+    expect(settled).toBe(false);
     resolveInitLeagueDB?.();
     await savePromise;
 
-    expect(initLeagueDB).toHaveBeenCalledTimes(1);
+    expect(settled).toBe(true);
     await new Promise((resolve) => setTimeout(resolve, 0));
-    expect(rateGetterUpdate).toHaveBeenCalledTimes(1);
+    expect(rateGetterUpdate).not.toHaveBeenCalled();
+    await SettingsManager.save();
+  });
+
+  it('keeps the previous profile visible until the target database is ready', async () => {
+    let resolveInitDB: (() => void) | undefined;
+    initDB.mockReturnValue(
+      new Promise<void>((resolve) => {
+        resolveInitDB = resolve;
+      })
+    );
+
+    const SettingsManager = (await import('../../src/main/SettingsManager')).default as any;
+    SettingsManager.settings = {
+      activeProfile: { characterName: 'Old', league: 'Standard', valid: true },
+    };
+
+    const transition = SettingsManager.set('activeProfile', {
+      characterName: 'Alice',
+      league: 'Settlers',
+      valid: true,
+    });
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    expect(SettingsManager.settings.activeProfile.characterName).toBe('Old');
+    expect(setProfileReady).toHaveBeenLastCalledWith(false);
+
+    resolveInitDB?.();
+    await transition;
+    expect(SettingsManager.settings.activeProfile.characterName).toBe('Alice');
+    expect(setProfileReady).toHaveBeenLastCalledWith(true);
+    await SettingsManager.save();
+  });
+
+  it('serializes concurrent profile transitions without rolling back a newer selection', async () => {
+    const resolvers = new Map<string, () => void>();
+    initDB.mockImplementation(
+      (characterName: string) =>
+        new Promise<void>((resolve) => {
+          resolvers.set(characterName, resolve);
+        })
+    );
+
+    const SettingsManager = (await import('../../src/main/SettingsManager')).default as any;
+    SettingsManager.settings = {
+      activeProfile: { characterName: 'Old', league: 'Standard', valid: true },
+    };
+
+    const first = SettingsManager.set('activeProfile', {
+      characterName: 'Alice',
+      league: 'Settlers',
+      valid: true,
+    });
+    const second = SettingsManager.set('activeProfile', {
+      characterName: 'Bob',
+      league: 'Hardcore',
+      valid: true,
+    });
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    expect(initDB).toHaveBeenCalledTimes(1);
+
+    resolvers.get('Alice')?.();
+    await first;
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    expect(initDB).toHaveBeenCalledTimes(2);
+    expect(SettingsManager.settings.activeProfile.characterName).toBe('Alice');
+
+    resolvers.get('Bob')?.();
+    await second;
+    expect(SettingsManager.settings.activeProfile.characterName).toBe('Bob');
+    await SettingsManager.save();
+  });
+
+  it('does not reinitialize the database when the active profile identity is unchanged', async () => {
+    const SettingsManager = (await import('../../src/main/SettingsManager')).default as any;
+    SettingsManager.settings = {
+      activeProfile: {
+        characterName: 'Alice',
+        league: 'Settlers',
+        valid: true,
+      },
+    };
+
+    await SettingsManager.set('activeProfile', {
+      characterName: 'Alice',
+      league: 'Settlers',
+      valid: true,
+      leagueOverride: 'Standard',
+    });
+
+    expect(initDB).not.toHaveBeenCalled();
+    expect(initLeagueDB).not.toHaveBeenCalled();
     await SettingsManager.save();
   });
 
@@ -196,6 +308,19 @@ describe('SettingsManager character bootstrap', () => {
       tempSettingsJsonPath,
       path.join('/mock-user-data', 'settings.json')
     );
+  });
+
+  it('rejects save waiters when settings persistence fails', async () => {
+    mockRename.mockRejectedValueOnce(new Error('rename failed'));
+    const SettingsManager = (await import('../../src/main/SettingsManager')).default as any;
+    SettingsManager.settings = { forceDebugMode: false };
+
+    await SettingsManager.set('forceDebugMode', true);
+    const waitForSave = SettingsManager.waitForSave();
+    const save = SettingsManager.save();
+
+    await expect(waitForSave).rejects.toThrow('rename failed');
+    await expect(save).rejects.toThrow('rename failed');
   });
 
   it('reloads the latest persisted settings without scheduling a write', async () => {

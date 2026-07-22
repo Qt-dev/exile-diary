@@ -1,0 +1,39 @@
+{
+  "title": "Runtime DB and API hardening",
+  "slug": "runtime-db-api-hardening",
+  "created_at": "2026-07-22T09:54:11.3430809-07:00",
+  "updated_at": "2026-07-22T10:23:46.6900356-07:00",
+  "status": "complete",
+  "mode": "delegated",
+  "baseline_ref": "4f8dfcca143b99765619048f871356618b162075",
+  "risk_level": "high",
+  "eval_contract": { "level": "full", "path": "eval-contract.md", "status": "passed" },
+  "approval": { "required": false, "granted": null, "notes": "Local implementation explicitly requested." },
+  "delegation": {
+    "native_agent_available": true,
+    "native_agent_planned": true,
+    "native_agent_used": true,
+    "agent_count": 3,
+    "wave_count": 2,
+    "no_delegation_reason": "",
+    "notes": "Two discovery audits and one iterative final diff audit completed read-only."
+  },
+  "packets": [
+    { "id": "01-db-runtime-audit", "status": "completed", "owner": "read-only-agent", "write_scope": [], "result_path": "results/01-db-runtime-audit.md" },
+    { "id": "02-api-ipc-audit", "status": "completed", "owner": "read-only-agent", "write_scope": [], "result_path": "results/02-api-ipc-audit.md" },
+    { "id": "03-implementation", "status": "completed", "owner": "parent", "write_scope": ["src", "test", "scripts"], "result_path": "results/03-implementation.md" },
+    { "id": "04-final-diff-audit", "status": "completed", "owner": "read-only-agent", "write_scope": [], "result_path": "results/04-final-diff-audit.md" }
+  ],
+  "verification": {
+    "status": "passed_with_baseline_warning",
+    "checks": [
+      { "name": "focused tests", "command": "npm run test:main -- <affected tests>", "required": true, "status": "passed", "evidence": "42 tests passed in final focused run" },
+      { "name": "typecheck", "command": "npm run typecheck", "required": true, "status": "passed", "evidence": "renderer and main TypeScript checks passed" },
+      { "name": "main tests", "command": "npm run test:main", "required": true, "status": "passed", "evidence": "56 suites, 375 tests passed" },
+      { "name": "renderer tests", "command": "npm run test:renderer", "required": true, "status": "passed", "evidence": "8 files, 19 tests passed" },
+      { "name": "build", "command": "npm run build", "required": true, "status": "passed", "evidence": "electron-vite production build passed" },
+      { "name": "diff hygiene", "command": "git diff --check", "required": true, "status": "passed", "evidence": "no whitespace errors" },
+      { "name": "format baseline", "command": "npm run format:check", "required": false, "status": "baseline_failed", "evidence": "332 existing files reported; no bulk rewrite performed" }
+    ]
+  }
+}

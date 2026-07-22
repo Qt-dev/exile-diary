@@ -24,8 +24,9 @@ export const pricesEmitter = new EventEmitter();
 export const statsEmitter = new EventEmitter();
 
 const isDev = Boolean(process.env.ELECTRON_RENDERER_URL);
-const StartupTimeoutMs = 20000;
+const StartupTimeoutMs = 120000;
 const RequestTimeoutMs = 30000;
+const ProfileTransitionTimeoutMs = 120000;
 const HealthCheckIntervalMs = 15000;
 const HealthCheckTimeoutMs = 5000;
 const RestartDelayMs = 500;
@@ -518,11 +519,14 @@ export async function callRendererMethod<T = unknown>(
   method: RuntimeRendererMethodKey,
   args: any[] = []
 ) {
-  return sendRequest<T>('renderer-method', { method, args });
+  const timeoutMs = method === 'saveSettings' ? ProfileTransitionTimeoutMs : RequestTimeoutMs;
+  return sendRequest<T>('renderer-method', { method, args }, timeoutMs);
 }
 
 export async function callRuntimeMethod<T = unknown>(method: RuntimeMethodKey, args: any[] = []) {
-  return sendRequest<T>('runtime-method', { method, args });
+  const timeoutMs =
+    method === 'auth.refreshSession' ? ProfileTransitionTimeoutMs : RequestTimeoutMs;
+  return sendRequest<T>('runtime-method', { method, args }, timeoutMs);
 }
 
 export async function stop() {

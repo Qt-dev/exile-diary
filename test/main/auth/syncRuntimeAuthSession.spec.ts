@@ -37,7 +37,7 @@ describe('runtime auth session synchronization', () => {
     callRuntimeMethod.mockResolvedValue(undefined);
   });
 
-  it('persists new OAuth credentials before restarting the runtime sidecar', async () => {
+  it('persists new OAuth credentials before refreshing the runtime session', async () => {
     const { saveTokenAndSyncRuntime } = await import(
       '../../../src/main/auth/syncRuntimeAuthSession'
     );
@@ -53,7 +53,8 @@ describe('runtime auth session synchronization', () => {
     expect(callRuntimeMethod).toHaveBeenCalledWith('settings.waitForSave');
     expect(reload).toHaveBeenCalledTimes(1);
     expect(waitForSave).toHaveBeenCalledTimes(1);
-    expect(restart).toHaveBeenCalledTimes(1);
+    expect(restart).not.toHaveBeenCalled();
+    expect(callRuntimeMethod).toHaveBeenCalledWith('auth.refreshSession');
     expect(callRuntimeMethod.mock.invocationCallOrder[0]).toBeLessThan(
       reload.mock.invocationCallOrder[0]
     );
@@ -63,9 +64,10 @@ describe('runtime auth session synchronization', () => {
     expect(saveToken.mock.invocationCallOrder[0]).toBeLessThan(
       waitForSave.mock.invocationCallOrder[0]
     );
-    expect(waitForSave.mock.invocationCallOrder[0]).toBeLessThan(
-      restart.mock.invocationCallOrder[0]
+    const refreshCall = callRuntimeMethod.mock.calls.findIndex(
+      ([method]) => method === 'auth.refreshSession'
     );
+    expect(refreshCall).toBeGreaterThan(-1);
   });
 
   it('clears main-process auth before restarting the runtime sidecar', async () => {

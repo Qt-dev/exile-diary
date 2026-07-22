@@ -1,4 +1,4 @@
-import { app, BrowserWindow, ipcMain, nativeImage } from 'electron';
+import { BrowserWindow, ipcMain, nativeImage } from 'electron';
 import logger from 'electron-log';
 import dayjs, { Dayjs } from 'dayjs';
 import AuthManager from '../AuthManager';
@@ -10,6 +10,7 @@ import { createRuntimeCore, RuntimeCore } from '../runtime-core/RuntimeCore';
 import { createOverlayPublisher } from '../runtime-core/services/createOverlayPublisher';
 import { createRuntimeSidecarBridge, RuntimeSidecarBridge } from './createRuntimeSidecarBridge';
 import { haveActiveProfilesChanged } from './haveActiveProfilesChanged';
+import * as RuntimeSidecarClient from './RuntimeSidecarClient';
 
 type RegisterRuntimeListenersDependencies = {
   mainWindow: BrowserWindow;
@@ -426,6 +427,7 @@ function registerSettingsListeners(
   runtime: RuntimeCore | RuntimeSidecarBridge,
   overlayPublisher: ReturnType<typeof createOverlayPublisher>
 ) {
+  let profileRestartPromise: Promise<void> | null = null;
   runtime.settings.registerListener('filters', (settings) => {
     deps.sendToMain(rendererEventChannels.settingsFiltersUpdated, settings);
   });
@@ -439,24 +441,39 @@ function registerSettingsListeners(
   });
   runtime.settings.registerListener('activeProfile', (newProfile, oldProfile) => {
     if (haveActiveProfilesChanged(newProfile, oldProfile)) {
-      logger.debug('Active profile changed, relaunching the app');
-      setTimeout(() => {
-        overlayPublisher.log({
-          messages: [
-            {
-              text: 'Active profile changed, relaunching the app to load data for the new profile when the settings finish saving in a few seconds...',
-            },
-          ],
-        });
-      }, 1000);
-      runtime.settings
+      if (profileRestartPromise) return;
+      logger.debug('Active profile changed, restarting the runtime sidecar');
+      overlayPublisher.log({
+        messages: [
+          {
+            text: 'Active profile changed. Preparing the runtime for the new profile...',
+          },
+        ],
+      });
+      profileRestartPromise = runtime.settings
         .waitForSave()
-        .then(() => {
-          app.relaunch();
-          app.quit();
+        .then(async () => {
+          await RuntimeSidecarClient.restart();
+          if (!deps.mainWindow.webContents.isDestroyed()) {
+            deps.mainWindow.webContents.reload();
+          }
+          if (!deps.overlayWindow.webContents.isDestroyed()) {
+            deps.overlayWindow.webContents.reload();
+          }
         })
         .catch((error) => {
-          logger.error('Error waiting for settings save', error);
+          logger.error('Error switching the runtime to the new active profile', error);
+          overlayPublisher.log({
+            messages: [
+              {
+                text: 'Unable to finish switching profiles. Restart Exile Diary to retry.',
+                type: 'error',
+              },
+            ],
+          });
+        })
+        .finally(() => {
+          profileRestartPromise = null;
         });
     }
   });

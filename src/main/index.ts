@@ -17,7 +17,6 @@ import { autoUpdater } from 'electron-updater';
 import * as path from 'path';
 import logger from 'electron-log';
 import SettingsManager from './SettingsManager';
-import GGGAPI from './GGGAPI';
 import RendererLogger from './RendererLogger';
 import { OverlayController, OVERLAY_WINDOW_OPTS } from 'electron-overlay-window';
 import dayjs from 'dayjs';
@@ -248,7 +247,9 @@ class MainProcess {
           processProtocolUrl: async (protocolUrl: string) => {
             await processAuthCallbackUrl(protocolUrl, {
               getActiveProfile: () => this.runtimeBridge.settings.get('activeProfile'),
-              getCurrentCharacter: () => GGGAPI.getCurrentCharacter(),
+              getCurrentCharacter: async () => {
+                throw new Error('Profile selection is handled by the character selection route');
+              },
               getOauthToken: (code) => AuthManager.getOauthToken(code),
               getState: () => AuthManager.getState(),
               saveSettings: (settings) =>
