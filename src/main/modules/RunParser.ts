@@ -6,7 +6,6 @@ import SettingsManager from '../SettingsManager';
 import WorldAreas from '../../helpers/data/worldAreas.json';
 import Constants from '../../helpers/constants';
 import OldDB from '../db';
-import { globalShortcut } from 'electron';
 import Utils from './Utils';
 import minMax from 'dayjs/plugin/minMax'; // ES 2015
 import EventParser from './EventParser';

@@ -6,6 +6,7 @@ const rootDir = path.resolve(__dirname, '../../..');
 describe('electron-vite build contract', () => {
   it('keeps package scripts and entry outputs aligned with electron-vite', () => {
     const packageJson = JSON.parse(fs.readFileSync(path.join(rootDir, 'package.json'), 'utf8')) as {
+      dependencies: Record<string, string>;
       main: string;
       scripts: Record<string, string>;
     };
@@ -24,6 +25,14 @@ describe('electron-vite build contract', () => {
     expect(packageJson.scripts['build:app']).toContain('sync:electron-assets');
     expect(packageJson.scripts['package:dir']).toContain('electron-builder --dir');
     expect(packageJson.scripts['test:app:smoke']).toContain('npm run build:app');
+    expect(packageJson.scripts['test:packaged-sidecars']).toContain(
+      'smoke-packaged-sidecars.mjs'
+    );
+    expect(packageJson.scripts['test:packaged-renderer']).toContain(
+      'smoke-packaged-renderer.mjs'
+    );
+    expect(packageJson.dependencies).toHaveProperty('conf');
+    expect(packageJson.dependencies).not.toHaveProperty('electron-store');
   });
 
   it('keeps build outputs and entrypoints defined in electron.vite.config.ts', () => {
@@ -83,4 +92,26 @@ describe('electron-vite build contract', () => {
     expect(watchScript).toContain("'src', 'main', 'db', 'extensions'");
     expect(watchScript).toContain("'src', 'main', 'modules', 'ImageParser'");
   });
+
+  it.each(['build-windows.yml', 'release.yml'])(
+    'runs the packaged sidecar smoke before publishing Windows artifacts in %s',
+    (workflowName) => {
+      const workflow = fs.readFileSync(
+        path.join(rootDir, '.github', 'workflows', workflowName),
+        'utf8'
+      );
+
+      expect(workflow).toContain('npm run test:packaged-sidecars');
+      expect(workflow).toContain('npm run test:packaged-renderer');
+      expect(workflow.indexOf('npm run package:win')).toBeLessThan(
+        workflow.indexOf('npm run test:packaged-sidecars')
+      );
+      expect(workflow.indexOf('npm run test:packaged-sidecars')).toBeLessThan(
+        workflow.indexOf('Upload Artifact')
+      );
+      expect(workflow.indexOf('npm run test:packaged-renderer')).toBeLessThan(
+        workflow.indexOf('Upload Artifact')
+      );
+    }
+  );
 });

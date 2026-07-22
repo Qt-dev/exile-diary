@@ -22,6 +22,10 @@ jobs:
         run: npm ci
       - name: Build app
         run: npm run package:win
+      - name: Smoke packaged sidecars
+        run: npm run test:packaged-sidecars
+      - name: Smoke packaged renderer
+        run: npm run test:packaged-renderer
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
         with:

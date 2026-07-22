@@ -181,7 +181,8 @@ const Runs = {
 
     const runData = await DB.all(lastRunsQuery, [numberOfRunsToShow]);
 
-    return runData;
+    // A character database does not exist before the user selects a profile.
+    return Array.isArray(runData) ? runData : [];
   },
 
   getRunMods: async (mapId: number): Promise<any> => {

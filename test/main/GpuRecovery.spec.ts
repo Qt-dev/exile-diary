@@ -24,7 +24,7 @@ function createAppStub() {
 }
 
 describe('GpuRecovery', () => {
-  it('enables safe mode after a previous incomplete startup', () => {
+  it('does not mistake an incomplete startup for a GPU failure', () => {
     const fsStub = createFsStub({
       pendingLaunch: true,
       startedAt: '2026-07-06T00:00:00.000Z',
@@ -42,13 +42,12 @@ describe('GpuRecovery', () => {
 
     const result = manager.initialize();
 
-    expect(result.gpuSafeMode).toBe(true);
+    expect(result.gpuSafeMode).toBe(false);
     expect(result.recoveryReason).toBe('previous-incomplete-startup');
-    expect(appStub.commandLine.appendSwitch).toHaveBeenCalledWith('use-angle', 'swiftshader');
-    expect(appStub.commandLine.appendSwitch).toHaveBeenCalledWith('ignore-gpu-blocklist');
+    expect(appStub.commandLine.appendSwitch).not.toHaveBeenCalled();
   });
 
-  it('persists safe mode after a successful safe-mode startup', () => {
+  it('does not persist an explicitly requested safe-mode startup', () => {
     const fsStub = createFsStub({
       pendingLaunch: true,
       startedAt: '2026-07-06T00:00:00.000Z',
@@ -69,9 +68,56 @@ describe('GpuRecovery', () => {
 
     expect(fsStub.readState()).toMatchObject({
       pendingLaunch: false,
-      preferGpuSafeMode: true,
+      preferGpuSafeMode: false,
       lastSuccessfulMode: 'gpu-safe',
     });
+  });
+
+  it('clears legacy safe-mode preferences that have no recorded GPU failure', () => {
+    const fsStub = createFsStub({
+      pendingLaunch: false,
+      lastLaunchMode: 'gpu-safe',
+      preferGpuSafeMode: true,
+      lastRecoveryReason: 'previous-incomplete-startup',
+    });
+    const appStub = createAppStub();
+    const manager = createGpuRecoveryManager({
+      appLike: appStub,
+      argv: ['electron', '.'],
+      env: {},
+      fsLike: fsStub,
+      now: () => '2026-07-06T01:00:00.000Z',
+      userDataPath: '/mock/userdata',
+    });
+
+    expect(manager.initialize().gpuSafeMode).toBe(false);
+    expect(fsStub.readState()).toMatchObject({ preferGpuSafeMode: false });
+    expect(appStub.commandLine.appendSwitch).not.toHaveBeenCalled();
+  });
+
+  it('retains safe mode after a confirmed GPU process failure', () => {
+    const fsStub = createFsStub({
+      pendingLaunch: false,
+      lastLaunchMode: 'normal',
+      preferGpuSafeMode: true,
+      lastGpuFailureAt: '2026-07-06T00:30:00.000Z',
+      lastGpuFailureReason: 'crashed',
+    });
+    const appStub = createAppStub();
+    const manager = createGpuRecoveryManager({
+      appLike: appStub,
+      argv: ['electron', '.'],
+      env: {},
+      fsLike: fsStub,
+      now: () => '2026-07-06T01:00:00.000Z',
+      userDataPath: '/mock/userdata',
+    });
+
+    expect(manager.initialize()).toEqual({
+      gpuSafeMode: true,
+      recoveryReason: 'persisted-safe-mode',
+    });
+    expect(appStub.commandLine.appendSwitch).toHaveBeenCalledWith('use-angle', 'swiftshader');
   });
 
   it('requests a relaunch after repeated GPU process crashes during startup', () => {

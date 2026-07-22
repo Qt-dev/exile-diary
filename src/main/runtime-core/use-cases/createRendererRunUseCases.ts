@@ -7,7 +7,8 @@ export function createRendererRunUseCases(deps: RendererRunUseCaseDependencies) 
       logger.info(
         `Loading ${size === Number.MAX_SAFE_INTEGER ? 'all' : size} runs from runtime-core`
       );
-      return deps.runs.getLastRuns(size);
+      const runs = await deps.runs.getLastRuns(size);
+      return Array.isArray(runs) ? runs : [];
     },
 
     async loadRun(runId: string | number) {

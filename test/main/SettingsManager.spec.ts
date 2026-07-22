@@ -96,6 +96,7 @@ describe('SettingsManager character bootstrap', () => {
       league: 'Settlers',
       valid: true,
     });
+    await SettingsManager.save();
   });
 
   it('starts the rate refresh in the background after initializing the character database', async () => {
@@ -122,6 +123,7 @@ describe('SettingsManager character bootstrap', () => {
       league: 'Settlers',
       valid: true,
     });
+    await SettingsManager.save();
   });
 
   it('does not wait for DB initialization to finish before resolving activeProfile saves', async () => {
@@ -171,6 +173,7 @@ describe('SettingsManager character bootstrap', () => {
     expect(initLeagueDB).toHaveBeenCalledTimes(1);
     await new Promise((resolve) => setTimeout(resolve, 0));
     expect(rateGetterUpdate).toHaveBeenCalledTimes(1);
+    await SettingsManager.save();
   });
 
   it('writes through a process-specific temp file before replacing settings.json', async () => {
@@ -208,6 +211,16 @@ describe('SettingsManager character bootstrap', () => {
       screenshotDir: 'D:\\Shots',
     });
     expect(mockWriteFile).not.toHaveBeenCalled();
+  });
+
+  it('does not schedule a no-op settings write during initialization', async () => {
+    const SettingsManager = (await import('../../src/main/SettingsManager')).default as any;
+
+    await SettingsManager.initialize();
+
+    expect(SettingsManager.saveScheduler).toBeNull();
+    expect(mockWriteFile).not.toHaveBeenCalled();
+    expect(mockRename).not.toHaveBeenCalled();
   });
 
   it('forwards the actual previous value to setting listeners', async () => {

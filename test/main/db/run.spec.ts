@@ -156,6 +156,12 @@ describe('Runs', () => {
       );
       expect(mockDB.all).toHaveBeenCalledWith(expectedQuery, [5]);
     });
+
+    it('returns an empty list before a character database is available', async () => {
+      mockDB.all.mockResolvedValue(null);
+
+      await expect(Runs.getLastRuns(10)).resolves.toEqual([]);
+    });
   });
 
   describe('getRunMods', () => {

@@ -7,8 +7,13 @@ html {
   -moz-osx-font-smoothing: grayscale;
   font-family: FontIn;
   color: #aaaaaa;
-  background: transparent;
+  background: #000;
   padding: 0;
+}
+
+html[data-renderer='overlay'],
+html[data-renderer='overlay'] body {
+  background: transparent;
 }
 
 code {
