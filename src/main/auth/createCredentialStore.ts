@@ -14,7 +14,8 @@ export function createCredentialStore({
   cwd = getUserDataPath(),
   projectVersion = getAppVersion(),
 }: CredentialStoreOptions = {}) {
-  const ConfConstructor = require('conf') as typeof Conf;
+  const confModule = require('conf') as typeof Conf | { default: typeof Conf };
+  const ConfConstructor = typeof confModule === 'function' ? confModule : confModule.default;
 
   return new ConfConstructor<CredentialSchema>({
     configName: 'creds',

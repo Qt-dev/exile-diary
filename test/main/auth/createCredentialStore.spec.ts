@@ -2,7 +2,7 @@ const ConfConstructor = jest.fn();
 const getUserDataPath = jest.fn(() => 'D:\\Users\\example\\AppData\\Roaming\\exile-diary');
 const getAppVersion = jest.fn(() => '1.11.1-test');
 
-jest.mock('conf', () => ConfConstructor);
+jest.mock('conf', () => ({ default: ConfConstructor }));
 
 jest.mock('../../../src/main/runtime/getUserDataPath', () => ({
   getAppVersion: (...args: unknown[]) => getAppVersion(...args),
@@ -15,7 +15,7 @@ describe('createCredentialStore', () => {
     ConfConstructor.mockImplementation((options) => ({ options }));
   });
 
-  it('preserves the existing encrypted creds.token storage contract without Electron', async () => {
+  it('loads the ESM-only Conf default export without Electron', async () => {
     const { createCredentialStore } = await import('../../../src/main/auth/createCredentialStore');
 
     const store = createCredentialStore();
