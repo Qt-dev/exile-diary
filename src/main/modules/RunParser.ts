@@ -13,6 +13,7 @@ import LogProcessor from './LogProcessor';
 import ItemPricer from './ItemPricer';
 import XPTracker from './XPTracker';
 import GraftbloodTracker from './GraftbloodTracker';
+import type { RunProcessRequest } from './mapEnd';
 const logger = require('electron-log');
 const EventEmitter = require('events');
 
@@ -944,9 +945,10 @@ const RunParser = {
    * If no map run is processed, it returns undefined.
    * @throws Will log an error if processing fails.
    */
-  tryProcess: async (parameters: { event: ParsedEvent } | null) => {
+  tryProcess: async (parameters: RunProcessRequest | null) => {
     let event: ParsedEvent;
     let wasGivenEvent: boolean = false;
+    const isExplicitEnd = parameters?.reason === 'explicit-end';
     logger.debug('RunParser.tryProcess', parameters);
     if (parameters && parameters.event) {
       event = parameters.event;
@@ -1024,13 +1026,22 @@ const RunParser = {
         return false;
       }
       // Check if the server of the event matches the first event's server ??
-      else if (wasGivenEvent && event.server && event.server === mapFirstEvent.server) {
+      else if (
+        !isExplicitEnd &&
+        wasGivenEvent &&
+        event.server &&
+        event.server === mapFirstEvent.server
+      ) {
         logger.debug(`Still in same area ${event.area}, not processing`);
         return false;
       }
 
       // Check if the area is the same as the last one entered, but not the same server (since the case above it handles it)
-      else if (wasGivenEvent && event.area === [...mapEvents].reverse()[0].area) {
+      else if (
+        !isExplicitEnd &&
+        wasGivenEvent &&
+        event.area === [...mapEvents].reverse()[0].area
+      ) {
         logger.debug('Same Area, this is probably a mirage');
         return false;
       }

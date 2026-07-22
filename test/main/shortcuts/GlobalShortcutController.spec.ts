@@ -1,3 +1,11 @@
+const shortcutLoggerWarn = jest.fn();
+jest.mock('electron-log', () => ({
+  __esModule: true,
+  default: {
+    scope: jest.fn(() => ({ warn: shortcutLoggerWarn })),
+  },
+}));
+
 describe('GlobalShortcutController', () => {
   beforeEach(() => {
     jest.resetModules();
@@ -92,5 +100,28 @@ describe('GlobalShortcutController', () => {
 
     expect(electron.globalShortcut.unregisterAll).toHaveBeenCalledTimes(1);
     expect(electron.globalShortcut.register).toHaveBeenCalledTimes(2);
+  });
+
+  it('reports shortcut registration conflicts', async () => {
+    const electron = await import('electron');
+    (electron.globalShortcut.register as jest.Mock).mockReturnValueOnce(false);
+    const { GlobalShortcutController } = await import(
+      '../../../src/main/shortcuts/GlobalShortcutController'
+    );
+    const controller = new GlobalShortcutController({
+      getShortcut: () => null,
+      isRunParseScreenshotEnabled: () => false,
+      areCustomScreenshotsEnabled: () => false,
+      toggleOverlayPersistence: jest.fn(),
+      toggleOverlayMovement: jest.fn(() => false),
+      triggerRunParse: jest.fn(),
+      triggerScreenshot: jest.fn(),
+    });
+
+    controller.registerAll();
+
+    expect(shortcutLoggerWarn).toHaveBeenCalledWith(
+      expect.stringContaining('Unable to register shortcut')
+    );
   });
 });

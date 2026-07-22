@@ -1,4 +1,7 @@
 import { globalShortcut } from 'electron';
+import Logger from 'electron-log';
+
+const logger = Logger.scope('global-shortcuts');
 
 type ShortcutDefinition = {
   accelerator: string;
@@ -20,7 +23,10 @@ export class GlobalShortcutController {
 
   registerAll() {
     for (const shortcut of this.getShortcutDefinitions()) {
-      globalShortcut.register(shortcut.accelerator, shortcut.callback);
+      const registered = globalShortcut.register(shortcut.accelerator, shortcut.callback);
+      if (registered === false) {
+        logger.warn(`Unable to register shortcut ${shortcut.accelerator}; it may be in use`);
+      }
     }
   }
 

@@ -26,6 +26,7 @@ import AuthManager from './AuthManager';
 
 // Old stuff
 import ScreenshotWatcher from './modules/ImageParser/ScreenshotWatcher';
+import { createExplicitMapEndRequest } from './modules/mapEnd';
 import * as OCRWatcher from './modules/ImageParser/OCRWatcher';
 import {
   invokeChannels,
@@ -286,8 +287,9 @@ class MainProcess {
       },
       triggerRunParse: () => {
         logger.info('Run parse shortcut pressed');
-        const event = { timestamp: dayjs().toISOString() };
-        void this.runtimeBridge.runTracking.tryProcess({ event });
+        void this.runtimeBridge.runTracking
+          .tryProcess(createExplicitMapEndRequest(dayjs().toISOString(), 'shortcut'))
+          .catch((error) => logger.error('Run parse shortcut failed', error));
       },
       triggerScreenshot: () => {
         logger.info('Screenshot shortcut pressed');
