@@ -118,6 +118,53 @@ describe('GGGAPI auth gating', () => {
     expect(waitForProfileAccess).not.toHaveBeenCalled();
     expect(getToken).toHaveBeenCalledTimes(1);
     expect(ensurePoeApiHostResolution).toHaveBeenCalledTimes(1);
+    expect(axiosRequest).toHaveBeenCalledWith(
+      expect.objectContaining({ timeout: 15000, url: '/character' })
+    );
+  });
+
+  it('coalesces concurrent character-list requests', async () => {
+    axiosRequest.mockResolvedValue({
+      cached: false,
+      headers: {},
+      data: {
+        characters: [{ name: 'AtlasRunner', current: true, league: 'Mirage' }],
+      },
+    });
+
+    const GGGAPI = (await import('../../src/main/GGGAPI')).default;
+    const [first, second] = await Promise.all([
+      GGGAPI.getAllCharacters(),
+      GGGAPI.getAllCharacters(),
+    ]);
+
+    expect(first).toEqual(second);
+    expect(axiosRequest).toHaveBeenCalledTimes(1);
+  });
+
+  it('shares a concurrent character snapshot between inventory and passive-tree consumers', async () => {
+    axiosRequest.mockResolvedValue({
+      cached: false,
+      headers: {},
+      data: {
+        character: {
+          inventory: [],
+          equipment: [],
+          experience: 123,
+          passives: { hashes: [1], jewel_data: {} },
+        },
+      },
+    });
+
+    const GGGAPI = (await import('../../src/main/GGGAPI')).default;
+    const [inventory, passives] = await Promise.all([
+      GGGAPI.getDataForInventory(),
+      GGGAPI.getSkillTree(),
+    ]);
+
+    expect(inventory.experience).toBe(123);
+    expect(passives.hashes).toEqual([1]);
+    expect(axiosRequest).toHaveBeenCalledTimes(1);
   });
 
   it('waits only for account access when resolving the current character', async () => {

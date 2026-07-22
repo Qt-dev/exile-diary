@@ -3,6 +3,7 @@ import SettingsManager from '../SettingsManager';
 import ScreenshotWatcher from '../modules/ImageParser/ScreenshotWatcher';
 import * as OCRWatcher from '../modules/ImageParser/OCRWatcher';
 import * as RuntimeSidecarClient from './RuntimeSidecarClient';
+import type { RunProcessRequest } from '../modules/mapEnd';
 
 const searchCallbackEmitter = new EventEmitter();
 
@@ -56,7 +57,7 @@ export function createRuntimeSidecarBridge() {
         RuntimeSidecarClient.callRuntimeMethod<void>('runTracking.refreshTracking'),
       setCurrentMapStats: (stats: Record<string, any>) =>
         RuntimeSidecarClient.callRuntimeMethod<void>('runTracking.setCurrentMapStats', [stats]),
-      tryProcess: (payload: { event: Record<string, any> } | null) =>
+      tryProcess: (payload: RunProcessRequest | null) =>
         RuntimeSidecarClient.callRuntimeMethod<boolean>('runTracking.tryProcess', [payload]),
       tryUpdateCurrentArea: () =>
         RuntimeSidecarClient.callRuntimeMethod<boolean>('runTracking.tryUpdateCurrentArea'),

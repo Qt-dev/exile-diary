@@ -6,6 +6,7 @@ import SettingsManager from '../../../src/main/SettingsManager';
 import Utils from '../../../src/main/modules/Utils';
 import { get } from '../../../src/main/db/settings';
 import logger from 'electron-log';
+import RunsDB from '../../../src/main/db/run';
 
 jest.mock('../../../src/main/db', () => ({
   get: jest.fn(),
@@ -13,13 +14,28 @@ jest.mock('../../../src/main/db', () => ({
   transaction: jest.fn(),
   run: jest.fn(),
 }));
+jest.mock('../../../src/main/db/run', () => ({
+  __esModule: true,
+  default: {
+    getLastMapGeneratedEvent: jest.fn(),
+    updateLastEvent: jest.fn(),
+  },
+}));
 jest.mock('../../../src/main/GGGAPI', () => ({
   getDataForInventory: jest
     .fn()
     .mockReturnValue(Promise.resolve({ inventory: [], equipment: [], experience: 0 })),
 }));
 jest.mock('../../../src/main/SettingsManager', () => ({}));
-jest.mock('../../../src/main/modules/Utils', () => ({}));
+jest.mock('../../../src/main/modules/Utils', () => ({
+  __esModule: true,
+  default: {
+    isTown: jest.fn(),
+    isLabArea: jest.fn(),
+    isVaalArea: jest.fn(),
+    isLabTrial: jest.fn(),
+  },
+}));
 jest.mock('../../../src/main/modules/ItemPricer', () => ({
   price: jest.fn().mockReturnValue(Promise.resolve({ value: 0, count: 0, importantDrops: {} })),
 }));
@@ -199,6 +215,87 @@ describe('RunParser', () => {
 
       const parsedItems = await RunParser.parseItems(items);
       expect(parsedItems).toEqual(expectedItems);
+    });
+  });
+
+  describe('tryProcess explicit completion', () => {
+    beforeEach(() => {
+      jest.restoreAllMocks();
+      (RunsDB.getLastMapGeneratedEvent as jest.Mock).mockResolvedValue({
+        event_text: JSON.stringify({ areaName: 'Dunes Map' }),
+      });
+      (RunsDB.updateLastEvent as jest.Mock).mockResolvedValue(undefined);
+      (Utils.isTown as jest.Mock).mockReturnValue(false);
+      (Utils.isLabArea as jest.Mock).mockReturnValue(false);
+      (Utils.isVaalArea as jest.Mock).mockReturnValue(false);
+      (Utils.isLabTrial as jest.Mock).mockReturnValue(false);
+      jest.spyOn(RunParser, 'getLatestUnusedMapEnteredEvents').mockResolvedValue([
+        {
+          timestamp: '2026-07-22T09:00:00.000Z',
+          area: 'Dunes Map',
+          server: '127.0.0.1:6112',
+        },
+      ]);
+      jest.spyOn(RunParser, 'processRun').mockResolvedValue({
+        name: 'Dunes Map',
+        gained: 0,
+        xp: 0,
+        kills: 0,
+        firstEvent: '2026-07-22T09:00:00.000Z',
+        lastEvent: '2026-07-22T10:00:00.000Z',
+      });
+      jest.spyOn(RunParser, 'resetRunData').mockImplementation(() => undefined);
+    });
+
+    it('keeps the same-instance guard for automatic processing', async () => {
+      await expect(
+        RunParser.tryProcess({
+          event: {
+            timestamp: '2026-07-22T10:00:00.000Z',
+            server: '127.0.0.1:6112',
+          },
+        })
+      ).resolves.toBe(false);
+
+      expect(RunParser.processRun).not.toHaveBeenCalled();
+    });
+
+    it('completes the current run when explicitly requested in the same instance', async () => {
+      await expect(
+        RunParser.tryProcess({
+          event: {
+            timestamp: '2026-07-22T10:00:00.000Z',
+            server: '127.0.0.1:6112',
+          },
+          reason: 'explicit-end',
+          source: 'shortcut',
+        })
+      ).resolves.toBe(true);
+
+      expect(RunParser.processRun).toHaveBeenCalledWith('2026-07-22T10:00:00.000Z');
+    });
+
+    it('retains special-zone safeguards for explicit completion', async () => {
+      (RunsDB.getLastMapGeneratedEvent as jest.Mock).mockResolvedValue({
+        event_text: JSON.stringify({ areaName: 'Azurite Mine' }),
+      });
+      jest.spyOn(RunParser, 'getLatestUnusedMapEnteredEvents').mockResolvedValue([
+        {
+          timestamp: '2026-07-22T09:00:00.000Z',
+          area: 'Azurite Mine',
+          server: '127.0.0.1:6112',
+        },
+      ]);
+
+      await expect(
+        RunParser.tryProcess({
+          event: { timestamp: '2026-07-22T10:00:00.000Z' },
+          reason: 'explicit-end',
+          source: 'shortcut',
+        })
+      ).resolves.toBe(false);
+
+      expect(RunParser.processRun).not.toHaveBeenCalled();
     });
   });
 });

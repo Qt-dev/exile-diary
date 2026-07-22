@@ -9,10 +9,11 @@ import InventoryGetter from './InventoryGetter';
 import ItemParser from './ItemParser';
 import EventParser from './EventParser';
 import Utils from './Utils';
+import { createExplicitMapEndRequest } from './mapEnd';
 
 const logger = Logger.scope('LogProcessor');
 
-class LogProcessorScheduler {
+export class LogProcessorScheduler {
   tasks: string[] = [];
   isBusy: boolean = true;
   eventEmitter: EventEmitter = new EventEmitter();
@@ -46,12 +47,15 @@ class LogProcessorScheduler {
 
   runTask(task: Function): Promise<any> {
     const id = uuidv4();
-    return new Promise((resolve) => {
+    return new Promise((resolve, reject) => {
       this.eventEmitter.once(`task:start:${id}`, async () => {
-        // logger.info(`Running task ${id}`);
-        const result = await task();
-        this.eventEmitter.emit(`task:end:${id}`);
-        resolve(result);
+        try {
+          resolve(await task());
+        } catch (error) {
+          reject(error);
+        } finally {
+          this.eventEmitter.emit(`task:end:${id}`);
+        }
       });
       // logger.info(`Adding task ${id}`);
       this.tasks.push(id);
@@ -265,9 +269,12 @@ const LogProcessor = {
   processEnd: async (timestamp: string, line: string) => {
     logger.debug('LogProcessor.processEnd', timestamp, line);
     try {
-      await RunParser.tryProcess({ event: { timestamp, server: lastInstanceServer } });
+      return await RunParser.tryProcess(
+        createExplicitMapEndRequest(timestamp, 'chat', lastInstanceServer)
+      );
     } catch (err) {
       logger.error(`Error processing last map run: ${err}`);
+      return false;
     }
   },
   processNewInstance: async (timestamp: string, line: string) => {

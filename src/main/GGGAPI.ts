@@ -9,6 +9,8 @@ import { getAppVersion } from './runtime/getUserDataPath';
 import { authSessionReadiness } from './auth/AuthSessionReadiness';
 import { poeApiResolutionGuard } from './runtime/poeApiHostResolution';
 const CACHE_TIME_IN_SECONDS = 10;
+const CHARACTER_LIST_CACHE_TIME_IN_SECONDS = 30;
+const CHARACTER_SNAPSHOT_CACHE_TIME_IN_SECONDS = 2;
 const MIN_TIME_BETWEEN_REQUESTS = 333; // 1 request per second as a default, will be adjusted based on API feedback
 const instance = Axios.create();
 const storage = buildMemoryStorage();
@@ -34,6 +36,7 @@ const limiters = new Bottleneck.Group({
 });
 
 let currentlyRestrictedKeys = {};
+const inFlightRequests = new Map<string, Promise<any>>();
 
 /**
  * PARSER: Converts PoE's "1:5:0,10:60:0" format into an object
@@ -150,6 +153,7 @@ const getRequestParams = (url, token) => {
     baseURL: 'https://api.pathofexile.com',
     url,
     method: 'GET',
+    timeout: 15000,
     headers: {
       'User-Agent': `OAuth exile-diary-reborn/${getAppVersion()} (contact: ${adminEmail})`,
       Authorization: `Bearer ${token}`,
@@ -158,49 +162,60 @@ const getRequestParams = (url, token) => {
 };
 
 const request = async ({ params, group, cacheTime = CACHE_TIME_IN_SECONDS, limiterId = group }) => {
-  await poeApiResolutionGuard.ensurePoeApiHostResolution();
-  const limiter = limiters.key(limiterId);
-  const scheduledId = `${group.replace('/', '')}-${uuidv4()}`;
-
-  if (currentlyRestrictedKeys && currentlyRestrictedKeys[group]) {
-    const cached = await storage.get(group);
-    if (cached && cached.data) {
-      logger.warn('âš ï¸ API Restricted: Serving STALE data from cache.');
-      return cached.data;
-    }
-    // If not even in cache, we must throw or wait
-    throw new Error('API Restricted and no cached data available.');
+  const requestKey = `${limiterId}:${group}:${params.url}`;
+  const existingRequest = inFlightRequests.get(requestKey);
+  if (existingRequest) {
+    logger.debug(`Coalescing in-flight GGG request for ${params.url}`);
+    return existingRequest;
   }
 
-  return limiter.schedule({ id: scheduledId }, async () => {
-    logger.debug('Making request to GGG API', { url: params.url, group, params });
-    if (!params.cache) {
-      logger.debug('Adding cache to request for group', group);
-      params.cache = {
-        enabled: true,
-        ttl: 1000 * cacheTime,
-      };
+  const pendingRequest = (async () => {
+    await poeApiResolutionGuard.ensurePoeApiHostResolution();
+    const limiter = limiters.key(limiterId);
+    const scheduledId = `${group.replace('/', '')}-${uuidv4()}`;
+
+    if (currentlyRestrictedKeys && currentlyRestrictedKeys[group]) {
+      const cached = await storage.get(group);
+      if (cached && cached.data) {
+        logger.warn('API Restricted: Serving stale data from cache.');
+        return cached.data;
+      }
+      throw new Error('API Restricted and no cached data available.');
     }
-    const response = await new Promise<void>((resolve) => {
-      logger.debug('Starting the Request Promise for', { url: params.url, group });
-      resolve();
-    })
-      .then(() => axios({ ...params, id: group }))
-      .then(async (response) => {
-        if (response.cached) {
-          logger.debug(`Response from cache for ${params.url}`);
-        } else {
-          logger.debug(`Response from API for ${params.url}`);
-        }
-        return response;
-      });
 
-    updateLimiterFromHeaders(limiter, response.headers);
+    return limiter.schedule({ id: scheduledId }, async () => {
+      logger.debug('Making request to GGG API', { url: params.url, group, params });
+      if (!params.cache) {
+        params.cache = {
+          enabled: true,
+          ttl: 1000 * cacheTime,
+        };
+      }
+      const response: any = await axios({ ...params, id: group });
 
-    logger.debug('Request successfully completed for', { url: params.url, group });
+      updateLimiterFromHeaders(limiter, response.headers);
+      logger.debug('Request successfully completed for', { url: params.url, group });
+      return response;
+    });
+  })();
 
-    return response;
+  inFlightRequests.set(requestKey, pendingRequest);
+  try {
+    return await pendingRequest;
+  } finally {
+    if (inFlightRequests.get(requestKey) === pendingRequest) {
+      inFlightRequests.delete(requestKey);
+    }
+  }
+};
+
+const getCharacterSnapshot = async (username: string, characterName: string, token: string) => {
+  const response: any = await request({
+    params: getRequestParams(Endpoints.character({ characterName }), token),
+    group: `getCharacter-${username}-${characterName}`,
+    cacheTime: CHARACTER_SNAPSHOT_CACHE_TIME_IN_SECONDS,
   });
+  return response.data.character;
 };
 
 const getSettings = async (needProfile = true) => {
@@ -210,6 +225,7 @@ const getSettings = async (needProfile = true) => {
   if ((!activeProfile || !activeProfile.characterName) && needProfile)
     throw new Error('Missing Active Profile');
   const token = await AuthManager.getToken();
+  if (!token) throw new Error('Missing OAuth token');
   return {
     username,
     characterName: activeProfile?.characterName,
@@ -226,6 +242,7 @@ const getAllCharacters = async () => {
     const response: any = await request({
       params: getRequestParams(Endpoints.characters(), token),
       group: `getAllCharacters-${username}`,
+      cacheTime: CHARACTER_LIST_CACHE_TIME_IN_SECONDS,
     });
     const characters = await response.data.characters;
     logger.info(`Found ${characters.length} characters from the GGG API for account: ${username}`);
@@ -240,12 +257,9 @@ const getDataForInventory = async (): Promise<Inventory> => {
   logger.info('Getting inventory and XP data from the GGG API');
   try {
     await authSessionReadiness.waitForProfileAccess();
-    const { characterName, token } = await getSettings();
-    const response: any = await request({
-      params: getRequestParams(Endpoints.character({ characterName }), token),
-      group: `getDataForInventory-${characterName}`,
-    });
-    const character = await response.data.character;
+    const { username, characterName, token } = await getSettings();
+    if (!characterName) throw new Error('Missing Active Profile');
+    const character = await getCharacterSnapshot(username, characterName, token);
     const { inventory: mainInventory, equipment, experience } = character;
     const rucksack = character.rucksack ?? [];
     const inventory = [...mainInventory, ...rucksack];
@@ -265,12 +279,10 @@ const getSkillTree = async () => {
   logger.info('Getting skill tree from the GGG API');
   try {
     await authSessionReadiness.waitForProfileAccess();
-    const { characterName, token } = await getSettings();
-    const response: any = await request({
-      params: getRequestParams(Endpoints.character({ characterName }), token),
-      group: `getSkillTree-${characterName}`,
-    });
-    const skillTree = await response.data.character.passives;
+    const { username, characterName, token } = await getSettings();
+    if (!characterName) throw new Error('Missing Active Profile');
+    const character = await getCharacterSnapshot(username, characterName, token);
+    const skillTree = await character.passives;
     logger.info(`Found skill tree for character: ${characterName}`);
     return skillTree;
   } catch (e: any) {
@@ -321,7 +333,7 @@ const APIManager = {
     const characters = await getAllCharacters();
     const { activeProfile } = SettingsManager.settings;
     const currentCharacter = characters.find((character) =>
-      activeProfile && activeProfile.charactername
+      activeProfile && activeProfile.characterName
         ? character.name === activeProfile.characterName
         : character.current
     );

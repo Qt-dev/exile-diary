@@ -14,16 +14,19 @@ const CharacterSelect = () => {
   const navigate = useNavigate();
   const { characters } = useLoaderData() as any;
   const [character, setCharacter] = React.useState(
-    characters.find((character) => character.current)
+    characters.find((character) => character.current) ?? characters[0] ?? null
   );
   const [isSaving, setIsSaving] = React.useState(false);
   const handleChange = (event: SelectChangeEvent<{ value: any }>) => {
-    setCharacter(characters.find((character) => (character.name = event.target.value)));
+    setCharacter(
+      characters.find((character) => character.name === event.target.value) ?? null
+    );
   };
 
   const saveCharacter = async () => {
     logger.info('Saving active character from Login');
-    await setIsSaving(true);
+    if (!character) return;
+    setIsSaving(true);
     const data = {
       activeProfile: {
         characterName: character.name,
@@ -46,7 +49,7 @@ const CharacterSelect = () => {
         </div>
         <FormControl className="Character-Select__Form">
           <FormControl size="small">
-            <Select id="character" value={character.name} onChange={handleChange}>
+            <Select id="character" value={character?.name ?? ''} onChange={handleChange}>
               {characters.map((character: any) => (
                 <MenuItem key={character.name} value={character.name}>
                   {character.name}
@@ -56,7 +59,12 @@ const CharacterSelect = () => {
             <FormHelperText>Pick a character to track</FormHelperText>
           </FormControl>
 
-          <Button variant="contained" color="primary" onClick={saveCharacter} disabled={isSaving}>
+          <Button
+            variant="contained"
+            color="primary"
+            onClick={saveCharacter}
+            disabled={isSaving || !character}
+          >
             Validate
           </Button>
         </FormControl>

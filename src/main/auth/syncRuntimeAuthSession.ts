@@ -13,7 +13,7 @@ export async function saveTokenAndSyncRuntime(token: OAuthToken) {
   await refreshMainSettingsFromRuntime();
   await AuthManager.saveToken(token);
   await SettingsManager.waitForSave();
-  await RuntimeSidecarClient.restart();
+  await RuntimeSidecarClient.callRuntimeMethod<void>('auth.refreshSession');
 }
 
 export async function logoutAndSyncRuntime() {

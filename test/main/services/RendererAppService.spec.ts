@@ -83,14 +83,14 @@ describe('RendererAppService auth ownership', () => {
     expect(callRendererMethod).not.toHaveBeenCalledWith('logout', expect.anything());
   });
 
-  it('gets characters through the main process GGGAPI instead of the runtime sidecar', async () => {
-    getAllCharacters.mockResolvedValue([{ name: 'Alice', league: 'Settlers' }]);
+  it('gets characters through the runtime sidecar GGG gateway', async () => {
+    callRendererMethod.mockResolvedValue([{ name: 'Alice', league: 'Settlers' }]);
 
     const { RendererAppService } = await import('../../../src/main/services/RendererAppService');
     const result = await RendererAppService.getCharacters();
 
     expect(result).toEqual([{ name: 'Alice', league: 'Settlers' }]);
-    expect(getAllCharacters).toHaveBeenCalledTimes(1);
-    expect(callRendererMethod).not.toHaveBeenCalledWith('getCharacters', expect.anything());
+    expect(getAllCharacters).not.toHaveBeenCalled();
+    expect(callRendererMethod).toHaveBeenCalledWith('getCharacters');
   });
 });

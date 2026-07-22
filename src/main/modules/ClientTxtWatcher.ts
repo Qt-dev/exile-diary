@@ -6,6 +6,7 @@ import fs from 'fs/promises';
 import Utils from './Utils';
 import SettingsManager from '../SettingsManager';
 import LogProcessor from './LogProcessor';
+import { isMapEndSignal } from './mapEnd';
 
 let tail: Tail | undefined;
 const emitter = new EventEmitter();
@@ -43,17 +44,7 @@ export function start() {
 
   tail = new Tail(`${settings.clientTxt}`, tailOptions);
 
-  tail.on('line', async (line: string) => {
-    const lowerCaseLine = line.toLowerCase();
-
-    const stringPatterns = {
-      end: [
-        `] @to ${settings.activeProfile.characterName.toLowerCase()}: end`,
-        `] ${settings.activeProfile.characterName.toLowerCase()}: end`,
-      ],
-      generating: ['generating'],
-    };
-
+  tail.on('line', (line: string) => {
     if (process.platform === 'linux') {
       line = JSON.stringify(line).replace(/(\\r\\n|\\n|\\r)/, '');
       line = JSON.parse(line);
@@ -67,6 +58,7 @@ export function start() {
 
     const { timestamp: originalTimestamp, line: content } = lineMatch.groups;
     const timestamp = dayjs(originalTimestamp, 'YYYY/MM/DD HH:mm:ss').toISOString();
+    const lowerCaseContent = content.toLocaleLowerCase();
 
     if (line.includes('] : AFK mode is now ON. Autoreply')) {
       logger.info('Setting AFK mode to ON');
@@ -79,23 +71,21 @@ export function start() {
       global.afk = false;
     }
 
-    if (stringPatterns.end.some((pattern) => lowerCaseLine.endsWith(pattern))) {
-      LogProcessor.schedule(async () => {
-        LogProcessor.processEnd(timestamp, content);
-      });
-    } else if (stringPatterns.generating.some((pattern) => lowerCaseLine.includes(pattern))) {
-      LogProcessor.schedule(async () => {
-        LogProcessor.processGeneration(timestamp, content);
-      });
+    let scheduledTask: Promise<unknown>;
+    if (isMapEndSignal(content, settings.activeProfile.characterName)) {
+      scheduledTask = LogProcessor.schedule(() => LogProcessor.processEnd(timestamp, content));
+    } else if (lowerCaseContent.includes('generating')) {
+      scheduledTask = LogProcessor.schedule(() =>
+        LogProcessor.processGeneration(timestamp, content)
+      );
     } else if (line.includes('Connecting to instance server at')) {
-      LogProcessor.schedule(async () => {
-        LogProcessor.processNewInstance(timestamp, content);
-      });
+      scheduledTask = LogProcessor.schedule(() =>
+        LogProcessor.processNewInstance(timestamp, content)
+      );
     } else {
-      LogProcessor.schedule(async () => {
-        LogProcessor.processOther(timestamp, content);
-      });
+      scheduledTask = LogProcessor.schedule(() => LogProcessor.processOther(timestamp, content));
     }
+    void scheduledTask.catch((error) => logger.error('Failed to process client log line', error));
   });
 
   tail.on('error', (error) => {

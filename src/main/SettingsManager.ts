@@ -28,6 +28,20 @@ function hasValidActiveProfile(activeProfile: any) {
   );
 }
 
+function haveProfilesChanged(previousValue: any, nextValue: any) {
+  return (
+    previousValue?.characterName !== nextValue?.characterName ||
+    previousValue?.league !== nextValue?.league
+  );
+}
+
+type ActiveProfile = {
+  characterName: string;
+  league: string;
+  valid?: boolean;
+  [key: string]: unknown;
+};
+
 const DefaultSettings = {
   activeProfile: {
     characterName: null,
@@ -76,7 +90,9 @@ const DefaultSettings = {
 class SettingsManager {
   settings: any;
   saveScheduler: NodeJS.Timeout | null = null;
-  databaseInitializationPromise: Promise<void> | null = null;
+  lastSaveError: Error | null = null;
+  profileTransitionQueue: Promise<void> = Promise.resolve();
+  databaseInitializationPromises = new Map<string, Promise<void>>();
   eventEmitter = new EventEmitter();
   eventKeyMatcher: {
     [key: string]: {
@@ -115,25 +131,30 @@ class SettingsManager {
     authSessionReadiness.setProfileReady(hasValidActiveProfile(this.settings.activeProfile));
   }
 
-  async initializeDB(characterName: string) {
-    if (this.databaseInitializationPromise) {
-      return this.databaseInitializationPromise;
-    }
+  private refreshRatesInBackground(profile: ActiveProfile) {
+    void RateGetterV2.update().catch((error) => {
+      logger.warn(`Background rate refresh failed after initializing ${profile.characterName}`, error);
+    });
+  }
 
-    this.databaseInitializationPromise = (async () => {
-      logger.info(`Initializing DB for ${characterName}`);
-      const character = await this.getCharacter(characterName);
-      await DB.initDB(character.name);
-      await DB.initLeagueDB(character.league, character.name);
-      void RateGetterV2.update().catch((error) => {
-        logger.warn(`Background rate refresh failed after initializing ${character.name}`, error);
-      });
+  async initializeDB(profile: ActiveProfile, refreshRates = true) {
+    const key = `${profile.characterName}\u0000${profile.league}`;
+    const existingInitialization = this.databaseInitializationPromises.get(key);
+    if (existingInitialization) return existingInitialization;
+
+    const initialization = (async () => {
+      logger.info(`Initializing DB for ${profile.characterName} in ${profile.league}`);
+      await DB.initDB(profile.characterName, profile.league);
+      await DB.initLeagueDB(profile.league, profile.characterName);
+      if (refreshRates) this.refreshRatesInBackground(profile);
     })();
 
+    this.databaseInitializationPromises.set(key, initialization);
+
     try {
-      await this.databaseInitializationPromise;
+      await initialization;
     } finally {
-      this.databaseInitializationPromise = null;
+      this.databaseInitializationPromises.delete(key);
     }
   }
 
@@ -183,30 +204,40 @@ class SettingsManager {
     if (key !== 'mainWindowBounds' && key !== 'poesessid')
       logger.info(`Set "${key}" to ${JSON.stringify(value)}`);
     if (key === 'poesessid') logger.info(`Set ${key}`);
+    if (key === 'activeProfile') {
+      const transition = this.profileTransitionQueue.catch(() => undefined).then(async () => {
+        const previousValue = this.settings.activeProfile;
+        const profileChanged = haveProfilesChanged(previousValue, value);
+
+        if (hasValidActiveProfile(value) && profileChanged) {
+          authSessionReadiness.setProfileReady(false);
+          try {
+            await this.initializeDB(value, false);
+          } catch (error) {
+            authSessionReadiness.setProfileReady(hasValidActiveProfile(previousValue));
+            logger.error(`DB initialization failed for ${value.characterName}`, error);
+            throw error;
+          }
+        }
+
+        this.settings.activeProfile = value;
+        authSessionReadiness.setProfileReady(hasValidActiveProfile(value));
+        this.scheduleSave();
+        this.eventEmitter.emit('change', key, value, previousValue);
+      });
+      this.profileTransitionQueue = transition;
+      return transition;
+    }
+
     const previousValue = this.settings[key];
     this.settings[key] = value;
-    if (key === 'activeProfile') {
-      authSessionReadiness.setProfileReady(hasValidActiveProfile(value));
-    }
-    if (
-      key === 'activeProfile' &&
-      value.characterName &&
-      !!(
-        this.settings.activeProfile || // First active Profile
-        (this.settings.activeProfile && // New active Profile
-          value.characterName !== this.settings.activeProfile.characterName)
-      )
-      )
-      void this.initializeDB(value.characterName).catch((error) => {
-        logger.warn(`Background DB initialization failed for ${value.characterName}`, error);
-      });
-    this.eventEmitter.emit('change', key, value, previousValue);
     this.scheduleSave();
-
+    this.eventEmitter.emit('change', key, value, previousValue);
   }
 
   scheduleSave() {
     logger.info('Scheduling settings save');
+    this.lastSaveError = null;
     if (this.saveScheduler) clearTimeout(this.saveScheduler);
 
     this.saveScheduler = setTimeout(() => {
@@ -225,7 +256,12 @@ class SettingsManager {
       await fs.writeFile(tempFilePath, JSON.stringify(this.settings));
       logger.info(`Renaming ${tempFilePath} into  ${settingsPath}`);
       await fs.rename(tempFilePath, settingsPath);
+      this.lastSaveError = null;
       this.eventEmitter.emit('saved');
+    } catch (error) {
+      this.lastSaveError = error instanceof Error ? error : new Error(String(error));
+      this.eventEmitter.emit('save:error', this.lastSaveError);
+      throw error;
     } finally {
       if (this.saveScheduler) clearTimeout(this.saveScheduler);
       this.saveScheduler = null;
@@ -252,14 +288,40 @@ class SettingsManager {
     delete this.eventKeyMatcher[key];
   }
 
-  waitForSave() {
-    return new Promise((resolve) => {
+  private waitForScheduledSave() {
+    return new Promise<void>((resolve, reject) => {
       if (!this.saveScheduler) {
-        resolve(null);
+        if (this.lastSaveError) {
+          const error = this.lastSaveError;
+          this.lastSaveError = null;
+          reject(error);
+        } else {
+          resolve();
+        }
       } else {
-        this.eventEmitter.once('saved', resolve);
+        const onSaved = () => {
+          this.eventEmitter.off('save:error', onError);
+          resolve();
+        };
+        const onError = (error: Error) => {
+          this.eventEmitter.off('saved', onSaved);
+          reject(error);
+        };
+        this.eventEmitter.once('saved', onSaved);
+        this.eventEmitter.once('save:error', onError);
       }
     });
+  }
+
+  async waitForSave() {
+    while (true) {
+      const transition = this.profileTransitionQueue;
+      await transition;
+      if (transition !== this.profileTransitionQueue) continue;
+
+      await this.waitForScheduledSave();
+      if (transition === this.profileTransitionQueue && !this.saveScheduler) return;
+    }
   }
 }
 

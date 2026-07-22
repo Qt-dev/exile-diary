@@ -76,7 +76,7 @@ describe('auth callback deep links', () => {
     });
   });
 
-  it('completes the auth flow and seeds the active profile when needed', async () => {
+  it('completes the auth flow and leaves profile selection to the character picker', async () => {
     const getOauthToken = jest.fn(async () => ({ access_token: 'token' }));
     const saveToken = jest.fn(async () => undefined);
     const sendAuthSuccess = jest.fn();
@@ -99,14 +99,8 @@ describe('auth callback deep links', () => {
     expect(getOauthToken).toHaveBeenCalledWith('abc');
     expect(saveToken).toHaveBeenCalledWith({ access_token: 'token' });
     expect(sendAuthSuccess).toHaveBeenCalledTimes(1);
-    expect(getCurrentCharacter).toHaveBeenCalledTimes(1);
-    expect(saveSettings).toHaveBeenCalledWith({
-      activeProfile: {
-        characterName: 'Alice',
-        league: 'Settlers',
-        valid: true,
-      },
-    });
+    expect(getCurrentCharacter).not.toHaveBeenCalled();
+    expect(saveSettings).not.toHaveBeenCalled();
   });
 
   it('skips profile seeding when an active profile already exists', async () => {
@@ -178,7 +172,7 @@ describe('auth callback deep links', () => {
     expect(saveSettings).not.toHaveBeenCalled();
   });
 
-  it('does not wait for profile seeding before completing auth success', async () => {
+  it('does not start background profile seeding after auth success', async () => {
     let resolveCharacter: (() => void) | undefined;
     const characterPromise = new Promise<{ name: string; league: string }>((resolve) => {
       resolveCharacter = () => resolve({ name: 'Alice', league: 'Settlers' });
@@ -201,20 +195,14 @@ describe('auth callback deep links', () => {
 
     await expect(callbackPromise).resolves.toEqual({ ok: true });
     expect(sendAuthSuccess).toHaveBeenCalledTimes(1);
-    expect(getCurrentCharacter).toHaveBeenCalledTimes(1);
+    expect(getCurrentCharacter).not.toHaveBeenCalled();
     expect(saveSettings).not.toHaveBeenCalled();
 
     resolveCharacter?.();
     await Promise.resolve();
     await Promise.resolve();
 
-    expect(saveSettings).toHaveBeenCalledWith({
-      activeProfile: {
-        characterName: 'Alice',
-        league: 'Settlers',
-        valid: true,
-      },
-    });
+    expect(saveSettings).not.toHaveBeenCalled();
   });
 
   it('fails when the callback URL is invalid', async () => {

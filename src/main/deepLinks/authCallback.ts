@@ -51,15 +51,6 @@ type AuthCallbackDeps = {
   verifyState: (state: string) => boolean;
 };
 
-function hasValidActiveProfile(activeProfile: ActiveProfile) {
-  return !!(
-    activeProfile &&
-    activeProfile.valid &&
-    activeProfile.characterName &&
-    activeProfile.league
-  );
-}
-
 export function findExileDiaryProtocolUrl(values: string[]) {
   return values.find((value) =>
     EXILE_DIARY_PROTOCOL_SCHEMES.some((scheme) => value.startsWith(scheme))
@@ -156,41 +147,6 @@ export async function processAuthCallbackUrl(rawUrl: string, deps: AuthCallbackD
 
   deps.sendAuthSuccess();
   logger.info('OAuth callback emitted auth success', { rawUrl });
-
-  if (!hasValidActiveProfile(deps.getActiveProfile())) {
-    void (async () => {
-      try {
-        const character = await deps.getCurrentCharacter();
-        if (!character?.name || !character?.league) {
-          logger.warn('OAuth callback profile seed failed', {
-            hasCharacter: !!character,
-            reason: 'missing-character',
-            rawUrl,
-          });
-          return;
-        }
-
-        await deps.saveSettings({
-          activeProfile: {
-            characterName: character.name,
-            league: character.league,
-            valid: true,
-          },
-        });
-        logger.info('OAuth callback seeded active profile from current character', {
-          characterName: character.name,
-          league: character.league,
-          rawUrl,
-        });
-      } catch (error) {
-        logger.warn('OAuth callback profile seed failed', {
-          error,
-          rawUrl,
-          reason: 'profile-seed-failed',
-        });
-      }
-    })();
-  }
 
   return {
     ok: true,

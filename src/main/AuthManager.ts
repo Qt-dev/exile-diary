@@ -146,7 +146,7 @@ const AuthManager = {
     logger.info('Logging out');
     getTokenStore().reset(storeKey);
     authSessionReadiness.setAccountReady(false);
-    SettingsManager.delete('tokenExpirationDate');
+    await SettingsManager.delete('tokenExpirationDate');
     messenger.send('oauth:logged-out');
   },
   setLogoutTimer: async (isFirstTime = false) => {

@@ -17,7 +17,6 @@ import { autoUpdater } from 'electron-updater';
 import * as path from 'path';
 import logger from 'electron-log';
 import SettingsManager from './SettingsManager';
-import GGGAPI from './GGGAPI';
 import RendererLogger from './RendererLogger';
 import { OverlayController, OVERLAY_WINDOW_OPTS } from 'electron-overlay-window';
 import dayjs from 'dayjs';
@@ -27,6 +26,7 @@ import AuthManager from './AuthManager';
 
 // Old stuff
 import ScreenshotWatcher from './modules/ImageParser/ScreenshotWatcher';
+import { createExplicitMapEndRequest } from './modules/mapEnd';
 import * as OCRWatcher from './modules/ImageParser/OCRWatcher';
 import {
   invokeChannels,
@@ -248,7 +248,9 @@ class MainProcess {
           processProtocolUrl: async (protocolUrl: string) => {
             await processAuthCallbackUrl(protocolUrl, {
               getActiveProfile: () => this.runtimeBridge.settings.get('activeProfile'),
-              getCurrentCharacter: () => GGGAPI.getCurrentCharacter(),
+              getCurrentCharacter: async () => {
+                throw new Error('Profile selection is handled by the character selection route');
+              },
               getOauthToken: (code) => AuthManager.getOauthToken(code),
               getState: () => AuthManager.getState(),
               saveSettings: (settings) =>
@@ -285,8 +287,9 @@ class MainProcess {
       },
       triggerRunParse: () => {
         logger.info('Run parse shortcut pressed');
-        const event = { timestamp: dayjs().toISOString() };
-        void this.runtimeBridge.runTracking.tryProcess({ event });
+        void this.runtimeBridge.runTracking
+          .tryProcess(createExplicitMapEndRequest(dayjs().toISOString(), 'shortcut'))
+          .catch((error) => logger.error('Run parse shortcut failed', error));
       },
       triggerScreenshot: () => {
         logger.info('Screenshot shortcut pressed');
