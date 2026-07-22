@@ -5,9 +5,9 @@ import Logger from 'electron-log';
 import axios, { AxiosResponse } from 'axios';
 import RendererLogger from './RendererLogger';
 import dayjs from 'dayjs';
-import Store from 'electron-store';
 import SettingsManager from './SettingsManager';
 import { authSessionReadiness } from './auth/AuthSessionReadiness';
+import { createCredentialStore } from './auth/createCredentialStore';
 
 const storeKey = 'token';
 const logger = Logger.scope('Auth');
@@ -31,11 +31,12 @@ type AuthSessionContext = {
   } | null;
 };
 
-const TokenStore = new Store({
-  name: 'creds',
-  encryptionKey: 'exilediary',
-  fileExtension: 'token',
-});
+let tokenStore: ReturnType<typeof createCredentialStore> | undefined;
+
+function getTokenStore() {
+  tokenStore ??= createCredentialStore();
+  return tokenStore;
+}
 
 let logoutTimer;
 let messenger;
@@ -109,14 +110,14 @@ const AuthManager = {
         dayjs().add(expires_in, 'seconds').format('YYYY-MM-DD HH:mm:ss')
       );
       SettingsManager.set('username', username);
-      TokenStore.set(storeKey, access_token);
+      getTokenStore().set(storeKey, access_token);
       authSessionReadiness.setAccountReady(true);
       await AuthManager.setLogoutTimer(true);
     }
   },
   isAuthenticated: async (isFirstTime = false, context: AuthSessionContext = {}) => {
     logger.info('Checking if the user is authenticated');
-    const password = TokenStore.get(storeKey);
+    const password = getTokenStore().get(storeKey);
     const expirationDate = SettingsManager.get('tokenExpirationDate');
     const username = SettingsManager.get('username');
     const activeProfile =
@@ -143,7 +144,7 @@ const AuthManager = {
   },
   logout: async () => {
     logger.info('Logging out');
-    TokenStore.reset(storeKey);
+    getTokenStore().reset(storeKey);
     authSessionReadiness.setAccountReady(false);
     SettingsManager.delete('tokenExpirationDate');
     messenger.send('oauth:logged-out');
@@ -204,7 +205,7 @@ const AuthManager = {
   },
   getToken: async () => {
     logger.info('Getting token from the local storage');
-    const password = TokenStore.get(storeKey);
+    const password = getTokenStore().get(storeKey);
     return password;
   },
 };

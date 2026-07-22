@@ -1,7 +1,6 @@
 import logger from 'electron-log';
 import * as path from 'path';
 import * as fs from 'fs/promises';
-import { ipcMain } from 'electron';
 import DB from './db';
 import GGGAPI from './GGGAPI';
 import RateGetterV2 from './modules/RateGetterV2';
@@ -100,8 +99,6 @@ class SettingsManager {
     }
 
     await this.reload();
-
-    this.scheduleSave();
 
     this.eventEmitter.on('change', (changedKey, value, previousValue) => {
       const match = this.eventKeyMatcher[changedKey];
@@ -206,9 +203,6 @@ class SettingsManager {
     this.eventEmitter.emit('change', key, value, previousValue);
     this.scheduleSave();
 
-    if (key === 'enableAutoscroll') {
-      ipcMain.emit('settings:autoscroll:updated', null, value);
-    }
   }
 
   scheduleSave() {

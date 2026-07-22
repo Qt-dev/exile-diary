@@ -36,7 +36,7 @@ export default class RunStore {
   }
 
   setupFromBackend() {
-    this.loadRuns(this.size);
+    void this.loadRuns(this.size);
     this.currentRun = new Run(this, { name: 'Unknown' });
     electronService.on('refreshRuns', async () => await this.loadRuns(this.size));
     electronService.on('currentRunStarted', (json) => this.registerCurrentRun(json));
@@ -50,7 +50,9 @@ export default class RunStore {
       logger.info(`Loading runs from the server with size: ${size}`);
     }
     this.isLoading = true;
-    await electronService.loadRuns(size).then((runs) => {
+    try {
+      const response = await electronService.loadRuns(size);
+      const runs = Array.isArray(response) ? response : [];
       runInAction(() => {
         logger.info(`Runs fetched from the server. Found ${runs.length} runs.`);
         const ids = this.runs
@@ -68,7 +70,12 @@ export default class RunStore {
         this.isLoading = false;
         logger.info(`Got ${this.runs.length} runs from the server.`);
       });
-    });
+    } catch (error) {
+      logger.error('Failed to load runs from the server.', error);
+      runInAction(() => {
+        this.isLoading = false;
+      });
+    }
   }
 
   async loadRun(runId: string) {

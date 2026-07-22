@@ -39,6 +39,7 @@ build/Release
 build/
 out/
 .tmp/
+dist-*/
 
 # Dependency directories
 node_modules/

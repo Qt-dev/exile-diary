@@ -11,11 +11,38 @@
     <title>Exile Diary</title>
     <script>
       globalThis.global = globalThis;
+      document.documentElement.dataset.renderer =
+        window.location.hash === '#/overlay' ? 'overlay' : 'app';
     </script>
+    <style>
+      html,
+      body {
+        min-height: 100%;
+        margin: 0;
+        background: #000;
+      }
+
+      html[data-renderer='overlay'],
+      html[data-renderer='overlay'] body {
+        background: transparent;
+      }
+
+      .RendererBootstrap {
+        display: grid;
+        min-height: 100vh;
+        place-items: center;
+        color: #aaa;
+        font: 16px Georgia, serif;
+      }
+
+      html[data-renderer='overlay'] .RendererBootstrap {
+        display: none;
+      }
+    </style>
   </head>
   <body>
     <noscript>You need to enable JavaScript to run this app.</noscript>
-    <div id="root"></div>
+    <div id="root"><div class="RendererBootstrap">Loading Exile Diary...</div></div>
     <script type="module" src="/src/renderer/index.jsx"></script>
   </body>
 </html>

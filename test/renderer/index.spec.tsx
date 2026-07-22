@@ -22,4 +22,13 @@ describe('renderer boot startup fetches', () => {
     expect(preloadGuardIndex).toBeLessThan(runStoreImportIndex);
     expect(rendererEntry).toContain('Exile Diary failed to start');
   });
+
+  it('provides a dark startup surface while keeping the overlay transparent', () => {
+    const html = readFileSync(path.join(process.cwd(), 'index.html'), 'utf8');
+
+    expect(html).toContain("window.location.hash === '#/overlay' ? 'overlay' : 'app'");
+    expect(html).toContain('background: #000');
+    expect(html).toContain("html[data-renderer='overlay']");
+    expect(html).toContain('Loading Exile Diary...');
+  });
 });

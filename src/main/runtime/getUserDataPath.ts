@@ -1,5 +1,18 @@
 import path from 'node:path';
-import { app } from 'electron';
+
+type ElectronApp = {
+  getPath?: (name: 'userData') => string;
+  getVersion?: () => string;
+  isPackaged?: boolean;
+};
+
+function getElectronApp(): ElectronApp | undefined {
+  try {
+    return require('electron')?.app;
+  } catch {
+    return undefined;
+  }
+}
 
 function readBooleanEnv(name: string) {
   const value = process.env[name];
@@ -20,6 +33,7 @@ export function getUserDataPath() {
     return path.resolve(overriddenUserDataPath);
   }
 
+  const app = getElectronApp();
   if (app?.getPath) {
     try {
       return app.getPath('userData');
@@ -37,6 +51,7 @@ export function getIsPackaged() {
     return overriddenIsPackaged;
   }
 
+  const app = getElectronApp();
   if (typeof app?.isPackaged === 'boolean') {
     return app.isPackaged;
   }
@@ -50,6 +65,7 @@ export function getAppVersion() {
     return overriddenAppVersion;
   }
 
+  const app = getElectronApp();
   if (app?.getVersion) {
     try {
       return app.getVersion();

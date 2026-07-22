@@ -12,6 +12,7 @@ export function createAppWindows(): AppWindows {
 
   const mainWindow = new BrowserWindow({
     title: `Exile Diary v${app.getVersion()}`,
+    backgroundColor: '#000000',
     webPreferences: {
       contextIsolation: true,
       nodeIntegration: false,
@@ -25,6 +26,7 @@ export function createAppWindows(): AppWindows {
   const overlayWindow = new BrowserWindow({
     x: 0,
     y: 100,
+    backgroundColor: '#00000000',
     webPreferences: {
       contextIsolation: true,
       nodeIntegration: false,

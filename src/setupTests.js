@@ -83,18 +83,6 @@ jest.mock('electron-log', () => {
   };
 });
 
-// Mock electron-store
-jest.mock('electron-store', () => {
-  return jest.fn().mockImplementation(() => ({
-    get: jest.fn(),
-    set: jest.fn(),
-    has: jest.fn(),
-    delete: jest.fn(),
-    clear: jest.fn(),
-    store: {},
-  }));
-});
-
 // Mock better-sqlite3
 jest.mock('better-sqlite3', () => {
   return jest.fn(() => ({

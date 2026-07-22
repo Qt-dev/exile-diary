@@ -18,6 +18,10 @@ function splitRecognizedLines(text) {
 }
 
 function getDebugArtifactsRootDir() {
+  if (process.env.EXILE_DIARY_USER_DATA_PATH) {
+    return path.resolve(process.env.EXILE_DIARY_USER_DATA_PATH);
+  }
+
   try {
     const { app } = require('electron');
     if (app?.isReady?.()) {

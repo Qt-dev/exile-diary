@@ -25,5 +25,7 @@ describe('createAppWindows', () => {
     expect(overlayWindowOptions.webPreferences.preload).toBe(
       mainWindowOptions.webPreferences.preload
     );
+    expect(mainWindowOptions.backgroundColor).toBe('#000000');
+    expect(overlayWindowOptions.backgroundColor).toBe('#00000000');
   });
 });

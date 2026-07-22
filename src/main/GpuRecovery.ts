@@ -116,20 +116,24 @@ export function createGpuRecoveryManager({
     const explicitGpuSafeMode =
       argv.includes(GPU_SAFE_MODE_ARG) || env.EXILE_DIARY_DISABLE_GPU === '1';
     const previousLaunchDidNotFinish = existingState?.pendingLaunch === true;
-    const preferredGpuSafeMode = existingState?.preferGpuSafeMode === true;
+    const preferredGpuSafeMode =
+      existingState?.preferGpuSafeMode === true && Boolean(existingState.lastGpuFailureAt);
 
     let recoveryReason: string | null = null;
 
     if (explicitGpuSafeMode) {
       recoveryReason = 'explicit-safe-mode-flag';
-    } else if (previousLaunchDidNotFinish) {
-      recoveryReason = 'previous-incomplete-startup';
     } else if (preferredGpuSafeMode) {
       recoveryReason = 'persisted-safe-mode';
+    } else if (previousLaunchDidNotFinish) {
+      recoveryReason = 'previous-incomplete-startup';
+      logWarn(
+        '[gpu-recovery] Previous startup did not finish; retaining hardware acceleration until a GPU failure is observed.'
+      );
     }
 
-    if (recoveryReason) {
-      enableGpuSafeMode(recoveryReason);
+    if (explicitGpuSafeMode || preferredGpuSafeMode) {
+      enableGpuSafeMode(recoveryReason ?? 'gpu-safe-mode');
     }
 
     writeState({
@@ -138,6 +142,7 @@ export function createGpuRecoveryManager({
       startedAt: now(),
       lastLaunchMode: launchMode,
       lastRecoveryReason: recoveryReason ?? undefined,
+      preferGpuSafeMode: preferredGpuSafeMode,
       gpuFailureCount: 0,
     });
 
@@ -152,12 +157,14 @@ export function createGpuRecoveryManager({
     consecutiveGpuFailures = 0;
 
     const existingState = readState();
+    const confirmedGpuSafeMode =
+      existingState?.preferGpuSafeMode === true && Boolean(existingState.lastGpuFailureAt);
     writeState({
       ...existingState,
       pendingLaunch: false,
       startedAt: existingState?.startedAt ?? now(),
       lastLaunchMode: launchMode,
-      preferGpuSafeMode: launchMode === 'gpu-safe',
+      preferGpuSafeMode: confirmedGpuSafeMode,
       lastSuccessfulAt: now(),
       lastSuccessfulMode: launchMode,
       gpuFailureCount: 0,

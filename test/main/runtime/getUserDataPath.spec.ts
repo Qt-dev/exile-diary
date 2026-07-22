@@ -1,10 +1,17 @@
 const mockGetPath = jest.fn();
+let electronModuleUnavailable = false;
 
-jest.mock('electron', () => ({
-  app: {
-    getPath: (...args: any[]) => mockGetPath(...args),
-  },
-}));
+jest.mock('electron', () => {
+  if (electronModuleUnavailable) {
+    throw new Error('electron module unavailable');
+  }
+
+  return {
+    app: {
+      getPath: (...args: any[]) => mockGetPath(...args),
+    },
+  };
+});
 
 describe('getUserDataPath', () => {
   beforeEach(() => {
@@ -13,6 +20,7 @@ describe('getUserDataPath', () => {
     delete process.env.EXILE_DIARY_USER_DATA_PATH;
     delete process.env.EXILE_DIARY_IS_PACKAGED;
     delete process.env.EXILE_DIARY_APP_VERSION;
+    electronModuleUnavailable = false;
     mockGetPath.mockReturnValue('D:\\electron-user-data');
   });
 
@@ -23,6 +31,14 @@ describe('getUserDataPath', () => {
     expect(getUserDataPath()).toContain('.tmp');
     expect(getUserDataPath()).toContain('runtime-sidecar-user-data');
     expect(mockGetPath).not.toHaveBeenCalled();
+  });
+
+  it('does not load Electron when a sidecar environment override is available', () => {
+    electronModuleUnavailable = true;
+    process.env.EXILE_DIARY_USER_DATA_PATH = 'D:\\packaged-sidecar-user-data';
+    const { getUserDataPath } = require('../../../src/main/runtime/getUserDataPath');
+
+    expect(getUserDataPath()).toContain('packaged-sidecar-user-data');
   });
 
   it('falls back to the electron app userData path', () => {
