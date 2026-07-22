@@ -299,6 +299,27 @@ describe('db/index', () => {
     );
   });
 
+  it('backs up and rebuilds an empty current-version database with an invalid schema', async () => {
+    const DB = loadDbModule();
+    const manager = DB.getManager(undefined, 'ActiveChar');
+    manager.db.pragma.mockReturnValue(18);
+    manager.db.prepare.mockImplementation((sql: string) => ({
+      all: jest.fn(),
+      get: jest.fn(() => (sql.includes("name = ?") ? undefined : { sql })),
+      run: jest.fn(),
+    }));
+    jest.spyOn(manager, 'hasUserData').mockResolvedValue(false);
+    fsMock.existsSync.mockReturnValue(true);
+
+    await expect(DB.initDB('ActiveChar', 'Mercenaries')).resolves.toBeUndefined();
+
+    expect(manager.db).not.toBe(getFirstDbInstance());
+    expect(fsMock.renameSync).toHaveBeenCalledWith(
+      expect.stringContaining('ActiveChar.Mercenaries.db'),
+      expect.stringMatching(/ActiveChar\.Mercenaries\.db\.incomplete-\d+\.bak$/)
+    );
+  });
+
   it('preserves and reports a failed database when it contains user data', async () => {
     const DB = loadDbModule();
     const manager = DB.getManager(undefined, 'ActiveChar');

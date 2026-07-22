@@ -986,16 +986,19 @@ const DB = {
     if (!manager) return null;
 
     const { init, maintenance } = Migrations.character;
-    try {
+    const initializeAndValidate = async () => {
       await manager.init(init, maintenance);
+      await manager.ensureKnownSchemaRepairs();
+      await manager.validateTables(RequiredCharacterTables);
+    };
+    try {
+      await initializeAndValidate();
     } catch (error) {
       if ((error as { code?: string })?.code === 'DB_VERSION_READ_FAILED') throw error;
       const reset = await manager.resetEmptyDatabaseWithBackup();
       if (!reset) throw error;
-      await manager.init(init, maintenance);
+      await initializeAndValidate();
     }
-    await manager.ensureKnownSchemaRepairs();
-    await manager.validateTables(RequiredCharacterTables);
   },
 
   initLeagueDB: async (league: string, characterName: string) => {
