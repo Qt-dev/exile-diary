@@ -218,6 +218,30 @@ describe('RunParser', () => {
     });
   });
 
+  describe('getItemStats', () => {
+    it('compares inventory timestamps without relying on main process dayjs setup', async () => {
+      const itemStats = { count: 2, value: 12.5, importantDrops: {} };
+      jest
+        .spyOn(RunParser, 'getLastInventoryTimestamp')
+        .mockResolvedValue('2026-07-22T10:00:00.000Z');
+      jest.spyOn(RunParser, 'generateItemStats').mockResolvedValue(itemStats);
+
+      await expect(
+        RunParser.getItemStats(
+          { run_id: 123, name: 'Dunes Map' },
+          '2026-07-22T09:00:00.000Z',
+          '2026-07-22T09:59:55.000Z'
+        )
+      ).resolves.toEqual(itemStats);
+
+      expect(RunParser.generateItemStats).toHaveBeenCalledWith(
+        '123',
+        '2026-07-22T09:00:00.000Z',
+        '2026-07-22T09:59:55.000Z'
+      );
+    });
+  });
+
   describe('tryProcess explicit completion', () => {
     beforeEach(() => {
       jest.restoreAllMocks();

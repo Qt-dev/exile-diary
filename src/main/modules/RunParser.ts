@@ -8,6 +8,7 @@ import Constants from '../../helpers/constants';
 import OldDB from '../db';
 import Utils from './Utils';
 import minMax from 'dayjs/plugin/minMax'; // ES 2015
+import isSameOrAfter from 'dayjs/plugin/isSameOrAfter';
 import EventParser from './EventParser';
 import LogProcessor from './LogProcessor';
 import ItemPricer from './ItemPricer';
@@ -18,6 +19,7 @@ const logger = require('electron-log');
 const EventEmitter = require('events');
 
 dayjs.extend(minMax);
+dayjs.extend(isSameOrAfter);
 
 type ParsedEvent = {
   timestamp: string;
