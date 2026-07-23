@@ -1,6 +1,6 @@
 {
   "name": "exile-diary",
-  "version": "1.11.4",
+  "version": "1.11.5",
   "private": true,
   "packageManager": "npm@9.6.5",
   "engines": {
