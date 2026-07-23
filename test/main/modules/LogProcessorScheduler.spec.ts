@@ -1,5 +1,11 @@
 let uuidCounter = 0;
 const mockTryProcess = jest.fn();
+const mockInsertEvent = jest.fn();
+const mockSaveNewTree = jest.fn();
+const mockGetInventoryDiffs = jest.fn();
+const mockInsertItems = jest.fn();
+const mockGetEventByQuote = jest.fn();
+const mockIsTown = jest.fn();
 jest.mock('uuid', () => ({
   v4: jest.fn(() => `log-task-${++uuidCounter}`),
 }));
@@ -10,37 +16,52 @@ jest.mock('../../../src/main/modules/RunParser', () => ({
 }));
 jest.mock('../../../src/main/db/run', () => ({
   __esModule: true,
-  default: {},
+  default: { insertEvent: mockInsertEvent },
 }));
 jest.mock('../../../src/main/SettingsManager', () => ({
   __esModule: true,
-  default: {},
+  default: {
+    getAll: jest.fn(() => ({
+      activeProfile: { characterName: 'AtlasRunner' },
+    })),
+  },
 }));
 jest.mock('../../../src/main/modules/SkillTreeWatcher', () => ({
   __esModule: true,
-  default: {},
+  default: { saveNewTree: mockSaveNewTree },
 }));
 jest.mock('../../../src/main/modules/InventoryGetter', () => ({
   __esModule: true,
-  default: {},
+  default: { getInventoryDiffs: mockGetInventoryDiffs },
 }));
 jest.mock('../../../src/main/modules/ItemParser', () => ({
   __esModule: true,
-  default: {},
+  default: { insertItems: mockInsertItems },
 }));
 jest.mock('../../../src/main/modules/EventParser', () => ({
   __esModule: true,
-  default: {},
+  default: { getEventByQuote: mockGetEventByQuote },
 }));
 jest.mock('../../../src/main/modules/Utils', () => ({
   __esModule: true,
-  default: {},
+  default: { isTown: mockIsTown },
 }));
 
 describe('LogProcessorScheduler', () => {
   beforeEach(() => {
     uuidCounter = 0;
     mockTryProcess.mockReset();
+    mockInsertEvent.mockReset().mockResolvedValue(true);
+    mockSaveNewTree.mockReset().mockResolvedValue(undefined);
+    mockGetInventoryDiffs.mockReset().mockResolvedValue(null);
+    mockInsertItems.mockReset().mockResolvedValue(undefined);
+    mockGetEventByQuote.mockReset().mockReturnValue(undefined);
+    mockIsTown.mockReset();
+  });
+
+  afterEach(async () => {
+    const { default: LogProcessor } = await import('../../../src/main/modules/LogProcessor');
+    LogProcessor.emitter.removeAllListeners('client-logs:entered-map');
   });
 
   it('keeps asynchronous client-log work in submission order', async () => {
@@ -95,6 +116,37 @@ describe('LogProcessorScheduler', () => {
       },
       reason: 'explicit-end',
       source: 'chat',
+    });
+  });
+
+  it('does not emit a map entry for a town', async () => {
+    mockIsTown.mockReturnValue(true);
+    const { default: LogProcessor } = await import('../../../src/main/modules/LogProcessor');
+    const enteredMap = jest.fn();
+    LogProcessor.emitter.on('client-logs:entered-map', enteredMap);
+
+    await LogProcessor.processOther('2026-07-23T11:04:10.000Z', ': You have entered Karui Shores.');
+
+    expect(mockIsTown).toHaveBeenCalledWith('Karui Shores');
+    expect(enteredMap).not.toHaveBeenCalled();
+  });
+
+  it('emits a map entry for a non-town area', async () => {
+    mockIsTown.mockReturnValue(false);
+    const { default: LogProcessor } = await import('../../../src/main/modules/LogProcessor');
+    const enteredMap = jest.fn();
+    LogProcessor.emitter.on('client-logs:entered-map', enteredMap);
+
+    await LogProcessor.processOther('2026-07-23T11:04:10.000Z', ': You have entered Dunes.');
+
+    expect(enteredMap).toHaveBeenCalledWith({
+      area: 'Dunes',
+      event: {
+        timestamp: '2026-07-23T11:04:10.000Z',
+        area: 'Dunes',
+        server: '',
+      },
+      mode: 'automatic',
     });
   });
 });
