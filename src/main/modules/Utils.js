@@ -3,6 +3,7 @@ const Query = require('querystring');
 const Constants = require('../../helpers/constants').default;
 const ItemCategoryParser = require('../../helpers/item').default;
 const ItemData = require('./ItemData');
+const { isTownArea } = require('./areaClassification');
 const logger = require('electron-log');
 const dayjs = require('dayjs');
 const zlib = require('zlib');
@@ -22,12 +23,7 @@ const Utils = {
   },
 
   isTown: (name) => {
-    const area = Utils.getArea(name);
-    if (area) {
-      return area.isTown || area.isHideout || area.isLabyrinthAirlock;
-    }
-
-    return false;
+    return isTownArea(name);
   },
 
   isVaalArea: (name) => {

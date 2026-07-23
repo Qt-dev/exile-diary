@@ -1,0 +1,97 @@
+{
+  "title": "Town classification and OCR run guard",
+  "slug": "town-map-ocr-guard",
+  "created_at": "2026-07-23T08:07:52.4443852-07:00",
+  "updated_at": "2026-07-23T08:14:42.1422539-07:00",
+  "status": "complete",
+  "mode": "delegated",
+  "baseline_ref": "469035fdea03a30902c968fb557e539f59521c11",
+  "risk_level": "medium",
+  "eval_contract": {
+    "level": "inline",
+    "path": null,
+    "status": "checked"
+  },
+  "approval": {
+    "required": false,
+    "granted": null,
+    "notes": "User explicitly requested implementation."
+  },
+  "delegation": {
+    "native_agent_available": true,
+    "native_agent_planned": true,
+    "native_agent_used": true,
+    "agent_count": 2,
+    "wave_count": 1,
+    "no_delegation_reason": "",
+    "notes": "Two bounded read-only packets."
+  },
+  "packets": [
+    {
+      "id": "01-test-discovery",
+      "status": "complete",
+      "owner": "read-only-agent",
+      "write_scope": [],
+      "result_path": "results/01-test-discovery.md"
+    },
+    {
+      "id": "02-risk-review",
+      "status": "complete",
+      "owner": "read-only-agent",
+      "write_scope": [],
+      "result_path": "results/02-risk-review.md"
+    },
+    {
+      "id": "03-implementation",
+      "status": "complete",
+      "owner": "parent",
+      "write_scope": [
+        "src/helpers/constants.ts",
+        "src/main/modules/Utils.js",
+        "src/main/db/repositories/run.ts",
+        "test/main"
+      ],
+      "result_path": "results/03-implementation.md"
+    },
+    {
+      "id": "04-integration-verification",
+      "status": "complete",
+      "owner": "parent",
+      "write_scope": [],
+      "result_path": "results/04-integration-verification.md"
+    }
+  ],
+  "verification": {
+    "status": "complete",
+    "checks": [
+      {
+        "name": "targeted tests",
+        "command": "npm run test:main -- --runTestsByPath test/main/modules/UtilsAreaClassification.spec.ts test/main/modules/LogProcessorScheduler.spec.ts test/main/db/run.spec.ts test/main/runtime/ElectronViteBuildContract.spec.ts",
+        "required": true,
+        "status": "pass",
+        "evidence": "4 suites passed; 60 tests passed."
+      },
+      {
+        "name": "main typecheck",
+        "command": "npm run typecheck:main",
+        "required": true,
+        "status": "pass",
+        "evidence": "TypeScript completed with no errors."
+      },
+      {
+        "name": "production build",
+        "command": "npm run build:app",
+        "required": true,
+        "status": "pass",
+        "evidence": "electron-vite main, preload, renderer, and asset sync completed."
+      },
+      {
+        "name": "bundled classification probe",
+        "command": "node -e <built Utils classification assertions>",
+        "required": true,
+        "status": "pass",
+        "evidence": "Karui/Rogue/Kingsmarch/hideout/plaza=true and Dunes=false."
+      }
+    ]
+  }
+}

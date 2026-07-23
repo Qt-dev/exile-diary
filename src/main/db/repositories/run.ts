@@ -116,11 +116,15 @@ const Runs = {
     }
   },
 
-  getLatestUncompletedRun: async (): Promise<{
-    id: number;
-    first_event: string;
-    last_event: string;
-  }> => {
+  getLatestUncompletedRun: async (): Promise<
+    | {
+        id: number;
+        first_event: string;
+        last_event: string;
+      }
+    | null
+    | undefined
+  > => {
     logger.info('Getting run ID from DB');
     const query = `
       SELECT id, first_event, last_event FROM run
@@ -496,7 +500,13 @@ const Runs = {
     iiq: number;
     pack_size: number;
   }) => {
-    const { id: runId } = await Runs.getLatestUncompletedRun();
+    const currentRun = await Runs.getLatestUncompletedRun();
+    if (!currentRun) {
+      logger.warn('Skipping current run stats update because there is no active run');
+      return false;
+    }
+
+    const { id: runId } = currentRun;
     logger.info(
       `Setting current run stats for ${runId}: IIR: ${iir}, IIQ: ${iiq}, Pack Size: ${pack_size}`
     );
@@ -572,8 +582,8 @@ const Runs = {
       AND completed = 0
     `;
     try {
-      await DB.run(query);
-      return true;
+      const result = await DB.run(query);
+      return (result?.changes ?? 0) > 0;
     } catch (err) {
       logger.error(err);
       logger.error(`Error updating current run first event: ${JSON.stringify(err)}`);

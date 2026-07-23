@@ -42,13 +42,12 @@ describe('Runs', () => {
       expect(result).toBe(mockResult);
     });
 
-    it('should return 0 when no runs exist', async () => {
-      const emptyResult = { id: 0, first_event: null, last_event: null };
-      mockDB.get.mockResolvedValue(emptyResult);
+    it('should return undefined when no runs exist', async () => {
+      mockDB.get.mockResolvedValue(undefined);
 
       const result = await Runs.getLatestUncompletedRun();
 
-      expect(result).toEqual(emptyResult);
+      expect(result).toBeUndefined();
     });
 
     it('should handle database query failure', async () => {
@@ -617,6 +616,49 @@ describe('Runs', () => {
       expect(expectedQuery).toContain('event_text');
       expect(expectedQuery).toContain('timestamp');
       expect(expectedQuery).toContain('server');
+    });
+  });
+
+  describe('updateCurrentRunFirstEvent', () => {
+    it('returns true when an active run was updated', async () => {
+      mockDB.run.mockResolvedValue({ changes: 1, lastInsertRowid: 0 });
+
+      await expect(Runs.updateCurrentRunFirstEvent()).resolves.toBe(true);
+    });
+
+    it('returns false when no active run was updated', async () => {
+      mockDB.run.mockResolvedValue({ changes: 0, lastInsertRowid: 0 });
+
+      await expect(Runs.updateCurrentRunFirstEvent()).resolves.toBe(false);
+    });
+  });
+
+  describe('setCurrentRunStats', () => {
+    it('skips the update when there is no active run', async () => {
+      jest.spyOn(Runs, 'getLatestUncompletedRun').mockResolvedValue(undefined);
+      mockDB.run.mockClear();
+
+      await expect(Runs.setCurrentRunStats({ iir: 10, iiq: 20, pack_size: 30 })).resolves.toBe(
+        false
+      );
+
+      expect(mockDB.run).not.toHaveBeenCalled();
+    });
+
+    it('updates the active run when one exists', async () => {
+      jest
+        .spyOn(Runs, 'getLatestUncompletedRun')
+        .mockResolvedValue({ id: 42, first_event: 'first', last_event: 'last' });
+      mockDB.run.mockResolvedValue({ changes: 1, lastInsertRowid: 0 });
+
+      await expect(Runs.setCurrentRunStats({ iir: 10, iiq: 20, pack_size: 30 })).resolves.toBe(
+        true
+      );
+
+      expect(mockDB.run).toHaveBeenCalledWith(
+        expect.stringContaining('UPDATE run SET'),
+        [10, 20, 30, 42]
+      );
     });
   });
 });

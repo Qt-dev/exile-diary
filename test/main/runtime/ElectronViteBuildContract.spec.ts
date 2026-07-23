@@ -72,6 +72,16 @@ describe('electron-vite build contract', () => {
     expect(sidecarBridge).not.toContain("require('./RuntimeSidecarClient')");
   });
 
+  it('imports world-area JSON as its default object for production bundling', () => {
+    const constantsSource = fs.readFileSync(
+      path.join(rootDir, 'src', 'helpers', 'constants.ts'),
+      'utf8'
+    );
+
+    expect(constantsSource).toContain("import worldAreas from './data/worldAreas.json';");
+    expect(constantsSource).not.toContain("import * as worldAreas from './data/worldAreas.json';");
+  });
+
   it('keeps copied runtime assets in their expected post-build locations', () => {
     const syncScript = fs.readFileSync(
       path.join(rootDir, 'scripts', 'sync-electron-assets.mjs'),
