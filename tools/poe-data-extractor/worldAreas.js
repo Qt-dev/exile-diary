@@ -36,6 +36,7 @@ async function generateWorldAreas() {
     console.log(`World areas map has been successfully generated at ${outputFilePath}`);
   } catch (error) {
     console.error('Error generating world areas map:', error);
+    throw error;
   }
 }
 

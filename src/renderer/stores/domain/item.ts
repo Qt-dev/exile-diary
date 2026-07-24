@@ -76,6 +76,13 @@ const getRarity = (data: ItemData) => {
   return frameType === undefined || frameType < 1 || frameType > 3 ? 0 : frameType;
 };
 
+const normalizeItemData = (data: ItemData): ItemData => {
+  const frameType = getLegacyFrameType(data);
+  if (frameType === undefined || data.frameType === frameType) return data;
+
+  return { ...data, frameType };
+};
+
 // Get the list of influences from itemData
 const getInfluence = (data: ItemData): string[] => {
   if (data.influences)
@@ -198,7 +205,8 @@ export class Item {
   isIgnored: boolean;
   drop_timestamp?: dayjs.Dayjs;
 
-  constructor(store, itemdata: ItemData) {
+  constructor(store, incomingItemData: ItemData) {
+    const itemdata = normalizeItemData(incomingItemData);
     makeAutoObservable(this, {
       id: false,
       store: false,

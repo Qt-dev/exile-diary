@@ -1,5 +1,6 @@
 import React from 'react';
 import { Divider } from '@mui/material';
+import { getItemModDescriptions } from '../../../helpers/poeItemApi';
 
 // Mods are in this format:
 // <default>{Quality:} <augmented>{+20%}
@@ -38,7 +39,10 @@ const getMods = (rawData) => {
   if (!rawData.explicitMods || rawData.typeLine === 'The Void') return [''];
 
   const formattedMods: any = [];
-  for (const mod of rawData.explicitMods[0].split('\r\n')) {
+  const rewardText = getItemModDescriptions(rawData.explicitMods)[0];
+  if (!rewardText) return [''];
+
+  for (const mod of rewardText.split('\r\n')) {
     formattedMods.push(<div className="Mod">{parseMod(mod)}</div>);
   }
 

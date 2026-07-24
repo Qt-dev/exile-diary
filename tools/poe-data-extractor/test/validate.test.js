@@ -6,6 +6,7 @@ import test from 'node:test';
 import { outputFiles, publishData } from '../publish.js';
 import { validateDataDirectory } from '../validate.js';
 import { findUnexpectedPaths } from '../checkChangedFiles.js';
+import generateMapMods from '../mapMods.js';
 
 async function makeDirectory(context, prefix) {
   const directory = await fs.mkdtemp(path.join(os.tmpdir(), prefix));
@@ -56,4 +57,19 @@ test('change allowlist accepts generated data and rejects unrelated files', () =
     []
   );
   assert.deepEqual(findUnexpectedPaths(['src/main/index.ts']), ['src/main/index.ts']);
+});
+
+test('map-mod generation rejects failures instead of accepting stale output', async (context) => {
+  const directory = await makeDirectory(context, 'poe-data-map-mods-');
+  const outputPath = path.join(directory, 'mapMods.json');
+  await fs.writeFile(outputPath, '{"mapMods":["stale"]}');
+
+  await assert.rejects(
+    generateMapMods({
+      inputFilePath: path.join(directory, 'missing-stat-descriptions.json'),
+      outputFilePath: outputPath,
+    }),
+    /ENOENT/
+  );
+  assert.equal(await fs.readFile(outputPath, 'utf8'), '{"mapMods":["stale"]}');
 });

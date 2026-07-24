@@ -7,16 +7,16 @@ import { fileURLToPath } from 'url';
  * The mapMods.json file contains an array named mapMods with all English description texts,
  * where the {0} pattern has been replaced by a # character, sorted alphabetically.
  */
-export default async function generateMapMods() {
+export default async function generateMapMods({ inputFilePath, outputFilePath } = {}) {
   try {
     const __filename = fileURLToPath(import.meta.url);
     const __dirname = path.dirname(__filename);
     // Define file paths
-    const inputFilePath = path.join(__dirname, '/output/temp/stat_descriptions.json');
-    const outputFilePath = path.join(__dirname, '/output/mapMods.json');
+    const sourcePath = inputFilePath ?? path.join(__dirname, '/output/temp/stat_descriptions.json');
+    const targetPath = outputFilePath ?? path.join(__dirname, '/output/mapMods.json');
 
     // Read and parse stat_descriptions.json
-    const data = await fs.readFile(inputFilePath, 'utf-8');
+    const data = await fs.readFile(sourcePath, 'utf-8');
     const statDescriptions = JSON.parse(data).descriptions;
 
     // Extract English description texts and replace {0} with #
@@ -49,10 +49,11 @@ export default async function generateMapMods() {
 
     // Write mapMods.json
     const outputData = JSON.stringify({ mapMods }, null, 2);
-    await fs.writeFile(outputFilePath, outputData, 'utf-8');
+    await fs.writeFile(targetPath, outputData, 'utf-8');
 
     console.log('mapMods.json has been generated successfully.');
   } catch (error) {
     console.error('Error generating mapMods.json:', error);
+    throw error;
   }
 }
