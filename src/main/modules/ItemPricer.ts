@@ -3,6 +3,7 @@ import RatesManager from '../RatesManager';
 import { writeFile } from 'fs/promises';
 import Constants from '../../helpers/constants';
 import * as ItemCategoryParser from '../../helpers/item';
+import { getItemModDescriptions, getLegacyFrameType } from '../../helpers/poeItemApi';
 import ItemData from './ItemData';
 import Utils from './Utils';
 import dayjs, { min } from 'dayjs';
@@ -1203,6 +1204,9 @@ async function price(
   }
 
   item.parsedItem = JSON.parse(item.raw_data);
+  item.parsedItem.explicitMods = getItemModDescriptions(item.parsedItem.explicitMods);
+  item.parsedItem.implicitMods = getItemModDescriptions(item.parsedItem.implicitMods);
+  item.parsedItem.frameType = getLegacyFrameType(item.parsedItem) ?? 0;
 
   let minItemValue = 0;
 

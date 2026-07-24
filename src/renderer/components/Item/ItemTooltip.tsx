@@ -2,6 +2,10 @@ import React from 'react';
 import reactStringReplace from 'react-string-replace';
 import Constants from '../../../helpers/constants';
 import classNames from 'classnames';
+import { getItemMods, getLegacyFrameType } from '../../../helpers/poeItemApi';
+
+const hasStructuredMods = (mods: unknown): boolean =>
+  Array.isArray(mods) && mods.some((mod) => mod && typeof mod === 'object');
 
 const getHeader = (item, influenceIcons: JSX.Element[]) => {
   const { rawData } = item;
@@ -233,10 +237,10 @@ const getImplicitMods = (item) => {
   const { rawData } = item;
   if (!rawData.implicitMods || rawData.implicitMods.length === 0) return null;
   const implicitMods: JSX.Element[] = [];
-  for (const mod of rawData.implicitMods) {
-    mod.split('\r\n').forEach((splitMod, index) => {
+  for (const [modIndex, mod] of getItemMods(rawData.implicitMods).entries()) {
+    mod.description.split(/\r?\n/).forEach((splitMod, index) => {
       implicitMods.push(
-        <div key={`impl-${item.id}-${index}`} className="Item-Tooltip__Property Text--Implicit">
+        <div key={`impl-${item.id}-${modIndex}-${index}`} className="Item-Tooltip__Property Text--Implicit">
           {splitMod}
         </div>
       );
@@ -271,7 +275,11 @@ const getSecDescrText = (item) => {
 const getExplicitMods = (item) => {
   const { rawData } = item;
   const explicitMods: JSX.Element[] = [];
-  if (rawData.fracturedMods) {
+  const structuredExplicitMods = hasStructuredMods(rawData.explicitMods);
+
+  // Pre-3.29 snapshots stored fractured and crafted modifiers separately. Current
+  // responses carry their provenance in explicitMods[].flags instead.
+  if (!structuredExplicitMods && rawData.fracturedMods) {
     for (const mod of rawData.fracturedMods) {
       mod.split('\r\n').forEach((splitMod, index) => {
         explicitMods.push(
@@ -287,23 +295,28 @@ const getExplicitMods = (item) => {
   }
 
   if (rawData.explicitMods) {
-    for (const mod of rawData.explicitMods) {
-      mod.split(/[\r\n]+/).forEach((splitMod) => {
+    for (const mod of getItemMods(rawData.explicitMods)) {
+      mod.description.split(/[\r\n]+/).forEach((splitMod) => {
         let formattedMod = splitMod.slice();
         // Essences have one empty line
         // Incubators have 2 lines separated by \r\n
         if (rawData.typeLine && rawData.typeLine.includes('Incubator')) {
           formattedMod = formattedMod.replace(/[0-9]+/g, (number) =>
-            new Intl.NumberFormat().format(number)
+            new Intl.NumberFormat().format(Number(number))
           );
         }
         if (formattedMod.length > 0) {
           explicitMods.push(
             <div
               key={`mod-explicit-${explicitMods.length}`}
-              className="Item-Tooltip__Property Text--Explicit"
+              className={classNames({
+                'Item-Tooltip__Property': true,
+                'Text--Explicit': true,
+                'Text--Crafted': !!mod.flags?.crafted,
+                'Text--Fractured': !!mod.flags?.fractured,
+              })}
             >
-              {splitMod}
+              {formattedMod}
             </div>
           );
         }
@@ -311,7 +324,7 @@ const getExplicitMods = (item) => {
     }
   }
 
-  if (rawData.craftedMods) {
+  if (!structuredExplicitMods && rawData.craftedMods) {
     for (const mod of rawData.craftedMods) {
       mod.split('\r\n').forEach((splitMod) => {
         explicitMods.push(
@@ -594,9 +607,12 @@ const getIcon = (item) => {
 };
 
 const ItemTooltip = ({ item, influenceIcons }) => {
-  const frameType = Constants.items.frameTypes[item.rawData.frameType]?.replace(/\b\w/g, (l) =>
-    l.toUpperCase()
-  );
+  const legacyFrameType = getLegacyFrameType(item.rawData);
+  const frameType =
+    (legacyFrameType === undefined ? undefined : Constants.items.frameTypes[legacyFrameType])?.replace(
+      /\b\w/g,
+      (l) => l.toUpperCase()
+    );
   if (frameType === 'Divinationcard') return null; // Cards need special handler
 
   const containerClasses = classNames({

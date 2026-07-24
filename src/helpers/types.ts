@@ -170,7 +170,8 @@ type ItemData = {
   maxStackSize: any;
   properties?: any[];
   requirements?: any;
-  frameType: number;
+  frameType?: number;
+  frameTypeId?: string;
   influences?: string[];
   shaper?: boolean;
   elder?: boolean;
@@ -196,8 +197,8 @@ type ItemData = {
   veiled: boolean;
   synthesised?: boolean;
   fractured?: boolean;
-  explicitMods: string[];
-  implicitMods: string[];
+  explicitMods: Array<string | { description: string; flags?: Record<string, boolean> }>;
+  implicitMods: Array<string | { description: string; flags?: Record<string, boolean> }>;
   enchantMods: string[];
   w: number;
   h: number;

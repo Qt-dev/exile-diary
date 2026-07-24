@@ -1,0 +1,35 @@
+{
+  "title": "PoE 3.29 API compatibility",
+  "slug": "poe-329-api-compatibility",
+  "created_at": "2026-07-23T00:00:00-07:00",
+  "updated_at": "2026-07-23T00:05:00-07:00",
+  "status": "complete",
+  "mode": "delegated",
+  "baseline_ref": "a4b175887c9eb4b18edf8892a5b39ad1c0533dc8",
+  "risk_level": "medium",
+  "eval_contract": { "level": "full", "path": "eval-contract.md", "status": "ready" },
+  "approval": { "required": false, "granted": null, "notes": "" },
+  "delegation": {
+    "native_agent_available": true,
+    "native_agent_planned": true,
+    "native_agent_used": true,
+    "agent_count": 2,
+    "wave_count": 1,
+    "no_delegation_reason": "",
+    "notes": "Two non-overlapping write packets."
+  },
+  "packets": [
+    { "id": "01-item-compat", "status": "complete", "owner": "parent", "write_scope": ["src/main/models/Item.ts", "src/helpers/types.ts", "src/main/modules/ItemData.js"], "result_path": "results/01-item-compat.md" },
+    { "id": "02-renderer", "status": "complete", "owner": "write-capable-agent", "write_scope": ["src/renderer/components/Item/ItemTooltip.tsx", "src/renderer/stores/domain/item.ts"], "result_path": "results/02-renderer.md" },
+    { "id": "03-tests", "status": "complete", "owner": "write-capable-agent", "write_scope": ["test/main", "test/renderer", "test/ui/fixtures.ts"], "result_path": "results/03-tests.md" }
+  ],
+  "verification": {
+    "status": "pass",
+    "checks": [
+      { "name": "focused main tests", "command": "npm run test:main -- --runTestsByPath test/main/poeItemApi.spec.ts", "required": true, "status": "pass", "evidence": "3 tests passed" },
+      { "name": "focused renderer tests", "command": "npm run test:renderer -- --run test/renderer/ItemTooltip.spec.tsx", "required": true, "status": "pass", "evidence": "2 tests passed" },
+      { "name": "main typecheck", "command": "npm run typecheck:main", "required": true, "status": "pass", "evidence": "completed successfully" },
+      { "name": "renderer typecheck", "command": "npm run typecheck:renderer", "required": true, "status": "pass", "evidence": "completed successfully" }
+    ]
+  }
+}
