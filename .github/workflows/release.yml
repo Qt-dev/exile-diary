@@ -38,7 +38,7 @@ jobs:
       - name: Smoke packaged renderer
         run: npm run test:packaged-renderer
       - name: Upload Artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: windows-app
           overwrite: true
@@ -79,7 +79,7 @@ jobs:
       - name: Build app
         run: npm run package:linux
       - name: Upload artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: linux-app
           overwrite: true
