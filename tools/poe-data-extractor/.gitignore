@@ -1,0 +1,6 @@
+node_modules/
+data/.cache/
+data/English/
+data/files/
+data/tables/
+output/

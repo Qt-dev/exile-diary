@@ -35,6 +35,28 @@ const abyssItems = [
   //"Command of the Pit"
 ];
 
+export const MAP_SERIES = [
+  { id: 1, name: 'Atlas2-3.4' },
+  { id: 2, name: 'Atlas2' },
+  { id: 3, name: 'Synthesis' },
+  { id: 4, name: 'Legion' },
+  { id: 5, name: 'Blight' },
+  { id: 6, name: 'Metamorph' },
+  { id: 7, name: 'Delirium' },
+  { id: 8, name: 'Harvest' },
+  { id: 9, name: 'Heist' },
+  { id: 10, name: 'Ritual' },
+  { id: 11, name: 'Expedition' },
+  { id: 18, name: 'Ancestor' },
+  { id: 19, name: 'Affliction' },
+  { id: 20, name: 'Necropolis' },
+  { id: 21, name: 'Settlers' },
+  { id: 22, name: 'Mercenaries' },
+  { id: 23, name: 'Keepers' },
+  { id: 24, name: 'Mirage' },
+  { id: 25, name: 'Allflame' },
+];
+
 const log = false;
 
 let ratesCache = {};
@@ -118,27 +140,8 @@ class PriceMatcher {
   date: string;
   league: string = 'Standard';
   lookupTrail: PriceLookupRecord[] = [];
-  MapSeries = [
-    // Update every league to add the new series or new maps won't be priced
-    { id: 1, name: 'Atlas2-3.4' },
-    { id: 2, name: 'Atlas2' },
-    { id: 3, name: 'Synthesis' },
-    { id: 4, name: 'Legion' },
-    { id: 5, name: 'Blight' },
-    { id: 6, name: 'Metamorph' },
-    { id: 7, name: 'Delirium' },
-    { id: 8, name: 'Harvest' },
-    { id: 9, name: 'Heist' },
-    { id: 10, name: 'Ritual' },
-    { id: 11, name: 'Expedition' },
-    { id: 18, name: 'Ancestor' },
-    { id: 19, name: 'Affliction' },
-    { id: 20, name: 'Necropolis' },
-    { id: 21, name: 'Settlers' },
-    { id: 22, name: 'Mercenaries' },
-    { id: 23, name: 'Keepers' },
-    { id: 24, name: 'Mirage' },
-  ];
+  // Update every league to add the new series or new maps won't be priced.
+  MapSeries = MAP_SERIES;
 
   DefaultGemFormat = {
     test: (name) => true,

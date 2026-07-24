@@ -29,6 +29,24 @@ const ninjaLimiters = new Bottleneck.Group({
   minTime: NINJA_MIN_TIME_BETWEEN_REQUESTS,
 });
 
+export function normalizeNinjaLeagueName(league: string) {
+  const normalized = league.trim();
+  const lowercaseLeague = normalized.toLowerCase();
+
+  if (lowercaseLeague === 'allflame' || lowercaseLeague === 'curse of the allflame') {
+    return 'Allflame';
+  }
+
+  if (
+    lowercaseLeague === 'hardcore allflame' ||
+    lowercaseLeague === 'hardcore curse of the allflame'
+  ) {
+    return 'Hardcore Allflame';
+  }
+
+  return normalized;
+}
+
 ninjaLimiters.on('created', (limiter, key) => {
   logger.info(`Limiter created: ${limiter.id}. Setting up listeners for ${key} group.`);
 
@@ -151,6 +169,10 @@ class RateGetterV2 {
     }
 
     return league;
+  }
+
+  getNinjaLeagueName() {
+    return normalizeNinjaLeagueName(this.getLeagueName());
   }
 
   async setIsUpdating(isUpdating) {
@@ -411,7 +433,7 @@ class RateGetterV2 {
         throw new Error(`Invalid poe.ninja category [${category}]`);
     }
 
-    return `${url}&league=${encodeURIComponent(this.getLeagueName())}`;
+    return `${url}&league=${encodeURIComponent(this.getNinjaLeagueName())}`;
   }
 
   hasExistingRates(date) {

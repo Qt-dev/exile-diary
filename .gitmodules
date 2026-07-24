@@ -1,3 +1,0 @@
-[submodule "scripts/poe-extractor"]
-	path = scripts/poe-extractor
-	url = https://github.com/Qt-dev/exile-diary-data-extracter.git

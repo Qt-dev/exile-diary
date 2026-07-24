@@ -1,0 +1,5084 @@
+{
+  "patch": "3.26.0.10",
+
+  "steam": "C:\\Program Files (x86)\\Steam\\steamapps\\common\\Path of Exile",
+
+  "files": [],
+
+  "translations": ["English"],
+
+  "tables": [
+    {
+      "name": "RogueExiles",
+      "columns": ["MonsterVarietiesKey"]
+    },
+    {
+      "name": "RogueExileLifeScalingPerLevel",
+      "columns": ["Level", "AdditionalLife"]
+    },
+    {
+      "name": "Shrines",
+      "columns": [
+        "Id",
+        "TimeoutInSeconds",
+        "ChargesShared",
+        "Player_ShrineBuffsKey",
+        "Monster_ShrineBuffsKey",
+        "SummonMonster_MonsterVarietiesKey",
+        "SummonPlayer_MonsterVarietiesKey",
+        "Duration",
+        "ShrineSoundsKey",
+        "AchievementItemsKeys",
+        "IsPVPOnly",
+        "IsLesserShrine",
+        "Description",
+        "Name"
+      ]
+    },
+    {
+      "name": "ShrineSounds",
+      "columns": ["Id", "StereoSoundFile", "MonoSoundFile"]
+    },
+    {
+      "name": "Strongboxes",
+      "columns": ["ChestsKey", "SpawnWeight", "SpawnWeightIncrease", "SpawnWeightHardmode"]
+    },
+    {
+      "name": "InvasionMonsterRestrictions",
+      "columns": ["Id", "WorldAreasKey", "MonsterVarietiesKeys"]
+    },
+    {
+      "name": "InvasionMonstersPerArea",
+      "columns": ["WorldAreasKey", "MonsterVarietiesKeys1", "MonsterVarietiesKeys2"]
+    },
+    {
+      "name": "BeyondFactions",
+      "columns": ["Id", "Boss"]
+    },
+    {
+      "name": "TormentSpirits",
+      "columns": [
+        "MonsterVarietiesKey",
+        "Spirit_ModsKeys",
+        "Touched_ModsKeys",
+        "Possessed_ModsKeys",
+        "MinZoneLevel",
+        "MaxZoneLevel",
+        "SpawnWeight",
+        "SummonedMonster_MonsterVarietiesKey",
+        "ModsKeys0",
+        "ModsKeys1"
+      ]
+    },
+    {
+      "name": "DivinationCardArt",
+      "columns": ["BaseItemTypesKey", "VirtualFile", "Influences"]
+    },
+    {
+      "name": "WarbandsGraph",
+      "columns": ["WorldAreasKey", "Connections"]
+    },
+    {
+      "name": "WarbandsMapGraph",
+      "columns": ["WorldAreasKey", "Connections"]
+    },
+    {
+      "name": "WarbandsPackMonsters",
+      "columns": [
+        "Id",
+        "Tier4_MonsterVarietiesKeys",
+        "Tier3_MonsterVarietiesKeys",
+        "Tier2_MonsterVarietiesKeys",
+        "Tier1_MonsterVarietiesKeys",
+        "Tier1Name",
+        "Tier2Name",
+        "Tier3Name",
+        "Tier4Name",
+        "Tier1Art",
+        "Tier2Art",
+        "Tier3Art",
+        "Tier4Art"
+      ]
+    },
+    {
+      "name": "WarbandsPackNumbers",
+      "columns": [
+        "Id",
+        "SpawnChance",
+        "MinLevel",
+        "MaxLevel",
+        "Tier4Number",
+        "Tier3Number",
+        "Tier2Number",
+        "Tier1Number"
+      ]
+    },
+    {
+      "name": "TalismanMonsterMods",
+      "columns": ["ModTypeKey", "ModsKey"]
+    },
+    {
+      "name": "TalismanPacks",
+      "columns": ["Id", "MonsterPacksKeys", "MonsterVarietiesKey", "MonsterPacksKey"]
+    },
+    {
+      "name": "Talismans",
+      "columns": ["BaseItemTypesKey", "SpawnWeight", "ModsKey", "Tier"]
+    },
+    {
+      "name": "LabyrinthAreas",
+      "columns": [
+        "Id",
+        "Normal_WorldAreasKeys",
+        "Cruel_WorldAreasKeys",
+        "Merciless_WorldAreasKeys",
+        "Endgame_WorldAreasKeys"
+      ]
+    },
+    {
+      "name": "LabyrinthBonusItems",
+      "columns": ["BaseItemType", "AreaLevel", "LabyrinthName"]
+    },
+    {
+      "name": "LabyrinthExclusionGroups",
+      "columns": ["Id"]
+    },
+    {
+      "name": "LabyrinthIzaroChests",
+      "columns": ["Id", "ChestsKey", "SpawnWeight", "MinLabyrinthTier", "MaxLabyrinthTier"]
+    },
+    {
+      "name": "LabyrinthNodeOverrides",
+      "columns": ["Id1", "Id2"]
+    },
+    {
+      "name": "LabyrinthRewardTypes",
+      "columns": ["Id", "ObjectPath"]
+    },
+    {
+      "name": "Labyrinths",
+      "columns": [
+        "Tier",
+        "Name",
+        "OfferingItem",
+        "QuestFlag",
+        "RequiredTrials",
+        "AreaLevel",
+        "JewelReward",
+        "MinLevel",
+        "CraftingFontDescription"
+      ]
+    },
+    {
+      "name": "LabyrinthSecretEffects",
+      "columns": [
+        "Id",
+        "MonsterVarietiesKey",
+        "Buff_BuffDefinitionsKey",
+        "Buff_StatValues",
+        "OTFile"
+      ]
+    },
+    {
+      "name": "LabyrinthSecrets",
+      "columns": [
+        "Id",
+        "Id2",
+        "LabyrinthSecretEffectsKeys0",
+        "LabyrinthSecretEffectsKeys1",
+        "LabyrinthSecretEffectsKeys2",
+        "LabyrinthSecretEffectsKeys3",
+        "Name",
+        "AchievementItemsKey",
+        "LabyrinthTierMinimum",
+        "LabyrinthTierMaximum"
+      ]
+    },
+    {
+      "name": "LabyrinthSection",
+      "columns": ["Id", "ExclusionGroup"]
+    },
+    {
+      "name": "LabyrinthSectionLayout",
+      "columns": [
+        "LabyrinthSectionKey",
+        "LabyrinthSectionLayoutKeys",
+        "LabyrinthSecretsKey0",
+        "LabyrinthSecretsKey1",
+        "LabyrinthAreasKey",
+        "Float0",
+        "Float1",
+        "LabyrinthNodeOverridesKeys"
+      ]
+    },
+    {
+      "name": "LabyrinthTrials",
+      "columns": ["WorldAreas", "NPCTextAudioKey"]
+    },
+    {
+      "name": "LabyrinthTrinkets",
+      "columns": [
+        "BaseItemTypesKey",
+        "LabyrinthSecretsKey",
+        "Buff_BuffDefinitionsKey",
+        "Buff_StatValues"
+      ]
+    },
+    {
+      "name": "LabyrinthCraftOptions",
+      "columns": [
+        "Id",
+        "CraftFamily",
+        "Text",
+        "Script",
+        "ScriptArgument",
+        "HASH16",
+        "Tier",
+        "Achievement"
+      ]
+    },
+    {
+      "name": "LabyrinthCraftOptionTiers",
+      "columns": ["Id", "CraftIcon"]
+    },
+    {
+      "name": "ShaperGuardians",
+      "columns": ["Id", "WorldArea"]
+    },
+    {
+      "name": "Essences",
+      "columns": [
+        "BaseItemTypesKey",
+        "Display_Wand_ModsKey",
+        "Display_Bow_ModsKey",
+        "Display_Quiver_ModsKey",
+        "Display_Amulet_ModsKey",
+        "Display_Ring_ModsKey",
+        "Display_Belt_ModsKey",
+        "Display_Gloves_ModsKey",
+        "Display_Boots_ModsKey",
+        "Display_BodyArmour_ModsKey",
+        "Display_Helmet_ModsKey",
+        "Display_Shield_ModsKey",
+        "HASH32",
+        "DropLevel",
+        "Monster_ModsKeys",
+        "EssenceTypeKey",
+        "Level",
+        "Display_Weapon_ModsKey",
+        "Display_MeleeWeapon_ModsKey",
+        "Display_OneHandWeapon_ModsKey",
+        "Display_TwoHandWeapon_ModsKey",
+        "Display_TwoHandMeleeWeapon_ModsKey",
+        "Display_Armour_ModsKey",
+        "Display_RangedWeapon_ModsKey",
+        "Helmet_ModsKey",
+        "BodyArmour_ModsKey",
+        "Boots_ModsKey",
+        "Gloves_ModsKey",
+        "Bow_ModsKey",
+        "Wand_ModsKey",
+        "Staff_ModsKey",
+        "TwoHandSword_ModsKey",
+        "TwoHandAxe_ModsKey",
+        "TwoHandMace_ModsKey",
+        "Claw_ModsKey",
+        "Dagger_ModsKey",
+        "OneHandSword_ModsKey",
+        "OneHandThrustingSword_ModsKey",
+        "OneHandAxe_ModsKey",
+        "OneHandMace_ModsKey",
+        "Sceptre_ModsKey",
+        "Display_Monster_ModsKey",
+        "ItemLevelRestriction",
+        "Belt_ModsKey",
+        "Amulet_ModsKey",
+        "Ring_ModsKey",
+        "Display_Jewellery_ModsKey",
+        "Shield_ModsKey",
+        "Display_Items_ModsKey",
+        "IsScreamingEssence",
+        "MemoryLines",
+        "Level2"
+      ]
+    },
+    {
+      "name": "EssenceType",
+      "columns": ["Id", "EssenceType", "IsCorruptedEssence", "WordsKey"]
+    },
+    {
+      "name": "BreachBossLifeScalingPerLevel",
+      "columns": ["MonsterLevel", "LifeMultiplier"]
+    },
+    {
+      "name": "BreachElement",
+      "columns": ["Element", "BaseBreachstone", "BossMapMod", "DuplicateBoss"]
+    },
+    {
+      "name": "Harbingers",
+      "columns": ["MonsterVarietiesKey", "MinLevel", "MaxLevel"]
+    },
+    {
+      "name": "PantheonPanelLayout",
+      "columns": [
+        "Id",
+        "X",
+        "Y",
+        "IsMajorGod",
+        "CoverImage",
+        "GodName2",
+        "SelectionImage",
+        "Effect1_StatsKeys",
+        "Effect1_Values",
+        "Effect2_StatsKeys",
+        "GodName3",
+        "Effect3_Values",
+        "Effect3_StatsKeys",
+        "GodName4",
+        "Effect4_StatsKeys",
+        "Effect4_Values",
+        "GodName1",
+        "Effect2_Values",
+        "QuestFlag",
+        "IsDisabled",
+        "AchievementItems",
+        "LeagueQuestFlag1",
+        "LeagueQuestFlag2",
+        "LeagueQuestFlag3",
+        "DowngradeFlag1",
+        "DowngradeFlag2",
+        "DowngradeFlag3"
+      ]
+    },
+    {
+      "name": "PantheonSouls",
+      "columns": [
+        "WorldArea",
+        "CapturedVessel",
+        "QuestFlagUpgrade",
+        "CapturedMonster",
+        "PanelLayout",
+        "CapturedMonsterDescription",
+        "QuestFlagDowngrade"
+      ]
+    },
+    {
+      "name": "AbyssObjects",
+      "columns": [
+        "Id",
+        "MinLevel",
+        "MaxLevel",
+        "SpawnWeight",
+        "MetadataFile",
+        "DaemonSpawners",
+        "AbyssalDepths"
+      ]
+    },
+    {
+      "name": "ElderBossArenas",
+      "columns": ["WorldAreasKey", "AchievementItemsKeys"]
+    },
+    {
+      "name": "ElderMapBossOverride",
+      "columns": ["WorldAreasKey", "MonsterVarietiesKeys", "TerrainMetadata"]
+    },
+    {
+      "name": "ElderGuardians",
+      "columns": ["Id", "MapIcon"]
+    },
+    {
+      "name": "BestiaryCapturableMonsters",
+      "columns": [
+        "MonsterVarietiesKey",
+        "BestiaryGroupsKey",
+        "BestiaryEncountersKey",
+        "IconSmall",
+        "Icon",
+        "Boss_MonsterVarietiesKey",
+        "BestiaryGenusKey",
+        "BestiaryCapturableMonstersKey",
+        "IsDisabled"
+      ]
+    },
+    {
+      "name": "BestiaryEncounters",
+      "columns": ["Id", "MonsterPacksKey", "MonsterVarietiesKey", "MonsterSpawnerId"]
+    },
+    {
+      "name": "BestiaryFamilies",
+      "columns": [
+        "Id",
+        "Name",
+        "Icon",
+        "IconSmall",
+        "Illustration",
+        "PageArt",
+        "FlavourText",
+        "TagsKey",
+        "ModsKeys",
+        "CurrencyItemsKey"
+      ]
+    },
+    {
+      "name": "BestiaryGenus",
+      "columns": ["Id", "Name", "BestiaryGroupsKey", "Name2", "Icon"]
+    },
+    {
+      "name": "BestiaryGroups",
+      "columns": [
+        "Id",
+        "Description",
+        "Illustration",
+        "Name",
+        "Icon",
+        "IconSmall",
+        "BestiaryFamiliesKey",
+        "AchievementItemsKeys"
+      ]
+    },
+    {
+      "name": "BestiaryNets",
+      "columns": [
+        "BaseItemTypesKey",
+        "CaptureMinLevel",
+        "CaptureMaxLevel",
+        "DropMinLevel",
+        "DropMaxLevel",
+        "IsEnabled"
+      ]
+    },
+    {
+      "name": "BestiaryRecipeComponent",
+      "columns": [
+        "Id",
+        "MinLevel",
+        "BestiaryFamiliesKey",
+        "BestiaryGroupsKey",
+        "ModsKey",
+        "BestiaryCapturableMonstersKey",
+        "BeastRarity",
+        "BestiaryGenusKey"
+      ]
+    },
+    {
+      "name": "BestiaryRecipeCategories",
+      "columns": ["Id", "Text"]
+    },
+    {
+      "name": "BestiaryRecipes",
+      "columns": [
+        "Id",
+        "Description",
+        "BestiaryRecipeComponentKeys",
+        "Notes",
+        "Category",
+        "Achievements",
+        "GameMode",
+        "FlaskMod"
+      ]
+    },
+    {
+      "name": "NetTiers",
+      "columns": ["BaseItemTypesKey", "Tier"]
+    },
+    {
+      "name": "ArchitectLifeScalingPerLevel",
+      "columns": ["Level", "MoreLife"]
+    },
+    {
+      "name": "IncursionArchitect",
+      "columns": ["MonsterVarietiesKey", "MinLevel"]
+    },
+    {
+      "name": "IncursionBrackets",
+      "columns": ["MinLevel", "Incursion_WorldAreasKey", "Template_WorldAreasKey"]
+    },
+    {
+      "name": "IncursionChestRewards",
+      "columns": ["IncursionRoomsKey", "IncursionChestsKeys", "ChestMarkerMetadata"]
+    },
+    {
+      "name": "IncursionChests",
+      "columns": ["Id", "ChestsKey", "UniqueChestsKey", "MinLevel", "MaxLevel", "Weight"]
+    },
+    {
+      "name": "IncursionRoomBossFightEvents",
+      "columns": ["Room"]
+    },
+    {
+      "name": "IncursionRooms",
+      "columns": [
+        "Id",
+        "Name",
+        "Tier",
+        "MinLevel",
+        "RoomUpgrade_IncursionRoomsKey",
+        "Mods",
+        "PresentARMFile",
+        "HASH16",
+        "IncursionArchitectKey",
+        "PastARMFile",
+        "TSIFile",
+        "UIIcon",
+        "FlavourText",
+        "Description",
+        "AchievementItemsKeys",
+        "RoomUpgradeFrom_IncursionRoomsKey",
+        "ItemisedFlavourText"
+      ]
+    },
+    {
+      "name": "IncursionUniqueUpgradeComponents",
+      "columns": ["BaseUnique", "UpgradeCurrency"]
+    },
+    {
+      "name": "DelveAzuriteShop",
+      "columns": ["BaseItemTypesKey", "SpawnWeight", "Cost", "MinDepth", "IsResonator"]
+    },
+    {
+      "name": "DelveBiomes",
+      "columns": [
+        "Id",
+        "Name",
+        "WorldAreasKeys",
+        "UIImage",
+        "SpawnWeight_Depth",
+        "SpawnWeight_Values",
+        "Art2D",
+        "AchievementItemsKeys"
+      ]
+    },
+    {
+      "name": "DelveCatchupDepths",
+      "columns": ["Level", "Depth"]
+    },
+    {
+      "name": "DelveCraftingModifierDescriptions",
+      "columns": ["Id", "Description"]
+    },
+    {
+      "name": "DelveCraftingModifiers",
+      "columns": [
+        "BaseItemTypesKey",
+        "AddedModsKeys",
+        "NegativeWeight_TagsKeys",
+        "NegativeWeight_Values",
+        "ForcedAddModsKeys",
+        "ForbiddenDelveCraftingTagsKeys",
+        "AllowedDelveCraftingTagsKeys",
+        "CanMirrorItem",
+        "CorruptedEssenceChance",
+        "CanImproveQuality",
+        "HasLuckyRolls",
+        "SellPrice_ModsKeys",
+        "CanRollWhiteSockets",
+        "Weight_TagsKeys",
+        "Weight_Values",
+        "DelveCraftingModifierDescriptionsKeys",
+        "BlockedDelveCraftingModifierDescriptionsKeys"
+      ]
+    },
+    {
+      "name": "DelveCraftingTags",
+      "columns": ["TagsKey", "ItemClass"]
+    },
+    {
+      "name": "DelveDynamite",
+      "columns": ["ProjectilesKey", "Dynamite_MiscObjectsKey", "MiscAnimatedKey"]
+    },
+    {
+      "name": "DelveFeatures",
+      "columns": [
+        "Id",
+        "Name",
+        "SpawnWeight",
+        "WorldAreasKey",
+        "Image",
+        "AchievementItemsKeys",
+        "MinDepth",
+        "Description"
+      ]
+    },
+    {
+      "name": "DelveLevelScaling",
+      "columns": [
+        "Depth",
+        "MonsterLevel",
+        "SulphiteCost",
+        "MonsterLevel2",
+        "MoreMonsterDamage",
+        "MoreMonsterLife",
+        "DarknessResistance",
+        "LightRadius"
+      ]
+    },
+    {
+      "name": "DelveMonsterSpawners",
+      "columns": ["BaseMetadata", "Script"]
+    },
+    {
+      "name": "DelveResourcePerLevel",
+      "columns": ["AreaLevel", "Sulphite"]
+    },
+    {
+      "name": "DelveRooms",
+      "columns": ["DelveBiomesKey", "DelveFeaturesKey", "ARMFile"]
+    },
+    {
+      "name": "DelveUpgrades",
+      "columns": [
+        "DelveUpgradeTypeKey",
+        "UpgradeLevel",
+        "StatsKeys",
+        "StatValues",
+        "Cost",
+        "AchievementItemsKey"
+      ]
+    },
+    {
+      "name": "BetrayalChoiceActions",
+      "columns": ["Id", "BetrayalChoicesKey", "ClientStringsKey"]
+    },
+    {
+      "name": "BetrayalChoices",
+      "columns": ["Id", "Text", "Achievements"]
+    },
+    {
+      "name": "BetrayalDialogue",
+      "columns": ["BetrayalTargetsKey", "BetrayalUpgradesKey", "NPCTextAudioKey"]
+    },
+    {
+      "name": "BetrayalForts",
+      "columns": ["Id", "ExtraTerrainFeaturesKey"]
+    },
+    {
+      "name": "BetrayalJobs",
+      "columns": [
+        "Id",
+        "Text",
+        "ExtraTerrainFeaturesKey",
+        "Art",
+        "WorldAreasKey",
+        "Completion_AchievementItemsKey",
+        "OpenChests_AchievementItemsKey",
+        "MissionCompletion_AcheivementItemsKey"
+      ]
+    },
+    {
+      "name": "BetrayalRanks",
+      "columns": ["Id", "Text", "Level", "RankImage"]
+    },
+    {
+      "name": "BetrayalRelationshipState",
+      "columns": ["Id", "Text"]
+    },
+    {
+      "name": "BetrayalTargetJobAchievements",
+      "columns": ["BetrayalTargetsKey", "BetrayalJobsKey", "AchievementItemsKey"]
+    },
+    {
+      "name": "BetrayalTargetLifeScalingPerLevel",
+      "columns": ["Level", "MoreLife"]
+    },
+    {
+      "name": "BetrayalTargets",
+      "columns": [
+        "Id",
+        "BetrayalRanksKey",
+        "MonsterVarietiesKey",
+        "BetrayalJobsKey",
+        "Art",
+        "ItemClasses",
+        "FullName",
+        "Safehouse_ARMFile",
+        "ShortName",
+        "SafehouseLeader_AcheivementItemsKey",
+        "Level3_AchievementItemsKey",
+        "ScriptArgument"
+      ]
+    },
+    {
+      "name": "BetrayalTraitorRewards",
+      "columns": [
+        "BetrayalJobsKey",
+        "BetrayalTargetsKey",
+        "BetrayalRanksKey",
+        "Description",
+        "Description2"
+      ]
+    },
+    {
+      "name": "BetrayalUpgrades",
+      "columns": [
+        "Id",
+        "Name",
+        "Description",
+        "ModsKey",
+        "ArtFile",
+        "BetrayalUpgradeSlotsKey",
+        "ItemVisualIdentityKey0",
+        "ItemVisualIdentityKey1",
+        "GrantedEffectsKey",
+        "ItemClassesKey"
+      ]
+    },
+    {
+      "name": "BetrayalWallLifeScalingPerLevel",
+      "columns": ["Level", "MoreLife"]
+    },
+    {
+      "name": "ScarabTypes",
+      "columns": ["Id", "Tag", "DisableDrops", "MoreLikely", "Count"]
+    },
+    {
+      "name": "SynthesisAreas",
+      "columns": [
+        "Id",
+        "MinLevel",
+        "MaxLevel",
+        "Weight",
+        "TopologiesKey",
+        "MonsterPacksKeys",
+        "ArtFile",
+        "Name",
+        "SynthesisAreaSizeKey",
+        "AchievementItemsKey"
+      ]
+    },
+    {
+      "name": "SynthesisAreaSize",
+      "columns": ["Id"]
+    },
+    {
+      "name": "SynthesisBonuses",
+      "columns": ["ModsKey"]
+    },
+    {
+      "name": "SynthesisBrackets",
+      "columns": ["WorldAreasKey1", "MinLevel", "MaxLevel", "WorldAreasKey2"]
+    },
+    {
+      "name": "SynthesisFragmentDialogue",
+      "columns": [
+        "NPCTextAudioKey1",
+        "NPCTextAudioKey2",
+        "NPCTextAudioKey3",
+        "NPCTextAudioKey4",
+        "NPCTextAudioKey5",
+        "NPCTextAudioKey6"
+      ]
+    },
+    {
+      "name": "SynthesisGlobalMods",
+      "columns": ["ModsKey", "Weight", "MinLevel", "MaxLevel"]
+    },
+    {
+      "name": "SynthesisMonsterExperiencePerLevel",
+      "columns": ["Level", "ExperienceBonus"]
+    },
+    {
+      "name": "SynthesisRewardCategories",
+      "columns": ["Id"]
+    },
+    {
+      "name": "SynthesisRewardTypes",
+      "columns": ["Id", "Description", "ArtFile", "AchievementItemsKey"]
+    },
+    {
+      "name": "Incubators",
+      "columns": ["BaseItemTypesKey", "Description", "HASH16", "AchievementItemsKeys"]
+    },
+    {
+      "name": "LegionBalancePerLevel",
+      "columns": ["MinLevel"]
+    },
+    {
+      "name": "LegionChestTypes",
+      "columns": ["Chest", "HardmodeChest", "Faction"]
+    },
+    {
+      "name": "LegionChestCounts",
+      "columns": ["LegionFactionsKey", "LegionRanksKey", "MinLevel"]
+    },
+    {
+      "name": "LegionFactions",
+      "columns": [
+        "Id",
+        "SpawnWeight",
+        "LegionBalancePerLevelKey",
+        "BuffVisualsKey",
+        "MiscAnimatedKey1",
+        "MiscAnimatedKey2",
+        "MiscAnimatedKey3",
+        "AchievementItemsKeys1",
+        "MiscAnimatedKey4",
+        "MiscAnimatedKey5",
+        "AchievementItemsKeys2",
+        "StatsKey",
+        "Shard",
+        "RewardJewelArt"
+      ]
+    },
+    {
+      "name": "LegionMonsterCounts",
+      "columns": ["LegionFactionsKey", "LegionRanksKey"]
+    },
+    {
+      "name": "LegionMonsterVarieties",
+      "columns": [
+        "MonsterVarietiesKey",
+        "LegionFactionsKey",
+        "LegionRanksKey",
+        "MiscAnimatedKey",
+        "MonsterVarietiesKey2"
+      ]
+    },
+    {
+      "name": "LegionRanks",
+      "columns": ["LegionBalancePerLevelKey"]
+    },
+    {
+      "name": "LegionRewardTypeVisuals",
+      "columns": ["IntId", "MinimapIconsKey", "MiscAnimatedKey", "Id"]
+    },
+    {
+      "name": "BlightBalancePerLevel",
+      "columns": ["Level"]
+    },
+    {
+      "name": "BlightBossLifeScalingPerLevel",
+      "columns": ["Level", "MoreLife"]
+    },
+    {
+      "name": "BlightChestTypes",
+      "columns": ["ChestsKey"]
+    },
+    {
+      "name": "BlightCraftingItems",
+      "columns": ["Oil", "Tier", "Achievements", "UseType", "NameShort"]
+    },
+    {
+      "name": "BlightCraftingRecipes",
+      "columns": [
+        "Id",
+        "BlightCraftingItemsKeys",
+        "BlightCraftingResultsKey",
+        "BlightCraftingTypesKey"
+      ]
+    },
+    {
+      "name": "BlightCraftingResults",
+      "columns": ["Id", "Mod", "PassiveSkill"]
+    },
+    {
+      "name": "BlightCraftingTypes",
+      "columns": ["Id"]
+    },
+    {
+      "name": "BlightCraftingUniques",
+      "columns": ["WordsKey"]
+    },
+    {
+      "name": "BlightedSporeAuras",
+      "columns": ["BuffDefinitionsKey", "BuffStatValues"]
+    },
+    {
+      "name": "BlightEncounterTypes",
+      "columns": ["Id", "Icon", "IsGeneric", "Weight"]
+    },
+    {
+      "name": "BlightEncounterWaves",
+      "columns": ["MonsterSpawnerId", "EncounterType", "Wave"]
+    },
+    {
+      "name": "BlightRewardTypes",
+      "columns": ["Id", "Icon"]
+    },
+    {
+      "name": "BlightTopologies",
+      "columns": ["Id", "BlightTopologyNodesKey"]
+    },
+    {
+      "name": "BlightTopologyNodes",
+      "columns": ["Id", "Size", "Angle"]
+    },
+    {
+      "name": "BlightTowerAuras",
+      "columns": ["Id", "BuffDefinitionsKey", "MiscAnimatedKey"]
+    },
+    {
+      "name": "BlightTowers",
+      "columns": [
+        "Id",
+        "Name",
+        "Description",
+        "Icon",
+        "NextUpgradeOptions",
+        "Tier",
+        "Radius",
+        "SpendResourceAchievement",
+        "StatsKey",
+        "StatsKeys",
+        "StatsKeys2"
+      ]
+    },
+    {
+      "name": "BlightTowersPerLevel",
+      "columns": ["BlightTowersKey", "MonsterVarietiesKey", "Cost"]
+    },
+    {
+      "name": "AtlasExileBossArenas",
+      "columns": ["Conqueror", "WorldArea"]
+    },
+    {
+      "name": "AtlasExileInfluence",
+      "columns": ["Conqueror", "Sets"]
+    },
+    {
+      "name": "AtlasExiles",
+      "columns": ["Id", "InfluencedItemIncrStat", "MapIcon", "MapIcon2"]
+    },
+    {
+      "name": "AlternateQualityTypes",
+      "columns": ["Id", "Description", "Item", "MapStats", "IsCatalyst", "HASH16", "CatalystMod"]
+    },
+    {
+      "name": "AfflictionEndgameWaveMods",
+      "columns": ["ModsKey"]
+    },
+    {
+      "name": "AfflictionFixedMods",
+      "columns": ["Rarity", "Mod"]
+    },
+    {
+      "name": "AfflictionRandomModCategories",
+      "columns": ["Id"]
+    },
+    {
+      "name": "AfflictionRewardMapMods",
+      "columns": ["ModsKey"]
+    },
+    {
+      "name": "AfflictionRewardTypeVisuals",
+      "columns": ["AfflictionRewardTypes", "Id", "Name"]
+    },
+    {
+      "name": "AfflictionSplitDemons",
+      "columns": ["MonsterVarietiesKey", "AfflictionRandomModCategoriesKey"]
+    },
+    {
+      "name": "AfflictionStartDialogue",
+      "columns": ["WorldAreasKey", "NPCTextAudioKey"]
+    },
+    {
+      "name": "HarvestCraftOptionIcons",
+      "columns": ["Id", "DDSFile"]
+    },
+    {
+      "name": "HarvestCraftOptions",
+      "columns": [
+        "Id",
+        "Text",
+        "Tier",
+        "Command",
+        "Parameters",
+        "HASH16",
+        "Description",
+        "IsEnchant",
+        "LifeforceType",
+        "LifeforceCost",
+        "SacredCost",
+        "Achievements"
+      ]
+    },
+    {
+      "name": "HarvestCraftTiers",
+      "columns": ["Id", "FrameImage", "FrameHighlight"]
+    },
+    {
+      "name": "HarvestCraftFilters",
+      "columns": ["Id", "BaseItem", "Name"]
+    },
+    {
+      "name": "HarvestInfrastructure",
+      "columns": ["Object", "ClientStringsKey"]
+    },
+    {
+      "name": "HarvestPerLevelValues",
+      "columns": ["Level"]
+    },
+    {
+      "name": "HarvestLifeScalingPerLevel",
+      "columns": ["Level", "Life"]
+    },
+    {
+      "name": "HarvestSeeds",
+      "columns": [
+        "Id",
+        "Monster",
+        "Tier",
+        "Achievements",
+        "SeedAnimation",
+        "HatchAnimation",
+        "SeedType"
+      ]
+    },
+    {
+      "name": "HarvestSeedItems",
+      "columns": ["Id", "BaseItem", "DropStat"]
+    },
+    {
+      "name": "HeistAreaFormationLayout",
+      "columns": ["HeistAreasKey"]
+    },
+    {
+      "name": "HeistAreas",
+      "columns": [
+        "Id",
+        "WorldAreasKeys",
+        "EnvironmentsKey1",
+        "EnvironmentsKey2",
+        "HeistJobsKeys",
+        "Contract_BaseItemTypesKey",
+        "Blueprint_BaseItemTypesKey",
+        "DGRFile",
+        "Blueprint_DDSFile",
+        "Achievements1",
+        "Achievements2",
+        "Reward",
+        "Achievements3",
+        "RewardHardmode"
+      ]
+    },
+    {
+      "name": "HeistBalancePerLevel",
+      "columns": [
+        "Level",
+        "HeistValueScalingKey1",
+        "HeistValueScalingKey2",
+        "HeistValueScalingKey3",
+        "HeistValueScalingKey4",
+        "HeistValueScalingKey5",
+        "HeistValueScalingKey6",
+        "HeistValueScalingKey7"
+      ]
+    },
+    {
+      "name": "HeistChestRewardTypes",
+      "columns": [
+        "Id",
+        "Art",
+        "RewardTypeName",
+        "RewardRoomName",
+        "MinLevel",
+        "MaxLevel",
+        "Weight",
+        "RewardRoomName2",
+        "HeistJobsKey"
+      ]
+    },
+    {
+      "name": "HeistChests",
+      "columns": ["ChestsKey", "Weight", "HeistAreasKey", "HeistChestTypesKey"]
+    },
+    {
+      "name": "HeistConstants",
+      "columns": ["Id", "Value"]
+    },
+    {
+      "name": "HeistContracts",
+      "columns": ["BaseItemTypesKey", "HeistAreasKey"]
+    },
+    {
+      "name": "HeistDoodadNPCs",
+      "columns": ["NPCsKey", "AOFile", "Stance", "BetrayalTargetsKey"]
+    },
+    {
+      "name": "HeistDoors",
+      "columns": ["Id", "HeistJobsKey1", "HeistJobsKey2", "HeistAreasKey"]
+    },
+    {
+      "name": "HeistEquipment",
+      "columns": ["BaseItemTypesKey", "RequiredJob_HeistJobsKey", "RequiredLevel"]
+    },
+    {
+      "name": "HeistGeneration",
+      "columns": ["Level"]
+    },
+    {
+      "name": "HeistIntroAreas",
+      "columns": ["Id", "HeistAreasKey", "DGRFile"]
+    },
+    {
+      "name": "HeistJobs",
+      "columns": [
+        "Id",
+        "Name",
+        "RequiredSkillIcon",
+        "SkillIcon",
+        "MapIcon",
+        "Level_StatsKey",
+        "Alert_StatsKey",
+        "Alarm_StatsKey",
+        "Cost_StatsKey",
+        "ExperienceGain_StatsKey",
+        "ConsoleBlueprintLegend",
+        "Description"
+      ]
+    },
+    {
+      "name": "HeistJobsExperiencePerLevel",
+      "columns": ["HeistJobsKey", "Tier", "Experience", "MinLevel", "AchievementItemsKey"]
+    },
+    {
+      "name": "HeistLockType",
+      "columns": ["Id", "HeistJobsKey", "SkillIcon"]
+    },
+    {
+      "name": "HeistNPCAuras",
+      "columns": ["Stat", "GrantedEffect"]
+    },
+    {
+      "name": "HeistNPCBlueprintTypes",
+      "columns": ["NPCsKey"]
+    },
+    {
+      "name": "HeistNPCDialogue",
+      "columns": ["DialogueEventKey", "HeistNPCsKey", "AudioNormal", "AudioLoud"]
+    },
+    {
+      "name": "HeistNPCs",
+      "columns": [
+        "NPCsKey",
+        "MonsterVarietiesKey",
+        "SkillLevel_HeistJobsKeys",
+        "PortraitFile",
+        "HeistNPCStatsKeys",
+        "StatValues",
+        "SkillLevel_Values",
+        "Name",
+        "SilhouetteFile",
+        "HeistNPCsKey",
+        "StatValues2",
+        "Ally_NPCsKey",
+        "ActiveNPCIcon",
+        "HeistJobsKey",
+        "Equip_AchievementItemsKeys",
+        "AOFile"
+      ]
+    },
+    {
+      "name": "HeistNPCStats",
+      "columns": ["StatsKey"]
+    },
+    {
+      "name": "HeistObjectives",
+      "columns": ["BaseItemType", "Scaling", "Name"]
+    },
+    {
+      "name": "HeistObjectiveValueDescriptions",
+      "columns": ["Tier", "MarkersMultiply", "Description"]
+    },
+    {
+      "name": "HeistPatrolPacks",
+      "columns": ["MonsterPacksKey"]
+    },
+    {
+      "name": "HeistQuestContracts",
+      "columns": [
+        "HeistContractsKey",
+        "HeistObjectivesKey",
+        "HeistNPCsKey",
+        "HeistJobsKey",
+        "HeistRoomsKey1",
+        "WorldAreasKey",
+        "HaveObjective",
+        "QuestActive",
+        "HaveQuest",
+        "HaveObjective2",
+        "Objective",
+        "BaseItemTypesKey",
+        "HeistIntroAreasKey",
+        "HeistRoomsKey2"
+      ]
+    },
+    {
+      "name": "HeistRevealingNPCs",
+      "columns": ["NPCsKey", "PortraitFile", "NPCAudioKey"]
+    },
+    {
+      "name": "HeistRooms",
+      "columns": ["HeistAreasKey", "Id", "ARMFile", "HeistJobsKey1", "HeistJobsKey2"]
+    },
+    {
+      "name": "HeistValueScaling",
+      "columns": ["Id"]
+    },
+    {
+      "name": "InfluenceModUpgrades",
+      "columns": ["InfluenceMod", "UpgradedMod", "HighestTier"]
+    },
+    {
+      "name": "MavenDialog",
+      "columns": [
+        "Id",
+        "TextAudioT1",
+        "TextAudioT2",
+        "TextAudioT3",
+        "TextAudioT4",
+        "TextAudioT5",
+        "TextAudioT6"
+      ]
+    },
+    {
+      "name": "MavenFights",
+      "columns": [
+        "Id",
+        "WitnessesRequired",
+        "AreaLevel",
+        "BaseItemType",
+        "MinMapTier",
+        "WitnessAreas",
+        "Achievements1",
+        "Achievements2"
+      ]
+    },
+    {
+      "name": "MavenJewelRadiusKeystones",
+      "columns": ["Keystone"]
+    },
+    {
+      "name": "RitualBalancePerLevel",
+      "columns": ["MinLevel"]
+    },
+    {
+      "name": "RitualConstants",
+      "columns": ["Id", "Value"]
+    },
+    {
+      "name": "RitualRuneTypes",
+      "columns": [
+        "Id",
+        "MiscAnimatedKey1",
+        "SpawnWeight",
+        "LevelMin",
+        "LevelMax",
+        "BuffDefinitionsKey",
+        "BuffStatValues",
+        "SpawnPatterns",
+        "ModsKey",
+        "MiscAnimatedKey2",
+        "EnvironmentsKey",
+        "Achievements",
+        "Type",
+        "Description",
+        "DaemonSpawningDataKey"
+      ]
+    },
+    {
+      "name": "RitualSetKillAchievements",
+      "columns": ["Achievement", "KillBosses"]
+    },
+    {
+      "name": "RitualSpawnPatterns",
+      "columns": ["Id", "SpawnOrder"]
+    },
+    {
+      "name": "UltimatumEncounters",
+      "columns": ["Id", "Description", "ModTypes", "BossARMFile", "Type", "Icon", "HASH16"]
+    },
+    {
+      "name": "UltimatumEncounterTypes",
+      "columns": ["Id", "Name", "ProgressBarText", "NormalAchievements", "InscribedAchievement"]
+    },
+    {
+      "name": "UltimatumItemisedRewards",
+      "columns": [
+        "Id",
+        "HASH16",
+        "RewardText",
+        "ItemVisualIdentityKey",
+        "RewardType",
+        "SacrificeItem",
+        "SacrificeAmount",
+        "SacrificeText",
+        "TrialMods"
+      ]
+    },
+    {
+      "name": "UltimatumMapModifiers",
+      "columns": ["Stat", "Mods"]
+    },
+    {
+      "name": "UltimatumModifiers",
+      "columns": [
+        "Id",
+        "Types",
+        "ExtraMods",
+        "TypesFiltered",
+        "DaemonSpawningData",
+        "PreviousTier",
+        "Radius",
+        "Name",
+        "Icon",
+        "HASH16",
+        "TypesExtra",
+        "MonsterTypesApplyingRuin",
+        "MiscAnimated",
+        "BuffTemplates",
+        "Tier",
+        "Description",
+        "MonsterSpawners",
+        "Achievements",
+        "TextAudio",
+        "UniqueMapMod"
+      ]
+    },
+    {
+      "name": "UltimatumModifierTypes",
+      "columns": ["Id"]
+    },
+    {
+      "name": "UltimatumTrialMasterAudio",
+      "columns": ["Id", "Variant", "TextAudio", "RoundsMin", "RoundsMax"]
+    },
+    {
+      "name": "ExpeditionAreas",
+      "columns": ["Area", "PosX", "PosY", "Tags", "TextAudio", "CompletionAchievements"]
+    },
+    {
+      "name": "ExpeditionBalancePerLevel",
+      "columns": ["Level"]
+    },
+    {
+      "name": "ExpeditionCurrency",
+      "columns": ["BaseItemType", "Tier", "NPC", "LootSound"]
+    },
+    {
+      "name": "ExpeditionDeals",
+      "columns": [
+        "Id",
+        "Function",
+        "Arguments",
+        "TextAudio",
+        "Description",
+        "BuyAchievements",
+        "DealFamily"
+      ]
+    },
+    {
+      "name": "ExpeditionFactions",
+      "columns": [
+        "Id",
+        "Name",
+        "FactionFlag",
+        "FactionIcon",
+        "MonsterVarieties",
+        "Progress1",
+        "Progress2Vaal",
+        "Progress3Final",
+        "Tags"
+      ]
+    },
+    {
+      "name": "ExpeditionMarkersCommon",
+      "columns": ["Id", "AOFile"]
+    },
+    {
+      "name": "ExpeditionNPCs",
+      "columns": [
+        "Id",
+        "NPCs",
+        "RerollItem",
+        "Faction",
+        "Reroll",
+        "AllBombsPlaced",
+        "BombPlacedRemnant",
+        "BombPlacedTreasure",
+        "BombPlacedMonsters",
+        "BombPlacedGeneric",
+        "EncounterComplete"
+      ]
+    },
+    {
+      "name": "ExpeditionRelicMods",
+      "columns": ["Mod", "Categories", "DestroyAchievements"]
+    },
+    {
+      "name": "ExpeditionRelics",
+      "columns": ["Id", "Name", "ItemTag", "AOFile", "MinLevel", "MaxLevel"]
+    },
+    {
+      "name": "ExpeditionStorageLayout",
+      "columns": ["Id", "StoredItem", "XOffset", "YOffset", "Width", "Height"]
+    },
+    {
+      "name": "ExpeditionTerrainFeatures",
+      "columns": [
+        "Id",
+        "ExtraFeature",
+        "ExpeditionFaction",
+        "MinLevel",
+        "MaxLevel",
+        "Area",
+        "ExpeditionAreas",
+        "UnearthAchievements"
+      ]
+    },
+    {
+      "name": "HellscapeAOReplacements",
+      "columns": ["Original", "HASH32", "Replacement"]
+    },
+    {
+      "name": "HellscapeAreaPacks",
+      "columns": ["WorldArea", "MonsterPacks"]
+    },
+    {
+      "name": "HellscapeExperienceLevels",
+      "columns": ["Level", "Experience"]
+    },
+    {
+      "name": "HellscapeFactions",
+      "columns": ["Id", "Boss"]
+    },
+    {
+      "name": "HellscapeImmuneMonsters",
+      "columns": ["Monster"]
+    },
+    {
+      "name": "HellscapeItemModificationTiers",
+      "columns": ["Tier", "IsMap", "MinItemLvl"]
+    },
+    {
+      "name": "HellscapeLifeScalingPerLevel",
+      "columns": ["AreaLevel", "Scale"]
+    },
+    {
+      "name": "HellscapeModificationInventoryLayout",
+      "columns": [
+        "Id",
+        "Column",
+        "Row",
+        "IsMapSlot",
+        "Width",
+        "Height",
+        "Stat",
+        "StatValue",
+        "UnlockedWith",
+        "Quest"
+      ]
+    },
+    {
+      "name": "HellscapeMods",
+      "columns": ["Mod", "TiersWhitelist", "TransformAchievement", "ModFamilies"]
+    },
+    {
+      "name": "HellscapeMonsterPacks",
+      "columns": ["Id", "MonsterPack", "Faction", "IsDonutPack", "IsElite", "MinLevel", "MaxLevel"]
+    },
+    {
+      "name": "HellscapePassives",
+      "columns": [
+        "Id",
+        "Name",
+        "Stats",
+        "StatsValues",
+        "Points",
+        "HASH16",
+        "Icon",
+        "IconMaxed",
+        "SoundEffect",
+        "Quest"
+      ]
+    },
+    {
+      "name": "HellscapePassiveTree",
+      "columns": ["Id", "AllocationsRequired", "Passives"]
+    },
+    {
+      "name": "ArchnemesisMetaRewards",
+      "columns": ["Id", "RewardText", "RewardGroup", "ScriptArgument", "MinLevel", "MaxLevel"]
+    },
+    {
+      "name": "ArchnemesisModComboAchievements",
+      "columns": ["Achievement", "Mods"]
+    },
+    {
+      "name": "ArchnemesisMods",
+      "columns": ["Mod", "Name", "Visual", "TextStyles"]
+    },
+    {
+      "name": "ArchnemesisModVisuals",
+      "columns": ["Id"]
+    },
+    {
+      "name": "ArchnemesisRecipes",
+      "columns": ["Result", "Recipe"]
+    },
+    {
+      "name": "AtlasPrimordialAltarChoices",
+      "columns": ["Mod", "Type"]
+    },
+    {
+      "name": "AtlasPrimordialAltarChoiceTypes",
+      "columns": [
+        "Id",
+        "TopIconEater",
+        "BottomIconEater",
+        "TopIconExarch",
+        "BottomIconExarch",
+        "Text"
+      ]
+    },
+    {
+      "name": "AtlasPrimordialBosses",
+      "columns": [
+        "Id",
+        "InfluenceComplete",
+        "MiniBossInvitation",
+        "BossInvitation",
+        "PickUpKey",
+        "Tag",
+        "Altar",
+        "AltarActivated"
+      ]
+    },
+    {
+      "name": "AtlasPrimordialBossInfluence",
+      "columns": ["Boss", "Progress", "MinMapTier"]
+    },
+    {
+      "name": "AtlasPrimordialBossOptions",
+      "columns": [
+        "DefaultIcon",
+        "HoverIcon",
+        "HighlightIcon",
+        "EmptyIcon",
+        "Description",
+        "DescriptionActive",
+        "ProgressTracker",
+        "ProgressTrackerFill",
+        "Name",
+        "MapDeviceTrackerFill"
+      ]
+    },
+    {
+      "name": "PrimordialBossLifeScalingPerLevel",
+      "columns": ["AreaLevel", "Scale"]
+    },
+    {
+      "name": "AtlasUpgradesInventoryLayout",
+      "columns": ["Id", "Voidstone", "Objective", "GrantAtlasUpgrade"]
+    },
+    {
+      "name": "AtlasPassiveSkillTreeGroupType",
+      "columns": ["Id"]
+    },
+    {
+      "name": "KiracLevels",
+      "columns": ["AreaLevel"]
+    },
+    {
+      "name": "ScoutingReports",
+      "columns": ["Id", "BaseItemType", "MinMapTier"]
+    },
+    {
+      "name": "DroneBaseTypes",
+      "columns": [
+        "BaseType",
+        "Type",
+        "Charges",
+        "Duration",
+        "EnemyLimit",
+        "Visual",
+        "Empowerment",
+        "UseAchievement",
+        "CreatedViaPowerCore"
+      ]
+    },
+    {
+      "name": "DroneTypes",
+      "columns": ["Id", "DeployText", "UnlockedStat", "SocketableText", "NotPoweredText"]
+    },
+    {
+      "name": "SentinelDroneInventoryLayout",
+      "columns": ["DroneType"]
+    },
+    {
+      "name": "SentinelPassives",
+      "columns": ["Id", "HASH16"]
+    },
+    {
+      "name": "SentinelPassiveTypes",
+      "columns": ["Id", "DefaultIcon", "ActiveIcon", "DroneType"]
+    },
+    {
+      "name": "SentinelStorageLayout",
+      "columns": [
+        "Id",
+        "StoredItem",
+        "DroneType",
+        "TabIcon",
+        "XOffset",
+        "YOffset",
+        "Width",
+        "Height",
+        "SlotSize"
+      ]
+    },
+    {
+      "name": "SentinelTaggedMonsterStats",
+      "columns": ["TaggedStat"]
+    },
+    {
+      "name": "ClientLakeDifficulty",
+      "columns": ["Id", "Scaling"]
+    },
+    {
+      "name": "LakeBossLifeScalingPerLevel",
+      "columns": ["Level", "Scaling"]
+    },
+    {
+      "name": "LakeMetaOptions",
+      "columns": ["Id"]
+    },
+    {
+      "name": "LakeMetaOptionsUnlockText",
+      "columns": ["Id", "Text"]
+    },
+    {
+      "name": "LakeRoomCompletion",
+      "columns": ["Room", "Achievements"]
+    },
+    {
+      "name": "LakeRooms",
+      "columns": [
+        "Id",
+        "ARMFiles",
+        "Script",
+        "Stats",
+        "StatsValues",
+        "Description",
+        "Name",
+        "Type",
+        "WorldArea",
+        "Icon",
+        "MinLevel",
+        "ExtraStats",
+        "ExtraStatsValues",
+        "ReminderText",
+        "TextAudio"
+      ]
+    },
+    {
+      "name": "StampChoice",
+      "columns": ["Id", "Effect", "Icon"]
+    },
+    {
+      "name": "StampFamily",
+      "columns": ["Id"]
+    },
+    {
+      "name": "SanctumAirlocks",
+      "columns": ["Floor", "Area1", "Area2"]
+    },
+    {
+      "name": "SanctumDefenceIcons",
+      "columns": ["Id", "Stat", "DefenceIcon", "DefenceBrokenIcon", "BrokenStat", "Description"]
+    },
+    {
+      "name": "SanctumDeferredRewardCategories",
+      "columns": ["Item", "NamePlural", "ScriptReward"]
+    },
+    {
+      "name": "SanctumDeferredRewards",
+      "columns": ["Id", "DeferralIcon", "DeferralCategory", "RewardCategory", "Count"]
+    },
+    {
+      "name": "SanctumFloors",
+      "columns": [
+        "Id",
+        "Area",
+        "Title",
+        "RoomIcon",
+        "BossIcon",
+        "Description",
+        "Summary",
+        "Itemised"
+      ]
+    },
+    {
+      "name": "SanctumFodderLifeScalingPerLevel",
+      "columns": ["Level"]
+    },
+    {
+      "name": "SanctumLifeScalingPerLevel",
+      "columns": ["Level"]
+    },
+    {
+      "name": "SanctumPersistentEffectCategories",
+      "columns": ["Id", "Frame", "Popup", "Glow", "Curse", "Boon", "Icon", "Name", "Deferral"]
+    },
+    {
+      "name": "SanctumPersistentEffects",
+      "columns": [
+        "Id",
+        "Stats",
+        "StatValues",
+        "Name",
+        "Icon",
+        "EffectCategory",
+        "NextEffect",
+        "BoonDesc",
+        "CurseDesc",
+        "Guard",
+        "FirstEffect",
+        "HASH16"
+      ]
+    },
+    {
+      "name": "SanctumRooms",
+      "columns": ["Id", "ArmFile", "RoomType", "Script", "Floor", "Area"]
+    },
+    {
+      "name": "SanctumRoomTypes",
+      "columns": ["Id", "Icon", "Description", "Rooms"]
+    },
+    {
+      "name": "SanctumSelectionDisplayOverride",
+      "columns": ["Id", "Reward", "Icon", "Downside", "Item", "Count", "RewardCategory"]
+    },
+    {
+      "name": "WeaponPassiveSkillTypes",
+      "columns": ["Id"]
+    },
+    {
+      "name": "WeaponPassiveTreeBalancePerItemLevel",
+      "columns": ["Level", "Bar1", "Bar2", "Bar3", "Bar4", "Bar5"]
+    },
+    {
+      "name": "WeaponPassiveTreeUniqueBaseTypes",
+      "columns": ["UniqueBase"]
+    },
+    {
+      "name": "WeaponPassiveSkills",
+      "columns": ["Id", "Tier", "Mod", "Icon", "Type", "Achievements"]
+    },
+    {
+      "name": "CrucibleDifficulty",
+      "columns": ["Number", "Name"]
+    },
+    {
+      "name": "CrucibleEndgameMonsterPacks",
+      "columns": ["Tier"]
+    },
+    {
+      "name": "CrucibleLifeScalingPerLevel",
+      "columns": ["Level", "Life"]
+    },
+    {
+      "name": "CrucibleTags",
+      "columns": ["Tag"]
+    },
+    {
+      "name": "AncestralEmbraceVariations",
+      "columns": ["Id", "Minion"]
+    },
+    {
+      "name": "AncestralLifeScalingPerLevel",
+      "columns": ["Level"]
+    },
+    {
+      "name": "AncestralTrialDialogue",
+      "columns": ["TextAudio"]
+    },
+    {
+      "name": "AncestralTrialDialogueEvents",
+      "columns": ["Id"]
+    },
+    {
+      "name": "AncestralTrialFieldItems",
+      "columns": ["HASH32", "Description", "Achievement"]
+    },
+    {
+      "name": "AncestralTrialItems",
+      "columns": ["Id", "HASH16", "Name", "Image", "Mods", "FlavorText"]
+    },
+    {
+      "name": "AncestralTrialMonsters",
+      "columns": ["Monster", "Achievement"]
+    },
+    {
+      "name": "AncestralTrialPositionType",
+      "columns": [
+        "Id",
+        "PlayerTotemIcon",
+        "Name",
+        "EnemyTotemIcon",
+        "PlayerTotemSmallIcon",
+        "EnemyTotemSmallIcon"
+      ]
+    },
+    {
+      "name": "AncestralTrialTribeOpinions",
+      "columns": ["SourceTribe", "TargetTribe", "Opinion"]
+    },
+    {
+      "name": "AncestralTrialTribes",
+      "columns": ["Id", "Portrait", "TribeIcon", "TribeName", "FavourTracker", "Name"]
+    },
+    {
+      "name": "AncestralTrialUnitPositions",
+      "columns": ["Id"]
+    },
+    {
+      "name": "AncestralTrialUnits",
+      "columns": ["Id", "Name", "Tribe", "Image", "TotemImage", "HASH16", "Description", "Position"]
+    },
+    {
+      "name": "ChieftainLifeScalingPerLevel",
+      "columns": ["Level"]
+    },
+    {
+      "name": "PassiveSkillTattoos",
+      "columns": ["Tattoo", "Override", "Set", "Tribe", "OverrideType"]
+    },
+    {
+      "name": "PassiveSkillTattooTargetSets",
+      "columns": ["Id", "Set", "Name", "Qualifier"]
+    },
+    {
+      "name": "CorpseTypeTags",
+      "columns": ["Tag", "Name", "RavenousBuff", "Icon"]
+    },
+    {
+      "name": "ItemisedCorpse",
+      "columns": ["BaseItem", "MonsterVariety", "MonsterAbilities", "MonsterCategory"]
+    },
+    {
+      "name": "Tinctures",
+      "columns": ["BaseItem", "DebuffInterval", "Cooldown"]
+    },
+    {
+      "name": "ItemisedNecropolisPacks",
+      "columns": ["Item", "Pack", "Description"]
+    },
+    {
+      "name": "NecropolisCraftBases",
+      "columns": ["Id", "BaseItem", "UniqueCraft", "CraftItemType", "Name", "CraftTag"]
+    },
+    {
+      "name": "NecropolisCraftingMods",
+      "columns": [
+        "Id",
+        "Stats",
+        "StatsValues",
+        "CraftingItemType",
+        "CorpsesNotConsumed",
+        "CraftingItemTypes",
+        "Achievements",
+        "MatchingMonsters"
+      ]
+    },
+    {
+      "name": "NecropolisCraftingModsFromStats",
+      "columns": ["Stat", "CraftingMod"]
+    },
+    {
+      "name": "NecropolisCraftItemTypes",
+      "columns": [
+        "Id",
+        "ExorciseIcon",
+        "Name",
+        "IllustratuionIcon",
+        "TextAudioLong",
+        "Achievements",
+        "TextAudioShort"
+      ]
+    },
+    {
+      "name": "NecropolisPackImplicitClass",
+      "columns": ["Id", "MoreImplicit", "LessImplicit"]
+    },
+    {
+      "name": "NecropolisPackImplicits",
+      "columns": ["Id", "Text", "Icon"]
+    },
+    {
+      "name": "NecropolisPackMods",
+      "columns": ["Mod", "Tier", "NextTier", "PrevTier"]
+    },
+    {
+      "name": "NecropolisPackModTiers",
+      "columns": ["Id", "Icon", "Name", "TextColours", "SpecialTier"]
+    },
+    {
+      "name": "NecropolisPacks",
+      "columns": ["Id", "Name", "Icon", "Description", "PackLeader1", "PackLeader2", "Mod"]
+    },
+    {
+      "name": "NecropolisUniqueCrafts",
+      "columns": ["Id", "Stats"]
+    },
+    {
+      "name": "PackFrequencyNames",
+      "columns": ["Id", "Frequency", "Text"]
+    },
+    {
+      "name": "CurrencyExchange",
+      "columns": ["Item", "Category", "SubCategory", "EnabledInChallengeLeague", "GoldPurchaseFee"]
+    },
+    {
+      "name": "CurrencyExchangeCategories",
+      "columns": ["Id", "Name"]
+    },
+    {
+      "name": "VillageExports",
+      "columns": ["Id", "Name", "Icon", "Icon2", "Name2", "IconCombined", "Result"]
+    },
+    {
+      "name": "VillageJobs",
+      "columns": ["Status", "Stat", "StatValue"]
+    },
+    {
+      "name": "VillageJobTypes",
+      "columns": ["Id", "Icon", "StateText", "MaxWorkersStat", "JobSpeedStat"]
+    },
+    {
+      "name": "VillageResources",
+      "columns": ["Id"]
+    },
+    {
+      "name": "VillageSharedConstants",
+      "columns": ["Id", "Value"]
+    },
+    {
+      "name": "VillageUniqueDisenchantValues",
+      "columns": ["UniqueName", "Value"]
+    },
+    {
+      "name": "VillageUpgradeCategories",
+      "columns": ["Id", "ScriptArgs", "Name", "Icon", "Text"]
+    },
+    {
+      "name": "VillageUpgrades",
+      "columns": ["Tier", "Text", "RuneItem", "Stats", "StatsValues", "UpgradeTextAudio"]
+    },
+    {
+      "name": "VillageBaseStats",
+      "columns": ["Stat", "StatValue"]
+    },
+    {
+      "name": "RecombinableClasses",
+      "columns": ["Id"]
+    },
+    {
+      "name": "MercenaryClasses",
+      "columns": ["Id", "MonsterVariety", "Icon", "House", "MonsterVarietyAllied"]
+    },
+    {
+      "name": "MercenaryAttributes",
+      "columns": ["Id", "Name", "Tags"]
+    },
+    {
+      "name": "MercenaryBuilds",
+      "columns": [
+        "Id",
+        "Class",
+        "Skill1",
+        "Skill2",
+        "Skill3",
+        "Tags",
+        "AIFile",
+        "HASH16",
+        "BuildName",
+        "Infamous",
+        "Achievements",
+        "WieldableTypes"
+      ]
+    },
+    {
+      "name": "MercenaryBuildVisualOverrides",
+      "columns": ["Id", "SlotId", "MtxGameSpecific"]
+    },
+    {
+      "name": "MercenaryFlavourText",
+      "columns": ["Id", "Description", "HASH16", "Tags", "TagWeight"]
+    },
+    {
+      "name": "MercenaryInventories",
+      "columns": ["Id"]
+    },
+    {
+      "name": "MercenaryRenownLevels",
+      "columns": ["RenownLevel"]
+    },
+    {
+      "name": "MercenarySkillFamilies",
+      "columns": ["Id"]
+    },
+    {
+      "name": "MercenarySkills",
+      "columns": [
+        "Id",
+        "SupportCount",
+        "PossibleSupports",
+        "SecondaryGrantedEffect",
+        "Name",
+        "Description",
+        "SkillFamily",
+        "HASH16",
+        "HouseIcon"
+      ]
+    },
+    {
+      "name": "MercenarySupportCounts",
+      "columns": ["Id"]
+    },
+    {
+      "name": "MercenarySupportFamilies",
+      "columns": ["Id"]
+    },
+    {
+      "name": "MercenarySupports",
+      "columns": [
+        "Id",
+        "Stat",
+        "StatValues",
+        "Name",
+        "SupportFamily",
+        "HASH16",
+        "GemIcon",
+        "Variant"
+      ]
+    },
+    {
+      "name": "MercenaryWieldableTypes",
+      "columns": ["ItemClass"]
+    },
+    {
+      "name": "ZanaInfluenceCostPerCurrency",
+      "columns": ["Action", "Cost"]
+    },
+    {
+      "name": "AtlasTrees",
+      "columns": ["Id", "Name", "UnlockObjective"]
+    },
+    {
+      "name": "AchievementItemRewards",
+      "columns": ["AchievementItemsKey", "BaseItemTypesKey", "Message", "Id"]
+    },
+    {
+      "name": "AchievementItems",
+      "columns": ["Id", "Name", "CompletionsRequired", "AchievementsKey"]
+    },
+    {
+      "name": "Achievements",
+      "columns": [
+        "Id",
+        "Description",
+        "SetId",
+        "Objective",
+        "HASH16",
+        "HideAchievementItems",
+        "MinCompletedItems",
+        "TwoColumnLayout",
+        "ShowItemCompletionsAsOne",
+        "SoftcoreOnly",
+        "HardcoreOnly"
+      ]
+    },
+    {
+      "name": "AchievementSetRewards",
+      "columns": [
+        "SetId",
+        "AchievementsRequired",
+        "Rewards",
+        "TotemPieceEveryNAchievements",
+        "Message",
+        "NotificationIcon",
+        "HideoutName",
+        "Id"
+      ]
+    },
+    {
+      "name": "AchievementSetsDisplay",
+      "columns": ["Id", "Title"]
+    },
+    {
+      "name": "ActiveSkills",
+      "columns": [
+        "Id",
+        "DisplayedName",
+        "Description",
+        "ActionType",
+        "Icon_DDSFile",
+        "ActiveSkillTargetTypes",
+        "ActiveSkillTypes",
+        "WeaponRestriction_ItemClassesKeys",
+        "WebsiteDescription",
+        "WebsiteImage",
+        "SkillTotemId",
+        "IsManuallyCasted",
+        "Input_StatKeys",
+        "Output_StatKeys",
+        "MinionActiveSkillTypes",
+        "AlternateSkillTargetingBehavioursKey",
+        "AIFile",
+        "TransfigureBase"
+      ]
+    },
+    {
+      "name": "ActiveSkillType",
+      "columns": ["Id", "FlagStat"]
+    },
+    {
+      "name": "Acts",
+      "columns": [
+        "Id",
+        "Part",
+        "ActNumber",
+        "WorldPanelImage",
+        "WorldPanelImageEpilogue",
+        "IsPostGame"
+      ]
+    },
+    {
+      "name": "AddBuffToTargetVarieties",
+      "columns": ["BuffDefinitions", "StatsKeys"]
+    },
+    {
+      "name": "AdditionalLifeScaling",
+      "columns": ["IntId", "ID", "DatFile"]
+    },
+    {
+      "name": "AdditionalMonsterPacksFromStats",
+      "columns": [
+        "StatsKey",
+        "MonsterPacksKeys",
+        "AdditionalMonsterPacksStatMode",
+        "PackCountStatsKey",
+        "StatsKeys",
+        "StatsValues",
+        "PackSizeStatsKey"
+      ]
+    },
+    {
+      "name": "AdvancedSkillsTutorial",
+      "columns": [
+        "Id",
+        "SkillGemInfoKey1",
+        "SkillGemInfoKey2",
+        "Description",
+        "International_BK2File",
+        "SkillGemsKey",
+        "China_BK2File",
+        "CharactersKey"
+      ]
+    },
+    {
+      "name": "AegisVariations",
+      "columns": [
+        "Name",
+        "DefendsAgainstPhysical",
+        "DefendsAgainstFire",
+        "DefendsAgainstCold",
+        "DefendsAgainstLightning",
+        "DefendsAgainstChaos"
+      ]
+    },
+    {
+      "name": "AlternatePassiveAdditions",
+      "columns": [
+        "Id",
+        "AlternateTreeVersionsKey",
+        "SpawnWeight",
+        "StatsKeys",
+        "Stat1Min",
+        "Stat1Max",
+        "PassiveType"
+      ]
+    },
+    {
+      "name": "AlternatePassiveSkills",
+      "columns": [
+        "Id",
+        "AlternateTreeVersionsKey",
+        "Name",
+        "PassiveType",
+        "StatsKeys",
+        "Stat1Min",
+        "Stat1Max",
+        "Stat2Min",
+        "Stat2Max",
+        "SpawnWeight",
+        "RandomMin",
+        "RandomMax",
+        "FlavourText",
+        "DDSIcon",
+        "AchievementItemsKeys"
+      ]
+    },
+    {
+      "name": "AlternateSkillTargetingBehaviours",
+      "columns": ["Id", "ClientStrings"]
+    },
+    {
+      "name": "AlternateTreeVersions",
+      "columns": ["Id"]
+    },
+    {
+      "name": "AnimatedObjectFlags",
+      "columns": ["AOFile"]
+    },
+    {
+      "name": "Animation",
+      "columns": ["Id", "Mainhand_AnimationKey", "Offhand_AnimationKey"]
+    },
+    {
+      "name": "ApplyDamageFunctions",
+      "columns": ["Id", "StatsKeys"]
+    },
+    {
+      "name": "ArchetypeRewards",
+      "columns": ["Id", "Gem", "BK2File"]
+    },
+    {
+      "name": "Archetypes",
+      "columns": [
+        "Id",
+        "CharactersKey",
+        "PassiveSkillTreeURL",
+        "AscendancyClassName",
+        "Description",
+        "UIImageFile",
+        "TutorialVideo_BKFile",
+        "BackgroundImageFile",
+        "IsTemporary",
+        "ArchetypeImage"
+      ]
+    },
+    {
+      "name": "AreaInfluenceDoodads",
+      "columns": ["StatsKey", "StatValue", "AOFiles"]
+    },
+    {
+      "name": "AreaTransitionAnimations",
+      "columns": ["Id", "AnimationId"]
+    },
+    {
+      "name": "AreaTransitionAnimationTypes",
+      "columns": ["Id"]
+    },
+    {
+      "name": "ArmourTypes",
+      "columns": [
+        "BaseItemTypesKey",
+        "ArmourMin",
+        "ArmourMax",
+        "EvasionMin",
+        "EvasionMax",
+        "EnergyShieldMin",
+        "EnergyShieldMax",
+        "IncreasedMovementSpeed",
+        "WardMin",
+        "WardMax"
+      ]
+    },
+    {
+      "name": "Ascendancy",
+      "columns": [
+        "Id",
+        "ClassNo",
+        "Characters",
+        "CoordinateRect",
+        "RGBFlavourTextColour",
+        "Name",
+        "FlavourText",
+        "OGGFile",
+        "PassiveTreeImage",
+        "BackgroundImage",
+        "LeagueName",
+        "LeagueFlavourText",
+        "LeagueBackgroundImage",
+        "LeaguePassiveTreeImage",
+        "LeagueIcon"
+      ]
+    },
+    {
+      "name": "AtlasInfluenceData",
+      "columns": ["InfluencePack", "MonsterPacks"]
+    },
+    {
+      "name": "AtlasInfluenceOutcomes",
+      "columns": ["Id", "Type"]
+    },
+    {
+      "name": "AtlasInfluenceSets",
+      "columns": ["Id", "InfluencePacks"]
+    },
+    {
+      "name": "AtlasMods",
+      "columns": ["ModsKey", "AtlasModTiers"]
+    },
+    {
+      "name": "AtlasFavouredMapSlots",
+      "columns": ["Requirement"]
+    },
+    {
+      "name": "AtlasNode",
+      "columns": [
+        "WorldAreasKey",
+        "ItemVisualIdentityKey",
+        "MapsKey",
+        "FlavourTextKey",
+        "AtlasNodeKeys",
+        "Tier0",
+        "Tier1",
+        "Tier2",
+        "Tier3",
+        "Tier4",
+        "DDSFile",
+        "NotOnAtlas",
+        "DivCards"
+      ]
+    },
+    {
+      "name": "AtlasNodeDefinition",
+      "columns": ["WorldAreasKey", "ItemVisualIdentityKey", "Tier"]
+    },
+    {
+      "name": "AtlasPositions",
+      "columns": ["X", "Y"]
+    },
+    {
+      "name": "AwardDisplay",
+      "columns": ["Id", "Text", "BackgroundImage", "ForegroundImage", "OGGFile"]
+    },
+    {
+      "name": "BackendErrors",
+      "columns": ["Id", "Text"]
+    },
+    {
+      "name": "BaseItemTypes",
+      "columns": [
+        "Id",
+        "ItemClassesKey",
+        "Width",
+        "Height",
+        "Name",
+        "InheritsFrom",
+        "DropLevel",
+        "FlavourTextKey",
+        "Implicit_ModsKeys",
+        "SizeOnGround",
+        "SoundEffect",
+        "TagsKeys",
+        "ModDomain",
+        "SiteVisibility",
+        "ItemVisualIdentity",
+        "HASH32",
+        "VendorRecipe_AchievementItems",
+        "Inflection",
+        "Equip_AchievementItemsKey",
+        "IsCorrupted",
+        "Identify_AchievementItems",
+        "IdentifyMagic_AchievementItems",
+        "FragmentBaseItemTypesKey",
+        "TradeMarketCategory",
+        "Unmodifiable",
+        "Achievement",
+        "IgnoreQuantBonus"
+      ]
+    },
+    {
+      "name": "BindableVirtualKeys",
+      "columns": ["KeyCode", "Name", "Id"]
+    },
+    {
+      "name": "BlightStashTabLayout",
+      "columns": [
+        "Id",
+        "StoredItem",
+        "XOffset",
+        "YOffset",
+        "FirstSlotIndex",
+        "Width",
+        "Height",
+        "SlotSize"
+      ]
+    },
+    {
+      "name": "BloodTypes",
+      "columns": ["Id"]
+    },
+    {
+      "name": "BuffDefinitions",
+      "columns": [
+        "Id",
+        "Description",
+        "Invisible",
+        "Removable",
+        "Name",
+        "StatsKeys",
+        "Maximum_StatsKey",
+        "Current_StatsKey",
+        "BuffVisualsKey",
+        "BuffCategory",
+        "BuffLimit",
+        "Id2",
+        "IsRecovery",
+        "BinaryStats"
+      ]
+    },
+    {
+      "name": "BuffTemplates",
+      "columns": [
+        "Id",
+        "BuffDefinitionsKey",
+        "Buff_StatValues",
+        "AuraRadius",
+        "BuffVisualsKey",
+        "StatsKey"
+      ]
+    },
+    {
+      "name": "BuffVisualOrbArt",
+      "columns": ["Id", "MiscAnimated"]
+    },
+    {
+      "name": "BuffVisualOrbs",
+      "columns": [
+        "Id",
+        "BuffVisualOrbTypesKey",
+        "BuffVisualOrbArtKeys",
+        "Player_BuffVisualOrbArtKeys",
+        "BuffVisualOrbArtKeys2"
+      ]
+    },
+    {
+      "name": "BuffVisualOrbTypes",
+      "columns": ["Id"]
+    },
+    {
+      "name": "BuffVisuals",
+      "columns": [
+        "Id",
+        "BuffDDSFile",
+        "EPKFiles1",
+        "EPKFiles2",
+        "PreloadGroups",
+        "BuffName",
+        "MiscAnimated1",
+        "MiscAnimated2",
+        "BuffDescription",
+        "EPKFile",
+        "HasExtraArt",
+        "ExtraArt",
+        "EPKFiles",
+        "BuffVisualOrbs",
+        "MiscAnimated3"
+      ]
+    },
+    {
+      "name": "BuffVisualsArtVariations",
+      "columns": ["Buff"]
+    },
+    {
+      "name": "BuffVisualSetEntries",
+      "columns": ["Id", "BuffVisual"]
+    },
+    {
+      "name": "CharacterAudioEvents",
+      "columns": [
+        "Id",
+        "Event",
+        "Goddess_CharacterTextAudioKeys",
+        "JackTheAxe_CharacterTextAudioKeys"
+      ]
+    },
+    {
+      "name": "CharacterEventTextAudio",
+      "columns": ["Event", "Character", "TextAudio"]
+    },
+    {
+      "name": "CharacterPanelDescriptionModes",
+      "columns": ["Id", "FormatString_Positive", "FormatString_Negative"]
+    },
+    {
+      "name": "CharacterPanelStats",
+      "columns": [
+        "Id",
+        "Text",
+        "StatsKeys1",
+        "CharacterPanelDescriptionModesKey",
+        "StatsKeys2",
+        "StatsKeys3",
+        "CharacterPanelTabsKey"
+      ]
+    },
+    {
+      "name": "CharacterPanelTabs",
+      "columns": ["Id", "Text"]
+    },
+    {
+      "name": "Characters",
+      "columns": [
+        "Id",
+        "Name",
+        "AOFile",
+        "ACTFile",
+        "BaseMaxLife",
+        "BaseMaxMana",
+        "WeaponSpeed",
+        "MinDamage",
+        "MaxDamage",
+        "MaxAttackDistance",
+        "Icon",
+        "IntegerId",
+        "BaseStrength",
+        "BaseDexterity",
+        "BaseIntelligence",
+        "Description",
+        "StartSkillGem",
+        "CharacterSize",
+        "IntroSoundFile",
+        "StartWeapons",
+        "Gender",
+        "TraitDescription",
+        "PassiveTreeImage",
+        "TencentVideo",
+        "AttrsAsId",
+        "LoginScreen",
+        "PlayerCritter",
+        "PlayerEffect",
+        "AfterImage",
+        "Mirage",
+        "CloneImmobile",
+        "ReplicateClone",
+        "LightningClone",
+        "SkillTreeBackground",
+        "Clone",
+        "Double",
+        "MirageWarrior",
+        "DoubleTwo",
+        "DarkExile",
+        "Attr",
+        "AttrLowercase",
+        "Script"
+      ]
+    },
+    {
+      "name": "CharacterStartQuestState",
+      "columns": ["Id", "QuestKeys", "QuestStates", "MapPinsKeys"]
+    },
+    {
+      "name": "CharacterStartStates",
+      "columns": [
+        "Id",
+        "Description",
+        "CharactersKey",
+        "Level",
+        "PassiveSkillsKeys",
+        "CharacterStartStateSetKey",
+        "CharacterStartQuestStateKeys",
+        "InfoText"
+      ]
+    },
+    {
+      "name": "CharacterStartStateSet",
+      "columns": ["Id"]
+    },
+    {
+      "name": "CharacterTextAudio",
+      "columns": ["Id", "Text", "SoundFile", "ParrotSoundFile"]
+    },
+    {
+      "name": "ChatIcons",
+      "columns": ["Icon", "Image"]
+    },
+    {
+      "name": "ChestClusters",
+      "columns": ["Id", "ChestsKeys"]
+    },
+    {
+      "name": "ChestEffects",
+      "columns": [
+        "Id",
+        "Normal_EPKFile",
+        "Normal_Closed_AOFile",
+        "Normal_Open_AOFile",
+        "Magic_EPKFile",
+        "Unique_EPKFile",
+        "Rare_EPKFile",
+        "Magic_Closed_AOFile",
+        "Unique_Closed_AOFile",
+        "Rare_Closed_AOFile",
+        "Magic_Open_AOFile",
+        "Unique_Open_AOFile",
+        "Rare_Open_AOFile"
+      ]
+    },
+    {
+      "name": "ClientStrings",
+      "columns": ["Id", "Text", "XBoxText", "XBoxText2", "HASH32", "PlaystationText"]
+    },
+    {
+      "name": "ClientLeagueAction",
+      "columns": ["Id", "GamepadIcon"]
+    },
+    {
+      "name": "CloneShot",
+      "columns": ["Id", "MonsterVarietiesKey", "MiscAnimated1", "MiscAnimated2", "MiscAnimated3"]
+    },
+    {
+      "name": "Colours",
+      "columns": ["Item", "Red", "Green", "Blue", "RgbCode"]
+    },
+    {
+      "name": "Commands",
+      "columns": ["Id", "Command", "EnglishCommand", "Description"]
+    },
+    {
+      "name": "ComponentAttributeRequirements",
+      "columns": ["BaseItemTypesKey", "ReqStr", "ReqDex", "ReqInt"]
+    },
+    {
+      "name": "ComponentCharges",
+      "columns": ["BaseItemTypesKey", "MaxCharges", "PerCharge", "MaxCharges2", "PerCharge2"]
+    },
+    {
+      "name": "CoreLeagues",
+      "columns": ["Id"]
+    },
+    {
+      "name": "CostTypes",
+      "columns": ["Id", "StatsKey", "FormatText"]
+    },
+    {
+      "name": "CraftingBenchOptions",
+      "columns": [
+        "HideoutNPCsKey",
+        "Order",
+        "AddMod",
+        "Cost_BaseItemTypes",
+        "Cost_Values",
+        "RequiredLevel",
+        "Name",
+        "CraftingBenchCustomAction",
+        "ItemClasses",
+        "Links",
+        "SocketColours",
+        "Sockets",
+        "ItemQuantity",
+        "Description",
+        "IsDisabled",
+        "IsAreaOption",
+        "RecipeIds",
+        "Tier",
+        "CraftingItemClassCategories",
+        "AchievementItems",
+        "AddEnchantment",
+        "SortCategory",
+        "ModType",
+        "MapDevice",
+        "Tags"
+      ]
+    },
+    {
+      "name": "CraftingBenchSortCategories",
+      "columns": ["Id", "Name", "IsVisible", "Type"]
+    },
+    {
+      "name": "CraftingBenchTypes",
+      "columns": ["Id"]
+    },
+    {
+      "name": "CraftingItemClassCategories",
+      "columns": ["Id", "ItemClasses", "Text"]
+    },
+    {
+      "name": "CurrencyItems",
+      "columns": [
+        "BaseItemTypesKey",
+        "StackSize",
+        "CurrencyUseType",
+        "Action",
+        "Directions",
+        "FullStack_BaseItemTypesKey",
+        "Description",
+        "Usage_AchievementItemsKeys",
+        "Scroll",
+        "Possession_AchievementItemsKey",
+        "CurrencyTab_StackSize",
+        "XBoxDirections",
+        "ModifyMapsAchievements",
+        "ModifyContractsAchievements",
+        "CombineAchievements",
+        "ChangedForHardmode",
+        "DescriptionHardmode",
+        "IsGold"
+      ]
+    },
+    {
+      "name": "CurrencyStashTabLayout",
+      "columns": [
+        "Id",
+        "StoredItem",
+        "XOffset",
+        "YOffset",
+        "FirstSlotIndex",
+        "Width",
+        "Height",
+        "ShowIfEmpty",
+        "SlotGroup"
+      ]
+    },
+    {
+      "name": "DaemonSpawningData",
+      "columns": ["Id", "MonsterVarieties"]
+    },
+    {
+      "name": "DamageHitEffects",
+      "columns": ["Id"]
+    },
+    {
+      "name": "DamageParticleEffects",
+      "columns": [
+        "DamageParticleEffectTypes",
+        "Variation",
+        "PETFile",
+        "ImpactSoundData1",
+        "ImpactSoundData2"
+      ]
+    },
+    {
+      "name": "Dances",
+      "columns": ["BaseItemTypesKey", "CharactersKey"]
+    },
+    {
+      "name": "DaressoPitFights",
+      "columns": ["Id"]
+    },
+    {
+      "name": "DefaultMonsterStats",
+      "columns": [
+        "DisplayLevel",
+        "Damage",
+        "Evasion",
+        "Accuracy",
+        "Life",
+        "Experience",
+        "AllyLife",
+        "Difficulty",
+        "Damage2",
+        "Armour"
+      ]
+    },
+    {
+      "name": "DeliriumStashTabLayout",
+      "columns": [
+        "Id",
+        "StoredItem",
+        "XOffset",
+        "YOffset",
+        "FirstSlotIndex",
+        "Width",
+        "Height",
+        "SlotSize"
+      ]
+    },
+    {
+      "name": "DelveStashTabLayout",
+      "columns": [
+        "Id",
+        "StoredItem",
+        "XOffset",
+        "YOffset",
+        "FirstSlotIndex",
+        "Width",
+        "Height",
+        "SlotSize",
+        "HideIfEmpty",
+        "Image"
+      ]
+    },
+    {
+      "name": "DescentExiles",
+      "columns": ["Id", "WorldAreasKey", "CharactersKey", "MonsterVarietiesKey"]
+    },
+    {
+      "name": "DescentRewardChests",
+      "columns": [
+        "Id",
+        "BaseItemTypesKeys1",
+        "BaseItemTypesKeys2",
+        "BaseItemTypesKeys3",
+        "BaseItemTypesKeys4",
+        "BaseItemTypesKeys5",
+        "BaseItemTypesKeys6",
+        "BaseItemTypesKeys7",
+        "BaseItemTypesKeys8",
+        "BaseItemTypesKeys9",
+        "BaseItemTypesKeys10",
+        "BaseItemTypesKeys11",
+        "BaseItemTypesKeys12",
+        "WorldAreasKey",
+        "BaseItemTypesKeys13",
+        "BaseItemTypesKeys14"
+      ]
+    },
+    {
+      "name": "DescentStarterChest",
+      "columns": ["Id", "CharactersKey", "BaseItemTypesKey", "SocketColours", "WorldAreasKey"]
+    },
+    {
+      "name": "DialogueEvent",
+      "columns": ["Id", "Timer"]
+    },
+    {
+      "name": "DisplayMinionMonsterType",
+      "columns": ["Id", "MonsterVarietiesKey"]
+    },
+    {
+      "name": "DivinationCardStashTabLayout",
+      "columns": ["StoredItem", "IsInGame", "IsEnabled"]
+    },
+    {
+      "name": "DivinationBuffTemplates",
+      "columns": ["Buff", "DivCardArt"]
+    },
+    {
+      "name": "Doors",
+      "columns": ["Id"]
+    },
+    {
+      "name": "DropEffects",
+      "columns": ["Id", "AOFile"]
+    },
+    {
+      "name": "EclipseMods",
+      "columns": [
+        "Key",
+        "SpawnWeight_TagsKeys",
+        "SpawnWeight_Values",
+        "ModsKey",
+        "MinLevel",
+        "MaxLevel",
+        "IsPrefix"
+      ]
+    },
+    {
+      "name": "EffectivenessCostConstants",
+      "columns": ["Id", "Multiplier"]
+    },
+    {
+      "name": "EinharMissions",
+      "columns": ["Id"]
+    },
+    {
+      "name": "EndlessLedgeChests",
+      "columns": ["Id", "WorldAreasKey", "BaseItemTypesKeys", "SocketColour"]
+    },
+    {
+      "name": "Environments",
+      "columns": [
+        "Id",
+        "Base_ENVFile",
+        "Corrupted_ENVFiles",
+        "EnvironmentTransitionsKey",
+        "PreloadGroup"
+      ]
+    },
+    {
+      "name": "EnvironmentTransitions",
+      "columns": ["Id", "OTFiles"]
+    },
+    {
+      "name": "EssenceStashTabLayout",
+      "columns": [
+        "Id",
+        "StoredItem",
+        "XOffset",
+        "YOffset",
+        "FirstSlotIndex",
+        "Width",
+        "Height",
+        "IsUpgradableEssenceSlot"
+      ]
+    },
+    {
+      "name": "ExecuteGEAL",
+      "columns": ["MiscAnimated", "Script", "MetadataIDs", "ScriptCommand"]
+    },
+    {
+      "name": "ExpandingPulse",
+      "columns": ["IntId", "StringId"]
+    },
+    {
+      "name": "ExperienceLevels",
+      "columns": ["Id", "Level", "Experience"]
+    },
+    {
+      "name": "ExplodingStormBuffs",
+      "columns": [
+        "Id",
+        "BuffDefinitionsKey1",
+        "StatValues",
+        "Friendly_MonsterVarietiesKey",
+        "MiscObjectsKey",
+        "MiscAnimatedKey",
+        "BuffVisualsKey",
+        "Enemy_MonsterVarietiesKey",
+        "BuffDefinitionsKey2",
+        "IsOnlySpawningNearPlayer"
+      ]
+    },
+    {
+      "name": "ExtraTerrainFeatures",
+      "columns": ["Id", "ArmFiles", "TdtFiles", "WorldAreasKey"]
+    },
+    {
+      "name": "FixedHideoutDoodadTypes",
+      "columns": ["Id", "HideoutDoodadsKeys", "BaseTypeHideoutDoodadsKey"]
+    },
+    {
+      "name": "Flasks",
+      "columns": [
+        "BaseItemTypesKey",
+        "Name",
+        "Type",
+        "LifePerUse",
+        "ManaPerUse",
+        "RecoveryTime",
+        "BuffDefinitionsKey",
+        "BuffStatValues",
+        "RecoveryTime2",
+        "BuffStatValues2"
+      ]
+    },
+    {
+      "name": "FlavourText",
+      "columns": ["Id", "Text"]
+    },
+    {
+      "name": "Footprints",
+      "columns": ["Id", "Active_AOFiles", "Idle_AOFiles"]
+    },
+    {
+      "name": "FootstepAudio",
+      "columns": ["Id", "Index"]
+    },
+    {
+      "name": "FragmentStashTabLayout",
+      "columns": [
+        "Id",
+        "XOffset",
+        "YOffset",
+        "FirstSlotIndex",
+        "Width",
+        "Height",
+        "Tab",
+        "SlotSize",
+        "HideIfEmpty",
+        "Subtab",
+        "StoredItems"
+      ]
+    },
+    {
+      "name": "GameConstants",
+      "columns": ["Id", "Value", "Divisor"]
+    },
+    {
+      "name": "GameLogos",
+      "columns": ["Id", "LogoIntl", "LogoTW"]
+    },
+    {
+      "name": "GameObjectTasks",
+      "columns": ["Id", "HASH16"]
+    },
+    {
+      "name": "GamepadType",
+      "columns": ["Id", "Console", "ImageFile"]
+    },
+    {
+      "name": "GameStats",
+      "columns": ["Id", "Id2"]
+    },
+    {
+      "name": "GemTags",
+      "columns": ["Id", "Tag", "Stat1", "Stat2", "Stat3", "Stat4"]
+    },
+    {
+      "name": "GenericBuffAuras",
+      "columns": ["Id"]
+    },
+    {
+      "name": "GenericLeagueRewardTypeVisuals",
+      "columns": ["Type", "Icon", "Name"]
+    },
+    {
+      "name": "GeometryChannel",
+      "columns": ["Id", "EPKFile"]
+    },
+    {
+      "name": "GiftWrapArtVariations",
+      "columns": ["Width", "Height", "Item"]
+    },
+    {
+      "name": "GlobalAudioConfig",
+      "columns": ["Id", "Value"]
+    },
+    {
+      "name": "Grandmasters",
+      "columns": ["Id", "GMFile", "AISFile", "ModsKeys", "CharacterLevel"]
+    },
+    {
+      "name": "GrantedEffectQualityStats",
+      "columns": ["GrantedEffectsKey", "StatsKeys", "StatsValuesPermille"]
+    },
+    {
+      "name": "GrantedEffects",
+      "columns": [
+        "Id",
+        "IsSupport",
+        "AllowedActiveSkillTypes",
+        "SupportGemLetter",
+        "Attribute",
+        "AddedActiveSkillTypes",
+        "ExcludedActiveSkillTypes",
+        "SupportsGemsOnly",
+        "CannotBeSupported",
+        "CastTime",
+        "ActiveSkill",
+        "IgnoreMinionTypes",
+        "AddedMinionActiveSkillTypes",
+        "Animation",
+        "MultiPartAchievement",
+        "SupportWeaponRestrictions",
+        "RegularVariant",
+        "StatSet"
+      ]
+    },
+    {
+      "name": "GrantedEffectsPerLevel",
+      "columns": [
+        "GrantedEffect",
+        "Level",
+        "PlayerLevelReq",
+        "CostMultiplier",
+        "StoredUses",
+        "Cooldown",
+        "CooldownBypassType",
+        "VaalSouls",
+        "VaalStoredUses",
+        "CooldownGroup",
+        "SoulGainPreventionDuration",
+        "AttackSpeedMultiplier",
+        "CostAmounts",
+        "CostTypes",
+        "ManaReservationFlat",
+        "ManaReservationPercent",
+        "LifeReservationFlat",
+        "LifeReservationPercent",
+        "AttackTime"
+      ]
+    },
+    {
+      "name": "GrantedEffectStatSets",
+      "columns": [
+        "Id",
+        "ImplicitStats",
+        "ConstantStats",
+        "ConstantStatsValues",
+        "BaseEffectiveness",
+        "IncrementalEffectiveness"
+      ]
+    },
+    {
+      "name": "GrantedEffectStatSetsPerLevel",
+      "columns": [
+        "StatSet",
+        "GemLevel",
+        "PlayerLevelReq",
+        "SpellCritChance",
+        "AttackCritChance",
+        "BaseMultiplier",
+        "DamageEffectiveness",
+        "BaseResolvedValues",
+        "AdditionalStatsValues",
+        "GrantedEffects",
+        "AdditionalFlags",
+        "FloatStats",
+        "InterpolationBases",
+        "AdditionalStats",
+        "StatInterpolations",
+        "FloatStatsValues"
+      ]
+    },
+    {
+      "name": "GroundEffects",
+      "columns": ["GroundEffectTypesKey", "AOFile", "EndEffect"]
+    },
+    {
+      "name": "GroundEffectTypes",
+      "columns": ["Id"]
+    },
+    {
+      "name": "HeistStorageLayout",
+      "columns": [
+        "Id",
+        "StoredItem",
+        "ButtonFile",
+        "SlotSize",
+        "HeistJobsKey",
+        "Width",
+        "Height",
+        "ItemClass"
+      ]
+    },
+    {
+      "name": "HideoutDoodads",
+      "columns": [
+        "BaseItemTypesKey",
+        "Variation_AOFiles",
+        "IsNonMasterDoodad",
+        "InheritsFrom",
+        "IsCraftingBench",
+        "Tags",
+        "Category"
+      ]
+    },
+    {
+      "name": "HideoutDoodadCategory",
+      "columns": ["Id", "Name"]
+    },
+    {
+      "name": "HideoutDoodadTags",
+      "columns": ["Id", "Name"]
+    },
+    {
+      "name": "HideoutNPCs",
+      "columns": ["Hideout_NPCsKey", "Regular_NPCsKeys", "HideoutDoodadsKey", "NPCMasterKey"]
+    },
+    {
+      "name": "HideoutRarity",
+      "columns": ["Id", "Text"]
+    },
+    {
+      "name": "Hideouts",
+      "columns": [
+        "HideoutArea",
+        "HASH16",
+        "HideoutFile",
+        "SpawnAreas",
+        "ClaimSideArea",
+        "HideoutImage",
+        "IsEnabled",
+        "Weight",
+        "Rarity",
+        "NotActsArea",
+        "Name",
+        "ErrorMessage"
+      ]
+    },
+    {
+      "name": "ImpactSoundData",
+      "columns": ["Id", "Sound"]
+    },
+    {
+      "name": "IndexableSkillGems",
+      "columns": ["Index", "SkillGem1", "Name1", "SkillGem2", "Name2"]
+    },
+    {
+      "name": "IndexableSupportGems",
+      "columns": ["Index", "SupportGem", "Name"]
+    },
+    {
+      "name": "InfluenceExalts",
+      "columns": ["Influence", "BaseItemTypesKey"]
+    },
+    {
+      "name": "InfluenceTags",
+      "columns": ["ItemClass", "Influence", "Tag"]
+    },
+    {
+      "name": "Inventories",
+      "columns": ["Id", "InventoryIdKey", "InventoryTypeKey"]
+    },
+    {
+      "name": "ItemClassCategories",
+      "columns": ["Id", "Text"]
+    },
+    {
+      "name": "ItemClasses",
+      "columns": [
+        "Id",
+        "Name",
+        "TradeMarketCategory",
+        "ItemClassCategory",
+        "RemovedIfLeavesArea",
+        "IdentifyAchievements",
+        "AllocateToMapOwner",
+        "AlwaysAllocate",
+        "CanHaveVeiledMods",
+        "PickedUpQuest",
+        "AlwaysShow",
+        "CanBeCorrupted",
+        "CanHaveIncubators",
+        "CanHaveInfluence",
+        "CanBeDoubleCorrupted",
+        "CanHaveAspects",
+        "CanTransferSkin",
+        "ItemStance",
+        "CanScourge",
+        "CanUpgradeRarity",
+        "MaxInventoryDimensions",
+        "Flags",
+        "Unmodifiable",
+        "CanBeFractured",
+        "EquipAchievements",
+        "UsedInMapDevice"
+      ]
+    },
+    {
+      "name": "ItemCostPerLevel",
+      "columns": ["Contract_BaseItemTypesKey", "Level", "Cost", "CostHardmode"]
+    },
+    {
+      "name": "ItemCosts",
+      "columns": [
+        "Id",
+        "Cost1Currencies",
+        "Cost1Values",
+        "Cost2Currencies",
+        "Cost2Values",
+        "Cost3Currencies",
+        "Cost3Values",
+        "Cost4Currencies",
+        "Cost4Values"
+      ]
+    },
+    {
+      "name": "ItemFrameType",
+      "columns": [
+        "Id",
+        "DoubleLine",
+        "HeaderSingle",
+        "HeaderDouble",
+        "HardmodeHeaderSingle",
+        "HardmodeHeaderDouble",
+        "Color",
+        "Separator",
+        "Rarity",
+        "DisplayString",
+        "ColorMarkup"
+      ]
+    },
+    {
+      "name": "ItemExperienceTypes",
+      "columns": ["Id"]
+    },
+    {
+      "name": "ItemExperiencePerLevel",
+      "columns": ["ItemExperienceType", "ItemCurrentLevel", "Experience"]
+    },
+    {
+      "name": "ItemisedVisualEffect",
+      "columns": ["EffectBaseType", "VisualEffect", "VisualIdentity", "Stats", "ItemClasses"]
+    },
+    {
+      "name": "ItemNoteCode",
+      "columns": ["BaseItem", "Code", "Order1", "Show", "Order2"]
+    },
+    {
+      "name": "ItemStances",
+      "columns": ["Id"]
+    },
+    {
+      "name": "ItemVisualEffect",
+      "columns": [
+        "Id",
+        "DaggerEPKFile",
+        "BowEPKFile",
+        "OneHandedMaceEPKFile",
+        "OneHandedSwordEPKFile",
+        "TwoHandedSwordEPKFile",
+        "TwoHandedStaffEPKFile",
+        "HASH16",
+        "TwoHandedMaceEPKFile",
+        "OneHandedAxeEPKFile",
+        "TwoHandedAxeEPKFile",
+        "ClawEPKFile",
+        "PETFile",
+        "Shield"
+      ]
+    },
+    {
+      "name": "ItemVisualHeldBodyModel",
+      "columns": [
+        "ItemVisualIdentity",
+        "MarauderAnimatedObject",
+        "RangerAnimatedObject",
+        "WitchAnimatedObject",
+        "DuelistAnimatedObject",
+        "TemplarAnimatedObject",
+        "ShadowAnimatedObject",
+        "ScionAnimatedObject",
+        "MarauderBone",
+        "RangerBone",
+        "WitchBone",
+        "DuelistBone",
+        "TemplarBone",
+        "ShadowBone",
+        "ScionBone"
+      ]
+    },
+    {
+      "name": "ItemVisualIdentity",
+      "columns": [
+        "Id",
+        "DDSFile",
+        "AOFile",
+        "InventorySoundEffect",
+        "HASH16",
+        "AOFile2",
+        "MarauderSMFiles",
+        "RangerSMFiles",
+        "WitchSMFiles",
+        "DuelistDexSMFiles",
+        "TemplarSMFiles",
+        "ShadowSMFiles",
+        "ScionSMFiles",
+        "MarauderShape",
+        "RangerShape",
+        "WitchShape",
+        "DuelistShape",
+        "TemplarShape",
+        "ShadowShape",
+        "ScionShape",
+        "Pickup_AchievementItemsKeys",
+        "SMFiles",
+        "Identify_AchievementItemsKeys",
+        "EPKFile",
+        "Corrupt_AchievementItemsKeys",
+        "IsAlternateArt",
+        "CreateCorruptedJewelAchievementItemsKey",
+        "AnimationLocation",
+        "IsAtlasOfWorldsMapIcon",
+        "IsTier16Icon",
+        "Composition"
+      ]
+    },
+    {
+      "name": "JobRaidBrackets",
+      "columns": ["MinLevel", "WorldArea"]
+    },
+    {
+      "name": "KillstreakThresholds",
+      "columns": ["Kills", "MonsterVarietiesKey", "AchievementItemsKey"]
+    },
+    {
+      "name": "LeagueFlag",
+      "columns": ["Id", "Image", "IsHC", "IsSSF", "Banner", "IsRuthless"]
+    },
+    {
+      "name": "LeagueInfo",
+      "columns": [
+        "PanelVersion",
+        "PanelId",
+        "PanelImage",
+        "HeaderImage",
+        "Screenshots",
+        "Description",
+        "TrailerVideoLink",
+        "BackgroundImage",
+        "PanelItems"
+      ]
+    },
+    {
+      "name": "LeagueInfoPanelVersions",
+      "columns": ["Id"]
+    },
+    {
+      "name": "LeagueProgressQuestFlags",
+      "columns": ["QuestFlag", "CompletionString", "Boss"]
+    },
+    {
+      "name": "LevelRelativePlayerScaling",
+      "columns": ["PlayerLevel", "MonsterLevel"]
+    },
+    {
+      "name": "MagicMonsterLifeScalingPerLevel",
+      "columns": ["Level", "Life"]
+    },
+    {
+      "name": "MapCompletionAchievements",
+      "columns": [
+        "MapStatConditionsKeys",
+        "StatsKeys",
+        "AchievementItemsKeys",
+        "MapTierAchievementsKeys",
+        "WorldAreasKeys"
+      ]
+    },
+    {
+      "name": "MapConnections",
+      "columns": ["MapPinsKey0", "MapPinsKey1", "RestrictedAreaText"]
+    },
+    {
+      "name": "MapCreationInformation",
+      "columns": ["MapsKey", "Tier"]
+    },
+    {
+      "name": "MapDeviceRecipes",
+      "columns": [
+        "Id",
+        "RecipeItems",
+        "WorldArea",
+        "MicrotransactionPortalVariation",
+        "AreaLevel",
+        "OpenAchievemnts"
+      ]
+    },
+    {
+      "name": "MapDevices",
+      "columns": ["Id", "MiscObject"]
+    },
+    {
+      "name": "MapFragmentMods",
+      "columns": [
+        "BaseItemTypesKey",
+        "ModsKeys",
+        "AchievementItemsKey",
+        "MapFragmentFamilies",
+        "MinAreaLevel",
+        "MapFragmentLimit"
+      ]
+    },
+    {
+      "name": "MapInhabitants",
+      "columns": ["StatsKey", "MonsterPacksKeys"]
+    },
+    {
+      "name": "MapPins",
+      "columns": [
+        "Id",
+        "PositionX",
+        "PositionY",
+        "Waypoint_WorldAreasKey",
+        "WorldAreasKeys",
+        "Name",
+        "FlavourText",
+        "Act"
+      ]
+    },
+    {
+      "name": "MapPurchaseCosts",
+      "columns": ["Tier", "Cost"]
+    },
+    {
+      "name": "Maps",
+      "columns": [
+        "BaseItemTypesKey",
+        "Regular_WorldAreasKey",
+        "Unique_WorldAreasKey",
+        "MapUpgrade_BaseItemTypesKey",
+        "MonsterPacksKeys",
+        "AchievementItem",
+        "Regular_GuildCharacter",
+        "Unique_GuildCharacter",
+        "Tier",
+        "Shaped_Base_MapsKey",
+        "Shaped_AreaLevel",
+        "UpgradedFrom_MapsKey",
+        "MapsKey2",
+        "MapsKey3",
+        "MapSeriesKey"
+      ]
+    },
+    {
+      "name": "MapSeries",
+      "columns": [
+        "Id",
+        "Name",
+        "BaseIcon_DDSFile",
+        "Infected_DDSFile",
+        "Shaper_DDSFile",
+        "Elder_DDSFile",
+        "Drawn_DDSFile",
+        "Delirious_DDSFile",
+        "UberBlight_DDSFile",
+        "Purple_DDSFile"
+      ]
+    },
+    {
+      "name": "MapSeriesTiers",
+      "columns": [
+        "MapsKey",
+        "MapWorldsTier",
+        "BetrayalTier",
+        "SynthesisTier",
+        "LegionTier",
+        "BlightTier",
+        "MetamorphosisTier",
+        "DeliriumTier",
+        "HarvestTier",
+        "HeistTier",
+        "RitualTier",
+        "ExpeditionTier",
+        "ScourgeTier",
+        "ArchnemesisTier",
+        "SentinelTier",
+        "KalandraTier",
+        "SanctumTier",
+        "CrucibleTier",
+        "AncestorTier",
+        "AzmeriTier",
+        "NecropolisTier",
+        "SettlersTier",
+        "SecretsTier"
+      ]
+    },
+    {
+      "name": "MapStashSpecialTypeEntries",
+      "columns": ["Id", "MapItem", "Name", "IsShaperGuardian", "IsElderGuardian"]
+    },
+    {
+      "name": "MapStashUniqueMapInfo",
+      "columns": ["UniqueMap", "BaseItem"]
+    },
+    {
+      "name": "MapStatConditions",
+      "columns": ["Id", "StatsKey", "StatMin", "StatMax"]
+    },
+    {
+      "name": "MapTierAchievements",
+      "columns": ["Id", "AchievementItemsKey", "MapTiers"]
+    },
+    {
+      "name": "MapTiers",
+      "columns": ["Tier", "Level", "Level2"]
+    },
+    {
+      "name": "Melee",
+      "columns": [
+        "ActiveSkill",
+        "MiscAnimated",
+        "MeleeTrailsKey1",
+        "MeleeTrailsKey2",
+        "MeleeTrailsKey3",
+        "MeleeTrailsKey4",
+        "MeleeTrailsKey5",
+        "MeleeTrailsKey6",
+        "MeleeTrailsKey7",
+        "SurgeEffect_EPKFile"
+      ]
+    },
+    {
+      "name": "MeleeTrails",
+      "columns": ["EPKFile1", "EPKFile2", "AOFile"]
+    },
+    {
+      "name": "MetamorphosisStashTabLayout",
+      "columns": [
+        "Id",
+        "StoredItem",
+        "XOffset",
+        "YOffset",
+        "FirstSlotIndex",
+        "Width",
+        "Height",
+        "SlotSize"
+      ]
+    },
+    {
+      "name": "MicroMigrationData",
+      "columns": ["BaseItemTypesKey"]
+    },
+    {
+      "name": "MicrotransactionCategory",
+      "columns": ["Id", "Name"]
+    },
+    {
+      "name": "MicrotransactionCharacterPortraitVariations",
+      "columns": ["BaseItemType"]
+    },
+    {
+      "name": "MicrotransactionCombineFormula",
+      "columns": ["Id", "Result_BaseItemTypesKey", "Ingredients_BaseItemTypesKeys", "BK2File"]
+    },
+    {
+      "name": "MicrotransactionFireworksVariations",
+      "columns": ["BaseItemTypesKey", "AOFile"]
+    },
+    {
+      "name": "MicrotransactionPeriodicCharacterEffectVariations",
+      "columns": ["Id", "AOFile", "MiscObject"]
+    },
+    {
+      "name": "MicrotransactionPortalVariations",
+      "columns": [
+        "BaseItemTypesKey",
+        "Id",
+        "AOFile",
+        "MapAOFile",
+        "MiscObject",
+        "PortalEffect",
+        "PortalEffectLarge",
+        "Script"
+      ]
+    },
+    {
+      "name": "MicrotransactionRarityDisplay",
+      "columns": ["Rarity"]
+    },
+    {
+      "name": "MicrotransactionRecycleSalvageValues",
+      "columns": ["BaseItemType"]
+    },
+    {
+      "name": "MicrotransactionSlot",
+      "columns": ["Id", "Name"]
+    },
+    {
+      "name": "MicrotransactionSocialFrameVariations",
+      "columns": ["BaseItemTypesKey", "Id", "BK2File"]
+    },
+    {
+      "name": "MinimapIcons",
+      "columns": ["Id", "MinimapIconRadius", "LargemapIconRadius", "MinimapIconPointerMaxDistance"]
+    },
+    {
+      "name": "MiscAnimated",
+      "columns": ["Id", "AOFile", "PreloadGroupsKeys", "HASH32"]
+    },
+    {
+      "name": "MiscAnimatedArtVariations",
+      "columns": ["Id"]
+    },
+    {
+      "name": "MiscBeams",
+      "columns": ["Id", "MiscAnimated", "PreloadGroupsKeys"]
+    },
+    {
+      "name": "MiscBeamsArtVariations",
+      "columns": ["Id"]
+    },
+    {
+      "name": "MiscEffectPacks",
+      "columns": ["Id", "EPKFile", "PreloadGroups", "PlayerOnly_EPKFile"]
+    },
+    {
+      "name": "MiscObjects",
+      "columns": ["Id", "EffectVirtualPath", "PreloadGroupsKeys"]
+    },
+    {
+      "name": "MissionTimerTypes",
+      "columns": ["Id", "Image", "BackgroundImage"]
+    },
+    {
+      "name": "MissionTransitionTiles",
+      "columns": ["Id", "TDTFile"]
+    },
+    {
+      "name": "ModEffectStats",
+      "columns": ["StatsKey", "TagsKeys"]
+    },
+    {
+      "name": "ModEquivalencies",
+      "columns": ["Id", "ModsKey0", "ModsKey1", "ModsKey2"]
+    },
+    {
+      "name": "ModFamily",
+      "columns": ["Id"]
+    },
+    {
+      "name": "Mods",
+      "columns": [
+        "Id",
+        "HASH16",
+        "ModTypeKey",
+        "Level",
+        "StatsKey1",
+        "StatsKey2",
+        "StatsKey3",
+        "StatsKey4",
+        "Domain",
+        "Name",
+        "GenerationType",
+        "Families",
+        "Stat1Min",
+        "Stat1Max",
+        "Stat2Min",
+        "Stat2Max",
+        "Stat3Min",
+        "Stat3Max",
+        "Stat4Min",
+        "Stat4Max",
+        "SpawnWeight_TagsKeys",
+        "SpawnWeight_Values",
+        "TagsKeys",
+        "GrantedEffectsPerLevelKeys",
+        "MonsterMetadata",
+        "MonsterKillAchievements",
+        "ChestModType",
+        "Stat5Min",
+        "Stat5Max",
+        "StatsKey5",
+        "FullAreaClear_AchievementItemsKey",
+        "AchievementItemsKey",
+        "GenerationWeight_TagsKeys",
+        "GenerationWeight_Values",
+        "ModifyMapsAchievements",
+        "IsEssenceOnlyModifier",
+        "Stat6Min",
+        "Stat6Max",
+        "StatsKey6",
+        "MaxLevel",
+        "CraftingItemClassRestrictions",
+        "MonsterOnDeath",
+        "Heist_SubStatValue1",
+        "Heist_SubStatValue2",
+        "Heist_StatsKey0",
+        "Heist_StatsKey1",
+        "Heist_AddStatValue1",
+        "Heist_AddStatValue2",
+        "InfluenceTypes",
+        "ImplicitTagsKeys",
+        "BuffTemplate",
+        "ArchnemesisMinionMod",
+        "HASH32",
+        "GameMode"
+      ]
+    },
+    {
+      "name": "ModSellPriceTypes",
+      "columns": ["Id"]
+    },
+    {
+      "name": "ModType",
+      "columns": ["Name", "ModSellPriceTypesKeys"]
+    },
+    {
+      "name": "MonsterArmours",
+      "columns": ["Id", "ArtString_SMFile"]
+    },
+    {
+      "name": "MonsterBonuses",
+      "columns": ["Id", "BonusMods", "StatsKeys", "StatValues"]
+    },
+    {
+      "name": "MonsterConditionalEffectPacks",
+      "columns": ["Id", "MiscEffectPack1", "MiscEffectPack2", "MiscEffectPack3", "MiscEffectPack4"]
+    },
+    {
+      "name": "MonsterConditions",
+      "columns": ["Id", "Rarity", "Stat", "NotRarity", "NotStat", "MapBoss", "NotMapBoss", "HASH32"]
+    },
+    {
+      "name": "MonsterDeathAchievements",
+      "columns": [
+        "Id",
+        "MonsterVarietiesKeys",
+        "AchievementItemsKeys",
+        "PlayerConditionsKeys",
+        "MonsterDeathConditionsKeys",
+        "NearbyMonsterConditionsKeys",
+        "MultiPartAchievementConditionsKeys"
+      ]
+    },
+    {
+      "name": "MonsterGroupEntries",
+      "columns": ["Id", "MonsterVarietiesKey", "MonsterGroupNamesId"]
+    },
+    {
+      "name": "MonsterHeightBrackets",
+      "columns": ["Id", "BuffVisuals1", "BuffVisuals2", "Tag"]
+    },
+    {
+      "name": "MonsterHeights",
+      "columns": ["MonsterVariety", "MonsterHeightBracket"]
+    },
+    {
+      "name": "MonsterMapBossDifficulty",
+      "columns": [
+        "MapLevel",
+        "BossLifePercentIncrease",
+        "BossDamagePercentIncrease",
+        "Stat1",
+        "Stat2",
+        "Stat3",
+        "BossIncItemQuantity",
+        "Stat4",
+        "BossIncItemRarity",
+        "Stat5",
+        "BossAilmentPercentDecrease"
+      ]
+    },
+    {
+      "name": "MonsterMapDifficulty",
+      "columns": [
+        "MapLevel",
+        "LifePercentIncrease",
+        "DamagePercentIncrease",
+        "Stat1",
+        "Stat2",
+        "Stat3",
+        "Stat3Value",
+        "Stat4",
+        "Stat4Value"
+      ]
+    },
+    {
+      "name": "MonsterMortar",
+      "columns": ["Id"]
+    },
+    {
+      "name": "MonsterPackEntries",
+      "columns": ["Id", "MonsterPacksKey", "Flag", "Weight", "MonsterVarietiesKey"]
+    },
+    {
+      "name": "MonsterPacks",
+      "columns": [
+        "Id",
+        "WorldAreasKeys",
+        "BossMonsterSpawnChance",
+        "BossMonsterCount",
+        "BossMonster_MonsterVarietiesKeys",
+        "TagsKeys",
+        "MinLevel",
+        "MaxLevel",
+        "WorldAreas2",
+        "PackFormation",
+        "NecropolisPack"
+      ]
+    },
+    {
+      "name": "MonsterProjectileAttack",
+      "columns": ["Id", "Projectile"]
+    },
+    {
+      "name": "MonsterProjectileSpell",
+      "columns": ["Id", "Projectile", "Animation"]
+    },
+    {
+      "name": "MonsterResistances",
+      "columns": [
+        "Id",
+        "FireNormal",
+        "ColdNormal",
+        "LightningNormal",
+        "ChaosNormal",
+        "FireCruel",
+        "ColdCruel",
+        "LightningCruel",
+        "ChaosCruel",
+        "FireMerciless",
+        "ColdMerciless",
+        "LightningMerciless",
+        "ChaosMerciless"
+      ]
+    },
+    {
+      "name": "MonsterSegments",
+      "columns": ["Id", "Shapes"]
+    },
+    {
+      "name": "MonsterSpawnerGroups",
+      "columns": ["Id"]
+    },
+    {
+      "name": "MonsterSpawnerGroupsPerLevel",
+      "columns": ["MonsterSpawnerGroupsKey", "MinLevel"]
+    },
+    {
+      "name": "MonsterSpawnerOverrides",
+      "columns": ["Base_MonsterVarietiesKey", "Override_MonsterVarietiesKey"]
+    },
+    {
+      "name": "MonsterTypes",
+      "columns": [
+        "Id",
+        "OTFile",
+        "IsSummoned",
+        "Armour",
+        "Evasion",
+        "EnergyShieldFromLife",
+        "DamageSpread",
+        "MonsterResistancesKey",
+        "IsLargeAbyssMonster",
+        "IsSmallAbyssMonster"
+      ]
+    },
+    {
+      "name": "MonsterVarieties",
+      "columns": [
+        "Id",
+        "MonsterTypesKey",
+        "ObjectSize",
+        "MinimumAttackDistance",
+        "MaximumAttackDistance",
+        "ACTFiles",
+        "AOFiles",
+        "BaseMonsterTypeIndex",
+        "ModsKeys",
+        "ModelSizeMultiplier",
+        "TagsKeys",
+        "ExperienceMultiplier",
+        "CriticalStrikeChance",
+        "GrantedEffectsKeys",
+        "AISFile",
+        "ModsKeys2",
+        "Stance",
+        "Name",
+        "DamageMultiplier",
+        "LifeMultiplier",
+        "AttackSpeed",
+        "Weapon1_ItemVisualIdentityKeys",
+        "Weapon2_ItemVisualIdentityKeys",
+        "Back_ItemVisualIdentityKey",
+        "MainHand_ItemClassesKey",
+        "OffHand_ItemClassesKey",
+        "Helmet_ItemVisualIdentityKey",
+        "KillSpecificMonsterCount_AchievementItemsKeys",
+        "Special_ModsKeys",
+        "KillRare_AchievementItemsKeys",
+        "HASH16",
+        "KillWhileOnslaughtIsActive_AchievementItemsKey",
+        "MonsterSegmentsKey",
+        "MonsterArmoursKey",
+        "KillWhileTalismanIsActive_AchievementItemsKey",
+        "Part1_ModsKeys",
+        "Part2_ModsKeys",
+        "Endgame_ModsKeys",
+        "SinkAnimation_AOFile",
+        "EPKFile",
+        "MonsterConditionalEffectPacksKey",
+        "AddonMonsterTypeIndex",
+        "BossHealthBar"
+      ]
+    },
+    {
+      "name": "MonsterVarietiesArtVariations",
+      "columns": ["Id"]
+    },
+    {
+      "name": "MouseCursorSizeSettings",
+      "columns": ["Size", "Description", "Ratio"]
+    },
+    {
+      "name": "MTXSetBonus",
+      "columns": ["Id"]
+    },
+    {
+      "name": "MultiPartAchievementConditions",
+      "columns": ["Id", "MultiPartAchievementsKey1", "MultiPartAchievementsKey2"]
+    },
+    {
+      "name": "MultiPartAchievements",
+      "columns": ["Id", "AchievementItemsKey", "Threshold"]
+    },
+    {
+      "name": "Music",
+      "columns": [
+        "Id",
+        "SoundFile",
+        "BankFile",
+        "HASH16",
+        "IsAvailableInHideout",
+        "Name",
+        "MusicCategories"
+      ]
+    },
+    {
+      "name": "MusicCategories",
+      "columns": ["Id", "Name", "Order"]
+    },
+    {
+      "name": "MysteryBoxes",
+      "columns": ["BaseItemTypesKey", "BK2File", "BoxId", "BundleId"]
+    },
+    {
+      "name": "NearbyMonsterConditions",
+      "columns": [
+        "Id",
+        "MonsterVarietiesKeys",
+        "MonsterAmount",
+        "IsNegated",
+        "IsLessThen",
+        "MinimumHealthPercentage"
+      ]
+    },
+    {
+      "name": "Notifications",
+      "columns": ["Id", "Message"]
+    },
+    {
+      "name": "NPCAudio",
+      "columns": ["Id", "VolumePercentage"]
+    },
+    {
+      "name": "NPCConversations",
+      "columns": ["Id", "DialogueEvent", "NPCTextAudioKeys"]
+    },
+    {
+      "name": "NPCDialogueStyles",
+      "columns": ["Id", "HeaderBaseFile", "ButtomFile", "BannerFiles", "HeaderFiles"]
+    },
+    {
+      "name": "NPCFollowerVariations",
+      "columns": ["MonsterVarietiesKey", "MiscAnimatedKey0", "MiscAnimatedKey1"]
+    },
+    {
+      "name": "NPCMaster",
+      "columns": [
+        "Id",
+        "Signature_ModsKey",
+        "SpawnWeight_TagsKeys",
+        "SpawnWeight_Values",
+        "AreaDescription",
+        "HasAreaMissions"
+      ]
+    },
+    {
+      "name": "NPCPortraits",
+      "columns": ["Name", "PortraitFile"]
+    },
+    {
+      "name": "NPCs",
+      "columns": [
+        "Id",
+        "Name",
+        "Metadata",
+        "NPCMasterKey",
+        "ShortName",
+        "NPCAudios1",
+        "NPCAudios2",
+        "HASH16",
+        "Portrait",
+        "DialogueStyle",
+        "Gender"
+      ]
+    },
+    {
+      "name": "NPCShop",
+      "columns": ["Id"]
+    },
+    {
+      "name": "NPCShopSets",
+      "columns": ["Id"]
+    },
+    {
+      "name": "NPCTalk",
+      "columns": [
+        "NPCKey",
+        "DialogueOption",
+        "Script",
+        "TextAudio",
+        "Category",
+        "QuestRewardOffersKey",
+        "QuestFlag",
+        "NPCTextAudioKeys",
+        "Script2",
+        "DialogueOption2"
+      ]
+    },
+    {
+      "name": "NPCTalkCategory",
+      "columns": ["Id"]
+    },
+    {
+      "name": "NPCTalkConsoleQuickActions",
+      "columns": ["Id", "Controller"]
+    },
+    {
+      "name": "NPCTextAudio",
+      "columns": [
+        "Id",
+        "Characters",
+        "Text",
+        "Mono_AudioFile",
+        "Stereo_AudioFile",
+        "HasStereo",
+        "Video",
+        "NPCs"
+      ]
+    },
+    {
+      "name": "OnKillAchievements",
+      "columns": ["MonsterVarietiesKey", "GameStat"]
+    },
+    {
+      "name": "PackFormation",
+      "columns": ["Id"]
+    },
+    {
+      "name": "PassiveJewelRadii",
+      "columns": ["ID", "RingOuterRadius", "RingInnerRadius", "Radius"]
+    },
+    {
+      "name": "PassiveJewelSlots",
+      "columns": ["Slot", "ClusterJewelSize", "ReplacesSlot", "ProxySlot", "StartIndices"]
+    },
+    {
+      "name": "PassiveJewelNodeModifyingStats",
+      "columns": ["JwelStat", "Stat"]
+    },
+    {
+      "name": "PassiveSkillFilterCatagories",
+      "columns": ["Id", "Name"]
+    },
+    {
+      "name": "PassiveSkillFilterOptions",
+      "columns": ["Id", "Name"]
+    },
+    {
+      "name": "PassiveSkillOverrides",
+      "columns": [
+        "Id",
+        "Name",
+        "NodeIcon",
+        "Stats",
+        "StatValues",
+        "HASH16",
+        "PassiveBG",
+        "Effect",
+        "Type",
+        "Limit",
+        "RequiresAdjacent",
+        "MaxAdjacent",
+        "AllocatedPassiveSkill"
+      ]
+    },
+    {
+      "name": "PassiveSkillOverrideTypes",
+      "columns": ["Id", "CounterStat"]
+    },
+    {
+      "name": "PassiveOverrideLimits",
+      "columns": ["Id", "Description"]
+    },
+    {
+      "name": "PassiveSkillMasteryGroups",
+      "columns": [
+        "Id",
+        "MasteryEffects",
+        "InactiveIcon",
+        "ActiveIcon",
+        "ActiveEffectImage",
+        "SoundEffect",
+        "MasteryCountStat"
+      ]
+    },
+    {
+      "name": "PassiveSkillMasteryEffects",
+      "columns": [
+        "Id",
+        "HASH16",
+        "Stats",
+        "Stat1Value",
+        "Stat2Value",
+        "Stat3Value",
+        "AchievementItem"
+      ]
+    },
+    {
+      "name": "PassiveSkills",
+      "columns": [
+        "Id",
+        "Icon_DDSFile",
+        "Stats",
+        "Stat1Value",
+        "Stat2Value",
+        "Stat3Value",
+        "Stat4Value",
+        "PassiveSkillGraphId",
+        "Name",
+        "Characters",
+        "IsKeystone",
+        "IsNotable",
+        "FlavourText",
+        "IsJustIcon",
+        "AchievementItem",
+        "IsJewelSocket",
+        "AscendancyKey",
+        "IsAscendancyStartingNode",
+        "ReminderStrings",
+        "SkillPointsGranted",
+        "IsMultipleChoice",
+        "IsMultipleChoiceOption",
+        "Stat5Value",
+        "PassiveSkillBuffs",
+        "GrantedEffectsPerLevel",
+        "IsAnointmentOnly",
+        "IsExpansion",
+        "IsProxyPassive",
+        "SkillType",
+        "MasteryGroup",
+        "Group",
+        "SoundEffect"
+      ]
+    },
+    {
+      "name": "PassiveSkillStatCategories",
+      "columns": ["Id", "Name"]
+    },
+    {
+      "name": "PassiveSkillTrees",
+      "columns": ["Id", "PassiveSkillGraph", "UIArt"]
+    },
+    {
+      "name": "PassiveSkillTreeTutorial",
+      "columns": [
+        "Id",
+        "CharactersKey",
+        "ChoiceA_Description",
+        "ChoiceB_Description",
+        "ChoiceA_PassiveTreeURL",
+        "ChoiceB_PassiveTreeURL"
+      ]
+    },
+    {
+      "name": "PassiveSkillTreeUIArt",
+      "columns": [
+        "Id",
+        "GroupBackgroundSmall",
+        "GroupBackgroundMedium",
+        "GroupBackgroundLarge",
+        "PassiveFrameNormal",
+        "NotableFrameNormal",
+        "KeystoneFrameNormal",
+        "PassiveFrameActive",
+        "NotableFrameActive",
+        "KeystoneFrameActive",
+        "PassiveFrameCanAllocate",
+        "NotableFrameCanAllocate",
+        "KeystoneCanAllocate",
+        "Ornament",
+        "GroupBackgroundSmallBlank",
+        "GroupBackgroundMediumBlank",
+        "GroupBackgroundLargeBlank"
+      ]
+    },
+    {
+      "name": "PassiveTreeExpansionJewels",
+      "columns": [
+        "BaseItemTypesKey",
+        "PassiveTreeExpansionJewelSizesKey",
+        "MinNodes",
+        "MaxNodes",
+        "SmallIndices",
+        "NotableIndices",
+        "SocketIndices",
+        "TotalIndices"
+      ]
+    },
+    {
+      "name": "PassiveTreeExpansionJewelSizes",
+      "columns": ["Name"]
+    },
+    {
+      "name": "PassiveTreeExpansionSkills",
+      "columns": [
+        "PassiveSkillsKey",
+        "Mastery_PassiveSkillsKey",
+        "TagsKey",
+        "PassiveTreeExpansionJewelSizesKey"
+      ]
+    },
+    {
+      "name": "PassiveTreeExpansionSpecialSkills",
+      "columns": ["PassiveSkillsKey", "StatsKey"]
+    },
+    {
+      "name": "Pet",
+      "columns": ["Id", "BaseItemTypesKey", "HASH16", "HASH32", "Skills"]
+    },
+    {
+      "name": "PlayerConditions",
+      "columns": [
+        "Id",
+        "BuffDefinitionsKeys",
+        "BuffStacks",
+        "CharactersKey",
+        "StatsKeys",
+        "StatValue"
+      ]
+    },
+    {
+      "name": "PlayerTradeWhisperFormats",
+      "columns": ["Id", "Whisper", "InStash", "IsPriced"]
+    },
+    {
+      "name": "PreloadGroups",
+      "columns": ["Id"]
+    },
+    {
+      "name": "Projectiles",
+      "columns": [
+        "Id",
+        "AOFiles",
+        "LoopAnimationIds",
+        "ImpactAnimationIds",
+        "ProjectileSpeed",
+        "InheritsFrom",
+        "Stuck_AOFile",
+        "Bounce_AOFile"
+      ]
+    },
+    {
+      "name": "ProjectilesArtVariations",
+      "columns": ["Projectile", "Variant"]
+    },
+    {
+      "name": "PVPTypes",
+      "columns": ["Id"]
+    },
+    {
+      "name": "Quest",
+      "columns": ["Id", "Act", "Name", "Icon_DDSFile", "QuestId", "Type", "TrackerGroup"]
+    },
+    {
+      "name": "QuestAchievements",
+      "columns": ["Id", "QuestStates", "AchievementItems", "NPCs"]
+    },
+    {
+      "name": "QuestFlags",
+      "columns": ["Id", "HASH32"]
+    },
+    {
+      "name": "QuestItems",
+      "columns": ["Item", "TriggeredQuestFlag", "HelpText", "Description", "Script"]
+    },
+    {
+      "name": "QuestRewardOffers",
+      "columns": ["Id", "QuestKey", "QuestFlag", "RewardWindowTake", "RewardWindowTitle"]
+    },
+    {
+      "name": "QuestRewards",
+      "columns": ["RewardOffer", "Characters", "Reward", "RewardLevel", "RewardStack"]
+    },
+    {
+      "name": "QuestStates",
+      "columns": [
+        "Quest",
+        "Order",
+        "FlagsPresent",
+        "FlagsMissing",
+        "Text",
+        "Message",
+        "MapPinsKeys1",
+        "MapPinsTexts",
+        "MapPinsKeys2",
+        "SoundEffect"
+      ]
+    },
+    {
+      "name": "QuestStaticRewards",
+      "columns": [
+        "QuestFlag",
+        "StatsKeys",
+        "StatValues",
+        "QuestKey",
+        "ClientStringsKey",
+        "StatValuesHardmode",
+        "ClientStringHardmode"
+      ]
+    },
+    {
+      "name": "QuestTrackerGroup",
+      "columns": ["Id", "Name", "QuestType"]
+    },
+    {
+      "name": "QuestType",
+      "columns": ["Id"]
+    },
+    {
+      "name": "Races",
+      "columns": ["Id", "Mods"]
+    },
+    {
+      "name": "RaceTimes",
+      "columns": ["RacesKey", "Index", "StartUNIXTime", "EndUNIXTime"]
+    },
+    {
+      "name": "RareMonsterLifeScalingPerLevel",
+      "columns": ["Level", "Life"]
+    },
+    {
+      "name": "Rarity",
+      "columns": ["Id", "MinMods", "MaxMods", "MaxPrefix", "MaxSuffix", "Color", "Text"]
+    },
+    {
+      "name": "Realms",
+      "columns": [
+        "Id",
+        "Name",
+        "Server",
+        "IsEnabled",
+        "Server2",
+        "ShortName",
+        "IsGammaRealm",
+        "SpeedtestUrl"
+      ]
+    },
+    {
+      "name": "RecipeUnlockDisplay",
+      "columns": [
+        "RecipeId",
+        "Description",
+        "CraftingItemClassCategoriesKeys",
+        "UnlockDescription",
+        "Rank",
+        "UnlockArea"
+      ]
+    },
+    {
+      "name": "RecipeUnlockObjects",
+      "columns": ["WorldAreasKey", "InheritsFrom", "RecipeId"]
+    },
+    {
+      "name": "ReminderText",
+      "columns": ["Id", "Text", "TextHardmode"]
+    },
+    {
+      "name": "Rulesets",
+      "columns": ["Id"]
+    },
+    {
+      "name": "SalvageBoxes",
+      "columns": ["BaseItemType", "Id"]
+    },
+    {
+      "name": "SessionQuestFlags",
+      "columns": ["QuestFlag"]
+    },
+    {
+      "name": "ShieldTypes",
+      "columns": ["BaseItemTypesKey", "Block"]
+    },
+    {
+      "name": "ShopTag",
+      "columns": ["Id", "Name", "IsCategory", "Category", "PoE2", "Guild"]
+    },
+    {
+      "name": "SigilDisplay",
+      "columns": [
+        "Id",
+        "Active_StatsKey",
+        "Inactive_StatsKey",
+        "DDSFile",
+        "Inactive_ArtFile",
+        "Active_ArtFile",
+        "Frame_ArtFile"
+      ]
+    },
+    {
+      "name": "SingleGroundLaser",
+      "columns": ["Id"]
+    },
+    {
+      "name": "SkillArtVariations",
+      "columns": ["Id", "Variants"]
+    },
+    {
+      "name": "SkillGemInfo",
+      "columns": ["Id", "Description", "VideoURL1", "SkillGemsKey", "VideoURL2", "CharactersKeys"]
+    },
+    {
+      "name": "SkillGems",
+      "columns": [
+        "BaseItemTypesKey",
+        "StrengthRequirementPercent",
+        "DexterityRequirementPercent",
+        "IntelligenceRequirementPercent",
+        "VaalVariant_BaseItemTypesKey",
+        "IsVaalVariant",
+        "MinionGlobalSkillLevelStat",
+        "IsSupport",
+        "AwakenedVariant",
+        "RegularVariant",
+        "ItemExperienceType",
+        "MtxSlotTypes",
+        "GemEffects"
+      ]
+    },
+    {
+      "name": "SkillMineVariations",
+      "columns": ["SkillMinesKey", "MiscObject"]
+    },
+    {
+      "name": "SkillMorphDisplay",
+      "columns": ["DDSFiles"]
+    },
+    {
+      "name": "SkillSurgeEffects",
+      "columns": ["GrantedEffectsKey", "MiscAnimated"]
+    },
+    {
+      "name": "SkillTotemVariations",
+      "columns": ["SkillTotemsKey", "TotemSkinId", "MonsterVarietiesKey"]
+    },
+    {
+      "name": "SkillTrapVariations",
+      "columns": ["Id", "Metadata", "MiscAnimated"]
+    },
+    {
+      "name": "SocketNotches",
+      "columns": ["Id", "Description", "RedSocketImage", "BlueSocketImage", "GreenSocketImage"]
+    },
+    {
+      "name": "SoundEffects",
+      "columns": ["Id", "SoundFile", "SoundFile_2D"]
+    },
+    {
+      "name": "SpawnAdditionalChestsOrClusters",
+      "columns": ["StatsKey", "ChestsKey", "ChestClustersKey"]
+    },
+    {
+      "name": "SpecialRooms",
+      "columns": ["Id", "ARMFile"]
+    },
+    {
+      "name": "SpecialTiles",
+      "columns": ["Id", "TDTFile"]
+    },
+    {
+      "name": "SpectreOverrides",
+      "columns": ["Monster", "Spectre"]
+    },
+    {
+      "name": "StartingPassiveSkills",
+      "columns": ["Id", "PassiveSkills"]
+    },
+    {
+      "name": "StashTabAffinities",
+      "columns": ["SpecializedStash", "Name", "ShowInStashes"]
+    },
+    {
+      "name": "StashType",
+      "columns": ["Id", "StashId", "Id2", "Icon"]
+    },
+    {
+      "name": "StatDescriptionFunctions",
+      "columns": ["Id", "TranslationId"]
+    },
+    {
+      "name": "StatsAffectingGeneration",
+      "columns": ["Stat", "StatValue"]
+    },
+    {
+      "name": "Stats",
+      "columns": [
+        "Id",
+        "IsLocal",
+        "IsWeaponLocal",
+        "Semantics",
+        "Text",
+        "IsVirtual",
+        "MainHandAlias_StatsKey",
+        "OffHandAlias_StatsKey",
+        "HASH32",
+        "BelongsActiveSkillsKey",
+        "Category",
+        "IsScalable",
+        "ContextFlags"
+      ]
+    },
+    {
+      "name": "SuicideExplosion",
+      "columns": ["Id"]
+    },
+    {
+      "name": "SummonedSpecificBarrels",
+      "columns": ["Id", "Chest"]
+    },
+    {
+      "name": "SummonedSpecificMonsters",
+      "columns": ["Id", "MonsterVarietiesKey"]
+    },
+    {
+      "name": "SummonedSpecificMonstersOnDeath",
+      "columns": ["Id", "MonsterVarietiesKey"]
+    },
+    {
+      "name": "SurgeEffects",
+      "columns": ["Id"]
+    },
+    {
+      "name": "SurgeTypes",
+      "columns": ["Id", "SurgeEffects", "IntId"]
+    },
+    {
+      "name": "TableMonsterSpawners",
+      "columns": ["Metadata", "AreaLevel", "SpawnsMonsters", "Script1", "Script2"]
+    },
+    {
+      "name": "Tags",
+      "columns": ["Id", "DisplayString", "Name"]
+    },
+    {
+      "name": "TalkingPetAudioEvents",
+      "columns": ["Event"]
+    },
+    {
+      "name": "TencentAutoLootPetCurrencies",
+      "columns": ["BaseItemTypesKey"]
+    },
+    {
+      "name": "TencentAutoLootPetCurrenciesExcludable",
+      "columns": ["BaseItemTypesKey"]
+    },
+    {
+      "name": "TerrainPlugins",
+      "columns": ["Id"]
+    },
+    {
+      "name": "Tips",
+      "columns": ["Id", "Text", "TextXBox"]
+    },
+    {
+      "name": "Topologies",
+      "columns": ["Id", "DGRFile"]
+    },
+    {
+      "name": "TradeMarketCategory",
+      "columns": ["Id", "Name", "StyleFlag", "Group", "IsDisabled"]
+    },
+    {
+      "name": "TradeMarketCategoryGroups",
+      "columns": ["Id", "Name"]
+    },
+    {
+      "name": "TradeMarketCategoryListAllClass",
+      "columns": ["TradeCategory", "ItemClass"]
+    },
+    {
+      "name": "TradeMarketIndexItemAs",
+      "columns": ["Item", "IndexAs"]
+    },
+    {
+      "name": "TriggerSpawners",
+      "columns": ["Id"]
+    },
+    {
+      "name": "Tutorial",
+      "columns": ["Id", "UIFile", "ClientString", "IsEnabled"]
+    },
+    {
+      "name": "UITalkText",
+      "columns": ["Id", "UITalkCategoriesKey", "OGGFile", "Text", "NPCTextAudio"]
+    },
+    {
+      "name": "UniqueChests",
+      "columns": [
+        "Id",
+        "WordsKey",
+        "FlavourTextKey",
+        "MinLevel",
+        "ModsKeys",
+        "SpawnWeight",
+        "AOFile",
+        "AppearanceChestsKey",
+        "ChestsKey"
+      ]
+    },
+    {
+      "name": "UniqueJewelLimits",
+      "columns": ["JewelName", "Limit"]
+    },
+    {
+      "name": "UniqueMaps",
+      "columns": [
+        "ItemVisualIdentityKey",
+        "WorldAreasKey",
+        "WordsKey",
+        "FlavourTextKey",
+        "HasGuildCharacter",
+        "GuildCharacter",
+        "Name",
+        "IsDropDisabled"
+      ]
+    },
+    {
+      "name": "UniqueStashLayout",
+      "columns": [
+        "WordsKey",
+        "ItemVisualIdentityKey",
+        "UniqueStashTypesKey",
+        "OverrideWidth",
+        "OverrideHeight",
+        "ShowIfEmptyChallengeLeague",
+        "ShowIfEmptyStandard",
+        "RenamedVersion",
+        "BaseVersion",
+        "IsAlternateArt"
+      ]
+    },
+    {
+      "name": "UniqueStashTypes",
+      "columns": [
+        "Id",
+        "Order",
+        "Width",
+        "Height",
+        "TotalCount",
+        "Name",
+        "StandardCount",
+        "Image",
+        "ChallengeLeagueCount",
+        "IsDisabled"
+      ]
+    },
+    {
+      "name": "VirtualStatContextFlags",
+      "columns": ["Id"]
+    },
+    {
+      "name": "VoteState",
+      "columns": ["Id", "Text"]
+    },
+    {
+      "name": "VoteType",
+      "columns": ["Id", "Text", "AcceptText", "RejectText"]
+    },
+    {
+      "name": "WeaponClasses",
+      "columns": ["ItemClass"]
+    },
+    {
+      "name": "WeaponImpactSoundData",
+      "columns": ["Id"]
+    },
+    {
+      "name": "WeaponTypes",
+      "columns": ["BaseItemTypesKey", "Critical", "Speed", "DamageMin", "DamageMax", "RangeMax"]
+    },
+    {
+      "name": "WindowCursors",
+      "columns": ["Id", "CursorDefault", "CursorClick", "CursorHover", "Description", "IsEnabled"]
+    },
+    {
+      "name": "Words",
+      "columns": [
+        "Wordlist",
+        "Text",
+        "SpawnWeight_Tags",
+        "SpawnWeight_Values",
+        "Text2",
+        "Inflection"
+      ]
+    },
+    {
+      "name": "WorldAreas",
+      "columns": [
+        "Id",
+        "Name",
+        "Act",
+        "IsTown",
+        "HasWaypoint",
+        "Connections_WorldAreasKeys",
+        "AreaLevel",
+        "HASH16",
+        "LoadingScreens",
+        "TopologiesKeys",
+        "ParentTown_WorldAreasKey",
+        "Bosses_MonsterVarietiesKeys",
+        "Monsters_MonsterVarietiesKeys",
+        "SpawnWeight_TagsKeys",
+        "SpawnWeight_Values",
+        "IsMapArea",
+        "FullClear_AchievementItemsKeys",
+        "AchievementItemsKey",
+        "ModsKeys",
+        "VaalArea",
+        "MaxLevel",
+        "AreaTypeTags",
+        "IsHideout",
+        "Inflection",
+        "Tags",
+        "IsVaalArea",
+        "IsLabyrinthAirlock",
+        "IsLabyrinthArea",
+        "TwinnedFullClear_AchievementItemsKey",
+        "Enter_AchievementItemsKey",
+        "TSIFile",
+        "WaypointActivation_AchievementItemsKeys",
+        "IsUniqueMapArea",
+        "IsLabyrinthBossArea",
+        "FirstEntry_NPCTextAudioKey",
+        "FirstEntry_SoundEffectsKey",
+        "FirstEntry_NPCsKey",
+        "EnvironmentsKey",
+        "LeagueChance1",
+        "LeagueChance2",
+        "Ruleset",
+        "QuestFlag"
+      ]
+    },
+    {
+      "name": "WorldAreaLeagueChances",
+      "columns": ["Id"]
+    },
+    {
+      "name": "WorldObjectDisplayedApplicableItems",
+      "columns": ["Id", "BaseItemType"]
+    },
+    {
+      "name": "WorldPopupIconTypes",
+      "columns": ["Id"]
+    },
+    {
+      "name": "AbyssBossLifeScalingPerLevel",
+      "columns": ["Level", "Life"]
+    },
+    {
+      "name": "ActionTypes",
+      "columns": ["Id"]
+    },
+    {
+      "name": "AlternateTreeArt",
+      "columns": ["Circle1", "Circle2", "Glow"]
+    },
+    {
+      "name": "AnimateWeaponUniques",
+      "columns": ["Id", "ItemVisualIdentity", "ItemClass"]
+    },
+    {
+      "name": "AtlasMemoryLine",
+      "columns": ["League", "League2", "StartPointArt", "MidPointArt", "EndPointArt", "PathArt"]
+    },
+    {
+      "name": "BattlePasses",
+      "columns": [
+        "Id",
+        "LeagueCategory",
+        "International_BK2File",
+        "China_BK2File",
+        "MapCompletionCount",
+        "Id2"
+      ]
+    },
+    {
+      "name": "BattlePassRewards",
+      "columns": [
+        "BattlePass",
+        "RewardTier",
+        "Id",
+        "RewardedMTX",
+        "RewardDescription",
+        "RewardTitle"
+      ]
+    },
+    {
+      "name": "BattlePassTracks",
+      "columns": ["Id", "Description"]
+    },
+    {
+      "name": "BreachArtVariations",
+      "columns": ["Id"]
+    },
+    {
+      "name": "Breachstones",
+      "columns": ["BaseType", "MapTierEquivalent", "UpgradesTo", "UpgradeCurrency"]
+    },
+    {
+      "name": "BossKillEvent",
+      "columns": ["QuestFlag", "AreaLevel", "Monster", "QuestFlag2"]
+    },
+    {
+      "name": "CorpseSinkVariations",
+      "columns": ["Id", "AOFile", "EPKFile", "AOFiles"]
+    },
+    {
+      "name": "CosmeticsEquipPanelMode",
+      "columns": ["Id"]
+    },
+    {
+      "name": "CurrencyUseEffects",
+      "columns": ["BK2File", "SoundFile", "BK2File2"]
+    },
+    {
+      "name": "DamageEffectVariations",
+      "columns": ["Id"]
+    },
+    {
+      "name": "DelveRobotVariations",
+      "columns": ["Id", "AOFile"]
+    },
+    {
+      "name": "DivinationWindowVisuals",
+      "columns": ["Id", "WindowArt", "ButtonArt"]
+    },
+    {
+      "name": "EntityInfobarStyle",
+      "columns": [
+        "Id",
+        "FrameLeft",
+        "FrameMiddle",
+        "FrameRepeat",
+        "FrameRight",
+        "EntityLeft",
+        "EntityMiddle",
+        "EntityRepeat",
+        "EntityRight",
+        "EntityStats",
+        "EntityStatsSmall",
+        "LifeBar",
+        "LifeBarLeft",
+        "LifeBarMiddle",
+        "LifeBarRepeat",
+        "LifeBarRight"
+      ]
+    },
+    {
+      "name": "GamepadButtonCombination",
+      "columns": ["Id", "Button1", "Button2"]
+    },
+    {
+      "name": "GemEffects",
+      "columns": [
+        "Id",
+        "Name",
+        "GrantedEffect",
+        "GrantedEffectHardmode",
+        "GrantedEffect2",
+        "GrantedEffect2Hardmode",
+        "SupportText",
+        "SupportName",
+        "GemTags",
+        "Consumed_ModsKey",
+        "ItemColor"
+      ]
+    },
+    {
+      "name": "HardModeExtraContentChances",
+      "columns": ["Id"]
+    },
+    {
+      "name": "HideoutCraftingBenchInterfaceVisuals",
+      "columns": ["Id"]
+    },
+    {
+      "name": "HudEnergyShieldVisuals",
+      "columns": ["Id"]
+    },
+    {
+      "name": "HudLifeVisuals",
+      "columns": ["Id"]
+    },
+    {
+      "name": "LegacyAtlasInfluenceOutcomes",
+      "columns": ["Id"]
+    },
+    {
+      "name": "MapStashSubstashGroup",
+      "columns": ["Id", "Label", "Icon", "Description"]
+    },
+    {
+      "name": "MemoryLineType",
+      "columns": ["Id", "MemoryLine", "HASH16", "Stats", "StatsValues", "Suffix"]
+    },
+    {
+      "name": "MtxTypes",
+      "columns": ["Id"]
+    },
+    {
+      "name": "MtxTypeGameSpecific",
+      "columns": ["Type", "HASH16", "DDSFile"]
+    },
+    {
+      "name": "MicrotransactionAppliedInventoryItemArtVariations",
+      "columns": ["DDSFiles"]
+    },
+    {
+      "name": "MicrotransactionConditionalApparitions",
+      "columns": ["Id"]
+    },
+    {
+      "name": "MicrotransactionEquippedIconVariations",
+      "columns": ["DDSFiles"]
+    },
+    {
+      "name": "MicrotransactionObjectEffects",
+      "columns": ["Id", "Script"]
+    },
+    {
+      "name": "MicrotransactionOnKillBeams",
+      "columns": ["Id"]
+    },
+    {
+      "name": "MicrotransactionOnKillConditions",
+      "columns": ["Id"]
+    },
+    {
+      "name": "MicrotransactionOnKillEffects",
+      "columns": ["Id"]
+    },
+    {
+      "name": "MicrotransactionSkillGemEffectSlotTypes",
+      "columns": ["Id", "Type"]
+    },
+    {
+      "name": "MinionType",
+      "columns": ["Id", "LimitStat", "ActiveCountStat"]
+    },
+    {
+      "name": "MinionDoublingStatTypes",
+      "columns": ["Id", "Stat", "MinionType"]
+    },
+    {
+      "name": "PassiveJewelArt",
+      "columns": ["BaseItemTypesKey", "SocketedImage", "SocketedImageLarge"]
+    },
+    {
+      "name": "PortalAudioEvents",
+      "columns": ["Id"]
+    },
+    {
+      "name": "RelicInventoryLayout",
+      "columns": ["Requirement"]
+    },
+    {
+      "name": "RelicItemEffectVariations",
+      "columns": ["Id", "Description", "DDSFile"]
+    },
+    {
+      "name": "SkillGemLevelUpEffects",
+      "columns": ["Id"]
+    },
+    {
+      "name": "StatVisuals",
+      "columns": ["EPKFiles"]
+    },
+    {
+      "name": "TieredMicrotransactions",
+      "columns": ["MTX", "TierThresholds", "TierCount"]
+    },
+    {
+      "name": "TieredMicrotransactionsVisuals",
+      "columns": ["MTX", "Tier", "Description", "DDSFile"]
+    },
+    {
+      "name": "TormentedSpiritLifeScalingPerLevel",
+      "columns": ["Level", "Life"]
+    },
+    {
+      "name": "TryTheNewLeagueVersions",
+      "columns": ["League", "Logo"]
+    },
+    {
+      "name": "TypeTags",
+      "columns": ["Id", "Tag", "Name", "Icon"]
+    },
+    {
+      "name": "MapRelicInventoryLayout",
+      "columns": ["XOffset", "YOffset", "UnlockQuest", "UnlockText"]
+    },
+    {
+      "name": "UniqueMapRelicLimits",
+      "columns": ["Idol", "Limit"]
+    }
+  ]
+}

@@ -1,0 +1,92 @@
+{
+  "patch": "3.28.0.16",
+
+  "steam": "C:\\Program Files (x86)\\Steam\\steamapps\\common\\Path of Exile",
+
+  "files": ["Metadata/StatDescriptions/stat_descriptions.txt"],
+
+  "translations": ["English"],
+
+  "tables": [
+    {
+      "name": "ItemVisualIdentity",
+      "columns": ["Id", "DDSFile", "AOFile"]
+    },
+    {
+      "name": "UniqueStashLayout",
+      "columns": ["WordsKey", "ItemVisualIdentityKey"]
+    },
+    {
+      "name": "Words",
+      "columns": ["Text", "Text2"]
+    },
+    {
+      "name": "BaseItemTypes",
+      "columns": ["Id", "Name", "ItemClassesKey", "InheritsFrom", "ItemVisualIdentity", "TagsKeys"]
+    },
+    {
+      "name": "ItemClasses",
+      "columns": ["Id"]
+    },
+    {
+      "name": "ItemFrameType",
+      "columns": ["Id", "Rarity", "DisplayString"]
+    },
+    {
+      "name": "WorldAreas",
+      "columns": [
+        "Id",
+        "Name",
+        "Act",
+        "IsUniqueMapArea",
+        "AreaLevel",
+        "IsTown",
+        "IsMapArea",
+        "IsLabyrinthArea",
+        "IsLabyrinthAirlock",
+        "IsLabyrinthBossArea",
+        "IsHideout",
+        "IsVaalArea",
+        "AreaTypeTags",
+        "Connections_WorldAreasKeys",
+        "Bosses_MonsterVarietiesKeys"
+      ]
+    },
+    {
+      "name": "Stats",
+      "columns": ["Id"]
+    },
+    {
+      "name": "NPCTextAudio",
+      "columns": ["Id", "Text", "NPCs"]
+    },
+    {
+      "name": "NPCs",
+      "columns": ["Id", "Name", "ShortName"]
+    },
+    {
+      "name": "IncursionRooms",
+      "columns": ["Id", "Name"]
+    },
+    {
+      "name": "BetrayalTargets",
+      "columns": ["Id", "FullName"]
+    },
+    {
+      "name": "AfflictionStartDialogue",
+      "columns": ["WorldAreasKey", "NPCTextAudioKey"]
+    },
+    {
+      "name": "Shrines",
+      "columns": ["Id", "Name", "Description"]
+    },
+    {
+      "name": "ClientStrings",
+      "columns": ["Id", "Text"]
+    },
+    {
+      "name": "UltimatumModifiers",
+      "columns": ["Id", "Name", "Description", "Icon", "Tier", "TextAudio"]
+    }
+  ]
+}

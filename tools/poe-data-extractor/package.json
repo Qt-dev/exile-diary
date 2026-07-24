@@ -1,0 +1,33 @@
+{
+  "name": "exile-diary-poe-data-extractor",
+  "private": true,
+  "type": "module",
+  "version": "1.0.0",
+  "description": "A package for exporting data from Path of Exile",
+  "main": "index.js",
+  "scripts": {
+    "extract": "npm run update-patch && npm run export && npm run generate && npm run publish",
+    "generate": "node index.js",
+    "update-patch": "node updateConfig.js",
+    "export": "cd data && pathofexile-dat",
+    "update": "npm run update-patch && npm run export",
+    "publish": "node publish.js ../../src/helpers/data",
+    "check": "node validate.js ../../src/helpers/data",
+    "check-changes": "node checkChangedFiles.js",
+    "test": "node --test test/*.test.js"
+  },
+  "keywords": [
+    "poe",
+    "export",
+    "data"
+  ],
+  "author": "Quentin Devauchelle",
+  "license": "MIT",
+  "dependencies": {
+    "case": "^1.6.3",
+    "pathofexile-dat": "^14.0.3"
+  },
+  "devDependencies": {
+    "prettier": "^2.8.8"
+  }
+}

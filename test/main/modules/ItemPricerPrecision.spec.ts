@@ -122,4 +122,10 @@ describe('ItemPricer precision metadata', () => {
       notes: [],
     });
   });
+
+  it('recognizes the Allflame map series generation', () => {
+    const { MAP_SERIES } = require('../../../src/main/modules/ItemPricer');
+
+    expect(MAP_SERIES).toContainEqual({ id: 25, name: 'Allflame' });
+  });
 });
