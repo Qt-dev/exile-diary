@@ -10,7 +10,7 @@ Create a private GitHub App such as `exile-diary-data-updater` with no webhooks 
 - Pull requests: read and write
 - Metadata: read (granted implicitly)
 
-Install the App only on `Qt-dev/exile-diary`. Add its client ID as the repository variable `POE_DATA_APP_CLIENT_ID` and its private key as the repository secret `POE_DATA_APP_PRIVATE_KEY`.
+Install the App only on `Qt-dev/exile-diary`. Add its numeric App ID as the repository variable `POE_DATA_APP_ID` and its private key as the repository secret `POE_DATA_APP_PRIVATE_KEY`.
 
 The workflow requests a short-lived installation token scoped to the current repository and the two permissions above. It uses the App bot as the commit author.
 
