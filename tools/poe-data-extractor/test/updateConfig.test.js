@@ -25,6 +25,19 @@ test('updates the config with a trimmed valid patch', async (context) => {
   assert.match(await fs.readFile(configPath, 'utf8'), /"patch": "3\.29\.0\.1"/);
 });
 
+test('accepts a five-component patch version', async (context) => {
+  const { configPath, directory } = await createConfig();
+  context.after(() => fs.rm(directory, { recursive: true, force: true }));
+
+  const result = await updatePatchConfig({
+    configPath,
+    fetchImpl: async () => ({ ok: true, status: 200, text: async () => '3.29.0.1.2\n' }),
+  });
+
+  assert.deepEqual(result, { changed: true, patch: '3.29.0.1.2' });
+  assert.match(await fs.readFile(configPath, 'utf8'), /"patch": "3\.29\.0\.1\.2"/);
+});
+
 test('does not rewrite an unchanged config', async (context) => {
   const { configPath, directory } = await createConfig();
   context.after(() => fs.rm(directory, { recursive: true, force: true }));
@@ -39,7 +52,7 @@ test('does not rewrite an unchanged config', async (context) => {
   assert.equal((await fs.stat(configPath)).mtimeMs, before.mtimeMs);
 });
 
-for (const invalidPatch of ['', 'not-a-patch', '<html>failure</html>']) {
+for (const invalidPatch of ['', 'not-a-patch', '<html>failure</html>', '3.29.0.1.2.3']) {
   test(`rejects invalid patch response ${JSON.stringify(invalidPatch)}`, async (context) => {
     const { configPath, directory } = await createConfig();
     context.after(() => fs.rm(directory, { recursive: true, force: true }));
