@@ -4,6 +4,7 @@ import { ItemData } from '../../../helpers/types';
 import { getCategory } from '../../../helpers/item';
 import IgnoreManager from '../../../helpers/ignoreManager';
 import dayjs from 'dayjs';
+import { getItemModDescriptions, getLegacyFrameType } from '../../../helpers/poeItemApi';
 
 type LootTableData = {
   id: string;
@@ -71,7 +72,15 @@ const getQuality = (data: ItemData) => {
 // Rarity lives in the frametype property
 // Returns 0 if no quality is found
 const getRarity = (data: ItemData) => {
-  return data.frameType < 1 || data.frameType > 3 ? 0 : data.frameType;
+  const frameType = getLegacyFrameType(data);
+  return frameType === undefined || frameType < 1 || frameType > 3 ? 0 : frameType;
+};
+
+const normalizeItemData = (data: ItemData): ItemData => {
+  const frameType = getLegacyFrameType(data);
+  if (frameType === undefined || data.frameType === frameType) return data;
+
+  return { ...data, frameType };
 };
 
 // Get the list of influences from itemData
@@ -145,7 +154,7 @@ const getSockets = (data: ItemData) => {
 
 // Get Gem Level from the item's properties
 const getGemLevel = (data: ItemData) => {
-  if (data.properties && data.frameType === 4) {
+  if (data.properties && getLegacyFrameType(data) === 4) {
     for (const property of data.properties) {
       if (property.name === 'Level') return property.values[0][0].replace(' (Max)', '');
     }
@@ -196,7 +205,8 @@ export class Item {
   isIgnored: boolean;
   drop_timestamp?: dayjs.Dayjs;
 
-  constructor(store, itemdata: ItemData) {
+  constructor(store, incomingItemData: ItemData) {
+    const itemdata = normalizeItemData(incomingItemData);
     makeAutoObservable(this, {
       id: false,
       store: false,
@@ -212,7 +222,7 @@ export class Item {
 
     this.name = itemdata.name.replace('<<set:MS>><<set:M>><<set:S>>', '').replace(/<>/g, '');
     if (itemdata.typeLine === 'Filled Coffin') {
-      this.name += `${itemdata.implicitMods[0]} - L${
+      this.name += `${getItemModDescriptions(itemdata.implicitMods)[0] ?? ''} - L${
         itemdata.properties?.find(({ name }) => name === 'Corpse Level').values[0][0]
       }`;
     }
@@ -248,9 +258,9 @@ export class Item {
     this.synthesised = itemdata.synthesised || false;
     this.fractured = itemdata.fractured || false;
 
-    this.explicitMods = itemdata.explicitMods;
-    this.implicitMods = itemdata.implicitMods;
-    this.enchantMods = itemdata.enchantMods;
+    this.explicitMods = getItemModDescriptions(itemdata.explicitMods);
+    this.implicitMods = getItemModDescriptions(itemdata.implicitMods);
+    this.enchantMods = getItemModDescriptions(itemdata.enchantMods);
 
     if (this.itemClass === 'Prophecy') {
       this.name = this.baseType;

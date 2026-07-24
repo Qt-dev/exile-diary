@@ -2,6 +2,7 @@ import { getCategory } from '../../helpers/item';
 import Utils from '../modules/Utils';
 import Logger from 'electron-log';
 import type { ItemValuationExplanation } from '../modules/ItemPricer';
+import { getLegacyFrameType } from '../../helpers/poeItemApi';
 
 const logger = Logger.scope('Item');
 
@@ -49,7 +50,12 @@ type RawData = {
   id: string;
   name: string; // This is actually the custom name, if it exists. The basetype is actually what we are after most of the time
   baseType: string;
-  frameType: number;
+  frameType?: number;
+  frameTypeId?: string;
+  iconStackLevel?: string;
+  vestigial?: boolean;
+  mercenarySkills?: unknown[];
+  enshrouded?: { unique?: string; progress?: number; total?: number };
   icon: string;
   identified: boolean;
   ilvl: number;
@@ -146,6 +152,7 @@ class Item {
 
   constructor(rawData: Partial<RawData>) {
     Object.assign(this, rawData);
+    this.frameType = getLegacyFrameType(rawData) ?? 0;
 
     if (Array.isArray(rawData.properties)) {
       this.properties = JSON.parse(JSON.stringify(rawData.properties));

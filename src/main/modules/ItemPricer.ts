@@ -3,6 +3,7 @@ import RatesManager from '../RatesManager';
 import { writeFile } from 'fs/promises';
 import Constants from '../../helpers/constants';
 import * as ItemCategoryParser from '../../helpers/item';
+import { getItemModDescriptions, getLegacyFrameType } from '../../helpers/poeItemApi';
 import ItemData from './ItemData';
 import Utils from './Utils';
 import dayjs, { min } from 'dayjs';
@@ -32,6 +33,28 @@ const abyssItems = [
   // Not priced per Socket on poe.ninja
   //"Hale Negator",
   //"Command of the Pit"
+];
+
+export const MAP_SERIES = [
+  { id: 1, name: 'Atlas2-3.4' },
+  { id: 2, name: 'Atlas2' },
+  { id: 3, name: 'Synthesis' },
+  { id: 4, name: 'Legion' },
+  { id: 5, name: 'Blight' },
+  { id: 6, name: 'Metamorph' },
+  { id: 7, name: 'Delirium' },
+  { id: 8, name: 'Harvest' },
+  { id: 9, name: 'Heist' },
+  { id: 10, name: 'Ritual' },
+  { id: 11, name: 'Expedition' },
+  { id: 18, name: 'Ancestor' },
+  { id: 19, name: 'Affliction' },
+  { id: 20, name: 'Necropolis' },
+  { id: 21, name: 'Settlers' },
+  { id: 22, name: 'Mercenaries' },
+  { id: 23, name: 'Keepers' },
+  { id: 24, name: 'Mirage' },
+  { id: 25, name: 'Allflame' },
 ];
 
 const log = false;
@@ -117,27 +140,8 @@ class PriceMatcher {
   date: string;
   league: string = 'Standard';
   lookupTrail: PriceLookupRecord[] = [];
-  MapSeries = [
-    // Update every league to add the new series or new maps won't be priced
-    { id: 1, name: 'Atlas2-3.4' },
-    { id: 2, name: 'Atlas2' },
-    { id: 3, name: 'Synthesis' },
-    { id: 4, name: 'Legion' },
-    { id: 5, name: 'Blight' },
-    { id: 6, name: 'Metamorph' },
-    { id: 7, name: 'Delirium' },
-    { id: 8, name: 'Harvest' },
-    { id: 9, name: 'Heist' },
-    { id: 10, name: 'Ritual' },
-    { id: 11, name: 'Expedition' },
-    { id: 18, name: 'Ancestor' },
-    { id: 19, name: 'Affliction' },
-    { id: 20, name: 'Necropolis' },
-    { id: 21, name: 'Settlers' },
-    { id: 22, name: 'Mercenaries' },
-    { id: 23, name: 'Keepers' },
-    { id: 24, name: 'Mirage' },
-  ];
+  // Update every league to add the new series or new maps won't be priced.
+  MapSeries = MAP_SERIES;
 
   DefaultGemFormat = {
     test: (name) => true,
@@ -1203,6 +1207,9 @@ async function price(
   }
 
   item.parsedItem = JSON.parse(item.raw_data);
+  item.parsedItem.explicitMods = getItemModDescriptions(item.parsedItem.explicitMods);
+  item.parsedItem.implicitMods = getItemModDescriptions(item.parsedItem.implicitMods);
+  item.parsedItem.frameType = getLegacyFrameType(item.parsedItem) ?? 0;
 
   let minItemValue = 0;
 

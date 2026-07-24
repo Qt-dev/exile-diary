@@ -1,0 +1,181 @@
+name: update-poe-data
+
+on:
+  schedule:
+    - cron: '17 4 * * *'
+  workflow_dispatch:
+    inputs:
+      publish:
+        description: 'Push the automation branch and create or update its pull request'
+        required: false
+        default: false
+        type: boolean
+
+permissions:
+  contents: read
+
+concurrency:
+  group: poe-data-extraction
+  cancel-in-progress: false
+
+jobs:
+  extract:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      UPDATE_BRANCH: automation/poe-data-refresh
+      DATA_PATHS: |
+        tools/poe-data-extractor/data/config.json
+        src/helpers/data/areas.json
+        src/helpers/data/items.json
+        src/helpers/data/mapMods.json
+        src/helpers/data/worldAreas.json
+        src/helpers/data/uniques.json
+        src/helpers/data/events.json
+
+    steps:
+      - name: Create data updater token
+        id: app-token
+        uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3
+        with:
+          app-id: ${{ vars.POE_DATA_APP_ID }}
+          private-key: ${{ secrets.POE_DATA_APP_PRIVATE_KEY }}
+          permission-contents: write
+          permission-pull-requests: write
+
+      - name: Check out the default branch
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          ref: ${{ github.event.repository.default_branch }}
+          fetch-depth: 0
+          token: ${{ steps.app-token.outputs.token }}
+
+      - name: Set up Node.js
+        uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: tools/poe-data-extractor/package-lock.json
+
+      - name: Install extractor dependencies
+        run: npm ci --prefix tools/poe-data-extractor
+
+      - name: Extract data
+        run: npm run data:extract
+
+      - name: Validate generated data
+        run: |
+          npm run data:check
+          npm --prefix tools/poe-data-extractor run check-changes
+          git diff --check
+
+      - name: Inspect generated changes
+        id: changes
+        shell: bash
+        env:
+          PUBLISH_REQUESTED: ${{ github.event_name == 'schedule' || inputs.publish }}
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+          BASE_BRANCH: ${{ github.event.repository.default_branch }}
+        run: |
+          patch=$(node -p "require('./tools/poe-data-extractor/data/config.json').patch")
+          changed=false
+          already_published=false
+          publish=false
+
+          if ! git diff --quiet -- $DATA_PATHS; then
+            changed=true
+            if git ls-remote --exit-code --heads origin "$UPDATE_BRANCH" >/dev/null 2>&1; then
+              git fetch origin "+$UPDATE_BRANCH:refs/remotes/origin/$UPDATE_BRANCH"
+              pr_number=$(gh pr list \
+                --base "$BASE_BRANCH" \
+                --head "$UPDATE_BRANCH" \
+                --state open \
+                --json number \
+                --jq '.[0].number // empty')
+              if git diff --quiet "origin/$UPDATE_BRANCH" -- $DATA_PATHS && [ -n "$pr_number" ]; then
+                already_published=true
+              fi
+            fi
+            if [ "$already_published" != "true" ] && [ "$PUBLISH_REQUESTED" = "true" ]; then
+              publish=true
+            fi
+          fi
+
+          {
+            echo "patch=$patch"
+            echo "changed=$changed"
+            echo "already-published=$already_published"
+            echo "publish=$publish"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Summarize extraction
+        shell: bash
+        run: |
+          {
+            echo "## PoE data extraction"
+            echo
+            echo "- Patch: \`${{ steps.changes.outputs.patch }}\`"
+            echo "- Changed from default branch: \`${{ steps.changes.outputs.changed }}\`"
+            echo "- Already present in automation PR: \`${{ steps.changes.outputs.already-published }}\`"
+            echo "- Publish requested: \`${{ github.event_name == 'schedule' || inputs.publish }}\`"
+            echo "- Publishing this run: \`${{ steps.changes.outputs.publish }}\`"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Configure GitHub App author
+        if: steps.changes.outputs.publish == 'true'
+        id: app-author
+        shell: bash
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+          APP_SLUG: ${{ steps.app-token.outputs.app-slug }}
+        run: |
+          user_id=$(gh api "/users/${APP_SLUG}[bot]" --jq .id)
+          git config user.name "${APP_SLUG}[bot]"
+          git config user.email "${user_id}+${APP_SLUG}[bot]@users.noreply.github.com"
+
+      - name: Commit and push data update
+        if: steps.changes.outputs.publish == 'true'
+        shell: bash
+        run: |
+          git switch -C "$UPDATE_BRANCH"
+          git add -- $DATA_PATHS
+          git commit -m "chore: refresh extracted PoE data"
+          git push --force-with-lease origin "HEAD:refs/heads/$UPDATE_BRANCH"
+
+      - name: Create or update data pull request
+        if: steps.changes.outputs.publish == 'true'
+        shell: bash
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+          BASE_BRANCH: ${{ github.event.repository.default_branch }}
+          PATCH: ${{ steps.changes.outputs.patch }}
+        run: |
+          body_file="$RUNNER_TEMP/poe-data-pr.md"
+          {
+            echo "Automated Path of Exile data refresh."
+            echo
+            echo "- Patch: \`$PATCH\`"
+            echo "- Validation: passed"
+            echo "- Workflow run: $GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"
+            echo
+            echo "Changed files:"
+            echo
+            while IFS= read -r file; do
+              echo "- \`$file\`"
+            done < <(git diff --name-only "origin/$BASE_BRANCH...HEAD" -- $DATA_PATHS)
+            echo
+            echo "This PR is intentionally not configured for auto-merge."
+          } > "$body_file"
+
+          pr_number=$(gh pr list --head "$UPDATE_BRANCH" --state open --json number --jq '.[0].number // empty')
+          if [ -n "$pr_number" ]; then
+            gh pr edit "$pr_number" \
+              --title "chore: refresh extracted PoE data" \
+              --body-file "$body_file"
+          else
+            gh pr create \
+              --base "$BASE_BRANCH" \
+              --head "$UPDATE_BRANCH" \
+              --title "chore: refresh extracted PoE data" \
+              --body-file "$body_file"
+          fi

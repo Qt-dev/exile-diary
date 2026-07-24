@@ -1,4 +1,8 @@
 const ItemCategoryParser = require('../../helpers/item').default;
+const {
+  getItemModDescriptions,
+  getLegacyFrameType,
+} = require('../../helpers/poeItemApi');
 
 var Rarity = {
   Normal: 0,
@@ -142,13 +146,14 @@ class ItemData {
   }
 
   static getRarity(data) {
-    return data.frameType < 1 || data.frameType > 3 ? 0 : data.frameType;
+    const frameType = getLegacyFrameType(data);
+    return frameType < 1 || frameType > 3 ? 0 : frameType;
   }
 
   static getGemLevel(data) {
     if (!data.properties) return false;
 
-    if (data.frameType !== 4) return false;
+    if (getLegacyFrameType(data) !== 4) return false;
 
     for (var i = 0; i < data.properties.length; i++) {
       if (data.properties[i].name === 'Level') {
@@ -246,8 +251,8 @@ class ItemData {
     obj.synthesised = itemdata.synthesised || false;
     obj.fractured = itemdata.fractured || false;
 
-    obj.explicitMods = itemdata.explicitMods;
-    obj.implicitMods = itemdata.implicitMods;
+    obj.explicitMods = getItemModDescriptions(itemdata.explicitMods);
+    obj.implicitMods = getItemModDescriptions(itemdata.implicitMods);
     obj.enchantMods = itemdata.enchantMods;
 
     if (obj.itemClass === 'Prophecy') {
