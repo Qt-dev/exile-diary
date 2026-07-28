@@ -227,6 +227,8 @@ const LogProcessor = {
       timestamp,
     });
 
+    await RunParser.retryDeferredRun();
+
     // Special case for the very first run in DB
     const isFirstRun = await DB.isFirstRun();
     // Try to process the run if it's a town or a hideout

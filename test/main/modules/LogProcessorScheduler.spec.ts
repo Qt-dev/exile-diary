@@ -9,6 +9,7 @@ const mockIsTown = jest.fn();
 const mockGetAreaFromId = jest.fn();
 const mockHasOngoingMapRun = jest.fn();
 const mockCreateNewMapRun = jest.fn();
+const mockRetryDeferredRun = jest.fn();
 const mockIsFirstRun = jest.fn();
 jest.mock('uuid', () => ({
   v4: jest.fn(() => `log-task-${++uuidCounter}`),
@@ -23,6 +24,7 @@ jest.mock('../../../src/main/modules/RunParser', () => ({
     insertEvent: mockInsertEvent,
     hasOngoingMapRun: mockHasOngoingMapRun,
     createNewMapRun: mockCreateNewMapRun,
+    retryDeferredRun: mockRetryDeferredRun,
   },
 }));
 jest.mock('../../../src/main/db/run', () => ({
@@ -77,6 +79,7 @@ describe('LogProcessorScheduler', () => {
     mockGetAreaFromId.mockReset();
     mockHasOngoingMapRun.mockReset().mockResolvedValue(false);
     mockCreateNewMapRun.mockReset().mockResolvedValue(99);
+    mockRetryDeferredRun.mockReset().mockResolvedValue(true);
     mockIsFirstRun.mockReset().mockResolvedValue(false);
   });
 

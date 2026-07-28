@@ -24,6 +24,7 @@ jest.mock('../../../src/main/db/run', () => ({
     updateLastEvent: jest.fn(),
     insertEvent: jest.fn(),
     getItemsBetweenEvents: jest.fn(),
+    getLatestUncompletedRun: jest.fn(),
   },
 }));
 jest.mock('../../../src/main/GGGAPI', () => ({
@@ -210,6 +211,7 @@ describe('RunParser', () => {
     beforeEach(() => {
       jest.restoreAllMocks();
       jest.clearAllMocks();
+      RunParser.deferredRun = null;
       (ItemPricer.price as jest.Mock)
         .mockReset()
         .mockResolvedValue({ isVendor: false, value: 0, explanation: null });
@@ -485,6 +487,11 @@ describe('RunParser', () => {
       });
       (RunsDB.updateLastEvent as jest.Mock).mockResolvedValue(undefined);
       (RunsDB.insertEvent as jest.Mock).mockResolvedValue(42);
+      (RunsDB.getLatestUncompletedRun as jest.Mock).mockResolvedValue({
+        id: 7,
+        first_event: '2026-07-22T09:00:00.000Z',
+        last_event: '2026-07-22T10:00:00.000Z',
+      });
       (Utils.isTown as jest.Mock).mockReturnValue(false);
       (Utils.isLabArea as jest.Mock).mockReturnValue(false);
       (Utils.isVaalArea as jest.Mock).mockReturnValue(false);
@@ -547,7 +554,7 @@ describe('RunParser', () => {
       expect(ItemParser.insertItems).not.toHaveBeenCalled();
       expect(RunParser.processRun).toHaveBeenCalledWith(
         '2026-07-22T10:00:00.000Z',
-        null,
+        7,
         false
       );
     });
@@ -566,7 +573,7 @@ describe('RunParser', () => {
 
       expect(RunParser.processRun).toHaveBeenCalledWith(
         '2026-07-22T10:00:00.000Z',
-        null,
+        7,
         true
       );
       expect(RunsDB.insertEvent).toHaveBeenCalledWith({
@@ -686,6 +693,32 @@ describe('RunParser', () => {
       expect(RunsDB.insertEvent).toHaveBeenCalledTimes(1);
       expect(ItemParser.insertItemsAndInventoryBaseline).toHaveBeenCalledTimes(1);
       expect(RunParser.processRun).toHaveBeenCalledTimes(1);
+    });
+
+    it('retries the exact deferred run without targeting the newer open run', async () => {
+      RunParser.deferredRun = {
+        runId: 7,
+        lastEventTimestamp: '2026-07-22T10:00:00.000Z',
+      };
+      const processedRun = {
+        name: 'Dunes Map',
+        gained: 5,
+        xp: 0,
+        kills: 0,
+        firstEvent: '2026-07-22T09:00:00.000Z',
+        lastEvent: '2026-07-22T10:00:00.000Z',
+      };
+      (RunParser.processRun as jest.Mock).mockResolvedValueOnce(processedRun);
+      const emit = jest.spyOn(RunParser.emitter, 'emit');
+
+      await expect(RunParser.retryDeferredRun()).resolves.toBe(true);
+
+      expect(RunParser.processRun).toHaveBeenCalledWith(
+        '2026-07-22T10:00:00.000Z',
+        7
+      );
+      expect(RunParser.deferredRun).toBeNull();
+      expect(emit).toHaveBeenCalledWith('run-parser:run-processed', processedRun);
     });
 
     it('leaves the run open when item accounting is not ready', async () => {

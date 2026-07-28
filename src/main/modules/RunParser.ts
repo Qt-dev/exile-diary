@@ -77,6 +77,7 @@ let tryProcessQueue: Promise<void> = Promise.resolve();
 
 const RunParser = {
   accountingDeferred: false,
+  deferredRun: null as { runId: number; lastEventTimestamp: string } | null,
   latestGeneratedArea: {
     run_id: 0,
     level: 0,
@@ -995,6 +996,21 @@ const RunParser = {
     return attempt;
   },
 
+  retryDeferredRun: async () => {
+    const deferredRun = RunParser.deferredRun;
+    if (!deferredRun) return true;
+
+    const runData = await RunParser.processRun(
+      deferredRun.lastEventTimestamp,
+      deferredRun.runId
+    );
+    if (!runData) return false;
+
+    RunParser.deferredRun = null;
+    RunParser.emitter.emit('run-parser:run-processed', runData);
+    return true;
+  },
+
   tryProcessOnce: async (parameters: RunProcessRequest | null) => {
     RunParser.accountingDeferred = false;
     let event: ParsedEvent;
@@ -1124,11 +1140,23 @@ const RunParser = {
           true
         );
       }
-      const runData = await RunParser.processRun(lastEventTimestamp, null, isExplicitEnd);
+      const targetRun = await DB.getLatestUncompletedRun();
+      const targetRunId = targetRun?.id ?? null;
+      const runData = await RunParser.processRun(
+        lastEventTimestamp,
+        targetRunId,
+        isExplicitEnd
+      );
       if (!runData) {
         RunParser.accountingDeferred = true;
+        if (targetRunId) {
+          RunParser.deferredRun = { runId: targetRunId, lastEventTimestamp };
+        }
         logger.warn('Run accounting is not ready; leaving the run open for a later retry');
         return false;
+      }
+      if (RunParser.deferredRun?.runId === targetRunId) {
+        RunParser.deferredRun = null;
       }
       RunParser.emitter.emit('run-parser:run-processed', runData);
       RunParser.resetRunData();
