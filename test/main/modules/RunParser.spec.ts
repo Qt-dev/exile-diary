@@ -304,11 +304,9 @@ describe('RunParser', () => {
       (Utils.sleep as jest.Mock).mockClear();
     });
 
-    it('compares inventory timestamps without relying on main process dayjs setup', async () => {
+    it('calculates automatic item stats without waiting for a future inventory snapshot', async () => {
       const itemStats = { count: 2, value: 12.5, importantDrops: {} };
-      jest
-        .spyOn(RunParser, 'getLastInventoryTimestamp')
-        .mockResolvedValue('2026-07-22T10:00:00.000Z');
+      const getLastInventoryTimestamp = jest.spyOn(RunParser, 'getLastInventoryTimestamp');
       jest.spyOn(RunParser, 'generateItemStats').mockResolvedValue(itemStats);
 
       await expect(
@@ -324,6 +322,8 @@ describe('RunParser', () => {
         '2026-07-22T09:00:00.000Z',
         '2026-07-22T09:59:55.000Z'
       );
+      expect(getLastInventoryTimestamp).not.toHaveBeenCalled();
+      expect(Utils.sleep).not.toHaveBeenCalled();
     });
 
     it('waits for a fresh inventory snapshot before calculating profit', async () => {
@@ -338,7 +338,8 @@ describe('RunParser', () => {
         RunParser.getItemStats(
           { run_id: 123, name: 'Dunes Map' },
           '2026-07-22T09:00:00.000Z',
-          '2026-07-22T10:00:00.000Z'
+          '2026-07-22T10:00:00.000Z',
+          true
         )
       ).resolves.toEqual(itemStats);
 
@@ -356,7 +357,8 @@ describe('RunParser', () => {
         RunParser.getItemStats(
           { run_id: 123, name: 'Dunes Map' },
           '2026-07-22T09:00:00.000Z',
-          '2026-07-22T10:00:00.000Z'
+          '2026-07-22T10:00:00.000Z',
+          true
         )
       ).resolves.toBe(false);
 
@@ -365,7 +367,7 @@ describe('RunParser', () => {
     });
   });
 
-  describe('tryProcess explicit completion', () => {
+  describe('tryProcess completion', () => {
     beforeEach(() => {
       jest.restoreAllMocks();
       (RunsDB.getLastMapGeneratedEvent as jest.Mock).mockResolvedValue({
@@ -408,6 +410,29 @@ describe('RunParser', () => {
       expect(RunParser.processRun).not.toHaveBeenCalled();
     });
 
+    it('does not wait for or associate a future inventory snapshot during automatic completion', async () => {
+      (RunsDB.getLastMapGeneratedEvent as jest.Mock).mockResolvedValue({
+        event_text: JSON.stringify({ areaName: 'Strand Map' }),
+      });
+
+      await expect(
+        RunParser.tryProcess({
+          event: {
+            timestamp: '2026-07-22T10:00:00.000Z',
+            server: '127.0.0.1:6222',
+          },
+        })
+      ).resolves.toBe(true);
+
+      expect(InventoryGetter.getInventoryDiffs).not.toHaveBeenCalled();
+      expect(ItemParser.insertItems).not.toHaveBeenCalled();
+      expect(RunParser.processRun).toHaveBeenCalledWith(
+        '2026-07-22T10:00:00.000Z',
+        null,
+        false
+      );
+    });
+
     it('completes the current run when explicitly requested in the same instance', async () => {
       await expect(
         RunParser.tryProcess({
@@ -420,7 +445,11 @@ describe('RunParser', () => {
         })
       ).resolves.toBe(true);
 
-      expect(RunParser.processRun).toHaveBeenCalledWith('2026-07-22T10:00:00.000Z');
+      expect(RunParser.processRun).toHaveBeenCalledWith(
+        '2026-07-22T10:00:00.000Z',
+        null,
+        true
+      );
       expect(InventoryGetter.getInventoryDiffs).toHaveBeenCalledWith('2026-07-22T10:00:00.000Z');
     });
 

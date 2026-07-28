@@ -408,38 +408,41 @@ const RunParser = {
   getItemStats: async (
     area: { run_id: number; name: string },
     firsteventTimestamp: string,
-    lasteventTimestamp: string
+    lasteventTimestamp: string,
+    waitForFreshInventory = false
   ): Promise<ItemStats | false> => {
     logger.debug(
       `Getting item stats for (${area.run_id}) ${area.name} between ${firsteventTimestamp} and ${lasteventTimestamp}`
     );
-    let lastInventoryTimestamp: string;
-    let timestampCheckCount = 0;
+    if (waitForFreshInventory) {
+      let lastInventoryTimestamp: string;
+      let timestampCheckCount = 0;
 
-    // Make sure the last inventory has been processed, wait 3s at a time until we're good
-    // Fails after 3 attempts
-    while (timestampCheckCount < 3) {
-      timestampCheckCount++;
-      logger.debug('Getting latest inventory timestamp');
-      lastInventoryTimestamp =
-        (await RunParser.getLastInventoryTimestamp()) ?? dayjs.unix(0).toISOString();
-      if (
-        dayjs(lastInventoryTimestamp).isSameOrAfter(
-          dayjs(lasteventTimestamp).subtract(5, 'seconds')
-        ) // Last inventory is newer than the last event minus the API cache allowance
-      ) {
-        break;
-      } else {
-        if (timestampCheckCount >= 3) {
-          logger.error('Unable to get the latest inventory from the DB, timestamp is too new');
-          return false;
+      // Explicit completion actively obtains a snapshot before reaching this check.
+      // Wait only for that snapshot's asynchronous last_inventory write to finish.
+      while (timestampCheckCount < 3) {
+        timestampCheckCount++;
+        logger.debug('Getting latest inventory timestamp');
+        lastInventoryTimestamp =
+          (await RunParser.getLastInventoryTimestamp()) ?? dayjs.unix(0).toISOString();
+        if (
+          dayjs(lastInventoryTimestamp).isSameOrAfter(
+            dayjs(lasteventTimestamp).subtract(5, 'seconds')
+          )
+        ) {
+          break;
         } else {
-          logger.error(
-            `Last inventory not yet processed (${dayjs(lastInventoryTimestamp)} < ${dayjs(
-              lasteventTimestamp
-            ).subtract(5, 'seconds')}), waiting 3 seconds`
-          );
-          await Utils.sleep(3000);
+          if (timestampCheckCount >= 3) {
+            logger.error('Unable to get the latest inventory from the DB, timestamp is too new');
+            return false;
+          } else {
+            logger.error(
+              `Last inventory not yet processed (${dayjs(lastInventoryTimestamp)} < ${dayjs(
+                lasteventTimestamp
+              ).subtract(5, 'seconds')}), waiting 3 seconds`
+            );
+            await Utils.sleep(3000);
+          }
         }
       }
     }
@@ -844,7 +847,11 @@ const RunParser = {
     }
   },
 
-  processRun: async (lastEventTimestamp: string, runId: number | null = null) => {
+  processRun: async (
+    lastEventTimestamp: string,
+    runId: number | null = null,
+    waitForFreshInventory = false
+  ) => {
     let mapStats = {
       iiq: 0,
       iir: 0,
@@ -899,7 +906,12 @@ const RunParser = {
     const xpDiff = await RunParser.getXPDiff(xp);
 
     // Get Item Stats
-    const itemStats = await RunParser.getItemStats(areaInfo, firstEvent, lastEventTimestamp);
+    const itemStats = await RunParser.getItemStats(
+      areaInfo,
+      firstEvent,
+      lastEventTimestamp,
+      waitForFreshInventory
+    );
     if (!itemStats) {
       logger.warn(`Deferring run ${runId} completion until item accounting is ready`);
       return false;
@@ -1083,7 +1095,7 @@ const RunParser = {
           await ItemParser.insertItems(inventoryDiff, inventoryEventTimestamp);
         }
       }
-      const runData = await RunParser.processRun(lastEventTimestamp);
+      const runData = await RunParser.processRun(lastEventTimestamp, null, isExplicitEnd);
       if (!runData) {
         logger.warn('Run accounting is not ready; leaving the run open for a later retry');
         return false;
