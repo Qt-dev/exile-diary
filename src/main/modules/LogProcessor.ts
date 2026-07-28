@@ -232,9 +232,17 @@ const LogProcessor = {
     // Try to process the run if it's a town or a hideout
     let hasProcessed = false;
     if (!area.isTown && !area.isHideout) {
-      hasProcessed = await RunParser.tryProcess({
+      const completionRequest = {
         event: { timestamp, server: lastInstanceServer },
-      });
+      };
+      for (let attempt = 1; attempt <= 3 && !hasProcessed; attempt++) {
+        hasProcessed = await RunParser.tryProcess(completionRequest);
+        if (!hasProcessed && attempt < 3) {
+          logger.warn(
+            `Map completion attempt ${attempt} failed; retrying with boundary ${timestamp}`
+          );
+        }
+      }
     }
     // If there is a map run ongoing, we don't create a new one
     const hasOngoingMap = await RunParser.hasOngoingMapRun();
@@ -332,14 +340,16 @@ const LogProcessor = {
           if (!persistedEventId) {
             throw new Error('Unable to persist the entered-area event');
           }
-          const { diff, currentInventory } =
-            await InventoryGetter.getInventoryCapture(timestamp);
-          await ItemParser.insertItemsAndInventoryBaseline(
-            diff,
+          await InventoryGetter.captureAndPersistInventory(
             timestamp,
-            persistedEventId,
-            dayjs().toISOString(),
-            currentInventory
+            ({ diff, currentInventory }) =>
+              ItemParser.insertItemsAndInventoryBaseline(
+                diff,
+                timestamp,
+                persistedEventId,
+                dayjs().toISOString(),
+                currentInventory
+              )
           );
         }
       } catch (e) {

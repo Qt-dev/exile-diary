@@ -30,6 +30,11 @@ type Inventory = {
   experience: number;
 };
 
+type InventoryRequestOptions = {
+  fresh?: boolean;
+  throwOnError?: boolean;
+};
+
 const limiters = new Bottleneck.Group({
   maxConcurrent: 1,
   minTime: MIN_TIME_BETWEEN_REQUESTS,
@@ -161,8 +166,14 @@ const getRequestParams = (url, token) => {
   };
 };
 
-const request = async ({ params, group, cacheTime = CACHE_TIME_IN_SECONDS, limiterId = group }) => {
-  const requestKey = `${limiterId}:${group}:${params.url}`;
+const request = async ({
+  params,
+  group,
+  cacheTime = CACHE_TIME_IN_SECONDS,
+  limiterId = group,
+  fresh = false,
+}) => {
+  const requestKey = `${limiterId}:${group}:${params.url}:${fresh ? 'fresh' : 'cached'}`;
   const existingRequest = inFlightRequests.get(requestKey);
   if (existingRequest) {
     logger.debug(`Coalescing in-flight GGG request for ${params.url}`);
@@ -175,6 +186,9 @@ const request = async ({ params, group, cacheTime = CACHE_TIME_IN_SECONDS, limit
     const scheduledId = `${group.replace('/', '')}-${uuidv4()}`;
 
     if (currentlyRestrictedKeys && currentlyRestrictedKeys[group]) {
+      if (fresh) {
+        throw new Error('API Restricted; a fresh response is required.');
+      }
       const cached = await storage.get(group);
       if (cached && cached.data) {
         logger.warn('API Restricted: Serving stale data from cache.');
@@ -185,7 +199,9 @@ const request = async ({ params, group, cacheTime = CACHE_TIME_IN_SECONDS, limit
 
     return limiter.schedule({ id: scheduledId }, async () => {
       logger.debug('Making request to GGG API', { url: params.url, group, params });
-      if (!params.cache) {
+      if (fresh) {
+        params.cache = { enabled: false };
+      } else if (!params.cache) {
         params.cache = {
           enabled: true,
           ttl: 1000 * cacheTime,
@@ -209,11 +225,17 @@ const request = async ({ params, group, cacheTime = CACHE_TIME_IN_SECONDS, limit
   }
 };
 
-const getCharacterSnapshot = async (username: string, characterName: string, token: string) => {
+const getCharacterSnapshot = async (
+  username: string,
+  characterName: string,
+  token: string,
+  fresh = false
+) => {
   const response: any = await request({
     params: getRequestParams(Endpoints.character({ characterName }), token),
     group: `getCharacter-${username}-${characterName}`,
     cacheTime: CHARACTER_SNAPSHOT_CACHE_TIME_IN_SECONDS,
+    fresh,
   });
   return response.data.character;
 };
@@ -253,13 +275,20 @@ const getAllCharacters = async () => {
   }
 };
 
-const getDataForInventory = async (): Promise<Inventory> => {
+const getDataForInventory = async (
+  options: InventoryRequestOptions = {}
+): Promise<Inventory> => {
   logger.info('Getting inventory and XP data from the GGG API');
   try {
     await authSessionReadiness.waitForProfileAccess();
     const { username, characterName, token } = await getSettings();
     if (!characterName) throw new Error('Missing Active Profile');
-    const character = await getCharacterSnapshot(username, characterName, token);
+    const character = await getCharacterSnapshot(
+      username,
+      characterName,
+      token,
+      options.fresh
+    );
     const { inventory: mainInventory, equipment, experience } = character;
     const rucksack = character.rucksack ?? [];
     const inventory = [...mainInventory, ...rucksack];
@@ -271,6 +300,7 @@ const getDataForInventory = async (): Promise<Inventory> => {
     };
   } catch (e: any) {
     logger.error(`Error while getting inventory from the GGG API: ${e.message}`);
+    if (options.throwOnError) throw e;
     return { inventory: [], equipment: [], experience: 0 };
   }
 };
@@ -343,8 +373,10 @@ const APIManager = {
     const characters = await getAllCharacters();
     return characters ?? [];
   },
-  getDataForInventory: async (): Promise<Inventory> => {
-    const inventory = await getDataForInventory();
+  getDataForInventory: async (
+    options: InventoryRequestOptions = {}
+  ): Promise<Inventory> => {
+    const inventory = await getDataForInventory(options);
     return inventory;
   },
   getSkillTree: async () => {

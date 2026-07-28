@@ -229,12 +229,15 @@ describe('Items', () => {
         [item],
         42,
         '2023-01-01T12:02:00.000Z',
-        inventory
+        inventory,
+        [{ id: 'item1', status: true }]
       );
 
       expect(mockDB.transactionSteps).toHaveBeenCalledWith([
         {
-          query: expect.stringContaining('values(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)'),
+          query: expect.stringContaining(
+            'values(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)'
+          ),
           params: [
             'item1',
             42,
@@ -250,6 +253,7 @@ describe('Items', () => {
             1,
             1,
             null,
+            1,
           ],
         },
         {

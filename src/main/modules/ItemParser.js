@@ -67,16 +67,9 @@ async function insertItemsAndInventoryBaseline(
     itemsToInsert,
     eventId,
     inventoryTimestamp,
-    currentInventory
+    currentInventory,
+    formattedItemsForIgnoreManager
   );
-
-  if (formattedItemsForIgnoreManager.length > 0) {
-    try {
-      await DB.updateIgnoredItems(formattedItemsForIgnoreManager);
-    } catch (error) {
-      logger.warn(`Unable to update ignored item flags after inventory commit: ${error}`);
-    }
-  }
 }
 
 async function isDuplicateInventory(items) {

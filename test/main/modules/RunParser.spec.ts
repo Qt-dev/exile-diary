@@ -51,6 +51,7 @@ jest.mock('../../../src/main/modules/InventoryGetter', () => ({
     getInventoryDiffs: jest.fn().mockResolvedValue({}),
     captureInventoryDiff: jest.fn().mockResolvedValue({}),
     getInventoryCapture: jest.fn().mockResolvedValue({ diff: {}, currentInventory: {} }),
+    captureAndPersistInventory: jest.fn().mockResolvedValue({}),
   },
 }));
 jest.mock('../../../src/main/modules/ItemParser', () => ({
@@ -489,10 +490,13 @@ describe('RunParser', () => {
       (Utils.isVaalArea as jest.Mock).mockReturnValue(false);
       (Utils.isLabTrial as jest.Mock).mockReturnValue(false);
       (InventoryGetter.getInventoryDiffs as jest.Mock).mockResolvedValue({});
-      (InventoryGetter.getInventoryCapture as jest.Mock).mockResolvedValue({
-        diff: {},
-        currentInventory: {},
-      });
+      (InventoryGetter.captureAndPersistInventory as jest.Mock).mockImplementation(
+        async (_timestamp, persistCapture) => {
+          const capture = { diff: {}, currentInventory: {} };
+          await persistCapture(capture);
+          return capture.diff;
+        }
+      );
       (ItemParser.insertItemsAndInventoryBaseline as jest.Mock).mockResolvedValue(undefined);
       jest.spyOn(RunParser, 'getLatestUnusedMapEnteredEvents').mockResolvedValue([
         {
@@ -571,18 +575,23 @@ describe('RunParser', () => {
         timestamp: '2026-07-22T10:00:00.000Z',
         server: '127.0.0.1:6112',
       });
-      expect(InventoryGetter.getInventoryCapture).toHaveBeenCalledWith(
-        '2026-07-22T10:00:00.000Z'
+      expect(InventoryGetter.captureAndPersistInventory).toHaveBeenCalledWith(
+        '2026-07-22T10:00:00.000Z',
+        expect.any(Function),
+        true
       );
     });
 
     it('persists the final inventory diff before explicit completion', async () => {
       const inventoryDiff = { 'item-1': { id: 'item-1', typeLine: 'Chaos Orb' } };
       const currentInventory = { 'item-1': inventoryDiff['item-1'] };
-      (InventoryGetter.getInventoryCapture as jest.Mock).mockResolvedValueOnce({
-        diff: inventoryDiff,
-        currentInventory,
-      });
+      (InventoryGetter.captureAndPersistInventory as jest.Mock).mockImplementationOnce(
+        async (_timestamp, persistCapture) => {
+          const capture = { diff: inventoryDiff, currentInventory };
+          await persistCapture(capture);
+          return inventoryDiff;
+        }
+      );
 
       await expect(
         RunParser.tryProcess({
@@ -611,10 +620,13 @@ describe('RunParser', () => {
 
     it('does not advance completion when final item persistence fails', async () => {
       const inventoryDiff = { 'item-1': { id: 'item-1', typeLine: 'Chaos Orb' } };
-      (InventoryGetter.getInventoryCapture as jest.Mock).mockResolvedValueOnce({
-        diff: inventoryDiff,
-        currentInventory: inventoryDiff,
-      });
+      (InventoryGetter.captureAndPersistInventory as jest.Mock).mockImplementationOnce(
+        async (_timestamp, persistCapture) => {
+          const capture = { diff: inventoryDiff, currentInventory: inventoryDiff };
+          await persistCapture(capture);
+          return inventoryDiff;
+        }
+      );
       (ItemParser.insertItemsAndInventoryBaseline as jest.Mock).mockRejectedValueOnce(
         new Error('item insert failed')
       );
@@ -636,10 +648,13 @@ describe('RunParser', () => {
 
     it('serializes repeated explicit completion requests', async () => {
       let releaseCapture: (() => void) | undefined;
-      (InventoryGetter.getInventoryCapture as jest.Mock).mockImplementationOnce(
-        () =>
+      (InventoryGetter.captureAndPersistInventory as jest.Mock).mockImplementationOnce(
+        (_timestamp, persistCapture) =>
           new Promise((resolve) => {
-            releaseCapture = () => resolve({ diff: {}, currentInventory: {} });
+            releaseCapture = async () => {
+              await persistCapture({ diff: {}, currentInventory: {} });
+              resolve({});
+            };
           })
       );
       (RunParser.getLatestUnusedMapEnteredEvents as jest.Mock)

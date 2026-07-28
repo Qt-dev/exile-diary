@@ -167,6 +167,42 @@ describe('GGGAPI auth gating', () => {
     expect(axiosRequest).toHaveBeenCalledTimes(1);
   });
 
+  it('bypasses the snapshot cache when fresh inventory is required', async () => {
+    axiosRequest.mockResolvedValue({
+      cached: false,
+      headers: {},
+      data: {
+        character: {
+          inventory: [],
+          equipment: [],
+          experience: 123,
+        },
+      },
+    });
+
+    const GGGAPI = (await import('../../src/main/GGGAPI')).default;
+    await expect(
+      GGGAPI.getDataForInventory({ fresh: true, throwOnError: true })
+    ).resolves.toMatchObject({ experience: 123 });
+
+    expect(axiosRequest).toHaveBeenCalledWith(
+      expect.objectContaining({
+        cache: { enabled: false },
+        url: '/character/AtlasRunner',
+      })
+    );
+  });
+
+  it('propagates a failed inventory request when a fresh snapshot is required', async () => {
+    axiosRequest.mockRejectedValue(new Error('snapshot failed'));
+
+    const GGGAPI = (await import('../../src/main/GGGAPI')).default;
+
+    await expect(
+      GGGAPI.getDataForInventory({ fresh: true, throwOnError: true })
+    ).rejects.toThrow('snapshot failed');
+  });
+
   it('waits only for account access when resolving the current character', async () => {
     axiosRequest.mockResolvedValue({
       cached: false,

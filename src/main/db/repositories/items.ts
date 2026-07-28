@@ -5,8 +5,8 @@ const logger = Logger.scope('db/items');
 
 const directEventItemInsertQuery = `
       INSERT INTO item
-      (item_id, event_id, icon, name, rarity, category, identified, typeline, sockets, stack_size, raw_data, value, original_value, valuation)
-      values(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      (item_id, event_id, icon, name, rarity, category, identified, typeline, sockets, stack_size, raw_data, value, original_value, valuation, ignored)
+      values(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
       `;
 
 const Items = {
@@ -29,11 +29,13 @@ const Items = {
     items: any[],
     eventId: number,
     inventoryTimestamp: string,
-    inventory: Record<string, any>
+    inventory: Record<string, any>,
+    ignoredItems: { id: string; status: boolean }[]
   ) => {
+    const ignoredByItemId = new Map(ignoredItems.map(({ id, status }) => [id, status]));
     const itemSteps = items.map(([itemId, _eventTimestamp, ...rest]) => ({
       query: directEventItemInsertQuery,
-      params: [itemId, eventId, ...rest],
+      params: [itemId, eventId, ...rest, ignoredByItemId.get(itemId) ? 1 : 0],
     }));
     return DB.transactionSteps([
       ...itemSteps,

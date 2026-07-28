@@ -98,4 +98,31 @@ describe('InventoryGetter capture contract', () => {
 
     expect(updateLastInventory).not.toHaveBeenCalled();
   });
+
+  it('serializes capture persistence across callers', async () => {
+    let releaseFirst: (() => void) | undefined;
+    const getInventoryCapture = jest
+      .spyOn(InventoryGetter, 'getInventoryCapture')
+      .mockResolvedValue({ diff: {}, currentInventory: {} });
+    const firstPersist = jest.fn(
+      () =>
+        new Promise<void>((resolve) => {
+          releaseFirst = resolve;
+        })
+    );
+    const secondPersist = jest.fn().mockResolvedValue(undefined);
+
+    const first = InventoryGetter.captureAndPersistInventory('first', firstPersist);
+    const second = InventoryGetter.captureAndPersistInventory('second', secondPersist);
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    expect(getInventoryCapture).toHaveBeenCalledTimes(1);
+    expect(secondPersist).not.toHaveBeenCalled();
+
+    releaseFirst?.();
+    await Promise.all([first, second]);
+
+    expect(getInventoryCapture).toHaveBeenCalledTimes(2);
+    expect(secondPersist).toHaveBeenCalledTimes(1);
+  });
 });

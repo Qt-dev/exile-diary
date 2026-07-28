@@ -1109,14 +1109,17 @@ const RunParser = {
         if (!closingEventId) {
           throw new Error('Unable to persist the explicit map-end closing event');
         }
-        const { diff, currentInventory } =
-          await InventoryGetter.getInventoryCapture(lastEventTimestamp);
-        await ItemParser.insertItemsAndInventoryBaseline(
-          diff,
+        await InventoryGetter.captureAndPersistInventory(
           lastEventTimestamp,
-          closingEventId,
-          dayjs().toISOString(),
-          currentInventory
+          ({ diff, currentInventory }) =>
+            ItemParser.insertItemsAndInventoryBaseline(
+              diff,
+              lastEventTimestamp,
+              closingEventId,
+              dayjs().toISOString(),
+              currentInventory
+            ),
+          true
         );
       }
       const runData = await RunParser.processRun(lastEventTimestamp, null, isExplicitEnd);

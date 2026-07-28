@@ -2,21 +2,31 @@ let uuidCounter = 0;
 const mockTryProcess = jest.fn();
 const mockInsertEvent = jest.fn();
 const mockSaveNewTree = jest.fn();
-const mockGetInventoryCapture = jest.fn();
+const mockCaptureAndPersistInventory = jest.fn();
 const mockInsertItemsAndInventoryBaseline = jest.fn();
 const mockGetEventByQuote = jest.fn();
 const mockIsTown = jest.fn();
+const mockGetAreaFromId = jest.fn();
+const mockHasOngoingMapRun = jest.fn();
+const mockCreateNewMapRun = jest.fn();
+const mockIsFirstRun = jest.fn();
 jest.mock('uuid', () => ({
   v4: jest.fn(() => `log-task-${++uuidCounter}`),
 }));
 
 jest.mock('../../../src/main/modules/RunParser', () => ({
   __esModule: true,
-  default: { tryProcess: mockTryProcess },
+  default: {
+    tryProcess: mockTryProcess,
+    getAreaFromId: mockGetAreaFromId,
+    insertEvent: mockInsertEvent,
+    hasOngoingMapRun: mockHasOngoingMapRun,
+    createNewMapRun: mockCreateNewMapRun,
+  },
 }));
 jest.mock('../../../src/main/db/run', () => ({
   __esModule: true,
-  default: { insertEvent: mockInsertEvent },
+  default: { insertEvent: mockInsertEvent, isFirstRun: mockIsFirstRun },
 }));
 jest.mock('../../../src/main/SettingsManager', () => ({
   __esModule: true,
@@ -32,7 +42,7 @@ jest.mock('../../../src/main/modules/SkillTreeWatcher', () => ({
 }));
 jest.mock('../../../src/main/modules/InventoryGetter', () => ({
   __esModule: true,
-  default: { getInventoryCapture: mockGetInventoryCapture },
+  default: { captureAndPersistInventory: mockCaptureAndPersistInventory },
 }));
 jest.mock('../../../src/main/modules/ItemParser', () => ({
   __esModule: true,
@@ -53,13 +63,20 @@ describe('LogProcessorScheduler', () => {
     mockTryProcess.mockReset();
     mockInsertEvent.mockReset().mockResolvedValue(42);
     mockSaveNewTree.mockReset().mockResolvedValue(undefined);
-    mockGetInventoryCapture.mockReset().mockResolvedValue({
-      diff: {},
-      currentInventory: {},
-    });
+    mockCaptureAndPersistInventory.mockReset().mockImplementation(
+      async (_timestamp, persistCapture) => {
+        const capture = { diff: {}, currentInventory: {} };
+        await persistCapture(capture);
+        return capture.diff;
+      }
+    );
     mockInsertItemsAndInventoryBaseline.mockReset().mockResolvedValue(undefined);
     mockGetEventByQuote.mockReset().mockReturnValue(undefined);
     mockIsTown.mockReset();
+    mockGetAreaFromId.mockReset();
+    mockHasOngoingMapRun.mockReset().mockResolvedValue(false);
+    mockCreateNewMapRun.mockReset().mockResolvedValue(99);
+    mockIsFirstRun.mockReset().mockResolvedValue(false);
   });
 
   afterEach(async () => {
@@ -120,6 +137,33 @@ describe('LogProcessorScheduler', () => {
       reason: 'explicit-end',
       source: 'chat',
     });
+  });
+
+  it('retries automatic completion with the original generation boundary', async () => {
+    mockGetAreaFromId.mockReturnValue({
+      name: 'Dunes Map',
+      baseLevel: 74,
+      isTown: false,
+      isHideout: false,
+      isLabyrinthAirlock: false,
+      isLabyrinthBossArea: false,
+    });
+    mockTryProcess.mockResolvedValueOnce(false).mockResolvedValueOnce(true);
+    const { default: LogProcessor } = await import('../../../src/main/modules/LogProcessor');
+
+    await LogProcessor.processGeneration(
+      '2026-07-23T11:04:10.000Z',
+      'Generating level 83 area "MapWorldsDunes" with seed 123'
+    );
+
+    expect(mockTryProcess).toHaveBeenCalledTimes(2);
+    expect(mockTryProcess).toHaveBeenNthCalledWith(1, {
+      event: { timestamp: '2026-07-23T11:04:10.000Z', server: '' },
+    });
+    expect(mockTryProcess).toHaveBeenNthCalledWith(2, {
+      event: { timestamp: '2026-07-23T11:04:10.000Z', server: '' },
+    });
+    expect(mockCreateNewMapRun).toHaveBeenCalledTimes(1);
   });
 
   it('does not emit a map entry for a town', async () => {
