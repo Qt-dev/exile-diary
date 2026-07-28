@@ -588,7 +588,9 @@ const Migrations = {
       `delete from incubator where timestamp < (select min(timestamp) from (select timestamp from incubator order by timestamp desc limit 25))`,
       `CREATE TABLE IF NOT EXISTS deferred_run (
         run_id INTEGER PRIMARY KEY NOT NULL,
-        last_event TEXT NOT NULL
+        last_event TEXT NOT NULL,
+        capture_required INTEGER NOT NULL DEFAULT 0,
+        closing_event_id INTEGER
       )`,
     ],
   },

@@ -1048,10 +1048,8 @@ const RunParser = {
           ),
         true
       );
-      await DB.markRunDeferred(
+      await DB.completeDeferredCapture(
         deferredRun.runId,
-        deferredRun.lastEventTimestamp,
-        false,
         deferredRun.closingEventId
       );
     }
@@ -1215,12 +1213,7 @@ const RunParser = {
           true
         );
         if (targetRunId) {
-          await DB.markRunDeferred(
-            targetRunId,
-            lastEventTimestamp,
-            false,
-            closingEventId
-          );
+          await DB.completeDeferredCapture(targetRunId, closingEventId);
         }
       }
       const runData = await RunParser.processRun(
@@ -1247,7 +1240,7 @@ const RunParser = {
     } catch (e) {
       if (targetRunId) {
         RunParser.accountingDeferred = true;
-        RunParser.deferredRun = { runId: targetRunId, lastEventTimestamp };
+        RunParser.deferredRun = null;
       }
       logger.error(`Error processing run: ${e}`);
       return false;

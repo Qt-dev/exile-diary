@@ -183,6 +183,15 @@ const Runs = {
     return DB.run('DELETE FROM deferred_run WHERE run_id = ?', [runId]);
   },
 
+  completeDeferredCapture: async (runId: number, closingEventId: number) => {
+    return DB.run(
+      `UPDATE deferred_run
+       SET capture_required = 0, closing_event_id = ?
+       WHERE run_id = ?`,
+      [closingEventId, runId]
+    );
+  },
+
   getCurrentAreaData: async (): Promise<AreaInfo | null> => {
     logger.info('Getting current area data from DB');
     const query = `

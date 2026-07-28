@@ -268,6 +268,14 @@ describe('db/index', () => {
       preparedSql.some((sql: string) => sql.includes('CREATE TABLE IF NOT EXISTS deferred_run'))
     ).toBe(true);
     expect(
+      preparedSql.some(
+        (sql: string) =>
+          sql.includes('CREATE TABLE IF NOT EXISTS deferred_run') &&
+          sql.includes('capture_required') &&
+          sql.includes('closing_event_id')
+      )
+    ).toBe(true);
+    expect(
       preparedSql.some((sql: string) =>
         sql.includes('ALTER TABLE deferred_run ADD COLUMN capture_required')
       )

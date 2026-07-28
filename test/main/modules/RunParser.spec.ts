@@ -28,6 +28,7 @@ jest.mock('../../../src/main/db/run', () => ({
     getDeferredRun: jest.fn(),
     markRunDeferred: jest.fn(),
     clearDeferredRun: jest.fn(),
+    completeDeferredCapture: jest.fn(),
   },
 }));
 jest.mock('../../../src/main/GGGAPI', () => ({
@@ -522,6 +523,7 @@ describe('RunParser', () => {
       (RunsDB.getDeferredRun as jest.Mock).mockResolvedValue(null);
       (RunsDB.markRunDeferred as jest.Mock).mockResolvedValue(undefined);
       (RunsDB.clearDeferredRun as jest.Mock).mockResolvedValue(undefined);
+      (RunsDB.completeDeferredCapture as jest.Mock).mockResolvedValue(undefined);
       (Utils.isTown as jest.Mock).mockReturnValue(false);
       (Utils.isLabArea as jest.Mock).mockReturnValue(false);
       (Utils.isVaalArea as jest.Mock).mockReturnValue(false);
@@ -679,13 +681,7 @@ describe('RunParser', () => {
         true,
         42
       );
-      expect(RunsDB.markRunDeferred).toHaveBeenNthCalledWith(
-        2,
-        7,
-        '2026-07-22T10:00:00.000Z',
-        false,
-        42
-      );
+      expect(RunsDB.completeDeferredCapture).toHaveBeenCalledWith(7, 42);
     });
 
     it('does not advance completion when final item persistence fails', async () => {
@@ -715,10 +711,7 @@ describe('RunParser', () => {
       expect(RunParser.processRun).not.toHaveBeenCalled();
       expect(RunParser.resetRunData).not.toHaveBeenCalled();
       expect(RunParser.accountingDeferred).toBe(true);
-      expect(RunParser.deferredRun).toEqual({
-        runId: 7,
-        lastEventTimestamp: '2026-07-22T10:00:00.000Z',
-      });
+      expect(RunParser.deferredRun).toBeNull();
     });
 
     it('serializes repeated explicit completion requests', async () => {
@@ -840,12 +833,7 @@ describe('RunParser', () => {
         expect.any(String),
         inventoryDiff
       );
-      expect(RunsDB.markRunDeferred).toHaveBeenCalledWith(
-        5,
-        '2026-07-22T08:00:00.000Z',
-        false,
-        42
-      );
+      expect(RunsDB.completeDeferredCapture).toHaveBeenCalledWith(5, 42);
       expect(RunParser.processRun).toHaveBeenCalledWith(
         '2026-07-22T08:00:00.000Z',
         5
