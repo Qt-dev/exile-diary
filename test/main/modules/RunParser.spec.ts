@@ -705,6 +705,7 @@ describe('RunParser', () => {
 
       expect(emit).not.toHaveBeenCalledWith('run-parser:run-processed', expect.anything());
       expect(RunParser.resetRunData).not.toHaveBeenCalled();
+      expect(RunParser.accountingDeferred).toBe(true);
     });
 
     it('retains special-zone safeguards for explicit completion', async () => {

@@ -17,6 +17,7 @@ jest.mock('uuid', () => ({
 jest.mock('../../../src/main/modules/RunParser', () => ({
   __esModule: true,
   default: {
+    accountingDeferred: false,
     tryProcess: mockTryProcess,
     getAreaFromId: mockGetAreaFromId,
     insertEvent: mockInsertEvent,
@@ -164,6 +165,35 @@ describe('LogProcessorScheduler', () => {
       event: { timestamp: '2026-07-23T11:04:10.000Z', server: '' },
     });
     expect(mockCreateNewMapRun).toHaveBeenCalledTimes(1);
+  });
+
+  it('creates the generated run after accounting retries are deferred', async () => {
+    mockGetAreaFromId.mockReturnValue({
+      name: 'Dunes Map',
+      baseLevel: 74,
+      isTown: false,
+      isHideout: false,
+      isLabyrinthAirlock: false,
+      isLabyrinthBossArea: false,
+    });
+    mockTryProcess.mockResolvedValue(false);
+    mockHasOngoingMapRun.mockResolvedValue(true);
+    const { default: LogProcessor } = await import('../../../src/main/modules/LogProcessor');
+    const { default: RunParser } = await import('../../../src/main/modules/RunParser');
+    RunParser.accountingDeferred = true;
+
+    await LogProcessor.processGeneration(
+      '2026-07-23T11:04:10.000Z',
+      'Generating level 83 area "MapWorldsDunes" with seed 123'
+    );
+
+    expect(mockTryProcess).toHaveBeenCalledTimes(3);
+    expect(mockCreateNewMapRun).toHaveBeenCalledWith(
+      expect.objectContaining({
+        areaId: 'MapWorldsDunes',
+        timestamp: '2026-07-23T11:04:10.000Z',
+      })
+    );
   });
 
   it('does not emit a map entry for a town', async () => {

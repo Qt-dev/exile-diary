@@ -246,6 +246,14 @@ describe('GGGAPI auth gating', () => {
     expect(ensurePoeApiHostResolution).toHaveBeenCalledTimes(1);
   });
 
+  it('propagates stash request failures to callers that can offer a retry', async () => {
+    axiosRequest.mockRejectedValue(new Error('stash failed'));
+
+    const GGGAPI = (await import('../../src/main/GGGAPI')).default;
+
+    await expect(GGGAPI.getAllStashTabs()).rejects.toThrow('stash failed');
+  });
+
   it('surfaces a DNS resolution failure before making a doomed GGG request', async () => {
     ensurePoeApiHostResolution.mockRejectedValue(new Error('dns mismatch'));
 

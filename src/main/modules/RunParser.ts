@@ -76,6 +76,7 @@ type MapData = [
 let tryProcessQueue: Promise<void> = Promise.resolve();
 
 const RunParser = {
+  accountingDeferred: false,
   latestGeneratedArea: {
     run_id: 0,
     level: 0,
@@ -995,6 +996,7 @@ const RunParser = {
   },
 
   tryProcessOnce: async (parameters: RunProcessRequest | null) => {
+    RunParser.accountingDeferred = false;
     let event: ParsedEvent;
     let wasGivenEvent: boolean = false;
     const isExplicitEnd = parameters?.reason === 'explicit-end';
@@ -1124,6 +1126,7 @@ const RunParser = {
       }
       const runData = await RunParser.processRun(lastEventTimestamp, null, isExplicitEnd);
       if (!runData) {
+        RunParser.accountingDeferred = true;
         logger.warn('Run accounting is not ready; leaving the run open for a later retry');
         return false;
       }

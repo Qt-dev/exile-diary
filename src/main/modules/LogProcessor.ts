@@ -247,7 +247,7 @@ const LogProcessor = {
     // If there is a map run ongoing, we don't create a new one
     const hasOngoingMap = await RunParser.hasOngoingMapRun();
     if (
-      (isFirstRun || hasProcessed || !hasOngoingMap) &&
+      (isFirstRun || hasProcessed || RunParser.accountingDeferred || !hasOngoingMap) &&
       !area.isTown &&
       !area.isHideout &&
       !area.isLabyrinthAirlock &&

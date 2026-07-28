@@ -354,7 +354,7 @@ const getAllStashTabs = async () => {
     return stashes;
   } catch (e: any) {
     logger.error(`Error while getting stashes from the GGG API: ${e.message}`);
-    return [];
+    throw e;
   }
 };
 
