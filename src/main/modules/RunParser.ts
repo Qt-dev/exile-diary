@@ -230,12 +230,18 @@ const RunParser = {
     return experience;
   },
 
-  getXPDiff: async (currentXP: number | null): Promise<number | null> => {
+  getXPDiff: async (
+    currentXP: number | null,
+    runId?: number
+  ): Promise<number | null> => {
     if (currentXP === null) return null;
     let xp: number | null = null;
     try {
-      await OldDB.get('SELECT xp FROM run ORDER BY id DESC LIMIT 1').then((row) => {
-        if (!row.xp) {
+      const query = runId
+        ? 'SELECT xp FROM run WHERE id < ? ORDER BY id DESC LIMIT 1'
+        : 'SELECT xp FROM run ORDER BY id DESC LIMIT 1';
+      await OldDB.get(query, runId ? [runId] : []).then((row) => {
+        if (!row?.xp) {
           // first map recorded - xp diff can't be determined in this case, return current XP
           xp = currentXP;
         } else {
@@ -914,7 +920,7 @@ const RunParser = {
     const xp = XPTracker.isMaxXP()
       ? Constants.MAX_XP
       : await RunParser.getXP(runId, lastEventTimestamp);
-    const xpDiff = await RunParser.getXPDiff(xp);
+    const xpDiff = await RunParser.getXPDiff(xp, runId);
 
     // Get Item Stats
     const itemStats = await RunParser.getItemStats(

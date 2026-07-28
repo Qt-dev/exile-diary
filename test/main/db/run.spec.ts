@@ -624,6 +624,12 @@ describe('Runs', () => {
       mockDB.run.mockResolvedValue({ changes: 1, lastInsertRowid: 0 });
 
       await expect(Runs.updateCurrentRunFirstEvent()).resolves.toBe(true);
+
+      expect(mockDB.run).toHaveBeenCalledWith(
+        expect.stringContaining(
+          'WHERE id = (SELECT MAX(id) FROM run WHERE completed = 0)'
+        )
+      );
     });
 
     it('returns false when no active run was updated', async () => {

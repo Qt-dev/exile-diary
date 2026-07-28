@@ -628,19 +628,18 @@ const Runs = {
     const query = `
       UPDATE run
       SET first_event = (
-        SELECT timestamp FROM event, run
+        SELECT timestamp FROM event
         WHERE timestamp >= run.first_event
         AND event_type = 'entered'
+        ORDER BY timestamp
         LIMIT 1
       )
-      WHERE 
-      (
-        SELECT COUNT(*)
-          FROM event, run
-          WHERE event_type = 'entered'
-          AND timestamp >= run.first_event
-      ) = 1
-      AND completed = 0
+      WHERE id = (SELECT MAX(id) FROM run WHERE completed = 0)
+      AND EXISTS (
+        SELECT 1 FROM event
+        WHERE event_type = 'entered'
+        AND timestamp >= run.first_event
+      )
     `;
     try {
       const result = await DB.run(query);

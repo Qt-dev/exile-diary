@@ -138,6 +138,7 @@ describe('StashTabStore', () => {
       activeProfile: { characterName: 'OtherMapper', league: 'Standard' },
     });
     const second = store.ensureLoaded();
+    await vi.waitFor(() => expect(store.stashTabs).toHaveLength(0));
     resolveFirstRequest({
       stashTabs: [{ id: 'currency', name: 'Currency', tracked: true }],
       data: { items: [], value: 42 },

@@ -15,6 +15,7 @@ export default class StashTabStore {
   private loadPromise: Promise<void> | null = null;
   private loadedProfileKey: string | null = null;
   private loadingProfileKey: string | null = null;
+  private desiredProfileKey: string | null = null;
 
   constructor() {
     makeAutoObservable(this);
@@ -30,8 +31,15 @@ export default class StashTabStore {
     const settings = await electronService.getSettings();
     const activeProfile = settings?.activeProfile;
     const profileKey = `${settings?.username ?? ''}:${activeProfile?.characterName ?? ''}:${activeProfile?.league ?? ''}`;
+    this.desiredProfileKey = profileKey;
     if (this.loadPromise) {
       if (this.loadingProfileKey === profileKey) return this.loadPromise;
+      runInAction(() => {
+        this.stashTabs = [];
+        this.itemStore.createItems([]);
+        this.value = 0;
+        this.hasLoaded = false;
+      });
       try {
         await this.loadPromise;
       } catch {
@@ -55,6 +63,7 @@ export default class StashTabStore {
         }
 
         const response = await electronService.getStashTabs();
+        if (this.desiredProfileKey !== profileKey) return;
         const stashTabs = response.stashTabs ?? [];
         this.createStashTabs(stashTabs);
         this.itemStore.createItems(response.data?.items ?? []);

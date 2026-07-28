@@ -81,6 +81,19 @@ jest.mock('electron-log', () => ({
 }));
 
 describe('RunParser', () => {
+  describe('getXPDiff', () => {
+    it('uses the run immediately preceding a deferred target', async () => {
+      (DB.get as jest.Mock).mockResolvedValueOnce({ xp: 100 });
+
+      await expect(RunParser.getXPDiff(145, 7)).resolves.toBe(45);
+
+      expect(DB.get).toHaveBeenCalledWith(
+        'SELECT xp FROM run WHERE id < ? ORDER BY id DESC LIMIT 1',
+        [7]
+      );
+    });
+  });
+
   describe('setLatestGeneratedArea', () => {
     afterEach(() => {
       RunParser.setLatestGeneratedArea({ run_id: 1, level: 80, depth: 0, name: '' });
