@@ -629,6 +629,20 @@ describe('RunParser', () => {
       ).toBeLessThan(
         (RunParser.processRun as jest.Mock).mock.invocationCallOrder[0]
       );
+      expect(RunsDB.markRunDeferred).toHaveBeenNthCalledWith(
+        1,
+        7,
+        '2026-07-22T10:00:00.000Z',
+        true,
+        42
+      );
+      expect(RunsDB.markRunDeferred).toHaveBeenNthCalledWith(
+        2,
+        7,
+        '2026-07-22T10:00:00.000Z',
+        false,
+        42
+      );
     });
 
     it('does not advance completion when final item persistence fails', async () => {

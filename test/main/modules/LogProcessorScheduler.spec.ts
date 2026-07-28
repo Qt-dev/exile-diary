@@ -219,6 +219,7 @@ describe('LogProcessorScheduler', () => {
       )
     ).resolves.toBeUndefined();
 
+    expect(mockTryProcess).not.toHaveBeenCalled();
     expect(mockCreateNewMapRun).toHaveBeenCalledTimes(1);
   });
 

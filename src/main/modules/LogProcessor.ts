@@ -227,9 +227,11 @@ const LogProcessor = {
       timestamp,
     });
 
+    let deferredRetryFailed = false;
     try {
-      await RunParser.retryDeferredRun();
+      deferredRetryFailed = !(await RunParser.retryDeferredRun());
     } catch (error) {
+      deferredRetryFailed = true;
       logger.error(`Unable to retry deferred run; continuing current generation: ${error}`);
     }
 
@@ -237,7 +239,7 @@ const LogProcessor = {
     const isFirstRun = await DB.isFirstRun();
     // Try to process the run if it's a town or a hideout
     let hasProcessed = false;
-    if (!area.isTown && !area.isHideout) {
+    if (!area.isTown && !area.isHideout && !deferredRetryFailed) {
       const completionRequest = {
         event: { timestamp, server: lastInstanceServer },
       };
@@ -249,6 +251,9 @@ const LogProcessor = {
           );
         }
       }
+    }
+    if (deferredRetryFailed) {
+      RunParser.accountingDeferred = true;
     }
     // If there is a map run ongoing, we don't create a new one
     const hasOngoingMap = await RunParser.hasOngoingMapRun();

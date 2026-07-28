@@ -1162,7 +1162,7 @@ const RunParser = {
       logger.debug(`Processing run for area: ${event.area} at ${lastEventTimestamp}`);
       const targetRun = await DB.getLatestUncompletedRun();
       const targetRunId = targetRun?.id ?? null;
-      if (targetRunId) {
+      if (targetRunId && !isExplicitEnd) {
         await DB.markRunDeferred(targetRunId, lastEventTimestamp, isExplicitEnd);
       }
       if (isExplicitEnd) {
@@ -1195,6 +1195,14 @@ const RunParser = {
             ),
           true
         );
+        if (targetRunId) {
+          await DB.markRunDeferred(
+            targetRunId,
+            lastEventTimestamp,
+            false,
+            closingEventId
+          );
+        }
       }
       const runData = await RunParser.processRun(
         lastEventTimestamp,
