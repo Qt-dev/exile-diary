@@ -488,7 +488,7 @@ describe('RunParser', () => {
       (RunsDB.getLastMapGeneratedEvent as jest.Mock).mockResolvedValue({
         event_text: JSON.stringify({ areaName: 'Dunes Map' }),
       });
-      (RunsDB.updateLastEvent as jest.Mock).mockResolvedValue(undefined);
+      (RunsDB.updateLastEvent as jest.Mock).mockResolvedValue(true);
       (RunsDB.insertEvent as jest.Mock).mockResolvedValue(42);
       (RunsDB.getLatestUncompletedRun as jest.Mock).mockResolvedValue({
         id: 7,
@@ -540,6 +540,25 @@ describe('RunParser', () => {
       ).resolves.toBe(false);
 
       expect(RunParser.processRun).not.toHaveBeenCalled();
+    });
+
+    it('does not process a run when its requested boundary cannot be persisted', async () => {
+      (RunsDB.updateLastEvent as jest.Mock).mockResolvedValueOnce(false);
+      (RunsDB.getLastMapGeneratedEvent as jest.Mock).mockResolvedValue({
+        event_text: JSON.stringify({ areaName: 'Strand Map' }),
+      });
+
+      await expect(
+        RunParser.tryProcess({
+          event: {
+            timestamp: '2026-07-22T10:00:00.000Z',
+            server: '127.0.0.1:6222',
+          },
+        })
+      ).resolves.toBe(false);
+
+      expect(RunParser.processRun).not.toHaveBeenCalled();
+      expect(RunsDB.markRunDeferred).not.toHaveBeenCalled();
     });
 
     it('does not wait for or associate a future inventory snapshot during automatic completion', async () => {

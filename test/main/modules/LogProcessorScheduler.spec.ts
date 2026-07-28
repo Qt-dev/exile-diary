@@ -11,6 +11,8 @@ const mockHasOngoingMapRun = jest.fn();
 const mockCreateNewMapRun = jest.fn();
 const mockRetryDeferredRun = jest.fn();
 const mockIsFirstRun = jest.fn();
+const mockGetLatestUncompletedRun = jest.fn();
+const mockMarkRunDeferred = jest.fn();
 jest.mock('uuid', () => ({
   v4: jest.fn(() => `log-task-${++uuidCounter}`),
 }));
@@ -29,7 +31,12 @@ jest.mock('../../../src/main/modules/RunParser', () => ({
 }));
 jest.mock('../../../src/main/db/run', () => ({
   __esModule: true,
-  default: { insertEvent: mockInsertEvent, isFirstRun: mockIsFirstRun },
+  default: {
+    insertEvent: mockInsertEvent,
+    isFirstRun: mockIsFirstRun,
+    getLatestUncompletedRun: mockGetLatestUncompletedRun,
+    markRunDeferred: mockMarkRunDeferred,
+  },
 }));
 jest.mock('../../../src/main/SettingsManager', () => ({
   __esModule: true,
@@ -81,6 +88,8 @@ describe('LogProcessorScheduler', () => {
     mockCreateNewMapRun.mockReset().mockResolvedValue(99);
     mockRetryDeferredRun.mockReset().mockResolvedValue(true);
     mockIsFirstRun.mockReset().mockResolvedValue(false);
+    mockGetLatestUncompletedRun.mockReset().mockResolvedValue(null);
+    mockMarkRunDeferred.mockReset().mockResolvedValue(undefined);
   });
 
   afterEach(async () => {
@@ -210,6 +219,11 @@ describe('LogProcessorScheduler', () => {
     });
     mockRetryDeferredRun.mockRejectedValueOnce(new Error('deferred DB failure'));
     mockTryProcess.mockResolvedValue(true);
+    mockGetLatestUncompletedRun.mockResolvedValue({
+      id: 8,
+      first_event: '2026-07-23T10:00:00.000Z',
+      last_event: '2026-07-23T10:00:00.000Z',
+    });
     const { default: LogProcessor } = await import('../../../src/main/modules/LogProcessor');
 
     await expect(
@@ -220,6 +234,10 @@ describe('LogProcessorScheduler', () => {
     ).resolves.toBeUndefined();
 
     expect(mockTryProcess).not.toHaveBeenCalled();
+    expect(mockMarkRunDeferred).toHaveBeenCalledWith(
+      8,
+      '2026-07-23T11:04:10.000Z'
+    );
     expect(mockCreateNewMapRun).toHaveBeenCalledTimes(1);
   });
 

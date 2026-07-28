@@ -1003,6 +1003,17 @@ const RunParser = {
   },
 
   retryDeferredRun: async () => {
+    const attempt = tryProcessQueue
+      .catch(() => undefined)
+      .then(() => RunParser.retryDeferredRunOnce());
+    tryProcessQueue = attempt.then(
+      () => undefined,
+      () => undefined
+    );
+    return attempt;
+  },
+
+  retryDeferredRunOnce: async () => {
     const persistedDeferredRun = RunParser.deferredRun
       ? null
       : await DB.getDeferredRun();
@@ -1094,7 +1105,11 @@ const RunParser = {
     }
 
     // Update the last event timestamp in the database
-    await DB.updateLastEvent(event.timestamp);
+    const updatedLastEvent = await DB.updateLastEvent(event.timestamp);
+    if (!updatedLastEvent) {
+      logger.error(`Unable to persist map completion boundary ${event.timestamp}`);
+      return false;
+    }
 
     const lastEventTimestamp = event.timestamp;
 

@@ -253,6 +253,10 @@ const LogProcessor = {
       }
     }
     if (deferredRetryFailed) {
+      const currentRun = await DB.getLatestUncompletedRun();
+      if (currentRun) {
+        await DB.markRunDeferred(currentRun.id, timestamp);
+      }
       RunParser.accountingDeferred = true;
     }
     // If there is a map run ongoing, we don't create a new one
