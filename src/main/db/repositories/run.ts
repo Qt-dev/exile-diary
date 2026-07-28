@@ -438,8 +438,13 @@ const Runs = {
       VALUES(?, ?, ?, ?)
     `;
     try {
-      await DB.run(query, [event.event_type, event.event_text, event.timestamp, event.server]);
-      return true;
+      const result = await DB.run(query, [
+        event.event_type,
+        event.event_text,
+        event.timestamp,
+        event.server,
+      ]);
+      return Number(result.lastInsertRowid);
     } catch (err) {
       logger.error(`Error inserting event: ${JSON.stringify(err)}`);
       return false;

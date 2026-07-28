@@ -1087,17 +1087,20 @@ const RunParser = {
     try {
       logger.debug(`Processing run for area: ${event.area} at ${lastEventTimestamp}`);
       if (isExplicitEnd) {
-        await RunParser.insertEvent({
+        const closingEventId = await RunParser.insertEvent({
           event_type: 'entered',
           event_text: event.area,
           timestamp: lastEventTimestamp,
           server: event.server,
         });
+        if (!closingEventId) {
+          throw new Error('Unable to persist the explicit map-end closing event');
+        }
         await InventoryGetter.captureInventoryDiff(
           lastEventTimestamp,
           async (inventoryDiff) => {
             if (inventoryDiff && Object.keys(inventoryDiff).length > 0) {
-              await ItemParser.insertItems(inventoryDiff, lastEventTimestamp);
+              await ItemParser.insertItems(inventoryDiff, lastEventTimestamp, closingEventId);
             }
           }
         );
@@ -1198,7 +1201,7 @@ const RunParser = {
 
   insertEvent: async (event: Event) => {
     logger.debug('Inserting event:', event);
-    await DB.insertEvent(event);
+    return DB.insertEvent(event);
   },
 
   startRun: async (area: string, level: number, name: string) => {

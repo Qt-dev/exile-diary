@@ -8,7 +8,7 @@ describe('ItemParser persistence contract', () => {
       path.join(process.cwd(), 'src', 'main', 'modules', 'ItemParser.js'),
       'utf8'
     );
-    const insertIndex = source.indexOf('await DB.insertItems(itemsToInsert);');
+    const insertIndex = source.indexOf('await DB.insertItems(itemsToInsert, eventId);');
     const ignoreUpdateIndex = source.indexOf(
       'await DB.updateIgnoredItems(formattedItemsForIgnoreManager);'
     );

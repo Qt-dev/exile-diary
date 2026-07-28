@@ -479,6 +479,7 @@ describe('RunParser', () => {
         event_text: JSON.stringify({ areaName: 'Dunes Map' }),
       });
       (RunsDB.updateLastEvent as jest.Mock).mockResolvedValue(undefined);
+      (RunsDB.insertEvent as jest.Mock).mockResolvedValue(42);
       (Utils.isTown as jest.Mock).mockReturnValue(false);
       (Utils.isLabArea as jest.Mock).mockReturnValue(false);
       (Utils.isVaalArea as jest.Mock).mockReturnValue(false);
@@ -596,7 +597,8 @@ describe('RunParser', () => {
 
       expect(ItemParser.insertItems).toHaveBeenCalledWith(
         inventoryDiff,
-        '2026-07-22T10:00:00.000Z'
+        '2026-07-22T10:00:00.000Z',
+        42
       );
       expect(ItemParser.insertItems.mock.invocationCallOrder[0]).toBeLessThan(
         (RunParser.processRun as jest.Mock).mock.invocationCallOrder[0]

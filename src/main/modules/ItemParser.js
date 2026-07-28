@@ -4,7 +4,7 @@ import IgnoreManager from '../../helpers/ignoreManager';
 const logger = require('electron-log');
 const DB = require('../db/items').default;
 
-async function insertItems(items, timestamp) {
+async function insertItems(items, timestamp, eventId) {
   const duplicateInventory = await isDuplicateInventory(items);
   if (duplicateInventory) {
     logger.info(`Duplicate items found for ${timestamp}, returning`);
@@ -28,7 +28,7 @@ async function insertItems(items, timestamp) {
       });
     }
 
-    await DB.insertItems(itemsToInsert);
+    await DB.insertItems(itemsToInsert, eventId);
     await DB.updateIgnoredItems(formattedItemsForIgnoreManager);
   }
 }

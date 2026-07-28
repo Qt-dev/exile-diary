@@ -4,15 +4,19 @@ import Logger from 'electron-log';
 const logger = Logger.scope('db/items');
 
 const Items = {
-  insertItems: (items: any[]) => {
+  insertItems: (items: any[], eventId?: number) => {
     logger.debug(`Inserting ${items.length} items`);
     logger.debug(items);
+    const params =
+      eventId === undefined
+        ? items
+        : items.map(([itemId, _eventTimestamp, ...rest]) => [itemId, eventId, ...rest]);
     const query = `
       INSERT INTO item
       (item_id, event_id, icon, name, rarity, category, identified, typeline, sockets, stack_size, raw_data, value, original_value, valuation)
-      values(?, (SELECT id FROM event WHERE event.timestamp = ?), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      values(?, ${eventId === undefined ? '(SELECT id FROM event WHERE event.timestamp = ?)' : '?'}, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
       `;
-    return DB.transaction(query, items);
+    return DB.transaction(query, params);
   },
   getMatchingItemsCount: async (itemIds: string[]): Promise<number> => {
     if (itemIds.length === 0) {
