@@ -999,7 +999,7 @@ const RunParser = {
   retryDeferredRun: async () => {
     const persistedDeferredRun = RunParser.deferredRun
       ? null
-      : await DB.getOldestDeferredRun();
+      : await DB.getDeferredRun();
     const deferredRun =
       RunParser.deferredRun ??
       (persistedDeferredRun
@@ -1016,6 +1016,7 @@ const RunParser = {
     );
     if (!runData) return false;
 
+    await DB.clearDeferredRun(deferredRun.runId);
     RunParser.deferredRun = null;
     RunParser.emitter.emit('run-parser:run-processed', runData);
     return true;
@@ -1127,6 +1128,11 @@ const RunParser = {
 
     try {
       logger.debug(`Processing run for area: ${event.area} at ${lastEventTimestamp}`);
+      const targetRun = await DB.getLatestUncompletedRun();
+      const targetRunId = targetRun?.id ?? null;
+      if (targetRunId) {
+        await DB.markRunDeferred(targetRunId, lastEventTimestamp);
+      }
       if (isExplicitEnd) {
         const closingEventId = await RunParser.insertEvent({
           event_type: 'entered',
@@ -1150,8 +1156,6 @@ const RunParser = {
           true
         );
       }
-      const targetRun = await DB.getLatestUncompletedRun();
-      const targetRunId = targetRun?.id ?? null;
       const runData = await RunParser.processRun(
         lastEventTimestamp,
         targetRunId,
@@ -1167,6 +1171,9 @@ const RunParser = {
       }
       if (RunParser.deferredRun?.runId === targetRunId) {
         RunParser.deferredRun = null;
+      }
+      if (targetRunId) {
+        await DB.clearDeferredRun(targetRunId);
       }
       RunParser.emitter.emit('run-parser:run-processed', runData);
       RunParser.resetRunData();

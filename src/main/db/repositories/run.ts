@@ -136,7 +136,7 @@ const Runs = {
     return result;
   },
 
-  getOldestDeferredRun: async (): Promise<
+  getDeferredRun: async (): Promise<
     | {
         id: number;
         first_event: string;
@@ -146,13 +146,26 @@ const Runs = {
     | undefined
   > => {
     const query = `
-      SELECT id, first_event, last_event FROM run
-      WHERE completed = 0
-        AND id < (SELECT MAX(id) FROM run WHERE completed = 0)
-      ORDER BY id ASC
+      SELECT run.id, run.first_event, deferred_run.last_event
+      FROM deferred_run
+      JOIN run ON run.id = deferred_run.run_id
+      WHERE run.completed = 0
+      ORDER BY run.id ASC
       LIMIT 1;
     `;
     return DB.get(query);
+  },
+
+  markRunDeferred: async (runId: number, lastEventTimestamp: string) => {
+    return DB.run(
+      `INSERT INTO deferred_run(run_id, last_event) VALUES(?, ?)
+       ON CONFLICT(run_id) DO UPDATE SET last_event = excluded.last_event`,
+      [runId, lastEventTimestamp]
+    );
+  },
+
+  clearDeferredRun: async (runId: number) => {
+    return DB.run('DELETE FROM deferred_run WHERE run_id = ?', [runId]);
   },
 
   getCurrentAreaData: async (): Promise<AreaInfo | null> => {

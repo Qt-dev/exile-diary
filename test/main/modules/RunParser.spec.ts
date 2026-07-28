@@ -25,7 +25,9 @@ jest.mock('../../../src/main/db/run', () => ({
     insertEvent: jest.fn(),
     getItemsBetweenEvents: jest.fn(),
     getLatestUncompletedRun: jest.fn(),
-    getOldestDeferredRun: jest.fn(),
+    getDeferredRun: jest.fn(),
+    markRunDeferred: jest.fn(),
+    clearDeferredRun: jest.fn(),
   },
 }));
 jest.mock('../../../src/main/GGGAPI', () => ({
@@ -493,7 +495,9 @@ describe('RunParser', () => {
         first_event: '2026-07-22T09:00:00.000Z',
         last_event: '2026-07-22T10:00:00.000Z',
       });
-      (RunsDB.getOldestDeferredRun as jest.Mock).mockResolvedValue(null);
+      (RunsDB.getDeferredRun as jest.Mock).mockResolvedValue(null);
+      (RunsDB.markRunDeferred as jest.Mock).mockResolvedValue(undefined);
+      (RunsDB.clearDeferredRun as jest.Mock).mockResolvedValue(undefined);
       (Utils.isTown as jest.Mock).mockReturnValue(false);
       (Utils.isLabArea as jest.Mock).mockReturnValue(false);
       (Utils.isVaalArea as jest.Mock).mockReturnValue(false);
@@ -724,7 +728,7 @@ describe('RunParser', () => {
     });
 
     it('recovers a deferred retry target from persisted uncompleted runs', async () => {
-      (RunsDB.getOldestDeferredRun as jest.Mock).mockResolvedValueOnce({
+      (RunsDB.getDeferredRun as jest.Mock).mockResolvedValueOnce({
         id: 5,
         first_event: '2026-07-22T07:00:00.000Z',
         last_event: '2026-07-22T08:00:00.000Z',

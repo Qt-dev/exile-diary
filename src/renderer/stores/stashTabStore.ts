@@ -29,7 +29,7 @@ export default class StashTabStore {
   async fetchStashTabs() {
     const settings = await electronService.getSettings();
     const activeProfile = settings?.activeProfile;
-    const profileKey = `${activeProfile?.characterName ?? ''}:${activeProfile?.league ?? ''}`;
+    const profileKey = `${settings?.username ?? ''}:${activeProfile?.characterName ?? ''}:${activeProfile?.league ?? ''}`;
     if (this.loadPromise) {
       if (this.loadingProfileKey === profileKey) return this.loadPromise;
       try {
@@ -76,7 +76,7 @@ export default class StashTabStore {
   async ensureLoaded() {
     const settings = await electronService.getSettings();
     const activeProfile = settings?.activeProfile;
-    const profileKey = `${activeProfile?.characterName ?? ''}:${activeProfile?.league ?? ''}`;
+    const profileKey = `${settings?.username ?? ''}:${activeProfile?.characterName ?? ''}:${activeProfile?.league ?? ''}`;
     if (this.hasLoaded && this.loadedProfileKey === profileKey) return;
     await this.fetchStashTabs();
   }

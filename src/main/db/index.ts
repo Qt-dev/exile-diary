@@ -571,9 +571,20 @@ const Migrations = {
         `pragma user_version = 17`,
       ],
       [`ALTER TABLE item ADD COLUMN valuation TEXT`, `pragma user_version = 18`],
+      [
+        `CREATE TABLE IF NOT EXISTS deferred_run (
+          run_id INTEGER PRIMARY KEY NOT NULL,
+          last_event TEXT NOT NULL
+        )`,
+        `pragma user_version = 19`,
+      ],
     ],
     maintenance: [
       `delete from incubator where timestamp < (select min(timestamp) from (select timestamp from incubator order by timestamp desc limit 25))`,
+      `CREATE TABLE IF NOT EXISTS deferred_run (
+        run_id INTEGER PRIMARY KEY NOT NULL,
+        last_event TEXT NOT NULL
+      )`,
     ],
   },
   league: {
@@ -873,6 +884,7 @@ const RequiredCharacterTables = [
   'passives',
   'xp',
   'graftblood',
+  'deferred_run',
 ];
 
 const RequiredLeagueTables = ['characters', 'fullrates', 'stashes'];
