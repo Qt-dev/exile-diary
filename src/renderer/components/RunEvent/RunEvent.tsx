@@ -329,12 +329,14 @@ const textPerEventType = {
 
 const generateNode = (event, runInfo, previousEvent): ReactNode => {
   const type = event.event_type;
-  const isImportant =
-    textPerEventType[type] && textPerEventType[type](event, runInfo, previousEvent);
+  const formatter = textPerEventType[type];
 
-  return isImportant
-    ? formatLine(event, textPerEventType[type](event, runInfo, previousEvent))
-    : formatLine(event, `Unknown event type: ${event.event_type}`);
+  if (!formatter) {
+    return formatLine(event, `Unknown event type: ${event.event_type}`);
+  }
+
+  const text = formatter(event, runInfo, previousEvent);
+  return text ? formatLine(event, text) : null;
 };
 
 const RunEvent = ({ event, runInfo, previousEvent }) => {
