@@ -28,8 +28,8 @@ async function insertItems(items, timestamp) {
       });
     }
 
-    DB.insertItems(itemsToInsert);
-    DB.updateIgnoredItems(formattedItemsForIgnoreManager);
+    await DB.insertItems(itemsToInsert);
+    await DB.updateIgnoredItems(formattedItemsForIgnoreManager);
   }
 }
 

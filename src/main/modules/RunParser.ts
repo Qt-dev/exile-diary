@@ -14,6 +14,8 @@ import LogProcessor from './LogProcessor';
 import ItemPricer from './ItemPricer';
 import XPTracker from './XPTracker';
 import GraftbloodTracker from './GraftbloodTracker';
+import InventoryGetter from './InventoryGetter';
+import ItemParser from './ItemParser';
 import type { RunProcessRequest } from './mapEnd';
 const logger = require('electron-log');
 const EventEmitter = require('events');
@@ -269,6 +271,11 @@ const RunParser = {
 
       const jsonData = JSON.parse(item.raw_data);
       if (jsonData && jsonData.inventoryId === 'MainInventory') {
+        const dbItem = item as Item & {
+          baseType?: string;
+          name?: string;
+          stack_size?: number;
+        };
         count++;
         if (item.category === 'Metamorph Sample') {
           const organ = item.typeline.slice(item.typeline.lastIndexOf(' ') + 1).toLowerCase();
@@ -277,7 +284,22 @@ const RunParser = {
           importantDrops[item.typeline] = (importantDrops[item.typeline] || 0) + 1;
         }
 
-        const price = await ItemPricer.price(item);
+        const pricingItem = {
+          ...jsonData,
+          ...item,
+          baseType: dbItem.baseType ?? jsonData.baseType,
+          typeline: item.typeline ?? jsonData.typeLine,
+          stack_size: dbItem.stack_size ?? jsonData.stackSize,
+        };
+        let price;
+        try {
+          price = await ItemPricer.price(pricingItem);
+        } catch (err) {
+          logger.warn(
+            `Unable to price item ${item.id} (${item.typeline || dbItem.name || 'unknown'}): ${err}`
+          );
+          price = { isVendor: false, value: 0, explanation: null };
+        }
         // logger.debug('Found price: ', price, item);
         if (price.isVendor) {
           totalValue += price.value;
@@ -402,10 +424,9 @@ const RunParser = {
       lastInventoryTimestamp =
         (await RunParser.getLastInventoryTimestamp()) ?? dayjs.unix(0).toISOString();
       if (
-        dayjs().isSameOrAfter(dayjs(lasteventTimestamp)) ||
         dayjs(lastInventoryTimestamp).isSameOrAfter(
           dayjs(lasteventTimestamp).subtract(5, 'seconds')
-        ) // Last inventory is newer than the last event + cache
+        ) // Last inventory is newer than the last event minus the API cache allowance
       ) {
         break;
       } else {
@@ -879,8 +900,11 @@ const RunParser = {
 
     // Get Item Stats
     const itemStats = await RunParser.getItemStats(areaInfo, firstEvent, lastEventTimestamp);
-    // If no item stats are found, set default values
-    const items = itemStats ? itemStats : { count: 0, value: 0, importantDrops: {} };
+    if (!itemStats) {
+      logger.warn(`Deferring run ${runId} completion until item accounting is ready`);
+      return false;
+    }
+    const items = itemStats;
 
     // Get the kill count if possible
     let killCount = await RunParser.getKillCount(firstEvent, lastEventTimestamp);
@@ -1039,11 +1063,7 @@ const RunParser = {
       }
 
       // Check if the area is the same as the last one entered, but not the same server (since the case above it handles it)
-      else if (
-        !isExplicitEnd &&
-        wasGivenEvent &&
-        event.area === [...mapEvents].reverse()[0].area
-      ) {
+      else if (!isExplicitEnd && wasGivenEvent && event.area === [...mapEvents].reverse()[0].area) {
         logger.debug('Same Area, this is probably a mirage');
         return false;
       }
@@ -1056,7 +1076,18 @@ const RunParser = {
 
     try {
       logger.debug(`Processing run for area: ${event.area} at ${lastEventTimestamp}`);
+      if (isExplicitEnd) {
+        const inventoryDiff = await InventoryGetter.getInventoryDiffs(lastEventTimestamp);
+        if (inventoryDiff && Object.keys(inventoryDiff).length > 0) {
+          const inventoryEventTimestamp = mapEvents[mapEvents.length - 1].timestamp;
+          await ItemParser.insertItems(inventoryDiff, inventoryEventTimestamp);
+        }
+      }
       const runData = await RunParser.processRun(lastEventTimestamp);
+      if (!runData) {
+        logger.warn('Run accounting is not ready; leaving the run open for a later retry');
+        return false;
+      }
       RunParser.emitter.emit('run-parser:run-processed', runData);
       RunParser.resetRunData();
     } catch (e) {

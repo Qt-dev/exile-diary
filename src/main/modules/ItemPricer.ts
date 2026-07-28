@@ -225,7 +225,7 @@ class PriceMatcher {
     },
     {
       name: 'Wombgift',
-      test: (item: any) => item.typeline.endsWith('Wombgift'),
+      test: (item: any) => item.typeline?.endsWith('Wombgift'),
       calculateValue: (item: any, minItemValue: number = 0) =>
         this.getWombgiftValue(minItemValue, item),
     },
@@ -310,7 +310,7 @@ class PriceMatcher {
     },
     {
       name: 'Cluster Jewel',
-      test: (item: any) => item.baseType.includes('Cluster Jewel'),
+      test: (item: any) => item.baseType?.includes('Cluster Jewel'),
       calculateValue: (item: any, minItemValue: number = 0) =>
         this.getClusterJewelValue(minItemValue, item),
     },
@@ -333,7 +333,7 @@ class PriceMatcher {
     },
     {
       name: 'Skill Gem',
-      test: (item: any) => item.category.includes('Skill Gem'),
+      test: (item: any) => item.category?.includes('Skill Gem'),
       calculateValue: (item: any, minItemValue: number = 0) => this.getGemValue(minItemValue, item),
     },
     {

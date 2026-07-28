@@ -7,6 +7,9 @@ import Utils from '../../../src/main/modules/Utils';
 import { get } from '../../../src/main/db/settings';
 import logger from 'electron-log';
 import RunsDB from '../../../src/main/db/run';
+import ItemPricer from '../../../src/main/modules/ItemPricer';
+import InventoryGetter from '../../../src/main/modules/InventoryGetter';
+import ItemParser from '../../../src/main/modules/ItemParser';
 
 jest.mock('../../../src/main/db', () => ({
   get: jest.fn(),
@@ -34,10 +37,23 @@ jest.mock('../../../src/main/modules/Utils', () => ({
     isLabArea: jest.fn(),
     isVaalArea: jest.fn(),
     isLabTrial: jest.fn(),
+    sleep: jest.fn().mockResolvedValue(undefined),
   },
 }));
 jest.mock('../../../src/main/modules/ItemPricer', () => ({
   price: jest.fn().mockReturnValue(Promise.resolve({ value: 0, count: 0, importantDrops: {} })),
+}));
+jest.mock('../../../src/main/modules/InventoryGetter', () => ({
+  __esModule: true,
+  default: {
+    getInventoryDiffs: jest.fn().mockResolvedValue({}),
+  },
+}));
+jest.mock('../../../src/main/modules/ItemParser', () => ({
+  __esModule: true,
+  default: {
+    insertItems: jest.fn().mockResolvedValue(undefined),
+  },
 }));
 jest.mock('../../../src/main/modules/LogProcessor', () => ({
   __esModule: true,
@@ -50,6 +66,7 @@ jest.mock('electron-log', () => ({
   scope: jest.fn(),
   debug: jest.fn(),
   error: jest.fn(),
+  warn: jest.fn(),
 }));
 
 describe('RunParser', () => {
@@ -216,9 +233,77 @@ describe('RunParser', () => {
       const parsedItems = await RunParser.parseItems(items);
       expect(parsedItems).toEqual(expectedItems);
     });
+
+    it('hydrates raw item fields and keeps pricing other drops when one item fails', async () => {
+      const price = ItemPricer.price as jest.Mock;
+      price
+        .mockReset()
+        .mockResolvedValueOnce({ isVendor: false, value: 12.5, explanation: null })
+        .mockRejectedValueOnce(
+          new TypeError("Cannot read properties of undefined (reading 'includes')")
+        )
+        .mockResolvedValueOnce({ isVendor: false, value: 3, explanation: null });
+      const items = [
+        {
+          id: 1,
+          name: '',
+          typeline: 'Agate Amulet',
+          raw_data: JSON.stringify({
+            inventoryId: 'MainInventory',
+            baseType: 'Agate Amulet',
+          }),
+          category: 'Amulets',
+          event_id: 1,
+        },
+        {
+          id: 2,
+          name: '',
+          typeline: 'Unknown Item',
+          raw_data: JSON.stringify({ inventoryId: 'MainInventory' }),
+          category: null,
+          event_id: 1,
+        },
+        {
+          id: 3,
+          name: '',
+          typeline: 'Chaos Orb',
+          raw_data: JSON.stringify({
+            inventoryId: 'MainInventory',
+            baseType: 'Chaos Orb',
+            stackSize: 3,
+          }),
+          category: 'Currency',
+          event_id: 1,
+        },
+      ];
+
+      await expect(RunParser.parseItems(items as any)).resolves.toEqual({
+        count: 3,
+        value: 15.5,
+        importantDrops: {},
+      });
+      expect(price).toHaveBeenNthCalledWith(
+        1,
+        expect.objectContaining({ baseType: 'Agate Amulet', typeline: 'Agate Amulet' })
+      );
+      expect(price).toHaveBeenNthCalledWith(
+        3,
+        expect.objectContaining({ baseType: 'Chaos Orb', stack_size: 3 })
+      );
+      expect(RunParser.updateItemValues).toHaveBeenCalledWith([
+        [12.5, null, 1, 1],
+        [0, null, 2, 1],
+        [3, null, 3, 1],
+      ]);
+    });
   });
 
   describe('getItemStats', () => {
+    beforeEach(() => {
+      jest.restoreAllMocks();
+      (Utils.sleep as jest.Mock).mockClear();
+    });
+
     it('compares inventory timestamps without relying on main process dayjs setup', async () => {
       const itemStats = { count: 2, value: 12.5, importantDrops: {} };
       jest
@@ -240,6 +325,44 @@ describe('RunParser', () => {
         '2026-07-22T09:59:55.000Z'
       );
     });
+
+    it('waits for a fresh inventory snapshot before calculating profit', async () => {
+      const itemStats = { count: 2, value: 12.5, importantDrops: {} };
+      jest
+        .spyOn(RunParser, 'getLastInventoryTimestamp')
+        .mockResolvedValueOnce('2026-07-22T09:58:00.000Z')
+        .mockResolvedValueOnce('2026-07-22T10:00:00.000Z');
+      jest.spyOn(RunParser, 'generateItemStats').mockResolvedValue(itemStats);
+
+      await expect(
+        RunParser.getItemStats(
+          { run_id: 123, name: 'Dunes Map' },
+          '2026-07-22T09:00:00.000Z',
+          '2026-07-22T10:00:00.000Z'
+        )
+      ).resolves.toEqual(itemStats);
+
+      expect(Utils.sleep).toHaveBeenCalledWith(3000);
+      expect(RunParser.generateItemStats).toHaveBeenCalledTimes(1);
+    });
+
+    it('defers item accounting when the inventory stays stale', async () => {
+      jest
+        .spyOn(RunParser, 'getLastInventoryTimestamp')
+        .mockResolvedValue('2026-07-22T09:58:00.000Z');
+      const generateItemStats = jest.spyOn(RunParser, 'generateItemStats');
+
+      await expect(
+        RunParser.getItemStats(
+          { run_id: 123, name: 'Dunes Map' },
+          '2026-07-22T09:00:00.000Z',
+          '2026-07-22T10:00:00.000Z'
+        )
+      ).resolves.toBe(false);
+
+      expect(Utils.sleep).toHaveBeenCalledTimes(2);
+      expect(generateItemStats).not.toHaveBeenCalled();
+    });
   });
 
   describe('tryProcess explicit completion', () => {
@@ -253,6 +376,7 @@ describe('RunParser', () => {
       (Utils.isLabArea as jest.Mock).mockReturnValue(false);
       (Utils.isVaalArea as jest.Mock).mockReturnValue(false);
       (Utils.isLabTrial as jest.Mock).mockReturnValue(false);
+      (InventoryGetter.getInventoryDiffs as jest.Mock).mockResolvedValue({});
       jest.spyOn(RunParser, 'getLatestUnusedMapEnteredEvents').mockResolvedValue([
         {
           timestamp: '2026-07-22T09:00:00.000Z',
@@ -297,6 +421,50 @@ describe('RunParser', () => {
       ).resolves.toBe(true);
 
       expect(RunParser.processRun).toHaveBeenCalledWith('2026-07-22T10:00:00.000Z');
+      expect(InventoryGetter.getInventoryDiffs).toHaveBeenCalledWith('2026-07-22T10:00:00.000Z');
+    });
+
+    it('persists the final inventory diff before explicit completion', async () => {
+      const inventoryDiff = { 'item-1': { id: 'item-1', typeLine: 'Chaos Orb' } };
+      (InventoryGetter.getInventoryDiffs as jest.Mock).mockResolvedValue(inventoryDiff);
+
+      await expect(
+        RunParser.tryProcess({
+          event: {
+            timestamp: '2026-07-22T10:00:00.000Z',
+            server: '127.0.0.1:6112',
+          },
+          reason: 'explicit-end',
+          source: 'shortcut',
+        })
+      ).resolves.toBe(true);
+
+      expect(ItemParser.insertItems).toHaveBeenCalledWith(
+        inventoryDiff,
+        '2026-07-22T09:00:00.000Z'
+      );
+      expect(ItemParser.insertItems.mock.invocationCallOrder[0]).toBeLessThan(
+        (RunParser.processRun as jest.Mock).mock.invocationCallOrder[0]
+      );
+    });
+
+    it('leaves the run open when item accounting is not ready', async () => {
+      jest.spyOn(RunParser, 'processRun').mockResolvedValue(false);
+      const emit = jest.spyOn(RunParser.emitter, 'emit');
+
+      await expect(
+        RunParser.tryProcess({
+          event: {
+            timestamp: '2026-07-22T10:00:00.000Z',
+            server: '127.0.0.1:6112',
+          },
+          reason: 'explicit-end',
+          source: 'shortcut',
+        })
+      ).resolves.toBe(false);
+
+      expect(emit).not.toHaveBeenCalledWith('run-parser:run-processed', expect.anything());
+      expect(RunParser.resetRunData).not.toHaveBeenCalled();
     });
 
     it('retains special-zone safeguards for explicit completion', async () => {
