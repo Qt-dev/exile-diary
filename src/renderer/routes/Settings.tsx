@@ -39,6 +39,9 @@ const Settings = ({ characterStore, stashTabStore, runStore }) => {
 
   const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
     setTabValue(newValue);
+    if (newValue === 1) {
+      void stashTabStore.ensureLoaded();
+    }
   };
 
   // const handleStashSettingsChange = (stashSettings) => {};

@@ -73,6 +73,10 @@ export const createAppRoutes = ({
       {
         path: 'stash',
         element: <StashTabs store={stashTabStore} />,
+        loader: async () => {
+          await stashTabStore.ensureLoaded();
+          return {};
+        },
       },
       {
         path: 'search',

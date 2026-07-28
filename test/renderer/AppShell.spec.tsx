@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { ThemeProvider } from '@mui/material/styles';
 import { createMemoryRouter, RouterProvider } from 'react-router-dom';
 import { vi } from 'vitest';
@@ -64,12 +64,23 @@ const createRunStore = () =>
     getSortedRuns: () => [],
   } as any);
 
-const renderApp = (initialEntry: string) => {
+const createStashTabStore = () =>
+  ({
+    ensureLoaded: vi.fn().mockResolvedValue(undefined),
+    flattenedStashTabs: [],
+    itemStore: {
+      getItemsForLootTable: () => [],
+    },
+    stashTabs: [],
+    trackedStashTabs: [],
+  } as any);
+
+const renderApp = (initialEntry: string, stashTabStore = createStashTabStore()) => {
   const router = createMemoryRouter(
     createAppRoutes({
       runStore: createRunStore(),
-      characterStore: {} as any,
-      stashTabStore: {} as any,
+      characterStore: { characters: [], fetchCharacters: vi.fn() } as any,
+      stashTabStore,
     }),
     {
       future: {
@@ -85,7 +96,7 @@ const renderApp = (initialEntry: string) => {
     </ThemeProvider>
   );
 
-  return router;
+  return { router, stashTabStore };
 };
 
 beforeEach(() => {
@@ -136,5 +147,23 @@ describe('renderer app shell smoke tests', () => {
     expect(screen.getByText(/Exile Diary/i)).toBeInTheDocument();
     expect(mockElectronService.refreshProfitPerHour).toHaveBeenCalledTimes(1);
     expect(mockElectronService.requestNetWorthRefresh).toHaveBeenCalledTimes(1);
+  });
+
+  it('loads stash tabs on demand for the stash route', async () => {
+    const stashTabStore = createStashTabStore();
+
+    renderApp('/stash', stashTabStore);
+
+    await waitFor(() => expect(stashTabStore.ensureLoaded).toHaveBeenCalledTimes(1));
+    expect(await screen.findByText('Stash Tabs')).toBeInTheDocument();
+  });
+
+  it('loads stash tabs when the stash settings tab is selected', async () => {
+    const stashTabStore = createStashTabStore();
+
+    renderApp('/settings', stashTabStore);
+    fireEvent.click(await screen.findByRole('tab', { name: 'Stashes' }));
+
+    await waitFor(() => expect(stashTabStore.ensureLoaded).toHaveBeenCalledTimes(1));
   });
 });
