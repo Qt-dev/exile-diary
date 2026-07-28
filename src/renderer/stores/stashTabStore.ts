@@ -13,6 +13,7 @@ export default class StashTabStore {
   value: number = 0;
   hasLoaded = false;
   private loadPromise: Promise<void> | null = null;
+  private loadedProfileKey: string | null = null;
 
   constructor() {
     makeAutoObservable(this);
@@ -31,12 +32,25 @@ export default class StashTabStore {
     this.isLoading = true;
     this.loadPromise = (async () => {
       try {
+        const settings = await electronService.getSettings();
+        const activeProfile = settings?.activeProfile;
+        const profileKey = `${activeProfile?.characterName ?? ''}:${activeProfile?.league ?? ''}`;
+        if (this.loadedProfileKey !== null && this.loadedProfileKey !== profileKey) {
+          runInAction(() => {
+            this.stashTabs = [];
+            this.itemStore.createItems([]);
+            this.value = 0;
+            this.hasLoaded = false;
+          });
+        }
+
         const response = await electronService.getStashTabs();
         const stashTabs = response.stashTabs ?? [];
         this.createStashTabs(stashTabs);
         this.itemStore.createItems(response.data?.items ?? []);
         this.value = response.data?.value ?? 0;
         this.hasLoaded = stashTabs.length > 0;
+        this.loadedProfileKey = profileKey;
       } catch (error) {
         logger.error('Failed to fetch stash tabs for StashTabStore', error);
         throw error;
@@ -49,7 +63,10 @@ export default class StashTabStore {
   }
 
   async ensureLoaded() {
-    if (this.hasLoaded) return;
+    const settings = await electronService.getSettings();
+    const activeProfile = settings?.activeProfile;
+    const profileKey = `${activeProfile?.characterName ?? ''}:${activeProfile?.league ?? ''}`;
+    if (this.hasLoaded && this.loadedProfileKey === profileKey) return;
     await this.fetchStashTabs();
   }
 

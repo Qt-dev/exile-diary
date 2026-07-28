@@ -120,9 +120,16 @@ const StashSettings = ({ store, settings }) => {
   const [refreshInterval, setRefreshInterval] = React.useState(
     settings?.netWorthCheck?.interval ?? 500
   );
+  const [refreshError, setRefreshError] = React.useState(false);
   let refreshIntervalUpdateTimeout: NodeJS.Timeout | undefined = undefined;
-  const handleStoreRefreshCallback = () => {
-    store.fetchStashTabs();
+  const handleStoreRefreshCallback = async () => {
+    setRefreshError(false);
+    try {
+      await store.fetchStashTabs();
+    } catch (error) {
+      logger.error('Unable to refresh stash tabs', error);
+      setRefreshError(true);
+    }
   };
   const handleUpdateInterval = async (e) => {
     const newInterval = e.target.value;
@@ -156,6 +163,7 @@ const StashSettings = ({ store, settings }) => {
         <Button variant="outlined" disabled={store.isLoading} onClick={handleStoreRefreshCallback}>
           Refresh Tabs
         </Button>
+        {refreshError && <div role="alert">Unable to refresh stash tabs. Please retry.</div>}
       </div>
       <List className="Stash-Settings__List">
         {store.stashTabs.map((stashTab: any) => (
