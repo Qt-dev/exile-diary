@@ -36,11 +36,21 @@ const Settings = ({ characterStore, stashTabStore, runStore }) => {
   const { settings } = useLoaderData() as SettingsLoaderData;
   const { revalidate } = useRevalidator();
   const [tabValue, setTabValue] = React.useState(0);
+  const [stashLoadError, setStashLoadError] = React.useState(false);
 
-  const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
+  const loadStashTabs = async () => {
+    setStashLoadError(false);
+    try {
+      await stashTabStore.ensureLoaded();
+    } catch {
+      setStashLoadError(true);
+    }
+  };
+
+  const handleTabChange = (_event: React.SyntheticEvent, newValue: number) => {
     setTabValue(newValue);
     if (newValue === 1) {
-      void stashTabStore.ensureLoaded();
+      void loadStashTabs();
     }
   };
 
@@ -68,7 +78,16 @@ const Settings = ({ characterStore, stashTabStore, runStore }) => {
         />
       </div>
       <div hidden={tabValue !== 1}>
-        <StashSettings store={stashTabStore} settings={settings} />
+        {stashLoadError ? (
+          <div role="alert">
+            <p>Unable to load stash tabs.</p>
+            <button type="button" onClick={() => void loadStashTabs()}>
+              Retry
+            </button>
+          </div>
+        ) : (
+          <StashSettings store={stashTabStore} settings={settings} />
+        )}
       </div>
       <div hidden={tabValue !== 2}>
         <FilterSettings settings={settings} revalidate={revalidate} />

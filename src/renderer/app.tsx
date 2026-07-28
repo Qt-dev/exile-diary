@@ -75,6 +75,9 @@ export const createAppRoutes = ({
         element: <StashTabs store={stashTabStore} />,
         errorElement: <StashRouteError />,
         loader: async () => {
+          if (!(await electronService.isAuthenticated())) {
+            return redirect('/login');
+          }
           await stashTabStore.ensureLoaded();
           return {};
         },
