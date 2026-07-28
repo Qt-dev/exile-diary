@@ -25,6 +25,7 @@ jest.mock('../../../src/main/db/run', () => ({
     insertEvent: jest.fn(),
     getItemsBetweenEvents: jest.fn(),
     getLatestUncompletedRun: jest.fn(),
+    getOldestDeferredRun: jest.fn(),
   },
 }));
 jest.mock('../../../src/main/GGGAPI', () => ({
@@ -492,6 +493,7 @@ describe('RunParser', () => {
         first_event: '2026-07-22T09:00:00.000Z',
         last_event: '2026-07-22T10:00:00.000Z',
       });
+      (RunsDB.getOldestDeferredRun as jest.Mock).mockResolvedValue(null);
       (Utils.isTown as jest.Mock).mockReturnValue(false);
       (Utils.isLabArea as jest.Mock).mockReturnValue(false);
       (Utils.isVaalArea as jest.Mock).mockReturnValue(false);
@@ -719,6 +721,25 @@ describe('RunParser', () => {
       );
       expect(RunParser.deferredRun).toBeNull();
       expect(emit).toHaveBeenCalledWith('run-parser:run-processed', processedRun);
+    });
+
+    it('recovers a deferred retry target from persisted uncompleted runs', async () => {
+      (RunsDB.getOldestDeferredRun as jest.Mock).mockResolvedValueOnce({
+        id: 5,
+        first_event: '2026-07-22T07:00:00.000Z',
+        last_event: '2026-07-22T08:00:00.000Z',
+      });
+      (RunParser.processRun as jest.Mock).mockResolvedValueOnce({
+        name: 'Mesa Map',
+        gained: 3,
+      });
+
+      await expect(RunParser.retryDeferredRun()).resolves.toBe(true);
+
+      expect(RunParser.processRun).toHaveBeenCalledWith(
+        '2026-07-22T08:00:00.000Z',
+        5
+      );
     });
 
     it('leaves the run open when item accounting is not ready', async () => {

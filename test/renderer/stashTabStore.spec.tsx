@@ -116,4 +116,37 @@ describe('StashTabStore', () => {
     expect(store.stashTabs.map((tab) => tab.id)).toEqual(['maps']);
     expect(store.value).toBe(12);
   });
+
+  it('queues a follow-up load when the profile changes during a request', async () => {
+    let resolveFirstRequest;
+    getStashTabs
+      .mockImplementationOnce(
+        () =>
+          new Promise((resolve) => {
+            resolveFirstRequest = resolve;
+          })
+      )
+      .mockResolvedValueOnce({
+        stashTabs: [{ id: 'maps', name: 'Maps', tracked: true }],
+        data: { items: [], value: 12 },
+      });
+    const store = new StashTabStore();
+    const first = store.ensureLoaded();
+    await vi.waitFor(() => expect(getStashTabs).toHaveBeenCalledTimes(1));
+
+    getSettings.mockResolvedValue({
+      activeProfile: { characterName: 'OtherMapper', league: 'Standard' },
+    });
+    const second = store.ensureLoaded();
+    resolveFirstRequest({
+      stashTabs: [{ id: 'currency', name: 'Currency', tracked: true }],
+      data: { items: [], value: 42 },
+    });
+
+    await Promise.all([first, second]);
+
+    expect(getStashTabs).toHaveBeenCalledTimes(2);
+    expect(store.stashTabs.map((tab) => tab.id)).toEqual(['maps']);
+    expect(store.value).toBe(12);
+  });
 });

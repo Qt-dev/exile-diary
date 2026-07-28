@@ -14,6 +14,7 @@ export default class StashTabStore {
   hasLoaded = false;
   private loadPromise: Promise<void> | null = null;
   private loadedProfileKey: string | null = null;
+  private loadingProfileKey: string | null = null;
 
   constructor() {
     makeAutoObservable(this);
@@ -26,15 +27,24 @@ export default class StashTabStore {
   }
 
   async fetchStashTabs() {
-    if (this.loadPromise) return this.loadPromise;
+    const settings = await electronService.getSettings();
+    const activeProfile = settings?.activeProfile;
+    const profileKey = `${activeProfile?.characterName ?? ''}:${activeProfile?.league ?? ''}`;
+    if (this.loadPromise) {
+      if (this.loadingProfileKey === profileKey) return this.loadPromise;
+      try {
+        await this.loadPromise;
+      } catch {
+        // The newly selected profile still needs its own request.
+      }
+      return this.fetchStashTabs();
+    }
 
     logger.info('Fetching stash tabs for StashTabStore');
     this.isLoading = true;
+    this.loadingProfileKey = profileKey;
     this.loadPromise = (async () => {
       try {
-        const settings = await electronService.getSettings();
-        const activeProfile = settings?.activeProfile;
-        const profileKey = `${activeProfile?.characterName ?? ''}:${activeProfile?.league ?? ''}`;
         if (this.loadedProfileKey !== null && this.loadedProfileKey !== profileKey) {
           runInAction(() => {
             this.stashTabs = [];
@@ -57,6 +67,7 @@ export default class StashTabStore {
       } finally {
         this.isLoading = false;
         this.loadPromise = null;
+        this.loadingProfileKey = null;
       }
     })();
     return this.loadPromise;

@@ -210,6 +210,9 @@ const request = async ({
       const response: any = await axios({ ...params, id: group });
 
       updateLimiterFromHeaders(limiter, response.headers);
+      if (fresh) {
+        await storage.remove(group);
+      }
       logger.debug('Request successfully completed for', { url: params.url, group });
       return response;
     });

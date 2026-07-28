@@ -136,6 +136,25 @@ const Runs = {
     return result;
   },
 
+  getOldestDeferredRun: async (): Promise<
+    | {
+        id: number;
+        first_event: string;
+        last_event: string;
+      }
+    | null
+    | undefined
+  > => {
+    const query = `
+      SELECT id, first_event, last_event FROM run
+      WHERE completed = 0
+        AND id < (SELECT MAX(id) FROM run WHERE completed = 0)
+      ORDER BY id ASC
+      LIMIT 1;
+    `;
+    return DB.get(query);
+  },
+
   getCurrentAreaData: async (): Promise<AreaInfo | null> => {
     logger.info('Getting current area data from DB');
     const query = `

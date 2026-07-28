@@ -1,4 +1,5 @@
 const axiosRequest = jest.fn();
+const removeCachedResponse = jest.fn(async () => undefined);
 const waitForAccountAccess = jest.fn(async () => undefined);
 const waitForProfileAccess = jest.fn(async () => undefined);
 const ensurePoeApiHostResolution = jest.fn(async () => undefined);
@@ -25,6 +26,7 @@ jest.mock('axios-cache-interceptor/dev', () => ({
   setupCache: () => axiosRequest,
   buildMemoryStorage: () => ({
     get: jest.fn(async () => null),
+    remove: (...args: unknown[]) => removeCachedResponse(...args),
   }),
 }));
 
@@ -190,6 +192,9 @@ describe('GGGAPI auth gating', () => {
         cache: { enabled: false },
         url: '/character/AtlasRunner',
       })
+    );
+    expect(removeCachedResponse).toHaveBeenCalledWith(
+      'getCharacter-Mapper-AtlasRunner'
     );
   });
 

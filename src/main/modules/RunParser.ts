@@ -997,7 +997,17 @@ const RunParser = {
   },
 
   retryDeferredRun: async () => {
-    const deferredRun = RunParser.deferredRun;
+    const persistedDeferredRun = RunParser.deferredRun
+      ? null
+      : await DB.getOldestDeferredRun();
+    const deferredRun =
+      RunParser.deferredRun ??
+      (persistedDeferredRun
+        ? {
+            runId: persistedDeferredRun.id,
+            lastEventTimestamp: persistedDeferredRun.last_event,
+          }
+        : null);
     if (!deferredRun) return true;
 
     const runData = await RunParser.processRun(
