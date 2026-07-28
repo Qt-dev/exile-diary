@@ -22,6 +22,8 @@ jest.mock('../../../src/main/db/run', () => ({
   default: {
     getLastMapGeneratedEvent: jest.fn(),
     updateLastEvent: jest.fn(),
+    insertEvent: jest.fn(),
+    getItemsBetweenEvents: jest.fn(),
   },
 }));
 jest.mock('../../../src/main/GGGAPI', () => ({
@@ -367,6 +369,45 @@ describe('RunParser', () => {
     });
   });
 
+  describe('generateItemStats', () => {
+    it('counts explicit-end items associated with a synthetic closing zone', async () => {
+      const firstZone = {
+        event_text: 'Dunes Map',
+        event_id: 1,
+        item_id: null,
+      };
+      const closingZoneItem = {
+        event_text: 'Dunes Map',
+        event_id: 2,
+        item_id: 42,
+      };
+      (RunsDB.getItemsBetweenEvents as jest.Mock).mockResolvedValue([
+        firstZone,
+        closingZoneItem,
+      ]);
+      (Utils.isTown as jest.Mock).mockReturnValue(false);
+      jest.spyOn(RunParser, 'parseItems').mockResolvedValue({
+        count: 1,
+        value: 5,
+        importantDrops: {},
+      });
+
+      await expect(
+        RunParser.generateItemStats(
+          '123',
+          '2026-07-22T09:00:00.000Z',
+          '2026-07-22T10:00:00.000Z'
+        )
+      ).resolves.toEqual({
+        count: 1,
+        value: 5,
+        importantDrops: {},
+      });
+
+      expect(RunParser.parseItems).toHaveBeenCalledWith([closingZoneItem]);
+    });
+  });
+
   describe('tryProcess completion', () => {
     beforeEach(() => {
       jest.restoreAllMocks();
@@ -450,6 +491,12 @@ describe('RunParser', () => {
         null,
         true
       );
+      expect(RunsDB.insertEvent).toHaveBeenCalledWith({
+        event_type: 'entered',
+        event_text: 'Dunes Map',
+        timestamp: '2026-07-22T10:00:00.000Z',
+        server: '127.0.0.1:6112',
+      });
       expect(InventoryGetter.getInventoryDiffs).toHaveBeenCalledWith('2026-07-22T10:00:00.000Z');
     });
 
@@ -470,7 +517,7 @@ describe('RunParser', () => {
 
       expect(ItemParser.insertItems).toHaveBeenCalledWith(
         inventoryDiff,
-        '2026-07-22T09:00:00.000Z'
+        '2026-07-22T10:00:00.000Z'
       );
       expect(ItemParser.insertItems.mock.invocationCallOrder[0]).toBeLessThan(
         (RunParser.processRun as jest.Mock).mock.invocationCallOrder[0]

@@ -1089,10 +1089,15 @@ const RunParser = {
     try {
       logger.debug(`Processing run for area: ${event.area} at ${lastEventTimestamp}`);
       if (isExplicitEnd) {
+        await RunParser.insertEvent({
+          event_type: 'entered',
+          event_text: event.area,
+          timestamp: lastEventTimestamp,
+          server: event.server,
+        });
         const inventoryDiff = await InventoryGetter.getInventoryDiffs(lastEventTimestamp);
         if (inventoryDiff && Object.keys(inventoryDiff).length > 0) {
-          const inventoryEventTimestamp = mapEvents[mapEvents.length - 1].timestamp;
-          await ItemParser.insertItems(inventoryDiff, inventoryEventTimestamp);
+          await ItemParser.insertItems(inventoryDiff, lastEventTimestamp);
         }
       }
       const runData = await RunParser.processRun(lastEventTimestamp, null, isExplicitEnd);
