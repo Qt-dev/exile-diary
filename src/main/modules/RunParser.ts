@@ -73,6 +73,8 @@ type MapData = [
   boolean // completed
 ];
 
+let tryProcessQueue: Promise<void> = Promise.resolve();
+
 const RunParser = {
   latestGeneratedArea: {
     run_id: 0,
@@ -982,6 +984,17 @@ const RunParser = {
    * @throws Will log an error if processing fails.
    */
   tryProcess: async (parameters: RunProcessRequest | null) => {
+    const attempt = tryProcessQueue
+      .catch(() => undefined)
+      .then(() => RunParser.tryProcessOnce(parameters));
+    tryProcessQueue = attempt.then(
+      () => undefined,
+      () => undefined
+    );
+    return attempt;
+  },
+
+  tryProcessOnce: async (parameters: RunProcessRequest | null) => {
     let event: ParsedEvent;
     let wasGivenEvent: boolean = false;
     const isExplicitEnd = parameters?.reason === 'explicit-end';
@@ -1096,13 +1109,14 @@ const RunParser = {
         if (!closingEventId) {
           throw new Error('Unable to persist the explicit map-end closing event');
         }
-        await InventoryGetter.captureInventoryDiff(
+        const { diff, currentInventory } =
+          await InventoryGetter.getInventoryCapture(lastEventTimestamp);
+        await ItemParser.insertItemsAndInventoryBaseline(
+          diff,
           lastEventTimestamp,
-          async (inventoryDiff) => {
-            if (inventoryDiff && Object.keys(inventoryDiff).length > 0) {
-              await ItemParser.insertItems(inventoryDiff, lastEventTimestamp, closingEventId);
-            }
-          }
+          closingEventId,
+          dayjs().toISOString(),
+          currentInventory
         );
       }
       const runData = await RunParser.processRun(lastEventTimestamp, null, isExplicitEnd);

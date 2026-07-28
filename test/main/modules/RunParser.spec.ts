@@ -50,12 +50,14 @@ jest.mock('../../../src/main/modules/InventoryGetter', () => ({
   default: {
     getInventoryDiffs: jest.fn().mockResolvedValue({}),
     captureInventoryDiff: jest.fn().mockResolvedValue({}),
+    getInventoryCapture: jest.fn().mockResolvedValue({ diff: {}, currentInventory: {} }),
   },
 }));
 jest.mock('../../../src/main/modules/ItemParser', () => ({
   __esModule: true,
   default: {
     insertItems: jest.fn().mockResolvedValue(undefined),
+    insertItemsAndInventoryBaseline: jest.fn().mockResolvedValue(undefined),
   },
 }));
 jest.mock('../../../src/main/modules/LogProcessor', () => ({
@@ -206,6 +208,7 @@ describe('RunParser', () => {
   describe('parseItems', () => {
     beforeEach(() => {
       jest.restoreAllMocks();
+      jest.clearAllMocks();
       (ItemPricer.price as jest.Mock)
         .mockReset()
         .mockResolvedValue({ isVendor: false, value: 0, explanation: null });
@@ -475,6 +478,7 @@ describe('RunParser', () => {
   describe('tryProcess completion', () => {
     beforeEach(() => {
       jest.restoreAllMocks();
+      jest.clearAllMocks();
       (RunsDB.getLastMapGeneratedEvent as jest.Mock).mockResolvedValue({
         event_text: JSON.stringify({ areaName: 'Dunes Map' }),
       });
@@ -485,13 +489,11 @@ describe('RunParser', () => {
       (Utils.isVaalArea as jest.Mock).mockReturnValue(false);
       (Utils.isLabTrial as jest.Mock).mockReturnValue(false);
       (InventoryGetter.getInventoryDiffs as jest.Mock).mockResolvedValue({});
-      (InventoryGetter.captureInventoryDiff as jest.Mock).mockImplementation(
-        async (_timestamp, persistDiff) => {
-          const diff = {};
-          await persistDiff(diff);
-          return diff;
-        }
-      );
+      (InventoryGetter.getInventoryCapture as jest.Mock).mockResolvedValue({
+        diff: {},
+        currentInventory: {},
+      });
+      (ItemParser.insertItemsAndInventoryBaseline as jest.Mock).mockResolvedValue(undefined);
       jest.spyOn(RunParser, 'getLatestUnusedMapEnteredEvents').mockResolvedValue([
         {
           timestamp: '2026-07-22T09:00:00.000Z',
@@ -569,20 +571,18 @@ describe('RunParser', () => {
         timestamp: '2026-07-22T10:00:00.000Z',
         server: '127.0.0.1:6112',
       });
-      expect(InventoryGetter.captureInventoryDiff).toHaveBeenCalledWith(
-        '2026-07-22T10:00:00.000Z',
-        expect.any(Function)
+      expect(InventoryGetter.getInventoryCapture).toHaveBeenCalledWith(
+        '2026-07-22T10:00:00.000Z'
       );
     });
 
     it('persists the final inventory diff before explicit completion', async () => {
       const inventoryDiff = { 'item-1': { id: 'item-1', typeLine: 'Chaos Orb' } };
-      (InventoryGetter.captureInventoryDiff as jest.Mock).mockImplementationOnce(
-        async (_timestamp, persistDiff) => {
-          await persistDiff(inventoryDiff);
-          return inventoryDiff;
-        }
-      );
+      const currentInventory = { 'item-1': inventoryDiff['item-1'] };
+      (InventoryGetter.getInventoryCapture as jest.Mock).mockResolvedValueOnce({
+        diff: inventoryDiff,
+        currentInventory,
+      });
 
       await expect(
         RunParser.tryProcess({
@@ -595,25 +595,29 @@ describe('RunParser', () => {
         })
       ).resolves.toBe(true);
 
-      expect(ItemParser.insertItems).toHaveBeenCalledWith(
+      expect(ItemParser.insertItemsAndInventoryBaseline).toHaveBeenCalledWith(
         inventoryDiff,
         '2026-07-22T10:00:00.000Z',
-        42
+        42,
+        expect.any(String),
+        currentInventory
       );
-      expect(ItemParser.insertItems.mock.invocationCallOrder[0]).toBeLessThan(
+      expect(
+        ItemParser.insertItemsAndInventoryBaseline.mock.invocationCallOrder[0]
+      ).toBeLessThan(
         (RunParser.processRun as jest.Mock).mock.invocationCallOrder[0]
       );
     });
 
     it('does not advance completion when final item persistence fails', async () => {
       const inventoryDiff = { 'item-1': { id: 'item-1', typeLine: 'Chaos Orb' } };
-      (InventoryGetter.captureInventoryDiff as jest.Mock).mockImplementationOnce(
-        async (_timestamp, persistDiff) => {
-          await persistDiff(inventoryDiff);
-          return inventoryDiff;
-        }
+      (InventoryGetter.getInventoryCapture as jest.Mock).mockResolvedValueOnce({
+        diff: inventoryDiff,
+        currentInventory: inventoryDiff,
+      });
+      (ItemParser.insertItemsAndInventoryBaseline as jest.Mock).mockRejectedValueOnce(
+        new Error('item insert failed')
       );
-      (ItemParser.insertItems as jest.Mock).mockRejectedValueOnce(new Error('item insert failed'));
 
       await expect(
         RunParser.tryProcess({
@@ -628,6 +632,45 @@ describe('RunParser', () => {
 
       expect(RunParser.processRun).not.toHaveBeenCalled();
       expect(RunParser.resetRunData).not.toHaveBeenCalled();
+    });
+
+    it('serializes repeated explicit completion requests', async () => {
+      let releaseCapture: (() => void) | undefined;
+      (InventoryGetter.getInventoryCapture as jest.Mock).mockImplementationOnce(
+        () =>
+          new Promise((resolve) => {
+            releaseCapture = () => resolve({ diff: {}, currentInventory: {} });
+          })
+      );
+      (RunParser.getLatestUnusedMapEnteredEvents as jest.Mock)
+        .mockResolvedValueOnce([
+          {
+            timestamp: '2026-07-22T09:00:00.000Z',
+            area: 'Dunes Map',
+            server: '127.0.0.1:6112',
+          },
+        ])
+        .mockResolvedValueOnce([]);
+      const request = {
+        event: {
+          timestamp: '2026-07-22T10:00:00.000Z',
+          server: '127.0.0.1:6112',
+        },
+        reason: 'explicit-end' as const,
+        source: 'shortcut' as const,
+      };
+
+      const first = RunParser.tryProcess(request);
+      const second = RunParser.tryProcess(request);
+      await new Promise((resolve) => setTimeout(resolve, 0));
+
+      expect(RunsDB.insertEvent).toHaveBeenCalledTimes(1);
+      releaseCapture?.();
+
+      await expect(Promise.all([first, second])).resolves.toEqual([true, false]);
+      expect(RunsDB.insertEvent).toHaveBeenCalledTimes(1);
+      expect(ItemParser.insertItemsAndInventoryBaseline).toHaveBeenCalledTimes(1);
+      expect(RunParser.processRun).toHaveBeenCalledTimes(1);
     });
 
     it('leaves the run open when item accounting is not ready', async () => {

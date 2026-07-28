@@ -10,6 +10,7 @@ import ItemParser from './ItemParser';
 import EventParser from './EventParser';
 import Utils from './Utils';
 import { createExplicitMapEndRequest } from './mapEnd';
+import dayjs from 'dayjs';
 
 const logger = Logger.scope('LogProcessor');
 
@@ -296,6 +297,7 @@ const LogProcessor = {
 
     if (event) {
       try {
+        let persistedEventId: number | false | null = eventId;
         if (eventId) {
           await DB.updateEvent(eventId, {
             timestamp,
@@ -304,7 +306,7 @@ const LogProcessor = {
           });
         } else {
           // Save the event to the database
-          await DB.insertEvent({
+          persistedEventId = await DB.insertEvent({
             timestamp,
             event_type: event.type,
             event_text: event.text,
@@ -327,12 +329,18 @@ const LogProcessor = {
             });
           }
           await SkillTreeWatcher.saveNewTree(timestamp); // Async but we dont care about the result here
-          await InventoryGetter.getInventoryDiffs(timestamp).then(async (diff) => {
-            // Async but we dont care about the result here
-            if (diff && Object.keys(diff).length > 0) {
-              await ItemParser.insertItems(diff, timestamp);
-            }
-          });
+          if (!persistedEventId) {
+            throw new Error('Unable to persist the entered-area event');
+          }
+          const { diff, currentInventory } =
+            await InventoryGetter.getInventoryCapture(timestamp);
+          await ItemParser.insertItemsAndInventoryBaseline(
+            diff,
+            timestamp,
+            persistedEventId,
+            dayjs().toISOString(),
+            currentInventory
+          );
         }
       } catch (e) {
         logger.error(`Error processing event: ${e}`);

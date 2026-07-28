@@ -2,8 +2,8 @@ let uuidCounter = 0;
 const mockTryProcess = jest.fn();
 const mockInsertEvent = jest.fn();
 const mockSaveNewTree = jest.fn();
-const mockGetInventoryDiffs = jest.fn();
-const mockInsertItems = jest.fn();
+const mockGetInventoryCapture = jest.fn();
+const mockInsertItemsAndInventoryBaseline = jest.fn();
 const mockGetEventByQuote = jest.fn();
 const mockIsTown = jest.fn();
 jest.mock('uuid', () => ({
@@ -32,11 +32,11 @@ jest.mock('../../../src/main/modules/SkillTreeWatcher', () => ({
 }));
 jest.mock('../../../src/main/modules/InventoryGetter', () => ({
   __esModule: true,
-  default: { getInventoryDiffs: mockGetInventoryDiffs },
+  default: { getInventoryCapture: mockGetInventoryCapture },
 }));
 jest.mock('../../../src/main/modules/ItemParser', () => ({
   __esModule: true,
-  default: { insertItems: mockInsertItems },
+  default: { insertItemsAndInventoryBaseline: mockInsertItemsAndInventoryBaseline },
 }));
 jest.mock('../../../src/main/modules/EventParser', () => ({
   __esModule: true,
@@ -51,10 +51,13 @@ describe('LogProcessorScheduler', () => {
   beforeEach(() => {
     uuidCounter = 0;
     mockTryProcess.mockReset();
-    mockInsertEvent.mockReset().mockResolvedValue(true);
+    mockInsertEvent.mockReset().mockResolvedValue(42);
     mockSaveNewTree.mockReset().mockResolvedValue(undefined);
-    mockGetInventoryDiffs.mockReset().mockResolvedValue(null);
-    mockInsertItems.mockReset().mockResolvedValue(undefined);
+    mockGetInventoryCapture.mockReset().mockResolvedValue({
+      diff: {},
+      currentInventory: {},
+    });
+    mockInsertItemsAndInventoryBaseline.mockReset().mockResolvedValue(undefined);
     mockGetEventByQuote.mockReset().mockReturnValue(undefined);
     mockIsTown.mockReset();
   });
@@ -148,5 +151,12 @@ describe('LogProcessorScheduler', () => {
       },
       mode: 'automatic',
     });
+    expect(mockInsertItemsAndInventoryBaseline).toHaveBeenCalledWith(
+      {},
+      '2026-07-23T11:04:10.000Z',
+      42,
+      expect.any(String),
+      {}
+    );
   });
 });

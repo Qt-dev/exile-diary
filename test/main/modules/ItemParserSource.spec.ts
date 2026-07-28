@@ -16,4 +16,15 @@ describe('ItemParser persistence contract', () => {
     expect(insertIndex).toBeGreaterThan(-1);
     expect(ignoreUpdateIndex).toBeGreaterThan(insertIndex);
   });
+
+  it('uses the atomic item and inventory-baseline repository operation', () => {
+    const fs = jest.requireActual<typeof import('node:fs')>('node:fs');
+    const path = jest.requireActual<typeof import('node:path')>('node:path');
+    const source = fs.readFileSync(
+      path.join(process.cwd(), 'src', 'main', 'modules', 'ItemParser.js'),
+      'utf8'
+    );
+
+    expect(source).toContain('await DB.insertItemsAndInventory(');
+  });
 });

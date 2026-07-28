@@ -205,6 +205,61 @@ describe('Items', () => {
     });
   });
 
+  describe('insertItemsAndInventory', () => {
+    it('commits exact-event item rows and the inventory baseline in one transaction', async () => {
+      const item = [
+        'item1',
+        '2023-01-01T12:00:00.000Z',
+        'icon1.png',
+        'Item Name',
+        'Rare',
+        'Currency',
+        1,
+        'Chaos Orb',
+        '',
+        1,
+        '{"raw":"data"}',
+        1,
+        1,
+        null,
+      ];
+      const inventory = { item1: { id: 'item1' } };
+
+      await Items.insertItemsAndInventory(
+        [item],
+        42,
+        '2023-01-01T12:02:00.000Z',
+        inventory
+      );
+
+      expect(mockDB.transactionSteps).toHaveBeenCalledWith([
+        {
+          query: expect.stringContaining('values(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)'),
+          params: [
+            'item1',
+            42,
+            'icon1.png',
+            'Item Name',
+            'Rare',
+            'Currency',
+            1,
+            'Chaos Orb',
+            '',
+            1,
+            '{"raw":"data"}',
+            1,
+            1,
+            null,
+          ],
+        },
+        {
+          query: 'INSERT INTO last_inventory(timestamp, inventory) VALUES(?, ?)',
+          params: ['2023-01-01T12:02:00.000Z', JSON.stringify(inventory)],
+        },
+      ]);
+    });
+  });
+
   describe('getMatchingItemsCount', () => {
     it('should return count for matching items', async () => {
       const itemIds = ['item1', 'item2', 'item3'];

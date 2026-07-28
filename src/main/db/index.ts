@@ -981,6 +981,27 @@ const DB = {
     return DB.runMany(query, params, league);
   },
 
+  transactionSteps: async (
+    steps: Array<{ query: string; params?: any[] }>,
+    league: string | undefined = undefined
+  ) => {
+    const manager = DB.getManager(league);
+    if (!manager) return null;
+
+    return manager.runTask(() => {
+      const transaction = manager.db.transaction(
+        (transactionSteps: Array<{ query: string; params?: any[] }>) => {
+          let result;
+          for (const step of transactionSteps) {
+            result = manager.getStatement(step.query).run(step.params ?? []);
+          }
+          return result;
+        }
+      );
+      return transaction(steps);
+    });
+  },
+
   initDB: async (char: string, league?: string) => {
     const manager = DB.getCharacterManager(char, league);
     if (!manager) return null;

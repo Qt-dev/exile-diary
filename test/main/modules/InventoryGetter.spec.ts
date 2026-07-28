@@ -83,4 +83,19 @@ describe('InventoryGetter capture contract', () => {
     );
     expect(updateLastInventory).toHaveBeenCalledWith(currentInventory);
   });
+
+  it('can return the diff and current inventory without advancing the baseline', async () => {
+    const currentInventory = {
+      item: { id: 'item', name: 'Divine Orb', typeLine: 'Divine Orb' },
+    };
+    jest.spyOn(InventoryGetter, 'getPreviousInventory').mockResolvedValue({});
+    jest.spyOn(InventoryGetter, 'getCurrentInventory').mockResolvedValue(currentInventory);
+    const updateLastInventory = jest.spyOn(InventoryGetter, 'updateLastInventory');
+
+    await expect(
+      InventoryGetter.getInventoryCapture('2026-07-22T10:00:00.000Z')
+    ).resolves.toEqual({ diff: currentInventory, currentInventory });
+
+    expect(updateLastInventory).not.toHaveBeenCalled();
+  });
 });

@@ -3,6 +3,12 @@ import Logger from 'electron-log';
 
 const logger = Logger.scope('db/items');
 
+const directEventItemInsertQuery = `
+      INSERT INTO item
+      (item_id, event_id, icon, name, rarity, category, identified, typeline, sockets, stack_size, raw_data, value, original_value, valuation)
+      values(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      `;
+
 const Items = {
   insertItems: (items: any[], eventId?: number) => {
     logger.debug(`Inserting ${items.length} items`);
@@ -17,6 +23,25 @@ const Items = {
       values(?, ${eventId === undefined ? '(SELECT id FROM event WHERE event.timestamp = ?)' : '?'}, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
       `;
     return DB.transaction(query, params);
+  },
+
+  insertItemsAndInventory: (
+    items: any[],
+    eventId: number,
+    inventoryTimestamp: string,
+    inventory: Record<string, any>
+  ) => {
+    const itemSteps = items.map(([itemId, _eventTimestamp, ...rest]) => ({
+      query: directEventItemInsertQuery,
+      params: [itemId, eventId, ...rest],
+    }));
+    return DB.transactionSteps([
+      ...itemSteps,
+      {
+        query: 'INSERT INTO last_inventory(timestamp, inventory) VALUES(?, ?)',
+        params: [inventoryTimestamp, JSON.stringify(inventory)],
+      },
+    ]);
   },
   getMatchingItemsCount: async (itemIds: string[]): Promise<number> => {
     if (itemIds.length === 0) {
