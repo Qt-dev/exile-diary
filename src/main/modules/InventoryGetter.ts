@@ -31,10 +31,20 @@ class InventoryGetter extends EventEmitter {
     logger.info('Inventory getter started');
   }
 
-  async getInventoryDiffs(timestamp: string) {
+  async captureInventoryDiff(
+    timestamp: string,
+    persistDiff: (diff: Record<string, any>) => Promise<void>
+  ) {
     const previousInventory = await this.getPreviousInventory();
     const currentInventory = await this.getCurrentInventory(timestamp);
-    return this.compareInventories(previousInventory, currentInventory);
+    const diff = this.compareInventories(previousInventory, currentInventory);
+    await persistDiff(diff);
+    await this.updateLastInventory(currentInventory);
+    return diff;
+  }
+
+  async getInventoryDiffs(timestamp: string) {
+    return this.captureInventoryDiff(timestamp, async () => undefined);
   }
 
   compareInventories(prev: Record<string, any>, curr: Record<string, any>) {
@@ -53,7 +63,6 @@ class InventoryGetter extends EventEmitter {
       }
     });
 
-    void this.updateLastInventory(curr);
     return diff;
   }
 

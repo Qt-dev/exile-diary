@@ -269,7 +269,13 @@ const RunParser = {
     for (let item of items) {
       if (!item.raw_data) continue;
 
-      const jsonData = JSON.parse(item.raw_data);
+      let jsonData;
+      try {
+        jsonData = JSON.parse(item.raw_data);
+      } catch (err) {
+        logger.warn(`Skipping item ${item.id} with malformed raw data: ${err}`);
+        continue;
+      }
       if (jsonData && jsonData.inventoryId === 'MainInventory') {
         const dbItem = item as Item & {
           baseType?: string;
@@ -291,15 +297,7 @@ const RunParser = {
           typeline: item.typeline ?? jsonData.typeLine,
           stack_size: dbItem.stack_size ?? jsonData.stackSize,
         };
-        let price;
-        try {
-          price = await ItemPricer.price(pricingItem);
-        } catch (err) {
-          logger.warn(
-            `Unable to price item ${item.id} (${item.typeline || dbItem.name || 'unknown'}): ${err}`
-          );
-          price = { isVendor: false, value: 0, explanation: null };
-        }
+        const price = await ItemPricer.price(pricingItem);
         // logger.debug('Found price: ', price, item);
         if (price.isVendor) {
           totalValue += price.value;
@@ -1095,10 +1093,14 @@ const RunParser = {
           timestamp: lastEventTimestamp,
           server: event.server,
         });
-        const inventoryDiff = await InventoryGetter.getInventoryDiffs(lastEventTimestamp);
-        if (inventoryDiff && Object.keys(inventoryDiff).length > 0) {
-          await ItemParser.insertItems(inventoryDiff, lastEventTimestamp);
-        }
+        await InventoryGetter.captureInventoryDiff(
+          lastEventTimestamp,
+          async (inventoryDiff) => {
+            if (inventoryDiff && Object.keys(inventoryDiff).length > 0) {
+              await ItemParser.insertItems(inventoryDiff, lastEventTimestamp);
+            }
+          }
+        );
       }
       const runData = await RunParser.processRun(lastEventTimestamp, null, isExplicitEnd);
       if (!runData) {

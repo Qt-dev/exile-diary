@@ -49,6 +49,7 @@ jest.mock('../../../src/main/modules/InventoryGetter', () => ({
   __esModule: true,
   default: {
     getInventoryDiffs: jest.fn().mockResolvedValue({}),
+    captureInventoryDiff: jest.fn().mockResolvedValue({}),
   },
 }));
 jest.mock('../../../src/main/modules/ItemParser', () => ({
@@ -204,6 +205,10 @@ describe('RunParser', () => {
 
   describe('parseItems', () => {
     beforeEach(() => {
+      jest.restoreAllMocks();
+      (ItemPricer.price as jest.Mock)
+        .mockReset()
+        .mockResolvedValue({ isVendor: false, value: 0, explanation: null });
       jest.spyOn(RunParser, 'updateItemValues').mockResolvedValue();
     });
 
@@ -236,14 +241,12 @@ describe('RunParser', () => {
       expect(parsedItems).toEqual(expectedItems);
     });
 
-    it('hydrates raw item fields and keeps pricing other drops when one item fails', async () => {
+    it('hydrates raw item fields before pricing drops', async () => {
       const price = ItemPricer.price as jest.Mock;
       price
         .mockReset()
         .mockResolvedValueOnce({ isVendor: false, value: 12.5, explanation: null })
-        .mockRejectedValueOnce(
-          new TypeError("Cannot read properties of undefined (reading 'includes')")
-        )
+        .mockResolvedValueOnce({ isVendor: false, value: 0, explanation: null })
         .mockResolvedValueOnce({ isVendor: false, value: 3, explanation: null });
       const items = [
         {
@@ -297,6 +300,67 @@ describe('RunParser', () => {
         [0, null, 2, 1],
         [3, null, 3, 1],
       ]);
+    });
+
+    it('propagates operational pricing failures so accounting can retry', async () => {
+      (ItemPricer.price as jest.Mock).mockRejectedValueOnce(new Error('rate database unavailable'));
+      const updateItemValues = jest.spyOn(RunParser, 'updateItemValues');
+
+      await expect(
+        RunParser.parseItems([
+          {
+            id: 1,
+            name: '',
+            typeline: 'Chaos Orb',
+            raw_data: JSON.stringify({
+              inventoryId: 'MainInventory',
+              baseType: 'Chaos Orb',
+            }),
+            category: 'Currency',
+            event_id: 1,
+          },
+        ] as any)
+      ).rejects.toThrow('rate database unavailable');
+
+      expect(updateItemValues).not.toHaveBeenCalled();
+    });
+
+    it('skips irrecoverably malformed item rows without blocking the run', async () => {
+      (ItemPricer.price as jest.Mock).mockResolvedValueOnce({
+        isVendor: false,
+        value: 3,
+        explanation: null,
+      });
+
+      await expect(
+        RunParser.parseItems([
+          {
+            id: 1,
+            typeline: 'Broken Item',
+            raw_data: '{not-json',
+            category: null,
+            event_id: 1,
+          },
+          {
+            id: 2,
+            name: '',
+            typeline: 'Chaos Orb',
+            raw_data: JSON.stringify({
+              inventoryId: 'MainInventory',
+              baseType: 'Chaos Orb',
+            }),
+            category: 'Currency',
+            event_id: 1,
+          },
+        ] as any)
+      ).resolves.toEqual({
+        count: 1,
+        value: 3,
+        importantDrops: {},
+      });
+
+      expect(ItemPricer.price).toHaveBeenCalledTimes(1);
+      expect(RunParser.updateItemValues).toHaveBeenCalledWith([[3, null, 2, 1]]);
     });
   });
 
@@ -420,6 +484,13 @@ describe('RunParser', () => {
       (Utils.isVaalArea as jest.Mock).mockReturnValue(false);
       (Utils.isLabTrial as jest.Mock).mockReturnValue(false);
       (InventoryGetter.getInventoryDiffs as jest.Mock).mockResolvedValue({});
+      (InventoryGetter.captureInventoryDiff as jest.Mock).mockImplementation(
+        async (_timestamp, persistDiff) => {
+          const diff = {};
+          await persistDiff(diff);
+          return diff;
+        }
+      );
       jest.spyOn(RunParser, 'getLatestUnusedMapEnteredEvents').mockResolvedValue([
         {
           timestamp: '2026-07-22T09:00:00.000Z',
@@ -497,12 +568,20 @@ describe('RunParser', () => {
         timestamp: '2026-07-22T10:00:00.000Z',
         server: '127.0.0.1:6112',
       });
-      expect(InventoryGetter.getInventoryDiffs).toHaveBeenCalledWith('2026-07-22T10:00:00.000Z');
+      expect(InventoryGetter.captureInventoryDiff).toHaveBeenCalledWith(
+        '2026-07-22T10:00:00.000Z',
+        expect.any(Function)
+      );
     });
 
     it('persists the final inventory diff before explicit completion', async () => {
       const inventoryDiff = { 'item-1': { id: 'item-1', typeLine: 'Chaos Orb' } };
-      (InventoryGetter.getInventoryDiffs as jest.Mock).mockResolvedValue(inventoryDiff);
+      (InventoryGetter.captureInventoryDiff as jest.Mock).mockImplementationOnce(
+        async (_timestamp, persistDiff) => {
+          await persistDiff(inventoryDiff);
+          return inventoryDiff;
+        }
+      );
 
       await expect(
         RunParser.tryProcess({
@@ -522,6 +601,31 @@ describe('RunParser', () => {
       expect(ItemParser.insertItems.mock.invocationCallOrder[0]).toBeLessThan(
         (RunParser.processRun as jest.Mock).mock.invocationCallOrder[0]
       );
+    });
+
+    it('does not advance completion when final item persistence fails', async () => {
+      const inventoryDiff = { 'item-1': { id: 'item-1', typeLine: 'Chaos Orb' } };
+      (InventoryGetter.captureInventoryDiff as jest.Mock).mockImplementationOnce(
+        async (_timestamp, persistDiff) => {
+          await persistDiff(inventoryDiff);
+          return inventoryDiff;
+        }
+      );
+      (ItemParser.insertItems as jest.Mock).mockRejectedValueOnce(new Error('item insert failed'));
+
+      await expect(
+        RunParser.tryProcess({
+          event: {
+            timestamp: '2026-07-22T10:00:00.000Z',
+            server: '127.0.0.1:6112',
+          },
+          reason: 'explicit-end',
+          source: 'shortcut',
+        })
+      ).resolves.toBe(false);
+
+      expect(RunParser.processRun).not.toHaveBeenCalled();
+      expect(RunParser.resetRunData).not.toHaveBeenCalled();
     });
 
     it('leaves the run open when item accounting is not ready', async () => {
