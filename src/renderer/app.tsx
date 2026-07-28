@@ -1,5 +1,5 @@
 import React from 'react';
-import { redirect } from 'react-router-dom';
+import { redirect, useRevalidator, useRouteError } from 'react-router-dom';
 import { createTheme } from '@mui/material/styles';
 import RunStore from './stores/runStore';
 import CharacterStore from './stores/characterStore';
@@ -73,6 +73,7 @@ export const createAppRoutes = ({
       {
         path: 'stash',
         element: <StashTabs store={stashTabStore} />,
+        errorElement: <StashRouteError />,
         loader: async () => {
           await stashTabStore.ensureLoaded();
           return {};
@@ -166,6 +167,28 @@ export const createAppRoutes = ({
 
 function SearchRoute({ createSearchDataStore }: { createSearchDataStore: () => SearchDataStore }) {
   return <Search store={createSearchDataStore()} />;
+}
+
+function StashRouteError() {
+  const error = useRouteError();
+  const revalidator = useRevalidator();
+
+  React.useEffect(() => {
+    logger.error('Unable to load stash tabs', error);
+  }, [error]);
+
+  return (
+    <div role="alert">
+      <p>Unable to load stash tabs.</p>
+      <button
+        type="button"
+        disabled={revalidator.state === 'loading'}
+        onClick={() => revalidator.revalidate()}
+      >
+        {revalidator.state === 'loading' ? 'Retrying…' : 'Retry'}
+      </button>
+    </div>
+  );
 }
 
 export const appTheme = createTheme({

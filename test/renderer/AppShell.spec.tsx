@@ -158,6 +158,21 @@ describe('renderer app shell smoke tests', () => {
     expect(await screen.findByText('Stash Tabs')).toBeInTheDocument();
   });
 
+  it('offers an in-route retry when stash loading fails', async () => {
+    const stashTabStore = createStashTabStore();
+    stashTabStore.ensureLoaded
+      .mockRejectedValueOnce(new Error('stash request failed'))
+      .mockResolvedValueOnce(undefined);
+
+    renderApp('/stash', stashTabStore);
+
+    expect(await screen.findByRole('alert')).toHaveTextContent('Unable to load stash tabs.');
+    fireEvent.click(screen.getByRole('button', { name: 'Retry' }));
+
+    await waitFor(() => expect(stashTabStore.ensureLoaded).toHaveBeenCalledTimes(2));
+    expect(await screen.findByText('Stash Tabs')).toBeInTheDocument();
+  });
+
   it('loads stash tabs when the stash settings tab is selected', async () => {
     const stashTabStore = createStashTabStore();
 
