@@ -4,7 +4,7 @@ import IgnoreManager from '../../helpers/ignoreManager';
 const logger = require('electron-log');
 const DB = require('../db/items').default;
 
-async function insertItems(items, timestamp) {
+async function insertItems(items, timestamp, eventId) {
   const duplicateInventory = await isDuplicateInventory(items);
   if (duplicateInventory) {
     logger.info(`Duplicate items found for ${timestamp}, returning`);
@@ -28,9 +28,48 @@ async function insertItems(items, timestamp) {
       });
     }
 
-    DB.insertItems(itemsToInsert);
-    DB.updateIgnoredItems(formattedItemsForIgnoreManager);
+    await DB.insertItems(itemsToInsert, eventId);
+    await DB.updateIgnoredItems(formattedItemsForIgnoreManager);
   }
+}
+
+async function insertItemsAndInventoryBaseline(
+  items,
+  timestamp,
+  eventId,
+  inventoryTimestamp,
+  currentInventory
+) {
+  const duplicateInventory = await isDuplicateInventory(items);
+  const itemsToInsert = [];
+  const formattedItemsForIgnoreManager = [];
+
+  if (duplicateInventory) {
+    logger.info(`Duplicate items found for ${timestamp}, advancing inventory baseline only`);
+  } else {
+    logger.info(`Inserting items and inventory baseline for ${timestamp}`);
+    for (const itemKey in items) {
+      const item = new Item(items[itemKey]);
+      item.setTimestamp(timestamp);
+
+      const { value, explanation } = await ItemPricer.price(item);
+      item.setValue(value);
+      item.setValuation(explanation);
+      itemsToInsert.push(item.toDbInsertFormat(timestamp));
+      formattedItemsForIgnoreManager.push({
+        id: item.id,
+        status: IgnoreManager.isItemIgnored(item),
+      });
+    }
+  }
+
+  await DB.insertItemsAndInventory(
+    itemsToInsert,
+    eventId,
+    inventoryTimestamp,
+    currentInventory,
+    formattedItemsForIgnoreManager
+  );
 }
 
 async function isDuplicateInventory(items) {
@@ -54,4 +93,5 @@ async function isDuplicateInventory(items) {
 }
 
 module.exports.insertItems = insertItems;
-export default { insertItems };
+module.exports.insertItemsAndInventoryBaseline = insertItemsAndInventoryBaseline;
+export default { insertItems, insertItemsAndInventoryBaseline };

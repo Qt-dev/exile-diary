@@ -11,6 +11,7 @@ import * as GearChecker from './GearChecker';
 
 let settings: any;
 const emitter = new EventEmitter();
+let inventoryCaptureQueue: Promise<void> = Promise.resolve();
 
 class InventoryGetter extends EventEmitter {
   constructor() {
@@ -31,10 +32,47 @@ class InventoryGetter extends EventEmitter {
     logger.info('Inventory getter started');
   }
 
-  async getInventoryDiffs(timestamp: string) {
+  async captureInventoryDiff(
+    timestamp: string,
+    persistDiff: (diff: Record<string, any>) => Promise<void>
+  ) {
+    return this.captureAndPersistInventory(timestamp, async ({ diff, currentInventory }) => {
+      await persistDiff(diff);
+      await this.updateLastInventory(currentInventory);
+    });
+  }
+
+  async captureAndPersistInventory(
+    timestamp: string,
+    persistCapture: (capture: {
+      diff: Record<string, any>;
+      currentInventory: Record<string, any>;
+    }) => Promise<void>,
+    requireFresh = false
+  ) {
+    const attempt = inventoryCaptureQueue
+      .catch(() => undefined)
+      .then(async () => {
+        const capture = await this.getInventoryCapture(timestamp, requireFresh);
+        await persistCapture(capture);
+        return capture.diff;
+      });
+    inventoryCaptureQueue = attempt.then(
+      () => undefined,
+      () => undefined
+    );
+    return attempt;
+  }
+
+  async getInventoryCapture(timestamp: string, requireFresh = false) {
     const previousInventory = await this.getPreviousInventory();
-    const currentInventory = await this.getCurrentInventory(timestamp);
-    return this.compareInventories(previousInventory, currentInventory);
+    const currentInventory = await this.getCurrentInventory(timestamp, requireFresh);
+    const diff = this.compareInventories(previousInventory, currentInventory);
+    return { diff, currentInventory };
+  }
+
+  async getInventoryDiffs(timestamp: string) {
+    return this.captureInventoryDiff(timestamp, async () => undefined);
   }
 
   compareInventories(prev: Record<string, any>, curr: Record<string, any>) {
@@ -53,7 +91,6 @@ class InventoryGetter extends EventEmitter {
       }
     });
 
-    void this.updateLastInventory(curr);
     return diff;
   }
 
@@ -86,8 +123,10 @@ class InventoryGetter extends EventEmitter {
     }
   }
 
-  async getCurrentInventory(timestamp: string) {
-    const data = await GGGAPI.getDataForInventory();
+  async getCurrentInventory(timestamp: string, requireFresh = false) {
+    const data = await GGGAPI.getDataForInventory(
+      requireFresh ? { fresh: true, throwOnError: true } : undefined
+    );
     const inventory = this.getInventory(data.inventory);
     this.emit('xp', timestamp, data.experience);
     this.emit('equipment', timestamp, data.equipment);

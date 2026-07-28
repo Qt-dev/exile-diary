@@ -71,7 +71,7 @@ describe('Runs', () => {
         '{"test": "data"}', // run_info
         true, // completed
       ];
-      mockDB.run.mockResolvedValue(undefined);
+      mockDB.run.mockResolvedValue({ lastInsertRowid: 42 });
 
       const result = await Runs.insertMapRun(mapData);
 
@@ -366,7 +366,7 @@ describe('Runs', () => {
       jest
         .spyOn(Runs, 'getAreaInfo')
         .mockResolvedValue({ name: undefined, level: undefined, depth: undefined } as any);
-      mockDB.run.mockResolvedValue(undefined);
+      mockDB.run.mockResolvedValue({ lastInsertRowid: 42 });
 
       const result = await Runs.insertAreaInfo(areaData);
 
@@ -488,7 +488,7 @@ describe('Runs', () => {
   describe('deleteMapMods', () => {
     it('should delete map mods successfully', async () => {
       const mapId = 42;
-      mockDB.run.mockResolvedValue(undefined);
+      mockDB.run.mockResolvedValue({ lastInsertRowid: 42 });
 
       const result = await Runs.deleteMapMods(mapId);
 
@@ -563,7 +563,7 @@ describe('Runs', () => {
         timestamp: '2023-01-01T12:00:00.000Z',
         server: 'test-server',
       };
-      mockDB.run.mockResolvedValue(undefined);
+      mockDB.run.mockResolvedValue({ lastInsertRowid: 42 });
 
       const result = await Runs.insertEvent(event);
 
@@ -574,7 +574,7 @@ describe('Runs', () => {
     `,
         [event.event_type, event.event_text, event.timestamp, event.server]
       );
-      expect(result).toBe(true);
+      expect(result).toBe(42);
     });
 
     it('should handle insertion failure', async () => {
@@ -594,7 +594,7 @@ describe('Runs', () => {
         timestamp: '2023-01-01T12:00:00.000Z',
         server: 'test-server',
       };
-      mockDB.run.mockResolvedValue(undefined);
+      mockDB.run.mockResolvedValue({ lastInsertRowid: 42 });
 
       await Runs.insertEvent(event);
 
@@ -624,6 +624,12 @@ describe('Runs', () => {
       mockDB.run.mockResolvedValue({ changes: 1, lastInsertRowid: 0 });
 
       await expect(Runs.updateCurrentRunFirstEvent()).resolves.toBe(true);
+
+      expect(mockDB.run).toHaveBeenCalledWith(
+        expect.stringContaining(
+          'WHERE id = (SELECT MAX(id) FROM run WHERE completed = 0)'
+        )
+      );
     });
 
     it('returns false when no active run was updated', async () => {

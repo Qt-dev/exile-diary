@@ -10,6 +10,7 @@ import ItemParser from './ItemParser';
 import EventParser from './EventParser';
 import Utils from './Utils';
 import { createExplicitMapEndRequest } from './mapEnd';
+import dayjs from 'dayjs';
 
 const logger = Logger.scope('LogProcessor');
 
@@ -226,19 +227,42 @@ const LogProcessor = {
       timestamp,
     });
 
+    let deferredRetryFailed = false;
+    try {
+      deferredRetryFailed = !(await RunParser.retryDeferredRun());
+    } catch (error) {
+      deferredRetryFailed = true;
+      logger.error(`Unable to retry deferred run; continuing current generation: ${error}`);
+    }
+
     // Special case for the very first run in DB
     const isFirstRun = await DB.isFirstRun();
     // Try to process the run if it's a town or a hideout
     let hasProcessed = false;
-    if (!area.isTown && !area.isHideout) {
-      hasProcessed = await RunParser.tryProcess({
+    if (!area.isTown && !area.isHideout && !deferredRetryFailed) {
+      const completionRequest = {
         event: { timestamp, server: lastInstanceServer },
-      });
+      };
+      for (let attempt = 1; attempt <= 3 && !hasProcessed; attempt++) {
+        hasProcessed = await RunParser.tryProcess(completionRequest);
+        if (!hasProcessed && attempt < 3) {
+          logger.warn(
+            `Map completion attempt ${attempt} failed; retrying with boundary ${timestamp}`
+          );
+        }
+      }
+    }
+    if (deferredRetryFailed) {
+      const currentRun = await DB.getLatestUncompletedRun();
+      if (currentRun) {
+        await DB.markRunDeferred(currentRun.id, timestamp);
+      }
+      RunParser.accountingDeferred = true;
     }
     // If there is a map run ongoing, we don't create a new one
     const hasOngoingMap = await RunParser.hasOngoingMapRun();
     if (
-      (isFirstRun || hasProcessed || !hasOngoingMap) &&
+      (isFirstRun || hasProcessed || RunParser.accountingDeferred || !hasOngoingMap) &&
       !area.isTown &&
       !area.isHideout &&
       !area.isLabyrinthAirlock &&
@@ -296,6 +320,7 @@ const LogProcessor = {
 
     if (event) {
       try {
+        let persistedEventId: number | false | null = eventId;
         if (eventId) {
           await DB.updateEvent(eventId, {
             timestamp,
@@ -304,7 +329,7 @@ const LogProcessor = {
           });
         } else {
           // Save the event to the database
-          await DB.insertEvent({
+          persistedEventId = await DB.insertEvent({
             timestamp,
             event_type: event.type,
             event_text: event.text,
@@ -327,12 +352,20 @@ const LogProcessor = {
             });
           }
           await SkillTreeWatcher.saveNewTree(timestamp); // Async but we dont care about the result here
-          await InventoryGetter.getInventoryDiffs(timestamp).then(async (diff) => {
-            // Async but we dont care about the result here
-            if (diff && Object.keys(diff).length > 0) {
-              await ItemParser.insertItems(diff, timestamp);
-            }
-          });
+          if (!persistedEventId) {
+            throw new Error('Unable to persist the entered-area event');
+          }
+          await InventoryGetter.captureAndPersistInventory(
+            timestamp,
+            ({ diff, currentInventory }) =>
+              ItemParser.insertItemsAndInventoryBaseline(
+                diff,
+                timestamp,
+                persistedEventId,
+                dayjs().toISOString(),
+                currentInventory
+              )
+          );
         }
       } catch (e) {
         logger.error(`Error processing event: ${e}`);

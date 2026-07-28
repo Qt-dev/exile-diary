@@ -1,4 +1,5 @@
 const axiosRequest = jest.fn();
+const removeCachedResponse = jest.fn(async () => undefined);
 const waitForAccountAccess = jest.fn(async () => undefined);
 const waitForProfileAccess = jest.fn(async () => undefined);
 const ensurePoeApiHostResolution = jest.fn(async () => undefined);
@@ -25,6 +26,7 @@ jest.mock('axios-cache-interceptor/dev', () => ({
   setupCache: () => axiosRequest,
   buildMemoryStorage: () => ({
     get: jest.fn(async () => null),
+    remove: (...args: unknown[]) => removeCachedResponse(...args),
   }),
 }));
 
@@ -167,6 +169,45 @@ describe('GGGAPI auth gating', () => {
     expect(axiosRequest).toHaveBeenCalledTimes(1);
   });
 
+  it('bypasses the snapshot cache when fresh inventory is required', async () => {
+    axiosRequest.mockResolvedValue({
+      cached: false,
+      headers: {},
+      data: {
+        character: {
+          inventory: [],
+          equipment: [],
+          experience: 123,
+        },
+      },
+    });
+
+    const GGGAPI = (await import('../../src/main/GGGAPI')).default;
+    await expect(
+      GGGAPI.getDataForInventory({ fresh: true, throwOnError: true })
+    ).resolves.toMatchObject({ experience: 123 });
+
+    expect(axiosRequest).toHaveBeenCalledWith(
+      expect.objectContaining({
+        cache: { enabled: false },
+        url: '/character/AtlasRunner',
+      })
+    );
+    expect(removeCachedResponse).toHaveBeenCalledWith(
+      'getCharacter-Mapper-AtlasRunner'
+    );
+  });
+
+  it('propagates a failed inventory request when a fresh snapshot is required', async () => {
+    axiosRequest.mockRejectedValue(new Error('snapshot failed'));
+
+    const GGGAPI = (await import('../../src/main/GGGAPI')).default;
+
+    await expect(
+      GGGAPI.getDataForInventory({ fresh: true, throwOnError: true })
+    ).rejects.toThrow('snapshot failed');
+  });
+
   it('waits only for account access when resolving the current character', async () => {
     axiosRequest.mockResolvedValue({
       cached: false,
@@ -208,6 +249,20 @@ describe('GGGAPI auth gating', () => {
     expect(waitForProfileAccess).toHaveBeenCalledTimes(1);
     expect(waitForAccountAccess).not.toHaveBeenCalled();
     expect(ensurePoeApiHostResolution).toHaveBeenCalledTimes(1);
+    expect(axiosRequest).toHaveBeenCalledWith(
+      expect.objectContaining({
+        id: 'getAllStashTabs-Mapper-Mirage',
+        url: '/stash/Mirage',
+      })
+    );
+  });
+
+  it('propagates stash request failures to callers that can offer a retry', async () => {
+    axiosRequest.mockRejectedValue(new Error('stash failed'));
+
+    const GGGAPI = (await import('../../src/main/GGGAPI')).default;
+
+    await expect(GGGAPI.getAllStashTabs()).rejects.toThrow('stash failed');
   });
 
   it('surfaces a DNS resolution failure before making a doomed GGG request', async () => {

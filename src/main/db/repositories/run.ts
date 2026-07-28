@@ -136,6 +136,62 @@ const Runs = {
     return result;
   },
 
+  getDeferredRun: async (): Promise<
+    | {
+        id: number;
+        first_event: string;
+        last_event: string;
+        capture_required: number;
+        closing_event_id: number | null;
+      }
+    | null
+    | undefined
+  > => {
+    const query = `
+      SELECT run.id, run.first_event, deferred_run.last_event,
+        deferred_run.capture_required, deferred_run.closing_event_id
+      FROM deferred_run
+      JOIN run ON run.id = deferred_run.run_id
+      WHERE run.completed = 0
+      ORDER BY run.id ASC
+      LIMIT 1;
+    `;
+    return DB.get(query);
+  },
+
+  markRunDeferred: async (
+    runId: number,
+    lastEventTimestamp: string,
+    captureRequired = false,
+    closingEventId: number | null = null
+  ) => {
+    return DB.run(
+      `INSERT INTO deferred_run(run_id, last_event, capture_required, closing_event_id)
+       VALUES(?, ?, ?, ?)
+       ON CONFLICT(run_id) DO UPDATE SET
+         last_event = CASE
+           WHEN deferred_run.capture_required = 1 THEN deferred_run.last_event
+           ELSE excluded.last_event
+         END,
+         capture_required = MAX(deferred_run.capture_required, excluded.capture_required),
+         closing_event_id = COALESCE(deferred_run.closing_event_id, excluded.closing_event_id)`,
+      [runId, lastEventTimestamp, captureRequired ? 1 : 0, closingEventId]
+    );
+  },
+
+  clearDeferredRun: async (runId: number) => {
+    return DB.run('DELETE FROM deferred_run WHERE run_id = ?', [runId]);
+  },
+
+  completeDeferredCapture: async (runId: number, closingEventId: number) => {
+    return DB.run(
+      `UPDATE deferred_run
+       SET capture_required = 0, closing_event_id = ?
+       WHERE run_id = ?`,
+      [closingEventId, runId]
+    );
+  },
+
   getCurrentAreaData: async (): Promise<AreaInfo | null> => {
     logger.info('Getting current area data from DB');
     const query = `
@@ -438,8 +494,13 @@ const Runs = {
       VALUES(?, ?, ?, ?)
     `;
     try {
-      await DB.run(query, [event.event_type, event.event_text, event.timestamp, event.server]);
-      return true;
+      const result = await DB.run(query, [
+        event.event_type,
+        event.event_text,
+        event.timestamp,
+        event.server,
+      ]);
+      return Number(result.lastInsertRowid);
     } catch (err) {
       logger.error(`Error inserting event: ${JSON.stringify(err)}`);
       return false;
@@ -567,19 +628,18 @@ const Runs = {
     const query = `
       UPDATE run
       SET first_event = (
-        SELECT timestamp FROM event, run
+        SELECT timestamp FROM event
         WHERE timestamp >= run.first_event
         AND event_type = 'entered'
+        ORDER BY timestamp
         LIMIT 1
       )
-      WHERE 
-      (
-        SELECT COUNT(*)
-          FROM event, run
-          WHERE event_type = 'entered'
-          AND timestamp >= run.first_event
-      ) = 1
-      AND completed = 0
+      WHERE id = (SELECT MAX(id) FROM run WHERE completed = 0)
+      AND EXISTS (
+        SELECT 1 FROM event
+        WHERE event_type = 'entered'
+        AND timestamp >= run.first_event
+      )
     `;
     try {
       const result = await DB.run(query);
