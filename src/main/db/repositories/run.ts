@@ -141,12 +141,15 @@ const Runs = {
         id: number;
         first_event: string;
         last_event: string;
+        capture_required: number;
+        closing_event_id: number | null;
       }
     | null
     | undefined
   > => {
     const query = `
-      SELECT run.id, run.first_event, deferred_run.last_event
+      SELECT run.id, run.first_event, deferred_run.last_event,
+        deferred_run.capture_required, deferred_run.closing_event_id
       FROM deferred_run
       JOIN run ON run.id = deferred_run.run_id
       WHERE run.completed = 0
@@ -156,11 +159,20 @@ const Runs = {
     return DB.get(query);
   },
 
-  markRunDeferred: async (runId: number, lastEventTimestamp: string) => {
+  markRunDeferred: async (
+    runId: number,
+    lastEventTimestamp: string,
+    captureRequired = false,
+    closingEventId: number | null = null
+  ) => {
     return DB.run(
-      `INSERT INTO deferred_run(run_id, last_event) VALUES(?, ?)
-       ON CONFLICT(run_id) DO UPDATE SET last_event = excluded.last_event`,
-      [runId, lastEventTimestamp]
+      `INSERT INTO deferred_run(run_id, last_event, capture_required, closing_event_id)
+       VALUES(?, ?, ?, ?)
+       ON CONFLICT(run_id) DO UPDATE SET
+         last_event = excluded.last_event,
+         capture_required = excluded.capture_required,
+         closing_event_id = excluded.closing_event_id`,
+      [runId, lastEventTimestamp, captureRequired ? 1 : 0, closingEventId]
     );
   },
 

@@ -311,7 +311,7 @@ describe('RunParser', () => {
       ]);
     });
 
-    it('propagates operational pricing failures so accounting can retry', async () => {
+    it('isolates a pricing failure to the affected item', async () => {
       (ItemPricer.price as jest.Mock).mockRejectedValueOnce(new Error('rate database unavailable'));
       const updateItemValues = jest.spyOn(RunParser, 'updateItemValues');
 
@@ -329,7 +329,7 @@ describe('RunParser', () => {
             event_id: 1,
           },
         ] as any)
-      ).rejects.toThrow('rate database unavailable');
+      ).resolves.toEqual({ count: 1, value: 0, importantDrops: {} });
 
       expect(updateItemValues).not.toHaveBeenCalled();
     });
@@ -740,6 +740,50 @@ describe('RunParser', () => {
 
       await expect(RunParser.retryDeferredRun()).resolves.toBe(true);
 
+      expect(RunParser.processRun).toHaveBeenCalledWith(
+        '2026-07-22T08:00:00.000Z',
+        5
+      );
+    });
+
+    it('retries a persisted explicit capture before processing the deferred run', async () => {
+      const inventoryDiff = { item: { id: 'item', typeLine: 'Chaos Orb' } };
+      (RunsDB.getDeferredRun as jest.Mock).mockResolvedValueOnce({
+        id: 5,
+        first_event: '2026-07-22T07:00:00.000Z',
+        last_event: '2026-07-22T08:00:00.000Z',
+        capture_required: 1,
+        closing_event_id: 42,
+      });
+      (InventoryGetter.captureAndPersistInventory as jest.Mock).mockImplementationOnce(
+        async (_timestamp, persistCapture) => {
+          await persistCapture({
+            diff: inventoryDiff,
+            currentInventory: inventoryDiff,
+          });
+          return inventoryDiff;
+        }
+      );
+      (RunParser.processRun as jest.Mock).mockResolvedValueOnce({
+        name: 'Mesa Map',
+        gained: 3,
+      });
+
+      await expect(RunParser.retryDeferredRun()).resolves.toBe(true);
+
+      expect(ItemParser.insertItemsAndInventoryBaseline).toHaveBeenCalledWith(
+        inventoryDiff,
+        '2026-07-22T08:00:00.000Z',
+        42,
+        expect.any(String),
+        inventoryDiff
+      );
+      expect(RunsDB.markRunDeferred).toHaveBeenCalledWith(
+        5,
+        '2026-07-22T08:00:00.000Z',
+        false,
+        42
+      );
       expect(RunParser.processRun).toHaveBeenCalledWith(
         '2026-07-22T08:00:00.000Z',
         5

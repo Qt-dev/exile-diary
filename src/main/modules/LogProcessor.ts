@@ -227,7 +227,11 @@ const LogProcessor = {
       timestamp,
     });
 
-    await RunParser.retryDeferredRun();
+    try {
+      await RunParser.retryDeferredRun();
+    } catch (error) {
+      logger.error(`Unable to retry deferred run; continuing current generation: ${error}`);
+    }
 
     // Special case for the very first run in DB
     const isFirstRun = await DB.isFirstRun();

@@ -199,6 +199,29 @@ describe('LogProcessorScheduler', () => {
     );
   });
 
+  it('continues generation when a deferred retry throws', async () => {
+    mockGetAreaFromId.mockReturnValue({
+      name: 'Dunes Map',
+      baseLevel: 74,
+      isTown: false,
+      isHideout: false,
+      isLabyrinthAirlock: false,
+      isLabyrinthBossArea: false,
+    });
+    mockRetryDeferredRun.mockRejectedValueOnce(new Error('deferred DB failure'));
+    mockTryProcess.mockResolvedValue(true);
+    const { default: LogProcessor } = await import('../../../src/main/modules/LogProcessor');
+
+    await expect(
+      LogProcessor.processGeneration(
+        '2026-07-23T11:04:10.000Z',
+        'Generating level 83 area "MapWorldsDunes" with seed 123'
+      )
+    ).resolves.toBeUndefined();
+
+    expect(mockCreateNewMapRun).toHaveBeenCalledTimes(1);
+  });
+
   it('does not emit a map entry for a town', async () => {
     mockIsTown.mockReturnValue(true);
     const { default: LogProcessor } = await import('../../../src/main/modules/LogProcessor');

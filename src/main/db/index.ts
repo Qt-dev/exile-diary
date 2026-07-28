@@ -578,6 +578,11 @@ const Migrations = {
         )`,
         `pragma user_version = 19`,
       ],
+      [
+        `ALTER TABLE deferred_run ADD COLUMN capture_required INTEGER NOT NULL DEFAULT 0`,
+        `ALTER TABLE deferred_run ADD COLUMN closing_event_id INTEGER`,
+        `pragma user_version = 20`,
+      ],
     ],
     maintenance: [
       `delete from incubator where timestamp < (select min(timestamp) from (select timestamp from incubator order by timestamp desc limit 25))`,

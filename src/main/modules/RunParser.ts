@@ -301,7 +301,13 @@ const RunParser = {
           typeline: item.typeline ?? jsonData.typeLine,
           stack_size: dbItem.stack_size ?? jsonData.stackSize,
         };
-        const price = await ItemPricer.price(pricingItem);
+        let price;
+        try {
+          price = await ItemPricer.price(pricingItem);
+        } catch (error) {
+          logger.warn(`Skipping item ${item.id} after pricing failed: ${error}`);
+          continue;
+        }
         // logger.debug('Found price: ', price, item);
         if (price.isVendor) {
           totalValue += price.value;
@@ -1006,9 +1012,35 @@ const RunParser = {
         ? {
             runId: persistedDeferredRun.id,
             lastEventTimestamp: persistedDeferredRun.last_event,
+            captureRequired: persistedDeferredRun.capture_required === 1,
+            closingEventId: persistedDeferredRun.closing_event_id,
           }
         : null);
     if (!deferredRun) return true;
+
+    if ('captureRequired' in deferredRun && deferredRun.captureRequired) {
+      if (!deferredRun.closingEventId) {
+        throw new Error(`Deferred run ${deferredRun.runId} has no closing event`);
+      }
+      await InventoryGetter.captureAndPersistInventory(
+        deferredRun.lastEventTimestamp,
+        ({ diff, currentInventory }) =>
+          ItemParser.insertItemsAndInventoryBaseline(
+            diff,
+            deferredRun.lastEventTimestamp,
+            deferredRun.closingEventId,
+            dayjs().toISOString(),
+            currentInventory
+          ),
+        true
+      );
+      await DB.markRunDeferred(
+        deferredRun.runId,
+        deferredRun.lastEventTimestamp,
+        false,
+        deferredRun.closingEventId
+      );
+    }
 
     const runData = await RunParser.processRun(
       deferredRun.lastEventTimestamp,
@@ -1131,7 +1163,7 @@ const RunParser = {
       const targetRun = await DB.getLatestUncompletedRun();
       const targetRunId = targetRun?.id ?? null;
       if (targetRunId) {
-        await DB.markRunDeferred(targetRunId, lastEventTimestamp);
+        await DB.markRunDeferred(targetRunId, lastEventTimestamp, isExplicitEnd);
       }
       if (isExplicitEnd) {
         const closingEventId = await RunParser.insertEvent({
@@ -1142,6 +1174,14 @@ const RunParser = {
         });
         if (!closingEventId) {
           throw new Error('Unable to persist the explicit map-end closing event');
+        }
+        if (targetRunId) {
+          await DB.markRunDeferred(
+            targetRunId,
+            lastEventTimestamp,
+            true,
+            closingEventId
+          );
         }
         await InventoryGetter.captureAndPersistInventory(
           lastEventTimestamp,

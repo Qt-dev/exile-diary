@@ -267,7 +267,12 @@ describe('db/index', () => {
     expect(
       preparedSql.some((sql: string) => sql.includes('CREATE TABLE IF NOT EXISTS deferred_run'))
     ).toBe(true);
-    expect(preparedSql.some((sql: string) => sql.includes('pragma user_version = 19'))).toBe(true);
+    expect(
+      preparedSql.some((sql: string) =>
+        sql.includes('ALTER TABLE deferred_run ADD COLUMN capture_required')
+      )
+    ).toBe(true);
+    expect(preparedSql.some((sql: string) => sql.includes('pragma user_version = 20'))).toBe(true);
     expect(preparedSql.some((sql: string) => sql.includes('delete from incubator'))).toBe(true);
     expect(manager.db.transaction).toHaveBeenCalled();
   });
