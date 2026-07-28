@@ -280,7 +280,10 @@ const RunParser = {
         logger.warn(`Skipping item ${item.id} with malformed raw data: ${err}`);
         continue;
       }
-      if (jsonData && jsonData.inventoryId === 'MainInventory') {
+      if (
+        jsonData &&
+        (jsonData.inventoryId === 'MainInventory' || jsonData.inventoryId === 'Rucksack')
+      ) {
         const dbItem = item as Item & {
           baseType?: string;
           name?: string;
@@ -1173,10 +1176,11 @@ const RunParser = {
     // if (!lastEvent) return;
     // logger.debug('Last town event found:\n', JSON.stringify(lastEvent));
 
+    let targetRunId: number | null = null;
     try {
       logger.debug(`Processing run for area: ${event.area} at ${lastEventTimestamp}`);
       const targetRun = await DB.getLatestUncompletedRun();
-      const targetRunId = targetRun?.id ?? null;
+      targetRunId = targetRun?.id ?? null;
       if (targetRunId && !isExplicitEnd) {
         await DB.markRunDeferred(targetRunId, lastEventTimestamp, isExplicitEnd);
       }
@@ -1241,6 +1245,10 @@ const RunParser = {
       RunParser.emitter.emit('run-parser:run-processed', runData);
       RunParser.resetRunData();
     } catch (e) {
+      if (targetRunId) {
+        RunParser.accountingDeferred = true;
+        RunParser.deferredRun = { runId: targetRunId, lastEventTimestamp };
+      }
       logger.error(`Error processing run: ${e}`);
       return false;
     }

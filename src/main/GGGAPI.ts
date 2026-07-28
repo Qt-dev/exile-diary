@@ -350,7 +350,8 @@ const getAllStashTabs = async () => {
     const { username, league, token } = await getSettings();
     const response: any = await request({
       params: getRequestParams(Endpoints.stashes({ league }), token),
-      group: `getAllStashTabs-${username}`,
+      group: `getAllStashTabs-${username}-${league}`,
+      limiterId: `getAllStashTabs-${username}`,
     });
     const stashes = await response.data.stashes;
     logger.info(`Found ${response.data.stashes.length} stashes for account: ${username}`);

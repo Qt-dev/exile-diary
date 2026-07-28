@@ -169,9 +169,12 @@ const Runs = {
       `INSERT INTO deferred_run(run_id, last_event, capture_required, closing_event_id)
        VALUES(?, ?, ?, ?)
        ON CONFLICT(run_id) DO UPDATE SET
-         last_event = excluded.last_event,
-         capture_required = excluded.capture_required,
-         closing_event_id = excluded.closing_event_id`,
+         last_event = CASE
+           WHEN deferred_run.capture_required = 1 THEN deferred_run.last_event
+           ELSE excluded.last_event
+         END,
+         capture_required = MAX(deferred_run.capture_required, excluded.capture_required),
+         closing_event_id = COALESCE(deferred_run.closing_event_id, excluded.closing_event_id)`,
       [runId, lastEventTimestamp, captureRequired ? 1 : 0, closingEventId]
     );
   },

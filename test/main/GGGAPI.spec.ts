@@ -249,6 +249,12 @@ describe('GGGAPI auth gating', () => {
     expect(waitForProfileAccess).toHaveBeenCalledTimes(1);
     expect(waitForAccountAccess).not.toHaveBeenCalled();
     expect(ensurePoeApiHostResolution).toHaveBeenCalledTimes(1);
+    expect(axiosRequest).toHaveBeenCalledWith(
+      expect.objectContaining({
+        id: 'getAllStashTabs-Mapper-Mirage',
+        url: '/stash/Mirage',
+      })
+    );
   });
 
   it('propagates stash request failures to callers that can offer a retry', async () => {

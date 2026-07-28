@@ -371,6 +371,30 @@ describe('RunParser', () => {
       expect(ItemPricer.price).toHaveBeenCalledTimes(1);
       expect(RunParser.updateItemValues).toHaveBeenCalledWith([[3, null, 2, 1]]);
     });
+
+    it('counts items captured from the character rucksack', async () => {
+      (ItemPricer.price as jest.Mock).mockResolvedValueOnce({
+        isVendor: false,
+        value: 4,
+        explanation: null,
+      });
+
+      await expect(
+        RunParser.parseItems([
+          {
+            id: 4,
+            name: '',
+            typeline: 'Chaos Orb',
+            raw_data: JSON.stringify({
+              inventoryId: 'Rucksack',
+              baseType: 'Chaos Orb',
+            }),
+            category: 'Currency',
+            event_id: 2,
+          },
+        ] as any)
+      ).resolves.toEqual({ count: 1, value: 4, importantDrops: {} });
+    });
   });
 
   describe('getItemStats', () => {
@@ -690,6 +714,11 @@ describe('RunParser', () => {
 
       expect(RunParser.processRun).not.toHaveBeenCalled();
       expect(RunParser.resetRunData).not.toHaveBeenCalled();
+      expect(RunParser.accountingDeferred).toBe(true);
+      expect(RunParser.deferredRun).toEqual({
+        runId: 7,
+        lastEventTimestamp: '2026-07-22T10:00:00.000Z',
+      });
     });
 
     it('serializes repeated explicit completion requests', async () => {
