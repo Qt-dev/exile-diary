@@ -32,10 +32,11 @@ export default class StashTabStore {
     this.loadPromise = (async () => {
       try {
         const response = await electronService.getStashTabs();
-        this.createStashTabs(response.stashTabs ?? []);
+        const stashTabs = response.stashTabs ?? [];
+        this.createStashTabs(stashTabs);
         this.itemStore.createItems(response.data?.items ?? []);
         this.value = response.data?.value ?? 0;
-        this.hasLoaded = true;
+        this.hasLoaded = stashTabs.length > 0;
       } catch (error) {
         logger.error('Failed to fetch stash tabs for StashTabStore', error);
         throw error;

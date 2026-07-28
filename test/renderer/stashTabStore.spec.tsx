@@ -63,4 +63,28 @@ describe('StashTabStore', () => {
     expect(store.stashTabs).toHaveLength(1);
     expect(store.value).toBe(42);
   });
+
+  it('retries when the backend returns no stash tabs', async () => {
+    getStashTabs
+      .mockResolvedValueOnce({
+        stashTabs: [],
+        data: {},
+      })
+      .mockResolvedValueOnce({
+        stashTabs: [{ id: 'currency', name: 'Currency', tracked: true }],
+        data: { items: [], value: 42 },
+      });
+    const store = new StashTabStore();
+
+    await store.ensureLoaded();
+
+    expect(store.hasLoaded).toBe(false);
+    expect(getStashTabs).toHaveBeenCalledTimes(1);
+
+    await store.ensureLoaded();
+
+    expect(getStashTabs).toHaveBeenCalledTimes(2);
+    expect(store.hasLoaded).toBe(true);
+    expect(store.stashTabs).toHaveLength(1);
+  });
 });
