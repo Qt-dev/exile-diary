@@ -1,12 +1,14 @@
-import SettingsManager from '../SettingsManager';
-import RatesManager from '../RatesManager';
-import { writeFile } from 'fs/promises';
-import Constants from '../../helpers/constants';
-import * as ItemCategoryParser from '../../helpers/item';
-import { getItemModDescriptions, getLegacyFrameType } from '../../helpers/poeItemApi';
-import ItemData from './ItemData';
-import Utils from './Utils';
-import dayjs, { min } from 'dayjs';
+import SettingsManager from '../../SettingsManager';
+import PriceSnapshotStore from '../snapshots/PriceSnapshotStore';
+import Constants from '../../../helpers/constants';
+import * as ItemCategoryParser from '../../../helpers/item';
+import { getItemModDescriptions, getLegacyFrameType } from '../../../helpers/poeItemApi';
+import ItemData from '../../modules/ItemData';
+import Utils from '../../modules/Utils';
+import dayjs from 'dayjs';
+import { buildGemPriceIdentifier, clusterItemLevelBucket } from './priceIdentities';
+import { isAllflameEmber, isHelmetCategory } from './classifyItem';
+import { firstMatchingRule, type PriceMatch } from './pricingRules';
 const logger = require('electron-log');
 
 const baseTypeRarities = ['Normal', 'Magic', 'Rare'];
@@ -62,12 +64,6 @@ const log = false;
 let ratesCache = {};
 let matchers = {};
 
-type PriceMatch = {
-  name: string;
-  test: (item: any) => boolean;
-  calculateValue: (item: any, minItemValue?: number) => number;
-};
-
 export type PriceSnapshotInfo = {
   snapshotId: string;
   date: string;
@@ -122,7 +118,7 @@ async function getRatesFor(eventId: string, league = SettingsManager.get('active
   if (!ratesCache[date] || !ratesCache[date][league]) {
     logger.info(`No rates for this date (${date}), fetching...`);
     ratesCache[date] = ratesCache[date] || {};
-    ratesCache[date][league] = await RatesManager.fetchRatesForDay(league, date);
+    ratesCache[date][league] = await PriceSnapshotStore.fetchRatesForDay(league, date);
     // writeFile(`./${date}.json`, JSON.stringify(ratesCache[date][league])); // In case you need to inspect the full rates for a day
   }
   return ratesCache[date][league] ?? {};
@@ -131,7 +127,7 @@ async function getRatesFor(eventId: string, league = SettingsManager.get('active
 async function updateRates(league = SettingsManager.get('activeProfile').league) {
   const date = dayjs().format('YYYYMMDD');
   ratesCache[date] = ratesCache[date] || {};
-  ratesCache[date][league] = await RatesManager.fetchRatesForDay(league, date);
+  ratesCache[date][league] = await PriceSnapshotStore.fetchRatesForDay(league, date);
   // writeFile(`./${date}.json`, JSON.stringify(ratesCache[date][league])); // In case you need to inspect the full rates for a day
 }
 
@@ -142,53 +138,6 @@ class PriceMatcher {
   lookupTrail: PriceLookupRecord[] = [];
   // Update every league to add the new series or new maps won't be priced.
   MapSeries = MAP_SERIES;
-
-  DefaultGemFormat = {
-    test: (name) => true,
-    generateString: (name, level, quality, corrupted) => {
-      let formattedString = `${name}${level >= 4 ? ` L${level}` : ''}`;
-      if (quality === 23) {
-        formattedString += ` Q${quality}`;
-      } else if (quality >= 20) {
-        formattedString += ' Q20';
-      }
-      return formattedString;
-    },
-  };
-
-  GemFormats = [
-    {
-      test: (name) => name.includes('Awakened'),
-      generateString: (name, level, quality, corrupted) => {
-        let formattedString = `${name}${level >= 4 ? ` L${level}` : ''}`;
-        if (quality === 23) {
-          formattedString += ` Q${quality}`;
-        } else if (quality >= 20) {
-          formattedString += ' Q20';
-        }
-        return formattedString;
-      },
-    },
-    {
-      test: (name) =>
-        name.includes('Empower') || name.includes('Enlighten') || name.includes('Enhance'),
-      generateString: (name, level, quality, corrupted) => {
-        return `${name}${level >= 2 ? ` L${level}` : ''}`;
-      },
-    },
-    {
-      test: (name) => name.includes('Brand Recall'),
-      generateString: (name, level, quality, corrupted) => {
-        let formattedString = `${name}${level >= 6 ? ` L${level}` : ''}`;
-        if (quality === 23) {
-          formattedString += ` Q${quality}`;
-        } else if (quality >= 20) {
-          formattedString += ' Q20';
-        }
-        return formattedString;
-      },
-    },
-  ];
 
   DefaultPriceMatch: PriceMatch = {
     name: 'Default',
@@ -239,7 +188,7 @@ class PriceMatcher {
     {
       name: 'Other Fragments',
       test: (item: any) =>
-        item.category === 'Map Fragment' ||
+        (item.category === 'Map Fragment' && !isAllflameEmber(item)) ||
         (item.category === 'Labyrinth Item' && item.typeline.endsWith('to the Goddess')),
       calculateValue: (item: any, minItemValue: number = 0) =>
         this.getValue(item, 'Fragment', item.typeline, minItemValue) * (item.stack_size || 1),
@@ -264,7 +213,7 @@ class PriceMatcher {
     },
     {
       name: 'Allflame Embers',
-      test: (item: any) => item.typeline && item.typeline.startsWith('Allflame Ember'),
+      test: (item: any) => isAllflameEmber(item),
       calculateValue: (item: any, minItemValue: number = 0) =>
         this.getValue(item, 'AllflameEmber', item.typeline, minItemValue),
     },
@@ -301,7 +250,7 @@ class PriceMatcher {
     },
     {
       name: 'Unique Helmets',
-      test: (item: any) => item.category === 'Helmets' && item.rarity === 'Unique',
+      test: (item: any) => isHelmetCategory(item.category) && item.rarity === 'Unique',
       calculateValue: (item: any, minItemValue: number = 0) =>
         Math.max(
           this.getUniqueItemValue(item, minItemValue),
@@ -324,7 +273,8 @@ class PriceMatcher {
     },
     {
       name: 'Non-Unique Helmets',
-      test: (item: any) => item.category === 'Helmets' && baseTypeRarities.includes(item.rarity),
+      test: (item: any) =>
+        isHelmetCategory(item.category) && baseTypeRarities.includes(item.rarity),
       calculateValue: (item: any, minItemValue: number = 0) =>
         Math.max(
           this.getBaseTypeValue(item, minItemValue),
@@ -528,8 +478,7 @@ class PriceMatcher {
    * @returns {PriceMatch}  The first pricing rule that matches the item
    */
   match(item: any): PriceMatch {
-    return this.PriceMatches.find((match) => match.test(item)) ?? this.DefaultPriceMatch;
-    // return this.DefaultPriceMatch;
+    return firstMatchingRule(this.PriceMatches, item, this.DefaultPriceMatch);
   }
 
   /**
@@ -746,13 +695,7 @@ class PriceMatcher {
    * @returns {string} Formatted identifier of the gem
    */
   getFullGemIdentifier(name: string, level: number, quality: number, corrupted: boolean): string {
-    const formatter = this.GemFormats.find((match) => match.test(name)) ?? this.DefaultGemFormat;
-    let formattedString = formatter.generateString(name, level, quality, corrupted);
-
-    if (corrupted) {
-      formattedString += ' (Corrupted)';
-    }
-    return formattedString;
+    return buildGemPriceIdentifier(name, level, quality, corrupted);
   }
 
   // Specific Pricing Calculations
@@ -1089,15 +1032,13 @@ class PriceMatcher {
    */
   getClusterJewelValue(minItemValue: number, item: any): number {
     const ID_TRIGGER = 'Added Small Passive Skills grant:';
-    const LEVEL_RANGES = [84, 50, 75, 1];
-
     let identifier = '';
     for (const mod of item.enchantMods) {
       if (!mod.includes(ID_TRIGGER)) continue;
       identifier = mod.replace(ID_TRIGGER, '').trim();
     }
 
-    const levelRange = LEVEL_RANGES.find((range) => item.parsedItem.ilvl >= range);
+    const levelRange = clusterItemLevelBucket(item.parsedItem.ilvl);
     identifier += ` L${levelRange}`;
 
     const passiveSkillsCount =
@@ -1121,7 +1062,7 @@ class PriceMatcher {
   getBaseTypeValue(item: any, minItemValue: number): number {
     const sockets = ItemData.getSockets(item.parsedItem);
 
-    if (item.parsedItem.ilvl < 82 || ItemData.countSockets(sockets) === 6) {
+    if (item.parsedItem.ilvl < 82) {
       return this.getVendorRecipeValue(item, minItemValue);
     }
 
@@ -1134,18 +1075,21 @@ class PriceMatcher {
     identifier += ` L${item.parsedItem.ilvl > 86 ? 86 : item.parsedItem.ilvl}`;
     let possibleIdentifiers = [identifier];
     if (item.parsedItem.influences) {
+      const influences = Object.keys(item.parsedItem.influences).map(
+        (influence) => influence.charAt(0).toUpperCase() + influence.slice(1)
+      );
       possibleIdentifiers = [
-        Object.keys(item.parsedItem.influences).join('/'),
-        Object.keys(item.parsedItem.influences).reverse().join('/'),
-      ].map((influences) => {
-        if (influences.length > 0) return `${identifier} ${influences}`;
-      });
+        `${identifier} ${influences.join('/')}`,
+        `${identifier} ${[...influences].reverse().join('/')}`,
+      ];
     }
 
-    const values = possibleIdentifiers.map((Identifier) => {
-      return this.getValue(item, 'BaseType', identifier, minItemValue);
-    });
-    return Math.max(...values);
+    const values = possibleIdentifiers.map((candidate) =>
+      this.getValue(item, 'BaseType', candidate, minItemValue)
+    );
+    const vendorValue =
+      ItemData.countSockets(sockets) === 6 ? this.getVendorRecipeValue(item, minItemValue) : 0;
+    return Math.max(vendorValue, ...values);
   }
 
   /**

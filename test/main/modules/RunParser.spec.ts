@@ -7,7 +7,7 @@ import Utils from '../../../src/main/modules/Utils';
 import { get } from '../../../src/main/db/settings';
 import logger from 'electron-log';
 import RunsDB from '../../../src/main/db/run';
-import ItemPricer from '../../../src/main/modules/ItemPricer';
+import ItemPricer from '../../../src/main/pricing/matching/ItemPricer';
 import InventoryGetter from '../../../src/main/modules/InventoryGetter';
 import ItemParser from '../../../src/main/modules/ItemParser';
 
@@ -47,7 +47,7 @@ jest.mock('../../../src/main/modules/Utils', () => ({
     sleep: jest.fn().mockResolvedValue(undefined),
   },
 }));
-jest.mock('../../../src/main/modules/ItemPricer', () => ({
+jest.mock('../../../src/main/pricing/matching/ItemPricer', () => ({
   price: jest.fn().mockReturnValue(Promise.resolve({ value: 0, count: 0, importantDrops: {} })),
 }));
 jest.mock('../../../src/main/modules/InventoryGetter', () => ({

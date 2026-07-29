@@ -207,9 +207,9 @@ export default async () => {
     .sort((a, b) => a.class.localeCompare(b.class))
     .forEach((item) => {
       if (GemClasses.includes(item.class)) {
-        sortedItems.gems[item.name] = item.class.replace(/(?<!(\s|^))([A-Z])/g, ' $1');
+        sortedItems.gems[item.name] = item.class.replace(/(?<!(\s|^))([A-Z])/g, ' $2');
       } else if (EquipmentClasses.includes(item.class)) {
-        sortedItems.equipments[item.name] = item.class.replace(/(?<!(\s|^))([A-Z])/g, ' $1');
+        sortedItems.equipments[item.name] = item.class.replace(/(?<!(\s|^))([A-Z])/g, ' $2');
       } else if (item.class === "StackableCurrency") {
         if(SpecialCurrencyPattern.some((pattern) => pattern.pattern.test(item.name))) {
           sortedItems.others[item.name] = ["Currency", SpecialCurrencyPattern.find((pattern) => pattern.pattern.test(item.name)).customClass];

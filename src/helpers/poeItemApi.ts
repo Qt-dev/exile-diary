@@ -28,6 +28,7 @@ const frameTypesById: Record<string, number> = {
   necropolis: 11,
   gold: 12,
   breachskill: 13,
+  breachgraftpseudogem: 13,
 };
 
 function normalizeFrameTypeId(frameTypeId: string) {

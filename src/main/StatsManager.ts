@@ -2,11 +2,11 @@ import logger from 'electron-log';
 import dayjs, { ManipulateType } from 'dayjs';
 import duration from 'dayjs/plugin/duration';
 import DB from './db/repositories/stats';
-import RatesManager from './RatesManager';
+import PriceSnapshotStore from './pricing/snapshots/PriceSnapshotStore';
 import SettingsManager from './SettingsManager';
 import { Run } from '../helpers/types';
 import Constants from '../helpers/constants';
-import ItemPricer from './modules/ItemPricer';
+import ItemPricer from './pricing/matching/ItemPricer';
 const { areas } = Constants;
 
 dayjs.extend(duration);
@@ -935,7 +935,7 @@ const statsManager = {
         times[2].timestamp - times[1].timestamp
       } ms`
     );
-    const divinePrice = await RatesManager.getCurrencyValue(
+    const divinePrice = await PriceSnapshotStore.getCurrencyValue(
       resolvedLeague,
       dayjs().format('YYYYMMDD'),
       'Divine Orb'

@@ -1,7 +1,7 @@
 import DB from '../index';
 import constants from '../../../helpers/constants';
 import Logger from 'electron-log';
-import type { ItemValuationExplanation } from '../../modules/ItemPricer';
+import type { ItemValuationExplanation } from '../../pricing/matching/ItemPricer';
 const logger = Logger.scope('db/run');
 
 type ItemProperty = {

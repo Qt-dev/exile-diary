@@ -1,7 +1,7 @@
 import { getCategory } from '../../helpers/item';
 import Utils from '../modules/Utils';
 import Logger from 'electron-log';
-import type { ItemValuationExplanation } from '../modules/ItemPricer';
+import type { ItemValuationExplanation } from '../pricing/matching/ItemPricer';
 import { getLegacyFrameType } from '../../helpers/poeItemApi';
 
 const logger = Logger.scope('Item');
@@ -94,6 +94,8 @@ const RarityByFrameType = [
   'Foil',
   'Supporter Foil',
   'Allflame',
+  'Gold',
+  'Breach Skill',
 ];
 
 class Item {

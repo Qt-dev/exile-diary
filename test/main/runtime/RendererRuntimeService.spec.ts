@@ -31,7 +31,7 @@ jest.mock('../../../src/main/RendererLogger', () => ({
   default: {},
 }));
 jest.mock('../../../src/main/modules/ClientTxtWatcher', () => ({}));
-jest.mock('../../../src/main/modules/ItemPricer', () => ({
+jest.mock('../../../src/main/pricing/matching/ItemPricer', () => ({
   __esModule: true,
   default: {},
 }));
@@ -43,7 +43,7 @@ jest.mock('../../../src/main/SearchManager', () => ({
   __esModule: true,
   default: {},
 }));
-jest.mock('../../../src/main/modules/RateGetterV2', () => ({
+jest.mock('../../../src/main/pricing/PricingService', () => ({
   __esModule: true,
   default: {},
 }));

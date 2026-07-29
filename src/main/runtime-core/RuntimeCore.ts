@@ -4,7 +4,7 @@ import StatsManager from '../StatsManager';
 import ScreenshotWatcher from '../modules/ImageParser/ScreenshotWatcher';
 import * as OCRWatcher from '../modules/ImageParser/OCRWatcher';
 import KillTracker from '../modules/KillTracker';
-import RateGetterV2 from '../modules/RateGetterV2';
+import PricingService from '../pricing/PricingService';
 import * as ClientTxtWatcher from '../modules/ClientTxtWatcher';
 import { createInventoryService } from './services/createInventoryService';
 import { createLogIngestService } from './services/createLogIngestService';
@@ -52,8 +52,8 @@ export function createRuntimeCore() {
       emitter: KillTracker.emitter,
     },
     rates: {
-      on: RateGetterV2.on.bind(RateGetterV2),
-      removeAllListeners: RateGetterV2.removeAllListeners.bind(RateGetterV2),
+      on: PricingService.on.bind(PricingService),
+      removeAllListeners: PricingService.removeAllListeners.bind(PricingService),
     },
     clientLogs: {
       emitter: ClientTxtWatcher.emitter,

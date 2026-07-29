@@ -21,7 +21,7 @@ jest.mock('../../../src/main/db/rates', () => ({
   default: {},
 }));
 
-describe('RateGetterV2 poe.ninja league names', () => {
+describe('PricingService poe.ninja league names', () => {
   beforeEach(() => {
     jest.resetModules();
     settingsGetMock.mockReset();
@@ -35,7 +35,7 @@ describe('RateGetterV2 poe.ninja league names', () => {
     ['Hardcore Curse of the Allflame', 'Hardcore Allflame'],
     ['Standard', 'Standard'],
   ])('normalizes %s to %s', (league, expected) => {
-    const { normalizeNinjaLeagueName } = require('../../../src/main/modules/RateGetterV2');
+    const { normalizeNinjaLeagueName } = require('../../../src/main/pricing/PricingService');
 
     expect(normalizeNinjaLeagueName(league)).toBe(expected);
   });
@@ -45,10 +45,10 @@ describe('RateGetterV2 poe.ninja league names', () => {
       league: 'Curse of the Allflame',
       leagueOverride: '',
     });
-    const rateGetter = require('../../../src/main/modules/RateGetterV2').default;
+    const rateGetter = require('../../../src/main/pricing/PricingService').default;
 
     expect(rateGetter.getNinjaURL('Map')).toBe(
-      '/poe1/api/economy/stash/current/item/overview?type=Map&league=Allflame'
+      '/poe1/api/economy/stash/current/item/overview?league=Allflame&type=Map'
     );
   });
 
@@ -58,7 +58,7 @@ describe('RateGetterV2 poe.ninja league names', () => {
       leagueOverride: '',
       overrideSSF: true,
     });
-    const rateGetter = require('../../../src/main/modules/RateGetterV2').default;
+    const rateGetter = require('../../../src/main/pricing/PricingService').default;
 
     expect(rateGetter.getNinjaLeagueName()).toBe('Hardcore Allflame');
   });

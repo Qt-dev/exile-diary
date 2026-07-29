@@ -1,4 +1,4 @@
-import ItemPricer from './ItemPricer';
+import ItemPricer from '../pricing/matching/ItemPricer';
 import Item from '../models/Item';
 import IgnoreManager from '../../helpers/ignoreManager';
 const logger = require('electron-log');
