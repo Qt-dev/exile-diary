@@ -59,6 +59,9 @@ export type PoeNinjaCategoryDefinition = {
   endpoint: PoeNinjaEndpointFamily;
   adapter: AdapterName;
   destination: string;
+  // Informational matcher readiness. Unsupported data is still retained in snapshots
+  // so future rules and proxy reprocessing do not require another upstream fetch.
+  pricingSupport: 'direct' | 'specialized' | 'historical' | 'unsupported';
 };
 
 const currencyDestinations = new Set<PoeNinjaCategory>([
@@ -93,6 +96,10 @@ const uniqueDestinations = new Set<PoeNinjaCategory>([
 
 function adapterFor(category: PoeNinjaCategory): AdapterName {
   if ((EXCHANGE_CATEGORIES as readonly string[]).includes(category)) return 'exchange';
+  if (category === 'ForbiddenJewel') return 'forbiddenJewel';
+  if (category === 'Beast') return 'beast';
+  if (category === 'ValdoMap') return 'valdoMap';
+  if (category === 'IncursionTemple') return 'incursionTemple';
   if (category === 'BaseType') return 'baseType';
   if (category === 'Wombgift') return 'wombgift';
   if (category === 'Map' || category === 'BlightedMap' || category === 'BlightRavagedMap') {
@@ -116,16 +123,45 @@ function destinationFor(category: PoeNinjaCategory): string {
   return category;
 }
 
+function pricingSupportFor(
+  category: PoeNinjaCategory
+): PoeNinjaCategoryDefinition['pricingSupport'] {
+  if (category === 'Memory') return 'historical';
+  if (category === 'ImbuedGem' || category === 'IncursionTemple') return 'unsupported';
+  if (
+    category === 'AllflameEmber' ||
+    category === 'ForbiddenJewel' ||
+    category === 'ShrineBelt' ||
+    category === 'ValdoMap' ||
+    category === 'BlightedMap' ||
+    category === 'BlightRavagedMap' ||
+    category === 'Beast'
+  ) {
+    return 'specialized';
+  }
+  return 'direct';
+}
+
 export const POE_NINJA_CATEGORIES: Readonly<
   Record<PoeNinjaCategory, PoeNinjaCategoryDefinition>
 > = Object.fromEntries([
   ...EXCHANGE_CATEGORIES.map((category) => [
     category,
-    { endpoint: 'exchange' as const, adapter: adapterFor(category), destination: destinationFor(category) },
+    {
+      endpoint: 'exchange' as const,
+      adapter: adapterFor(category),
+      destination: destinationFor(category),
+      pricingSupport: pricingSupportFor(category),
+    },
   ]),
   ...STASH_CATEGORIES.map((category) => [
     category,
-    { endpoint: 'stash' as const, adapter: adapterFor(category), destination: destinationFor(category) },
+    {
+      endpoint: 'stash' as const,
+      adapter: adapterFor(category),
+      destination: destinationFor(category),
+      pricingSupport: pricingSupportFor(category),
+    },
   ]),
 ]) as Record<PoeNinjaCategory, PoeNinjaCategoryDefinition>;
 

@@ -1,8 +1,22 @@
 import type { LegacyPriceSnapshot, PriceIndex } from '../types';
 import type { PoeNinjaCategory, PoeNinjaCategoryDefinition } from './categoryCatalog';
-import { buildGemPriceIdentifier } from '../matching/priceIdentities';
+import {
+  buildForbiddenJewelIdentifier,
+  buildGemPriceIdentifier,
+  buildIncursionRoomIdentifier,
+} from '../matching/priceIdentities';
 
-export type AdapterName = 'exchange' | 'baseType' | 'wombgift' | 'item' | 'map' | 'uniqueMap';
+export type AdapterName =
+  | 'exchange'
+  | 'baseType'
+  | 'wombgift'
+  | 'item'
+  | 'map'
+  | 'uniqueMap'
+  | 'forbiddenJewel'
+  | 'beast'
+  | 'valdoMap'
+  | 'incursionTemple';
 
 type PoeNinjaResponse = { lines?: any[]; items?: any[] };
 
@@ -76,6 +90,53 @@ function uniqueMap(response: PoeNinjaResponse): PriceIndex {
   return result;
 }
 
+function forbiddenJewel(response: PoeNinjaResponse): PriceIndex {
+  const result: PriceIndex = {};
+  for (const line of response.lines ?? []) {
+    const passiveName = line.metadata?.passiveName ?? line.name;
+    if (typeof line.variant !== 'string' || typeof passiveName !== 'string') continue;
+    setPrice(
+      result,
+      buildForbiddenJewelIdentifier(line.variant, passiveName),
+      line.chaosValue
+    );
+  }
+  return result;
+}
+
+function beast(response: PoeNinjaResponse): PriceIndex {
+  const result: PriceIndex = {};
+  for (const line of response.lines ?? []) setPrice(result, line.name, line.chaosValue);
+  return result;
+}
+
+function valdoMap(response: PoeNinjaResponse): PriceIndex {
+  const result: PriceIndex = {};
+  const ambiguousTitles = new Set<string>();
+  for (const line of response.lines ?? []) {
+    if (ambiguousTitles.has(line.name)) continue;
+    if (result[line.name] !== undefined) {
+      delete result[line.name];
+      ambiguousTitles.add(line.name);
+      continue;
+    }
+    setPrice(result, line.name, line.chaosValue);
+  }
+  return result;
+}
+
+function incursionTemple(response: PoeNinjaResponse): PriceIndex {
+  const result: PriceIndex = {};
+  for (const line of response.lines ?? []) {
+    const match = String(line.name ?? '').match(/^(.*) \(Tier (\d+)\)$/);
+    const identifier = match
+      ? buildIncursionRoomIdentifier(match[1], Number(match[2]))
+      : line.name;
+    setPrice(result, identifier, line.chaosValue);
+  }
+  return result;
+}
+
 const adapters: Record<AdapterName, (response: PoeNinjaResponse) => PriceIndex> = {
   exchange,
   baseType,
@@ -83,6 +144,10 @@ const adapters: Record<AdapterName, (response: PoeNinjaResponse) => PriceIndex> 
   item,
   map,
   uniqueMap,
+  forbiddenJewel,
+  beast,
+  valdoMap,
+  incursionTemple,
 };
 
 export function adaptPoeNinjaResponse(

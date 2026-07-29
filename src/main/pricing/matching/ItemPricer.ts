@@ -6,16 +6,22 @@ import { getItemModDescriptions, getLegacyFrameType } from '../../../helpers/poe
 import ItemData from '../../modules/ItemData';
 import Utils from '../../modules/Utils';
 import dayjs from 'dayjs';
-import { buildGemPriceIdentifier, clusterItemLevelBucket } from './priceIdentities';
+import {
+  buildBlightedMapIdentifier,
+  buildForbiddenJewelIdentifier,
+  buildGemPriceIdentifier,
+  buildShrineBeltIdentifier,
+  buildValdoMapIdentifier,
+  clusterItemLevelBucket,
+  extractForbiddenPassive,
+  extractShrineNames,
+} from './priceIdentities';
 import { isAllflameEmber, isHelmetCategory } from './classifyItem';
 import { firstMatchingRule, type PriceMatch } from './pricingRules';
 const logger = require('electron-log');
 
 const baseTypeRarities = ['Normal', 'Magic', 'Rare'];
 const nonPricedCategories = [
-  // captured beasts are not acquired as map loot
-  // might be relevant for calculating net worth though?
-  'Captured Beast',
   // value not tracked for heist items
   'Contract',
   'Blueprint',
@@ -195,13 +201,15 @@ class PriceMatcher {
     },
     {
       name: 'Tattoo',
-      test: (item: any) => item.typeline && item.typeline.includes('Tattoo'),
+      test: (item: any) =>
+        item.rarity === 'Currency' && item.typeline && item.typeline.includes('Tattoo'),
       calculateValue: (item: any, minItemValue: number = 0) =>
         this.getValue(item, 'Tattoo', item.typeline, minItemValue) * (item.stack_size || 1),
     },
     {
       name: 'Omen',
-      test: (item: any) => item.typeline && item.typeline.includes('Omen'),
+      test: (item: any) =>
+        item.rarity === 'Currency' && item.typeline && item.typeline.startsWith('Omen of '),
       calculateValue: (item: any, minItemValue: number = 0) =>
         this.getValue(item, 'Omen', item.typeline, minItemValue) * (item.stack_size || 1),
     },
@@ -215,7 +223,19 @@ class PriceMatcher {
       name: 'Allflame Embers',
       test: (item: any) => isAllflameEmber(item),
       calculateValue: (item: any, minItemValue: number = 0) =>
-        this.getValue(item, 'AllflameEmber', item.typeline, minItemValue),
+        this.getValue(item, 'AllflameEmber', item.typeline, minItemValue) *
+        (item.stack_size || item.stackSize || 1),
+    },
+    {
+      name: 'Captured Beast',
+      test: (item: any) => item.category === 'Captured Beast',
+      calculateValue: (item: any, minItemValue: number = 0) =>
+        this.getValue(
+          item,
+          'Currency',
+          item.name || item.typeline || item.parsedItem.name || item.parsedItem.typeLine,
+          minItemValue
+        ),
     },
     {
       name: 'Coffins',
@@ -241,6 +261,34 @@ class PriceMatcher {
       test: (item: any) => item.rarity === 'Currency',
       calculateValue: (item: any, minItemValue: number = 0) =>
         this.getValue(item, 'Currency', item.typeline, minItemValue) * (item.stack_size || 1),
+    },
+    {
+      name: 'Forbidden Jewel',
+      test: (item: any) => item.name === 'Forbidden Flame' || item.name === 'Forbidden Flesh',
+      calculateValue: (item: any, minItemValue: number = 0) => {
+        const passive = extractForbiddenPassive(item.parsedItem.explicitMods);
+        if (!passive) return 0;
+        return this.getValue(
+          item,
+          'UniqueItem',
+          buildForbiddenJewelIdentifier(item.name, passive),
+          minItemValue
+        );
+      },
+    },
+    {
+      name: 'Shrine Belt',
+      test: (item: any) => item.name === 'Screams of the Desiccated',
+      calculateValue: (item: any, minItemValue: number = 0) => {
+        const shrines = extractShrineNames(item.parsedItem.explicitMods);
+        if (shrines.length === 0) return 0;
+        return this.getValue(
+          item,
+          'UniqueItem',
+          buildShrineBeltIdentifier(item.name, shrines),
+          minItemValue
+        );
+      },
     },
     {
       name: 'Unique Maps',
@@ -297,6 +345,36 @@ class PriceMatcher {
       test: (item: any) => item.typeline && item.typeline.includes("'s Memory"),
       calculateValue: (item: any, minItemValue: number = 0) =>
         this.getValue(item, 'Memory', item.typeline, minItemValue),
+    },
+    {
+      name: 'Valdo Map',
+      test: (item: any) => item.typeline === 'Valdo Map' || item.parsedItem.baseType === 'Valdo Map',
+      calculateValue: (item: any, minItemValue: number = 0) => {
+        return this.getValue(
+          item,
+          'ValdoMap',
+          buildValdoMapIdentifier(item.name || item.typeline),
+          minItemValue
+        );
+      },
+    },
+    {
+      name: 'Blighted Map',
+      test: (item: any) => {
+        const icon = item.parsedItem.icon ?? '';
+        return icon.includes('mb=1') || icon.includes('mub=1');
+      },
+      calculateValue: (item: any, minItemValue: number = 0) => {
+        const tier = ItemData.getMapTier(item.parsedItem);
+        const { gen } = this.getMapSeries(item.parsedItem.icon);
+        const ravaged = item.parsedItem.icon.includes('mub=1');
+        return this.getValue(
+          item,
+          'Map',
+          buildBlightedMapIdentifier(tier, gen, ravaged),
+          minItemValue
+        );
+      },
     },
     {
       name: 'Map',
@@ -670,8 +748,9 @@ class PriceMatcher {
       return this.getMapSeriesFromBase64Icon(icon);
     }
 
-    const seriesFromMn = icon.includes('mn=')
-      ? this.MapSeries.find((series) => icon.includes(`mn=${series.id}`))
+    const mapGeneration = icon.match(/[?&]mn=(\d+)(?:&|$)/)?.[1];
+    const seriesFromMn = mapGeneration
+      ? this.MapSeries.find((series) => series.id === Number(mapGeneration))
       : false;
 
     if (seriesFromMn) {

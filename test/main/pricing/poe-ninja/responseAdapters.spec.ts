@@ -14,6 +14,21 @@ describe('poe.ninja response adapters', () => {
     ).toEqual({ 'Divine Orb': 175 });
   });
 
+  it('adapts the live Allflame Ember exchange identity', () => {
+    expect(
+      adaptPoeNinjaResponse(POE_NINJA_CATEGORIES.AllflameEmber, {
+        items: [
+          {
+            id: 'allflame-ember-of-kulemak',
+            name: 'Allflame Ember of Kulemak',
+            category: 'AllflameEmbers',
+          },
+        ],
+        lines: [{ id: 'allflame-ember-of-kulemak', primaryValue: 458.8 }],
+      })
+    ).toEqual({ 'Allflame Ember of Kulemak': 458.8 });
+  });
+
   it('does not append undefined to base types without a variant', () => {
     expect(
       adaptPoeNinjaResponse(POE_NINJA_CATEGORIES.BaseType, {
@@ -37,6 +52,107 @@ describe('poe.ninja response adapters', () => {
         ],
       })
     ).toEqual({ 'Fireball L21 Q20 (Corrupted)': 42 });
+  });
+
+  it('preserves Forbidden Flame and Flesh as separate passive identities', () => {
+    expect(
+      adaptPoeNinjaResponse(POE_NINJA_CATEGORIES.ForbiddenJewel, {
+        lines: [
+          {
+            name: 'Heart of Destruction',
+            variant: 'Forbidden Flesh',
+            metadata: { passiveName: 'Heart of Destruction' },
+            chaosValue: 31280,
+          },
+          {
+            name: 'Heart of Destruction',
+            variant: 'Forbidden Flame',
+            metadata: { passiveName: 'Heart of Destruction' },
+            chaosValue: 30000,
+          },
+        ],
+      })
+    ).toEqual({
+      'Forbidden Flesh (Heart of Destruction)': 31280,
+      'Forbidden Flame (Heart of Destruction)': 30000,
+    });
+  });
+
+  it('ignores malformed Forbidden jewel lines instead of creating undefined keys', () => {
+    expect(
+      adaptPoeNinjaResponse(POE_NINJA_CATEGORIES.ForbiddenJewel, {
+        lines: [{ name: 'Heart of Destruction', chaosValue: 100 }],
+      })
+    ).toEqual({});
+  });
+
+  it('uses the unique Valdo title without coupling the lookup to its reward variant', () => {
+    expect(
+      adaptPoeNinjaResponse(POE_NINJA_CATEGORIES.ValdoMap, {
+        lines: [
+          {
+            name: 'Echoing Turf',
+            baseType: 'Valdo Map',
+            variant: 'Foil Mageblood',
+            chaosValue: 41446,
+          },
+        ],
+      })
+    ).toEqual({ 'Echoing Turf': 41446 });
+  });
+
+  it('drops ambiguous duplicate Valdo titles instead of assigning a misleading price', () => {
+    expect(
+      adaptPoeNinjaResponse(POE_NINJA_CATEGORIES.ValdoMap, {
+        lines: [
+          { name: 'Repeated Title', variant: 'Foil Mageblood', chaosValue: 100 },
+          { name: 'Repeated Title', variant: 'Foil Headhunter', chaosValue: 50 },
+        ],
+      })
+    ).toEqual({});
+  });
+
+  it('adapts captured Beasts by species name regardless of taxonomy metadata', () => {
+    expect(
+      adaptPoeNinjaResponse(POE_NINJA_CATEGORIES.Beast, {
+        lines: [
+          {
+            name: 'Wild Bristle Matron',
+            baseType: 'Gargantuans|Ursae|The Wilds',
+            chaosValue: 156.4,
+          },
+        ],
+      })
+    ).toEqual({ 'Wild Bristle Matron': 156.4 });
+  });
+
+  it('retains Shrine belt variants instead of collapsing them by unique name', () => {
+    expect(
+      adaptPoeNinjaResponse(POE_NINJA_CATEGORIES.ShrineBelt, {
+        lines: [
+          {
+            name: 'Screams of the Desiccated',
+            baseType: 'Vanguard Belt',
+            variant: 'Gloom, Resistance',
+            chaosValue: 88,
+          },
+        ],
+      })
+    ).toEqual({ 'Screams of the Desiccated (Gloom, Resistance)': 88 });
+  });
+
+  it('keeps tier-aggregated blighted map identities', () => {
+    expect(
+      adaptPoeNinjaResponse(POE_NINJA_CATEGORIES.BlightedMap, {
+        lines: [
+          {
+            name: 'Blighted Map (Tier 16)',
+            variant: ', Gen-24',
+            chaosValue: 15,
+          },
+        ],
+      })
+    ).toEqual({ 'Blighted Map (Tier 16) Gen-24': 15 });
   });
 
   it('preserves the highest value when variants collapse to one identifier', () => {
