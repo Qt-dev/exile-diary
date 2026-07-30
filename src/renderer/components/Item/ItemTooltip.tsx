@@ -4,6 +4,16 @@ import Constants from '../../../helpers/constants';
 import classNames from 'classnames';
 import { getItemMods, getLegacyFrameType } from '../../../helpers/poeItemApi';
 
+const itemBackgroundUrls = import.meta.glob('../../../assets/img/itemicons/*Background*.png', {
+  eager: true,
+  import: 'default',
+}) as Record<string, string>;
+
+const getItemBackgroundUrl = (influence: 'Shaper' | 'Elder', width: number, height: number) =>
+  itemBackgroundUrls[
+    `../../../assets/img/itemicons/${influence}Background${width}x${height}.png`
+  ];
+
 const hasStructuredMods = (mods: unknown): boolean =>
   Array.isArray(mods) && mods.some((mod) => mod && typeof mod === 'object');
 
@@ -586,9 +596,11 @@ const getIcon = (item) => {
   const { w: width, h: height } = rawData;
   let backgroundImage: any = null;
   if (rawData.shaper) {
-    backgroundImage = require(`../../assets/img/itemicons/ShaperBackground${width}x${height}.png`);
+    const backgroundUrl = getItemBackgroundUrl('Shaper', width, height);
+    backgroundImage = backgroundUrl ? `url("${backgroundUrl}")` : null;
   } else if (rawData.elder) {
-    backgroundImage = require(`../../assets/img/itemicons/ElderBackground${width}x${height}.png`);
+    const backgroundUrl = getItemBackgroundUrl('Elder', width, height);
+    backgroundImage = backgroundUrl ? `url("${backgroundUrl}")` : null;
   }
 
   return (
