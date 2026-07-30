@@ -1,0 +1,2 @@
+# Copy this file to .dev.vars for local development. Never commit the real secret.
+GGG_CLIENT_SECRET=replace-with-the-path-of-exile-oauth-client-secret

@@ -11,7 +11,7 @@ jest.mock('../../src/main/db/repositories/stats', () => ({
   },
 }));
 
-jest.mock('../../src/main/RatesManager', () => ({
+jest.mock('../../src/main/pricing/snapshots/PriceSnapshotStore', () => ({
   __esModule: true,
   default: {
     getCurrencyValue: jest.fn(),
@@ -25,7 +25,7 @@ jest.mock('../../src/main/SettingsManager', () => ({
   },
 }));
 
-jest.mock('../../src/main/modules/ItemPricer', () => ({
+jest.mock('../../src/main/pricing/matching/ItemPricer', () => ({
   __esModule: true,
   default: {
     getCurrencyByName: jest.fn(),
@@ -34,7 +34,7 @@ jest.mock('../../src/main/modules/ItemPricer', () => ({
 
 import StatsManager from '../../src/main/StatsManager';
 import DB from '../../src/main/db/repositories/stats';
-import RatesManager from '../../src/main/RatesManager';
+import RatesManager from '../../src/main/pricing/snapshots/PriceSnapshotStore';
 import SettingsManager from '../../src/main/SettingsManager';
 
 const mockDB = DB as jest.Mocked<typeof DB>;

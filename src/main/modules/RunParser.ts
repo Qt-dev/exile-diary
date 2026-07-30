@@ -11,7 +11,7 @@ import minMax from 'dayjs/plugin/minMax'; // ES 2015
 import isSameOrAfter from 'dayjs/plugin/isSameOrAfter';
 import EventParser from './EventParser';
 import LogProcessor from './LogProcessor';
-import ItemPricer from './ItemPricer';
+import ItemPricer from '../pricing/matching/ItemPricer';
 import XPTracker from './XPTracker';
 import GraftbloodTracker from './GraftbloodTracker';
 import InventoryGetter from './InventoryGetter';

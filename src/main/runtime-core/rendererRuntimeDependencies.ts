@@ -8,10 +8,10 @@ import StashTabsManager from '../StashTabsManager';
 import stashGetter from '../modules/StashGetter';
 import RendererLogger from '../RendererLogger';
 import * as ClientTxtWatcher from '../modules/ClientTxtWatcher';
-import ItemPricer from '../modules/ItemPricer';
+import ItemPricer from '../pricing/matching/ItemPricer';
 import RunParser from '../modules/RunParser';
 import SearchManager from '../SearchManager';
-import RateGetterV2 from '../modules/RateGetterV2';
+import PricingService from '../pricing/PricingService';
 import ItemsDB from '../db/repositories/items';
 
 type Awaitable<T> = T | Promise<T>;
@@ -109,7 +109,7 @@ export function createDefaultRendererRuntimeDependencies(): RendererRuntimeDepen
     itemPricer: ItemPricer,
     runParser: RunParser,
     searchManager: SearchManager,
-    rateGetter: RateGetterV2,
+    rateGetter: PricingService,
     itemsDb: ItemsDB,
     now: () => dayjs().format('YYYYMMDD'),
   };

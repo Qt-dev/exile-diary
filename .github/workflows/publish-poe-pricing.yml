@@ -1,0 +1,94 @@
+name: publish-poe-pricing
+
+on:
+  schedule:
+    # Offset from the quarter-hour so scheduled runners and poe.ninja are not hit on the boundary.
+    - cron: '7,22,37,52 * * * *'
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: 'Generate and validate without writing to R2'
+        required: false
+        default: true
+        type: boolean
+      league:
+        description: 'Optional normalized league id to publish'
+        required: false
+        type: string
+      force_full_refresh:
+        description: 'Ignore stored poe.ninja ETags and fetch every category again'
+        required: false
+        default: false
+        type: boolean
+      rollback_snapshot_id:
+        description: 'Publish an existing validated snapshot id as the league current manifest'
+        required: false
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: poe-pricing-publication
+  # A newer run supersedes an in-flight refresh. Publication is safe because manifests are promoted last.
+  cancel-in-progress: true
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    environment: pricing-production
+    env:
+      CF_ACCOUNT_ID: ${{ vars.CF_ACCOUNT_ID }}
+      R2_BUCKET: ${{ vars.R2_BUCKET }}
+      R2_ENDPOINT: ${{ vars.R2_ENDPOINT }}
+      PRICING_PUBLIC_BASE_URL: ${{ vars.PRICING_PUBLIC_BASE_URL }}
+      POE_NINJA_CONTACT: ${{ vars.POE_NINJA_CONTACT }}
+      CF_R2_ACCESS_KEY_ID: ${{ secrets.CF_R2_ACCESS_KEY_ID }}
+      CF_R2_SECRET_ACCESS_KEY: ${{ secrets.CF_R2_SECRET_ACCESS_KEY }}
+      PRICING_DRY_RUN: ${{ github.event_name == 'workflow_dispatch' && inputs.dry_run || 'false' }}
+      PRICING_LEAGUE: ${{ inputs.league }}
+      PRICING_FORCE_FULL_REFRESH: ${{ github.event_name == 'workflow_dispatch' && inputs.force_full_refresh || 'false' }}
+      PRICING_ROLLBACK_SNAPSHOT_ID: ${{ inputs.rollback_snapshot_id }}
+
+    steps:
+      - name: Check out the default branch
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          ref: ${{ github.event.repository.default_branch }}
+          fetch-depth: 1
+
+      - name: Set up Node.js
+        uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+        with:
+          node-version: '22'
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Validate pricing publisher contract
+        run: npm run pricing:test
+
+      - name: Publish validated pricing snapshots
+        run: >-
+          npm run pricing:publish --
+          --dry-run="$PRICING_DRY_RUN"
+          --league="$PRICING_LEAGUE"
+          --force-full-refresh="$PRICING_FORCE_FULL_REFRESH"
+          --rollback-snapshot-id="$PRICING_ROLLBACK_SNAPSHOT_ID"
+
+      - name: Summarize publication
+        if: always()
+        shell: bash
+        run: |
+          {
+            echo "## Poe.ninja pricing publication"
+            echo
+            echo "- Trigger: \`${{ github.event_name }}\`"
+            echo "- Dry run: \`$PRICING_DRY_RUN\`"
+            echo "- League override: \`${PRICING_LEAGUE:-all active leagues}\`"
+            echo "- Force full refresh: \`$PRICING_FORCE_FULL_REFRESH\`"
+            echo "- Rollback snapshot: \`${PRICING_ROLLBACK_SNAPSHOT_ID:-none}\`"
+            echo "- Public base URL: \`$PRICING_PUBLIC_BASE_URL\`"
+          } >> "$GITHUB_STEP_SUMMARY"

@@ -1,0 +1,19 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "exile-diary-auth",
+  "main": "src/index.ts",
+  "compatibility_date": "2026-07-29",
+  "workers_dev": false,
+  "observability": {
+    "enabled": true
+  },
+  "secrets": {
+    "required": ["GGG_CLIENT_SECRET"]
+  },
+  "routes": [
+    {
+      "pattern": "exilediary.com/*",
+      "zone_name": "exilediary.com"
+    }
+  ]
+}

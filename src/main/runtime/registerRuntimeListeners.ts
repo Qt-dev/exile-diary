@@ -338,15 +338,15 @@ function registerRatesAndLogWatchers(
 ) {
   runtime.rates.removeAllListeners();
   runtime.rates.on('gettingPrices', () => {
-    logger.info("<span class='eventText'>Getting item prices from poe.ninja...</span>");
+    logger.info("<span class='eventText'>Getting item pricing snapshot...</span>");
   });
   runtime.rates.on('doneGettingPrices', () => {
     runtime.pricing.updateRates();
-    logger.info("<span class='eventText'>Finished getting item prices from poe.ninja</span>");
+    logger.info("<span class='eventText'>Finished getting item pricing snapshot</span>");
   });
   runtime.rates.on('gettingPricesFailed', () => {
     logger.info(
-      "<span class='eventText removeRow' onclick='rateGetterRetry(this);'>Error getting item prices from poe.ninja, <span class='retry'>click on this message to try again</span></span>"
+      "<span class='eventText removeRow' onclick='rateGetterRetry(this);'>Error getting pricing snapshot, <span class='retry'>click on this message to try again</span></span>"
     );
   });
   runtime.rates.on('pricesUpdated', (payload) => {

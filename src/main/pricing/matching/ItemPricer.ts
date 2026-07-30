@@ -1,19 +1,27 @@
-import SettingsManager from '../SettingsManager';
-import RatesManager from '../RatesManager';
-import { writeFile } from 'fs/promises';
-import Constants from '../../helpers/constants';
-import * as ItemCategoryParser from '../../helpers/item';
-import { getItemModDescriptions, getLegacyFrameType } from '../../helpers/poeItemApi';
-import ItemData from './ItemData';
-import Utils from './Utils';
-import dayjs, { min } from 'dayjs';
+import SettingsManager from '../../SettingsManager';
+import PriceSnapshotStore from '../snapshots/PriceSnapshotStore';
+import Constants from '../../../helpers/constants';
+import * as ItemCategoryParser from '../../../helpers/item';
+import { getItemModDescriptions, getLegacyFrameType } from '../../../helpers/poeItemApi';
+import ItemData from '../../modules/ItemData';
+import Utils from '../../modules/Utils';
+import dayjs from 'dayjs';
+import {
+  buildBlightedMapIdentifier,
+  buildForbiddenJewelIdentifier,
+  buildGemPriceIdentifier,
+  buildShrineBeltIdentifier,
+  buildValdoMapIdentifier,
+  clusterItemLevelBucket,
+  extractForbiddenPassive,
+  extractShrineNames,
+} from './priceIdentities';
+import { isAllflameEmber, isHelmetCategory } from './classifyItem';
+import { firstMatchingRule, type PriceMatch } from './pricingRules';
 const logger = require('electron-log');
 
 const baseTypeRarities = ['Normal', 'Magic', 'Rare'];
 const nonPricedCategories = [
-  // captured beasts are not acquired as map loot
-  // might be relevant for calculating net worth though?
-  'Captured Beast',
   // value not tracked for heist items
   'Contract',
   'Blueprint',
@@ -61,12 +69,6 @@ const log = false;
 
 let ratesCache = {};
 let matchers = {};
-
-type PriceMatch = {
-  name: string;
-  test: (item: any) => boolean;
-  calculateValue: (item: any, minItemValue?: number) => number;
-};
 
 export type PriceSnapshotInfo = {
   snapshotId: string;
@@ -122,7 +124,7 @@ async function getRatesFor(eventId: string, league = SettingsManager.get('active
   if (!ratesCache[date] || !ratesCache[date][league]) {
     logger.info(`No rates for this date (${date}), fetching...`);
     ratesCache[date] = ratesCache[date] || {};
-    ratesCache[date][league] = await RatesManager.fetchRatesForDay(league, date);
+    ratesCache[date][league] = await PriceSnapshotStore.fetchRatesForDay(league, date);
     // writeFile(`./${date}.json`, JSON.stringify(ratesCache[date][league])); // In case you need to inspect the full rates for a day
   }
   return ratesCache[date][league] ?? {};
@@ -131,7 +133,7 @@ async function getRatesFor(eventId: string, league = SettingsManager.get('active
 async function updateRates(league = SettingsManager.get('activeProfile').league) {
   const date = dayjs().format('YYYYMMDD');
   ratesCache[date] = ratesCache[date] || {};
-  ratesCache[date][league] = await RatesManager.fetchRatesForDay(league, date);
+  ratesCache[date][league] = await PriceSnapshotStore.fetchRatesForDay(league, date);
   // writeFile(`./${date}.json`, JSON.stringify(ratesCache[date][league])); // In case you need to inspect the full rates for a day
 }
 
@@ -142,53 +144,6 @@ class PriceMatcher {
   lookupTrail: PriceLookupRecord[] = [];
   // Update every league to add the new series or new maps won't be priced.
   MapSeries = MAP_SERIES;
-
-  DefaultGemFormat = {
-    test: (name) => true,
-    generateString: (name, level, quality, corrupted) => {
-      let formattedString = `${name}${level >= 4 ? ` L${level}` : ''}`;
-      if (quality === 23) {
-        formattedString += ` Q${quality}`;
-      } else if (quality >= 20) {
-        formattedString += ' Q20';
-      }
-      return formattedString;
-    },
-  };
-
-  GemFormats = [
-    {
-      test: (name) => name.includes('Awakened'),
-      generateString: (name, level, quality, corrupted) => {
-        let formattedString = `${name}${level >= 4 ? ` L${level}` : ''}`;
-        if (quality === 23) {
-          formattedString += ` Q${quality}`;
-        } else if (quality >= 20) {
-          formattedString += ' Q20';
-        }
-        return formattedString;
-      },
-    },
-    {
-      test: (name) =>
-        name.includes('Empower') || name.includes('Enlighten') || name.includes('Enhance'),
-      generateString: (name, level, quality, corrupted) => {
-        return `${name}${level >= 2 ? ` L${level}` : ''}`;
-      },
-    },
-    {
-      test: (name) => name.includes('Brand Recall'),
-      generateString: (name, level, quality, corrupted) => {
-        let formattedString = `${name}${level >= 6 ? ` L${level}` : ''}`;
-        if (quality === 23) {
-          formattedString += ` Q${quality}`;
-        } else if (quality >= 20) {
-          formattedString += ' Q20';
-        }
-        return formattedString;
-      },
-    },
-  ];
 
   DefaultPriceMatch: PriceMatch = {
     name: 'Default',
@@ -239,20 +194,22 @@ class PriceMatcher {
     {
       name: 'Other Fragments',
       test: (item: any) =>
-        item.category === 'Map Fragment' ||
+        (item.category === 'Map Fragment' && !isAllflameEmber(item)) ||
         (item.category === 'Labyrinth Item' && item.typeline.endsWith('to the Goddess')),
       calculateValue: (item: any, minItemValue: number = 0) =>
         this.getValue(item, 'Fragment', item.typeline, minItemValue) * (item.stack_size || 1),
     },
     {
       name: 'Tattoo',
-      test: (item: any) => item.typeline && item.typeline.includes('Tattoo'),
+      test: (item: any) =>
+        item.rarity === 'Currency' && item.typeline && item.typeline.includes('Tattoo'),
       calculateValue: (item: any, minItemValue: number = 0) =>
         this.getValue(item, 'Tattoo', item.typeline, minItemValue) * (item.stack_size || 1),
     },
     {
       name: 'Omen',
-      test: (item: any) => item.typeline && item.typeline.includes('Omen'),
+      test: (item: any) =>
+        item.rarity === 'Currency' && item.typeline && item.typeline.startsWith('Omen of '),
       calculateValue: (item: any, minItemValue: number = 0) =>
         this.getValue(item, 'Omen', item.typeline, minItemValue) * (item.stack_size || 1),
     },
@@ -264,9 +221,21 @@ class PriceMatcher {
     },
     {
       name: 'Allflame Embers',
-      test: (item: any) => item.typeline && item.typeline.startsWith('Allflame Ember'),
+      test: (item: any) => isAllflameEmber(item),
       calculateValue: (item: any, minItemValue: number = 0) =>
-        this.getValue(item, 'AllflameEmber', item.typeline, minItemValue),
+        this.getValue(item, 'AllflameEmber', item.typeline, minItemValue) *
+        (item.stack_size || item.stackSize || 1),
+    },
+    {
+      name: 'Captured Beast',
+      test: (item: any) => item.category === 'Captured Beast',
+      calculateValue: (item: any, minItemValue: number = 0) =>
+        this.getValue(
+          item,
+          'Currency',
+          item.name || item.typeline || item.parsedItem.name || item.parsedItem.typeLine,
+          minItemValue
+        ),
     },
     {
       name: 'Coffins',
@@ -294,6 +263,34 @@ class PriceMatcher {
         this.getValue(item, 'Currency', item.typeline, minItemValue) * (item.stack_size || 1),
     },
     {
+      name: 'Forbidden Jewel',
+      test: (item: any) => item.name === 'Forbidden Flame' || item.name === 'Forbidden Flesh',
+      calculateValue: (item: any, minItemValue: number = 0) => {
+        const passive = extractForbiddenPassive(item.parsedItem.explicitMods);
+        if (!passive) return 0;
+        return this.getValue(
+          item,
+          'UniqueItem',
+          buildForbiddenJewelIdentifier(item.name, passive),
+          minItemValue
+        );
+      },
+    },
+    {
+      name: 'Shrine Belt',
+      test: (item: any) => item.name === 'Screams of the Desiccated',
+      calculateValue: (item: any, minItemValue: number = 0) => {
+        const shrines = extractShrineNames(item.parsedItem.explicitMods);
+        if (shrines.length === 0) return 0;
+        return this.getValue(
+          item,
+          'UniqueItem',
+          buildShrineBeltIdentifier(item.name, shrines),
+          minItemValue
+        );
+      },
+    },
+    {
       name: 'Unique Maps',
       test: (item: any) => item.category === 'Map' && item.rarity === 'Unique',
       calculateValue: (item: any, minItemValue: number = 0) =>
@@ -301,7 +298,7 @@ class PriceMatcher {
     },
     {
       name: 'Unique Helmets',
-      test: (item: any) => item.category === 'Helmets' && item.rarity === 'Unique',
+      test: (item: any) => isHelmetCategory(item.category) && item.rarity === 'Unique',
       calculateValue: (item: any, minItemValue: number = 0) =>
         Math.max(
           this.getUniqueItemValue(item, minItemValue),
@@ -324,7 +321,8 @@ class PriceMatcher {
     },
     {
       name: 'Non-Unique Helmets',
-      test: (item: any) => item.category === 'Helmets' && baseTypeRarities.includes(item.rarity),
+      test: (item: any) =>
+        isHelmetCategory(item.category) && baseTypeRarities.includes(item.rarity),
       calculateValue: (item: any, minItemValue: number = 0) =>
         Math.max(
           this.getBaseTypeValue(item, minItemValue),
@@ -347,6 +345,36 @@ class PriceMatcher {
       test: (item: any) => item.typeline && item.typeline.includes("'s Memory"),
       calculateValue: (item: any, minItemValue: number = 0) =>
         this.getValue(item, 'Memory', item.typeline, minItemValue),
+    },
+    {
+      name: 'Valdo Map',
+      test: (item: any) => item.typeline === 'Valdo Map' || item.parsedItem.baseType === 'Valdo Map',
+      calculateValue: (item: any, minItemValue: number = 0) => {
+        return this.getValue(
+          item,
+          'ValdoMap',
+          buildValdoMapIdentifier(item.name || item.typeline),
+          minItemValue
+        );
+      },
+    },
+    {
+      name: 'Blighted Map',
+      test: (item: any) => {
+        const icon = item.parsedItem.icon ?? '';
+        return icon.includes('mb=1') || icon.includes('mub=1');
+      },
+      calculateValue: (item: any, minItemValue: number = 0) => {
+        const tier = ItemData.getMapTier(item.parsedItem);
+        const { gen } = this.getMapSeries(item.parsedItem.icon);
+        const ravaged = item.parsedItem.icon.includes('mub=1');
+        return this.getValue(
+          item,
+          'Map',
+          buildBlightedMapIdentifier(tier, gen, ravaged),
+          minItemValue
+        );
+      },
     },
     {
       name: 'Map',
@@ -528,8 +556,7 @@ class PriceMatcher {
    * @returns {PriceMatch}  The first pricing rule that matches the item
    */
   match(item: any): PriceMatch {
-    return this.PriceMatches.find((match) => match.test(item)) ?? this.DefaultPriceMatch;
-    // return this.DefaultPriceMatch;
+    return firstMatchingRule(this.PriceMatches, item, this.DefaultPriceMatch);
   }
 
   /**
@@ -721,8 +748,9 @@ class PriceMatcher {
       return this.getMapSeriesFromBase64Icon(icon);
     }
 
-    const seriesFromMn = icon.includes('mn=')
-      ? this.MapSeries.find((series) => icon.includes(`mn=${series.id}`))
+    const mapGeneration = icon.match(/[?&]mn=(\d+)(?:&|$)/)?.[1];
+    const seriesFromMn = mapGeneration
+      ? this.MapSeries.find((series) => series.id === Number(mapGeneration))
       : false;
 
     if (seriesFromMn) {
@@ -746,13 +774,7 @@ class PriceMatcher {
    * @returns {string} Formatted identifier of the gem
    */
   getFullGemIdentifier(name: string, level: number, quality: number, corrupted: boolean): string {
-    const formatter = this.GemFormats.find((match) => match.test(name)) ?? this.DefaultGemFormat;
-    let formattedString = formatter.generateString(name, level, quality, corrupted);
-
-    if (corrupted) {
-      formattedString += ' (Corrupted)';
-    }
-    return formattedString;
+    return buildGemPriceIdentifier(name, level, quality, corrupted);
   }
 
   // Specific Pricing Calculations
@@ -1033,9 +1055,9 @@ class PriceMatcher {
     let identifier = '';
 
     // Find boss name if possible
-    if (item.implicitMods && item.implicitMods.length > 0) {
+    if (item.parsedItem.implicitMods && item.parsedItem.implicitMods.length > 0) {
       // Look for citadels
-      for (const mod of item.implicitMods) {
+      for (const mod of item.parsedItem.implicitMods) {
         if (mod.includes('Citadel')) {
           const bossName = mod.match(/Map contains (?<boss>.+)'s Citadel/i)?.groups?.boss;
           identifier += `${bossName} `;
@@ -1089,19 +1111,18 @@ class PriceMatcher {
    */
   getClusterJewelValue(minItemValue: number, item: any): number {
     const ID_TRIGGER = 'Added Small Passive Skills grant:';
-    const LEVEL_RANGES = [84, 50, 75, 1];
-
+    const enchantMods = item.parsedItem.enchantMods ?? [];
     let identifier = '';
-    for (const mod of item.enchantMods) {
+    for (const mod of enchantMods) {
       if (!mod.includes(ID_TRIGGER)) continue;
       identifier = mod.replace(ID_TRIGGER, '').trim();
     }
 
-    const levelRange = LEVEL_RANGES.find((range) => item.parsedItem.ilvl >= range);
+    const levelRange = clusterItemLevelBucket(item.parsedItem.ilvl);
     identifier += ` L${levelRange}`;
 
     const passiveSkillsCount =
-      item.enchantMods
+      enchantMods
         .find((mod) => mod.match(/Adds \d+ Passive Skills/))
         ?.match(/Adds (\d+) Passive Skills/)?.[1] || '0';
     identifier += ` ${passiveSkillsCount}P`;
@@ -1121,7 +1142,7 @@ class PriceMatcher {
   getBaseTypeValue(item: any, minItemValue: number): number {
     const sockets = ItemData.getSockets(item.parsedItem);
 
-    if (item.parsedItem.ilvl < 82 || ItemData.countSockets(sockets) === 6) {
+    if (item.parsedItem.ilvl < 82) {
       return this.getVendorRecipeValue(item, minItemValue);
     }
 
@@ -1134,18 +1155,21 @@ class PriceMatcher {
     identifier += ` L${item.parsedItem.ilvl > 86 ? 86 : item.parsedItem.ilvl}`;
     let possibleIdentifiers = [identifier];
     if (item.parsedItem.influences) {
+      const influences = Object.keys(item.parsedItem.influences).map(
+        (influence) => influence.charAt(0).toUpperCase() + influence.slice(1)
+      );
       possibleIdentifiers = [
-        Object.keys(item.parsedItem.influences).join('/'),
-        Object.keys(item.parsedItem.influences).reverse().join('/'),
-      ].map((influences) => {
-        if (influences.length > 0) return `${identifier} ${influences}`;
-      });
+        `${identifier} ${influences.join('/')}`,
+        `${identifier} ${[...influences].reverse().join('/')}`,
+      ];
     }
 
-    const values = possibleIdentifiers.map((Identifier) => {
-      return this.getValue(item, 'BaseType', identifier, minItemValue);
-    });
-    return Math.max(...values);
+    const values = possibleIdentifiers.map((candidate) =>
+      this.getValue(item, 'BaseType', candidate, minItemValue)
+    );
+    const vendorValue =
+      ItemData.countSockets(sockets) === 6 ? this.getVendorRecipeValue(item, minItemValue) : 0;
+    return Math.max(vendorValue, ...values);
   }
 
   /**
@@ -1209,6 +1233,7 @@ async function price(
   item.parsedItem = JSON.parse(item.raw_data);
   item.parsedItem.explicitMods = getItemModDescriptions(item.parsedItem.explicitMods);
   item.parsedItem.implicitMods = getItemModDescriptions(item.parsedItem.implicitMods);
+  item.parsedItem.enchantMods = getItemModDescriptions(item.parsedItem.enchantMods);
   item.parsedItem.frameType = getLegacyFrameType(item.parsedItem) ?? 0;
 
   let minItemValue = 0;

@@ -3,7 +3,7 @@ import * as path from 'path';
 import * as fs from 'fs/promises';
 import DB from './db';
 import GGGAPI from './GGGAPI';
-import RateGetterV2 from './modules/RateGetterV2';
+import PricingService from './pricing/PricingService';
 import EventEmitter from 'events';
 import { getUserDataPath } from './runtime/getUserDataPath';
 import { authSessionReadiness } from './auth/AuthSessionReadiness';
@@ -132,7 +132,7 @@ class SettingsManager {
   }
 
   private refreshRatesInBackground(profile: ActiveProfile) {
-    void RateGetterV2.update().catch((error) => {
+    void PricingService.update().catch((error) => {
       logger.warn(`Background rate refresh failed after initializing ${profile.characterName}`, error);
     });
   }

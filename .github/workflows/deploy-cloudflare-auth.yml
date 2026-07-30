@@ -1,0 +1,37 @@
+name: Deploy Cloudflare auth worker
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: GitHub environment containing Cloudflare deployment credentials
+        required: true
+        default: cloudflare-production
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    name: Deploy auth worker
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.environment }}
+    concurrency:
+      group: cloudflare-auth-production
+      cancel-in-progress: false
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+
+      - name: Deploy
+        run: npm run cloudflare:auth:deploy
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
