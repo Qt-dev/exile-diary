@@ -38,8 +38,8 @@ export type R2StorageOptions = {
   client: S3LikeClient;
   bucket: string;
   commandFactory: {
-    GetObjectCommand(input: Record<string, unknown>): unknown;
-    PutObjectCommand(input: Record<string, unknown>): unknown;
+    GetObjectCommand: new (input: Record<string, unknown>) => unknown;
+    PutObjectCommand: new (input: Record<string, unknown>) => unknown;
   };
 };
 
@@ -48,14 +48,14 @@ export class R2StorageTarget implements PublisherStorage {
   constructor(private readonly options: R2StorageOptions) {}
   async get(key: string): Promise<StoredObject | undefined> {
     try {
-      const output: any = await this.options.client.send(this.options.commandFactory.GetObjectCommand({ Bucket: this.options.bucket, Key: normalizedKey(key) }));
+      const output: any = await this.options.client.send(new this.options.commandFactory.GetObjectCommand({ Bucket: this.options.bucket, Key: normalizedKey(key) }));
       if (!output?.Body) return undefined;
       const bytes = output.Body.transformToByteArray ? await output.Body.transformToByteArray() : new Uint8Array(await output.Body);
       return { bytes, contentType: output.ContentType, contentEncoding: output.ContentEncoding, cacheControl: output.CacheControl };
     } catch (error: any) { if (error?.name === 'NoSuchKey' || error?.$metadata?.httpStatusCode === 404) return undefined; throw error; }
   }
   async put(key: string, object: PutObject): Promise<void> {
-    await this.options.client.send(this.options.commandFactory.PutObjectCommand({ Bucket: this.options.bucket, Key: normalizedKey(key), Body: object.bytes, ContentType: object.contentType, ContentEncoding: object.contentEncoding, CacheControl: object.cacheControl, IfNoneMatch: object.ifNoneMatch }));
+    await this.options.client.send(new this.options.commandFactory.PutObjectCommand({ Bucket: this.options.bucket, Key: normalizedKey(key), Body: object.bytes, ContentType: object.contentType, ContentEncoding: object.contentEncoding, CacheControl: object.cacheControl, IfNoneMatch: object.ifNoneMatch }));
   }
 }
 
