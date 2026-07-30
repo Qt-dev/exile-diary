@@ -309,4 +309,33 @@ describe('ItemPricer current poe.ninja rules', () => {
     expect(result.value).toBe(16.1);
     expect(result.explanation?.matchedRule).toBe('Blighted Map');
   });
+
+  it('prices maps with structured 3.29 modifiers without aborting inventory capture', async () => {
+    const icon =
+      'https://web.poecdn.com/image/Art/2DItems/Maps/Atlas2Maps/New/MapNumbers9.png?scale=1&mn=24&mt=0';
+    const result = await priceWithRates(
+      { Map: { 'Veritania Map (Tier 9) Gen-24': 9 } },
+      {
+        id: 'structured-map-1',
+        typeline: 'Map (Tier 9)',
+        rarity: 'Rare',
+        category: 'Map',
+        stack_size: 1,
+        raw_data: rawItem('Map (Tier 9)', 1, {
+          frameType: 2,
+          icon,
+          implicitMods: [
+            { description: "Map contains Veritania's Citadel" },
+          ],
+          explicitMods: [
+            { description: '20% increased Magic Monsters' },
+            { description: '38% more Monster Life' },
+          ],
+        }),
+        drop_time: '2026-07-29T12:00:00.000Z',
+      }
+    );
+    expect(result.value).toBe(9);
+    expect(result.explanation?.matchedRule).toBe('Map');
+  });
 });

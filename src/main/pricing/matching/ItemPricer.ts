@@ -1055,9 +1055,9 @@ class PriceMatcher {
     let identifier = '';
 
     // Find boss name if possible
-    if (item.implicitMods && item.implicitMods.length > 0) {
+    if (item.parsedItem.implicitMods && item.parsedItem.implicitMods.length > 0) {
       // Look for citadels
-      for (const mod of item.implicitMods) {
+      for (const mod of item.parsedItem.implicitMods) {
         if (mod.includes('Citadel')) {
           const bossName = mod.match(/Map contains (?<boss>.+)'s Citadel/i)?.groups?.boss;
           identifier += `${bossName} `;
@@ -1111,8 +1111,9 @@ class PriceMatcher {
    */
   getClusterJewelValue(minItemValue: number, item: any): number {
     const ID_TRIGGER = 'Added Small Passive Skills grant:';
+    const enchantMods = item.parsedItem.enchantMods ?? [];
     let identifier = '';
-    for (const mod of item.enchantMods) {
+    for (const mod of enchantMods) {
       if (!mod.includes(ID_TRIGGER)) continue;
       identifier = mod.replace(ID_TRIGGER, '').trim();
     }
@@ -1121,7 +1122,7 @@ class PriceMatcher {
     identifier += ` L${levelRange}`;
 
     const passiveSkillsCount =
-      item.enchantMods
+      enchantMods
         .find((mod) => mod.match(/Adds \d+ Passive Skills/))
         ?.match(/Adds (\d+) Passive Skills/)?.[1] || '0';
     identifier += ` ${passiveSkillsCount}P`;
@@ -1232,6 +1233,7 @@ async function price(
   item.parsedItem = JSON.parse(item.raw_data);
   item.parsedItem.explicitMods = getItemModDescriptions(item.parsedItem.explicitMods);
   item.parsedItem.implicitMods = getItemModDescriptions(item.parsedItem.implicitMods);
+  item.parsedItem.enchantMods = getItemModDescriptions(item.parsedItem.enchantMods);
   item.parsedItem.frameType = getLegacyFrameType(item.parsedItem) ?? 0;
 
   let minItemValue = 0;
