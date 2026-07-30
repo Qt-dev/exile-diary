@@ -65,7 +65,9 @@ jobs:
           cache: npm
 
       - name: Install dependencies
-        run: npm ci
+        # This Node-only publisher does not need Electron native modules. Running the
+        # root postinstall on Linux attempts to compile electron-overlay-window.
+        run: npm ci --ignore-scripts
 
       - name: Validate pricing publisher contract
         run: npm run pricing:test
