@@ -2,18 +2,14 @@ import RendererLogger from '../RendererLogger';
 import SettingsManager from '../SettingsManager';
 import Logger from 'electron-log';
 import DB from '../db/rates';
-import PoeNinjaClient from './poe-ninja/PoeNinjaClient';
 import {
   POE_NINJA_CATEGORIES,
   buildPoeNinjaPath,
   type PoeNinjaCategory,
 } from './poe-ninja/categoryCatalog';
-import {
-  adaptPoeNinjaResponse,
-  assembleLegacySnapshot,
-} from './poe-ninja/responseAdapters';
 import { normalizePoeNinjaLeagueName } from './poe-ninja/leagueResolver';
-import { CURRENT_PRICE_SNAPSHOT_SCHEMA, type PriceSnapshot } from './types';
+import { createPricingTransport } from './transports/createPricingTransport';
+import type { PricingTransport } from './transports/PricingTransport';
 
 const EventEmitter = require('events');
 const dayjs = require('dayjs');
@@ -30,8 +26,14 @@ class PricingService {
   ratesReady: boolean = false;
   isUpdating: boolean = false;
   postUpdateCallback: Function = () => {};
-  constructor() {
+  private transport: PricingTransport;
+  constructor(transport: PricingTransport = createPricingTransport()) {
+    this.transport = transport;
     if (nextRateGetTimer) clearTimeout(nextRateGetTimer);
+  }
+
+  setTransport(transport: PricingTransport) {
+    this.transport = transport;
   }
 
   on(event, listener) {
@@ -148,13 +150,12 @@ class PricingService {
           this.ratesReady = true;
           return;
         } else {
-          logger.info('Forced update, cleaning existing rates');
-          await this.cleanRates(today);
+          logger.info('Forced update will replace existing rates only after a valid pricing snapshot is fetched');
         }
       }
 
       emitter.emit('gettingPrices');
-      logger.info(`Getting new ${activeProfile.league} rates for ${today}`);
+      logger.info(`Getting new ${activeProfile.league} pricing snapshot for ${today}`);
       const message = {
         text: `Getting new ${activeProfile.league} rates for today (${today})`,
       };
@@ -193,51 +194,37 @@ class PricingService {
     }, interval);
   }
 
+  scheduleRetry() {
+    const interval = (30 + Math.random() * 30) * 60 * 1000;
+    logger.info(`Retrying pricing snapshot update in ${Number(interval / 60000).toFixed(0)} min`);
+    if (nextRateGetTimer) clearTimeout(nextRateGetTimer);
+    nextRateGetTimer = setTimeout(() => {
+      logger.info('Retrying pricing snapshot update');
+      this.update(true);
+    }, interval);
+  }
+
   async getRates(date, useCache = true) {
-    const tempRates = {};
-    const { useGzip = true } = SettingsManager.getAll();
-
     try {
-      for (const [rateType, definition] of Object.entries(POE_NINJA_CATEGORIES)) {
-        let data;
-        logger.info(`Getting prices for item type ${rateType}`);
-        try {
-          data = await PoeNinjaClient.getCategory(
-            rateType as PoeNinjaCategory,
-            this.getNinjaLeagueName(),
-            { useGzip, useCache }
-          );
-          tempRates[rateType] = adaptPoeNinjaResponse(definition, data);
-        } catch (err) {
-          logger.error(`Error in getting POE data for ${rateType}`);
-          logger.error(err);
-        }
+      logger.info('Getting pricing snapshot');
+      const snapshot = await this.transport.getSnapshot(this.getNinjaLeagueName(), { force: !useCache });
+      const ratesWereUpdated = await DB.insertRates(this.getLeagueName(false), date, snapshot);
+      if (!ratesWereUpdated) {
+        emitter.emit('gettingPricesFailed');
+        return;
       }
-      // require('fs/promises').writeFile('./tempRates.json', JSON.stringify(tempRates, null, 2), 'utf8');
-      logger.info('Finished getting prices from poe.ninja, processing now');
-    } catch (e) {
-      logger.info('Error getting rates: ' + e);
-      emitter.emit('gettingPricesFailed');
-      return;
-    }
-
-    const rates = assembleLegacySnapshot(tempRates, POE_NINJA_CATEGORIES);
-
-    const snapshot: PriceSnapshot = {
-      schemaVersion: CURRENT_PRICE_SNAPSHOT_SCHEMA,
-      provider: 'poe.ninja',
-      leagueId: this.getLeagueName(false),
-      fetchedAt: new Date().toISOString(),
-      categories: rates,
-    };
-    const ratesWereUpdated = await DB.insertRates(this.getLeagueName(false), date, snapshot);
-    if (!ratesWereUpdated) {
-      emitter.emit('gettingPricesFailed');
-      return;
-    } else {
       emitter.emit('doneGettingPrices');
       this.ratesReady = true;
       this.scheduleNextUpdate();
+    } catch (e) {
+      logger.info('Error getting rates: ' + e);
+      const priorSnapshot = await DB.getFullRates(this.getLeagueName(false), date);
+      if (priorSnapshot && Object.keys(priorSnapshot).length > 0) {
+        this.ratesReady = true;
+        logger.info('Keeping the last validated local pricing snapshot while the proxy is unavailable');
+      }
+      emitter.emit('gettingPricesFailed');
+      this.scheduleRetry();
     }
   }
 

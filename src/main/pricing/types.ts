@@ -7,6 +7,8 @@ export type PriceSnapshot = {
   provider: 'poe.ninja';
   leagueId: string;
   fetchedAt: string;
+  /** Revision of the shared poe.ninja category and identity catalog, when supplied by the proxy. */
+  catalogRevision?: string;
   categories: Partial<Record<string, PriceIndex>>;
 };
 

@@ -125,6 +125,15 @@
     "format:check": "prettier --check \"{src,test}/**/*.{js,jsx,ts,tsx,json,css,scss,md}\"",
     "data:extract": "npm --prefix tools/poe-data-extractor run extract",
     "data:check": "npm --prefix tools/poe-data-extractor run check",
+    "pricing:generate": "tsx tools/poe-ninja-publisher/cli.ts generate",
+    "pricing:validate": "tsx tools/poe-ninja-publisher/cli.ts validate",
+    "pricing:serve": "tsx tools/poe-ninja-publisher/cli.ts serve",
+    "pricing:publish": "tsx tools/poe-ninja-publisher/cli.ts publish",
+    "pricing:test": "jest --config tools/poe-ninja-publisher/jest.config.cjs --runInBand",
+    "cloudflare:auth:dev": "wrangler dev --config server/cloudflare/wrangler.jsonc",
+    "cloudflare:auth:deploy": "wrangler deploy --config server/cloudflare/wrangler.jsonc",
+    "cloudflare:auth:test": "tsx --test server/cloudflare/test/auth-worker.test.ts",
+    "cloudflare:auth:typecheck": "tsc -p server/cloudflare/tsconfig.json",
     "benchmark": "npm run benchmark:string-match",
     "benchmark:db": "npx tsx test/benchmarks/db/DbQueryBenchmark.ts",
     "benchmark:db:json": "npx tsx test/benchmarks/db/DbQueryBenchmark.ts --json",
@@ -221,8 +230,10 @@
     "uuid": "^11.1.1"
   },
   "devDependencies": {
+    "@aws-sdk/client-s3": "^3.1098.0",
     "@babel/core": "^7.29.7",
     "@babel/plugin-proposal-private-property-in-object": "^7.21.11",
+    "@cloudflare/workers-types": "^5.20260730.1",
     "@electron-toolkit/tsconfig": "^1.0.1",
     "@mui/system": "^9.2.0",
     "@playwright/test": "^1.61.1",
@@ -272,6 +283,7 @@
     "typescript": "^5.9.3",
     "vite": "^6.4.3",
     "vitest": "^3.2.7",
-    "wait-on": "^7.2.0"
+    "wait-on": "^7.2.0",
+    "wrangler": "^4.115.0"
   }
 }

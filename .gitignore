@@ -62,6 +62,7 @@ jspm_packages/
 
 # dotenv environment variables file
 .env
+server/cloudflare/.dev.vars
 
 # pathofexile-dat temp folders
 scripts/data-extractor/.cache
