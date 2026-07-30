@@ -30,6 +30,7 @@ function exchange(response: PoeNinjaResponse): PriceIndex {
   const result: PriceIndex = {};
   const names = new Map((response.items ?? []).map((item) => [item.id, item.name]));
   for (const line of response.lines ?? []) {
+    if (line.count && line.count < 10) continue;
     setPrice(result, names.get(line.id) ?? line.name, line.primaryValue);
   }
   return result;
@@ -69,6 +70,7 @@ function item(response: PoeNinjaResponse): PriceIndex {
       identifier += ` L${line.levelRequired} ${line.variant.split(' ')[0]}P`;
     } else if (line.variant) {
       identifier += ` (${line.variant})`;
+      setPrice(result, line.name, line.chaosValue);
     }
     setPrice(result, identifier, line.chaosValue);
   }

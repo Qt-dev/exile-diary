@@ -8,12 +8,17 @@ import { PricingPublisher } from '../../../tools/poe-ninja-publisher/publisher';
 import { LocalFilesystemStorage } from '../../../tools/poe-ninja-publisher/storage';
 
 const fixedNow = () => new Date('2026-07-29T12:00:00.000Z');
-const categoryResponse = { lines: [{ name: 'Divine Orb', chaosValue: 1, primaryValue: 1 }] };
+const categoryResponse = {
+  items: [{ id: 'divine', name: 'Divine Orb' }],
+  lines: [{ id: 'divine', name: 'Divine Orb', chaosValue: 1, primaryValue: 1, count: 10 }],
+};
 
 class FakeRequester {
   public failCategory?: string;
+  public malformedCategory?: string;
   async getCategory(category: string) {
     if (category === this.failCategory) throw new Error('upstream failed');
+    if (category === this.malformedCategory) return { unchanged: false, body: { error: 'schema changed' } };
     return { unchanged: false, etag: `etag-${category}`, body: categoryResponse };
   }
 }
@@ -52,6 +57,22 @@ describe('PricingPublisher', () => {
     expect(await readFile(manifestPath, 'utf8')).toBe(before);
   });
 
+  it('rejects malformed successful payloads before promoting a new manifest', async () => {
+    const root = await mkdtemp(join(tmpdir(), 'pricing-publisher-'));
+    const requester = new FakeRequester();
+    const publisher = new PricingPublisher(new LocalFilesystemStorage(root), requester as any, fixedNow);
+    await publisher.publishLeagues(['Allflame']);
+    const manifestPath = join(root, 'v1', 'poe1', 'leagues', leagueKey('Allflame'), 'current.json');
+    const before = await readFile(manifestPath, 'utf8');
+
+    requester.malformedCategory = 'Currency';
+    const result = await publisher.publishLeagues(['Allflame']);
+
+    expect(result.published).toEqual([]);
+    expect(result.failed[0].error.message).toContain('lines must be an array');
+    expect(await readFile(manifestPath, 'utf8')).toBe(before);
+  });
+
   it('rolls a league manifest back to a retained immutable snapshot', async () => {
     const root = await mkdtemp(join(tmpdir(), 'pricing-publisher-'));
     const publisher = new PricingPublisher(new LocalFilesystemStorage(root), new FakeRequester() as any, fixedNow);
@@ -61,11 +82,21 @@ describe('PricingPublisher', () => {
     expect(manifest.snapshot.id).toBe(first.snapshotId);
   });
 
-  it('keeps retained leagues in the global index during a partial publication', async () => {
+  it('removes leagues absent from an authoritative active-league refresh', async () => {
     const root = await mkdtemp(join(tmpdir(), 'pricing-publisher-'));
     const publisher = new PricingPublisher(new LocalFilesystemStorage(root), new FakeRequester() as any, fixedNow);
     await publisher.publishLeagues(['Allflame', 'Standard']);
     await publisher.publishLeagues(['Allflame']);
+
+    const index = JSON.parse(await readFile(join(root, 'v1', 'poe1', 'leagues.json'), 'utf8'));
+    expect(index.leagues.map((league: { id: string }) => league.id)).toEqual(['Allflame']);
+  });
+
+  it('keeps other active leagues during an explicit single-league publication', async () => {
+    const root = await mkdtemp(join(tmpdir(), 'pricing-publisher-'));
+    const publisher = new PricingPublisher(new LocalFilesystemStorage(root), new FakeRequester() as any, fixedNow);
+    await publisher.publishLeagues(['Allflame', 'Standard']);
+    await publisher.publishLeagues(['Allflame'], false, false);
 
     const index = JSON.parse(await readFile(join(root, 'v1', 'poe1', 'leagues.json'), 'utf8'));
     expect(index.leagues.map((league: { id: string }) => league.id)).toEqual(['Allflame', 'Standard']);

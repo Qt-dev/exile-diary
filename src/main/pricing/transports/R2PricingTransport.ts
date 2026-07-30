@@ -116,19 +116,39 @@ export function validateSnapshot(value: unknown, expectedLeagueId: string): Pric
 export class R2PricingTransport implements PricingTransport {
   private readonly fetcher: FetchLike;
   private readonly origin: string;
+  private readonly timeoutMs: number;
   private readonly manifests = new Map<string, { etag?: string; manifest: PricingSnapshotManifest }>();
   private readonly snapshots = new Map<string, PriceSnapshot>();
 
-  constructor({ baseUrl = DEFAULT_PRICING_PROXY_BASE_URL, fetcher = globalThis.fetch as unknown as FetchLike } = {}) {
+  constructor({ baseUrl = DEFAULT_PRICING_PROXY_BASE_URL, fetcher = globalThis.fetch as unknown as FetchLike, timeoutMs = 15_000 } = {}) {
     this.origin = new URL(baseUrl).origin;
     this.fetcher = fetcher;
+    this.timeoutMs = timeoutMs;
   }
 
   async getSnapshot(leagueId: string): Promise<PriceSnapshot> {
+    const controller = new AbortController();
+    let timeout: ReturnType<typeof setTimeout> | undefined;
+    const timedOut = new Promise<never>((_, reject) => {
+      timeout = setTimeout(() => {
+        controller.abort();
+        reject(new Error(`Pricing proxy request timed out after ${this.timeoutMs}ms`));
+      }, this.timeoutMs);
+    });
+    try {
+      return await Promise.race([this.fetchSnapshot(leagueId, controller.signal), timedOut]);
+    } finally {
+      if (timeout) clearTimeout(timeout);
+      controller.abort();
+    }
+  }
+
+  private async fetchSnapshot(leagueId: string, signal: AbortSignal): Promise<PriceSnapshot> {
     const manifestUrl = `${this.origin}${manifestPath(leagueId)}`;
     const cached = this.manifests.get(leagueId);
     const manifestResponse = await this.fetcher(manifestUrl, {
       method: 'GET',
+      signal,
       ...(cached?.etag ? { headers: { 'If-None-Match': cached.etag } } : {}),
     });
     let resolvedManifest: PricingSnapshotManifest;
@@ -146,7 +166,7 @@ export class R2PricingTransport implements PricingTransport {
     const cachedSnapshot = this.snapshots.get(snapshotCacheKey);
     if (cachedSnapshot) return cachedSnapshot;
 
-    const snapshotResponse = await this.fetcher(`${this.origin}${resolvedManifest.snapshot.path}`, { method: 'GET' });
+    const snapshotResponse = await this.fetcher(`${this.origin}${resolvedManifest.snapshot.path}`, { method: 'GET', signal });
     if (!snapshotResponse.ok) throw new Error(`Pricing snapshot request failed (${snapshotResponse.status})`);
     const compressed = Buffer.from(await snapshotResponse.arrayBuffer());
     if (compressed.byteLength > MAX_SNAPSHOT_BYTES) throw new Error('Pricing snapshot exceeds maximum download size');

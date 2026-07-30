@@ -63,7 +63,7 @@ describe('R2PricingTransport', () => {
     await expect(transport.getSnapshot(leagueId)).resolves.toMatchObject(snapshot);
     expect(fetcher).toHaveBeenCalledWith(
       'https://prices.example.test/v1/poe1/leagues/QWxsZmxhbWU/current.json',
-      { method: 'GET' }
+      expect.objectContaining({ method: 'GET', signal: expect.any(AbortSignal) })
     );
   });
 
@@ -121,9 +121,25 @@ describe('R2PricingTransport', () => {
     await expect(transport.getSnapshot(leagueId)).resolves.toMatchObject(snapshot);
     expect((fetcher as jest.Mock).mock.calls[2]).toEqual([
       'https://prices.example.test/v1/poe1/leagues/QWxsZmxhbWU/current.json',
-      { method: 'GET', headers: { 'If-None-Match': '"current"' } },
+      expect.objectContaining({
+        method: 'GET',
+        signal: expect.any(AbortSignal),
+        headers: { 'If-None-Match': '"current"' },
+      }),
     ]);
     expect(fetcher).toHaveBeenCalledTimes(3);
+  });
+
+  it('times out stalled pricing requests', async () => {
+    const fetcher = jest.fn(() => new Promise(() => undefined)) as unknown as FetchLike;
+    const transport = new R2PricingTransport({
+      baseUrl: 'https://prices.example.test/v1',
+      fetcher,
+      timeoutMs: 10,
+    });
+
+    await expect(transport.getSnapshot(leagueId)).rejects.toThrow('timed out');
+    expect((fetcher as jest.Mock).mock.calls[0][1].signal.aborted).toBe(true);
   });
 
   it('rejects manifest and snapshot league mismatches before using their data', () => {

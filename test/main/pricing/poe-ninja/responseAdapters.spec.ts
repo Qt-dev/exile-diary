@@ -14,6 +14,21 @@ describe('poe.ninja response adapters', () => {
     ).toEqual({ 'Divine Orb': 175 });
   });
 
+  it('filters exchange lines with fewer than ten listings', () => {
+    expect(
+      adaptPoeNinjaResponse(POE_NINJA_CATEGORIES.Currency, {
+        items: [
+          { id: 'divine', name: 'Divine Orb' },
+          { id: 'mirror', name: 'Mirror of Kalandra' },
+        ],
+        lines: [
+          { id: 'divine', primaryValue: 175, count: 10 },
+          { id: 'mirror', primaryValue: 100_000, count: 1 },
+        ],
+      })
+    ).toEqual({ 'Divine Orb': 175 });
+  });
+
   it('adapts the live Allflame Ember exchange identity', () => {
     expect(
       adaptPoeNinjaResponse(POE_NINJA_CATEGORIES.AllflameEmber, {
@@ -138,7 +153,25 @@ describe('poe.ninja response adapters', () => {
           },
         ],
       })
-    ).toEqual({ 'Screams of the Desiccated (Gloom, Resistance)': 88 });
+    ).toEqual({
+      'Screams of the Desiccated': 88,
+      'Screams of the Desiccated (Gloom, Resistance)': 88,
+    });
+  });
+
+  it('retains a bare-name fallback for identified variant uniques', () => {
+    expect(
+      adaptPoeNinjaResponse(POE_NINJA_CATEGORIES.UniqueAccessory, {
+        lines: [
+          { name: "Doryani's Invitation", variant: 'Cold', chaosValue: 20 },
+          { name: "Doryani's Invitation", variant: 'Fire', chaosValue: 35 },
+        ],
+      })
+    ).toEqual({
+      "Doryani's Invitation": 35,
+      "Doryani's Invitation (Cold)": 20,
+      "Doryani's Invitation (Fire)": 35,
+    });
   });
 
   it('keeps tier-aggregated blighted map identities', () => {

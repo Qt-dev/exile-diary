@@ -10,6 +10,15 @@ type CategoryState = { etag?: string; value: unknown; catalogRevision: string };
 const encoder = new TextEncoder(); const decoder = new TextDecoder();
 const objectKey = (path: string) => path.replace(/^\//, '');
 
+function assertCategoryPayload(category: PoeNinjaCategory, value: unknown): asserts value is { lines: unknown[]; items?: unknown[] } {
+  if (!value || typeof value !== 'object' || !Array.isArray((value as any).lines)) {
+    throw new Error(`Malformed ${category} category payload: lines must be an array`);
+  }
+  if (POE_NINJA_CATEGORIES[category].endpoint === 'exchange' && !Array.isArray((value as any).items)) {
+    throw new Error(`Malformed ${category} category payload: items must be an array`);
+  }
+}
+
 export class PricingPublisher {
   constructor(private readonly storage: PublisherStorage, private readonly requester: PoeNinjaRequester, private readonly now: () => Date = () => new Date(), private readonly catalogRevision = POE_NINJA_CATALOG_REVISION) {}
   private stateKey(league: string, category: PoeNinjaCategory) { return `_publisher/v1/${createLeague(league).key}/${category}.json`; }
@@ -33,9 +42,7 @@ export class PricingPublisher {
         const state: CategoryState = result.unchanged && prior
           ? prior
           : { etag: result.etag, value: result.body, catalogRevision: this.catalogRevision };
-        if (!state.value || typeof state.value !== 'object') {
-          throw new Error(`Missing ${category} category payload for ${league}`);
-        }
+        assertCategoryPayload(category, state.value);
         return { category, state, prices: adaptPoeNinjaResponse(POE_NINJA_CATEGORIES[category], state.value as any) };
       })
     );
@@ -82,11 +89,17 @@ export class PricingPublisher {
     await this.writeJson(manifestPath(league), manifest, { contentType: JSON_TYPE, cacheControl: 'public, max-age=300, stale-while-revalidate=900, stale-if-error=86400' });
     return { published: true, snapshotId };
   }
-  async publishLeagues(inputLeagues: readonly string[], forceFullRefresh = false): Promise<{ published: string[]; failed: Array<{ league: string; error: Error }> }> {
+  async publishLeagues(inputLeagues: readonly string[], forceFullRefresh = false, authoritativeLeagueSet = true): Promise<{ published: string[]; failed: Array<{ league: string; error: Error }> }> {
     const published: string[] = []; const failed: Array<{ league: string; error: Error }> = [];
     for (const league of inputLeagues) { try { await this.publishLeague(league, forceFullRefresh); published.push(normalizePoeNinjaLeagueName(league)); } catch (error) { failed.push({ league, error: error instanceof Error ? error : new Error(String(error)) }); } }
-    if (published.length) {
-      const merged = new Map((await this.readPublishedLeagues()).map((league) => [league.id, league]));
+    if (published.length || (authoritativeLeagueSet && inputLeagues.length)) {
+      const active = new Set(inputLeagues.map(normalizePoeNinjaLeagueName));
+      const prior = await this.readPublishedLeagues();
+      const merged = new Map(
+        prior
+          .filter((league) => !authoritativeLeagueSet || active.has(league.id))
+          .map((league) => [league.id, league])
+      );
       for (const league of published) merged.set(league, createLeague(league));
       await this.writeJson('/v1/poe1/leagues.json', createLeagueIndex([...merged.values()], this.now().toISOString()), { contentType: JSON_TYPE, cacheControl: 'public, max-age=3600, stale-if-error=86400' });
     }

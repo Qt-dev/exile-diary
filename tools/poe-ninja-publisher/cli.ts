@@ -117,7 +117,11 @@ async function main() {
   }
   const requester = new PoeNinjaRequester();
   const leagues = args.leagues.length ? args.leagues : await requester.getLeagues();
-  const result = await new PricingPublisher(storage, requester).publishLeagues(leagues, args.forceFullRefresh);
+  const result = await new PricingPublisher(storage, requester).publishLeagues(
+    leagues,
+    args.forceFullRefresh,
+    args.leagues.length === 0
+  );
   process.stdout.write(`${JSON.stringify({ command: args.command, dryRun: args.dryRun, ...result }, null, 2)}\n`);
   if (result.failed.length) process.exitCode = 1;
 }

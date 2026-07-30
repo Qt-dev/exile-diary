@@ -12,6 +12,10 @@ export interface PublisherStorage {
 
 function normalizedKey(key: string): string { return key.replace(/^\/+/, ''); }
 
+export function resolveR2Endpoint(accountId: string, configuredEndpoint = process.env.R2_ENDPOINT): string {
+  return configuredEndpoint || `https://${accountId}.r2.cloudflarestorage.com`;
+}
+
 export class LocalFilesystemStorage implements PublisherStorage {
   constructor(private readonly root: string) {}
   private path(key: string): string { return join(resolve(this.root), normalizedKey(key)); }
@@ -59,7 +63,8 @@ export async function createR2StorageFromEnvironment(): Promise<PublisherStorage
   const accountId = process.env.CF_ACCOUNT_ID;
   const bucket = process.env.R2_BUCKET;
   if (!accountId || !bucket || !process.env.CF_R2_ACCESS_KEY_ID || !process.env.CF_R2_SECRET_ACCESS_KEY) throw new Error('R2 publishing requires CF_ACCOUNT_ID, R2_BUCKET, CF_R2_ACCESS_KEY_ID and CF_R2_SECRET_ACCESS_KEY');
+  const endpoint = resolveR2Endpoint(accountId);
   let sdk: any;
   try { sdk = await (new Function('moduleName', 'return import(moduleName)')('@aws-sdk/client-s3')); } catch { throw new Error('Install @aws-sdk/client-s3 in the publishing environment, or inject an R2StorageTarget client.'); }
-  return new R2StorageTarget({ client: new sdk.S3Client({ region: 'auto', endpoint: `https://${accountId}.r2.cloudflarestorage.com`, credentials: { accessKeyId: process.env.CF_R2_ACCESS_KEY_ID, secretAccessKey: process.env.CF_R2_SECRET_ACCESS_KEY } }), bucket, commandFactory: sdk });
+  return new R2StorageTarget({ client: new sdk.S3Client({ region: 'auto', endpoint, credentials: { accessKeyId: process.env.CF_R2_ACCESS_KEY_ID, secretAccessKey: process.env.CF_R2_SECRET_ACCESS_KEY } }), bucket, commandFactory: sdk });
 }
