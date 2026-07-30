@@ -9,6 +9,8 @@ Cutover status (2026-07-30):
 - The `exile-diary-auth` Worker serves `exilediary.com/*`; its production OAuth secret is stored as an encrypted Worker secret.
 - `prices.exilediary.com` is connected to the production R2 bucket and has working Cloudflare DNS/TLS.
 - The public R2 development URL remains disabled.
+- GitHub environment `pricing-production` contains bucket-scoped R2 credentials and all publisher variables.
+- A live Poe.ninja dry-run completed for Allflame, Hardcore Allflame, Standard, and Hardcore with no failures.
 - AWS and Route 53 remain intact for the seven-day rollback window.
 
 ## Registrar and DNS
