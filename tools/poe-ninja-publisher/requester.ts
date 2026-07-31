@@ -1,9 +1,10 @@
 import { buildPoeNinjaPath, type PoeNinjaCategory } from '../../src/shared/pricing/catalog';
+import packageJson from '../../package.json';
 
 export type PublisherRequest = { status: number; headers: Headers; json(): Promise<unknown> };
 export type PublisherFetch = (input: string, init?: RequestInit) => Promise<PublisherRequest>;
 export type CategoryFetchResult = { body?: unknown; etag?: string; unchanged: boolean };
-const DEFAULT_USER_AGENT = 'Exile-Diary-Reborn/1.11.8 (pricing-publisher; +https://github.com/qt-dev/exile-diary)';
+const DEFAULT_USER_AGENT = `Exile-Diary-Reborn/${packageJson.version} (pricing-publisher; +https://github.com/qt-dev/exile-diary)`;
 const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
 export class PoeNinjaRequester {
