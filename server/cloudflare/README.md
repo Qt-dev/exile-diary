@@ -10,6 +10,10 @@ This Worker replaces the API Gateway routes and three AWS Lambda functions curre
 
 The Worker intentionally has no database, R2 binding, or CORS policy. The desktop main process calls `/auth/token`; browsers never need to call it cross-origin.
 
+### Maintenance rule
+
+Keep the OAuth User-Agent version in `src/index.ts` aligned with the root `package.json` version. This is required for every human or AI-assisted change before deploying the Worker. Run the Worker test and typecheck first; the test fails if the User-Agent version drifts.
+
 ## Local development
 
 1. Copy `.dev.vars.example` to `.dev.vars` and fill in the real client secret.

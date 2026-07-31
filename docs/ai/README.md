@@ -7,6 +7,7 @@ This folder holds the deeper guidance that should not live in `AGENTS.md`.
 - [playbook.md](./playbook.md): request templates, verification rules, milestone checklist
 
 ## Runbooks
+- [cloudflare-oauth-worker.md](./runbooks/cloudflare-oauth-worker.md)
 - [native-module-abi-mismatch.md](./runbooks/native-module-abi-mismatch.md)
 - [single-instance-user-data-conflicts.md](./runbooks/single-instance-user-data-conflicts.md)
 - [gpu-startup-issues.md](./runbooks/gpu-startup-issues.md)
