@@ -3,6 +3,7 @@ import { buildPoeNinjaPath, type PoeNinjaCategory } from '../../src/shared/prici
 export type PublisherRequest = { status: number; headers: Headers; json(): Promise<unknown> };
 export type PublisherFetch = (input: string, init?: RequestInit) => Promise<PublisherRequest>;
 export type CategoryFetchResult = { body?: unknown; etag?: string; unchanged: boolean };
+const DEFAULT_USER_AGENT = 'Exile-Diary-Reborn/1.11.8 (pricing-publisher; +https://github.com/qt-dev/exile-diary)';
 const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
 export class PoeNinjaRequester {
@@ -21,7 +22,7 @@ export class PoeNinjaRequester {
       let failure: unknown;
       for (let attempt = 0; attempt < (this.options.maxAttempts ?? 3); attempt += 1) {
         try {
-          const response = await this.fetcher(`${this.options.baseUrl ?? 'https://poe.ninja'}${buildPoeNinjaPath(category, league)}`, { headers: { 'User-Agent': this.options.userAgent ?? 'Exile-Diary-Reborn/pricing-publisher (+https://github.com/qt-dev/exile-diary)', Accept: 'application/json', ...(etag ? { 'If-None-Match': etag } : {}) } });
+          const response = await this.fetcher(`${this.options.baseUrl ?? 'https://poe.ninja'}${buildPoeNinjaPath(category, league)}`, { headers: { 'User-Agent': this.options.userAgent ?? DEFAULT_USER_AGENT, Accept: 'application/json', ...(etag ? { 'If-None-Match': etag } : {}) } });
           if (response.status === 304) return { unchanged: true, etag };
           if (response.status >= 200 && response.status < 300) return { unchanged: false, etag: response.headers.get('etag') ?? undefined, body: await response.json() };
           if (response.status < 500 && response.status !== 429) throw new Error(`poe.ninja returned HTTP ${response.status}`);
@@ -33,7 +34,7 @@ export class PoeNinjaRequester {
   }
   async getLeagues(): Promise<string[]> {
     const result = await this.scheduled(async () => {
-      const response = await this.fetcher(`${this.options.baseUrl ?? 'https://poe.ninja'}/poe1/api/economy/leagues`, { headers: { 'User-Agent': this.options.userAgent ?? 'Exile-Diary-Reborn/pricing-publisher (+https://github.com/qt-dev/exile-diary)', Accept: 'application/json' } });
+      const response = await this.fetcher(`${this.options.baseUrl ?? 'https://poe.ninja'}/poe1/api/economy/leagues`, { headers: { 'User-Agent': this.options.userAgent ?? DEFAULT_USER_AGENT, Accept: 'application/json' } });
       if (response.status < 200 || response.status >= 300) throw new Error(`poe.ninja league query returned HTTP ${response.status}`);
       return response.json();
     });

@@ -11,7 +11,9 @@ const MAX_ATTEMPTS = 3;
 const axios = setupCache(
   Axios.create({
     baseURL: 'https://poe.ninja',
-    headers: { 'User-Agent': 'Exile-Diary-Reborn/desktop (poe.ninja pricing)' },
+    headers: {
+      'User-Agent': 'Exile-Diary-Reborn/1.11.8 (poe.ninja pricing; +https://github.com/qt-dev/exile-diary)',
+    },
   }),
   {
     enabled: true,

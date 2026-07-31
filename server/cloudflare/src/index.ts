@@ -3,6 +3,8 @@ export interface Env {
 }
 
 const GGG_TOKEN_ENDPOINT = 'https://www.pathofexile.com/oauth/token';
+// Keep this version aligned with package.json. Any human or AI changing or deploying this Worker must update it to the latest desktop release.
+const GGG_OAUTH_USER_AGENT = 'OAuth exile-diary-reborn/1.11.8 (contact: quentin@devauchelle.com)';
 const PROJECT_URL = 'https://github.com/Qt-dev/exile-diary';
 const REDIRECT_URI = 'https://exilediary.com/auth/success';
 const OAUTH_SCOPE =
@@ -115,7 +117,11 @@ async function exchangeToken(request: Request, env: Env) {
 
   const upstream = await fetch(GGG_TOKEN_ENDPOINT, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    headers: {
+      Accept: 'application/json',
+      'Content-Type': 'application/x-www-form-urlencoded',
+      'User-Agent': GGG_OAUTH_USER_AGENT,
+    },
     body: tokenRequest,
   });
 
