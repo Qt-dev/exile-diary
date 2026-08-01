@@ -1121,7 +1121,16 @@ const RunParser = {
     const lastEventTimestamp = event.timestamp;
 
     // Get all the enter events from the beginning of the latest uncompleted run
-    const mapEvents = await RunParser.getLatestUnusedMapEnteredEvents();
+    let mapEvents = await RunParser.getLatestUnusedMapEnteredEvents();
+    if (isExplicitEnd && !mapEvents.some((event) => !Utils.isTown(event.area))) {
+      const previousMapEnterEvent = await RunParser.getLastMapEnterEvent();
+      if (previousMapEnterEvent && !Utils.isTown(previousMapEnterEvent.area)) {
+        logger.info(
+          `Using previous map entry ${previousMapEnterEvent.area} for explicit completion`
+        );
+        mapEvents = [previousMapEnterEvent];
+      }
+    }
     if (mapEvents.length < 1) {
       logger.debug('No map enter events found');
       return false;

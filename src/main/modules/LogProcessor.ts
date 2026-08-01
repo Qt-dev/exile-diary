@@ -237,7 +237,7 @@ const LogProcessor = {
 
     // Special case for the very first run in DB
     const isFirstRun = await DB.isFirstRun();
-    // Try to process the run if it's a town or a hideout
+    // A new map generation is an authoritative boundary for the previous run.
     let hasProcessed = false;
     if (!area.isTown && !area.isHideout && !deferredRetryFailed) {
       const completionRequest = {

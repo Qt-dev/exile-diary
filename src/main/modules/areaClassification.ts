@@ -1,6 +1,10 @@
 import Constants from '../../helpers/constants';
 
 export function isTownArea(name: string): boolean {
+  if (name === 'Kingsmarch') {
+    return false;
+  }
+
   if (Constants.townstrings.includes(name)) {
     return true;
   }
