@@ -103,3 +103,6 @@ TODO.txt
 
 # dev files
 .vscode
+
+# AI Workflow files
+.workflow/ultracode/
