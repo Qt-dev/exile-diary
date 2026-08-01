@@ -13,21 +13,22 @@ const mockRetryDeferredRun = jest.fn();
 const mockIsFirstRun = jest.fn();
 const mockGetLatestUncompletedRun = jest.fn();
 const mockMarkRunDeferred = jest.fn();
+const mockRunParser = {
+  accountingDeferred: false,
+  tryProcess: mockTryProcess,
+  getAreaFromId: mockGetAreaFromId,
+  insertEvent: mockInsertEvent,
+  hasOngoingMapRun: mockHasOngoingMapRun,
+  createNewMapRun: mockCreateNewMapRun,
+  retryDeferredRun: mockRetryDeferredRun,
+};
 jest.mock('uuid', () => ({
   v4: jest.fn(() => `log-task-${++uuidCounter}`),
 }));
 
 jest.mock('../../../src/main/modules/RunParser', () => ({
   __esModule: true,
-  default: {
-    accountingDeferred: false,
-    tryProcess: mockTryProcess,
-    getAreaFromId: mockGetAreaFromId,
-    insertEvent: mockInsertEvent,
-    hasOngoingMapRun: mockHasOngoingMapRun,
-    createNewMapRun: mockCreateNewMapRun,
-    retryDeferredRun: mockRetryDeferredRun,
-  },
+  default: mockRunParser,
 }));
 jest.mock('../../../src/main/db/run', () => ({
   __esModule: true,
@@ -90,11 +91,13 @@ describe('LogProcessorScheduler', () => {
     mockIsFirstRun.mockReset().mockResolvedValue(false);
     mockGetLatestUncompletedRun.mockReset().mockResolvedValue(null);
     mockMarkRunDeferred.mockReset().mockResolvedValue(undefined);
+    mockRunParser.accountingDeferred = false;
   });
 
   afterEach(async () => {
     const { default: LogProcessor } = await import('../../../src/main/modules/LogProcessor');
     LogProcessor.emitter.removeAllListeners('client-logs:entered-map');
+    LogProcessor.emitter.removeAllListeners('client-logs:generated-run');
   });
 
   it('keeps asynchronous client-log work in submission order', async () => {
@@ -153,6 +156,7 @@ describe('LogProcessorScheduler', () => {
   });
 
   it('retries automatic completion with the original generation boundary', async () => {
+    mockIsTown.mockReturnValue(false);
     mockGetAreaFromId.mockReturnValue({
       name: 'Dunes Map',
       baseLevel: 74,
@@ -180,6 +184,7 @@ describe('LogProcessorScheduler', () => {
   });
 
   it('creates the generated run after accounting retries are deferred', async () => {
+    mockIsTown.mockReturnValue(false);
     mockGetAreaFromId.mockReturnValue({
       name: 'Dunes Map',
       baseLevel: 74,
@@ -205,6 +210,73 @@ describe('LogProcessorScheduler', () => {
         areaId: 'MapWorldsDunes',
         timestamp: '2026-07-23T11:04:10.000Z',
       })
+    );
+  });
+
+  it('keeps the old run as the explicit-end target when restart completion lacks events', async () => {
+    mockIsTown.mockReturnValue(false);
+    mockGetAreaFromId.mockReturnValue({
+      name: 'Strand Map',
+      baseLevel: 74,
+      isTown: false,
+      isHideout: false,
+      isLabyrinthAirlock: false,
+      isLabyrinthBossArea: false,
+    });
+    mockTryProcess.mockResolvedValue(false);
+    mockHasOngoingMapRun.mockResolvedValue(true);
+    const { default: LogProcessor } = await import('../../../src/main/modules/LogProcessor');
+    const generatedRun = jest.fn();
+    LogProcessor.emitter.on('client-logs:generated-run', generatedRun);
+
+    await LogProcessor.processGeneration(
+      '2026-07-24T11:04:10.000Z',
+      'Generating level 83 area "MapWorldsStrand" with seed 456'
+    );
+
+    expect(mockTryProcess).toHaveBeenCalledTimes(3);
+    const completionRequest = {
+      event: { timestamp: '2026-07-24T11:04:10.000Z', server: '' },
+    };
+    expect(mockTryProcess.mock.calls).toEqual([
+      [completionRequest],
+      [completionRequest],
+      [completionRequest],
+    ]);
+    expect(mockMarkRunDeferred).not.toHaveBeenCalled();
+    expect(mockCreateNewMapRun).not.toHaveBeenCalled();
+    expect(generatedRun).not.toHaveBeenCalled();
+  });
+
+  it('tracks Kingsmarch as a map-like run', async () => {
+    mockGetAreaFromId.mockReturnValue({
+      name: 'Kingsmarch',
+      baseLevel: 1,
+      isTown: false,
+      isMapArea: false,
+      isHideout: false,
+      isLabyrinthAirlock: false,
+      isLabyrinthBossArea: false,
+    });
+    const { default: LogProcessor } = await import('../../../src/main/modules/LogProcessor');
+    const generatedRun = jest.fn();
+    LogProcessor.emitter.on('client-logs:generated-run', generatedRun);
+
+    await LogProcessor.processGeneration(
+      '2026-07-24T10:00:00.000Z',
+      'Generating level 1 area "KalguuranSettlersLeague" with seed 123'
+    );
+
+    expect(mockTryProcess).toHaveBeenCalledTimes(3);
+    expect(mockCreateNewMapRun).toHaveBeenCalledWith({
+      areaId: 'KalguuranSettlersLeague',
+      areaName: 'Kingsmarch',
+      level: '1',
+      seed: '123',
+      timestamp: '2026-07-24T10:00:00.000Z',
+    });
+    expect(generatedRun).toHaveBeenCalledWith(
+      expect.objectContaining({ areaName: 'Kingsmarch', runId: 99 })
     );
   });
 

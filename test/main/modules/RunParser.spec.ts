@@ -76,6 +76,7 @@ jest.mock('../../../src/main/modules/LogProcessor', () => ({
 jest.mock('electron-log', () => ({
   scope: jest.fn(),
   debug: jest.fn(),
+  info: jest.fn(),
   error: jest.fn(),
   warn: jest.fn(),
 }));
@@ -649,6 +650,32 @@ describe('RunParser', () => {
       expect(InventoryGetter.captureAndPersistInventory).toHaveBeenCalledWith(
         '2026-07-22T10:00:00.000Z',
         expect.any(Function),
+        true
+      );
+    });
+
+    it('uses the previous run entry when restart leaves the latest event window empty', async () => {
+      jest.spyOn(RunParser, 'getLatestUnusedMapEnteredEvents').mockResolvedValueOnce([]);
+      jest.spyOn(RunParser, 'getLastMapEnterEvent').mockResolvedValueOnce({
+        timestamp: '2026-07-22T09:00:00.000Z',
+        area: 'Kingsmarch',
+        server: '127.0.0.1:6112',
+      });
+
+      await expect(
+        RunParser.tryProcess({
+          event: {
+            timestamp: '2026-07-22T10:00:00.000Z',
+            server: '127.0.0.1:6222',
+          },
+          reason: 'explicit-end',
+          source: 'shortcut',
+        })
+      ).resolves.toBe(true);
+
+      expect(RunParser.processRun).toHaveBeenCalledWith(
+        '2026-07-22T10:00:00.000Z',
+        7,
         true
       );
     });
