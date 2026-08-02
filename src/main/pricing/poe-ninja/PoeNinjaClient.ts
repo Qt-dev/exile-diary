@@ -2,6 +2,7 @@ import Axios from 'axios';
 import { buildMemoryStorage, setupCache } from 'axios-cache-interceptor/dev';
 import Bottleneck from 'bottleneck';
 import Logger from 'electron-log';
+import packageJson from '../../../../package.json';
 import { buildPoeNinjaPath, type PoeNinjaCategory } from './categoryCatalog';
 
 const logger = Logger.scope('pricing/poe-ninja');
@@ -12,7 +13,7 @@ const axios = setupCache(
   Axios.create({
     baseURL: 'https://poe.ninja',
     headers: {
-      'User-Agent': 'Exile-Diary-Reborn/1.11.8 (poe.ninja pricing; +https://github.com/qt-dev/exile-diary)',
+      'User-Agent': `Exile-Diary-Reborn/${packageJson.version} (poe.ninja pricing; +https://github.com/qt-dev/exile-diary)`,
     },
   }),
   {
