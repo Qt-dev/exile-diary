@@ -21,7 +21,9 @@ jobs:
       - name: Install dependencies
         run: npm ci
       - name: Build app
-        run: npm run package:win
+        run: |
+          npm run package:win
+          npm run package:portable
       - name: Smoke packaged sidecars
         run: npm run test:packaged-sidecars
       - name: Smoke packaged renderer
@@ -33,6 +35,7 @@ jobs:
           path: |
             dist/exile-diary-reborn-setup-v${{ inputs.version }}.exe
             dist/exile-diary-reborn-setup-v${{ inputs.version }}.exe.blockmap
+            dist/exile-diary-reborn-portable-v${{ inputs.version }}.zip
             dist/latest.yml
       - name: Update release
         uses: softprops/action-gh-release@v2
@@ -43,4 +46,5 @@ jobs:
           files: |
             dist/exile-diary-reborn-setup-v${{ inputs.version }}.exe
             dist/exile-diary-reborn-setup-v${{ inputs.version }}.exe.blockmap
+            dist/exile-diary-reborn-portable-v${{ inputs.version }}.zip
             dist/latest.yml

@@ -113,7 +113,12 @@ describe('electron-vite build contract', () => {
 
       expect(workflow).toContain('npm run test:packaged-sidecars');
       expect(workflow).toContain('npm run test:packaged-renderer');
+      expect(workflow).toContain('npm run package:portable');
+      expect(workflow).toContain('exile-diary-reborn-portable-v');
       expect(workflow.indexOf('npm run package:win')).toBeLessThan(
+        workflow.indexOf('npm run test:packaged-sidecars')
+      );
+      expect(workflow.indexOf('npm run package:portable')).toBeLessThan(
         workflow.indexOf('npm run test:packaged-sidecars')
       );
       expect(workflow.indexOf('npm run test:packaged-sidecars')).toBeLessThan(
