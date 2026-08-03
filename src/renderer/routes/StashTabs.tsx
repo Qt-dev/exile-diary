@@ -70,7 +70,7 @@ const StashTabs = ({ store }) => {
   const sortedItems = store.itemStore
     .getItemsForLootTable(orderBy, order, true)
     .filter((item) => selectedStashTabs.includes(item.stashTabId))
-    .filter((item) => item.name.toLowerCase().includes(searchString));
+.filter((item) => item.name.toLowerCase().includes(searchString.toLowerCase()));
 
   const changeSelectedTabs = (event: SelectChangeEvent<typeof selectedStashTabs>) => {
     const {
