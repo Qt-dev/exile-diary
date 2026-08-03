@@ -172,6 +172,7 @@ const request = async ({
   cacheTime = CACHE_TIME_IN_SECONDS,
   limiterId = group,
   fresh = false,
+  freshToken = undefined as string | undefined,
 }) => {
   const requestKey = `${limiterId}:${group}:${params.url}:${fresh ? 'fresh' : 'cached'}`;
   const existingRequest = inFlightRequests.get(requestKey);
@@ -198,7 +199,7 @@ const request = async ({
     }
 
     return limiter.schedule({ id: scheduledId }, async () => {
-      logger.debug('Making request to GGG API', { url: params.url, group, params });
+      logger.debug('Making request to GGG API', { url: params.url, group, fresh });
       if (fresh) {
         params.cache = { enabled: false };
       } else if (!params.cache) {
@@ -207,7 +208,11 @@ const request = async ({
           ttl: 1000 * cacheTime,
         };
       }
-      const response: any = await axios({ ...params, id: group });
+      const response: any = await axios({
+        ...params,
+        ...(freshToken ? { params: { ...(params.params ?? {}), _ed_fresh: freshToken } } : {}),
+        id: group,
+      });
 
       updateLimiterFromHeaders(limiter, response.headers);
       if (fresh) {
@@ -239,6 +244,7 @@ const getCharacterSnapshot = async (
     group: `getCharacter-${username}-${characterName}`,
     cacheTime: CHARACTER_SNAPSHOT_CACHE_TIME_IN_SECONDS,
     fresh,
+    freshToken: fresh ? uuidv4() : undefined,
   });
   return response.data.character;
 };

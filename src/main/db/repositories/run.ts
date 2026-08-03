@@ -691,7 +691,7 @@ const Runs = {
         LEFT JOIN item
         ON item.event_id = event.id
       WHERE
-        event_type = 'entered'
+        event_type IN ('entered', 'inventoryCapture')
         AND
           (
             DATETIME(event.timestamp) BETWEEN DATETIME(?) AND DATETIME(?)

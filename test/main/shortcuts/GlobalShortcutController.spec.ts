@@ -22,6 +22,7 @@ describe('GlobalShortcutController', () => {
     const toggleOverlayMovement = jest.fn(() => true);
     const triggerRunParse = jest.fn();
     const triggerScreenshot = jest.fn();
+    const triggerInventoryCapture = jest.fn();
 
     const controller = new GlobalShortcutController({
       getShortcut: (key) =>
@@ -37,38 +38,46 @@ describe('GlobalShortcutController', () => {
       toggleOverlayMovement,
       triggerRunParse,
       triggerScreenshot,
+      triggerInventoryCapture,
     });
 
     controller.registerAll();
 
-    expect(electron.globalShortcut.register).toHaveBeenCalledTimes(4);
+    expect(electron.globalShortcut.register).toHaveBeenCalledTimes(5);
     expect(electron.globalShortcut.register).toHaveBeenNthCalledWith(
       1,
-      'Ctrl+7',
+      'CommandOrControl+F11',
       expect.any(Function)
     );
     expect(electron.globalShortcut.register).toHaveBeenNthCalledWith(
       2,
-      'Ctrl+9',
+      'Ctrl+7',
       expect.any(Function)
     );
     expect(electron.globalShortcut.register).toHaveBeenNthCalledWith(
       3,
-      'Ctrl+10',
+      'Ctrl+9',
       expect.any(Function)
     );
     expect(electron.globalShortcut.register).toHaveBeenNthCalledWith(
       4,
+      'Ctrl+10',
+      expect.any(Function)
+    );
+    expect(electron.globalShortcut.register).toHaveBeenNthCalledWith(
+      5,
       'Ctrl+8',
       expect.any(Function)
     );
 
-    const overlayToggleCallback = (electron.globalShortcut.register as jest.Mock).mock.calls[0][1];
+    const inventoryCaptureCallback = (electron.globalShortcut.register as jest.Mock).mock.calls[0][1];
+    const overlayToggleCallback = (electron.globalShortcut.register as jest.Mock).mock.calls[1][1];
     const overlayMovementCallback = (electron.globalShortcut.register as jest.Mock).mock
-      .calls[1][1];
-    const runParseCallback = (electron.globalShortcut.register as jest.Mock).mock.calls[2][1];
-    const screenshotCallback = (electron.globalShortcut.register as jest.Mock).mock.calls[3][1];
+      .calls[2][1];
+    const runParseCallback = (electron.globalShortcut.register as jest.Mock).mock.calls[3][1];
+    const screenshotCallback = (electron.globalShortcut.register as jest.Mock).mock.calls[4][1];
 
+    inventoryCaptureCallback();
     overlayToggleCallback();
     overlayMovementCallback();
     runParseCallback();
@@ -78,6 +87,7 @@ describe('GlobalShortcutController', () => {
     expect(toggleOverlayMovement).toHaveBeenCalledTimes(1);
     expect(triggerRunParse).toHaveBeenCalledTimes(1);
     expect(triggerScreenshot).toHaveBeenCalledTimes(1);
+    expect(triggerInventoryCapture).toHaveBeenCalledTimes(1);
   });
 
   it('re-registers shortcuts by clearing the old registrations first', async () => {
@@ -99,7 +109,7 @@ describe('GlobalShortcutController', () => {
     controller.reregisterAll();
 
     expect(electron.globalShortcut.unregisterAll).toHaveBeenCalledTimes(1);
-    expect(electron.globalShortcut.register).toHaveBeenCalledTimes(2);
+    expect(electron.globalShortcut.register).toHaveBeenCalledTimes(3);
   });
 
   it('reports shortcut registration conflicts', async () => {

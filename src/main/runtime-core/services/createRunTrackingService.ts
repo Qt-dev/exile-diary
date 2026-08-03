@@ -10,5 +10,7 @@ export function createRunTrackingService(runParser = RunParser) {
     setCurrentMapStats: runParser.setCurrentMapStats.bind(runParser),
     tryProcess: runParser.tryProcess.bind(runParser),
     tryUpdateCurrentArea: runParser.tryUpdateCurrentArea.bind(runParser),
+    captureInventory:
+      runParser.captureInventory?.bind(runParser) ?? (async () => ({ itemCount: 0, eventCreated: false })),
   };
 }

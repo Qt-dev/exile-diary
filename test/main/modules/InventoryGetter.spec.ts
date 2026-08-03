@@ -81,7 +81,7 @@ describe('InventoryGetter capture contract', () => {
     expect(persistDiff.mock.invocationCallOrder[0]).toBeLessThan(
       updateLastInventory.mock.invocationCallOrder[0]
     );
-    expect(updateLastInventory).toHaveBeenCalledWith(currentInventory);
+    expect(updateLastInventory).toHaveBeenCalledWith(currentInventory, '2026-07-22T10:00:00.000Z');
   });
 
   it('can return the diff and current inventory without advancing the baseline', async () => {
@@ -124,5 +124,36 @@ describe('InventoryGetter capture contract', () => {
 
     expect(getInventoryCapture).toHaveBeenCalledTimes(2);
     expect(secondPersist).toHaveBeenCalledTimes(1);
+  });
+
+  it('detects new items and normalizes legacy stack quantities', () => {
+    const diff = InventoryGetter.compareInventories(
+      {
+        stack: { id: 'stack', name: '', typeLine: 'Orb', stacksize: 3 },
+      },
+      {
+        stack: { id: 'stack', name: '', typeLine: 'Orb', stackSize: 5 },
+        newItem: { id: 'newItem', name: '', typeLine: 'Divine Orb' },
+      }
+    );
+
+    expect(diff.stack.stackSize).toBe(2);
+    expect(diff.newItem).toMatchObject({ id: 'newItem' });
+  });
+
+  it('ignores unchanged items, quantity decreases, and items without IDs', () => {
+    const diff = InventoryGetter.compareInventories(
+      {
+        unchanged: { id: 'unchanged', name: '', typeLine: 'Orb', stackSize: 5 },
+        decreased: { id: 'decreased', name: '', typeLine: 'Orb', stackSize: 5 },
+      },
+      {
+        unchanged: { id: 'unchanged', name: '', typeLine: 'Orb', stackSize: 5 },
+        decreased: { id: 'decreased', name: '', typeLine: 'Orb', stackSize: 2 },
+        missing: { name: '', typeLine: 'Unknown' },
+      }
+    );
+
+    expect(diff).toEqual({});
   });
 });

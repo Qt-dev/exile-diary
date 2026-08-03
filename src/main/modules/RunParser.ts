@@ -1011,6 +1011,40 @@ const RunParser = {
     return attempt;
   },
 
+  captureInventory: async () => {
+    const timestamp = dayjs().toISOString();
+    const currentRun = await DB.getLatestUncompletedRun();
+    const currentArea = await DB.getCurrentAreaData();
+    let eventId: number | false = false;
+    let itemCount = 0;
+    await InventoryGetter.captureAndPersistInventory(
+      timestamp,
+      async ({ diff, currentInventory }) => {
+        itemCount = Object.keys(diff).length;
+        if (currentRun && currentArea?.name) {
+          eventId = await DB.insertEvent({
+            event_type: 'inventoryCapture',
+            event_text: currentArea.name,
+            timestamp,
+          });
+        }
+        if (eventId) {
+          await ItemParser.insertItemsAndInventoryBaseline(
+            diff,
+            timestamp,
+            eventId,
+            timestamp,
+            currentInventory
+          );
+        } else {
+          await InventoryGetter.updateLastInventory(currentInventory, timestamp);
+        }
+      },
+      true
+    );
+    return { itemCount, eventCreated: !!eventId };
+  },
+
   retryDeferredRun: async () => {
     const attempt = tryProcessQueue
       .catch(() => undefined)
