@@ -35,6 +35,7 @@ jobs:
         run: |
           npm run package:win
           npm run package:portable
+          Rename-Item -LiteralPath 'dist/exile-diary-reborn-portable.zip' -NewName "exile-diary-reborn-portable-v${{ github.ref_name }}.zip"
       - name: Smoke packaged sidecars
         run: npm run test:packaged-sidecars
       - name: Smoke packaged renderer

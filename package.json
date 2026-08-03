@@ -156,7 +156,7 @@
     "dev:ui": "vite --config vite.ui-test.config.ts",
     "build:app": "electron-vite build && npm run sync:electron-assets",
     "package:win": "npm run build:app && cross-env DEBUG=electron-builder electron-builder -p never",
-    "package:portable": "npm run build:app && cross-env DEBUG=electron-builder electron-builder --win zip -c.win.artifactName='exile-diary-reborn-portable-v${version}.${ext}' -p never",
+    "package:portable": "npm run build:app && cross-env DEBUG=electron-builder electron-builder --win zip -c.win.artifactName=exile-diary-reborn-portable.zip -p never",
     "package:linux": "npm run build:app && cross-env DEBUG=@malept/flatpak-bundler electron-builder -p never"
   },
   "eslintConfig": {
