@@ -26,6 +26,31 @@ const StashTabs = ({ store }) => {
   const [order, setOrder] = React.useState<Order>('desc');
   const [selectedStashTabs, setSelectedStashTabs] =
     React.useState<string[]>(allTrackedStashTabsIds);
+  const previousTrackedStashTabsIds = React.useRef(allTrackedStashTabsIds);
+
+  React.useEffect(() => {
+    const previousIds = previousTrackedStashTabsIds.current;
+    previousTrackedStashTabsIds.current = allTrackedStashTabsIds;
+
+    setSelectedStashTabs((selectedIds) => {
+      const selectedIdsStillExist = selectedIds.filter((id) =>
+        allTrackedStashTabsIds.includes(id)
+      );
+      const tabsLoadedAfterInitialRender =
+        previousIds.length === 0 && allTrackedStashTabsIds.length > 0 && selectedIds.length === 0;
+      const tabSetChanged =
+        previousIds.length > 0 &&
+        allTrackedStashTabsIds.length > 0 &&
+        previousIds.every((id) => !allTrackedStashTabsIds.includes(id));
+
+      if (tabsLoadedAfterInitialRender || tabSetChanged) {
+        return allTrackedStashTabsIds;
+      }
+
+      return selectedIdsStillExist;
+    });
+  }, [allTrackedStashTabsIds.join('\u0000')]);
+
   const sortCallback = (column: StashTabsColumn, order: Order) => () => {
     const realOrder = order === 'desc' && orderBy === column ? 'asc' : 'desc';
     setOrder(realOrder);
@@ -43,7 +68,7 @@ const StashTabs = ({ store }) => {
 
   const [searchString, setSearchString] = React.useState<string>('');
   const sortedItems = store.itemStore
-    .getItemsForLootTable(orderBy, order)
+    .getItemsForLootTable(orderBy, order, true)
     .filter((item) => selectedStashTabs.includes(item.stashTabId))
     .filter((item) => item.name.toLowerCase().includes(searchString));
 
