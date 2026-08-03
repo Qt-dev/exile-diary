@@ -298,6 +298,7 @@ function registerShortcutSensitiveSettingListeners(
   runtime.settings.registerListener('screenshots', () => reregisterShortcuts());
   runtime.settings.registerListener('runParseShortcut', () => reregisterShortcuts());
   runtime.settings.registerListener('screenshotShortcut', () => reregisterShortcuts());
+  runtime.settings.registerListener('inventoryCaptureShortcut', () => reregisterShortcuts());
   runtime.settings.registerListener('overlayToggleShortcut', () => reregisterShortcuts());
   runtime.settings.registerListener('overlayMovementShortcut', () => reregisterShortcuts());
 }

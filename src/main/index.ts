@@ -295,6 +295,27 @@ class MainProcess {
         logger.info('Screenshot shortcut pressed');
         ScreenshotWatcher.emitter.emit('screenshot:capture');
       },
+      triggerInventoryCapture: () => {
+        logger.info('Manual inventory capture shortcut pressed');
+        void this.runtimeBridge.runTracking
+          .captureInventory()
+          .then(({ itemCount, eventCreated }) => {
+            const suffix = eventCreated
+              ? itemCount > 0
+                ? `${itemCount} newly captured item${itemCount === 1 ? '' : 's'}.`
+                : 'Fresh inventory received; no new items detected.'
+              : 'No active run or area; inventory baseline updated without creating loot.';
+            const message = `Manual inventory capture complete. ${suffix}`;
+            logger.info(message);
+            RendererLogger.log({ messages: [{ text: message }] });
+          })
+          .catch((error) => {
+            logger.error('Manual inventory capture failed', error);
+            RendererLogger.log({
+              messages: [{ text: 'Manual inventory capture failed. Check the logs for details.', type: 'error' }],
+            });
+          });
+      },
     });
   }
 

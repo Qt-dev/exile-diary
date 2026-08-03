@@ -191,6 +191,7 @@ describe('GGGAPI auth gating', () => {
       expect.objectContaining({
         cache: { enabled: false },
         url: '/character/AtlasRunner',
+        params: expect.objectContaining({ _ed_fresh: expect.any(String) }),
       })
     );
     expect(removeCachedResponse).toHaveBeenCalledWith(

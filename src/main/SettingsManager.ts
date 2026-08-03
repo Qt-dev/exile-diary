@@ -79,6 +79,7 @@ const DefaultSettings = {
   runParseScreenshotEnabled: true,
   runParseShortcut: 'CommandOrControl+F10',
   screenshotShortcut: 'CommandOrControl+F8',
+  inventoryCaptureShortcut: 'CommandOrControl+F11',
   overlayToggleShortcut: 'CommandOrControl+F7',
   overlayMovementShortcut: 'CommandOrControl+F9',
   autoScreenshotOnMapEntry: {

@@ -141,6 +141,7 @@ const runtimeMethodHandlers: Record<RuntimeMethodKey, (...args: any[]) => Promis
   'runTracking.tryProcess': async (payload) => runtimeCore.runTracking.tryProcess(payload),
   'runTracking.tryUpdateCurrentArea': async () => runtimeCore.runTracking.tryUpdateCurrentArea(),
   'runTracking.getLatestGeneratedArea': async () => runtimeCore.runTracking.latestGeneratedArea,
+  'runTracking.captureInventory': async () => runtimeCore.runTracking.captureInventory(),
   'pricing.getCurrencyByName': async (...args) =>
     runtimeCore.pricing.getCurrencyByName(...(args as [string, string?, string?])),
   'pricing.updateRates': async () => runtimeCore.pricing.updateRates(),

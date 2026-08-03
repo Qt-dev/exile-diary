@@ -16,6 +16,7 @@ export type GlobalShortcutControllerDependencies = {
   toggleOverlayMovement: () => boolean;
   triggerRunParse: () => void;
   triggerScreenshot: () => void;
+  triggerInventoryCapture?: () => void;
 };
 
 export class GlobalShortcutController {
@@ -41,6 +42,10 @@ export class GlobalShortcutController {
 
   private getShortcutDefinitions(): ShortcutDefinition[] {
     const shortcuts: ShortcutDefinition[] = [
+      {
+        accelerator: this.deps.getShortcut('inventoryCaptureShortcut') || 'CommandOrControl+F11',
+        callback: () => this.deps.triggerInventoryCapture?.(),
+      },
       {
         accelerator: this.deps.getShortcut('overlayToggleShortcut') || 'CommandOrControl+F7',
         callback: () => {
