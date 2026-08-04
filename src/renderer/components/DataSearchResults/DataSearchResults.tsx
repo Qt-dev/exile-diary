@@ -158,7 +158,8 @@ const DataSearchResults = ({
           <CircularProgress color="secondary" />
         </Stack>
       </Backdrop>
-      <Accordion expanded={expanded.includes('panel 1')} onChange={handleTabChange('panel 1')}>
+      <Accordion expanded={expanded.includes('panel 1')} onChange={handleTabChange('panel 1')}
+        slotProps={{ transition: { onEntered: handleOpenTabEnd('panel 1') } }}>
         <AccordionSummary>
           <Typography variant="button">Stats</Typography>
         </AccordionSummary>
