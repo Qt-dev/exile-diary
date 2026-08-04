@@ -127,7 +127,11 @@ const DataSearchResults = ({
   useEffect(() => {
     if (isTakingScreenshot) {
       fallbackExpanded.current = [...expanded];
+      expandedPanels.current = [...expanded]; // panels already open count as "done" now
       setExpanded(Panels);
+      if (expanded.length === Panels.length) {
+        runScreenshotCommand();
+      }
     } else {
       setExpanded(fallbackExpanded.current);
       fallbackExpanded.current = ['panel 1'];
@@ -154,7 +158,8 @@ const DataSearchResults = ({
           <CircularProgress color="secondary" />
         </Stack>
       </Backdrop>
-      <Accordion expanded={expanded.includes('panel 1')} onChange={handleTabChange('panel 1')}>
+      <Accordion expanded={expanded.includes('panel 1')} onChange={handleTabChange('panel 1')}
+        slotProps={{ transition: { onEntered: handleOpenTabEnd('panel 1') } }}>
         <AccordionSummary>
           <Typography variant="button">Stats</Typography>
         </AccordionSummary>
