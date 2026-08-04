@@ -127,7 +127,11 @@ const DataSearchResults = ({
   useEffect(() => {
     if (isTakingScreenshot) {
       fallbackExpanded.current = [...expanded];
+      expandedPanels.current = [...expanded]; // panels already open count as "done" now
       setExpanded(Panels);
+      if (expanded.length === Panels.length) {
+        runScreenshotCommand();
+      }
     } else {
       setExpanded(fallbackExpanded.current);
       fallbackExpanded.current = ['panel 1'];
