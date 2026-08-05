@@ -333,7 +333,7 @@ const DataSearchForm = ({
                 type="number"
                 size="small"
                 onChange={(e) => {
-                  if (parseInt(e.target.value) > 0) setMinLootValue(parseInt(e.target.value));
+                  if (parseInt(e.target.value) >= 0) setMinLootValue(parseInt(e.target.value));
                 }}
               />
             </FormControl>
@@ -346,7 +346,7 @@ const DataSearchForm = ({
                 size="small"
                 type="number"
                 onChange={(e) => {
-                  if (parseInt(e.target.value) > 0) setMinMapValue(parseInt(e.target.value));
+                  if (parseInt(e.target.value) >= 0) setMinMapValue(parseInt(e.target.value));
                 }}
               />
             </FormControl>
