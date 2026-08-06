@@ -2,10 +2,10 @@
   "name": "exile-diary",
   "version": "1.11.13",
   "private": true,
-  "packageManager": "npm@9.6.5",
+  "packageManager": "npm@11.16.0",
   "engines": {
-    "node": "22.x",
-    "npm": ">=9 <11"
+    "node": "24.x",
+    "npm": ">=11 <12"
   },
   "main": "./out/electron/main/index.js",
   "build": {
