@@ -5,7 +5,8 @@ import { fileURLToPath } from 'url';
 /**
  * Reads stat_descriptions.json and generates mapMods.json.
  * The mapMods.json file contains an array named mapMods with all English description texts,
- * where the {0} pattern has been replaced by a # character, sorted alphabetically.
+ * where the {0} pattern has been replaced by a # character and PoE inline links
+ * have been reduced to their display text, sorted alphabetically.
  */
 export default async function generateMapMods({ inputFilePath, outputFilePath } = {}) {
   try {
@@ -19,7 +20,7 @@ export default async function generateMapMods({ inputFilePath, outputFilePath } 
     const data = await fs.readFile(sourcePath, 'utf-8');
     const statDescriptions = JSON.parse(data).descriptions;
 
-    // Extract English description texts and replace {0} with #
+    // Extract English description texts, replace {0} with #, and normalize PoE inline links.
     const mapMods = statDescriptions
       .filter(
         (entry) =>
@@ -38,7 +39,11 @@ export default async function generateMapMods({ inputFilePath, outputFilePath } 
           };
         });
       })
-      .map((entry) => entry.text.replace(/\{0{0,1}(:\+d){0,1}\}/g, '#'))
+      .map((entry) =>
+        entry.text
+          .replace(/\{0{0,1}(:\+d){0,1}\}/g, '#')
+          .replace(/\[([^|\]\r\n]+)\|([^\]\r\n]+)\]/g, '$2')
+      )
       .sort();
 
     mapMods.unshift(
