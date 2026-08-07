@@ -1,4 +1,4 @@
-import ItemPricer from '../../modules/ItemPricer';
+import ItemPricer from '../../pricing/matching/ItemPricer';
 
 export function createPricingService(itemPricer = ItemPricer) {
   return {

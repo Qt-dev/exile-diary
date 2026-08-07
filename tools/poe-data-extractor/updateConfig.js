@@ -5,7 +5,7 @@ import { pathToFileURL } from 'url';
 export const latestPatchUrl =
   'https://raw.githubusercontent.com/poe-tool-dev/latest-patch-version/main/latest.txt';
 
-const patchPattern = /^\d+(?:\.\d+){2,3}[a-z]?$/i;
+const patchPattern = /^\d+(?:\.\d+){2,4}[a-z]?$/i;
 
 export async function updatePatchConfig({
   fetchImpl = fetch,

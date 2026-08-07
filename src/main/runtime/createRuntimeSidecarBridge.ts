@@ -61,6 +61,10 @@ export function createRuntimeSidecarBridge() {
         RuntimeSidecarClient.callRuntimeMethod<boolean>('runTracking.tryProcess', [payload]),
       tryUpdateCurrentArea: () =>
         RuntimeSidecarClient.callRuntimeMethod<boolean>('runTracking.tryUpdateCurrentArea'),
+      captureInventory: () =>
+        RuntimeSidecarClient.callRuntimeMethod<{ itemCount: number; eventCreated: boolean }>(
+          'runTracking.captureInventory'
+        ),
     },
     stats: {
       registerProfitPerHourAnnouncer: (listener: (...args: any[]) => void) => {

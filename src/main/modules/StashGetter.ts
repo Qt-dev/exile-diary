@@ -4,9 +4,9 @@ import GGGAPI from '../GGGAPI';
 import { StashTabData } from '../../helpers/types';
 import DB from '../db/stashtabs';
 import Item from '../models/Item';
-import RatesGetterV2 from './RateGetterV2';
-import ItemPricer from './ItemPricer';
-import type { PriceResult } from './ItemPricer';
+import PricingService from '../pricing/PricingService';
+import ItemPricer from '../pricing/matching/ItemPricer';
+import type { PriceResult } from '../pricing/matching/ItemPricer';
 import dayjs from 'dayjs';
 import RendererLogger from '../RendererLogger';
 const EventEmitter = require('events');
@@ -122,7 +122,7 @@ class StashGetter {
     try {
       this.isFetching = true;
       const settings = SettingsManager.getAll();
-      if (!RatesGetterV2.ratesReady) {
+    if (!PricingService.ratesReady) {
         if (interval > 60) {
           logger.info('Maximum retries exceeded, deferring to next stash getting interval');
         } else {

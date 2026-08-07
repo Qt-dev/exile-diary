@@ -6462,6 +6462,51 @@
         "name": "Afarud Shrine"
       }
     },
+    "Hungry Rats scamper below.": {
+      "id": "BloodShrineRat",
+      "npc": "Unknown",
+      "category": "Shrines",
+      "type": "Activation",
+      "arguments": {
+        "name": "Blood Shrine of Rats"
+      }
+    },
+    "Ravenous Locusts swarm below.": {
+      "id": "BloodShrineSwarm",
+      "npc": "Unknown",
+      "category": "Shrines",
+      "type": "Activation",
+      "arguments": {
+        "name": "Blood Shrine of Locusts"
+      }
+    },
+    "Toxic Toads leap below.": {
+      "id": "BloodShrineToad",
+      "npc": "Unknown",
+      "category": "Shrines",
+      "type": "Activation",
+      "arguments": {
+        "name": "Blood Shrine of Toads"
+      }
+    },
+    "Murderous Crows flock above.": {
+      "id": "BloodShrineCrow",
+      "npc": "Unknown",
+      "category": "Shrines",
+      "type": "Activation",
+      "arguments": {
+        "name": "Blood Shrine of Crows"
+      }
+    },
+    "Screeching Bats dwell above.": {
+      "id": "BloodShrineBat",
+      "npc": "Unknown",
+      "category": "Shrines",
+      "type": "Activation",
+      "arguments": {
+        "name": "Blood Shrine of Bats"
+      }
+    },
     "Choking vapours seek the living.": {
       "id": "ChaosCloudDaemon1",
       "npc": "The Trialmaster",

@@ -29,6 +29,9 @@ export function createRendererStashUseCases(deps: RendererStashUseCaseDependenci
       const trackedTabIds = trackedStashTabs?.[activeProfile.league] ?? [];
       const stashTabs = markTrackedTabs(await deps.gggApi.getAllStashTabs(), trackedTabIds);
       const stashData = await deps.stashTabsManager.getStashData();
+      logger.info(
+        `Loaded stash snapshot for the renderer: ${stashData?.items?.length ?? 0} items`
+      );
       return { stashTabs, data: stashData };
     },
 

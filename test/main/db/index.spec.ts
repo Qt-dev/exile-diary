@@ -264,7 +264,23 @@ describe('db/index', () => {
         sql.includes('CREATE INDEX IF NOT EXISTS "graftblood_timestamp"')
       )
     ).toBe(true);
-    expect(preparedSql.some((sql: string) => sql.includes('pragma user_version = 18'))).toBe(true);
+    expect(
+      preparedSql.some((sql: string) => sql.includes('CREATE TABLE IF NOT EXISTS deferred_run'))
+    ).toBe(true);
+    expect(
+      preparedSql.some(
+        (sql: string) =>
+          sql.includes('CREATE TABLE IF NOT EXISTS deferred_run') &&
+          sql.includes('capture_required') &&
+          sql.includes('closing_event_id')
+      )
+    ).toBe(true);
+    expect(
+      preparedSql.some((sql: string) =>
+        sql.includes('ALTER TABLE deferred_run ADD COLUMN capture_required')
+      )
+    ).toBe(true);
+    expect(preparedSql.some((sql: string) => sql.includes('pragma user_version = 20'))).toBe(true);
     expect(preparedSql.some((sql: string) => sql.includes('delete from incubator'))).toBe(true);
     expect(manager.db.transaction).toHaveBeenCalled();
   });

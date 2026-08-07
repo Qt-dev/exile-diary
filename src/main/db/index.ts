@@ -571,9 +571,27 @@ const Migrations = {
         `pragma user_version = 17`,
       ],
       [`ALTER TABLE item ADD COLUMN valuation TEXT`, `pragma user_version = 18`],
+      [
+        `CREATE TABLE IF NOT EXISTS deferred_run (
+          run_id INTEGER PRIMARY KEY NOT NULL,
+          last_event TEXT NOT NULL
+        )`,
+        `pragma user_version = 19`,
+      ],
+      [
+        `ALTER TABLE deferred_run ADD COLUMN capture_required INTEGER NOT NULL DEFAULT 0`,
+        `ALTER TABLE deferred_run ADD COLUMN closing_event_id INTEGER`,
+        `pragma user_version = 20`,
+      ],
     ],
     maintenance: [
       `delete from incubator where timestamp < (select min(timestamp) from (select timestamp from incubator order by timestamp desc limit 25))`,
+      `CREATE TABLE IF NOT EXISTS deferred_run (
+        run_id INTEGER PRIMARY KEY NOT NULL,
+        last_event TEXT NOT NULL,
+        capture_required INTEGER NOT NULL DEFAULT 0,
+        closing_event_id INTEGER
+      )`,
     ],
   },
   league: {
@@ -873,6 +891,7 @@ const RequiredCharacterTables = [
   'passives',
   'xp',
   'graftblood',
+  'deferred_run',
 ];
 
 const RequiredLeagueTables = ['characters', 'fullrates', 'stashes'];
@@ -979,6 +998,27 @@ const DB = {
 
   transaction: async (query: string, params: any[], league: string | undefined = undefined) => {
     return DB.runMany(query, params, league);
+  },
+
+  transactionSteps: async (
+    steps: Array<{ query: string; params?: any[] }>,
+    league: string | undefined = undefined
+  ) => {
+    const manager = DB.getManager(league);
+    if (!manager) return null;
+
+    return manager.runTask(() => {
+      const transaction = manager.db.transaction(
+        (transactionSteps: Array<{ query: string; params?: any[] }>) => {
+          let result;
+          for (const step of transactionSteps) {
+            result = manager.getStatement(step.query).run(step.params ?? []);
+          }
+          return result;
+        }
+      );
+      return transaction(steps);
+    });
   },
 
   initDB: async (char: string, league?: string) => {

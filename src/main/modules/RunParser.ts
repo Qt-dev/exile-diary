@@ -11,9 +11,11 @@ import minMax from 'dayjs/plugin/minMax'; // ES 2015
 import isSameOrAfter from 'dayjs/plugin/isSameOrAfter';
 import EventParser from './EventParser';
 import LogProcessor from './LogProcessor';
-import ItemPricer from './ItemPricer';
+import ItemPricer from '../pricing/matching/ItemPricer';
 import XPTracker from './XPTracker';
 import GraftbloodTracker from './GraftbloodTracker';
+import InventoryGetter from './InventoryGetter';
+import ItemParser from './ItemParser';
 import type { RunProcessRequest } from './mapEnd';
 const logger = require('electron-log');
 const EventEmitter = require('events');
@@ -71,7 +73,11 @@ type MapData = [
   boolean // completed
 ];
 
+let tryProcessQueue: Promise<void> = Promise.resolve();
+
 const RunParser = {
+  accountingDeferred: false,
+  deferredRun: null as { runId: number; lastEventTimestamp: string } | null,
   latestGeneratedArea: {
     run_id: 0,
     level: 0,
@@ -224,12 +230,18 @@ const RunParser = {
     return experience;
   },
 
-  getXPDiff: async (currentXP: number | null): Promise<number | null> => {
+  getXPDiff: async (
+    currentXP: number | null,
+    runId?: number
+  ): Promise<number | null> => {
     if (currentXP === null) return null;
     let xp: number | null = null;
     try {
-      await OldDB.get('SELECT xp FROM run ORDER BY id DESC LIMIT 1').then((row) => {
-        if (!row.xp) {
+      const query = runId
+        ? 'SELECT xp FROM run WHERE id < ? ORDER BY id DESC LIMIT 1'
+        : 'SELECT xp FROM run ORDER BY id DESC LIMIT 1';
+      await OldDB.get(query, runId ? [runId] : []).then((row) => {
+        if (!row?.xp) {
           // first map recorded - xp diff can't be determined in this case, return current XP
           xp = currentXP;
         } else {
@@ -267,8 +279,22 @@ const RunParser = {
     for (let item of items) {
       if (!item.raw_data) continue;
 
-      const jsonData = JSON.parse(item.raw_data);
-      if (jsonData && jsonData.inventoryId === 'MainInventory') {
+      let jsonData;
+      try {
+        jsonData = JSON.parse(item.raw_data);
+      } catch (err) {
+        logger.warn(`Skipping item ${item.id} with malformed raw data: ${err}`);
+        continue;
+      }
+      if (
+        jsonData &&
+        (jsonData.inventoryId === 'MainInventory' || jsonData.inventoryId === 'Rucksack')
+      ) {
+        const dbItem = item as Item & {
+          baseType?: string;
+          name?: string;
+          stack_size?: number;
+        };
         count++;
         if (item.category === 'Metamorph Sample') {
           const organ = item.typeline.slice(item.typeline.lastIndexOf(' ') + 1).toLowerCase();
@@ -277,7 +303,20 @@ const RunParser = {
           importantDrops[item.typeline] = (importantDrops[item.typeline] || 0) + 1;
         }
 
-        const price = await ItemPricer.price(item);
+        const pricingItem = {
+          ...jsonData,
+          ...item,
+          baseType: dbItem.baseType ?? jsonData.baseType,
+          typeline: item.typeline ?? jsonData.typeLine,
+          stack_size: dbItem.stack_size ?? jsonData.stackSize,
+        };
+        let price;
+        try {
+          price = await ItemPricer.price(pricingItem);
+        } catch (error) {
+          logger.warn(`Skipping item ${item.id} after pricing failed: ${error}`);
+          continue;
+        }
         // logger.debug('Found price: ', price, item);
         if (price.isVendor) {
           totalValue += price.value;
@@ -386,39 +425,41 @@ const RunParser = {
   getItemStats: async (
     area: { run_id: number; name: string },
     firsteventTimestamp: string,
-    lasteventTimestamp: string
+    lasteventTimestamp: string,
+    waitForFreshInventory = false
   ): Promise<ItemStats | false> => {
     logger.debug(
       `Getting item stats for (${area.run_id}) ${area.name} between ${firsteventTimestamp} and ${lasteventTimestamp}`
     );
-    let lastInventoryTimestamp: string;
-    let timestampCheckCount = 0;
+    if (waitForFreshInventory) {
+      let lastInventoryTimestamp: string;
+      let timestampCheckCount = 0;
 
-    // Make sure the last inventory has been processed, wait 3s at a time until we're good
-    // Fails after 3 attempts
-    while (timestampCheckCount < 3) {
-      timestampCheckCount++;
-      logger.debug('Getting latest inventory timestamp');
-      lastInventoryTimestamp =
-        (await RunParser.getLastInventoryTimestamp()) ?? dayjs.unix(0).toISOString();
-      if (
-        dayjs().isSameOrAfter(dayjs(lasteventTimestamp)) ||
-        dayjs(lastInventoryTimestamp).isSameOrAfter(
-          dayjs(lasteventTimestamp).subtract(5, 'seconds')
-        ) // Last inventory is newer than the last event + cache
-      ) {
-        break;
-      } else {
-        if (timestampCheckCount >= 3) {
-          logger.error('Unable to get the latest inventory from the DB, timestamp is too new');
-          return false;
+      // Explicit completion actively obtains a snapshot before reaching this check.
+      // Wait only for that snapshot's asynchronous last_inventory write to finish.
+      while (timestampCheckCount < 3) {
+        timestampCheckCount++;
+        logger.debug('Getting latest inventory timestamp');
+        lastInventoryTimestamp =
+          (await RunParser.getLastInventoryTimestamp()) ?? dayjs.unix(0).toISOString();
+        if (
+          dayjs(lastInventoryTimestamp).isSameOrAfter(
+            dayjs(lasteventTimestamp).subtract(5, 'seconds')
+          )
+        ) {
+          break;
         } else {
-          logger.error(
-            `Last inventory not yet processed (${dayjs(lastInventoryTimestamp)} < ${dayjs(
-              lasteventTimestamp
-            ).subtract(5, 'seconds')}), waiting 3 seconds`
-          );
-          await Utils.sleep(3000);
+          if (timestampCheckCount >= 3) {
+            logger.error('Unable to get the latest inventory from the DB, timestamp is too new');
+            return false;
+          } else {
+            logger.error(
+              `Last inventory not yet processed (${dayjs(lastInventoryTimestamp)} < ${dayjs(
+                lasteventTimestamp
+              ).subtract(5, 'seconds')}), waiting 3 seconds`
+            );
+            await Utils.sleep(3000);
+          }
         }
       }
     }
@@ -823,7 +864,11 @@ const RunParser = {
     }
   },
 
-  processRun: async (lastEventTimestamp: string, runId: number | null = null) => {
+  processRun: async (
+    lastEventTimestamp: string,
+    runId: number | null = null,
+    waitForFreshInventory = false
+  ) => {
     let mapStats = {
       iiq: 0,
       iir: 0,
@@ -875,12 +920,20 @@ const RunParser = {
     const xp = XPTracker.isMaxXP()
       ? Constants.MAX_XP
       : await RunParser.getXP(runId, lastEventTimestamp);
-    const xpDiff = await RunParser.getXPDiff(xp);
+    const xpDiff = await RunParser.getXPDiff(xp, runId);
 
     // Get Item Stats
-    const itemStats = await RunParser.getItemStats(areaInfo, firstEvent, lastEventTimestamp);
-    // If no item stats are found, set default values
-    const items = itemStats ? itemStats : { count: 0, value: 0, importantDrops: {} };
+    const itemStats = await RunParser.getItemStats(
+      areaInfo,
+      firstEvent,
+      lastEventTimestamp,
+      waitForFreshInventory
+    );
+    if (!itemStats) {
+      logger.warn(`Deferring run ${runId} completion until item accounting is ready`);
+      return false;
+    }
+    const items = itemStats;
 
     // Get the kill count if possible
     let killCount = await RunParser.getKillCount(firstEvent, lastEventTimestamp);
@@ -948,6 +1001,113 @@ const RunParser = {
    * @throws Will log an error if processing fails.
    */
   tryProcess: async (parameters: RunProcessRequest | null) => {
+    const attempt = tryProcessQueue
+      .catch(() => undefined)
+      .then(() => RunParser.tryProcessOnce(parameters));
+    tryProcessQueue = attempt.then(
+      () => undefined,
+      () => undefined
+    );
+    return attempt;
+  },
+
+  captureInventory: async () => {
+    const timestamp = dayjs().toISOString();
+    const currentRun = await DB.getLatestUncompletedRun();
+    const currentArea = await DB.getCurrentAreaData();
+    let eventId: number | false = false;
+    let itemCount = 0;
+    await InventoryGetter.captureAndPersistInventory(
+      timestamp,
+      async ({ diff, currentInventory }) => {
+        itemCount = Object.keys(diff).length;
+        if (currentRun && currentArea?.name) {
+          eventId = await DB.insertEvent({
+            event_type: 'inventoryCapture',
+            event_text: currentArea.name,
+            timestamp,
+          });
+        }
+        if (eventId) {
+          await ItemParser.insertItemsAndInventoryBaseline(
+            diff,
+            timestamp,
+            eventId,
+            timestamp,
+            currentInventory
+          );
+        } else {
+          await InventoryGetter.updateLastInventory(currentInventory, timestamp);
+        }
+      },
+      true
+    );
+    return { itemCount, eventCreated: !!eventId };
+  },
+
+  retryDeferredRun: async () => {
+    const attempt = tryProcessQueue
+      .catch(() => undefined)
+      .then(() => RunParser.retryDeferredRunOnce());
+    tryProcessQueue = attempt.then(
+      () => undefined,
+      () => undefined
+    );
+    return attempt;
+  },
+
+  retryDeferredRunOnce: async () => {
+    const persistedDeferredRun = RunParser.deferredRun
+      ? null
+      : await DB.getDeferredRun();
+    const deferredRun =
+      RunParser.deferredRun ??
+      (persistedDeferredRun
+        ? {
+            runId: persistedDeferredRun.id,
+            lastEventTimestamp: persistedDeferredRun.last_event,
+            captureRequired: persistedDeferredRun.capture_required === 1,
+            closingEventId: persistedDeferredRun.closing_event_id,
+          }
+        : null);
+    if (!deferredRun) return true;
+
+    if ('captureRequired' in deferredRun && deferredRun.captureRequired) {
+      if (!deferredRun.closingEventId) {
+        throw new Error(`Deferred run ${deferredRun.runId} has no closing event`);
+      }
+      await InventoryGetter.captureAndPersistInventory(
+        deferredRun.lastEventTimestamp,
+        ({ diff, currentInventory }) =>
+          ItemParser.insertItemsAndInventoryBaseline(
+            diff,
+            deferredRun.lastEventTimestamp,
+            deferredRun.closingEventId,
+            dayjs().toISOString(),
+            currentInventory
+          ),
+        true
+      );
+      await DB.completeDeferredCapture(
+        deferredRun.runId,
+        deferredRun.closingEventId
+      );
+    }
+
+    const runData = await RunParser.processRun(
+      deferredRun.lastEventTimestamp,
+      deferredRun.runId
+    );
+    if (!runData) return false;
+
+    await DB.clearDeferredRun(deferredRun.runId);
+    RunParser.deferredRun = null;
+    RunParser.emitter.emit('run-parser:run-processed', runData);
+    return true;
+  },
+
+  tryProcessOnce: async (parameters: RunProcessRequest | null) => {
+    RunParser.accountingDeferred = false;
     let event: ParsedEvent;
     let wasGivenEvent: boolean = false;
     const isExplicitEnd = parameters?.reason === 'explicit-end';
@@ -986,12 +1146,25 @@ const RunParser = {
     }
 
     // Update the last event timestamp in the database
-    await DB.updateLastEvent(event.timestamp);
+    const updatedLastEvent = await DB.updateLastEvent(event.timestamp);
+    if (!updatedLastEvent) {
+      logger.error(`Unable to persist map completion boundary ${event.timestamp}`);
+      return false;
+    }
 
     const lastEventTimestamp = event.timestamp;
 
     // Get all the enter events from the beginning of the latest uncompleted run
-    const mapEvents = await RunParser.getLatestUnusedMapEnteredEvents();
+    let mapEvents = await RunParser.getLatestUnusedMapEnteredEvents();
+    if (isExplicitEnd && !mapEvents.some((event) => !Utils.isTown(event.area))) {
+      const previousMapEnterEvent = await RunParser.getLastMapEnterEvent();
+      if (previousMapEnterEvent && !Utils.isTown(previousMapEnterEvent.area)) {
+        logger.info(
+          `Using previous map entry ${previousMapEnterEvent.area} for explicit completion`
+        );
+        mapEvents = [previousMapEnterEvent];
+      }
+    }
     if (mapEvents.length < 1) {
       logger.debug('No map enter events found');
       return false;
@@ -1039,11 +1212,7 @@ const RunParser = {
       }
 
       // Check if the area is the same as the last one entered, but not the same server (since the case above it handles it)
-      else if (
-        !isExplicitEnd &&
-        wasGivenEvent &&
-        event.area === [...mapEvents].reverse()[0].area
-      ) {
+      else if (!isExplicitEnd && wasGivenEvent && event.area === [...mapEvents].reverse()[0].area) {
         logger.debug('Same Area, this is probably a mirage');
         return false;
       }
@@ -1054,12 +1223,74 @@ const RunParser = {
     // if (!lastEvent) return;
     // logger.debug('Last town event found:\n', JSON.stringify(lastEvent));
 
+    let targetRunId: number | null = null;
     try {
       logger.debug(`Processing run for area: ${event.area} at ${lastEventTimestamp}`);
-      const runData = await RunParser.processRun(lastEventTimestamp);
+      const targetRun = await DB.getLatestUncompletedRun();
+      targetRunId = targetRun?.id ?? null;
+      if (targetRunId && !isExplicitEnd) {
+        await DB.markRunDeferred(targetRunId, lastEventTimestamp, isExplicitEnd);
+      }
+      if (isExplicitEnd) {
+        const closingEventId = await RunParser.insertEvent({
+          event_type: 'entered',
+          event_text: event.area,
+          timestamp: lastEventTimestamp,
+          server: event.server,
+        });
+        if (!closingEventId) {
+          throw new Error('Unable to persist the explicit map-end closing event');
+        }
+        if (targetRunId) {
+          await DB.markRunDeferred(
+            targetRunId,
+            lastEventTimestamp,
+            true,
+            closingEventId
+          );
+        }
+        await InventoryGetter.captureAndPersistInventory(
+          lastEventTimestamp,
+          ({ diff, currentInventory }) =>
+            ItemParser.insertItemsAndInventoryBaseline(
+              diff,
+              lastEventTimestamp,
+              closingEventId,
+              dayjs().toISOString(),
+              currentInventory
+            ),
+          true
+        );
+        if (targetRunId) {
+          await DB.completeDeferredCapture(targetRunId, closingEventId);
+        }
+      }
+      const runData = await RunParser.processRun(
+        lastEventTimestamp,
+        targetRunId,
+        isExplicitEnd
+      );
+      if (!runData) {
+        RunParser.accountingDeferred = true;
+        if (targetRunId) {
+          RunParser.deferredRun = { runId: targetRunId, lastEventTimestamp };
+        }
+        logger.warn('Run accounting is not ready; leaving the run open for a later retry');
+        return false;
+      }
+      if (RunParser.deferredRun?.runId === targetRunId) {
+        RunParser.deferredRun = null;
+      }
+      if (targetRunId) {
+        await DB.clearDeferredRun(targetRunId);
+      }
       RunParser.emitter.emit('run-parser:run-processed', runData);
       RunParser.resetRunData();
     } catch (e) {
+      if (targetRunId) {
+        RunParser.accountingDeferred = true;
+        RunParser.deferredRun = null;
+      }
       logger.error(`Error processing run: ${e}`);
       return false;
     }
@@ -1148,7 +1379,7 @@ const RunParser = {
 
   insertEvent: async (event: Event) => {
     logger.debug('Inserting event:', event);
-    await DB.insertEvent(event);
+    return DB.insertEvent(event);
   },
 
   startRun: async (area: string, level: number, name: string) => {

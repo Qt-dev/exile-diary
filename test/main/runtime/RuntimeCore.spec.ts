@@ -78,7 +78,7 @@ jest.mock('../../../src/main/StatsManager', () => ({
   __esModule: true,
   default: statsManagerMock,
 }));
-jest.mock('../../../src/main/modules/ItemPricer', () => ({
+jest.mock('../../../src/main/pricing/matching/ItemPricer', () => ({
   __esModule: true,
   default: itemPricerMock,
 }));
@@ -101,7 +101,7 @@ jest.mock('../../../src/main/modules/KillTracker', () => ({
   __esModule: true,
   default: killTrackerMock,
 }));
-jest.mock('../../../src/main/modules/RateGetterV2', () => ({
+jest.mock('../../../src/main/pricing/PricingService', () => ({
   __esModule: true,
   default: ratesMock,
 }));
