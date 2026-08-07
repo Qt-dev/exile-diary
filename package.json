@@ -264,7 +264,7 @@
     "jest-watch-typeahead": "^3.0.1",
     "mobx": "^6.16.1",
     "mobx-react-lite": "^3.4.3",
-    "postcss": "^8.5.16",
+    "postcss": "^8.5.25",
     "postcss-flexbugs-fixes": "^5.0.2",
     "postcss-normalize": "^13.0.1",
     "postcss-preset-env": "^10.6.1",
