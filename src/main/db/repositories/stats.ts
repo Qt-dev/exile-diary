@@ -89,7 +89,7 @@ const stats = {
     const query = `
       SELECT run.id, area_info.name AS area, item.*
       FROM item, run, area_info, event
-      WHERE item.value > ?
+      WHERE item.value >= ?
       AND item.event_id = event.id
       AND item.ignored = 0
       AND DATETIME(event.timestamp) BETWEEN DATETIME(run.first_event) AND DATETIME(run.last_event)
@@ -184,9 +184,9 @@ const stats = {
           : ''
       }
       ${deaths ? `AND deaths BETWEEN ${deaths.min} AND ${deaths.max} ` : ''}
-      AND itemcount.items > 0
+      ${neededItemName ? 'AND itemcount.items > 0' : ''}
       AND json_extract(run_info, '$.ignored') IS NULL
-      AND gained > ?
+      AND gained >= ?
       AND DATETIME(run.first_event) BETWEEN DATETIME(?) AND DATETIME(?)
       ORDER BY run.id desc
     `;
@@ -224,7 +224,7 @@ const stats = {
     const query = `
       SELECT run.id AS map_id, area_info.name AS area, item.*
       FROM item, run, area_info, event
-      WHERE item.value > ?
+      WHERE item.value >= ?
       AND item.event_id = event.id
       AND item.ignored = 0
       AND DATETIME(event.timestamp) BETWEEN DATETIME(run.first_event) AND DATETIME(run.last_event)

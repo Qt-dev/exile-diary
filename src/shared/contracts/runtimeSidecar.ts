@@ -38,6 +38,7 @@ export const runtimeMethodKeys = [
   'runTracking.tryProcess',
   'runTracking.tryUpdateCurrentArea',
   'runTracking.getLatestGeneratedArea',
+  'runTracking.captureInventory',
   'pricing.getCurrencyByName',
   'pricing.updateRates',
   'stats.triggerProfitPerHourAnnouncer',

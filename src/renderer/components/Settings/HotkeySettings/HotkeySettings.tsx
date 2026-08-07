@@ -17,6 +17,9 @@ const HotkeySettings = ({ settings, revalidate }) => {
   const [screenshotShortcut, setScreenshotShortcut] = React.useState(
     settings.screenshotShortcut || 'CommandOrControl+F8'
   );
+  const [inventoryCaptureShortcut, setInventoryCaptureShortcut] = React.useState(
+    settings.inventoryCaptureShortcut || 'CommandOrControl+F11'
+  );
   const [overlayToggleShortcut, setOverlayToggleShortcut] = React.useState(
     settings.overlayToggleShortcut || 'CommandOrControl+F7'
   );
@@ -36,12 +39,14 @@ const HotkeySettings = ({ settings, revalidate }) => {
     return (
       runParseShortcut !== (settings.runParseShortcut || 'CommandOrControl+F10') ||
       screenshotShortcut !== (settings.screenshotShortcut || 'CommandOrControl+F8') ||
+      inventoryCaptureShortcut !== (settings.inventoryCaptureShortcut || 'CommandOrControl+F11') ||
       overlayToggleShortcut !== (settings.overlayToggleShortcut || 'CommandOrControl+F7') ||
       overlayMovementShortcut !== (settings.overlayMovementShortcut || 'CommandOrControl+F9')
     );
   }, [
     runParseShortcut,
     screenshotShortcut,
+    inventoryCaptureShortcut,
     overlayToggleShortcut,
     overlayMovementShortcut,
     settings,
@@ -113,6 +118,9 @@ const HotkeySettings = ({ settings, revalidate }) => {
         case 'screenshot':
           setScreenshotShortcut(formatted);
           break;
+        case 'inventoryCapture':
+          setInventoryCaptureShortcut(formatted);
+          break;
         case 'overlayToggle':
           setOverlayToggleShortcut(formatted);
           break;
@@ -141,6 +149,8 @@ const HotkeySettings = ({ settings, revalidate }) => {
         return runParseShortcut;
       case 'screenshot':
         return screenshotShortcut;
+      case 'inventoryCapture':
+        return inventoryCaptureShortcut;
       case 'overlayToggle':
         return overlayToggleShortcut;
       case 'overlayMovement':
@@ -205,6 +215,7 @@ const HotkeySettings = ({ settings, revalidate }) => {
   const handleResetShortcuts = () => {
     setRunParseShortcut('CommandOrControl+F10');
     setScreenshotShortcut('CommandOrControl+F8');
+    setInventoryCaptureShortcut('CommandOrControl+F11');
     setOverlayToggleShortcut('CommandOrControl+F7');
     setOverlayMovementShortcut('CommandOrControl+F9');
   };
@@ -213,6 +224,7 @@ const HotkeySettings = ({ settings, revalidate }) => {
     // Reset all shortcuts to original settings values
     setRunParseShortcut(settings.runParseShortcut || 'CommandOrControl+F10');
     setScreenshotShortcut(settings.screenshotShortcut || 'CommandOrControl+F8');
+    setInventoryCaptureShortcut(settings.inventoryCaptureShortcut || 'CommandOrControl+F11');
     setOverlayToggleShortcut(settings.overlayToggleShortcut || 'CommandOrControl+F7');
     setOverlayMovementShortcut(settings.overlayMovementShortcut || 'CommandOrControl+F9');
   };
@@ -223,6 +235,7 @@ const HotkeySettings = ({ settings, revalidate }) => {
     const data = {
       runParseShortcut: runParseShortcut,
       screenshotShortcut: screenshotShortcut,
+      inventoryCaptureShortcut,
       overlayToggleShortcut: overlayToggleShortcut,
       overlayMovementShortcut: overlayMovementShortcut,
     };
@@ -281,6 +294,17 @@ const HotkeySettings = ({ settings, revalidate }) => {
         </Box>
 
         <Divider />
+
+        {/* Run Completion */}
+        <Divider />
+        <Box>
+          <h4 style={{ marginBottom: '10px' }}>Inventory Capture</h4>
+          <ShortcutTextField
+            fieldName="inventoryCapture"
+            label="Capture Inventory"
+            helperText="Fetch current inventory and record newly acquired items"
+          />
+        </Box>
 
         {/* Run Completion */}
         <Box>

@@ -81,6 +81,51 @@ describe('Items', () => {
       );
     });
 
+    it('uses an exact event id when one is provided', async () => {
+      const mockItems = [
+        [
+          'item1',
+          '2023-01-01T12:00:00.000Z',
+          'icon1.png',
+          'Item Name',
+          'Rare',
+          'Currency',
+          1,
+          'Chaos Orb',
+          '',
+          1,
+          '{"raw":"data"}',
+          1,
+          1,
+          null,
+        ],
+      ];
+
+      await Items.insertItems(mockItems, 42);
+
+      expect(mockDB.transaction).toHaveBeenCalledWith(
+        expect.stringContaining('values(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)'),
+        [
+          [
+            'item1',
+            42,
+            'icon1.png',
+            'Item Name',
+            'Rare',
+            'Currency',
+            1,
+            'Chaos Orb',
+            '',
+            1,
+            '{"raw":"data"}',
+            1,
+            1,
+            null,
+          ],
+        ]
+      );
+    });
+
     it('should handle database transaction failure', async () => {
       const mockItems = [
         [
@@ -157,6 +202,65 @@ describe('Items', () => {
       expect(expectedQuery).toContain('value');
       expect(expectedQuery).toContain('original_value');
       expect(expectedQuery).toContain('valuation');
+    });
+  });
+
+  describe('insertItemsAndInventory', () => {
+    it('commits exact-event item rows and the inventory baseline in one transaction', async () => {
+      const item = [
+        'item1',
+        '2023-01-01T12:00:00.000Z',
+        'icon1.png',
+        'Item Name',
+        'Rare',
+        'Currency',
+        1,
+        'Chaos Orb',
+        '',
+        1,
+        '{"raw":"data"}',
+        1,
+        1,
+        null,
+      ];
+      const inventory = { item1: { id: 'item1' } };
+
+      await Items.insertItemsAndInventory(
+        [item],
+        42,
+        '2023-01-01T12:02:00.000Z',
+        inventory,
+        [{ id: 'item1', status: true }]
+      );
+
+      expect(mockDB.transactionSteps).toHaveBeenCalledWith([
+        {
+          query: expect.stringContaining(
+            'values(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)'
+          ),
+          params: [
+            'item1',
+            42,
+            'icon1.png',
+            'Item Name',
+            'Rare',
+            'Currency',
+            1,
+            'Chaos Orb',
+            '',
+            1,
+            '{"raw":"data"}',
+            1,
+            1,
+            null,
+            1,
+          ],
+        },
+        {
+          query: 'INSERT INTO last_inventory(timestamp, inventory) VALUES(?, ?)',
+          params: ['2023-01-01T12:02:00.000Z', JSON.stringify(inventory)],
+        },
+      ]);
     });
   });
 

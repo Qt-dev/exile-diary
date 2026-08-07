@@ -5,7 +5,7 @@ import League from '../db/repositories/league';
 import ItemDB from '../db/repositories/items';
 import RendererLogger from '../RendererLogger';
 import IgnoreManager from '../../helpers/ignoreManager';
-import RateGetterV2 from '../modules/RateGetterV2';
+import PricingService from '../pricing/PricingService';
 import * as ClientTxtWatcher from '../modules/ClientTxtWatcher';
 import SearchManager from '../SearchManager';
 import StatsManager from '../StatsManager';
@@ -141,6 +141,7 @@ const runtimeMethodHandlers: Record<RuntimeMethodKey, (...args: any[]) => Promis
   'runTracking.tryProcess': async (payload) => runtimeCore.runTracking.tryProcess(payload),
   'runTracking.tryUpdateCurrentArea': async () => runtimeCore.runTracking.tryUpdateCurrentArea(),
   'runTracking.getLatestGeneratedArea': async () => runtimeCore.runTracking.latestGeneratedArea,
+  'runTracking.captureInventory': async () => runtimeCore.runTracking.captureInventory(),
   'pricing.getCurrencyByName': async (...args) =>
     runtimeCore.pricing.getCurrencyByName(...(args as [string, string?, string?])),
   'pricing.updateRates': async () => runtimeCore.pricing.updateRates(),
@@ -333,7 +334,7 @@ async function startBackgroundRuntime() {
   runtimeStarted = true;
   sidecarLogger.info('Starting runtime sidecar background services');
 
-  RateGetterV2.initialize({
+  PricingService.initialize({
     postUpdateCallback: async () => {
       sendEvent(runtimeSidecarEventNames.rendererLog, {
         messages: [{ text: "Today's prices have been updated" }],

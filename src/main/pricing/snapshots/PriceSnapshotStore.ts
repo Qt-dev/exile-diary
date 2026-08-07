@@ -1,7 +1,7 @@
-import DB from './db/repositories/rates';
-// TODO: Flesh this out later from RatesGetterV2
+import DB from '../../db/repositories/rates';
+import { readSnapshotCategories } from './legacySnapshotAdapter';
 
-class RatesManager {
+class PriceSnapshotStore {
   rates: {
     [key: string]: {
       [key: string]: any;
@@ -9,7 +9,7 @@ class RatesManager {
   } = {};
 
   async fetchRatesForDay(league: string, date: string): Promise<any> {
-    const rates = await DB.getFullRates(league, date);
+    const rates = readSnapshotCategories(await DB.getFullRates(league, date));
     this.rates[date] = this.rates[date] || {};
     this.rates[date][league] = rates;
     return rates;
@@ -31,6 +31,6 @@ class RatesManager {
   }
 }
 
-const ratesManager = new RatesManager();
+const ratesManager = new PriceSnapshotStore();
 
 export default ratesManager;

@@ -12,7 +12,7 @@ class StashTabsManager {
     return maps >= limit;
   }
 
-  async getStashData(date: string = dayjs().toISOString()): Promise<any> {
+  async getStashData(date: string = dayjs().format('YYYYMMDDHHmmss')): Promise<any> {
     const league = SettingsManager.get('activeProfile').league;
     const data = await DB.getStashData(date, league);
     const items =

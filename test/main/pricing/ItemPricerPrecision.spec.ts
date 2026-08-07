@@ -33,7 +33,7 @@ const settingsGetMock = jest.fn((key: string) => {
   return null;
 });
 
-jest.mock('../../../src/main/RatesManager', () => ({
+jest.mock('../../../src/main/pricing/snapshots/PriceSnapshotStore', () => ({
   __esModule: true,
   default: {
     fetchRatesForDay: (...args: any[]) => fetchRatesForDayMock(...args),
@@ -61,7 +61,7 @@ describe('ItemPricer precision metadata', () => {
   });
 
   it('returns a snapshot id and lookup trail for replayable valuations', async () => {
-    const ItemPricer = require('../../../src/main/modules/ItemPricer').default;
+    const ItemPricer = require('../../../src/main/pricing/matching/ItemPricer').default;
 
     const item = {
       id: 'divine-1',
@@ -124,7 +124,7 @@ describe('ItemPricer precision metadata', () => {
   });
 
   it('recognizes the Allflame map series generation', () => {
-    const { MAP_SERIES } = require('../../../src/main/modules/ItemPricer');
+    const { MAP_SERIES } = require('../../../src/main/pricing/matching/ItemPricer');
 
     expect(MAP_SERIES).toContainEqual({ id: 25, name: 'Allflame' });
   });

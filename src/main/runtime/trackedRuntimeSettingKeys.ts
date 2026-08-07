@@ -11,6 +11,7 @@ export const trackedRuntimeSettingKeys = [
   'screenshots',
   'runParseShortcut',
   'screenshotShortcut',
+  'inventoryCaptureShortcut',
   'overlayToggleShortcut',
   'overlayMovementShortcut',
   'overlayEnabled',

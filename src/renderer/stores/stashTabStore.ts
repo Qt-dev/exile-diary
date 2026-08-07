@@ -11,25 +11,83 @@ export default class StashTabStore {
   isLoading = false;
   itemStore: ItemStore = new ItemStore([]);
   value: number = 0;
+  hasLoaded = false;
+  private loadPromise: Promise<void> | null = null;
+  private loadedProfileKey: string | null = null;
+  private loadingProfileKey: string | null = null;
+  private desiredProfileKey: string | null = null;
 
   constructor() {
     makeAutoObservable(this);
-  }
-
-  async fetchStashTabs() {
-    logger.info('Fetching stash tabs for StashTabStore');
-    this.isLoading = true;
-    const { stashTabs, data } = await electronService.getStashTabs();
-    this.createStashTabs(stashTabs);
-    this.itemStore.createItems(data.items);
-    this.value = data.value;
-
     electronService.on('stashTabsUpdated', (stashTabsData) => {
       const tabs = stashTabsData.tabs;
       logger.info(`Received stash tabs update from backend for ${tabs.length} stash tabs.`);
       this.itemStore.createItems(tabs.items);
       this.value = tabs.value;
     });
+  }
+
+  async fetchStashTabs() {
+    const settings = await electronService.getSettings();
+    const activeProfile = settings?.activeProfile;
+    const profileKey = `${settings?.username ?? ''}:${activeProfile?.characterName ?? ''}:${activeProfile?.league ?? ''}`;
+    this.desiredProfileKey = profileKey;
+    if (this.loadPromise) {
+      if (this.loadingProfileKey === profileKey) return this.loadPromise;
+      runInAction(() => {
+        this.stashTabs = [];
+        this.itemStore.createItems([]);
+        this.value = 0;
+        this.hasLoaded = false;
+      });
+      try {
+        await this.loadPromise;
+      } catch {
+        // The newly selected profile still needs its own request.
+      }
+      return this.fetchStashTabs();
+    }
+
+    logger.info('Fetching stash tabs for StashTabStore');
+    this.isLoading = true;
+    this.loadingProfileKey = profileKey;
+    this.loadPromise = (async () => {
+      try {
+        if (this.loadedProfileKey !== null && this.loadedProfileKey !== profileKey) {
+          runInAction(() => {
+            this.stashTabs = [];
+            this.itemStore.createItems([]);
+            this.value = 0;
+            this.hasLoaded = false;
+          });
+        }
+
+        const response = await electronService.getStashTabs();
+        if (this.desiredProfileKey !== profileKey) return;
+        const stashTabs = response.stashTabs ?? [];
+        this.createStashTabs(stashTabs);
+        this.itemStore.createItems(response.data?.items ?? []);
+        this.value = response.data?.value ?? 0;
+        this.hasLoaded = stashTabs.length > 0;
+        this.loadedProfileKey = profileKey;
+      } catch (error) {
+        logger.error('Failed to fetch stash tabs for StashTabStore', error);
+        throw error;
+      } finally {
+        this.isLoading = false;
+        this.loadPromise = null;
+        this.loadingProfileKey = null;
+      }
+    })();
+    return this.loadPromise;
+  }
+
+  async ensureLoaded() {
+    const settings = await electronService.getSettings();
+    const activeProfile = settings?.activeProfile;
+    const profileKey = `${settings?.username ?? ''}:${activeProfile?.characterName ?? ''}:${activeProfile?.league ?? ''}`;
+    if (this.hasLoaded && this.loadedProfileKey === profileKey) return;
+    await this.fetchStashTabs();
   }
 
   @computed getStashTab(id: string) {

@@ -59,8 +59,8 @@ export default class ItemStore {
     });
   }
 
-  groupItemsPerType(ignoredItems: boolean = false) {
-    const items = ignoredItems ? this.ignoredItems : this.acceptedItems;
+  groupItemsPerType(ignoredItems: boolean = false, includeIgnored: boolean = false) {
+    const items = includeIgnored ? this.items : ignoredItems ? this.ignoredItems : this.acceptedItems;
     const grouped: any[] = [];
     items
       .map((item) => item.toLootTable())
@@ -103,8 +103,8 @@ export default class ItemStore {
     return grouped;
   }
 
-  @computed getItemsForLootTable(key: string, order: Order) {
-    return this.groupItemsPerType().sort((a, b) => {
+  @computed getItemsForLootTable(key: string, order: Order, includeIgnored: boolean = false) {
+    return this.groupItemsPerType(false, includeIgnored).sort((a, b) => {
       let first = a;
       let second = b;
       if (order === 'asc') {

@@ -36,6 +36,24 @@ import dayjs from 'dayjs';
 // 'Veritania, the Redeemer'
 // 'Drox, the Warlord'
 
+const shrineIconUrls = import.meta.glob('../../assets/img/shrineicons/*.png', {
+  eager: true,
+  import: 'default',
+}) as Record<string, string>;
+
+const metamorphIconUrls = import.meta.glob('../../assets/img/metamorphicons/*.png', {
+  eager: true,
+  import: 'default',
+}) as Record<string, string>;
+
+const getShrineIconUrl = (shrine: string) =>
+  shrineIconUrls[`../../assets/img/shrineicons/${shrine.replace(' Shrine', '')}.png`];
+
+const getMetamorphIconUrl = (organ: string) =>
+  metamorphIconUrls[
+    `../../assets/img/metamorphicons/${organ.replace(/\s+/g, '').toLowerCase()}.png`
+  ];
+
 const ConquerorsMap = {
   'Baran, the Crusader': BaranIcon,
   'Al-Hezmin, the Hunter': AlHezminIcon,
@@ -302,10 +320,11 @@ const iconMap = {
       alt: 'Contained a Metamorph Encounter',
       additionalIcons: info.metamorph
         ? Object.keys(info?.metamorph).map((organ) => {
-            const Icon = require(`../../assets/img/metamorphicons/${organ}.png`);
+            const iconUrl = getMetamorphIconUrl(organ);
+            if (!iconUrl) return null;
             return (
               <Tooltip title={`${organ} x ${info.metamorph[organ]}`}>
-                <img className="Run-Event__Mini-Icon" src={Icon} alt={organ} />
+                <img className="Run-Event__Mini-Icon" src={iconUrl} alt={organ} />
               </Tooltip>
             );
           })
@@ -326,10 +345,11 @@ const iconMap = {
       alt: `Contained ${info?.shrines?.length} Shrine${info?.shrines?.length > 1 ? 's' : ''}`,
       additionalIcons: info?.shrines?.map((shrine) => {
         if (shrine) {
-          const Icon = require(`../../assets/img/shrineicons/${shrine.replace(' Shrine', '')}.png`);
+          const iconUrl = getShrineIconUrl(shrine);
+          if (!iconUrl) return null;
           return (
             <Tooltip title={shrine}>
-              <img className="Run-Event__Mini-Icon" src={Icon} alt={shrine} />
+              <img className="Run-Event__Mini-Icon" src={iconUrl} alt={shrine} />
             </Tooltip>
           );
         } else {

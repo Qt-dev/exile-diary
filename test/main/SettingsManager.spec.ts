@@ -56,7 +56,7 @@ jest.mock('../../src/main/db', () => ({
   },
 }));
 
-jest.mock('../../src/main/modules/RateGetterV2', () => ({
+jest.mock('../../src/main/pricing/PricingService', () => ({
   __esModule: true,
   default: {
     update: (...args: unknown[]) => rateGetterUpdate(...args),
