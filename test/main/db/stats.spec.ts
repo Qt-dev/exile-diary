@@ -181,7 +181,7 @@ describe('stats', () => {
 
       const result = await stats.getAllItemsForDates(from, to, minLootValue);
 
-      expect(mockDB.all).toHaveBeenCalledWith(expect.stringContaining('WHERE item.value > ?'), [
+      expect(mockDB.all).toHaveBeenCalledWith(expect.stringContaining('WHERE item.value >= ?'), [
         minLootValue,
         from,
         to,
@@ -196,7 +196,10 @@ describe('stats', () => {
 
       await stats.getAllItemsForDates(from, to);
 
-      expect(mockDB.all).toHaveBeenCalledWith(expect.any(String), [0, from, to]);
+      const [calledQuery, calledParams] = mockDB.all.mock.calls[0];
+      expect(calledParams).toEqual([0, from, to]);
+      expect(calledQuery).toContain('WHERE item.value >= ?');
+      expect(calledQuery).not.toContain('item.value > ?');
     });
 
     it('should return empty array when database query fails', async () => {
@@ -220,7 +223,8 @@ describe('stats', () => {
 
       const calledQuery = mockDB.all.mock.calls[0][0];
 
-      expect(calledQuery).toContain('WHERE item.value > ?');
+      expect(calledQuery).toContain('WHERE item.value >= ?');
+      expect(calledQuery).not.toContain('item.value > ?');
       expect(calledQuery).toContain(
         'AND DATETIME(run.first_event) BETWEEN DATETIME(?) AND DATETIME(?)'
       );
@@ -343,7 +347,8 @@ describe('stats', () => {
       expect(calledQuery).toContain('itemcount.run_id = run.id');
       expect(calledQuery).toContain('AND area_info.name IN (?)');
       expect(calledQuery).toContain('AND (run.iiq BETWEEN');
-      expect(calledQuery).toContain('AND gained > ?');
+      expect(calledQuery).toContain('AND gained >= ?');
+      expect(calledQuery).not.toContain('AND gained > ?');
       expect(calledQuery).toContain('ORDER BY run.id desc');
     });
   });
