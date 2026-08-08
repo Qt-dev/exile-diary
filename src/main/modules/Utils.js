@@ -423,7 +423,9 @@ const Utils = {
   },
 
   poeRunning: async () => {
-    const processList = await require('ps-list')();
+    const psListModule = require('ps-list');
+    const psList = psListModule.default || psListModule;
+    const processList = await psList();
     return processList.some((proc) => {
       // cannot use Process for var name
       const formattedProcess = proc.name.toLowerCase();
