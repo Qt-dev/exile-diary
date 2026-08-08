@@ -71,7 +71,7 @@ export class PoeNinjaRequester {
     }
   }
 
-  private async requestJson(path: string, etag?: string): Promise<{ body: unknown; etag?: string; unchanged: boolean }> {
+  private async requestJson(path: string, etag?: string): Promise<{ body?: unknown; etag?: string; unchanged: boolean }> {
     let failure: unknown;
     const maxAttempts = this.options.maxAttempts ?? 3;
     for (let attempt = 0; attempt < maxAttempts; attempt += 1) {
