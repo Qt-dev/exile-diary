@@ -111,18 +111,18 @@ async function main() {
     if (args.command !== 'publish' || args.leagues.length !== 1) {
       throw new Error('Rollback requires publish mode and exactly one --league value.');
     }
-    const result = await new PricingPublisher(storage, new PoeNinjaRequester()).rollbackLeague(args.leagues[0], args.rollbackSnapshotId);
+    const result = await new PricingPublisher(storage, PoeNinjaRequester.fromEnvironment()).rollbackLeague(args.leagues[0], args.rollbackSnapshotId);
     process.stdout.write(`${JSON.stringify({ command: args.command, rollback: true, ...result }, null, 2)}\n`);
     return;
   }
-  const requester = new PoeNinjaRequester();
+  const requester = PoeNinjaRequester.fromEnvironment();
   const leagues = args.leagues.length ? args.leagues : await requester.getLeagues();
   const result = await new PricingPublisher(storage, requester).publishLeagues(
     leagues,
     args.forceFullRefresh,
     args.leagues.length === 0
   );
-  process.stdout.write(`${JSON.stringify({ command: args.command, dryRun: args.dryRun, ...result }, null, 2)}\n`);
+  process.stdout.write(`${JSON.stringify({ command: args.command, dryRun: args.dryRun, ...result, failed: result.failed.map(({ league, error }) => ({ league, error: error.message })) }, null, 2)}\n`);
   if (result.failed.length) process.exitCode = 1;
 }
 

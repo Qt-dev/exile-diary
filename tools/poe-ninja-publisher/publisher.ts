@@ -10,12 +10,38 @@ type CategoryState = { etag?: string; value: unknown; catalogRevision: string };
 const encoder = new TextEncoder(); const decoder = new TextDecoder();
 const objectKey = (path: string) => path.replace(/^\//, '');
 
-function assertCategoryPayload(category: PoeNinjaCategory, value: unknown): asserts value is { lines: unknown[]; items?: unknown[] } {
+function assertCategoryPayload(category: PoeNinjaCategory, value: unknown): asserts value is { lines: Array<Record<string, unknown>>; items?: Array<Record<string, unknown>>; core?: Record<string, unknown> } {
   if (!value || typeof value !== 'object' || !Array.isArray((value as any).lines)) {
     throw new Error(`Malformed ${category} category payload: lines must be an array`);
   }
-  if (POE_NINJA_CATEGORIES[category].endpoint === 'exchange' && !Array.isArray((value as any).items)) {
-    throw new Error(`Malformed ${category} category payload: items must be an array`);
+  const payload = value as any;
+  for (const [index, line] of payload.lines.entries()) {
+    if (!line || typeof line !== 'object') throw new Error(`Malformed ${category} category payload: line ${index} must be an object`);
+  }
+  if (POE_NINJA_CATEGORIES[category].endpoint === 'exchange') {
+    if (!Array.isArray(payload.items)) throw new Error(`Malformed ${category} category payload: items must be an array`);
+    if (!payload.core || typeof payload.core !== 'object' || payload.core.primary !== 'chaos' || !Array.isArray(payload.core.items)) {
+      throw new Error(`Malformed ${category} category payload: core must declare chaos primary and items`);
+    }
+    const names = new Map<string, string>();
+    for (const [index, item] of payload.items.entries()) {
+      if (!item || typeof item !== 'object' || typeof item.id !== 'string' || !item.id || typeof item.name !== 'string' || !item.name) {
+        throw new Error(`Malformed ${category} category payload: item ${index} must have an id and name`);
+      }
+      names.set(item.id, item.name);
+    }
+    for (const [index, line] of payload.lines.entries()) {
+      if (typeof line.id !== 'string' || !line.id || typeof line.primaryValue !== 'number' || !Number.isFinite(line.primaryValue)) {
+        throw new Error(`Malformed ${category} category payload: line ${index} must have an id and finite primaryValue`);
+      }
+      if (!names.has(line.id)) throw new Error(`Malformed ${category} category payload: line ${index} references unknown item ${line.id}`);
+    }
+    return;
+  }
+  for (const [index, line] of payload.lines.entries()) {
+    if (typeof line.name !== 'string' || !line.name || typeof line.chaosValue !== 'number' || !Number.isFinite(line.chaosValue)) {
+      throw new Error(`Malformed ${category} category payload: line ${index} must have a name and finite chaosValue`);
+    }
   }
 }
 
