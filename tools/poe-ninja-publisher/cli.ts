@@ -122,7 +122,7 @@ async function main() {
     args.forceFullRefresh,
     args.leagues.length === 0
   );
-  process.stdout.write(`${JSON.stringify({ command: args.command, dryRun: args.dryRun, ...result }, null, 2)}\n`);
+  process.stdout.write(`${JSON.stringify({ command: args.command, dryRun: args.dryRun, ...result, failed: result.failed.map(({ league, error }) => ({ league, error: error.message })) }, null, 2)}\n`);
   if (result.failed.length) process.exitCode = 1;
 }
 
