@@ -114,16 +114,19 @@ export default function Strategies() {
   const editor = (
     <div className="Strategies__Editor">
       <TextField
+        size="small"
         label="Name"
         value={input.name}
         onChange={(event) => setInput({ ...input, name: event.target.value })}
       />
       <TextField
+        size="small"
         label="Description"
         value={input.description}
         onChange={(event) => setInput({ ...input, description: event.target.value })}
       />
       <TextField
+        size="small"
         label="Cost per map (chaos)"
         type="number"
         value={input.costPerMap}
