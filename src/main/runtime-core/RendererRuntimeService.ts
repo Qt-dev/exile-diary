@@ -4,12 +4,14 @@ import {
   pickRendererSettingsUseCaseDependencies,
   pickRendererStashUseCaseDependencies,
   pickRendererStatsUseCaseDependencies,
+  pickRendererStrategyUseCaseDependencies,
   RendererRuntimeDependencies,
 } from './rendererRuntimeDependencies';
 import { createRendererRunUseCases } from './use-cases/createRendererRunUseCases';
 import { createRendererSettingsUseCases } from './use-cases/createRendererSettingsUseCases';
 import { createRendererStashUseCases } from './use-cases/createRendererStashUseCases';
 import { createRendererStatsUseCases } from './use-cases/createRendererStatsUseCases';
+import { createRendererStrategyUseCases } from './use-cases/createRendererStrategyUseCases';
 
 export function createRendererRuntimeService(
   deps: RendererRuntimeDependencies = createDefaultRendererRuntimeDependencies()
@@ -19,6 +21,7 @@ export function createRendererRuntimeService(
     ...createRendererSettingsUseCases(pickRendererSettingsUseCaseDependencies(deps)),
     ...createRendererStashUseCases(pickRendererStashUseCaseDependencies(deps)),
     ...createRendererStatsUseCases(pickRendererStatsUseCaseDependencies(deps)),
+    ...createRendererStrategyUseCases(pickRendererStrategyUseCaseDependencies(deps)),
   };
 }
 

@@ -69,6 +69,7 @@ const SideNav = ({ version, isNewVersion, turnNewVersionOff }) => {
     { name: 'Stash', link: 'stash' },
     { name: 'Search', link: 'search' },
     { name: 'Stats', link: 'stats' },
+    { name: 'Strategies', link: 'strategies' },
     { name: 'Settings', link: 'settings' },
     { name: 'Help', link: 'help' },
   ];

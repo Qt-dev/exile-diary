@@ -35,6 +35,8 @@ vi.mock('../../src/renderer/electron.service', () => {
       refreshGlobals: vi.fn(),
       refreshProfitPerHour: vi.fn(),
       requestNetWorthRefresh: vi.fn(),
+      listStrategies: vi.fn().mockResolvedValue([]),
+      setRunStrategies: vi.fn().mockResolvedValue([]),
     },
   };
 });

@@ -7,6 +7,8 @@ import SettingsManager from './SettingsManager';
 import { Run } from '../helpers/types';
 import Constants from '../helpers/constants';
 import ItemPricer from './pricing/matching/ItemPricer';
+import Strategies from './db/repositories/strategies';
+import type { StrategyEconomics } from '../shared/strategies';
 const { areas } = Constants;
 
 dayjs.extend(duration);
@@ -14,6 +16,7 @@ dayjs.extend(duration);
 type GetStatsParams = {
   league?: string;
   characterName?: string;
+  strategyId?: number;
 };
 
 const booleanStatsKeys = [
@@ -919,16 +922,21 @@ class ProfitTracker {
 const profitTracker = new ProfitTracker();
 
 const statsManager = {
-  getAllStats: async ({ league, characterName }: GetStatsParams) => {
+  getAllStats: async ({ league, characterName, strategyId }: GetStatsParams = {}) => {
     const times: { step: string; timestamp: number }[] = [];
     const resolvedLeague = league ?? SettingsManager.get('activeProfile')?.league ?? 'Standard';
     times.push({ step: 'start', timestamp: performance.now() });
-    const runs = (await DB.getAllRuns())?.map(formatRun);
+    const strategy = strategyId ? await Strategies.get(strategyId) : null;
+    if (strategyId && !strategy) throw new Error('Strategy not found');
+    const taggedRuns = (await DB.getAllRuns({ strategyId })) ?? [];
+    const runs = taggedRuns
+      .filter((run: any) => !strategyId || Number(run.completed) === 1)
+      .map(formatRun);
     times.push({ step: 'retrieved runs', timestamp: performance.now() });
     logger.debug(
       `Successfully retrieved ${runs.length} runs in ${times[1].timestamp - times[0].timestamp} ms`
     );
-    const items = await DB.getAllItems(resolvedLeague);
+    const items = await DB.getAllItems(resolvedLeague, strategyId);
     times.push({ step: 'retrieved items', timestamp: performance.now() });
     logger.debug(
       `Successfully retrieved ${items.length} items in ${
@@ -949,7 +957,36 @@ const statsManager = {
     const manager = new StatsManager({ runs, items, divinePrice });
     times.push({ step: 'created manager', timestamp: performance.now() });
     logger.debug(`Successfully created manager in ${times[4].timestamp - times[3].timestamp} ms`);
-    return manager.stats;
+    if (!strategyId || !strategy) return manager.stats;
+
+    const completedRunCount = runs.length;
+    const incompleteRunCount = taggedRuns.filter((run: any) => Number(run.completed) !== 1).length;
+    const totalTimeSeconds = runs.reduce((total: number, run: any) => {
+      const start = dayjs(run.first_event);
+      const end = dayjs(run.last_event);
+      return total + Math.max(0, end.diff(start, 'second'));
+    }, 0);
+    const grossValue = Number(manager.stats.misc.valueOfDrops) || 0;
+    const totalCost = strategy.costPerMap * completedRunCount;
+    const netValue = grossValue - totalCost;
+    const grossPerMap = completedRunCount > 0 ? grossValue / completedRunCount : 0;
+    const netPerMap = completedRunCount > 0 ? netValue / completedRunCount : 0;
+    const grossPerHour = totalTimeSeconds > 0 ? (grossValue / totalTimeSeconds) * 3600 : 0;
+    const netPerHour = totalTimeSeconds > 0 ? (netValue / totalTimeSeconds) * 3600 : 0;
+    const economics: StrategyEconomics = {
+      taggedRunCount: taggedRuns.length,
+      completedRunCount,
+      incompleteRunCount,
+      totalTimeSeconds,
+      grossValue,
+      totalCost,
+      netValue,
+      grossPerMap,
+      netPerMap,
+      grossPerHour,
+      netPerHour,
+    };
+    return { ...manager.stats, strategy, economics };
   },
   getAllMapNames: async () => {
     const mapNames = await DB.getAllMapNames();

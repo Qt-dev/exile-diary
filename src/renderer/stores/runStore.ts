@@ -92,6 +92,12 @@ export default class RunStore {
     });
   }
 
+  async setRunStrategies(run: Run, strategyIds: number[]) {
+    const strategies = await electronService.setRunStrategies(run.runId, strategyIds);
+    run.strategies = Array.isArray(strategies) ? strategies : [];
+    return run.strategies;
+  }
+
   getSortedRuns(size = this.runs.length, page = 0) {
     const startingIndex = page * size;
     return this.runs

@@ -1,3 +1,5 @@
+import type { Strategy, StrategyInput, StrategyStatsResult } from '../strategies';
+
 export const invokeChannels = {
   getAppGlobals: 'app-globals',
   loadRuns: 'load-runs',
@@ -26,6 +28,12 @@ export const invokeChannels = {
   debugFetchStashTabs: 'debug:fetch-stash-tabs',
   getOverlayPersistence: 'overlay:get-persistence',
   updateItemsIgnoreStatus: 'items:filters:db-update',
+  listStrategies: 'strategies:list',
+  createStrategy: 'strategies:create',
+  updateStrategy: 'strategies:update',
+  deleteStrategy: 'strategies:delete',
+  setRunStrategies: 'run:strategies:set',
+  getStrategyStats: 'strategies:stats',
   getOverlayPosition: 'overlay:get-position',
   openFileDialog: 'open-file-dialog',
   showCharacterDbFile: 'show-character-db-file',
@@ -251,6 +259,12 @@ export interface ExileDiaryApi {
   getOverlayPersistence(): Promise<boolean>;
   getOverlayPosition(): Promise<OverlayPosition>;
   updateItemsIgnoreStatus(data: Array<{ id: string; status: boolean }>): Promise<void>;
+  listStrategies(): Promise<Strategy[]>;
+  createStrategy(input: StrategyInput): Promise<Strategy>;
+  updateStrategy(strategyId: number, input: StrategyInput): Promise<Strategy>;
+  deleteStrategy(strategyId: number): Promise<void>;
+  setRunStrategies(runId: string | number, strategyIds: number[]): Promise<any[]>;
+  getStrategyStats(strategyId: number): Promise<StrategyStatsResult>;
   openFileDialog(options: OpenFileDialogOptions): Promise<OpenFileDialogResult>;
   showCharacterDbFile(): Promise<void>;
   refreshUi(): void;

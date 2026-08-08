@@ -2,6 +2,7 @@ import { makeAutoObservable, computed } from 'mobx';
 import { v4 as uuidv4 } from 'uuid';
 import dayjs, { Dayjs } from 'dayjs';
 import ItemStore from '../itemStore';
+import type { RunStrategy } from '../../../shared/strategies';
 
 type JSONRun = {
   id: number;
@@ -55,6 +56,7 @@ export class Run {
   saveHandler = null;
   itemStore: ItemStore | null = null;
   mods: { mod: string }[] = [];
+  strategies: RunStrategy[] = [];
 
   constructor(store, options = {}) {
     const id = uuidv4();
@@ -88,6 +90,13 @@ export class Run {
     this.profitPerHour = this.profit / this.duration.asHours();
     this.kills = json.kills;
     this.runInfo = json.run_info ? JSON.parse(json.run_info) : {};
+    try {
+      this.strategies = Array.isArray(json.strategies)
+        ? json.strategies
+        : JSON.parse(json.strategies || '[]');
+    } catch {
+      this.strategies = [];
+    }
     this.lastUpdate = dayjs();
     this.completed = !!json.completed || false;
   }
@@ -99,6 +108,13 @@ export class Run {
     this.events = details.events;
     this.items = details.items;
     this.mods = details.mods || [];
+    try {
+      this.strategies = Array.isArray(details.strategies)
+        ? details.strategies
+        : JSON.parse(details.strategies || '[]');
+    } catch {
+      this.strategies = this.strategies || [];
+    }
     this.completed = !!details.completed || false;
 
     // Logger.debug('Building Store', details.items);

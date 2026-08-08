@@ -18,12 +18,24 @@ import classNames from 'classnames';
 import ChaosIcon from '../components/Pricing/ChaosIcon';
 import { useNavigate } from 'react-router-dom';
 import { observer } from 'mobx-react-lite';
+import { electronService } from '../electron.service';
+import StrategySelector from '../components/Strategies/StrategySelector';
+import type { Strategy } from '../../shared/strategies';
 
 const RunList = ({ NumbersOfMapsToShow = 10, store, isBoxed = true }) => {
   const navigate = useNavigate();
   const [runsPerPage, setrunsPerPage] = React.useState<number>(NumbersOfMapsToShow);
   const [isDrawerOpen, setIsDrawerOpen] = React.useState(false);
   const [page, setPage] = React.useState(0);
+  const [strategies, setStrategies] = React.useState<Strategy[]>([]);
+
+  React.useEffect(() => {
+    if (typeof electronService.listStrategies !== 'function') return;
+    void electronService
+      .listStrategies()
+      .then((loaded) => setStrategies(loaded ?? []))
+      .catch(() => undefined);
+  }, []);
 
   const togglePopupMenu = () => {
     setIsDrawerOpen(!isDrawerOpen);
@@ -127,6 +139,7 @@ const RunList = ({ NumbersOfMapsToShow = 10, store, isBoxed = true }) => {
               <TableCell variant="head" align="center">
                 Graftblood
               </TableCell>
+              <TableCell variant="head">Strategies</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -169,6 +182,19 @@ const RunList = ({ NumbersOfMapsToShow = 10, store, isBoxed = true }) => {
                     {run.graftblood !== null && run.graftblood !== undefined
                       ? run.graftblood.toLocaleString('en')
                       : '-'}
+                  </TableCell>
+                  <TableCell onClick={(event) => event.stopPropagation()}>
+                    <StrategySelector
+                      compact
+                      options={strategies}
+                      value={run.strategies}
+                      onChange={(next) =>
+                        store.setRunStrategies(
+                          run,
+                          next.map((strategy) => strategy.id)
+                        )
+                      }
+                    />
                   </TableCell>
                 </TableRow>
               );
