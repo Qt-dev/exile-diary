@@ -24,7 +24,7 @@ export async function publishData({
     const targetPath = path.join(targetDirectory, filename);
     const source = await fs.readFile(sourcePath, 'utf8');
     JSON.parse(source);
-    const formatted = prettier.format(source, {
+    const formatted = await prettier.format(source, {
       parser: 'json',
       printWidth: 100,
       tabWidth: 2,

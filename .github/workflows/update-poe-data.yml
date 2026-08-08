@@ -60,6 +60,9 @@ jobs:
       - name: Install extractor dependencies
         run: npm ci --prefix tools/poe-data-extractor
 
+      - name: Test extractor
+        run: npm test --prefix tools/poe-data-extractor
+
       - name: Extract data
         run: npm run data:extract
 
