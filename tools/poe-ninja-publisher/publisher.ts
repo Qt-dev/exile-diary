@@ -31,8 +31,15 @@ function assertCategoryPayload(category: PoeNinjaCategory, value: unknown): asse
       names.set(item.id, item.name);
     }
     for (const [index, line] of payload.lines.entries()) {
-      if (typeof line.id !== 'string' || !line.id || typeof line.primaryValue !== 'number' || !Number.isFinite(line.primaryValue)) {
-        throw new Error(`Malformed ${category} category payload: line ${index} must have an id and finite primaryValue`);
+      if (typeof line.id !== 'string' || !line.id) {
+        throw new Error(`Malformed ${category} category payload: line ${index} must have an id`);
+      }
+      // poe.ninja omits primaryValue for items without a current quote (for
+      // example, Chaos Orb in the permanent Hardcore league). The adapter
+      // intentionally skips those lines, but malformed provided values must
+      // still be rejected.
+      if (line.primaryValue !== undefined && (typeof line.primaryValue !== 'number' || !Number.isFinite(line.primaryValue))) {
+        throw new Error(`Malformed ${category} category payload: line ${index} primaryValue must be finite when present`);
       }
       if (!names.has(line.id)) throw new Error(`Malformed ${category} category payload: line ${index} references unknown item ${line.id}`);
     }

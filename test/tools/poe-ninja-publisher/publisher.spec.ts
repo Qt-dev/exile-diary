@@ -4,6 +4,7 @@ import { join } from 'node:path';
 import { gunzipSync } from 'node:zlib';
 import { describe, expect, it } from '@jest/globals';
 import { assertPriceSnapshot, leagueKey, sha256 } from '../../../src/shared/pricing';
+import { EXCHANGE_CATEGORIES } from '../../../src/shared/pricing/catalog';
 import { PricingPublisher } from '../../../tools/poe-ninja-publisher/publisher';
 import { LocalFilesystemStorage } from '../../../tools/poe-ninja-publisher/storage';
 
@@ -93,6 +94,22 @@ describe('PricingPublisher', () => {
     expect(result.published).toEqual([]);
     expect(result.failed[0].error.message).toContain('unknown item missing');
     expect(await readFile(manifestPath, 'utf8')).toBe(before);
+  });
+
+  it('accepts exchange lines without a quote', async () => {
+    const root = await mkdtemp(join(tmpdir(), 'pricing-publisher-'));
+    const requester = new FakeRequester();
+    const publisher = new PricingPublisher(new LocalFilesystemStorage(root), requester as any, fixedNow);
+    requester.getCategory = async (category: string) => category === 'Currency'
+      ? { unchanged: false, body: { ...categoryResponse, lines: [{ id: 'divine' }] } }
+      : { unchanged: false, etag: `etag-${category}`, body: (EXCHANGE_CATEGORIES as readonly string[]).includes(category) ? { items: [], core: { primary: 'chaos', items: [] }, lines: [] } : { lines: [] } };
+
+    const result = await publisher.publishLeagues(['Hardcore']);
+
+    expect(result).toEqual({ published: ['Hardcore'], failed: [] });
+    const manifest = JSON.parse(await readFile(join(root, 'v1', 'poe1', 'leagues', leagueKey('Hardcore'), 'current.json'), 'utf8'));
+    const snapshot = JSON.parse(gunzipSync(await readFile(join(root, manifest.snapshot.path.replace(/^\//, '')))).toString('utf8'));
+    expect(snapshot.categories.Currency).toEqual({});
   });
 
   it('rejects exchange payloads whose primary currency is not Chaos', async () => {
