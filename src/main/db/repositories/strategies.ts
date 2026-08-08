@@ -10,7 +10,6 @@ function normalizeInput(input: StrategyInput): StrategyInput {
   const costPerMap = Number(input?.costPerMap);
 
   if (!name) throw new Error('Strategy name is required');
-  if (!description) throw new Error('Strategy description is required');
   if (!colorPattern.test(color)) throw new Error('Strategy color must be a six-digit hex color');
   if (!Number.isFinite(costPerMap) || costPerMap < 0) {
     throw new Error('Strategy cost per map must be a non-negative number');

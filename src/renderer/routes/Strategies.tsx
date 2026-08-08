@@ -11,12 +11,18 @@ import { electronService } from '../electron.service';
 import type { Strategy, StrategyInput } from '../../shared/strategies';
 import './Strategies.css';
 
-const emptyInput: StrategyInput = {
+const randomStrategyColor = () =>
+  `#${Math.floor(Math.random() * 0xffffff)
+    .toString(16)
+    .padStart(6, '0')
+    .toUpperCase()}`;
+
+const createEmptyInput = (): StrategyInput => ({
   name: '',
   description: '',
-  color: '#6666FF',
+  color: randomStrategyColor(),
   costPerMap: 0,
-};
+});
 
 const formatNumber = (value: number) => (Number(value) || 0).toFixed(2);
 
@@ -27,7 +33,7 @@ export default function Strategies() {
   const [selected, setSelected] = useState<Strategy | null>(null);
   const [statsResult, setStatsResult] = useState<any>(null);
   const [tab, setTab] = useState(0);
-  const [input, setInput] = useState<StrategyInput>(emptyInput);
+  const [input, setInput] = useState<StrategyInput>(createEmptyInput);
   const [editing, setEditing] = useState(false);
   const [error, setError] = useState('');
   const itemStore = useMemo(() => new ItemStore([]), []);
@@ -159,7 +165,7 @@ export default function Strategies() {
             variant="outlined"
             onClick={() => {
               setSelected(null);
-              setInput(emptyInput);
+              setInput(createEmptyInput());
               setEditing(true);
             }}
           >

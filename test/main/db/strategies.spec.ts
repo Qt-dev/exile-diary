@@ -59,4 +59,19 @@ describe('strategy repository', () => {
       Strategies.create({ name: 'x', description: 'x', color: '#ffffff', costPerMap: -1 })
     ).rejects.toThrow('non-negative');
   });
+
+  it('allows an empty description', async () => {
+    mockDB.run.mockResolvedValue({ lastInsertRowid: 8 } as any);
+    mockDB.get.mockResolvedValue({
+      id: 8,
+      name: 'Atlas',
+      description: '',
+      color: '#AABBCC',
+      costPerMap: 0,
+    });
+
+    await expect(
+      Strategies.create({ name: 'Atlas', description: '', color: '#aabbcc', costPerMap: 0 })
+    ).resolves.toMatchObject({ id: 8, description: '' });
+  });
 });
