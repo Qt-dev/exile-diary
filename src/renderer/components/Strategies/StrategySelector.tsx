@@ -15,13 +15,13 @@ export default function StrategySelector({
   value,
   onChange,
   label = 'Strategies',
-  compact = true,
+  compact = false,
 }: Props) {
   const selected = options.filter((option) => value.some((item) => item.id === option.id));
   return (
     <Autocomplete
       multiple
-      size={compact ? 'small' : 'medium'}
+      size='small'
       options={options}
       value={selected}
       onChange={(_event, next) => void onChange(next)}
@@ -44,7 +44,14 @@ export default function StrategySelector({
           {option.name}
         </li>
       )}
-      renderInput={(params) => <TextField {...params} label={label} />}
+      renderInput={(params) => (
+        <TextField
+          {...params}
+          variant="standard"
+          label={compact ? undefined : label}
+          placeholder={selected.length > 0 ? undefined : 'No strategy selected'}
+        />
+      )}
       onClick={(event) => event.stopPropagation()}
       onMouseDown={(event) => event.stopPropagation()}
       noOptionsText="Create a strategy first"
