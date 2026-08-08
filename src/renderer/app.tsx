@@ -17,6 +17,7 @@ import CharacterSelect from './routes/CharacterSelect';
 import LoginBox from './routes/LoginBox';
 import Overlay from './routes/Overlay';
 import Help from './routes/Help';
+import Strategies from './routes/Strategies';
 import { electronService } from './electron.service';
 
 type AppRouteDependencies = {
@@ -115,6 +116,14 @@ export const createAppRoutes = ({
           const settings = await electronService.getSettings();
           return { activeProfile: settings.activeProfile };
         },
+      },
+      {
+        path: 'strategies',
+        element: <Strategies />,
+      },
+      {
+        path: 'strategies/:strategyId',
+        element: <Strategies />,
       },
       {
         path: 'settings',

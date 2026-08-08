@@ -7,3 +7,4 @@ export { default as SettingsRepository, get, set } from './settings';
 export { default as SkillTreeRepository } from './skilltree';
 export { default as StashTabsRepository } from './stashtabs';
 export { default as StatsRepository } from './stats';
+export { default as StrategiesRepository } from './strategies';

@@ -13,6 +13,8 @@ import RunParser from '../modules/RunParser';
 import SearchManager from '../SearchManager';
 import PricingService from '../pricing/PricingService';
 import ItemsDB from '../db/repositories/items';
+import Strategies from '../db/repositories/strategies';
+import type { StrategyInput } from '../../shared/strategies';
 
 type Awaitable<T> = T | Promise<T>;
 
@@ -20,6 +22,13 @@ export type RendererRuntimeDependencies = {
   runs: {
     getLastRuns: (size: number) => Promise<any[]>;
     getRun: (runId: number) => Promise<any>;
+  };
+  strategies: {
+    list: () => Promise<any[]>;
+    create: (input: StrategyInput) => Promise<any>;
+    update: (strategyId: number, input: StrategyInput) => Promise<any>;
+    delete: (strategyId: number) => Promise<void>;
+    setForRun: (runId: number, strategyIds: number[]) => Promise<any[]>;
   };
   settingsManager: {
     get: (key: string) => any;
@@ -36,7 +45,11 @@ export type RendererRuntimeDependencies = {
     logout: () => Promise<void>;
   };
   statsManager: {
-    getAllStats: (params: { league?: string; characterName?: string }) => Promise<any>;
+    getAllStats: (params: {
+      league?: string;
+      characterName?: string;
+      strategyId?: number;
+    }) => Promise<any>;
     getAllMapNames: () => Promise<string[]>;
     getAllPossibleMods: () => Promise<string[]>;
     registerProfitPerHourAnnouncer?: (callback: (...args: any[]) => void) => void;
@@ -80,6 +93,8 @@ export type RendererRunUseCaseDependencies = Pick<
   'runs' | 'runParser' | 'rendererLogger' | 'itemsDb'
 >;
 
+export type RendererStrategyUseCaseDependencies = Pick<RendererRuntimeDependencies, 'strategies'>;
+
 export type RendererSettingsUseCaseDependencies = Pick<
   RendererRuntimeDependencies,
   'settingsManager' | 'gggApi' | 'authManager' | 'rendererLogger' | 'clientTxtWatcher'
@@ -98,6 +113,7 @@ export type RendererStatsUseCaseDependencies = Pick<
 export function createDefaultRendererRuntimeDependencies(): RendererRuntimeDependencies {
   return {
     runs: Runs,
+    strategies: Strategies,
     settingsManager: SettingsManager,
     gggApi: GGGAPI,
     authManager: AuthManager,
@@ -124,6 +140,12 @@ export function pickRendererRunUseCaseDependencies(
     rendererLogger: deps.rendererLogger,
     itemsDb: deps.itemsDb,
   };
+}
+
+export function pickRendererStrategyUseCaseDependencies(
+  deps: RendererRuntimeDependencies
+): RendererStrategyUseCaseDependencies {
+  return { strategies: deps.strategies };
 }
 
 export function pickRendererSettingsUseCaseDependencies(

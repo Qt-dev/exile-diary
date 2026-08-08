@@ -30,6 +30,12 @@ export const responderHandlerKeys = [
   'debugFetchStashTabs',
   'getOverlayPersistence',
   'updateItemsIgnoreStatus',
+  'listStrategies',
+  'createStrategy',
+  'updateStrategy',
+  'deleteStrategy',
+  'setRunStrategies',
+  'getStrategyStats',
 ] as const;
 
 export function registerResponderHandlers() {

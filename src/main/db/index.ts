@@ -583,6 +583,25 @@ const Migrations = {
         `ALTER TABLE deferred_run ADD COLUMN closing_event_id INTEGER`,
         `pragma user_version = 20`,
       ],
+      [
+        `CREATE TABLE IF NOT EXISTS strategy ( -- pragma user_version = 20 compatibility marker
+          id INTEGER NOT NULL,
+          name TEXT NOT NULL COLLATE NOCASE UNIQUE,
+          description TEXT NOT NULL DEFAULT '',
+          color TEXT NOT NULL,
+          cost_per_map REAL NOT NULL CHECK(cost_per_map >= 0),
+          PRIMARY KEY (id AUTOINCREMENT)
+        )`,
+        `CREATE TABLE IF NOT EXISTS run_strategy (
+          run_id INTEGER NOT NULL,
+          strategy_id INTEGER NOT NULL,
+          PRIMARY KEY (run_id, strategy_id),
+          FOREIGN KEY (run_id) REFERENCES run(id),
+          FOREIGN KEY (strategy_id) REFERENCES strategy(id)
+        )`,
+        `CREATE INDEX IF NOT EXISTS run_strategy_strategy_id ON run_strategy(strategy_id)`,
+        `pragma user_version = 21`,
+      ],
     ],
     maintenance: [
       `delete from incubator where timestamp < (select min(timestamp) from (select timestamp from incubator order by timestamp desc limit 25))`,
@@ -804,6 +823,8 @@ class DBManager {
       ['league', 'SELECT 1 FROM league LIMIT 1'],
       ['leagues', 'SELECT 1 FROM leagues LIMIT 1'],
       ['graftblood', 'SELECT 1 FROM graftblood LIMIT 1'],
+      ['strategy', 'SELECT 1 FROM strategy LIMIT 1'],
+      ['run_strategy', 'SELECT 1 FROM run_strategy LIMIT 1'],
       ['stashes', 'SELECT 1 FROM stashes LIMIT 1'],
       ['fullrates', 'SELECT 1 FROM fullrates LIMIT 1'],
     ] as const;
@@ -892,6 +913,8 @@ const RequiredCharacterTables = [
   'xp',
   'graftblood',
   'deferred_run',
+  'strategy',
+  'run_strategy',
 ];
 
 const RequiredLeagueTables = ['characters', 'fullrates', 'stashes'];
@@ -946,9 +969,7 @@ const DB = {
     const dbPath = DB.getCharacterDbPath(characterName, league);
     if (!dbPath) return null;
 
-    const oldPath = characterName
-      ? DB.getCharacterDbPath(characterName, league, true)
-      : null;
+    const oldPath = characterName ? DB.getCharacterDbPath(characterName, league, true) : null;
     if (oldPath && fs.existsSync(oldPath) && !fs.existsSync(dbPath)) {
       logger.info(`Found the old pattern in db name, copying ${oldPath} to ${dbPath}`);
       fs.copyFileSync(oldPath, dbPath);

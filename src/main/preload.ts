@@ -67,6 +67,15 @@ const api: ExileDiaryApi = {
   },
   updateItemsIgnoreStatus: (data) =>
     ipcRenderer.invoke(invokeChannels.updateItemsIgnoreStatus, { data }),
+  listStrategies: () => ipcRenderer.invoke(invokeChannels.listStrategies),
+  createStrategy: (input) => ipcRenderer.invoke(invokeChannels.createStrategy, { input }),
+  updateStrategy: (strategyId, input) =>
+    ipcRenderer.invoke(invokeChannels.updateStrategy, { strategyId, input }),
+  deleteStrategy: (strategyId) => ipcRenderer.invoke(invokeChannels.deleteStrategy, { strategyId }),
+  setRunStrategies: (runId, strategyIds) =>
+    ipcRenderer.invoke(invokeChannels.setRunStrategies, { runId, strategyIds }),
+  getStrategyStats: (strategyId) =>
+    ipcRenderer.invoke(invokeChannels.getStrategyStats, { strategyId }),
   openFileDialog: (options) => ipcRenderer.invoke(invokeChannels.openFileDialog, options),
   showCharacterDbFile: () => ipcRenderer.invoke(invokeChannels.showCharacterDbFile),
   refreshUi: () => ipcRenderer.send(sendChannels.refreshUi),

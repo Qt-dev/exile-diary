@@ -11,6 +11,9 @@ import RunEventIcons from '../components/RunEvent/RunEventIcons';
 import RunEvent from '../components/RunEvent/RunEvent';
 import LootTable from '../components/LootTable/LootTable';
 import RunNavigation from '../components/RunNavigation/RunNavigation';
+import StrategySelector from '../components/Strategies/StrategySelector';
+import { electronService } from '../electron.service';
+import type { Strategy } from '../../shared/strategies';
 
 type RunLoaderData = {
   run: RunType;
@@ -20,6 +23,7 @@ const Run = ({ store }) => {
   const navigate = useNavigate();
   const { runId } = useParams();
   const { run } = useLoaderData() as RunLoaderData;
+  const [strategies, setStrategies] = React.useState<Strategy[]>([]);
 
   useEffect(() => {
     if (!runId || !run) {
@@ -27,6 +31,14 @@ const Run = ({ store }) => {
     }
     store.loadDetails(run);
   }, [runId, run, navigate, store]);
+
+  useEffect(() => {
+    if (typeof electronService.listStrategies !== 'function') return;
+    void electronService
+      .listStrategies()
+      .then((loaded) => setStrategies(loaded ?? []))
+      .catch(() => undefined);
+  }, []);
 
   const duration = run.duration ? dayjs.utc(run.duration.asMilliseconds()).format('mm:ss') : '-';
   const xp =
@@ -49,6 +61,16 @@ const Run = ({ store }) => {
             Monster level: {run.level} (Tier: {run.tier ? run.tier : '??'})
           </div>
           <div className="Run__Header__League Text--Legendary">{run.league} League</div>
+          <StrategySelector
+            options={strategies}
+            value={run.strategies}
+            onChange={(next) =>
+              store.setRunStrategies(
+                run,
+                next.map((strategy) => strategy.id)
+              )
+            }
+          />
         </div>
         <div className="Run__Header__Block">
           <div className="Run__Header__Block__Title">Item Quantity</div>

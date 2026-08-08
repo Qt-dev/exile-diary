@@ -96,6 +96,12 @@ export const electronService = {
   setOverlayClickable: (clickable: boolean) => getApi().setOverlayClickable(clickable),
   updateItemsIgnoreStatus: (data: Array<{ id: string; status: boolean }>) =>
     getApi().updateItemsIgnoreStatus(data),
+  listStrategies: () => getApi().listStrategies(),
+  createStrategy: (input) => getApi().createStrategy(input),
+  updateStrategy: (strategyId, input) => getApi().updateStrategy(strategyId, input),
+  deleteStrategy: (strategyId) => getApi().deleteStrategy(strategyId),
+  setRunStrategies: (runId, strategyIds) => getApi().setRunStrategies(runId, strategyIds),
+  getStrategyStats: (strategyId) => getApi().getStrategyStats(strategyId),
   openFileDialog: (options: OpenFileDialogOptions) => getApi().openFileDialog(options),
   showCharacterDbFile: () => getApi().showCharacterDbFile(),
   refreshUi: () => getApi().refreshUi(),

@@ -180,6 +180,24 @@ export function installMockExileDiaryApi(requestedScenario: string) {
     getOverlayPersistence: async () => state.overlayPersistence,
     getOverlayPosition: async () => structuredClone(state.overlayPosition),
     updateItemsIgnoreStatus: async (data) => record('updateItemsIgnoreStatus', data),
+    listStrategies: async () => [],
+    createStrategy: async (input) => {
+      record('createStrategy', input);
+      return {} as any;
+    },
+    updateStrategy: async (strategyId, input) => {
+      record('updateStrategy', { strategyId, input });
+      return {} as any;
+    },
+    deleteStrategy: async (strategyId) => record('deleteStrategy', strategyId),
+    setRunStrategies: async (runId, strategyIds) => {
+      record('setRunStrategies', { runId, strategyIds });
+      return [];
+    },
+    getStrategyStats: async (strategyId) => {
+      record('getStrategyStats', strategyId);
+      return {} as any;
+    },
     openFileDialog: async (options) => {
       record('openFileDialog', options);
       return { canceled: false, filePaths: ['C:\\Fixture'] };

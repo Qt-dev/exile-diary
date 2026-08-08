@@ -3,14 +3,38 @@ import { RendererStatsUseCaseDependencies } from '../rendererRuntimeDependencies
 
 export function createRendererStatsUseCases(deps: RendererStatsUseCaseDependencies) {
   return {
-    async getAllStats(params?: { league?: string; characterName?: string }) {
+    async getAllStats(params?: { league?: string; characterName?: string; strategyId?: number }) {
       logger.info('Getting all stats for the renderer process');
       const profile = deps.settingsManager.get('activeProfile');
       const league = params?.league ?? profile?.league;
       const characterName = params?.characterName ?? profile?.characterName;
-      const stats = await deps.statsManager.getAllStats({ league, characterName });
+      const stats = await deps.statsManager.getAllStats({
+        league,
+        characterName,
+        strategyId: params?.strategyId,
+      });
       stats.divinePrice = await deps.itemPricer.getCurrencyByName('Divine Orb', deps.now(), league);
       return stats;
+    },
+
+    async getStrategyStats(strategyId: number) {
+      logger.info(`Getting strategy stats for ${strategyId}`);
+      const profile = deps.settingsManager.get('activeProfile');
+      const stats = await deps.statsManager.getAllStats({
+        league: profile?.league,
+        characterName: profile?.characterName,
+        strategyId: Number(strategyId),
+      });
+      stats.divinePrice = await deps.itemPricer.getCurrencyByName(
+        'Divine Orb',
+        deps.now(),
+        profile?.league
+      );
+      return {
+        strategy: stats.strategy,
+        economics: stats.economics,
+        stats,
+      };
     },
 
     async triggerSearch(params: Record<string, any>) {

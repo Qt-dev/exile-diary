@@ -2,6 +2,7 @@ import DB from '../index';
 import constants from '../../../helpers/constants';
 import Logger from 'electron-log';
 import type { ItemValuationExplanation } from '../../pricing/matching/ItemPricer';
+import Strategies from './strategies';
 const logger = Logger.scope('db/run');
 
 type ItemProperty = {
@@ -231,7 +232,10 @@ const Runs = {
         (run.xp - (SELECT xp FROM run m WHERE m.id < run.id AND xp IS NOT null ORDER BY m.id desc limit 1)) xpgained,
         (SELECT count(1) FROM event WHERE event_type='slain' AND event.timestamp between first_event AND last_event) deaths,
         (SELECT COALESCE(SUM(value),0) FROM item, event WHERE item.event_id = event.id AND event.timestamp BETWEEN first_event AND last_event AND item.ignored = 0) gained,
-        kills, run_info
+        kills, run_info,
+        COALESCE((SELECT json_group_array(json_object('id', strategy.id, 'name', strategy.name, 'color', strategy.color))
+          FROM run_strategy JOIN strategy ON strategy.id = run_strategy.strategy_id
+          WHERE run_strategy.run_id = run.id), '[]') AS strategies
       FROM area_info, run
       WHERE area_info.run_id = run.id
         AND json_extract(run_info, '$.ignored') IS null
@@ -275,6 +279,9 @@ const Runs = {
     logger.info(`Getting run info for run ${mapId}`);
     const mapInfoQuery = `
       SELECT run.id, name, level, depth, iiq, iir, pack_size, xp, kills, run_info, first_event, last_event, completed,
+      COALESCE((SELECT json_group_array(json_object('id', strategy.id, 'name', strategy.name, 'color', strategy.color))
+        FROM run_strategy JOIN strategy ON strategy.id = run_strategy.strategy_id
+        WHERE run_strategy.run_id = run.id), '[]') AS strategies,
       (SELECT COALESCE(SUM(value),0) FROM item, event WHERE item.event_id = event.id AND DATETIME(event.timestamp) BETWEEN DATETIME(first_event) AND DATETIME(last_event) AND ignored = 0) gained,
       (run.xp - (SELECT xp FROM run m WHERE m.id < run.id AND xp IS NOT null ORDER BY m.id desc LIMIT 1)) xpgained,
       (SELECT xp FROM run m WHERE m.id < run.id AND xp IS NOT null ORDER BY m.id desc LIMIT 1) prevxp,
@@ -365,6 +372,11 @@ const Runs = {
 
     return run;
   },
+
+  getRunStrategies: async (runId: number) => Strategies.getForRun(runId),
+
+  setRunStrategies: async (runId: number, strategyIds: number[]) =>
+    Strategies.setForRun(runId, strategyIds),
 
   getAreaInfo: async (areaId: number) => {
     const query = 'SELECT * FROM area_info WHERE run_id = ?';

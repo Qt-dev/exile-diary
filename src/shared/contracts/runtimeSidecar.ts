@@ -25,6 +25,12 @@ export const runtimeRendererMethodKeys = [
   'debugFetchRates',
   'debugFetchStashTabs',
   'updateItemsIgnoreStatus',
+  'listStrategies',
+  'createStrategy',
+  'updateStrategy',
+  'deleteStrategy',
+  'setRunStrategies',
+  'getStrategyStats',
 ] as const;
 
 export type RuntimeRendererMethodKey = (typeof runtimeRendererMethodKeys)[number];

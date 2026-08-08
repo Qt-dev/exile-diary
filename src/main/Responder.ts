@@ -29,6 +29,14 @@ const Responder = {
   debugFetchRates: async () => RendererAppService.debugFetchRates(),
   debugFetchStashTabs: async () => RendererAppService.debugFetchStashTabs(),
   updateItemsIgnoreStatus: async (e, { data }) => RendererAppService.updateItemsIgnoreStatus(data),
+  listStrategies: async () => RendererAppService.listStrategies(),
+  createStrategy: async (e, { input }) => RendererAppService.createStrategy(input),
+  updateStrategy: async (e, { strategyId, input }) =>
+    RendererAppService.updateStrategy(strategyId, input),
+  deleteStrategy: async (e, { strategyId }) => RendererAppService.deleteStrategy(strategyId),
+  setRunStrategies: async (e, { runId, strategyIds }) =>
+    RendererAppService.setRunStrategies(runId, strategyIds),
+  getStrategyStats: async (e, { strategyId }) => RendererAppService.getStrategyStats(strategyId),
 };
 
 export default Responder;

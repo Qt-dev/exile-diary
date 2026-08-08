@@ -37,8 +37,18 @@ type GetAllRunsForDatesParams = {
   };
 };
 
+type RunSelection = {
+  strategyId?: number;
+  completedOnly?: boolean;
+};
+
 const stats = {
-  getAllRuns: async (): Promise<Run[]> => {
+  getAllRuns: async ({ strategyId, completedOnly = false }: RunSelection = {}): Promise<Run[]> => {
+    const strategyFilter = strategyId
+      ? `AND EXISTS (SELECT 1 FROM run_strategy WHERE run_strategy.run_id = run.id AND run_strategy.strategy_id = ?)`
+      : '';
+    const completionFilter = completedOnly ? 'AND run.completed = 1' : '';
+    const ignoredFilter = strategyId ? "AND json_extract(run.run_info, '$.ignored') IS NULL" : '';
     logger.debug('Getting all maps');
     const query = `
       SELECT
@@ -52,18 +62,24 @@ const stats = {
 
       FROM area_info, run
       WHERE run.id = area_info.run_id
+        ${strategyFilter}
+        ${completionFilter}
+        ${ignoredFilter}
       ORDER BY run.id desc
       `;
 
     try {
-      const maps = (await DB.all(query)) as Run[];
+      const maps = (await (strategyId ? DB.all(query, [strategyId]) : DB.all(query))) as Run[];
       return maps;
     } catch (err) {
       logger.error(`Error getting all maps: ${JSON.stringify(err)}`);
       return [];
     }
   },
-  getAllItems: async (league: string): Promise<any[]> => {
+  getAllItems: async (league: string, strategyId?: number): Promise<any[]> => {
+    const strategyFilter = strategyId
+      ? `AND EXISTS (SELECT 1 FROM run_strategy WHERE run_strategy.run_id = run.id AND run_strategy.strategy_id = ?)`
+      : '';
     const query = `
       SELECT run.id AS map_id, area_info.name AS area, item.*, event.timestamp AS drop_timestamp
       FROM item, run, area_info, event
@@ -71,10 +87,13 @@ const stats = {
       AND DATETIME(event.timestamp) BETWEEN DATETIME(run.first_event) AND DATETIME(run.last_event)
       AND run.id = area_info.run_id
       AND item.ignored = 0
+      ${strategyFilter}
+      ${strategyId ? 'AND run.completed = 1' : ''}
+      ${strategyId ? "AND json_extract(run.run_info, '$.ignored') IS NULL" : ''}
     `;
 
     try {
-      const items = await DB.all(query);
+      const items = await (strategyId ? DB.all(query, [strategyId]) : DB.all(query));
       return items ?? [];
     } catch (err) {
       logger.error(`Error getting all loot: ${JSON.stringify(err)}`);
