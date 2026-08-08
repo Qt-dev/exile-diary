@@ -1,0 +1,4 @@
+interface:
+  display_name: ReleaseEDR
+  short_description: Automate npm and GitHub releases
+  default_prompt: Release the project using the requested version bump or exact version.
