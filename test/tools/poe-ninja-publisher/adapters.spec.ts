@@ -2,7 +2,7 @@ import { describe, expect, it } from '@jest/globals';
 import { POE_NINJA_CATEGORIES, adaptPoeNinjaResponse } from '../../../src/shared/pricing';
 
 describe('publisher poe.ninja adapters', () => {
-  it('filters low-confidence exchange lines', () => {
+  it('accepts every valid exchange line regardless of optional legacy count fields', () => {
     expect(
       adaptPoeNinjaResponse(POE_NINJA_CATEGORIES.Currency, {
         items: [
@@ -14,7 +14,7 @@ describe('publisher poe.ninja adapters', () => {
           { id: 'mirror', primaryValue: 100_000, count: 1 },
         ],
       })
-    ).toEqual({ 'Divine Orb': 175 });
+    ).toEqual({ 'Divine Orb': 175, 'Mirror of Kalandra': 100_000 });
   });
 
   it('publishes both exact and bare-name keys for variant uniques', () => {

@@ -10,6 +10,7 @@ import { LocalFilesystemStorage } from '../../../tools/poe-ninja-publisher/stora
 const fixedNow = () => new Date('2026-07-29T12:00:00.000Z');
 const categoryResponse = {
   items: [{ id: 'divine', name: 'Divine Orb' }],
+  core: { primary: 'chaos', items: [] },
   lines: [{ id: 'divine', name: 'Divine Orb', chaosValue: 1, primaryValue: 1, count: 10 }],
 };
 
@@ -70,6 +71,25 @@ describe('PricingPublisher', () => {
 
     expect(result.published).toEqual([]);
     expect(result.failed[0].error.message).toContain('lines must be an array');
+    expect(await readFile(manifestPath, 'utf8')).toBe(before);
+  });
+
+  it('rejects exchange lines that reference unknown item metadata', async () => {
+    const root = await mkdtemp(join(tmpdir(), 'pricing-publisher-'));
+    const requester = new FakeRequester();
+    const publisher = new PricingPublisher(new LocalFilesystemStorage(root), requester as any, fixedNow);
+    await publisher.publishLeagues(['Allflame']);
+    const manifestPath = join(root, 'v1', 'poe1', 'leagues', leagueKey('Allflame'), 'current.json');
+    const before = await readFile(manifestPath, 'utf8');
+    const original = requester.getCategory.bind(requester);
+    requester.getCategory = async (category: string) => category === 'Currency'
+      ? { unchanged: false, body: { ...categoryResponse, lines: [{ ...categoryResponse.lines[0], id: 'missing' }] } }
+      : original(category);
+
+    const result = await publisher.publishLeagues(['Allflame']);
+
+    expect(result.published).toEqual([]);
+    expect(result.failed[0].error.message).toContain('unknown item missing');
     expect(await readFile(manifestPath, 'utf8')).toBe(before);
   });
 
