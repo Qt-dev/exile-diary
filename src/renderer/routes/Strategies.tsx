@@ -24,6 +24,13 @@ const createEmptyInput = (): StrategyInput => ({
   costPerMap: 0,
 });
 
+const strategyToInput = (strategy: Strategy): StrategyInput => ({
+  name: strategy.name,
+  description: strategy.description,
+  color: strategy.color,
+  costPerMap: strategy.costPerMap,
+});
+
 const formatNumber = (value: number) => (Number(value) || 0).toFixed(2);
 
 export default function Strategies() {
@@ -45,12 +52,7 @@ export default function Strategies() {
     const next = loaded.find((strategy) => strategy.id === id) ?? null;
     setSelected(next);
     if (next) {
-      setInput({
-        name: next.name,
-        description: next.description,
-        color: next.color,
-        costPerMap: next.costPerMap,
-      });
+      setInput(strategyToInput(next));
       if (String(strategyId) !== String(next.id))
         navigate(`/strategies/${next.id}`, { replace: true });
     }
@@ -65,11 +67,19 @@ export default function Strategies() {
       setStatsResult(null);
       return;
     }
+    let cancelled = false;
     setStatsResult(null);
     void electronService
       .getStrategyStats(selected.id)
-      .then(setStatsResult)
-      .catch((reason) => setError(String(reason?.message ?? reason)));
+      .then((result) => {
+        if (!cancelled) setStatsResult(result);
+      })
+      .catch((reason) => {
+        if (!cancelled) setError(String(reason?.message ?? reason));
+      });
+    return () => {
+      cancelled = true;
+    };
   }, [selected]);
 
   useEffect(() => {
@@ -194,7 +204,12 @@ export default function Strategies() {
                   <p>{selected.description}</p>
                 </div>
                 <div className="Strategies__Actions">
-                  <Button onClick={() => setEditing(!editing)}>
+                  <Button
+                    onClick={() => {
+                      if (editing) setInput(strategyToInput(selected));
+                      setEditing(!editing);
+                    }}
+                  >
                     {editing ? 'Cancel' : 'Edit'}
                   </Button>
                   <Button color="error" onClick={remove}>
