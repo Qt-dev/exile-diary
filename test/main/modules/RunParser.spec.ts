@@ -24,6 +24,7 @@ jest.mock('../../../src/main/db/run', () => ({
     updateLastEvent: jest.fn(),
     insertEvent: jest.fn(),
     getItemsBetweenEvents: jest.fn(),
+    getRunProfit: jest.fn(),
     getLatestUncompletedRun: jest.fn(),
     getDeferredRun: jest.fn(),
     markRunDeferred: jest.fn(),
@@ -485,11 +486,13 @@ describe('RunParser', () => {
     it('counts explicit-end items associated with a synthetic closing zone', async () => {
       const firstZone = {
         event_text: 'Dunes Map',
+        zone_event_id: 1,
         event_id: 1,
         item_id: null,
       };
       const closingZoneItem = {
         event_text: 'Dunes Map',
+        zone_event_id: 2,
         event_id: 2,
         item_id: 42,
       };
@@ -517,6 +520,46 @@ describe('RunParser', () => {
       });
 
       expect(RunParser.parseItems).toHaveBeenCalledWith([closingZoneItem]);
+    });
+
+    it('keeps separate map re-entry zones when itemless events have null item ids', async () => {
+      jest.restoreAllMocks();
+      const firstMap = { event_text: 'Dunes Map', zone_event_id: 1, event_id: null, item_id: null };
+      const firstHideoutItem = {
+        event_text: 'Hideout',
+        zone_event_id: 2,
+        event_id: 2,
+        item_id: 42,
+      };
+      const secondMap = { event_text: 'Dunes Map', zone_event_id: 3, event_id: null, item_id: null };
+      const secondHideoutItem = {
+        event_text: 'Hideout',
+        zone_event_id: 4,
+        event_id: 4,
+        item_id: 43,
+      };
+      (RunsDB.getItemsBetweenEvents as jest.Mock).mockResolvedValue([
+        firstMap,
+        firstHideoutItem,
+        secondMap,
+        secondHideoutItem,
+      ]);
+      (Utils.isTown as jest.Mock).mockImplementation((area) => area === 'Hideout');
+      const parseItems = jest
+        .spyOn(RunParser, 'parseItems')
+        .mockResolvedValueOnce({ count: 1, value: 5, importantDrops: {} })
+        .mockResolvedValueOnce({ count: 1, value: 7, importantDrops: {} });
+
+      await expect(
+        RunParser.generateItemStats(
+          '123',
+          '2026-07-22T09:00:00.000Z',
+          '2026-07-22T10:00:00.000Z'
+        )
+      ).resolves.toEqual({ count: 2, value: 12, importantDrops: {} });
+
+      expect(parseItems).toHaveBeenNthCalledWith(1, [firstHideoutItem]);
+      expect(parseItems).toHaveBeenNthCalledWith(2, [secondHideoutItem]);
     });
   });
 

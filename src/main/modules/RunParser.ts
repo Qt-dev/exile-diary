@@ -337,7 +337,7 @@ const RunParser = {
 
     if (formattedItems.length > 0) {
       logger.debug(formattedItems);
-      RunParser.updateItemValues(formattedItems);
+      await RunParser.updateItemValues(formattedItems);
     }
 
     return { count, value: totalValue, importantDrops };
@@ -360,7 +360,7 @@ const RunParser = {
 
       // Get Zones from the items list
       const zones: Zone[] = rows
-        .map((row) => ({ event_text: row.event_text, id: row.event_id }))
+        .map((row) => ({ event_text: row.event_text, id: row.zone_event_id }))
         .filter((zone, index, self) => self.findIndex((t) => t.id === zone.id) === index);
       logger.debug(`Got ${zones.length} zones`);
       logger.debug(zones);
@@ -969,9 +969,10 @@ const RunParser = {
     ];
 
     await RunParser.updateMapRun(runId, runArguments);
+    const persistedProfit = await DB.getRunProfit(runId);
     return {
       name: areaInfo.name,
-      gained: items.value,
+      gained: persistedProfit ?? items.value,
       xp: xpDiff,
       kills: killCount > -1 ? killCount : null,
       firstEvent,

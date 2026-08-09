@@ -70,6 +70,7 @@ type AreaInfo = {
 interface ItemsFromTimestamp extends Item {
   event_text: string;
   drop_time: string;
+  zone_event_id: number;
 }
 
 const getItemNameFromIcon = (iconUrl: string) => {
@@ -273,6 +274,26 @@ const Runs = {
     const events = await DB.all(eventsQuery, [mapId]);
 
     return events;
+  },
+
+  getRunProfit: async (runId: number): Promise<number | null> => {
+    logger.info(`Getting persisted profit for run ${runId}`);
+    const query = `
+      SELECT COALESCE(SUM(item.value), 0) AS gained
+      FROM run
+      LEFT JOIN event
+        ON DATETIME(event.timestamp) BETWEEN DATETIME(run.first_event) AND DATETIME(run.last_event)
+      LEFT JOIN item
+        ON item.event_id = event.id AND item.ignored = 0
+      WHERE run.id = ?
+    `;
+    try {
+      const row = await DB.get(query, [runId]);
+      return Number(row?.gained ?? 0);
+    } catch (err) {
+      logger.error(`Error getting persisted profit: ${JSON.stringify(err)}`);
+      return null;
+    }
   },
 
   getRunInfo: async (mapId: number): Promise<any> => {
@@ -698,7 +719,7 @@ const Runs = {
   ): Promise<ItemsFromTimestamp[]> => {
     logger.info(`Getting items dropped between ${startTime} and ${endTime}`);
     const query = `
-      SELECT event_text, item.*, event.timestamp AS drop_time
+      SELECT event_text, item.*, event.id AS zone_event_id, event.timestamp AS drop_time
       FROM event, run
         LEFT JOIN item
         ON item.event_id = event.id

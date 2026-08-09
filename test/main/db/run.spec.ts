@@ -235,6 +235,21 @@ describe('Runs', () => {
     });
   });
 
+  describe('getRunProfit', () => {
+    it('uses the persisted non-ignored item sum for completed-run profit', async () => {
+      mockDB.get.mockClear();
+      mockDB.get.mockResolvedValue({ gained: 1012.21 });
+
+      await expect(Runs.getRunProfit(199)).resolves.toBe(1012.21);
+
+      expect(mockDB.get).toHaveBeenCalledWith(
+        expect.stringContaining('SUM(item.value)'),
+        [199]
+      );
+      expect(mockDB.get.mock.calls.at(-1)?.[0]).toContain('item.ignored = 0');
+    });
+  });
+
   describe('getItems', () => {
     it('should get and format items for a run', async () => {
       const mapId = 42;
@@ -539,6 +554,21 @@ describe('Runs', () => {
         [from, to]
       );
       expect(result).toEqual(mockRuns);
+    });
+  });
+
+  describe('getItemsBetweenEvents', () => {
+    it('selects the source event id even when an event has no item row', async () => {
+      mockDB.all.mockResolvedValue([]);
+
+      await expect(
+        Runs.getItemsBetweenEvents('2026-07-22T09:00:00.000Z', '2026-07-22T10:00:00.000Z')
+      ).resolves.toEqual([]);
+
+      expect(mockDB.all).toHaveBeenCalledWith(
+        expect.stringContaining('event.id AS zone_event_id'),
+        ['2026-07-22T09:00:00.000Z', '2026-07-22T10:00:00.000Z']
+      );
     });
   });
 
