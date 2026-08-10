@@ -76,6 +76,16 @@ const api: ExileDiaryApi = {
     ipcRenderer.invoke(invokeChannels.setRunStrategies, { runId, strategyIds }),
   getStrategyStats: (strategyId) =>
     ipcRenderer.invoke(invokeChannels.getStrategyStats, { strategyId }),
+  getPricesCatalog: (options) => ipcRenderer.invoke(invokeChannels.getPricesCatalog, { options }),
+  getItemPriceDetails: (itemIdentifier, league) =>
+    ipcRenderer.invoke(invokeChannels.getItemPriceDetails, { itemIdentifier, league }),
+  refreshItemPriceHistory: (itemIdentifier, league) =>
+    ipcRenderer.invoke(invokeChannels.refreshItemPriceHistory, { itemIdentifier, league }),
+  addPriceOverride: (params) => ipcRenderer.invoke(invokeChannels.addPriceOverride, { params }),
+  deletePriceOverride: (id, league) =>
+    ipcRenderer.invoke(invokeChannels.deletePriceOverride, { id, league }),
+  recalculatePrices: (from, to) =>
+    ipcRenderer.invoke(invokeChannels.recalculatePrices, { from, to }),
   openFileDialog: (options) => ipcRenderer.invoke(invokeChannels.openFileDialog, options),
   showCharacterDbFile: () => ipcRenderer.invoke(invokeChannels.showCharacterDbFile),
   refreshUi: () => ipcRenderer.send(sendChannels.refreshUi),

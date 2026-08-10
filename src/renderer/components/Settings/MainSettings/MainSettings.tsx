@@ -134,6 +134,9 @@ const MainSettings = ({ settings, store, runStore, revalidate }) => {
     !!settings.autoScreenshotOnMapEntry?.enabled
   );
   const [forceDebugModeState, setForceDebugModeState] = React.useState(!!settings.forceDebugMode);
+  const [priceHistoryWindowWeeksState, setPriceHistoryWindowWeeksState] = React.useState(
+    settings.priceHistoryWindowWeeks ?? 1
+  );
 
   const handleRedirectToLogin = () => {
     navigate('/login');
@@ -169,7 +172,8 @@ const MainSettings = ({ settings, store, runStore, revalidate }) => {
         !!(settings.screenshots && settings.screenshots.allowCustomShortcut) ||
       runParseScreenshotEnabledState !== !!settings.runParseScreenshotEnabled ||
       autoScreenshotOnMapEntryState !== !!settings.autoScreenshotOnMapEntry?.enabled ||
-      forceDebugModeState !== !!settings.forceDebugMode
+      forceDebugModeState !== !!settings.forceDebugMode ||
+      priceHistoryWindowWeeksState !== (settings.priceHistoryWindowWeeks ?? 1)
     );
   }, [
     character,
@@ -186,6 +190,7 @@ const MainSettings = ({ settings, store, runStore, revalidate }) => {
     runParseScreenshotEnabledState,
     autoScreenshotOnMapEntryState,
     forceDebugModeState,
+    priceHistoryWindowWeeksState,
     settings,
     store.characters,
   ]);
@@ -211,6 +216,7 @@ const MainSettings = ({ settings, store, runStore, revalidate }) => {
     setRunParseScreenshotEnabledState(!!settings.runParseScreenshotEnabled);
     setAutoScreenshotOnMapEntryState(!!settings.autoScreenshotOnMapEntry?.enabled);
     setForceDebugModeState(!!settings.forceDebugMode);
+    setPriceHistoryWindowWeeksState(settings.priceHistoryWindowWeeks ?? 1);
     setOverlayEnabled(!!settings.overlayEnabled);
     setOverlayPersistenceEnabled(!!settings.overlayPersistenceEnabled);
   };
@@ -233,6 +239,7 @@ const MainSettings = ({ settings, store, runStore, revalidate }) => {
       enableIncubatorAlert: enableIncubatorAlertState,
       runParseScreenshotEnabled: runParseScreenshotEnabledState,
       forceDebugMode: forceDebugModeState,
+      priceHistoryWindowWeeks: priceHistoryWindowWeeksState,
       screenshots: {
         allowCustomShortcut: enableScreenshotCustomShortcutState,
         allowFolderWatch: enableScreenshotFolderWatchState,
@@ -508,6 +515,32 @@ const MainSettings = ({ settings, store, runStore, revalidate }) => {
             }
             label="Force Debug Mode"
           />
+        </Box>
+        <Divider className="Settings__Separator" />
+        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+          <div className="Text--Normal">Price History Chart Range</div>
+          <ButtonGroup size="small" variant="outlined" aria-label="Price history chart range">
+            {(
+              [
+                { value: 1, label: '1 Week' },
+                { value: 2, label: '2 Weeks' },
+                { value: 3, label: '3 Weeks' },
+                { value: 4, label: '4 Weeks' },
+                { value: 'all', label: 'Full League' },
+              ] as { value: 1 | 2 | 3 | 4 | 'all'; label: string }[]
+            ).map(({ value, label }) => (
+              <Button
+                key={value}
+                variant={priceHistoryWindowWeeksState === value ? 'contained' : 'outlined'}
+                onClick={() => setPriceHistoryWindowWeeksState(value)}
+              >
+                {label}
+              </Button>
+            ))}
+          </ButtonGroup>
+          <FormHelperText>
+            How much history the item price chart on the Prices page shows by default.
+          </FormHelperText>
         </Box>
         {/* TODO: Add these settings if needed */}
         {/* <Divider className="Settings__Separator" />

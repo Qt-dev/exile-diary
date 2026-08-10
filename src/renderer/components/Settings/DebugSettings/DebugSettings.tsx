@@ -92,7 +92,16 @@ const DebugSettings = ({ runStore, settings }) => {
           <DatePicker
             label="From"
             value={reCalculateProfitStart}
-            slotProps={{ textField: { size: 'small' } }}
+            slotProps={{
+              textField: {
+                size: 'small',
+                sx: {
+                  '& .MuiInputBase-input': { color: 'white' },
+                  '& .MuiInputLabel-root': { color: 'white' },
+                  '& .MuiSvgIcon-root': { color: 'white' },
+                },
+              },
+            }}
             maxDate={now}
             onChange={(newValue) => setReCalculateProfitStart(newValue)}
           />
@@ -101,7 +110,16 @@ const DebugSettings = ({ runStore, settings }) => {
           <DatePicker
             label="To"
             value={reCalculateProfitEnd}
-            slotProps={{ textField: { size: 'small' } }}
+            slotProps={{
+              textField: {
+                size: 'small',
+                sx: {
+                  '& .MuiInputBase-input': { color: 'white' },
+                  '& .MuiInputLabel-root': { color: 'white' },
+                  '& .MuiSvgIcon-root': { color: 'white' },
+                },
+              },
+            }}
             maxDate={now}
             onChange={(newValue) => setReCalculateProfitEnd(newValue)}
           />

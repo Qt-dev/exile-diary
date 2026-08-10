@@ -108,6 +108,8 @@ jest.mock('fs', () => ({
   readFileSync: jest.fn(),
   writeFileSync: jest.fn(),
   unlinkSync: jest.fn(),
+  mkdirSync: jest.fn(),
+  readdirSync: jest.fn(() => []),
   createReadStream: jest.fn(),
   createWriteStream: jest.fn(),
   promises: {

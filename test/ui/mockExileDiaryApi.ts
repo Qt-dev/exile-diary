@@ -198,6 +198,54 @@ export function installMockExileDiaryApi(requestedScenario: string) {
       record('getStrategyStats', strategyId);
       return {} as any;
     },
+    getPricesCatalog: async (options) => {
+      record('getPricesCatalog', options);
+      return [];
+    },
+    getItemPriceDetails: async (itemIdentifier, league) => {
+      record('getItemPriceDetails', { itemIdentifier, league });
+      return {
+        identifier: itemIdentifier,
+        category: 'Currency',
+        unitChaosPrice: 150,
+        unitDivinePrice: 1,
+        divineChaosRate: 150,
+        sparkline: [],
+        sparklineWindowWeeks: 1,
+        activeOverride: undefined,
+        drops: [],
+        droppedQuantity: 0,
+        totalChaosValue: 0,
+      };
+    },
+    refreshItemPriceHistory: async (itemIdentifier, league) => {
+      record('refreshItemPriceHistory', { itemIdentifier, league });
+      return {
+        identifier: itemIdentifier,
+        category: 'Currency',
+        unitChaosPrice: 150,
+        unitDivinePrice: 1,
+        divineChaosRate: 150,
+        sparkline: [],
+        sparklineWindowWeeks: 1,
+        activeOverride: undefined,
+        drops: [],
+        droppedQuantity: 0,
+        totalChaosValue: 0,
+      };
+    },
+    addPriceOverride: async (params) => {
+      record('addPriceOverride', params);
+      return {};
+    },
+    deletePriceOverride: async (itemIdentifier, league) => {
+      record('deletePriceOverride', { itemIdentifier, league });
+      return true;
+    },
+    recalculatePrices: async (options) => {
+      record('recalculatePrices', options);
+      return { updatedRuns: 0, updatedItems: 0 };
+    },
     openFileDialog: async (options) => {
       record('openFileDialog', options);
       return { canceled: false, filePaths: ['C:\\Fixture'] };

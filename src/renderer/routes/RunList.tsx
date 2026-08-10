@@ -20,7 +20,7 @@ import { useNavigate } from 'react-router-dom';
 import { observer } from 'mobx-react-lite';
 import { electronService } from '../electron.service';
 import StrategySelector from '../components/Strategies/StrategySelector';
-import type { Strategy } from '../../shared/strategies';
+import type { RunStrategy, Strategy } from '../../shared/strategies';
 
 const RunList = ({ NumbersOfMapsToShow = 10, store, isBoxed = true }) => {
   const navigate = useNavigate();
@@ -28,6 +28,7 @@ const RunList = ({ NumbersOfMapsToShow = 10, store, isBoxed = true }) => {
   const [isDrawerOpen, setIsDrawerOpen] = React.useState(false);
   const [page, setPage] = React.useState(0);
   const [strategies, setStrategies] = React.useState<Strategy[]>([]);
+  const [defaultStrategies, setDefaultStrategies] = React.useState<RunStrategy[]>([]);
 
   React.useEffect(() => {
     if (typeof electronService.listStrategies !== 'function') return;
@@ -36,6 +37,23 @@ const RunList = ({ NumbersOfMapsToShow = 10, store, isBoxed = true }) => {
       .then((loaded) => setStrategies(loaded ?? []))
       .catch(() => undefined);
   }, []);
+
+  React.useEffect(() => {
+    void electronService
+      .getSettings(['defaultStrategyIds'])
+      .then((loaded) => {
+        const ids: number[] = loaded?.defaultStrategyIds ?? [];
+        if (ids.length === 0) return;
+        const matches = strategies.filter((strategy) => ids.includes(strategy.id));
+        if (matches.length > 0) setDefaultStrategies(matches);
+      })
+      .catch(() => undefined);
+  }, [strategies]);
+
+  const handleDefaultStrategyChange = (next: Strategy[]) => {
+    setDefaultStrategies(next);
+    void electronService.saveSettings({ defaultStrategyIds: next.map((strategy) => strategy.id) });
+  };
 
   const togglePopupMenu = () => {
     setIsDrawerOpen(!isDrawerOpen);
@@ -80,6 +98,15 @@ const RunList = ({ NumbersOfMapsToShow = 10, store, isBoxed = true }) => {
         {/* <MenuIcon className="Run-List__Header__Burger" onClick={togglePopupMenu}>
           ≡
         </MenuIcon> */}
+        <div className="Run-List__Header__DefaultStrategy">
+          <StrategySelector
+            options={strategies}
+            value={defaultStrategies}
+            onChange={handleDefaultStrategyChange}
+            label="Default Strategies"
+            placeholder="No strategy"
+          />
+        </div>
       </div>
       <Drawer anchor="right" open={isDrawerOpen} onClose={togglePopupMenu}>
         {FilterMenu()}

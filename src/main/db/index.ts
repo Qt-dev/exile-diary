@@ -636,6 +636,34 @@ const Migrations = {
         `,
         `pragma user_version = 1`,
       ],
+      [
+        `
+          create table if not exists price_overrides (
+            item_identifier text primary key not null,
+            category text,
+            price real not null,
+            currency_type text not null default 'chaos',
+            input_price real not null,
+            updated_at text not null default (datetime('now'))
+          )
+        `,
+        `pragma user_version = 2`,
+      ],
+      [
+        `
+          create table if not exists price_overrides_v3 (
+            item_identifier text primary key not null,
+            category text,
+            price real not null,
+            currency_type text not null default 'chaos',
+            input_price real not null,
+            updated_at text not null default (datetime('now'))
+          )
+        `,
+        `drop table if exists price_overrides`,
+        `alter table price_overrides_v3 rename to price_overrides`,
+        `pragma user_version = 3`,
+      ],
     ],
     maintenance: [
       `
@@ -654,6 +682,16 @@ const Migrations = {
           timestamp text primary key not null,
           items text not null,
           value text not null
+        )
+      `,
+      `
+        create table if not exists price_overrides (
+          item_identifier text primary key not null,
+          category text,
+          price real not null,
+          currency_type text not null default 'chaos',
+          input_price real not null,
+          updated_at text not null default (datetime('now'))
         )
       `,
     ],
@@ -917,7 +955,7 @@ const RequiredCharacterTables = [
   'run_strategy',
 ];
 
-const RequiredLeagueTables = ['characters', 'fullrates', 'stashes'];
+const RequiredLeagueTables = ['characters', 'fullrates', 'stashes', 'price_overrides'];
 
 // External interface for DB
 const DB = {

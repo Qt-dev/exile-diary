@@ -280,6 +280,16 @@ const LogProcessor = {
         `New map run created for area ${areaId} with level ${actualLevel} and seed ${seed}. Run ID: ${runId}`
       );
 
+      const defaultStrategyIds: number[] = SettingsManager.get('defaultStrategyIds') || [];
+      if (defaultStrategyIds.length > 0) {
+        try {
+          await DB.setRunStrategies(runId, defaultStrategyIds);
+          logger.info(`Applied default strategies [${defaultStrategyIds}] to run ${runId}`);
+        } catch (error) {
+          logger.error(`Unable to apply default strategies to run ${runId}: ${error}`);
+        }
+      }
+
       emitter.emit('client-logs:generated-run', {
         areaName,
         timestamp,

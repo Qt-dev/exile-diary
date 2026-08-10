@@ -86,6 +86,10 @@ const DefaultSettings = {
     enabled: false,
     delay: 2,
   },
+  defaultStrategyIds: [] as number[],
+  // How far back the item price-history chart looks: 1-4 weeks, or 'all' for
+  // the item's full recorded league history.
+  priceHistoryWindowWeeks: 1 as 1 | 2 | 3 | 4 | 'all',
 };
 
 class SettingsManager {

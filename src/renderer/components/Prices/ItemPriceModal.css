@@ -1,0 +1,400 @@
+.ItemPriceModal__Overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.75);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1300;
+}
+
+.ItemPriceModal__Container {
+  background: #141724;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 12px;
+  width: 820px;
+  max-width: 95vw;
+  max-height: 90vh;
+  overflow-y: auto;
+  padding: 24px;
+  color: #e2e8f0;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.7);
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.ItemPriceModal__Header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  padding-bottom: 16px;
+}
+
+.ItemPriceModal__TitleGroup {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.ItemPriceModal__Icon {
+  width: 44px;
+  height: 44px;
+  object-fit: contain;
+  background: rgba(0, 0, 0, 0.4);
+  border-radius: 6px;
+  padding: 4px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.ItemPriceModal__IconPlaceholder {
+  width: 44px;
+  height: 44px;
+  background: #1e293b;
+  color: #38bdf8;
+  font-size: 1.4rem;
+  font-weight: bold;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.ItemPriceModal__ItemName {
+  margin: 0;
+  font-size: 1.3rem;
+  font-weight: 600;
+  color: #f8fafc;
+}
+
+.ItemPriceModal__Category {
+  display: inline-block;
+  background: rgba(56, 189, 248, 0.15);
+  color: #38bdf8;
+  border-radius: 4px;
+  padding: 2px 8px;
+  font-size: 0.75rem;
+  margin-top: 3px;
+}
+
+.ItemPriceModal__CloseBtn {
+  color: #94a3b8 !important;
+}
+
+.ItemPriceModal__CloseBtn:hover {
+  color: #f8fafc !important;
+}
+
+.ItemPriceModal__Loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  padding: 48px;
+  color: #94a3b8;
+}
+
+.ItemPriceModal__Content {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.ItemPriceModal__StatsRow {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+}
+
+.ItemPriceModal__StatCard {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 8px;
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.ItemPriceModal__StatLabel {
+  font-size: 0.7rem;
+  color: #94a3b8;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.ItemPriceModal__StatValue {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #f8fafc;
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+}
+
+.ItemPriceModal__StatSub {
+  font-size: 0.8rem;
+  color: #94a3b8;
+  font-weight: normal;
+}
+
+/* Chart */
+.ItemPriceModal__ChartSection {
+  background: #0f172a;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.ItemPriceModal__ChartHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.85rem;
+}
+
+.ItemPriceModal__ChartTitle {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 600;
+  color: #cbd5e1;
+}
+
+.ItemPriceModal__ChartLegend {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.ItemPriceModal__RefreshHistoryBtn {
+  font-size: 0.75rem;
+  padding: 2px 10px;
+  color: #94a3b8;
+  border-color: rgba(255, 255, 255, 0.15);
+}
+
+.ItemPriceModal__LegendItem {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.8rem;
+  color: #94a3b8;
+}
+
+.ItemPriceModal__LegendDot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+
+.ItemPriceModal__LegendDot.market {
+  background: #38bdf8;
+}
+
+.ItemPriceModal__LegendDot.override {
+  background: #f59e0b;
+}
+
+.ItemPriceModal__SvgWrapper {
+  position: relative;
+  width: 100%;
+}
+
+.ItemPriceModal__Svg {
+  width: 100%;
+  height: auto;
+  overflow: visible;
+}
+
+.ItemPriceModal__ChartPoint {
+  cursor: pointer;
+  transition: r 0.15s ease, fill 0.15s ease;
+}
+
+.ItemPriceModal__ChartPoint:hover {
+  r: 6;
+  fill: #60a5fa;
+}
+
+.ItemPriceModal__ChartTooltip {
+  position: absolute;
+  pointer-events: none;
+  background: #1e293b;
+  border: 1px solid #38bdf8;
+  border-radius: 6px;
+  padding: 6px 10px;
+  font-size: 0.75rem;
+  transform: translateX(-50%);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+  z-index: 10;
+}
+
+.ItemPriceModal__TooltipTime {
+  color: #94a3b8;
+}
+
+.ItemPriceModal__TooltipVal {
+  color: #f8fafc;
+  font-weight: bold;
+}
+
+.ItemPriceModal__EmptyChart {
+  padding: 32px;
+  text-align: center;
+  color: #64748b;
+  font-size: 0.9rem;
+}
+
+/* Override Controls */
+.ItemPriceModal__OverrideSection {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.ItemPriceModal__SectionTitle {
+  margin: 0;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #cbd5e1;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.ItemPriceModal__ActiveTag {
+  background: rgba(245, 158, 11, 0.15);
+  color: #f59e0b;
+  border-radius: 4px;
+  padding: 1px 6px;
+  font-size: 0.7rem;
+  font-weight: 500;
+}
+
+.ItemPriceModal__MarketTag {
+  background: rgba(148, 163, 184, 0.15);
+  color: #94a3b8;
+  border-radius: 4px;
+  padding: 1px 6px;
+  font-size: 0.7rem;
+  font-weight: 500;
+}
+
+.ItemPriceModal__OverrideCard {
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.ItemPriceModal__FormRow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.ItemPriceModal__Input {
+  flex: 1;
+  min-width: 180px;
+}
+
+.ItemPriceModal__Input .MuiOutlinedInput-root {
+  background: rgba(0, 0, 0, 0.3);
+  color: #fff;
+}
+
+.ItemPriceModal__Input .MuiInputLabel-root {
+  color: #94a3b8;
+}
+
+.ItemPriceModal__UnitToggle button {
+  color: #94a3b8;
+  border-color: rgba(255, 255, 255, 0.15) !important;
+}
+
+.ItemPriceModal__UnitToggle button.active {
+  background: #2563eb !important;
+  color: #fff !important;
+  border-color: #2563eb !important;
+}
+
+.ItemPriceModal__SaveBtn {
+  background: #2563eb !important;
+  font-weight: 600 !important;
+  text-transform: none !important;
+  padding: 7px 18px !important;
+}
+
+.ItemPriceModal__SaveBtn:hover {
+  background: #1d4ed8 !important;
+}
+
+.ItemPriceModal__ResetBtn {
+  color: #f87171 !important;
+  border-color: rgba(248, 113, 113, 0.4) !important;
+  text-transform: none !important;
+  font-weight: 600 !important;
+}
+
+.ItemPriceModal__ResetBtn:hover {
+  background: rgba(248, 113, 113, 0.1) !important;
+  border-color: #f87171 !important;
+}
+
+.ItemPriceModal__Error {
+  color: #f87171;
+  font-size: 0.8rem;
+}
+
+.ItemPriceModal__HelpText {
+  font-size: 0.78rem;
+  color: #94a3b8;
+  line-height: 1.4;
+}
+
+/* Drop Table */
+.ItemPriceModal__TableSection {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.ItemPriceModal__TableTitle {
+  margin: 0;
+  font-size: 0.9rem;
+  color: #cbd5e1;
+}
+
+.ItemPriceModal__Table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.85rem;
+}
+
+.ItemPriceModal__Table th {
+  text-align: left;
+  padding: 8px 12px;
+  color: #94a3b8;
+  background: rgba(255, 255, 255, 0.02);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.ItemPriceModal__Table td {
+  padding: 8px 12px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+}
