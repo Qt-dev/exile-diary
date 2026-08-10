@@ -1,5 +1,6 @@
 import SettingsManager from '../../SettingsManager';
 import PriceSnapshotStore from '../snapshots/PriceSnapshotStore';
+import priceOverrides from '../../db/repositories/priceOverrides';
 import Constants from '../../../helpers/constants';
 import * as ItemCategoryParser from '../../../helpers/item';
 import { getItemModDescriptions, getLegacyFrameType } from '../../../helpers/poeItemApi';
@@ -1186,8 +1187,40 @@ class PriceMatcher {
   }
 }
 
+export function extractItemTimestamp(item: any): string {
+  if (item.drop_time) return dayjs(item.drop_time).toISOString();
+  if (item.timestamp) return dayjs(item.timestamp).toISOString();
+  if (item.event_id) {
+    const s = String(item.event_id);
+    if (s.length >= 14) {
+      const year = s.slice(0, 4);
+      const month = s.slice(4, 6);
+      const day = s.slice(6, 8);
+      const hour = s.slice(8, 10);
+      const min = s.slice(10, 12);
+      const sec = s.slice(12, 14);
+      return dayjs(`${year}-${month}-${day}T${hour}:${min}:${sec}`).toISOString();
+    } else if (s.length === 8) {
+      const year = s.slice(0, 4);
+      const month = s.slice(4, 6);
+      const day = s.slice(6, 8);
+      return dayjs(`${year}-${month}-${day}`).toISOString();
+    }
+  }
+  return dayjs().toISOString();
+}
+
+export function extractItemIdentifier(item: any): string {
+  if (item.item_identifier) return item.item_identifier;
+  if (item.identifier) return item.identifier;
+  if (item.name && item.name !== item.typeline && item.name.length > 0) {
+    return item.name;
+  }
+  return item.typeline || item.name || '';
+}
+
 /**
- * Price an item from the rates pulled from Poe.Ninja. Main point of entry for the module
+ * Price an item from the rates pulled from Poe.Ninja or user price overrides. Main point of entry for the module
  * @param {any} item Item to get the value of
  * @param {string} league [Optional] League to get the rates from. Defaults to the active league
  * @param {boolean} forceToday [Optional] Whether or not to force the use of today's rates. Defaults to false
@@ -1195,10 +1228,64 @@ class PriceMatcher {
  */
 async function price(
   item: any,
-  league: string = SettingsManager.get('activeProfile').league,
+  league: string = SettingsManager.get('activeProfile')?.league || 'Standard',
   forceToday: boolean = false
 ): Promise<PriceResult> {
-  const date = forceToday ? dayjs().format('YYYYMMDD') : dayjs(item.drop_time).format('YYYYMMDD');
+  const itemTimestamp = forceToday ? dayjs().toISOString() : extractItemTimestamp(item);
+  const date = dayjs(itemTimestamp).format('YYYYMMDD');
+  const identifier = extractItemIdentifier(item);
+
+  // Check Static Price Overrides in League DB
+  if (identifier && league) {
+    try {
+      const override = await priceOverrides.getOverride(league, identifier);
+      if (override) {
+        const unitChaos = override.price ?? 0;
+        const stackSize = item.stack_size ?? item.stackSize ?? 1;
+        const value = Number((unitChaos * stackSize).toFixed(2));
+        const explanation: ItemValuationExplanation = {
+          snapshot: {
+            snapshotId: `override-${identifier}`,
+            date: dayjs(override.updated_at).format('YYYYMMDD'),
+            league,
+            source: 'poe.ninja',
+          },
+          matchedRule: 'Static Price Override',
+          finalValue: value,
+          isVendorRecipe: false,
+          item: {
+            typeline: item.typeline,
+            rarity: item.rarity,
+            category: item.category,
+            stackSize,
+            rawItemStored: Boolean(item.raw_data),
+          },
+          lookupTrail: [
+            {
+              table: 'price_overrides',
+              identifier,
+              unitChaosValue: unitChaos,
+              stackSize,
+              totalChaosValue: value,
+              matched: true,
+              passedMinValueFilter: true,
+            },
+          ],
+          notes: [
+            `Static override active: ${override.input_price ?? unitChaos} ${override.currency_type} (${unitChaos} c)`,
+          ],
+        };
+        return {
+          isVendor: false,
+          value,
+          explanation,
+        };
+      }
+    } catch (err) {
+      logger.error('Error checking price override:', err);
+    }
+  }
+
   if (!matchers[date]) matchers[date] = new PriceMatcher(date);
   const matcher: PriceMatcher = matchers[date];
   await matcher.fetchRates(league);
@@ -1230,11 +1317,17 @@ async function price(
     };
   }
 
-  item.parsedItem = JSON.parse(item.raw_data);
-  item.parsedItem.explicitMods = getItemModDescriptions(item.parsedItem.explicitMods);
-  item.parsedItem.implicitMods = getItemModDescriptions(item.parsedItem.implicitMods);
-  item.parsedItem.enchantMods = getItemModDescriptions(item.parsedItem.enchantMods);
-  item.parsedItem.frameType = getLegacyFrameType(item.parsedItem) ?? 0;
+  if (item.raw_data) {
+    try {
+      item.parsedItem = JSON.parse(item.raw_data);
+      item.parsedItem.explicitMods = getItemModDescriptions(item.parsedItem.explicitMods);
+      item.parsedItem.implicitMods = getItemModDescriptions(item.parsedItem.implicitMods);
+      item.parsedItem.enchantMods = getItemModDescriptions(item.parsedItem.enchantMods);
+      item.parsedItem.frameType = getLegacyFrameType(item.parsedItem) ?? 0;
+    } catch (e) {
+      logger.error('Error parsing raw_data for item:', e);
+    }
+  }
 
   let minItemValue = 0;
 
@@ -1260,6 +1353,16 @@ async function getCurrencyByName(
   timestamp = dayjs().format('YYYYMMDD'),
   league = SettingsManager.get('activeProfile')?.league || 'Standard'
 ) {
+  if (league) {
+    try {
+      const override = await priceOverrides.getOverride(league, type);
+      if (override && override.price !== null) {
+        return override.price;
+      }
+    } catch (err) {
+      // ignore
+    }
+  }
   const rates = await getRatesFor(timestamp, league);
   if (!rates || !rates['Currency']) {
     return 0;
@@ -1274,13 +1377,55 @@ async function getCurrencyByName(
   }
 }
 
+async function getEffectivePrice(
+  itemIdentifier: string,
+  timestamp: string = dayjs().toISOString(),
+  league: string = SettingsManager.get('activeProfile')?.league || 'Standard'
+): Promise<{ price: number; isOverride: boolean; currencyType?: string; inputPrice?: number | null }> {
+  if (league && itemIdentifier) {
+    try {
+      const override = await priceOverrides.getOverride(league, itemIdentifier);
+      if (override && override.price !== null) {
+        return {
+          price: override.price,
+          isOverride: true,
+          currencyType: override.currency_type,
+          inputPrice: override.input_price,
+        };
+      }
+    } catch (e) {
+      // ignore
+    }
+  }
+
+  const date = dayjs(timestamp).format('YYYYMMDD');
+  const rates = await getRatesFor(date, league);
+  if (rates) {
+    for (const category of Object.keys(rates)) {
+      if (rates[category] && rates[category][itemIdentifier] !== undefined) {
+        return {
+          price: rates[category][itemIdentifier],
+          isOverride: false,
+        };
+      }
+    }
+  }
+  return { price: 0, isOverride: false };
+}
+
 module.exports.price = price;
 module.exports.getRatesFor = getRatesFor;
 module.exports.getCurrencyByName = getCurrencyByName;
+module.exports.getEffectivePrice = getEffectivePrice;
+module.exports.extractItemIdentifier = extractItemIdentifier;
+module.exports.extractItemTimestamp = extractItemTimestamp;
 
 export default {
   price,
   getRatesFor,
   getCurrencyByName,
+  getEffectivePrice,
+  extractItemIdentifier,
+  extractItemTimestamp,
   updateRates,
 };

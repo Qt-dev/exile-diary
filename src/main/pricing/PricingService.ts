@@ -10,6 +10,7 @@ import {
 import { normalizePoeNinjaLeagueName } from './poe-ninja/leagueResolver';
 import { createPricingTransport } from './transports/createPricingTransport';
 import type { PricingTransport } from './transports/PricingTransport';
+import { pricingHistoryStore } from './history/PricingHistoryStore';
 
 const EventEmitter = require('events');
 const dayjs = require('dayjs');
@@ -144,6 +145,7 @@ class PricingService {
 
       if (hasExisting) {
         logger.info(`Found existing ${activeProfile.league} rates for ${today}`);
+        void pricingHistoryStore.eagerSync(this.getNinjaLeagueName());
 
         if (!isForced) {
           this.scheduleNextUpdate();
@@ -215,6 +217,7 @@ class PricingService {
       }
       emitter.emit('doneGettingPrices');
       this.ratesReady = true;
+      void pricingHistoryStore.eagerSync(this.getNinjaLeagueName());
       this.scheduleNextUpdate();
     } catch (e) {
       logger.info('Error getting rates: ' + e);
