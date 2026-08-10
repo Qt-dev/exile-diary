@@ -49,6 +49,7 @@ vi.mock('../../src/renderer/electron.service', () => ({
     addPriceOverride: vi.fn().mockResolvedValue({}),
     deletePriceOverride: vi.fn().mockResolvedValue(true),
     recalculatePrices: vi.fn().mockResolvedValue({ updatedRuns: 1, updatedItems: 5 }),
+    on: vi.fn().mockReturnValue(() => {}),
   },
 }));
 

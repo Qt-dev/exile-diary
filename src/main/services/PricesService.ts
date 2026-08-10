@@ -64,8 +64,10 @@ export type ItemPriceDetails = {
   totalChaosValue: number;
 };
 
+export type TimeRangePreset = '1h' | '3h' | '6h' | '12h' | '1d' | '1w' | 'all' | 'custom';
+
 export type GetCatalogOptions = {
-  timePreset?: '24h' | '3d' | '7d' | 'league' | 'custom';
+  timePreset?: TimeRangePreset;
   from?: string;
   to?: string;
   search?: string;
@@ -74,7 +76,7 @@ export type GetCatalogOptions = {
 };
 
 export type RecalculatePricesOptions = {
-  timePreset?: '24h' | '3d' | '7d' | 'all' | 'custom';
+  timePreset?: TimeRangePreset;
   relativeHours?: number;
   from?: string;
   to?: string;
@@ -94,18 +96,24 @@ class PricesService {
   calculateTimeRange(preset?: string, customFrom?: string, customTo?: string): { from?: string; to?: string } {
     const now = dayjs();
     switch (preset) {
-      case '24h':
-        return { from: now.subtract(24, 'hour').toISOString(), to: now.toISOString() };
-      case '3d':
-        return { from: now.subtract(3, 'day').toISOString(), to: now.toISOString() };
-      case '7d':
-        return { from: now.subtract(7, 'day').toISOString(), to: now.toISOString() };
+      case '1h':
+        return { from: now.subtract(1, 'hour').toISOString(), to: now.toISOString() };
+      case '3h':
+        return { from: now.subtract(3, 'hour').toISOString(), to: now.toISOString() };
+      case '6h':
+        return { from: now.subtract(6, 'hour').toISOString(), to: now.toISOString() };
+      case '12h':
+        return { from: now.subtract(12, 'hour').toISOString(), to: now.toISOString() };
+      case '1d':
+        return { from: now.subtract(1, 'day').toISOString(), to: now.toISOString() };
+      case '1w':
+        return { from: now.subtract(1, 'week').toISOString(), to: now.toISOString() };
       case 'custom':
         return {
           from: customFrom ? dayjs(customFrom).toISOString() : undefined,
           to: customTo ? dayjs(customTo).toISOString() : undefined,
         };
-      case 'league':
+      case 'all':
       default:
         return {};
     }
@@ -427,12 +435,18 @@ class PricesService {
 
     if (options.relativeHours && options.relativeHours > 0) {
       fromDate = dayjs().subtract(options.relativeHours, 'hour').toISOString();
-    } else if (options.timePreset === '24h') {
-      fromDate = dayjs().subtract(24, 'hour').toISOString();
-    } else if (options.timePreset === '3d') {
-      fromDate = dayjs().subtract(3, 'day').toISOString();
-    } else if (options.timePreset === '7d') {
-      fromDate = dayjs().subtract(7, 'day').toISOString();
+    } else if (options.timePreset === '1h') {
+      fromDate = dayjs().subtract(1, 'hour').toISOString();
+    } else if (options.timePreset === '3h') {
+      fromDate = dayjs().subtract(3, 'hour').toISOString();
+    } else if (options.timePreset === '6h') {
+      fromDate = dayjs().subtract(6, 'hour').toISOString();
+    } else if (options.timePreset === '12h') {
+      fromDate = dayjs().subtract(12, 'hour').toISOString();
+    } else if (options.timePreset === '1d') {
+      fromDate = dayjs().subtract(1, 'day').toISOString();
+    } else if (options.timePreset === '1w') {
+      fromDate = dayjs().subtract(1, 'week').toISOString();
     } else if (options.timePreset === 'custom' && options.from) {
       fromDate = dayjs(options.from).toISOString();
       if (options.to) toDate = dayjs(options.to).toISOString();

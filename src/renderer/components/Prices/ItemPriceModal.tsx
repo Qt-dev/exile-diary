@@ -69,8 +69,8 @@ export default function ItemPriceModal({
   } | null>(null);
   const [errorMessage, setErrorMessage] = useState('');
 
-  const loadDetails = async () => {
-    setLoading(true);
+  const loadDetails = async (options: { silent?: boolean } = {}) => {
+    if (!options.silent) setLoading(true);
     try {
       const data = await electronService.getItemPriceDetails(itemIdentifier);
       setDetails(data);
@@ -86,12 +86,21 @@ export default function ItemPriceModal({
     } catch (err) {
       console.error('Failed to load item price details:', err);
     } finally {
-      setLoading(false);
+      if (!options.silent) setLoading(false);
     }
   };
 
   useEffect(() => {
     loadDetails();
+  }, [itemIdentifier]);
+
+  // Refresh the chart whenever prices update in the background (e.g. daily
+  // auto-refresh, or the "Fetch Rates" debug action), without a loading flicker.
+  useEffect(() => {
+    const unsubscribe = electronService.on('pricesUpdated', () => {
+      loadDetails({ silent: true });
+    });
+    return unsubscribe;
   }, [itemIdentifier]);
 
   const handleSaveOverride = async () => {

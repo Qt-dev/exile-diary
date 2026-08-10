@@ -46,6 +46,18 @@ type CatalogItem = {
 
 type SortField = 'name' | 'category' | 'droppedQuantity' | 'unitChaosPrice' | 'totalChaosValue' | 'hasOverride';
 type SortDirection = 'asc' | 'desc';
+type TimeRangePreset = '1h' | '3h' | '6h' | '12h' | '1d' | '1w' | 'all' | 'custom';
+
+const TIME_RANGE_PRESETS: { key: TimeRangePreset; label: string }[] = [
+  { key: '1h', label: '1hr' },
+  { key: '3h', label: '3hr' },
+  { key: '6h', label: '6hr' },
+  { key: '12h', label: '12hr' },
+  { key: '1d', label: '1 Day' },
+  { key: '1w', label: '1 Week' },
+  { key: 'all', label: 'All Time' },
+  { key: 'custom', label: 'Custom' },
+];
 
 export default function Prices() {
   const [catalog, setCatalog] = useState<CatalogItem[]>([]);
@@ -54,7 +66,7 @@ export default function Prices() {
 
   // Filters
   const [searchQuery, setSearchQuery] = useState('');
-  const [timePreset, setTimePreset] = useState<'24h' | '3d' | '7d' | 'league' | 'custom'>('league');
+  const [timePreset, setTimePreset] = useState<TimeRangePreset>('all');
   const [customFrom, setCustomFrom] = useState('');
   const [customTo, setCustomTo] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('All');
@@ -70,7 +82,7 @@ export default function Prices() {
 
   // Recalculate Dialog state
   const [recalcDialogOpen, setRecalcDialogOpen] = useState(false);
-  const [recalcPreset, setRecalcPreset] = useState<'24h' | '3d' | '7d' | 'all' | 'custom'>('all');
+  const [recalcPreset, setRecalcPreset] = useState<TimeRangePreset>('all');
   const [recalcFrom, setRecalcFrom] = useState('');
   const [recalcTo, setRecalcTo] = useState('');
   const [recalculating, setRecalculating] = useState(false);
@@ -85,8 +97,8 @@ export default function Prices() {
     }
   };
 
-  const loadCatalog = async () => {
-    setLoading(true);
+  const loadCatalog = async (options: { silent?: boolean } = {}) => {
+    if (!options.silent) setLoading(true);
     try {
       const items = await electronService.getPricesCatalog({
         timePreset,
@@ -99,7 +111,7 @@ export default function Prices() {
     } catch (err) {
       console.error('Failed to load prices catalog:', err);
     } finally {
-      setLoading(false);
+      if (!options.silent) setLoading(false);
     }
   };
 
@@ -111,18 +123,22 @@ export default function Prices() {
     loadCatalog();
   }, [timePreset, customFrom, customTo, selectedCategory]);
 
+  // Refresh the catalog whenever prices update in the background (e.g. daily
+  // auto-refresh, or the "Fetch Rates" debug action), without blanking the table.
+  useEffect(() => {
+    const unsubscribe = electronService.on('pricesUpdated', () => {
+      loadDivinePrice();
+      loadCatalog({ silent: true });
+    });
+    return unsubscribe;
+  }, [timePreset, customFrom, customTo, searchQuery, selectedCategory]);
+
   const handleExecuteRecalculate = async () => {
     setRecalculating(true);
     setRecalcResult(null);
     try {
-      let relativeHours: number | undefined;
-      if (recalcPreset === '24h') relativeHours = 24;
-      else if (recalcPreset === '3d') relativeHours = 72;
-      else if (recalcPreset === '7d') relativeHours = 168;
-
       const res = await electronService.recalculatePrices({
         timePreset: recalcPreset,
-        relativeHours,
         from: recalcFrom,
         to: recalcTo,
       });
@@ -252,7 +268,7 @@ export default function Prices() {
           <Button
             variant="outlined"
             startIcon={<RefreshIcon />}
-            onClick={loadCatalog}
+            onClick={() => loadCatalog()}
             disabled={loading}
           >
             Refresh
@@ -308,15 +324,7 @@ export default function Prices() {
         <div className="Prices__TimePresetGroup">
           <span className="Prices__FilterLabel">Loot Window:</span>
           <ButtonGroup size="small" className="Prices__ButtonGroup">
-            {(
-              [
-                { key: '24h', label: '24h' },
-                { key: '3d', label: '3d' },
-                { key: '7d', label: '7d' },
-                { key: 'league', label: 'All Time' },
-                { key: 'custom', label: 'Custom' },
-              ] as { key: typeof timePreset; label: string }[]
-            ).map(({ key, label }) => (
+            {TIME_RANGE_PRESETS.map(({ key, label }) => (
               <Button
                 key={key}
                 onClick={() => setTimePreset(key)}
@@ -337,7 +345,7 @@ export default function Prices() {
         {timePreset === 'custom' && (
           <div className="Prices__CustomRange">
             <TextField
-              type="date"
+              type="datetime-local"
               size="small"
               label="From"
               value={customFrom}
@@ -345,7 +353,7 @@ export default function Prices() {
               InputLabelProps={{ shrink: true }}
             />
             <TextField
-              type="date"
+              type="datetime-local"
               size="small"
               label="To"
               value={customTo}
@@ -598,16 +606,8 @@ export default function Prices() {
             Select the time window of historical runs and drops to backdate with active static price overrides and market rates:
           </p>
 
-          <ButtonGroup size="small" variant="outlined" style={{ width: '100%' }}>
-            {(
-              [
-                { key: '24h', label: 'Last 24h' },
-                { key: '3d', label: 'Last 3 Days' },
-                { key: '7d', label: 'Last 7 Days' },
-                { key: 'all', label: 'All Time' },
-                { key: 'custom', label: 'Custom' },
-              ] as { key: typeof recalcPreset; label: string }[]
-            ).map(({ key, label }) => (
+          <ButtonGroup size="small" variant="outlined" style={{ width: '100%', flexWrap: 'wrap' }}>
+            {TIME_RANGE_PRESETS.map(({ key, label }) => (
               <Button
                 key={key}
                 onClick={() => setRecalcPreset(key)}
@@ -625,9 +625,9 @@ export default function Prices() {
           </ButtonGroup>
 
           {recalcPreset === 'custom' && (
-            <div style={{ display: 'flex', gap: '12px' }}>
+            <div className="Prices__CustomRange" style={{ flexWrap: 'nowrap' }}>
               <TextField
-                type="date"
+                type="datetime-local"
                 size="small"
                 label="From"
                 value={recalcFrom}
@@ -636,7 +636,7 @@ export default function Prices() {
                 fullWidth
               />
               <TextField
-                type="date"
+                type="datetime-local"
                 size="small"
                 label="To"
                 value={recalcTo}

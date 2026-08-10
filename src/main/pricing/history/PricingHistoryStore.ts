@@ -236,7 +236,9 @@ export class PricingHistoryStore {
 
   /**
    * Retrieves 7-day+ market history for an item.
-   * If cached in pricing_history.json, returns the cached history and fetches missing deltas.
+   * Serves the on-disk cache immediately (even if stale) and refreshes it
+   * from poe.ninja in the background so callers never block on the network.
+   * Only blocks on a live fetch when there is no cache at all for this item.
    */
   async getItemHistory(
     itemIdentifier: string,
@@ -253,19 +255,48 @@ export class PricingHistoryStore {
     const cachedItem = leagueRecord.items[key];
     const now = dayjs();
 
-    // If item has a robust multi-day history and was updated in the last 4 hours, serve immediately
-    if (
-      cachedItem &&
-      cachedItem.history.length > 1 &&
-      now.diff(dayjs(cachedItem.lastUpdated), 'hour') < 4
-    ) {
+    if (cachedItem && cachedItem.history.length > 0) {
+      // Serve cache immediately; refresh in the background if it's stale.
+      if (now.diff(dayjs(cachedItem.lastUpdated), 'hour') >= 4) {
+        void this.refreshItemHistory(itemIdentifier, league);
+      }
       return cachedItem.history;
     }
 
-    // Otherwise, fetch fresh history/delta from poe.ninja and merge
+    // No cache at all yet: block on a live fetch so the first view isn't empty.
+    const freshPoints = await this.refreshItemHistory(itemIdentifier, league);
+    if (freshPoints && freshPoints.length > 0) {
+      return freshPoints;
+    }
+
+    return [
+      {
+        time: now.toISOString(),
+        price: 0,
+      },
+    ];
+  }
+
+  /**
+   * Fetches fresh history/delta from poe.ninja and merges it into the cache.
+   * Safe to call in the background without awaiting.
+   */
+  private async refreshItemHistory(
+    itemIdentifier: string,
+    league: string
+  ): Promise<SparklinePoint[] | null> {
+    const key = itemIdentifier.toLowerCase();
+    let leagueRecord = this.data.leagues[league];
+    if (!leagueRecord) {
+      leagueRecord = { items: {} };
+      this.data.leagues[league] = leagueRecord;
+    }
+
     try {
       const freshPoints = await PoeNinjaClient.getItemMarketTrend(itemIdentifier, league);
       if (freshPoints && freshPoints.length > 0 && freshPoints[0].price > 0) {
+        const now = dayjs();
+        const cachedItem = leagueRecord.items[key];
         if (!cachedItem) {
           leagueRecord.items[key] = {
             category: 'General',
@@ -285,17 +316,7 @@ export class PricingHistoryStore {
       logger.warn(`Error updating missing delta for ${itemIdentifier}:`, err);
     }
 
-    // Return existing cached history or single fallback point
-    if (cachedItem && cachedItem.history.length > 0) {
-      return cachedItem.history;
-    }
-
-    return [
-      {
-        time: now.toISOString(),
-        price: 0,
-      },
-    ];
+    return null;
   }
 
   private mergeSinglePoint(history: HistoryPoint[], newPoint: HistoryPoint): void {
