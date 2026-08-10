@@ -57,6 +57,9 @@ jspm_packages/
 # Output of 'npm pack'
 *.tgz
 
+# Portable data
+exile-data/
+
 # Yarn Integrity file
 .yarn-integrity
 
@@ -106,3 +109,8 @@ TODO.txt
 
 # AI Workflow files
 .workflow/ultracode/
+
+agent/
+.agents/
+.claude/
+skills-lock.json

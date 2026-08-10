@@ -45,38 +45,42 @@ export function initPortableMode(): void {
     addLog(`process.cwd(): ${process.cwd()}`);
     addLog(`__dirname: ${__dirname}`);
 
-    // Determine exe directory - ALWAYS use process.execPath (works before app.ready)
-    const exeDir = path.dirname(process.execPath);
+    // Determine exe directory - use process.cwd() if dev testing, otherwise process.execPath
+    const isDevOrTest = !!process.defaultApp || !process.resourcesPath;
+    const exeDir =
+      process.env.PORTABLE === 'true' && isDevOrTest
+        ? process.cwd()
+        : path.dirname(process.execPath);
     addLog(`Executable directory: ${exeDir}`);
-
-    const resolvedBootstrapUserDataPath = resolveBootstrapUserDataPath({
-      isDefaultApp: !!process.defaultApp,
-      moduleDir: __dirname,
-      overriddenUserDataPath: process.env.EXILE_DIARY_USER_DATA_PATH,
-    });
-    if (resolvedBootstrapUserDataPath) {
-      if (process.env.EXILE_DIARY_USER_DATA_PATH) {
-        addLog(`Using EXILE_DIARY_USER_DATA_PATH override: ${resolvedBootstrapUserDataPath}`);
-      } else {
-        addLog(`Using default development userData path: ${resolvedBootstrapUserDataPath}`);
-      }
-
-      const resolvedUserDataPath = resolvedBootstrapUserDataPath;
-      fs.mkdirSync(resolvedUserDataPath, { recursive: true });
-      app.setPath('userData', resolvedUserDataPath);
-      addLog(`userData path overridden to: ${app.getPath('userData')}`);
-      addLog('Skipping portable detection because a bootstrap userData override was provided');
-      addLog('='.repeat(60));
-      addLog('Final status: USERDATA OVERRIDE');
-      addLog('='.repeat(60));
-      return;
-    }
 
     // Check if explicitly set via environment variable (for development testing)
     if (process.env.PORTABLE === 'true') {
       isPortable = true;
       addLog('✓ Forced portable mode via PORTABLE=true env var');
     } else {
+      const resolvedBootstrapUserDataPath = resolveBootstrapUserDataPath({
+        isDefaultApp: !!process.defaultApp,
+        moduleDir: __dirname,
+        overriddenUserDataPath: process.env.EXILE_DIARY_USER_DATA_PATH,
+      });
+      if (resolvedBootstrapUserDataPath) {
+        if (process.env.EXILE_DIARY_USER_DATA_PATH) {
+          addLog(`Using EXILE_DIARY_USER_DATA_PATH override: ${resolvedBootstrapUserDataPath}`);
+        } else {
+          addLog(`Using default development userData path: ${resolvedBootstrapUserDataPath}`);
+        }
+
+        const resolvedUserDataPath = resolvedBootstrapUserDataPath;
+        fs.mkdirSync(resolvedUserDataPath, { recursive: true });
+        app.setPath('userData', resolvedUserDataPath);
+        addLog(`userData path overridden to: ${app.getPath('userData')}`);
+        addLog('Skipping portable detection because a bootstrap userData override was provided');
+        addLog('='.repeat(60));
+        addLog('Final status: USERDATA OVERRIDE');
+        addLog('='.repeat(60));
+        return;
+      }
+
       // Check for portable marker in resources directory
       const resourcesPath = process.resourcesPath;
       const portableMarker = path.join(resourcesPath, 'portable');
@@ -111,7 +115,7 @@ export function initPortableMode(): void {
         }
       }
 
-      isPortable = markerExists;
+      isPortable = Boolean(markerExists);
     }
 
     addLog('='.repeat(60));
