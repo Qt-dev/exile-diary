@@ -340,9 +340,10 @@ const Runs = {
 
   updateItemValues: async (items: any) => {
     logger.info(`Updating item values for ${items.length} items`);
-    const query = 'UPDATE item SET value = ?, valuation = ? WHERE id = ? AND event_id = ?';
+    const query = 'UPDATE item SET value = ?, original_value = ?, valuation = ? WHERE id = ? AND event_id = ?';
     const params = items.map((item: any) => [
       item.value,
+      item.originalValue !== undefined ? item.originalValue : item.value,
       item.valuation ? JSON.stringify(item.valuation) : null,
       item.id,
       item.eventId,

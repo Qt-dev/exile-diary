@@ -8,3 +8,4 @@ export { default as SkillTreeRepository } from './skilltree';
 export { default as StashTabsRepository } from './stashtabs';
 export { default as StatsRepository } from './stats';
 export { default as StrategiesRepository } from './strategies';
+export { default as PriceOverridesRepository } from './priceOverrides';
