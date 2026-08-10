@@ -34,6 +34,11 @@ export const invokeChannels = {
   deleteStrategy: 'strategies:delete',
   setRunStrategies: 'run:strategies:set',
   getStrategyStats: 'strategies:stats',
+  getPricesCatalog: 'prices:get-catalog',
+  getItemPriceDetails: 'prices:get-item-details',
+  addPriceOverride: 'prices:add-override',
+  deletePriceOverride: 'prices:delete-override',
+  recalculatePrices: 'prices:recalculate',
   getOverlayPosition: 'overlay:get-position',
   openFileDialog: 'open-file-dialog',
   showCharacterDbFile: 'show-character-db-file',
@@ -265,6 +270,11 @@ export interface ExileDiaryApi {
   deleteStrategy(strategyId: number): Promise<void>;
   setRunStrategies(runId: string | number, strategyIds: number[]): Promise<any[]>;
   getStrategyStats(strategyId: number): Promise<StrategyStatsResult>;
+  getPricesCatalog(options?: any): Promise<any[]>;
+  getItemPriceDetails(itemIdentifier: string, league?: string): Promise<any>;
+  addPriceOverride(params: any): Promise<any>;
+  deletePriceOverride(itemIdentifier: string, league?: string): Promise<boolean>;
+  recalculatePrices(options?: any): Promise<any>;
   openFileDialog(options: OpenFileDialogOptions): Promise<OpenFileDialogResult>;
   showCharacterDbFile(): Promise<void>;
   refreshUi(): void;

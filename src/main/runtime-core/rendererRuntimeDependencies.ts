@@ -14,7 +14,9 @@ import SearchManager from '../SearchManager';
 import PricingService from '../pricing/PricingService';
 import ItemsDB from '../db/repositories/items';
 import Strategies from '../db/repositories/strategies';
+import PricesService from '../services/PricesService';
 import type { StrategyInput } from '../../shared/strategies';
+import type { GetCatalogOptions, CatalogItem, ItemPriceDetails } from '../services/PricesService';
 
 type Awaitable<T> = T | Promise<T>;
 
@@ -22,6 +24,13 @@ export type RendererRuntimeDependencies = {
   runs: {
     getLastRuns: (size: number) => Promise<any[]>;
     getRun: (runId: number) => Promise<any>;
+  };
+  pricesService: {
+    getCatalog: (options?: GetCatalogOptions) => Promise<CatalogItem[]>;
+    getItemPriceDetails: (itemIdentifier: string, league?: string) => Promise<ItemPriceDetails>;
+    addOverride: (params: any) => Promise<any>;
+    deleteOverride: (id: number, league?: string) => Promise<boolean>;
+    recalculateRange: (from?: string, to?: string) => Promise<void>;
   };
   strategies: {
     list: () => Promise<any[]>;
@@ -94,6 +103,7 @@ export type RendererRunUseCaseDependencies = Pick<
 >;
 
 export type RendererStrategyUseCaseDependencies = Pick<RendererRuntimeDependencies, 'strategies'>;
+export type RendererPriceUseCaseDependencies = Pick<RendererRuntimeDependencies, 'pricesService'>;
 
 export type RendererSettingsUseCaseDependencies = Pick<
   RendererRuntimeDependencies,
@@ -114,6 +124,7 @@ export function createDefaultRendererRuntimeDependencies(): RendererRuntimeDepen
   return {
     runs: Runs,
     strategies: Strategies,
+    pricesService: PricesService,
     settingsManager: SettingsManager,
     gggApi: GGGAPI,
     authManager: AuthManager,
@@ -146,6 +157,12 @@ export function pickRendererStrategyUseCaseDependencies(
   deps: RendererRuntimeDependencies
 ): RendererStrategyUseCaseDependencies {
   return { strategies: deps.strategies };
+}
+
+export function pickRendererPriceUseCaseDependencies(
+  deps: RendererRuntimeDependencies
+): RendererPriceUseCaseDependencies {
+  return { pricesService: deps.pricesService };
 }
 
 export function pickRendererSettingsUseCaseDependencies(

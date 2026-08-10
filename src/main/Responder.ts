@@ -37,6 +37,20 @@ const Responder = {
   setRunStrategies: async (e, { runId, strategyIds }) =>
     RendererAppService.setRunStrategies(runId, strategyIds),
   getStrategyStats: async (e, { strategyId }) => RendererAppService.getStrategyStats(strategyId),
+  getPricesCatalog: async (e, { options }: { options?: any } = {}) =>
+    RendererAppService.getPricesCatalog(options),
+  getItemPriceDetails: async (
+    e,
+    { itemIdentifier, league }: { itemIdentifier: string; league?: string }
+  ) => RendererAppService.getItemPriceDetails(itemIdentifier, league),
+  addPriceOverride: async (e, { params }: { params: any }) =>
+    RendererAppService.addPriceOverride(params),
+  deletePriceOverride: async (e, { id, league }: { id: number; league?: string }) =>
+    RendererAppService.deletePriceOverride(id, league),
+  recalculatePrices: async (
+    e,
+    { from, to }: { from?: string; to?: string } = {}
+  ) => RendererAppService.recalculatePrices(from, to),
 };
 
 export default Responder;

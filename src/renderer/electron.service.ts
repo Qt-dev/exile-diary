@@ -102,6 +102,14 @@ export const electronService = {
   deleteStrategy: (strategyId) => getApi().deleteStrategy(strategyId),
   setRunStrategies: (runId, strategyIds) => getApi().setRunStrategies(runId, strategyIds),
   getStrategyStats: (strategyId) => getApi().getStrategyStats(strategyId),
+  getPricesCatalog: (options?: any) => getApi().getPricesCatalog(options),
+  getItemPriceDetails: (itemIdentifier: string, league?: string) =>
+    getApi().getItemPriceDetails(itemIdentifier, league),
+  addPriceOverride: (params: any) => getApi().addPriceOverride(params),
+  deletePriceOverride: (itemIdentifier: string, league?: string) =>
+    getApi().deletePriceOverride(itemIdentifier, league),
+  recalculatePrices: (options?: any) =>
+    getApi().recalculatePrices(options),
   openFileDialog: (options: OpenFileDialogOptions) => getApi().openFileDialog(options),
   showCharacterDbFile: () => getApi().showCharacterDbFile(),
   refreshUi: () => getApi().refreshUi(),

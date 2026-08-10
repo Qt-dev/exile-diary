@@ -36,6 +36,11 @@ export const responderHandlerKeys = [
   'deleteStrategy',
   'setRunStrategies',
   'getStrategyStats',
+  'getPricesCatalog',
+  'getItemPriceDetails',
+  'addPriceOverride',
+  'deletePriceOverride',
+  'recalculatePrices',
 ] as const;
 
 export function registerResponderHandlers() {

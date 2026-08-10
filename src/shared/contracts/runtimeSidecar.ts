@@ -31,6 +31,11 @@ export const runtimeRendererMethodKeys = [
   'deleteStrategy',
   'setRunStrategies',
   'getStrategyStats',
+  'getPricesCatalog',
+  'getItemPriceDetails',
+  'addPriceOverride',
+  'deletePriceOverride',
+  'recalculatePrices',
 ] as const;
 
 export type RuntimeRendererMethodKey = (typeof runtimeRendererMethodKeys)[number];
