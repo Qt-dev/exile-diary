@@ -86,6 +86,7 @@ const DefaultSettings = {
     enabled: false,
     delay: 2,
   },
+  defaultStrategyIds: [] as number[],
 };
 
 class SettingsManager {

@@ -45,6 +45,7 @@ jest.mock('../../../src/main/SettingsManager', () => ({
     getAll: jest.fn(() => ({
       activeProfile: { characterName: 'AtlasRunner' },
     })),
+    get: jest.fn(() => null),
   },
 }));
 jest.mock('../../../src/main/modules/SkillTreeWatcher', () => ({

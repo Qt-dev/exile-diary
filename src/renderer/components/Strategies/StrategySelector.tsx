@@ -8,6 +8,8 @@ type Props = {
   onChange: (strategies: Strategy[]) => void | Promise<void>;
   label?: string;
   compact?: boolean;
+  multiple?: boolean;
+  placeholder?: string;
 };
 
 export default function StrategySelector({
@@ -16,15 +18,28 @@ export default function StrategySelector({
   onChange,
   label = 'Strategies',
   compact = false,
+  multiple = true,
+  placeholder,
 }: Props) {
   const selected = options.filter((option) => value.some((item) => item.id === option.id));
+
+  const handleChange = (_event: React.SyntheticEvent, next: Strategy[]) => {
+    if (multiple) {
+      void onChange(next);
+      return;
+    }
+    // Single-select: picking a new option replaces the previous one; clearing removes it.
+    const last = next[next.length - 1];
+    void onChange(last ? [last] : []);
+  };
+
   return (
     <Autocomplete
       multiple
       size='small'
       options={options}
       value={selected}
-      onChange={(_event, next) => void onChange(next)}
+      onChange={handleChange}
       getOptionLabel={(option) => option.name}
       isOptionEqualToValue={(option, selectedOption) => option.id === selectedOption.id}
       renderValue={(tagValue, getItemProps) =>
@@ -49,7 +64,7 @@ export default function StrategySelector({
           {...params}
           variant="standard"
           label={compact ? undefined : label}
-          placeholder={selected.length > 0 ? undefined : 'No strategy selected'}
+          placeholder={selected.length > 0 ? undefined : (placeholder ?? 'No strategy selected')}
         />
       )}
       onClick={(event) => event.stopPropagation()}

@@ -39,6 +39,19 @@
   flex-direction: row;
   justify-content: center;
   align-content: center;
+  position: relative;
+}
+
+.Run-List__Header__DefaultStrategy {
+  position: absolute;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 260px;
+}
+
+.Run-List__Header__DefaultStrategy .MuiAutocomplete-root {
+  width: 100%;
 }
 
 .Run-List__Header__Title {
