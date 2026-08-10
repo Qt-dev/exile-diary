@@ -70,6 +70,7 @@ const SideNav = ({ version, isNewVersion, turnNewVersionOff }) => {
     { name: 'Search', link: 'search' },
     { name: 'Stats', link: 'stats' },
     { name: 'Strategies', link: 'strategies' },
+    { name: 'Prices', link: 'prices' },
     { name: 'Settings', link: 'settings' },
     { name: 'Help', link: 'help' },
   ];

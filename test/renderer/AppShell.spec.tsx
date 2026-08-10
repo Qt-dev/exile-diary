@@ -37,6 +37,11 @@ vi.mock('../../src/renderer/electron.service', () => {
       requestNetWorthRefresh: vi.fn(),
       listStrategies: vi.fn().mockResolvedValue([]),
       setRunStrategies: vi.fn().mockResolvedValue([]),
+      getPricesCatalog: vi.fn().mockResolvedValue([]),
+      getItemPriceDetails: vi.fn().mockResolvedValue(null),
+      addPriceOverride: vi.fn().mockResolvedValue({}),
+      deletePriceOverride: vi.fn().mockResolvedValue(true),
+      recalculatePrices: vi.fn().mockResolvedValue(undefined),
     },
   };
 });

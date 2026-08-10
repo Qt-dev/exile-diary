@@ -18,6 +18,7 @@ import LoginBox from './routes/LoginBox';
 import Overlay from './routes/Overlay';
 import Help from './routes/Help';
 import Strategies from './routes/Strategies';
+import Prices from './routes/Prices';
 import { electronService } from './electron.service';
 
 type AppRouteDependencies = {
@@ -124,6 +125,10 @@ export const createAppRoutes = ({
       {
         path: 'strategies/:strategyId',
         element: <Strategies />,
+      },
+      {
+        path: 'prices',
+        element: <Prices />,
       },
       {
         path: 'settings',
