@@ -46,6 +46,28 @@ type ItemMeta = {
   detailsId?: string;
 };
 
+/**
+ * poe.ninja lists one line per gem level/quality/corruption variant under the
+ * same name (e.g. "Foo Support" L1, L20, 20% Q, Corrupted). A plain item name
+ * with no variant info means "base gem", so among same-name candidates prefer
+ * the lowest-level, non-corrupted, non-quality line rather than an arbitrary
+ * (possibly far more expensive) variant.
+ */
+function pickBaseGemLine(lines: any[]): any {
+  if (lines.length === 1) return lines[0];
+  return [...lines].sort((a, b) => {
+    const aCorrupted = a.corrupted ? 1 : 0;
+    const bCorrupted = b.corrupted ? 1 : 0;
+    if (aCorrupted !== bCorrupted) return aCorrupted - bCorrupted;
+    const aQuality = a.gemQuality ?? 0;
+    const bQuality = b.gemQuality ?? 0;
+    if (aQuality !== bQuality) return aQuality - bQuality;
+    const aLevel = a.gemLevel ?? 0;
+    const bLevel = b.gemLevel ?? 0;
+    return aLevel - bLevel;
+  })[0];
+}
+
 export class PoeNinjaClient {
   private trendCache = new Map<string, { timestamp: number; data: SparklinePoint[] }>();
   private itemMetaIndex = new Map<string, ItemMeta>();
@@ -100,19 +122,24 @@ export class PoeNinjaClient {
         }
       }
     } else if (!isExchange && Array.isArray(data.lines)) {
+      const byName = new Map<string, any[]>();
       for (const line of data.lines) {
-        if (line.name) {
-          const key = `${league}:${line.name.toLowerCase()}`;
-          // Retain first/highest priority mapping
-          if (!this.itemMetaIndex.has(key)) {
-            this.itemMetaIndex.set(key, {
-              category,
-              isExchange: false,
-              id: line.id,
-              detailsId: line.detailsId,
-            });
-          }
-        }
+        if (!line.name) continue;
+        const key = `${league}:${line.name.toLowerCase()}`;
+        const bucket = byName.get(key);
+        if (bucket) bucket.push(line);
+        else byName.set(key, [line]);
+      }
+      for (const [key, lines] of byName) {
+        // Re-resolve every sync so a stale wrong-variant mapping (e.g. from a
+        // fetch before this disambiguation existed) gets corrected, not stuck.
+        const line = pickBaseGemLine(lines);
+        this.itemMetaIndex.set(key, {
+          category,
+          isExchange: false,
+          id: line.id,
+          detailsId: line.detailsId,
+        });
       }
     }
   }
@@ -198,8 +225,9 @@ export class PoeNinjaClient {
       try {
         const data = await this.getCategory(cat, league);
         if (data && Array.isArray(data.lines)) {
-          const line = data.lines.find((l: any) => l.name && l.name.toLowerCase() === query);
-          if (line) {
+          const matches = data.lines.filter((l: any) => l.name && l.name.toLowerCase() === query);
+          if (matches.length > 0) {
+            const line = pickBaseGemLine(matches);
             return {
               category: cat,
               isExchange: false,

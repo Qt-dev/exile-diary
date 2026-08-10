@@ -79,6 +79,8 @@ const api: ExileDiaryApi = {
   getPricesCatalog: (options) => ipcRenderer.invoke(invokeChannels.getPricesCatalog, { options }),
   getItemPriceDetails: (itemIdentifier, league) =>
     ipcRenderer.invoke(invokeChannels.getItemPriceDetails, { itemIdentifier, league }),
+  refreshItemPriceHistory: (itemIdentifier, league) =>
+    ipcRenderer.invoke(invokeChannels.refreshItemPriceHistory, { itemIdentifier, league }),
   addPriceOverride: (params) => ipcRenderer.invoke(invokeChannels.addPriceOverride, { params }),
   deletePriceOverride: (id, league) =>
     ipcRenderer.invoke(invokeChannels.deletePriceOverride, { id, league }),

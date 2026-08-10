@@ -105,6 +105,8 @@ export const electronService = {
   getPricesCatalog: (options?: any) => getApi().getPricesCatalog(options),
   getItemPriceDetails: (itemIdentifier: string, league?: string) =>
     getApi().getItemPriceDetails(itemIdentifier, league),
+  refreshItemPriceHistory: (itemIdentifier: string, league?: string) =>
+    getApi().refreshItemPriceHistory(itemIdentifier, league),
   addPriceOverride: (params: any) => getApi().addPriceOverride(params),
   deletePriceOverride: (itemIdentifier: string, league?: string) =>
     getApi().deletePriceOverride(itemIdentifier, league),

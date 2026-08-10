@@ -11,6 +11,10 @@ export function createRendererPriceUseCases(deps: RendererPriceUseCaseDependenci
       return deps.pricesService.getItemPriceDetails(itemIdentifier, league);
     },
 
+    async refreshItemPriceHistory(itemIdentifier: string, league?: string) {
+      return deps.pricesService.getItemPriceDetails(itemIdentifier, league, { forceRefresh: true });
+    },
+
     async addPriceOverride(params: {
       itemIdentifier: string;
       category?: string;

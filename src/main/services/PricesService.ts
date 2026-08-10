@@ -29,7 +29,7 @@ export type CatalogItem = {
   hasOverride: boolean;
   activeOverride?: {
     price: number;
-    currencyType: 'chaos' | 'divine';
+    currencyType: 'chaos' | 'divine' | 'perChaos';
     inputPrice: number;
     updatedAt: string;
   };
@@ -53,9 +53,10 @@ export type ItemPriceDetails = {
   unitDivinePrice: number;
   divineChaosRate: number;
   sparkline: SparklinePoint[];
+  sparklineWindowWeeks: 1 | 2 | 3 | 4 | 'all';
   activeOverride?: {
     price: number;
-    currencyType: 'chaos' | 'divine';
+    currencyType: 'chaos' | 'divine' | 'perChaos';
     inputPrice: number;
     updatedAt: string;
   };
@@ -91,6 +92,24 @@ class PricesService {
     } catch {
       return 150;
     }
+  }
+
+  /**
+   * Trims a full history array down to the user-configured display window.
+   * pricing_history.json accumulates one point per day indefinitely (so old
+   * leagues stay browsable via 'all'), but the chart should default to a
+   * short recent window rather than always showing the entire league.
+   */
+  private applyHistoryWindow(sparkline: SparklinePoint[]): SparklinePoint[] {
+    const windowSetting = SettingsManager.get('priceHistoryWindowWeeks') ?? 1;
+    if (windowSetting === 'all' || sparkline.length === 0) return sparkline;
+
+    const weeks = Number(windowSetting) || 1;
+    const cutoff = dayjs().subtract(weeks, 'week');
+    const trimmed = sparkline.filter((p) => dayjs(p.time).isAfter(cutoff));
+
+    // Always keep at least the latest point so the chart is never empty.
+    return trimmed.length > 0 ? trimmed : [sparkline[sparkline.length - 1]];
   }
 
   calculateTimeRange(preset?: string, customFrom?: string, customTo?: string): { from?: string; to?: string } {
@@ -284,7 +303,11 @@ class PricesService {
     return results;
   }
 
-  async getItemPriceDetails(itemIdentifier: string, leagueParam?: string): Promise<ItemPriceDetails> {
+  async getItemPriceDetails(
+    itemIdentifier: string,
+    leagueParam?: string,
+    options: { forceRefresh?: boolean } = {}
+  ): Promise<ItemPriceDetails> {
     const activeProfile = SettingsManager.get('activeProfile');
     const league = leagueParam || activeProfile?.league || 'Standard';
     const divineRate = await this.getDivineRate(league);
@@ -294,7 +317,10 @@ class PricesService {
     let detectedCategory = 'General';
 
     try {
-      sparkline = await pricingHistoryStore.getItemHistory(itemIdentifier, league);
+      sparkline = options.forceRefresh
+        ? await pricingHistoryStore.forceRefreshItemHistory(itemIdentifier, league)
+        : await pricingHistoryStore.getItemHistory(itemIdentifier, league);
+      sparkline = this.applyHistoryWindow(sparkline);
     } catch (err) {
       logger.error(`Error loading market trend for ${itemIdentifier}:`, err);
     }
@@ -384,6 +410,7 @@ class PricesService {
       unitDivinePrice: unitDivine,
       divineChaosRate: divineRate,
       sparkline,
+      sparklineWindowWeeks: SettingsManager.get('priceHistoryWindowWeeks') ?? 1,
       activeOverride,
       drops,
       droppedQuantity: totalDroppedQty,
@@ -395,7 +422,7 @@ class PricesService {
     itemIdentifier: string;
     category?: string;
     price: number;
-    currencyType?: 'chaos' | 'divine';
+    currencyType?: 'chaos' | 'divine' | 'perChaos';
     inputPrice?: number;
     league?: string;
   }): Promise<PriceOverrideRow | null> {
@@ -408,6 +435,10 @@ class PricesService {
     if (currencyType === 'divine' && inputPrice !== null && inputPrice !== undefined) {
       const divineRate = await this.getDivineRate(league);
       chaosPrice = Number((inputPrice * divineRate).toFixed(2));
+    } else if (currencyType === 'perChaos' && inputPrice) {
+      // "X items per chaos" is the natural way to think about sub-1c items;
+      // convert to the underlying per-unit chaos price for storage/display.
+      chaosPrice = Number((1 / inputPrice).toFixed(6));
     }
 
     return await PriceOverridesRepository.setOverride({

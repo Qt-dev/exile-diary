@@ -7,7 +7,7 @@ export type PriceOverrideRow = {
   item_identifier: string;
   category?: string | null;
   price: number;
-  currency_type: 'chaos' | 'divine';
+  currency_type: 'chaos' | 'divine' | 'perChaos';
   input_price: number;
   updated_at: string;
 };
@@ -17,7 +17,7 @@ export type SetOverrideParams = {
   itemIdentifier: string;
   category?: string;
   price: number;
-  currencyType?: 'chaos' | 'divine';
+  currencyType?: 'chaos' | 'divine' | 'perChaos';
   inputPrice?: number;
 };
 

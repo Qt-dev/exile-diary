@@ -173,7 +173,15 @@
 
 .ItemPriceModal__ChartLegend {
   display: flex;
+  align-items: center;
   gap: 16px;
+}
+
+.ItemPriceModal__RefreshHistoryBtn {
+  font-size: 0.75rem;
+  padding: 2px 10px;
+  color: #94a3b8;
+  border-color: rgba(255, 255, 255, 0.15);
 }
 
 .ItemPriceModal__LegendItem {

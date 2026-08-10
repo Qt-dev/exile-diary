@@ -27,7 +27,11 @@ export type RendererRuntimeDependencies = {
   };
   pricesService: {
     getCatalog: (options?: GetCatalogOptions) => Promise<CatalogItem[]>;
-    getItemPriceDetails: (itemIdentifier: string, league?: string) => Promise<ItemPriceDetails>;
+    getItemPriceDetails: (
+      itemIdentifier: string,
+      league?: string,
+      options?: { forceRefresh?: boolean }
+    ) => Promise<ItemPriceDetails>;
     addOverride: (params: any) => Promise<any>;
     deleteOverride: (id: number, league?: string) => Promise<boolean>;
     recalculateRange: (from?: string, to?: string) => Promise<void>;

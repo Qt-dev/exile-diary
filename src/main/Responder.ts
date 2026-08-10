@@ -43,6 +43,10 @@ const Responder = {
     e,
     { itemIdentifier, league }: { itemIdentifier: string; league?: string }
   ) => RendererAppService.getItemPriceDetails(itemIdentifier, league),
+  refreshItemPriceHistory: async (
+    e,
+    { itemIdentifier, league }: { itemIdentifier: string; league?: string }
+  ) => RendererAppService.refreshItemPriceHistory(itemIdentifier, league),
   addPriceOverride: async (e, { params }: { params: any }) =>
     RendererAppService.addPriceOverride(params),
   deletePriceOverride: async (e, { id, league }: { id: number; league?: string }) =>

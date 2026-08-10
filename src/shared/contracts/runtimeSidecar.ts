@@ -33,6 +33,7 @@ export const runtimeRendererMethodKeys = [
   'getStrategyStats',
   'getPricesCatalog',
   'getItemPriceDetails',
+  'refreshItemPriceHistory',
   'addPriceOverride',
   'deletePriceOverride',
   'recalculatePrices',

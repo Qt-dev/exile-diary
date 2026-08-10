@@ -38,6 +38,7 @@ export const responderHandlerKeys = [
   'getStrategyStats',
   'getPricesCatalog',
   'getItemPriceDetails',
+  'refreshItemPriceHistory',
   'addPriceOverride',
   'deletePriceOverride',
   'recalculatePrices',

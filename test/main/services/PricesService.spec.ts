@@ -62,10 +62,15 @@ jest.mock('../../../src/main/db/repositories/run', () => ({
   },
 }));
 
+const mockSettingsGet = jest.fn((key: string) => {
+  if (key === 'activeProfile') return { league: 'Settlers' };
+  if (key === 'priceHistoryWindowWeeks') return 1;
+  return null;
+});
 jest.mock('../../../src/main/SettingsManager', () => ({
   __esModule: true,
   default: {
-    get: jest.fn(() => ({ league: 'Settlers' })),
+    get: (...args: any[]) => mockSettingsGet(...(args as [string])),
   },
 }));
 
@@ -96,6 +101,7 @@ jest.mock('../../../src/main/pricing/history/PricingHistoryStore', () => ({
 
 import PricesService from '../../../src/main/services/PricesService';
 import DB from '../../../src/main/db/index';
+import { pricingHistoryStore } from '../../../src/main/pricing/history/PricingHistoryStore';
 
 const mockDB = DB as jest.Mocked<typeof DB>;
 
@@ -229,6 +235,56 @@ describe('PricesService', () => {
       expect(mockGetItemMarketTrend).toHaveBeenCalledWith('Cosmic Fragment', 'Allflame');
       expect(details.sparkline).toHaveLength(3);
       expect(details.sparkline[2].price).toBe(119.7);
+    });
+
+    it('trims the returned sparkline to the configured priceHistoryWindowWeeks (default 1 week)', async () => {
+      const now = new Date();
+      const daysAgo = (n: number) => new Date(now.getTime() - n * 24 * 60 * 60 * 1000).toISOString();
+
+      (pricingHistoryStore.getItemHistory as jest.Mock).mockResolvedValue([
+        { time: daysAgo(90), price: 100 }, // way outside any window
+        { time: daysAgo(10), price: 110 }, // outside 1-week default
+        { time: daysAgo(3), price: 120 }, // inside 1-week default
+        { time: daysAgo(0), price: 130 },
+      ]);
+      mockGetOverride.mockResolvedValue(null);
+      mockDB.all.mockResolvedValue([]);
+
+      mockSettingsGet.mockImplementation((key: string) => {
+        if (key === 'activeProfile') return { league: 'Settlers' };
+        if (key === 'priceHistoryWindowWeeks') return 1;
+        return null;
+      });
+
+      const details = await PricesService.getItemPriceDetails('Divine Orb', 'Settlers');
+
+      expect(details.sparkline).toHaveLength(2);
+      expect(details.sparkline.map((p) => p.price)).toEqual([120, 130]);
+      expect(details.sparklineWindowWeeks).toBe(1);
+    });
+
+    it('returns the full history when priceHistoryWindowWeeks is "all"', async () => {
+      const now = new Date();
+      const daysAgo = (n: number) => new Date(now.getTime() - n * 24 * 60 * 60 * 1000).toISOString();
+
+      (pricingHistoryStore.getItemHistory as jest.Mock).mockResolvedValue([
+        { time: daysAgo(90), price: 100 },
+        { time: daysAgo(10), price: 110 },
+        { time: daysAgo(3), price: 120 },
+      ]);
+      mockGetOverride.mockResolvedValue(null);
+      mockDB.all.mockResolvedValue([]);
+
+      mockSettingsGet.mockImplementation((key: string) => {
+        if (key === 'activeProfile') return { league: 'Settlers' };
+        if (key === 'priceHistoryWindowWeeks') return 'all';
+        return null;
+      });
+
+      const details = await PricesService.getItemPriceDetails('Divine Orb', 'Settlers');
+
+      expect(details.sparkline).toHaveLength(3);
+      expect(details.sparklineWindowWeeks).toBe('all');
     });
   });
 

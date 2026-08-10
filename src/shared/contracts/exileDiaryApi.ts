@@ -36,6 +36,7 @@ export const invokeChannels = {
   getStrategyStats: 'strategies:stats',
   getPricesCatalog: 'prices:get-catalog',
   getItemPriceDetails: 'prices:get-item-details',
+  refreshItemPriceHistory: 'prices:refresh-item-history',
   addPriceOverride: 'prices:add-override',
   deletePriceOverride: 'prices:delete-override',
   recalculatePrices: 'prices:recalculate',
@@ -272,6 +273,7 @@ export interface ExileDiaryApi {
   getStrategyStats(strategyId: number): Promise<StrategyStatsResult>;
   getPricesCatalog(options?: any): Promise<any[]>;
   getItemPriceDetails(itemIdentifier: string, league?: string): Promise<any>;
+  refreshItemPriceHistory(itemIdentifier: string, league?: string): Promise<any>;
   addPriceOverride(params: any): Promise<any>;
   deletePriceOverride(itemIdentifier: string, league?: string): Promise<boolean>;
   recalculatePrices(options?: any): Promise<any>;

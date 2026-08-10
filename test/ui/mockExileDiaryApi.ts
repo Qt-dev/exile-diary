@@ -211,6 +211,23 @@ export function installMockExileDiaryApi(requestedScenario: string) {
         unitDivinePrice: 1,
         divineChaosRate: 150,
         sparkline: [],
+        sparklineWindowWeeks: 1,
+        activeOverride: undefined,
+        drops: [],
+        droppedQuantity: 0,
+        totalChaosValue: 0,
+      };
+    },
+    refreshItemPriceHistory: async (itemIdentifier, league) => {
+      record('refreshItemPriceHistory', { itemIdentifier, league });
+      return {
+        identifier: itemIdentifier,
+        category: 'Currency',
+        unitChaosPrice: 150,
+        unitDivinePrice: 1,
+        divineChaosRate: 150,
+        sparkline: [],
+        sparklineWindowWeeks: 1,
         activeOverride: undefined,
         drops: [],
         droppedQuantity: 0,

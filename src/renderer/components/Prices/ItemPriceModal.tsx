@@ -11,6 +11,7 @@ import CloseIcon from '@mui/icons-material/Close';
 import DeleteIcon from '@mui/icons-material/Delete';
 import ShowChartIcon from '@mui/icons-material/ShowChart';
 import StorefrontIcon from '@mui/icons-material/Storefront';
+import RefreshIcon from '@mui/icons-material/Refresh';
 import Price from '../Pricing/Price';
 import { electronService } from '../../electron.service';
 import dayjs from 'dayjs';
@@ -24,9 +25,10 @@ type ItemPriceDetails = {
   unitDivinePrice: number;
   divineChaosRate: number;
   sparkline: Array<{ time: string; price: number }>;
+  sparklineWindowWeeks: 1 | 2 | 3 | 4 | 'all';
   activeOverride?: {
     price: number;
-    currencyType: 'chaos' | 'divine';
+    currencyType: 'chaos' | 'divine' | 'perChaos';
     inputPrice: number;
     updatedAt: string;
   };
@@ -48,6 +50,11 @@ interface ItemPriceModalProps {
   onOverrideUpdated?: () => void;
 }
 
+function formatWindowLabel(weeks: 1 | 2 | 3 | 4 | 'all' | undefined): string {
+  if (!weeks || weeks === 'all') return 'Full League';
+  return weeks === 1 ? '1 Week' : `${weeks} Weeks`;
+}
+
 export default function ItemPriceModal({
   itemIdentifier,
   onClose,
@@ -57,17 +64,25 @@ export default function ItemPriceModal({
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [deleting, setDeleting] = useState(false);
+  const [refreshingHistory, setRefreshingHistory] = useState(false);
 
   // Form states
   const [priceInput, setPriceInput] = useState<string>('');
-  const [currencyUnit, setCurrencyUnit] = useState<'chaos' | 'divine'>('chaos');
+  const [currencyUnit, setCurrencyUnit] = useState<'chaos' | 'divine' | 'perChaos'>('chaos');
   const [hoveredPoint, setHoveredPoint] = useState<{
     x: number;
     y: number;
     time: string;
     price: number;
+    chartValue: number;
   } | null>(null);
   const [errorMessage, setErrorMessage] = useState('');
+
+  // Sub-1c items (e.g. common currency shards) are awkward to price/read as
+  // a fractional chaos value; offer "N per chaos" wherever that's relevant.
+  const isCheapItem =
+    (details?.unitChaosPrice !== undefined && details.unitChaosPrice > 0 && details.unitChaosPrice < 1) ||
+    currencyUnit === 'perChaos';
 
   const loadDetails = async (options: { silent?: boolean } = {}) => {
     if (!options.silent) setLoading(true);
@@ -79,8 +94,15 @@ export default function ItemPriceModal({
           setPriceInput(String(data.activeOverride.inputPrice));
           setCurrencyUnit(data.activeOverride.currencyType);
         } else if (data.unitChaosPrice > 0 && !priceInput) {
-          setPriceInput(String(data.unitChaosPrice));
-          setCurrencyUnit('chaos');
+          if (data.unitChaosPrice < 1) {
+            // Sub-1c items are easier to reason about as "N per chaos"
+            // than a fractional chaos price the user would have to invert.
+            setPriceInput(String(Number((1 / data.unitChaosPrice).toFixed(2))));
+            setCurrencyUnit('perChaos');
+          } else {
+            setPriceInput(String(data.unitChaosPrice));
+            setCurrencyUnit('chaos');
+          }
         }
       }
     } catch (err) {
@@ -103,10 +125,43 @@ export default function ItemPriceModal({
     return unsubscribe;
   }, [itemIdentifier]);
 
+  const toChaosPrice = (value: number, unit: 'chaos' | 'divine' | 'perChaos', divineRate: number) => {
+    if (unit === 'divine') return value * divineRate;
+    if (unit === 'perChaos') return value > 0 ? 1 / value : 0;
+    return value;
+  };
+
+  const fromChaosPrice = (chaosPrice: number, unit: 'chaos' | 'divine' | 'perChaos', divineRate: number) => {
+    if (unit === 'divine') return chaosPrice / divineRate;
+    if (unit === 'perChaos') return chaosPrice > 0 ? 1 / chaosPrice : 0;
+    return chaosPrice;
+  };
+
+  const handleUnitChange = (nextUnit: 'chaos' | 'divine' | 'perChaos') => {
+    if (nextUnit === currencyUnit) return;
+    const divineRate = details?.divineChaosRate || 150;
+    const currentValue = Number(priceInput);
+
+    if (!priceInput || isNaN(currentValue)) {
+      setCurrencyUnit(nextUnit);
+      return;
+    }
+
+    const chaosPrice = toChaosPrice(currentValue, currencyUnit, divineRate);
+    const nextValue = fromChaosPrice(chaosPrice, nextUnit, divineRate);
+    setPriceInput(String(Number(nextValue.toFixed(6))));
+    setCurrencyUnit(nextUnit);
+  };
+
   const handleSaveOverride = async () => {
     setErrorMessage('');
     if (!priceInput || isNaN(Number(priceInput)) || Number(priceInput) < 0) {
       setErrorMessage('Please enter a valid price (>= 0)');
+      return;
+    }
+
+    if (currencyUnit === 'perChaos' && Number(priceInput) === 0) {
+      setErrorMessage('Items per chaos must be greater than 0');
       return;
     }
 
@@ -130,6 +185,18 @@ export default function ItemPriceModal({
     }
   };
 
+  const handleRefreshHistory = async () => {
+    setRefreshingHistory(true);
+    try {
+      const data = await electronService.refreshItemPriceHistory(itemIdentifier);
+      setDetails(data);
+    } catch (err) {
+      console.error('Failed to refresh price history:', err);
+    } finally {
+      setRefreshingHistory(false);
+    }
+  };
+
   const handleResetToMarket = async () => {
     setDeleting(true);
     try {
@@ -144,6 +211,11 @@ export default function ItemPriceModal({
     }
   };
 
+  // Sub-1c items are unreadable on a raw chaos-value axis (a flat near-zero
+  // line). Flip the chart to "items per chaos" (1/price) so the trend is
+  // legible; the tooltip and axis labels are adjusted to match.
+  const showPerChaosScale = isCheapItem;
+
   // Build SVG chart geometry for 7-day 4-hour sparkline + static override flatline
   const chart = useMemo(() => {
     if (!details || !details.sparkline || details.sparkline.length === 0) return null;
@@ -154,10 +226,15 @@ export default function ItemPriceModal({
     const innerWidth = width - padding.left - padding.right;
     const innerHeight = height - padding.top - padding.bottom;
 
-    const points = details.sparkline;
-    const overridePrice = details.activeOverride ? details.activeOverride.price : null;
+    const toChartValue = (price: number) =>
+      showPerChaosScale ? (price > 0 ? 1 / price : 0) : price;
 
-    const marketPrices = points.map((p) => p.price);
+    const points = details.sparkline.map((p) => ({ ...p, chartValue: toChartValue(p.price) }));
+    const overridePrice = details.activeOverride
+      ? toChartValue(details.activeOverride.price)
+      : null;
+
+    const marketPrices = points.map((p) => p.chartValue);
     const allPrices = overridePrice !== null ? [...marketPrices, overridePrice] : marketPrices;
 
     let minPrice = Math.min(...allPrices);
@@ -177,9 +254,10 @@ export default function ItemPriceModal({
 
     const marketCoords = points.map((p, idx) => ({
       x: getX(idx),
-      y: getY(p.price),
+      y: getY(p.chartValue),
       time: p.time,
       price: p.price,
+      chartValue: p.chartValue,
     }));
 
     const marketPath = marketCoords.reduce((acc, pt, idx) => {
@@ -233,7 +311,7 @@ export default function ItemPriceModal({
       yTicks,
       xLabels,
     };
-  }, [details]);
+  }, [details, showPerChaosScale]);
 
   return (
     <div className="ItemPriceModal__Overlay" onClick={onClose}>
@@ -308,12 +386,16 @@ export default function ItemPriceModal({
               </div>
             </div>
 
-            {/* 7-Day Price Chart */}
+            {/* Price History Chart */}
             <div className="ItemPriceModal__ChartSection">
               <div className="ItemPriceModal__ChartHeader">
                 <div className="ItemPriceModal__ChartTitle">
                   <ShowChartIcon fontSize="small" />
-                  <span>7-Day Market Trend (4h poe.ninja points) vs Override</span>
+                  <span>
+                    Market Trend ({formatWindowLabel(details?.sparklineWindowWeeks)}, daily poe.ninja points) vs
+                    Override
+                    {showPerChaosScale && ' — shown as items per chaos'}
+                  </span>
                 </div>
                 <div className="ItemPriceModal__ChartLegend">
                   <span className="ItemPriceModal__LegendItem market">
@@ -324,6 +406,24 @@ export default function ItemPriceModal({
                       <span className="ItemPriceModal__LegendDot override"></span> Static Override ({details.activeOverride.price} c)
                     </span>
                   )}
+                  <Tooltip title="Force a fresh fetch of this item's full price history from poe.ninja">
+                    <Button
+                      size="small"
+                      variant="outlined"
+                      startIcon={
+                        refreshingHistory ? (
+                          <CircularProgress size="0.9rem" color="inherit" />
+                        ) : (
+                          <RefreshIcon fontSize="small" />
+                        )
+                      }
+                      onClick={handleRefreshHistory}
+                      disabled={refreshingHistory}
+                      className="ItemPriceModal__RefreshHistoryBtn"
+                    >
+                      Update Price History
+                    </Button>
+                  </Tooltip>
                 </div>
               </div>
 
@@ -358,7 +458,9 @@ export default function ItemPriceModal({
                           fontSize="10"
                           textAnchor="end"
                         >
-                          {Number(tick.val.toFixed(1))} c
+                          {showPerChaosScale
+                            ? `${Number(tick.val.toFixed(1))} /c`
+                            : `${Number(tick.val.toFixed(1))} c`}
                         </text>
                       </g>
                     ))}
@@ -415,7 +517,8 @@ export default function ItemPriceModal({
                           fontWeight="bold"
                           textAnchor="middle"
                         >
-                          Override: {chart.overridePrice} c
+                          Override: {Number(chart.overridePrice?.toFixed(2))}
+                          {showPerChaosScale ? ' /c' : ' c'}
                         </text>
                       </g>
                     )}
@@ -450,7 +553,9 @@ export default function ItemPriceModal({
                         {dayjs(hoveredPoint.time).format('MMM D, HH:mm')}
                       </div>
                       <div className="ItemPriceModal__TooltipVal">
-                        {hoveredPoint.price.toFixed(2)} chaos
+                        {showPerChaosScale
+                          ? `${hoveredPoint.chartValue?.toFixed(2)} per chaos (${hoveredPoint.price.toFixed(4)} c)`
+                          : `${hoveredPoint.price.toFixed(2)} chaos`}
                       </div>
                     </div>
                   )}
@@ -477,31 +582,40 @@ export default function ItemPriceModal({
               <div className="ItemPriceModal__OverrideCard">
                 <div className="ItemPriceModal__FormRow">
                   <TextField
-                    label="Override Unit Price"
+                    label={currencyUnit === 'perChaos' ? 'Items per Chaos' : 'Override Unit Price'}
                     variant="outlined"
                     size="small"
                     type="number"
                     value={priceInput}
                     onChange={(e) => setPriceInput(e.target.value)}
-                    placeholder="Enter price..."
+                    placeholder={currencyUnit === 'perChaos' ? 'e.g. 20 per chaos...' : 'Enter price...'}
                     className="ItemPriceModal__Input"
                   />
 
                   <ButtonGroup size="small" className="ItemPriceModal__UnitToggle">
                     <Button
                       variant={currencyUnit === 'chaos' ? 'contained' : 'outlined'}
-                      onClick={() => setCurrencyUnit('chaos')}
+                      onClick={() => handleUnitChange('chaos')}
                       className={currencyUnit === 'chaos' ? 'active' : ''}
                     >
                       Chaos (c)
                     </Button>
                     <Button
                       variant={currencyUnit === 'divine' ? 'contained' : 'outlined'}
-                      onClick={() => setCurrencyUnit('divine')}
+                      onClick={() => handleUnitChange('divine')}
                       className={currencyUnit === 'divine' ? 'active' : ''}
                     >
                       Divine (div)
                     </Button>
+                    {isCheapItem && (
+                      <Button
+                        variant={currencyUnit === 'perChaos' ? 'contained' : 'outlined'}
+                        onClick={() => handleUnitChange('perChaos')}
+                        className={currencyUnit === 'perChaos' ? 'active' : ''}
+                      >
+                        Per Chaos
+                      </Button>
+                    )}
                   </ButtonGroup>
 
                   <Button

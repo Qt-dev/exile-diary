@@ -255,7 +255,11 @@ export class PricingHistoryStore {
     const cachedItem = leagueRecord.items[key];
     const now = dayjs();
 
-    if (cachedItem && cachedItem.history.length > 0) {
+    // eagerSync only ever seeds a single point per day (today's price), so a
+    // cache with just one point is not yet a real multi-day trend. Treat it
+    // like "no cache" and block on a live fetch instead of serving a flat
+    // single-point chart while a background refresh silently updates disk.
+    if (cachedItem && cachedItem.history.length > 1) {
       // Serve cache immediately; refresh in the background if it's stale.
       if (now.diff(dayjs(cachedItem.lastUpdated), 'hour') >= 4) {
         void this.refreshItemHistory(itemIdentifier, league);
@@ -263,7 +267,7 @@ export class PricingHistoryStore {
       return cachedItem.history;
     }
 
-    // No cache at all yet: block on a live fetch so the first view isn't empty.
+    // No real cache yet: block on a live fetch so the first view isn't empty.
     const freshPoints = await this.refreshItemHistory(itemIdentifier, league);
     if (freshPoints && freshPoints.length > 0) {
       return freshPoints;
@@ -272,6 +276,28 @@ export class PricingHistoryStore {
     return [
       {
         time: now.toISOString(),
+        price: 0,
+      },
+    ];
+  }
+
+  /**
+   * Forces a blocking live fetch of full market history, bypassing the cache
+   * entirely. Used when the cache only holds eagerSync's single daily point
+   * and the caller needs the real multi-day trend right away.
+   */
+  async forceRefreshItemHistory(
+    itemIdentifier: string,
+    league: string
+  ): Promise<SparklinePoint[]> {
+    await this.load();
+    const freshPoints = await this.refreshItemHistory(itemIdentifier, league);
+    if (freshPoints && freshPoints.length > 0) {
+      return freshPoints;
+    }
+    return [
+      {
+        time: dayjs().toISOString(),
         price: 0,
       },
     ];
