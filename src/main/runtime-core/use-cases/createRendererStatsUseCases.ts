@@ -1,4 +1,5 @@
 import logger from 'electron-log';
+import type { StrategyStatsResult } from '../../../shared/strategies';
 import { RendererStatsUseCaseDependencies } from '../rendererRuntimeDependencies';
 
 export function createRendererStatsUseCases(deps: RendererStatsUseCaseDependencies) {
@@ -30,11 +31,13 @@ export function createRendererStatsUseCases(deps: RendererStatsUseCaseDependenci
         deps.now(),
         profile?.league
       );
-      return {
+      const result: StrategyStatsResult = {
         strategy: stats.strategy,
         economics: stats.economics,
+        activity: stats.activity,
         stats,
       };
+      return result;
     },
 
     async triggerSearch(params: Record<string, any>) {

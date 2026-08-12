@@ -196,6 +196,62 @@ describe('RendererRuntimeService', () => {
     );
   });
 
+  it('exposes strategy activity stats to the renderer', async () => {
+    const createRendererRuntimeService = await loadFactory();
+    const deps = createDeps();
+    const strategy = {
+      id: 7,
+      name: 'Juiced Maps',
+      description: 'Fixture strategy',
+      color: '#aabbcc',
+      costPerMap: 25,
+    };
+    const economics = {
+      taggedRunCount: 3,
+      completedRunCount: 2,
+      incompleteRunCount: 1,
+      totalTimeSeconds: 1800,
+      grossValue: 300,
+      totalCost: 50,
+      netValue: 250,
+      grossPerMap: 150,
+      netPerMap: 125,
+      grossPerHour: 600,
+      netPerHour: 500,
+    };
+    const activity = {
+      totalXp: 12_000_000,
+      xpPerMap: 6_000_000,
+      xpPerHour: 24_000_000,
+      totalDeaths: 3,
+      deathsPerMap: 1.5,
+      deathsPerHour: 6,
+    };
+    deps.settingsManager.get.mockImplementation((key: string) =>
+      key === 'activeProfile' ? { league: 'Mirage', characterName: 'Mapper' } : null
+    );
+    deps.statsManager.getAllStats.mockResolvedValue({ strategy, economics, activity, items: {} });
+    deps.itemPricer.getCurrencyByName.mockResolvedValue(180);
+    const runtime = createRendererRuntimeService(deps as any);
+
+    await expect(runtime.getStrategyStats(7)).resolves.toEqual({
+      strategy,
+      economics,
+      activity,
+      stats: { strategy, economics, activity, items: {}, divinePrice: 180 },
+    });
+    expect(deps.statsManager.getAllStats).toHaveBeenCalledWith({
+      league: 'Mirage',
+      characterName: 'Mapper',
+      strategyId: 7,
+    });
+    expect(deps.itemPricer.getCurrencyByName).toHaveBeenCalledWith(
+      'Divine Orb',
+      '20260704',
+      'Mirage'
+    );
+  });
+
   it('marks tracked stash tabs consistently for parent and child tabs', async () => {
     const createRendererRuntimeService = await loadFactory();
     const deps = createDeps();

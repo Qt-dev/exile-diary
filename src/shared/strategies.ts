@@ -30,8 +30,18 @@ export type StrategyEconomics = {
   netPerHour: number;
 };
 
+export type StrategyActivityStats = {
+  totalXp: number;
+  xpPerMap: number;
+  xpPerHour: number;
+  totalDeaths: number;
+  deathsPerMap: number;
+  deathsPerHour: number;
+};
+
 export type StrategyStatsResult = {
   strategy: Strategy;
   economics: StrategyEconomics;
+  activity: StrategyActivityStats;
   stats: any;
 };
