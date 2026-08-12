@@ -89,7 +89,11 @@ export class PoeNinjaRequester {
           return { unchanged: true, etag };
         }
         if (response.status >= 200 && response.status < 300) {
-          return { unchanged: false, etag: response.headers.get('etag') ?? undefined, body: await response.json() };
+          const body = await response.json();
+          if (body && typeof body === 'object' && !Array.isArray(body) && typeof (body as Record<string, unknown>).error === 'string') {
+            throw Object.assign(new Error((body as Record<string, unknown>).error as string), { retryable: true });
+          }
+          return { unchanged: false, etag: response.headers.get('etag') ?? undefined, body };
         }
         throw errorForStatus(response.status, response.headers, 'poe.ninja');
       } catch (error) {
