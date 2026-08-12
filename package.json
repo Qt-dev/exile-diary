@@ -88,16 +88,6 @@
         "--talk-name=org.gnome.Screenshot",
         "--talk-name=org.freedesktop.portal.Screenshot",
         "--talk-name=org.freedesktop.portal.Desktop"
-      ],
-      "files": [
-        [
-          "./eng.traineddata",
-          "lib/com.exilediary.reborn/resources/eng.traineddata"
-        ],
-        [
-          "./src/main/db/extensions/regexp.so",
-          "lib/com.exilediary.reborn/resources/db/extensions/regexp.so"
-        ]
       ]
     }
   },
