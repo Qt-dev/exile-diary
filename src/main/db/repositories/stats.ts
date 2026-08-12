@@ -53,6 +53,8 @@ const stats = {
     const query = `
       SELECT
         area_info.name, run.*,
+        (run.xp - (SELECT xp FROM run m WHERE m.id < run.id AND xp IS NOT null ORDER BY m.id desc LIMIT 1)) xpgained,
+        (SELECT count(1) FROM event WHERE event_type='slain' AND DATETIME(event.timestamp) BETWEEN DATETIME(run.first_event) AND DATETIME(run.last_event)) deaths,
         (SELECT COALESCE(SUM(value),0) 
             FROM item
             INNER JOIN event ON event.id = item.event_id
