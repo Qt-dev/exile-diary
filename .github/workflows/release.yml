@@ -13,7 +13,7 @@ jobs:
       contents: write
     steps:
       - name: Create release
-        uses: softprops/action-gh-release@fe965f7af51af5f2602596916f38a38df2e33de0 # v3.0.2
+        uses: softprops/action-gh-release@3d0d9888cb7fd7b750713d6e236d1fcb99157228 # v3.0.2
         with:
           tag_name: ${{ github.ref_name }}
           draft: true
@@ -58,7 +58,7 @@ jobs:
             dist/exile-diary-reborn-portable-v*.zip
             dist/latest.yml
       - name: Update release
-        uses: softprops/action-gh-release@fe965f7af51af5f2602596916f38a38df2e33de0 # v3.0.2
+        uses: softprops/action-gh-release@3d0d9888cb7fd7b750713d6e236d1fcb99157228 # v3.0.2
         with:
           tag_name: ${{ github.ref_name }}
           files: |
@@ -104,7 +104,7 @@ jobs:
             dist/exile-diary-reborn_v*_amd64.flatpak
             dist/exile-diary-reborn_v*_amd64.AppImage
       - name: Update release
-        uses: softprops/action-gh-release@fe965f7af51af5f2602596916f38a38df2e33de0 # v3.0.2
+        uses: softprops/action-gh-release@3d0d9888cb7fd7b750713d6e236d1fcb99157228 # v3.0.2
         with:
           tag_name: ${{ github.ref_name }}
           files: |
@@ -121,7 +121,7 @@ jobs:
       contents: write
     steps:
       - name: Publish release
-        uses: softprops/action-gh-release@fe965f7af51af5f2602596916f38a38df2e33de0 # v3.0.2
+        uses: softprops/action-gh-release@3d0d9888cb7fd7b750713d6e236d1fcb99157228 # v3.0.2
         with:
           tag_name: ${{ github.ref_name }}
           draft: false
