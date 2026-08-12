@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Button, Divider, LinearProgress, Tab, Tabs, TextField } from '@mui/material';
 import MainStats from '../components/Stats/MainStats/MainStats';
@@ -6,9 +6,11 @@ import AreaStats from '../components/Stats/AreaStats/AreaStats';
 import BossStats from '../components/Stats/BossStats/BossStats';
 import LootStats from '../components/Stats/LootStats/LootStats';
 import ItemStore from '../stores/itemStore';
-import Price from '../components/Pricing/Price';
+import StrategySummary from '../components/Strategies/StrategySummary';
 import { electronService } from '../electron.service';
 import type { Strategy, StrategyInput } from '../../shared/strategies';
+import { toCanvas } from 'html-to-image';
+import dayjs from 'dayjs';
 import './Strategies.css';
 
 const randomStrategyColor = () =>
@@ -31,22 +33,28 @@ const strategyToInput = (strategy: Strategy): StrategyInput => ({
   costPerMap: strategy.costPerMap,
 });
 
-const formatNumber = (value: number) => (Number(value) || 0).toFixed(2);
-
 export default function Strategies() {
   const navigate = useNavigate();
   const { strategyId } = useParams();
   const [strategies, setStrategies] = useState<Strategy[]>([]);
+  const [activeProfile, setActiveProfile] = useState<any>(null);
   const [selected, setSelected] = useState<Strategy | null>(null);
   const [statsResult, setStatsResult] = useState<any>(null);
   const [tab, setTab] = useState(0);
   const [input, setInput] = useState<StrategyInput>(createEmptyInput);
   const [editing, setEditing] = useState(false);
   const [error, setError] = useState('');
+  const [exporting, setExporting] = useState(false);
+  const summaryRef = useRef<HTMLDivElement>(null);
   const itemStore = useMemo(() => new ItemStore([]), []);
 
   const loadStrategies = async () => {
-    const loaded = (await electronService.listStrategies()) ?? [];
+    const [loadedStrategies, settings] = await Promise.all([
+      electronService.listStrategies(),
+      electronService.getSettings(),
+    ]);
+    const loaded = loadedStrategies ?? [];
+    setActiveProfile(settings?.activeProfile ?? null);
     setStrategies(loaded);
     const id = strategyId ? Number(strategyId) : loaded[0]?.id;
     const next = loaded.find((strategy) => strategy.id === id) ?? null;
@@ -120,6 +128,35 @@ export default function Strategies() {
   };
 
   const selectStrategy = (strategy: Strategy) => navigate(`/strategies/${strategy.id}`);
+
+  const exportSummary = useCallback(async () => {
+    if (!summaryRef.current || exporting || !selected) return;
+    setExporting(true);
+    try {
+      await new Promise<void>((resolve) => requestAnimationFrame(() => resolve()));
+      const canvas = await toCanvas(summaryRef.current, {
+        cacheBust: true,
+        backgroundColor: '#000000',
+        width: 1000,
+        canvasWidth: 1000,
+        pixelRatio: 1,
+        style: {
+          backgroundColor: '#000000',
+          width: '1000px',
+        },
+      });
+      const safeName = selected.name.replace(/[^a-z0-9-_]+/gi, '-').replace(/^-|-$/g, '') || 'strategy';
+      const link = document.createElement('a');
+      link.download = `${safeName}-${dayjs().format('YYYY-MM-DD_HH-mm-ss')}.png`;
+      link.href = canvas.toDataURL('image/png');
+      link.click();
+    } catch (reason: any) {
+      setError(String(reason?.message ?? reason));
+      electronService.logger.error('Error saving strategy summary', reason);
+    } finally {
+      setExporting(false);
+    }
+  }, [exporting, selected]);
 
   const editor = (
     <div className="Strategies__Editor">
@@ -199,11 +236,15 @@ export default function Strategies() {
           ) : (
             <>
               <div className="Strategies__Header">
-                <div>
-                  <h1 style={{ color: selected.color }}>{selected.name}</h1>
-                  <p>{selected.description}</p>
-                </div>
                 <div className="Strategies__Actions">
+                  <Button
+                    variant="outlined"
+                    onClick={exportSummary}
+                    disabled={exporting}
+                    aria-label="Export strategy summary as PNG"
+                  >
+                    {exporting ? 'Exporting...' : 'Export PNG'}
+                  </Button>
                   <Button
                     onClick={() => {
                       if (editing) setInput(strategyToInput(selected));
@@ -218,73 +259,17 @@ export default function Strategies() {
                 </div>
               </div>
               {editing && editor}
-              <div className="Strategies__Economics">
-                <div>
-                  Runs: <strong>{statsResult.economics.completedRunCount}</strong>
-                </div>
-                <div>
-                  Cost / map:{' '}
-                  <Price
-                    value={formatNumber(selected.costPerMap)}
-                    divinePrice={statsResult.stats.divinePrice}
-                  />
-                </div>
-                <div>
-                  Gross:{' '}
-                  <Price
-                    value={formatNumber(statsResult.economics.grossValue)}
-                    divinePrice={statsResult.stats.divinePrice}
-                  />
-                </div>
-                <div>
-                  Cost:{' '}
-                  <Price
-                    value={formatNumber(statsResult.economics.totalCost)}
-                    divinePrice={statsResult.stats.divinePrice}
-                  />
-                </div>
-                <div>
-                  Net:{' '}
-                  <Price
-                    value={formatNumber(statsResult.economics.netValue)}
-                    divinePrice={statsResult.stats.divinePrice}
-                  />
-                </div>
-                <div>
-                  Gross / map:{' '}
-                  <Price
-                    value={formatNumber(statsResult.economics.grossPerMap)}
-                    divinePrice={statsResult.stats.divinePrice}
-                  />
-                </div>
-                <div>
-                  Gross / hour:{' '}
-                  <Price
-                    value={formatNumber(statsResult.economics.grossPerHour)}
-                    divinePrice={statsResult.stats.divinePrice}
-                  />
-                </div>
-                <div>
-                  Net / map:{' '}
-                  <Price
-                    value={formatNumber(statsResult.economics.netPerMap)}
-                    divinePrice={statsResult.stats.divinePrice}
-                  />
-                </div>
-                <div>
-                  Net / hour:{' '}
-                  <Price
-                    value={formatNumber(statsResult.economics.netPerHour)}
-                    divinePrice={statsResult.stats.divinePrice}
-                  />
-                </div>
-              </div>
-              {statsResult.economics.incompleteRunCount > 0 && (
-                <div className="Text--small">
-                  {statsResult.economics.incompleteRunCount} incomplete tagged run(s) excluded from
-                  results.
-                </div>
-              )}
+              <StrategySummary
+                strategy={selected}
+                economics={statsResult.economics}
+                activity={statsResult.activity}
+                stats={statsResult.stats}
+                exportRef={summaryRef}
+                includeFooter={exporting}
+                exporting={exporting}
+                characterName={activeProfile?.characterName}
+                league={activeProfile?.league}
+              />
               <Divider />
               <Tabs value={tab} onChange={(_event, value) => setTab(value)}>
                 <Tab label="Main Stats" />

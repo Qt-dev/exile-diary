@@ -8,7 +8,7 @@ import { Run } from '../helpers/types';
 import Constants from '../helpers/constants';
 import ItemPricer from './pricing/matching/ItemPricer';
 import Strategies from './db/repositories/strategies';
-import type { StrategyEconomics } from '../shared/strategies';
+import type { StrategyActivityStats, StrategyEconomics } from '../shared/strategies';
 const { areas } = Constants;
 
 dayjs.extend(duration);
@@ -973,6 +973,16 @@ const statsManager = {
     const netPerMap = completedRunCount > 0 ? netValue / completedRunCount : 0;
     const grossPerHour = totalTimeSeconds > 0 ? (grossValue / totalTimeSeconds) * 3600 : 0;
     const netPerHour = totalTimeSeconds > 0 ? (netValue / totalTimeSeconds) * 3600 : 0;
+    const totalXp = runs.reduce((total: number, run: any) => total + (Number(run.xpgained) || 0), 0);
+    const totalDeaths = runs.reduce((total: number, run: any) => total + (Number(run.deaths) || 0), 0);
+    const activity: StrategyActivityStats = {
+      totalXp,
+      xpPerMap: completedRunCount > 0 ? totalXp / completedRunCount : 0,
+      xpPerHour: totalTimeSeconds > 0 ? (totalXp / totalTimeSeconds) * 3600 : 0,
+      totalDeaths,
+      deathsPerMap: completedRunCount > 0 ? totalDeaths / completedRunCount : 0,
+      deathsPerHour: totalTimeSeconds > 0 ? (totalDeaths / totalTimeSeconds) * 3600 : 0,
+    };
     const economics: StrategyEconomics = {
       taggedRunCount: taggedRuns.length,
       completedRunCount,
@@ -986,7 +996,7 @@ const statsManager = {
       grossPerHour,
       netPerHour,
     };
-    return { ...manager.stats, strategy, economics };
+    return { ...manager.stats, strategy, economics, activity };
   },
   getAllMapNames: async () => {
     const mapNames = await DB.getAllMapNames();

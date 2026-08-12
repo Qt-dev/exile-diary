@@ -5,7 +5,7 @@ html {
     'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  font-family: FontIn;
+  font-family: Fontin;
   color: #aaaaaa;
   background: #000;
   padding: 0;
@@ -230,7 +230,7 @@ span.negative {
 
 .Page__Title {
   margin: 10px 0;
-  font-family: FontInSmallCaps;
+  font-family: FontinSmallCaps;
   font-size: 1.5em;
   color: white;
   text-align: center;
