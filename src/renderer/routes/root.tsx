@@ -6,6 +6,7 @@ import { electronService } from '../electron.service';
 import IgnoreManager from '../../helpers/ignoreManager';
 import LogBox from '../components/LogBox/LogBox';
 import LogStore from '../stores/logStore';
+import { RunListColumnsProvider } from '../runListColumns';
 const logStore = new LogStore([]);
 IgnoreManager.initialize(electronService.logger.scope('renderer/IgnoreManager'), () =>
   electronService.notifyFiltersUiUpdated()
@@ -76,7 +77,9 @@ function Root() {
         </Box>
       </div>
       <div className="Right-Column">
-        <Outlet />
+        <RunListColumnsProvider>
+          <Outlet />
+        </RunListColumnsProvider>
       </div>
       <div className="Log-Box__Overlay">
         <LogBox store={logStore} enableAutoscroll={enableAutoscroll} />

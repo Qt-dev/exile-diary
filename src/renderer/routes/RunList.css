@@ -44,10 +44,19 @@
 
 .Run-List__Header__DefaultStrategy {
   position: absolute;
-  right: 0;
-  top: 50%;
-  transform: translateY(-50%);
+  left: 0;
+  bottom: 0;
   width: 260px;
+}
+
+.Run-List__Header__ColumnAction {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+}
+
+.Run-List__Header__ColumnAction > .MuiButton-root {
+  min-height: 40px;
 }
 
 .Run-List__Header__DefaultStrategy .MuiAutocomplete-root {
