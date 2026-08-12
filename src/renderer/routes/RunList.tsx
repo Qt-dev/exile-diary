@@ -1,5 +1,4 @@
 import './RunList.css';
-import dayjs from 'dayjs';
 import React from 'react';
 import {
   TableContainer,
@@ -10,23 +9,28 @@ import {
   TableBody,
   Select,
   MenuItem,
-  Drawer,
   Pagination,
   FormControl,
 } from '@mui/material';
 import classNames from 'classnames';
-import ChaosIcon from '../components/Pricing/ChaosIcon';
 import { useNavigate } from 'react-router-dom';
 import { observer } from 'mobx-react-lite';
 import { electronService } from '../electron.service';
 import StrategySelector from '../components/Strategies/StrategySelector';
 import type { RunStrategy, Strategy } from '../../shared/strategies';
+import {
+  ColumnsButton,
+  RUN_LIST_COLUMNS,
+  RunListColumnsPopover,
+  useRunListColumns,
+} from '../runListColumns';
 
 const RunList = ({ NumbersOfMapsToShow = 10, store, isBoxed = true }) => {
   const navigate = useNavigate();
-  const [runsPerPage, setrunsPerPage] = React.useState<number>(NumbersOfMapsToShow);
-  const [isDrawerOpen, setIsDrawerOpen] = React.useState(false);
+  const { preferences, ready } = useRunListColumns();
+  const [runsPerPage, setRunsPerPage] = React.useState(NumbersOfMapsToShow);
   const [page, setPage] = React.useState(0);
+  const [columnsAnchor, setColumnsAnchor] = React.useState<HTMLElement | null>(null);
   const [strategies, setStrategies] = React.useState<Strategy[]>([]);
   const [defaultStrategies, setDefaultStrategies] = React.useState<RunStrategy[]>([]);
 
@@ -37,67 +41,29 @@ const RunList = ({ NumbersOfMapsToShow = 10, store, isBoxed = true }) => {
       .then((loaded) => setStrategies(loaded ?? []))
       .catch(() => undefined);
   }, []);
-
   React.useEffect(() => {
     void electronService
       .getSettings(['defaultStrategyIds'])
       .then((loaded) => {
         const ids: number[] = loaded?.defaultStrategyIds ?? [];
-        if (ids.length === 0) return;
-        const matches = strategies.filter((strategy) => ids.includes(strategy.id));
-        if (matches.length > 0) setDefaultStrategies(matches);
+        setDefaultStrategies(strategies.filter((strategy) => ids.includes(strategy.id)));
       })
       .catch(() => undefined);
   }, [strategies]);
-
   const handleDefaultStrategyChange = (next: Strategy[]) => {
     setDefaultStrategies(next);
     void electronService.saveSettings({ defaultStrategyIds: next.map((strategy) => strategy.id) });
   };
-
-  const togglePopupMenu = () => {
-    setIsDrawerOpen(!isDrawerOpen);
-  };
-
-  const handleMapFilterChange = (event) => {
-    setrunsPerPage(Number(event.target.value));
-    setPage(0);
-  };
-
-  const getXPClassName = (xp: number) => {
-    return classNames({
-      'Run-List__XP--Positive': xp > 0,
-      'Run-List__XP--Negative': xp <= 0,
-    });
-  };
-  const handleRunClick = (mapId) => {
-    navigate(`/run/${mapId}`);
-  };
-  const handleChangePage = (event: unknown, newPage: number) => {
-    setPage(newPage - 1);
-  };
-
-  const FilterMenu = () => {
-    return <div> This feature was disabled - Coming Soon </div>; // TODO: Add filter menu
-  };
-
-  const mainClasses = classNames({
-    Box: isBoxed,
-    'Run-List': true,
-  });
+  const getXPClassName = (xp: number) =>
+    classNames({ 'Run-List__XP--Positive': xp > 0, 'Run-List__XP--Negative': xp <= 0 });
+  const visibleColumns = preferences.order
+    .map((id) => RUN_LIST_COLUMNS.find((column) => column.id === id)!)
+    .filter((column) => !preferences.hidden.includes(column.id));
+  const mainClasses = classNames({ Box: isBoxed, 'Run-List': true });
 
   return (
     <div className={mainClasses}>
       <div className="Run-List__Header">
-        <div className="Page__Title Run-List__Header__Title">
-          Most Recent {store.runs.length} Runs
-        </div>
-        <div className="">
-          (Total Time: {store.getFullDuration().format('D [days] HH[h] mm[m] ss[s]')})
-        </div>
-        {/* <MenuIcon className="Run-List__Header__Burger" onClick={togglePopupMenu}>
-          ≡
-        </MenuIcon> */}
         <div className="Run-List__Header__DefaultStrategy">
           <StrategySelector
             options={strategies}
@@ -107,71 +73,30 @@ const RunList = ({ NumbersOfMapsToShow = 10, store, isBoxed = true }) => {
             placeholder="No strategy"
           />
         </div>
+        <div className="Page__Title Run-List__Header__Title">
+          Most Recent {store.runs.length} Runs
+        </div>
+        <div>(Total Time: {store.getFullDuration().format('D [days] HH[h] mm[m] ss[s]')})</div>
+        <div className="Run-List__Header__ColumnAction">
+          <ColumnsButton onOpen={(event) => setColumnsAnchor(event.currentTarget)} />
+        </div>
       </div>
-      <Drawer anchor="right" open={isDrawerOpen} onClose={togglePopupMenu}>
-        {FilterMenu()}
-      </Drawer>
+      {ready && (
+        <RunListColumnsPopover anchorEl={columnsAnchor} onClose={() => setColumnsAnchor(null)} />
+      )}
       <TableContainer className="Run-List__List">
         <Table size="small" align="center">
           <TableHead>
             <TableRow className="Run-List__List-Header">
-              <TableCell variant="head">Date</TableCell>
-              <TableCell variant="head">Map</TableCell>
-              <TableCell variant="head" align="center">
-                Level
-              </TableCell>
-              <TableCell variant="head" align="center">
-                IIQ
-              </TableCell>
-              <TableCell variant="head" align="center">
-                IIR
-              </TableCell>
-              <TableCell variant="head" align="center">
-                Pack Size
-              </TableCell>
-              <TableCell variant="head">Duration</TableCell>
-              <TableCell variant="head" align="center">
-                <span
-                  style={{
-                    display: 'flex',
-                    gap: '0.2em',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                  }}
-                >
-                  <ChaosIcon />
-                </span>
-              </TableCell>
-              <TableCell variant="head" align="center">
-                <span
-                  style={{
-                    display: 'flex',
-                    gap: '0.2em',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                  }}
-                >
-                  <ChaosIcon />/ Hr
-                </span>
-              </TableCell>
-              <TableCell variant="head" align="center">
-                XP/Hr
-              </TableCell>
-              <TableCell variant="head" align="center">
-                Deaths
-              </TableCell>
-              <TableCell variant="head" align="center">
-                Kills
-              </TableCell>
-              <TableCell variant="head">Strategies</TableCell>
+              {visibleColumns.map((column) => (
+                <TableCell key={column.id} variant="head" align={column.align}>
+                  {column.header}
+                </TableCell>
+              ))}
             </TableRow>
           </TableHead>
           <TableBody>
-            {store.getSortedRuns(runsPerPage, page).map((run, i) => {
-              if (i > runsPerPage) return null;
-              const deaths = [...Array(run.deaths || 0)].map((death, i) => (
-                <div key={`death-${i}`} className="Run__Death-Icon" />
-              ));
+            {store.getSortedRuns(runsPerPage, page).map((run) => {
               const classes = classNames({
                 'Run-list__Run': true,
                 'Run-list__Run--Incomplete': !run.completed,
@@ -179,42 +104,30 @@ const RunList = ({ NumbersOfMapsToShow = 10, store, isBoxed = true }) => {
               return (
                 <TableRow
                   key={run.id}
-                  onClick={() => handleRunClick(run.runId)}
+                  onClick={() => navigate(`/run/${run.runId}`)}
                   className={classes}
                   hover
                 >
-                  <TableCell>{run.firstEvent?.calendar()}</TableCell>
-                  <TableCell>{run.name}</TableCell>
-                  <TableCell align="center">
-                    {run.level}
-                    {run.tier !== null ? ` (T${run.tier})` : '-'}
-                  </TableCell>
-                  <TableCell align="center">{run.iiq ? `${run.iiq}%` : '-'}</TableCell>
-                  <TableCell align="center">{run.iir ? `${run.iir}%` : '-'}</TableCell>
-                  <TableCell align="center">{run.packSize ? `${run.packSize}%` : '-'}</TableCell>
-                  <TableCell>{dayjs.utc(run.duration?.asMilliseconds()).format('mm:ss')}</TableCell>
-                  <TableCell align="center">{run.gained?.toFixed(2)}</TableCell>
-                  <TableCell align="center">{run.gainedPerHour?.toFixed(2)}</TableCell>
-                  <TableCell align="center" className={getXPClassName(run.xpPerHour)}>
-                    {run.completed ? run.xpPerHour.toLocaleString('en') : '-- Ongoing --'}
-                  </TableCell>
-                  <TableCell align="center">{deaths.length > 0 ? deaths : '-'}</TableCell>
-                  <TableCell align="center">
-                    {run.kills && run.kills > -1 ? run.kills : '-'}
-                  </TableCell>
-                  <TableCell onClick={(event) => event.stopPropagation()}>
-                    <StrategySelector
-                      compact
-                      options={strategies}
-                      value={run.strategies}
-                      onChange={(next) =>
-                        store.setRunStrategies(
-                          run,
-                          next.map((strategy) => strategy.id)
-                        )
+                  {visibleColumns.map((column) => (
+                    <TableCell
+                      key={column.id}
+                      align={column.align}
+                      className={
+                        column.id === 'xpPerHour' ? getXPClassName(run.xpPerHour) : undefined
                       }
-                    />
-                  </TableCell>
+                    >
+                      {column.cell(
+                        run,
+                        strategies,
+                        (next) =>
+                          store.setRunStrategies(
+                            run,
+                            next.map((strategy) => strategy.id)
+                          ),
+                        getXPClassName
+                      )}
+                    </TableCell>
+                  ))}
                 </TableRow>
               );
             })}
@@ -228,32 +141,24 @@ const RunList = ({ NumbersOfMapsToShow = 10, store, isBoxed = true }) => {
             <Select
               id="Run-Filter-Selector"
               className="Run-Filter-Selector"
-              onChange={handleMapFilterChange}
+              onChange={(event) => {
+                setRunsPerPage(Number(event.target.value));
+                setPage(0);
+              }}
               value={runsPerPage}
             >
-              <MenuItem className="Map_Filter-Selector__Item" value={5}>
-                5
-              </MenuItem>
-              <MenuItem className="Map_Filter-Selector__Item" value={10}>
-                10
-              </MenuItem>
-              <MenuItem className="Map_Filter-Selector__Item" value={25}>
-                25
-              </MenuItem>
-              <MenuItem className="Map_Filter-Selector__Item" value={50}>
-                50
-              </MenuItem>
-              <MenuItem className="Map_Filter-Selector__Item" value={100}>
-                100
-              </MenuItem>
+              {[5, 10, 25, 50, 100].map((value) => (
+                <MenuItem key={value} value={value}>
+                  {value}
+                </MenuItem>
+              ))}
             </Select>
           </FormControl>
         </div>
-        {/* <Divider orientation="vertical" flexItem /> */}
         <Pagination
           count={store.getPageCount(runsPerPage)}
           page={page + 1}
-          onChange={handleChangePage}
+          onChange={(_, newPage) => setPage(newPage - 1)}
           color="secondary"
           size="large"
           variant="outlined"
@@ -261,17 +166,12 @@ const RunList = ({ NumbersOfMapsToShow = 10, store, isBoxed = true }) => {
           showFirstButton
         />
       </div>
-
       <div className="Text--Bottom">
         This product is <span className="Text--Error">NOT</span> affiliated with or endorsed by{' '}
         <span className="Text--Legendary">Grinding Gear Games</span> in any way.
       </div>
     </div>
   );
-};
-
-RunList.propTypes = {
-  // version: PropTypes.string.isRequired,
 };
 
 export default observer(RunList);
