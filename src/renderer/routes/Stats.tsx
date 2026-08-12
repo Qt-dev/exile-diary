@@ -13,6 +13,7 @@ import ItemStore from '../stores/itemStore';
 import { toCanvas } from 'html-to-image';
 import { electronService } from '../electron.service';
 import dayjs from 'dayjs';
+import { getFullCaptureDimensions } from '../utils/captureDimensions';
 const { logger } = electronService;
 
 function a11yProps(index: number) {
@@ -82,25 +83,39 @@ const Stats = () => {
   }, [stats]);
 
   const screenshot = useCallback(async () => {
-    if (screenShotRef.current === null) {
+    if (screenShotRef.current === null || isTakingScreenshot) {
       return;
     }
 
     setIsTakingScreenshot(true);
-    toCanvas(screenShotRef.current, { cacheBust: true })
-      .then((canvas) => {
-        const now = dayjs().format('YYYY-MM-DD_HH-mm-ss');
-        const link = document.createElement('a');
-        link.download = `${characterName}_${now}.jpg`;
-        link.href = canvas.toDataURL('image/jpeg');
-        link.click();
-        setIsTakingScreenshot(false);
-      })
-      .catch((error) => {
-        setIsTakingScreenshot(false);
-        logger.error(error);
+    try {
+      await new Promise<void>((resolve) => requestAnimationFrame(() => resolve()));
+
+      const captureTarget = screenShotRef.current;
+      if (captureTarget === null) return;
+
+      const { width: captureWidth, height: captureHeight } = getFullCaptureDimensions(captureTarget);
+      const canvas = await toCanvas(captureTarget, {
+        cacheBust: true,
+        width: captureWidth,
+        height: captureHeight,
+        canvasWidth: captureWidth,
+        canvasHeight: captureHeight,
+        style: {
+          overflow: 'visible',
+        },
       });
-  }, [screenShotRef]); // eslint-disable-line react-hooks/exhaustive-deps
+      const now = dayjs().format('YYYY-MM-DD_HH-mm-ss');
+      const link = document.createElement('a');
+      link.download = `${characterName}_${now}.jpg`;
+      link.href = canvas.toDataURL('image/jpeg');
+      link.click();
+    } catch (error) {
+      logger.error(error);
+    } finally {
+      setIsTakingScreenshot(false);
+    }
+  }, [characterName, isTakingScreenshot]);
 
   const screenshotIcon = (
     <div

@@ -23,4 +23,14 @@ describe('Stats page source contracts', () => {
 
     expect(source).not.toContain('keepMounted');
   });
+
+  it('waits for screenshot content and captures the full Stats scroll height', () => {
+    const source = readSource('src', 'renderer', 'routes', 'Stats.tsx');
+
+    expect(source).toContain('await new Promise<void>((resolve) => requestAnimationFrame');
+    expect(source).toContain('getFullCaptureDimensions(captureTarget)');
+    expect(source).toContain('height: captureHeight');
+    expect(source).toContain('canvasHeight: captureHeight');
+    expect(source).toContain("overflow: 'visible'");
+  });
 });
