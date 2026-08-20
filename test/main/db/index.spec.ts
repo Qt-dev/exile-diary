@@ -84,6 +84,17 @@ function getFirstDbInstance() {
   return first?.value;
 }
 
+function createDeferred<T>() {
+  let resolve!: (value: T | PromiseLike<T>) => void;
+  let reject!: (reason?: unknown) => void;
+  const promise = new Promise<T>((res, rej) => {
+    resolve = res;
+    reject = rej;
+  });
+
+  return { promise, resolve, reject };
+}
+
 describe('db/index', () => {
   beforeEach(() => {
     jest.resetModules();
@@ -380,25 +391,57 @@ describe('db/index', () => {
     expect(preparedSql).not.toContain('insert or ignore into characters values (?)');
   });
 
-  it('initLeagueDB always re-applies league schema guards for partially initialized dbs', async () => {
+  it('caches successful league schema initialization across sequential calls', async () => {
     const DB = loadDbModule();
     const leagueManager = DB.getManager('Mercenaries');
-    leagueManager.db.pragma.mockReturnValue(1);
+    const initSpy = jest.spyOn(leagueManager, 'init').mockResolvedValue(null);
+    const validateSpy = jest.spyOn(leagueManager, 'validateTables').mockResolvedValue(undefined);
 
-    await DB.initLeagueDB('Mercenaries', 'GivenChar');
+    await DB.initLeagueDB('Mercenaries', '');
+    await DB.initLeagueDB('Mercenaries', '');
 
-    const preparedSql = leagueManager.db.prepare.mock.calls.map((call: [string]) => call[0]);
-    expect(
-      preparedSql.filter((sql: string) => sql.includes('create table if not exists characters'))
-        .length
-    ).toBeGreaterThan(0);
-    expect(
-      preparedSql.filter((sql: string) => sql.includes('create table if not exists fullrates'))
-        .length
-    ).toBeGreaterThan(0);
-    expect(
-      preparedSql.filter((sql: string) => sql.includes('create table if not exists stashes')).length
-    ).toBeGreaterThan(0);
+    expect(initSpy).toHaveBeenCalledTimes(1);
+    expect(validateSpy).toHaveBeenCalledTimes(1);
+
+    const insertStatements = leagueManager.db.prepare.mock.calls.filter(
+      (call: [string]) => call[0] === 'insert or ignore into characters values (?)'
+    );
+    expect(insertStatements).toHaveLength(2);
+  });
+
+  it('shares concurrent league schema initialization callers', async () => {
+    const DB = loadDbModule();
+    const leagueManager = DB.getManager('Mercenaries');
+    const deferredInit = createDeferred<null>();
+    const initSpy = jest.spyOn(leagueManager, 'init').mockReturnValue(deferredInit.promise);
+    const validateSpy = jest.spyOn(leagueManager, 'validateTables').mockResolvedValue(undefined);
+
+    const firstInit = DB.initLeagueDB('Mercenaries', 'GivenChar');
+    const secondInit = DB.initLeagueDB('Mercenaries', 'GivenChar');
+
+    expect(initSpy).toHaveBeenCalledTimes(1);
+
+    deferredInit.resolve(null);
+    await Promise.all([firstInit, secondInit]);
+
+    expect(validateSpy).toHaveBeenCalledTimes(1);
+  });
+
+  it('clears cached league initialization after a failed validation and retries', async () => {
+    const DB = loadDbModule();
+    const leagueManager = DB.getManager('Mercenaries');
+    const schemaError = new Error('schema invalid');
+    const initSpy = jest.spyOn(leagueManager, 'init').mockResolvedValue(null);
+    const validateSpy = jest
+      .spyOn(leagueManager, 'validateTables')
+      .mockRejectedValueOnce(schemaError)
+      .mockResolvedValueOnce(undefined);
+
+    await expect(DB.initLeagueDB('Mercenaries', 'GivenChar')).rejects.toThrow('schema invalid');
+    await expect(DB.initLeagueDB('Mercenaries', 'GivenChar')).resolves.toBeUndefined();
+
+    expect(initSpy).toHaveBeenCalledTimes(2);
+    expect(validateSpy).toHaveBeenCalledTimes(2);
   });
 
   it('loads sqlite regex extension when creating a manager', () => {
