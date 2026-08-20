@@ -374,7 +374,8 @@ const LogProcessor = {
                 persistedEventId,
                 dayjs().toISOString(),
                 currentInventory
-              )
+              ),
+            true
           );
         }
       } catch (e) {

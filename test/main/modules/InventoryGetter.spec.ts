@@ -35,13 +35,10 @@ describe('InventoryGetter capture contract', () => {
   });
 
   it('updates the inventory baseline only after the diff persists', async () => {
-    const previousInventory = {
-      existing: { id: 'existing', name: 'Chaos Orb', typeLine: 'Chaos Orb', stackSize: 1 },
-    };
     const currentInventory = {
-      existing: { id: 'existing', name: 'Chaos Orb', typeLine: 'Chaos Orb', stackSize: 2 },
+      item: { id: 'item', name: 'Chaos Orb', typeLine: 'Chaos Orb', stackSize: 1 },
     };
-    jest.spyOn(InventoryGetter, 'getPreviousInventory').mockResolvedValue(previousInventory);
+    jest.spyOn(InventoryGetter, 'getPreviousInventory').mockResolvedValue({});
     jest.spyOn(InventoryGetter, 'getCurrentInventory').mockResolvedValue(currentInventory);
     const updateLastInventory = jest
       .spyOn(InventoryGetter, 'updateLastInventory')
@@ -52,14 +49,7 @@ describe('InventoryGetter capture contract', () => {
       InventoryGetter.captureInventoryDiff('2026-07-22T10:00:00.000Z', persistDiff)
     ).rejects.toThrow('item insert failed');
 
-    expect(persistDiff).toHaveBeenCalledWith({
-      existing: {
-        id: 'existing',
-        name: 'Chaos Orb',
-        typeLine: 'Chaos Orb',
-        stackSize: 1,
-      },
-    });
+    expect(persistDiff).toHaveBeenCalledWith(currentInventory);
     expect(updateLastInventory).not.toHaveBeenCalled();
   });
 
@@ -124,6 +114,20 @@ describe('InventoryGetter capture contract', () => {
 
     expect(getInventoryCapture).toHaveBeenCalledTimes(2);
     expect(secondPersist).toHaveBeenCalledTimes(1);
+  });
+
+  it('passes through the fresh-capture requirement without breaking serialization', async () => {
+    const getInventoryCapture = jest
+      .spyOn(InventoryGetter, 'getInventoryCapture')
+      .mockResolvedValue({ diff: {}, currentInventory: {} });
+
+    await InventoryGetter.captureAndPersistInventory(
+      '2026-07-22T10:00:00.000Z',
+      async () => undefined,
+      true
+    );
+
+    expect(getInventoryCapture).toHaveBeenCalledWith('2026-07-22T10:00:00.000Z', true);
   });
 
   it('detects new items and normalizes legacy stack quantities', () => {
