@@ -711,6 +711,7 @@ class DBManager {
   isBusy: boolean = true;
   eventEmitter: EventEmitter = new EventEmitter();
   hasRegexExtension: boolean = false;
+  leagueSchemaInitPromise: Promise<void> | null = null;
 
   constructor({ dbPath }: { dbPath: string }) {
     logger.info('Starting DB:', dbPath);
@@ -931,6 +932,23 @@ class DBManager {
     );
     return null;
   };
+
+  ensureLeagueSchemaInitialized(sqlList: string[][], maintSqlList: string[] = []) {
+    if (this.leagueSchemaInitPromise) {
+      return this.leagueSchemaInitPromise;
+    }
+
+    this.leagueSchemaInitPromise = (async () => {
+      await this.init(sqlList, maintSqlList);
+      await this.validateTables(RequiredLeagueTables);
+    })();
+
+    this.leagueSchemaInitPromise.catch(() => {
+      this.leagueSchemaInitPromise = null;
+    });
+
+    return this.leagueSchemaInitPromise;
+  }
 }
 
 // Map of all the DB Managers that have been instantiated, by path
@@ -1105,12 +1123,11 @@ const DB = {
     if (!manager) return null;
 
     const { init, maintenance } = Migrations.league;
-    await manager.init(init, maintenance);
-    await manager.validateTables(RequiredLeagueTables);
+    await manager.ensureLeagueSchemaInitialized(init, maintenance);
 
     const activeProfile = SettingsManager.get('activeProfile');
 
-    if (!characterName && activeProfile.characterName) {
+    if (!characterName && activeProfile?.characterName) {
       await manager.runTask(() =>
         manager.db
           .prepare('insert or ignore into characters values (?)')

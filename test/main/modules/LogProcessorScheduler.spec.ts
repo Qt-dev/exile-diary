@@ -350,5 +350,10 @@ describe('LogProcessorScheduler', () => {
       expect.any(String),
       {}
     );
+    expect(mockCaptureAndPersistInventory).toHaveBeenCalledWith(
+      '2026-07-23T11:04:10.000Z',
+      expect.any(Function),
+      true
+    );
   });
 });
