@@ -243,7 +243,7 @@
     "cpy-cli": "^5.0.0",
     "cross-env": "^7.0.3",
     "dotenv": "^17.4.2",
-    "dotenv-expand": "^12.0.3",
+    "dotenv-expand": "^1000.0.0",
     "electron": "^41.10.3",
     "electron-builder": "^26.15.3",
     "electron-vite": "^3.1.0",
