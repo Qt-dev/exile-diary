@@ -28,6 +28,6 @@
     "pathofexile-dat": "^15.2.0"
   },
   "devDependencies": {
-    "prettier": "^3.9.6"
+    "prettier": "^3.9.10"
   }
 }
