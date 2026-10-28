@@ -25,7 +25,7 @@
   "license": "MIT",
   "dependencies": {
     "case": "^1.6.3",
-    "pathofexile-dat": "^15.2.0"
+    "pathofexile-dat": "^16.0.1"
   },
   "devDependencies": {
     "prettier": "^3.9.6"
